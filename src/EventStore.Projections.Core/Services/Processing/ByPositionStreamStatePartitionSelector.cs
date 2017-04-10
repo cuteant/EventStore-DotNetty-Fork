@@ -1,4 +1,4 @@
-using EventStore.Core.Services;
+﻿using EventStore.Core.Services;
 using EventStore.Projections.Core.Messages;
 using Newtonsoft.Json.Linq;
 

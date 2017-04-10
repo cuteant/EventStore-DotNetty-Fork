@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using EventStore.Core.Cluster;
 using EventStore.Core.Messages;

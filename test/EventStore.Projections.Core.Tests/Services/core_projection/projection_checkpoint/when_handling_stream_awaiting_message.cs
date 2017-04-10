@@ -1,4 +1,4 @@
-using EventStore.Core.Tests.Services.Replication;
+﻿using EventStore.Core.Tests.Services.Replication;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;

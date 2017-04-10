@@ -1,4 +1,4 @@
-namespace EventStore.Core.Services.PersistentSubscription
+﻿namespace EventStore.Core.Services.PersistentSubscription
 {
     public enum NakAction
     {

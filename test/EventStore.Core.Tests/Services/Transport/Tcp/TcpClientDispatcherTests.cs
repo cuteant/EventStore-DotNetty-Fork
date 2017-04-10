@@ -1,4 +1,4 @@
-using EventStore.Core.Bus;
+﻿using EventStore.Core.Bus;
 using EventStore.Core.Services.Transport.Tcp;
 using NUnit.Framework;
 using System;

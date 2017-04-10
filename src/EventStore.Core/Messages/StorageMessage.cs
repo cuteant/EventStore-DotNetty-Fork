@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Security.Principal;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;

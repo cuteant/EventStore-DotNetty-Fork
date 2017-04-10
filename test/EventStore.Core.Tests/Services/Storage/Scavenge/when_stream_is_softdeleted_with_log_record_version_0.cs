@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using EventStore.Core.Data;
 using EventStore.Core.Tests.TransactionLog.Scavenging.Helpers;
 using EventStore.Core.TransactionLog.LogRecords;

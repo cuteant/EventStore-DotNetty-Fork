@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Standard
+﻿namespace EventStore.Projections.Core.Standard
 {
     public class StreamCategoryExtractorByFirstSeparator : StreamCategoryExtractor
     {

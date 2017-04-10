@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI.SystemData
+﻿namespace EventStore.ClientAPI.SystemData
 {
     internal enum InspectionDecision
     {

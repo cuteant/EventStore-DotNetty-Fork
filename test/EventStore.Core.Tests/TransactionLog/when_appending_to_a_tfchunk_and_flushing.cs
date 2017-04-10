@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;

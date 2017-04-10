@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace EventStore.Core.Tests.Services.Storage.DeletingStream
 {

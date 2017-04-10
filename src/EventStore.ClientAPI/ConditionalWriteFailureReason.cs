@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// The reason why a conditional write fails

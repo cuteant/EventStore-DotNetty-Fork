@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Constants used for expected version control

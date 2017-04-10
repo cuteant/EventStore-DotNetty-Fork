@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;
 

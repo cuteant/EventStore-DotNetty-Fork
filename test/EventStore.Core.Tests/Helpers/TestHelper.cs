@@ -1,4 +1,4 @@
-namespace EventStore.Core.Tests.Helpers
+﻿namespace EventStore.Core.Tests.Helpers
 {
     public static class TestHelper
     {

@@ -1,4 +1,4 @@
-using EventStore.Core.Cluster.Settings;
+﻿using EventStore.Core.Cluster.Settings;
 using EventStore.Core.TransactionLog.Chunks;
 
 namespace EventStore.Core.Tests.Common.VNodeBuilderTests

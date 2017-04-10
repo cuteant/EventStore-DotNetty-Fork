@@ -1,4 +1,4 @@
-namespace EventStore.Core.Tests.Services.GossipService
+﻿namespace EventStore.Core.Tests.Services.GossipService
 {
     class gossip_service_should
     {

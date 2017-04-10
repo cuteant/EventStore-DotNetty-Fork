@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Services
+﻿namespace EventStore.Projections.Core.Services
 {
     public enum ReadWrite
     {

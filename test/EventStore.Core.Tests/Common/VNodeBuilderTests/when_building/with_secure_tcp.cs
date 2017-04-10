@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;

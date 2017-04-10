@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Messages.Persisted.Commands
+﻿namespace EventStore.Projections.Core.Messages.Persisted.Commands
 {
     public sealed class SlaveProjectionsStartedResponse
     {

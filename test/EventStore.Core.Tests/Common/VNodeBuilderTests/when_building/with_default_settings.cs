@@ -1,4 +1,4 @@
-using EventStore.Core.Authentication;
+﻿using EventStore.Core.Authentication;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Services.Monitoring;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Security.Principal;
 
 namespace EventStore.Projections.Core.Services

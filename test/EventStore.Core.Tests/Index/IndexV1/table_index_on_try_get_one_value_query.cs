@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;
 using EventStore.Core.TransactionLog;

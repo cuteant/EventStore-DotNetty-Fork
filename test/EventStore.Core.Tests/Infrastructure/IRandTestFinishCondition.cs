@@ -1,4 +1,4 @@
-namespace EventStore.Core.Tests.Infrastructure
+﻿namespace EventStore.Core.Tests.Infrastructure
 {
     public interface IRandTestFinishCondition
     {

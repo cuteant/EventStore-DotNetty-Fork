@@ -1,4 +1,4 @@
-using EventStore.Core.TransactionLog.LogRecords;
+﻿using EventStore.Core.TransactionLog.LogRecords;
 
 namespace EventStore.Core.TransactionLog
 {

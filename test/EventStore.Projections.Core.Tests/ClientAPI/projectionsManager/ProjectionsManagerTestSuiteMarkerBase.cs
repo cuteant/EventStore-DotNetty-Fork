@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 using EventStore.ClientAPI;
 using EventStore.Common.Options;

@@ -1,4 +1,4 @@
-namespace EventStore.Rags
+﻿namespace EventStore.Rags
 {
     /// <summary>
     /// An enum to represent argument shortcut policies

@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Messages.Persisted.Responses
+﻿namespace EventStore.Projections.Core.Messages.Persisted.Responses
 {
     public class GetStateCommand
     {

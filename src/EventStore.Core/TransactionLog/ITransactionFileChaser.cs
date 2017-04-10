@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
 

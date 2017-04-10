@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Services.Management.ManagedProjectionStates
+﻿namespace EventStore.Projections.Core.Services.Management.ManagedProjectionStates
 {
     class CompletedState : ManagedProjectionStateBase
     {

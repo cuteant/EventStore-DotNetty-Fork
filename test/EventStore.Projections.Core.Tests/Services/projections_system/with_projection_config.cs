@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Tests.Services.projections_system
+﻿namespace EventStore.Projections.Core.Tests.Services.projections_system
 {
     public abstract class with_projection_config : with_projections_subsystem
     {

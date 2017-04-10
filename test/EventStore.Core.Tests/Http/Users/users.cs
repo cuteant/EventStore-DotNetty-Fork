@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using EventStore.Core.Services;
 using EventStore.Core.Services.Transport.Http.Controllers;
 using EventStore.Core.Tests.Helpers;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Projections.Core.Services.v8;
 using System.Linq;
 

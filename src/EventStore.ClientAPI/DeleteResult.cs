@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Result type returned after deleting a stream.

@@ -1,3 +1,3 @@
-namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
+﻿namespace EventStore.Core.Tests.Services.ElectionsService.Randomized
 {
 }

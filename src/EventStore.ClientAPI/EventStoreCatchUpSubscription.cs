@@ -1,4 +1,4 @@
-using EventStore.ClientAPI.Common.Utils;
+﻿using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using System;

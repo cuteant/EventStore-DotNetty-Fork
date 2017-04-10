@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.UserManagement;

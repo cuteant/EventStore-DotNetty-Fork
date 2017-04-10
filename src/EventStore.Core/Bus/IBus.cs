@@ -1,4 +1,4 @@
-namespace EventStore.Core.Bus
+﻿namespace EventStore.Core.Bus
 {
     public interface IBus: IPublisher, ISubscriber
     {

@@ -1,4 +1,4 @@
-using EventStore.Core.Services.Monitoring.Stats;
+﻿using EventStore.Core.Services.Monitoring.Stats;
 
 namespace EventStore.Core.Bus
 {

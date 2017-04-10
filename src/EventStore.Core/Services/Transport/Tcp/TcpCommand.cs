@@ -1,4 +1,4 @@
-namespace EventStore.Core.Services.Transport.Tcp
+﻿namespace EventStore.Core.Services.Transport.Tcp
 {
     public enum TcpCommand: byte
     {

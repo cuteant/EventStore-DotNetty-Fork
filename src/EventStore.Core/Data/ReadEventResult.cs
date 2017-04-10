@@ -1,4 +1,4 @@
-namespace EventStore.Core.Data
+﻿namespace EventStore.Core.Data
 {
     public enum ReadEventResult
     {

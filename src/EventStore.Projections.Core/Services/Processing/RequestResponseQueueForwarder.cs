@@ -1,4 +1,4 @@
-using EventStore.Core.Bus;
+﻿using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Messaging;
 

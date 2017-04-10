@@ -1,4 +1,4 @@
-using EventStore.ClientAPI;
+﻿using EventStore.ClientAPI;
 using NUnit.Framework;
 using EventStore.Core.Tests.Helpers;
 using System;

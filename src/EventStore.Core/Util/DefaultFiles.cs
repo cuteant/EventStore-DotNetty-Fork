@@ -1,4 +1,4 @@
-using EventStore.Common.Utils;
+﻿using EventStore.Common.Utils;
 
 namespace EventStore.Core.Util
 {

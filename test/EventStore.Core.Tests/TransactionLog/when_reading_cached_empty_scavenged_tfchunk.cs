@@ -1,4 +1,4 @@
-using EventStore.Core.TransactionLog.Chunks.TFChunk;
+﻿using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.TransactionLog

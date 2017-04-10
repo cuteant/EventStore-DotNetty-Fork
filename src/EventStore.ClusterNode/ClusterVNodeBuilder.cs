@@ -1,4 +1,4 @@
-using EventStore.Core;
+﻿using EventStore.Core;
 using EventStore.Projections.Core;
 
 namespace EventStore.ClusterNode

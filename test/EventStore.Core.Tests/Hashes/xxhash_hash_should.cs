@@ -1,4 +1,4 @@
-using EventStore.Core.Index.Hashes;
+﻿using EventStore.Core.Index.Hashes;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.Hashes

@@ -1,4 +1,4 @@
-namespace EventStore.Core.Messaging
+﻿namespace EventStore.Core.Messaging
 {
     public interface IEnvelope
     {

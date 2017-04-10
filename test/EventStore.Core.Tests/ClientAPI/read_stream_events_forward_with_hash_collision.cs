@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.ClientAPI;
 using EventStore.Core.Tests;
 using EventStore.Core.Tests.ClientAPI.Helpers;

@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI.Internal
+﻿namespace EventStore.ClientAPI.Internal
 {
     /// <summary>
     /// Enumeration representing the status of a single subscription create message.

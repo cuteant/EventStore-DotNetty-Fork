@@ -1,4 +1,4 @@
-//  This file is part of YamlDotNet - A .NET library for YAML.
+﻿//  This file is part of YamlDotNet - A .NET library for YAML.
 //  Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Antoine Aubry
 
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ using EventStore.Rags.YamlDotNet.Serialization.ValueDeserializers;
 namespace EventStore.Rags.YamlDotNet.Serialization
 {
 	/// <summary>
-	/// A fa�ade for the YAML library with the standard configuration.
+	/// A façade for the YAML library with the standard configuration.
 	/// </summary>
 	public sealed class Deserializer
 	{

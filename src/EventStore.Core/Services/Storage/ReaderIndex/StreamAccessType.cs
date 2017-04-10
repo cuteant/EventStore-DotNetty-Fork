@@ -1,4 +1,4 @@
-namespace EventStore.Core.Services.Storage.ReaderIndex
+﻿namespace EventStore.Core.Services.Storage.ReaderIndex
 {
     public enum StreamAccessType
     {

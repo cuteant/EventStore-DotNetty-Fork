@@ -1,4 +1,4 @@
-using EventStore.Core.Data;
+﻿using EventStore.Core.Data;
 using EventStore.Core.Services;
 using EventStore.Projections.Core.Utils;
 using ResolvedEvent = EventStore.Projections.Core.Services.Processing.ResolvedEvent;

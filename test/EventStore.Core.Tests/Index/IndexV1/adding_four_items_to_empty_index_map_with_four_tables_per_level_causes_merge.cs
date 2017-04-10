@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
 using NUnit.Framework;

@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.Services.Processing;
+﻿using EventStore.Projections.Core.Services.Processing;
 using Newtonsoft.Json;
 
 namespace EventStore.Projections.Core.Messages.Persisted.Responses

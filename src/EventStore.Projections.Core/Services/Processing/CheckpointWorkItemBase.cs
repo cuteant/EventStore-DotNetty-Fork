@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Services.Processing
+﻿namespace EventStore.Projections.Core.Services.Processing
 {
     public class CheckpointWorkItemBase : WorkItem
     {

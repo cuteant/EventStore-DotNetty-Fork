@@ -1,4 +1,4 @@
-namespace EventStore.TestClient.Commands.DvuBasic
+﻿namespace EventStore.TestClient.Commands.DvuBasic
 {
     public static class BankAccountEventFactory
     {

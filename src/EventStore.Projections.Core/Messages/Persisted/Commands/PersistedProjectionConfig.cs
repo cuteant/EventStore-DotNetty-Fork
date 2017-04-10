@@ -1,4 +1,4 @@
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using EventStore.Core.Authentication;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Services;

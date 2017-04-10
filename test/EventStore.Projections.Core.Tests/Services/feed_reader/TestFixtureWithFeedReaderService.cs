@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.EventReaders.Feeds;
+﻿using EventStore.Projections.Core.EventReaders.Feeds;
 using EventStore.Projections.Core.Tests.Services.event_reader;
 
 namespace EventStore.Projections.Core.Tests.Services.feed_reader

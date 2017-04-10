@@ -1,4 +1,4 @@
-namespace EventStore.Core.TransactionLog.Chunks.TFChunk
+﻿namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 {
     public struct BulkReadResult
     {

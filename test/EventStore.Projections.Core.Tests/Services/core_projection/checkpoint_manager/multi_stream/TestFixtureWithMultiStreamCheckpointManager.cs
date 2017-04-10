@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.Services.Processing;
+﻿using EventStore.Projections.Core.Services.Processing;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_manager.multi_stream
 {

@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;

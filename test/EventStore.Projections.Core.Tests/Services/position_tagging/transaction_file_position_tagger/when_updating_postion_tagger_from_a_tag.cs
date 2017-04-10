@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.Services.Processing;
+﻿using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;
 
 namespace EventStore.Projections.Core.Tests.Services.position_tagging.transaction_file_position_tagger

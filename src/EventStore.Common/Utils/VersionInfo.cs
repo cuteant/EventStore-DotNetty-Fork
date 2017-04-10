@@ -1,4 +1,4 @@
-namespace EventStore.Common.Utils
+﻿namespace EventStore.Common.Utils
 {
     /// <summary>
     /// These are patched by the build process! Do not edit them

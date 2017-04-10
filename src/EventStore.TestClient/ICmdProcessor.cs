@@ -1,4 +1,4 @@
-namespace EventStore.TestClient
+﻿namespace EventStore.TestClient
 {
     /// <summary>
     /// Standalone command executable within the test client

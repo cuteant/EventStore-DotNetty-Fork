@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Enumeration detailing the possible outcomes of reading a 

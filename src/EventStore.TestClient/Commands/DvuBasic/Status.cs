@@ -1,4 +1,4 @@
-using EventStore.Common.Log;
+﻿using EventStore.Common.Log;
 using EventStore.Common.Utils;
 
 namespace EventStore.TestClient.Commands.DvuBasic

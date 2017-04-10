@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Projections.Core.Services.Processing;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.query_by_stream

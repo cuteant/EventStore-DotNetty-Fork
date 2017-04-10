@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Messages
+﻿namespace EventStore.Projections.Core.Messages
 {
     public interface IQuerySources
     {

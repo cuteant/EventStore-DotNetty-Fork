@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;

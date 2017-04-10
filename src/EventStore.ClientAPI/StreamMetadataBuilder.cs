@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using EventStore.ClientAPI.Common.Utils;
 using Newtonsoft.Json.Linq;

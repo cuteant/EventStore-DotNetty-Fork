@@ -1,4 +1,4 @@
-using EventStore.Core.Data;
+﻿using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
 {

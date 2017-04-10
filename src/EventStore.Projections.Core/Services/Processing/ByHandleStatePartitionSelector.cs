@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using EventStore.Projections.Core.Messages;
 
 namespace EventStore.Projections.Core.Services.Processing

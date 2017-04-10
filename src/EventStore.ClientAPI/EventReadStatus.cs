@@ -1,4 +1,4 @@
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Enumeration representing the status of a single event read operation.

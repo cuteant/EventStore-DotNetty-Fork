@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.BufferManagement;
 
 namespace EventStore.Transport.Tcp.Formatting

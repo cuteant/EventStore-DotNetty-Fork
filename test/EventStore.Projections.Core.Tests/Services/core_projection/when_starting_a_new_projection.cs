@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Projections.Core.Messages;
 using NUnit.Framework;
 using System.Linq;

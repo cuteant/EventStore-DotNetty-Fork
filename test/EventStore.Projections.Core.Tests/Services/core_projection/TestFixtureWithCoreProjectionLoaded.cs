@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Tests.Services.core_projection
+﻿namespace EventStore.Projections.Core.Tests.Services.core_projection
 {
     public abstract class TestFixtureWithCoreProjectionLoaded : TestFixtureWithCoreProjection
     {

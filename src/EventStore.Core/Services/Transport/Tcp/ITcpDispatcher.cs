@@ -1,4 +1,4 @@
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Services.Transport.Tcp

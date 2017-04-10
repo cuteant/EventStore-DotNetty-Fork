@@ -1,4 +1,4 @@
-namespace EventStore.Core.Index.Hashes
+﻿namespace EventStore.Core.Index.Hashes
 {
     public interface IHasher
     {

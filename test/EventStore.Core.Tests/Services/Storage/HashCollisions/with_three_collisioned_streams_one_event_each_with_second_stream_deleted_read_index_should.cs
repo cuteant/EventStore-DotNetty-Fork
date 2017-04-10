@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using EventStore.Core.Data;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using NUnit.Framework;

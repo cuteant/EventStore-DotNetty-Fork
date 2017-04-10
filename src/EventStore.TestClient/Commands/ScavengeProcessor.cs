@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Sockets;
 using EventStore.Core.Services.Transport.Tcp;
 

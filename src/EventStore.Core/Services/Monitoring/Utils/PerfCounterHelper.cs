@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using EventStore.Common.Log;
 using EventStore.Core.Services.Monitoring.Stats;

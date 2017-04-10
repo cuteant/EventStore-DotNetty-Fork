@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;

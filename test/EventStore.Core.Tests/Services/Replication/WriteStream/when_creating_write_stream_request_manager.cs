@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.Services.RequestManager.Managers;
 using EventStore.Core.Tests.Fakes;
 using NUnit.Framework;

@@ -1,4 +1,4 @@
-using EventStore.Core.Exceptions;
+﻿using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using NUnit.Framework;
 

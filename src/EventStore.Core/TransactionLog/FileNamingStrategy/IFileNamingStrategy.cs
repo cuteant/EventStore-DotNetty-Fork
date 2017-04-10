@@ -1,4 +1,4 @@
-namespace EventStore.Core.TransactionLog.FileNamingStrategy
+﻿namespace EventStore.Core.TransactionLog.FileNamingStrategy
 {
     public interface IFileNamingStrategy
     {

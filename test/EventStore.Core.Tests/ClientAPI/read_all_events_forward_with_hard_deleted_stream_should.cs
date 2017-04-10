@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Data;

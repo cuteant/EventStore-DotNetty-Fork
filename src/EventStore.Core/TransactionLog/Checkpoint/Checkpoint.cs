@@ -1,4 +1,4 @@
-namespace EventStore.Core.TransactionLog.Checkpoint
+﻿namespace EventStore.Core.TransactionLog.Checkpoint
 {
     public static class Checkpoint
     {

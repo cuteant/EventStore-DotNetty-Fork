@@ -1,4 +1,4 @@
-using System.Security.Principal;
+﻿using System.Security.Principal;
 using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.Storage.ReaderIndex

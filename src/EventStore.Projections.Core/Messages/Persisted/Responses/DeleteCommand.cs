@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.Services.Management;
+﻿using EventStore.Projections.Core.Services.Management;
 
 namespace EventStore.Projections.Core.Messages.Persisted.Responses
 {

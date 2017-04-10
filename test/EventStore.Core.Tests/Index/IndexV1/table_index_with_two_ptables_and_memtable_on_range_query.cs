@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;

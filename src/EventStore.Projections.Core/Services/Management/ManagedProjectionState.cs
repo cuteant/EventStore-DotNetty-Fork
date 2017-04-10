@@ -1,4 +1,4 @@
-namespace EventStore.Projections.Core.Services.Management
+﻿namespace EventStore.Projections.Core.Services.Management
 {
     public enum ManagedProjectionState
     {

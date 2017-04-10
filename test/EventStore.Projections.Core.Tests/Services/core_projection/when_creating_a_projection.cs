@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;

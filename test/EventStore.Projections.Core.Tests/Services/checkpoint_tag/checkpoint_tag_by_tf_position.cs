@@ -1,4 +1,4 @@
-using EventStore.Projections.Core.Services.Processing;
+﻿using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;
 
 #pragma warning disable 1718 // allow a == a comparison

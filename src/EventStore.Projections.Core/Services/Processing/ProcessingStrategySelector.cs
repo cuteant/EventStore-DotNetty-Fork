@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Common.Log;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Messages;

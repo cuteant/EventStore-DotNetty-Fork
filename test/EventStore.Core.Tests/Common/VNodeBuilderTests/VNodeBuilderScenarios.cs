@@ -1,4 +1,4 @@
-using EventStore.Core.Cluster.Settings;
+﻿using EventStore.Core.Cluster.Settings;
 using EventStore.Core.TransactionLog.Chunks;
 using NUnit.Framework;
 using System;
