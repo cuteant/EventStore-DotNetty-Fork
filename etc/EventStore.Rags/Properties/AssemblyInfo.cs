@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("EventStore.BufferManagement")]
+[assembly: AssemblyTitle("EventStore.Rags")]
+
