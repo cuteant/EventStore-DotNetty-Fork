@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.ClientAPI.Embedded</PackageId>
-    <Title>EventStore.ClientAPI.Embedded</Title>
+    <PackageId>EventStore.ClientAPI.Embedded.StrongName</PackageId>
+    <Title>EventStore.ClientAPI.Embedded.StrongName</Title>
     <Description>EventStore.ClientAPI.Embedded</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>

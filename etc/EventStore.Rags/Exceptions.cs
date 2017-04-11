@@ -7,9 +7,9 @@ namespace EventStore.Rags
     /// </summary>
     public class ArgException : Exception
     {
-        /// <summary>
-        /// The parser context that may be incomplete since it depends on where the exception was thrown
-        /// </summary>
+        ///// <summary>
+        ///// The parser context that may be incomplete since it depends on where the exception was thrown
+        ///// </summary>
         //TODO GFY WILL WE USE HOOK CONTEXT?
         // public ArgHook.HookContext Context { get; internal set; }
 

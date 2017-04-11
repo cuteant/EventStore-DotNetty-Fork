@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 

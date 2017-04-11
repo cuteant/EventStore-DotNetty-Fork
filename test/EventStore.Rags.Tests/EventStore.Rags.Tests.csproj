@@ -3,7 +3,7 @@
   <Import Project="..\..\common\define.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net452</TargetFrameworks>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>EventStore.Rags.Tests</RootNamespace>
     <AssemblyName>EventStore.Rags.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>

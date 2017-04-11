@@ -1116,7 +1116,7 @@ namespace EventStore.Core
         /// <summary>
         /// The bitness version of the indexes
         /// </summary>
-        /// <param name="indexBitnessVersion">The version of the bitness <see cref="PTableVersion"/></param>
+        /// <param name="indexBitnessVersion">The version of the bitness</param>
         /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
         public VNodeBuilder WithIndexBitnessVersion(byte indexBitnessVersion){
             _indexBitnessVersion = indexBitnessVersion;

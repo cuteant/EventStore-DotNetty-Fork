@@ -22,8 +22,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Prelude\1Prelude.js" />
+    <None Remove="Prelude\Modules.js" />
+    <None Remove="Prelude\ModulesExecuted.js" />
+    <None Remove="Prelude\Projections.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
     <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Prelude\1Prelude.js" />
+    <EmbeddedResource Include="Prelude\Modules.js" />
+    <EmbeddedResource Include="Prelude\ModulesExecuted.js" />
+    <EmbeddedResource Include="Prelude\Projections.js" />
   </ItemGroup>
 
   <ItemGroup>
