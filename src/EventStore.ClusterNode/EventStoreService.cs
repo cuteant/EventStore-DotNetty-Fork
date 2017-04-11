@@ -40,8 +40,6 @@ namespace EventStore.ClusterNode
 
     protected override void PreInit(ClusterNodeOptions options)
     {
-      base.PreInit(options);
-
       if (options.Db.StartsWith("~") && !options.Force)
       {
         throw new ApplicationInitializationException("The given database path starts with a '~'. We don't expand '~'. You can use --force to override this error.");
@@ -375,20 +373,18 @@ namespace EventStore.ClusterNode
       return new CompositionContainer(catalog);
     }
 
-    protected override void Start()
+    protected override void OnStart()
     {
       _node.Start();
     }
 
-    public override void Stop()
+    protected override void OnStop()
     {
       _node.StopNonblocking(true, true);
     }
 
     protected override void OnProgramExit()
     {
-      base.OnProgramExit();
-
       if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
     }
   }

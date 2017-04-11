@@ -554,6 +554,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\src\EventStore.Projections.Core\Prelude\1Prelude.js">
+      <Link>Prelude\1Prelude.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\src\EventStore.Projections.Core\Prelude\Modules.js">
+      <Link>Prelude\Modules.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\src\EventStore.Projections.Core\Prelude\ModulesExecuted.js">
+      <Link>Prelude\ModulesExecuted.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\src\EventStore.Projections.Core\Prelude\Projections.js">
+      <Link>Prelude\Projections.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Queries\1Query.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -1,6 +1,10 @@
 ﻿{
   "dependencies": {
-    "CuteAnt.Topshelf.NLog": "4.0.7"
+    "CuteAnt.Topshelf.Serilog": "4.0.7",
+    "Serilog.Settings.AppSettings": "2.1.0",
+    "Serilog.Sinks.ColoredConsole": "2.0.0",
+    "Serilog.Sinks.Literate": "2.1.0",
+    "Serilog.Sinks.RollingFile": "3.3.0"
   },
   "frameworks": {
     "net461": {}
