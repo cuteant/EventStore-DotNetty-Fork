@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../tools/StrongKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 </Project>

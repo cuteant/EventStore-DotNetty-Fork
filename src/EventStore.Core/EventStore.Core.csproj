@@ -28,10 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HdrHistogram.NET" Version="1.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\etc\HdrHistogram\HdrHistogram.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
   </ItemGroup>

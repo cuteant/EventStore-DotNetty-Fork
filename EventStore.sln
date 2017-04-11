@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.TestClient", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Query", "src\EventStore.Query\EventStore.Query.csproj", "{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HdrHistogram", "etc\HdrHistogram\HdrHistogram.csproj", "{09EE4F0D-5D90-46FC-809B-D788B4278E0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -122,6 +124,12 @@ Global
 		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.DebugAsserts|Any CPU.Build.0 = Debug|Any CPU
 		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.DebugAsserts|Any CPU.ActiveCfg = Debug|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.DebugAsserts|Any CPU.Build.0 = Debug|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,6 +148,7 @@ Global
 		{98724F0D-4FAC-4431-A8FB-7C8787E705CF} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
 		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
 		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
+		{09EE4F0D-5D90-46FC-809B-D788B4278E0E} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj

@@ -1,5 +1,6 @@
-{
+﻿{
   "dependencies": {
+    "CuteAnt.Topshelf.NLog": "4.0.7"
   },
   "frameworks": {
     "net461": {}

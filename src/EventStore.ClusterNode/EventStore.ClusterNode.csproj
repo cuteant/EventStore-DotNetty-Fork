@@ -41,7 +41,7 @@
     <ApplicationIcon>..\app2.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\..\tools\StrongKey.snk</AssemblyOriginatorKeyFile>
@@ -63,9 +63,8 @@
     <Compile Include="ClusterVNodeBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\EventStore.Common\Log\NLog.config">
+    <None Include="..\EventStore.Common\Logging\NLog.config">
       <Link>NLog.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="project.json" />
   </ItemGroup>
