@@ -11,30 +11,33 @@ using EventStore.Common.Utils;
 using EventStore.Core.Util;
 using EventStore.Rags;
 
-namespace EventStore.Core
+namespace EventStore.ClusterNode
 {
-  public abstract class ProgramBase<TOptions> 
+  public abstract class EventStoreServiceBase<TOptions> 
     where TOptions : class, IOptions, new()
   {
     // ReSharper disable StaticFieldInGenericType
-    protected static readonly ILogger Log = LogManager.GetLoggerFor<ProgramBase<TOptions>>();
+    protected static readonly ILogger Log = LogManager.GetLoggerFor<EventStoreServiceBase<TOptions>>();
     // ReSharper restore StaticFieldInGenericType
 
-    private int _exitCode;
-    private readonly ManualResetEventSlim _exitEvent = new ManualResetEventSlim(false);
+    //private int _exitCode;
+    //private readonly ManualResetEventSlim _exitEvent = new ManualResetEventSlim(false);
 
     protected abstract string GetLogsDirectory(TOptions options);
     protected abstract string GetComponentName(TOptions options);
 
     protected abstract void Create(TOptions options);
     protected abstract void Start();
-    public abstract void Stop();
+    public virtual void Stop()
+    {
+
+    }
 
     public void Run(string[] args)
     {
       try
       {
-        Application.RegisterExitAction(Exit);
+        //Application.RegisterExitAction(Exit);
 
         var options = EventStoreOptions.Parse<TOptions>(args, Opts.EnvPrefix, Path.Combine(Locations.DefaultConfigurationDirectory, DefaultFiles.DefaultConfigFile));
         if (options.Help)
@@ -56,7 +59,7 @@ namespace EventStore.Core
           Create(options);
           Start();
 
-          _exitEvent.Wait();
+          //_exitEvent.Wait();
         }
       }
       catch (OptionException exc)
@@ -97,7 +100,7 @@ namespace EventStore.Core
       {
         Log.Flush();
       }
-      Environment.Exit(_exitCode);
+      //Environment.Exit(_exitCode);
     }
 
     protected virtual void PreInit(TOptions options)
@@ -120,13 +123,13 @@ namespace EventStore.Core
       }
     }
 
-    private void Exit(int exitCode)
-    {
-      LogManager.Finish();
+    //private void Exit(int exitCode)
+    //{
+    //  LogManager.Finish();
 
-      _exitCode = exitCode;
-      _exitEvent.Set();
-    }
+    //  _exitCode = exitCode;
+    //  _exitEvent.Set();
+    //}
 
     protected virtual void OnProgramExit()
     {
@@ -173,15 +176,18 @@ namespace EventStore.Core
     {
       StoreLocation location;
       if (!Enum.TryParse(certificateStoreLocation, out location))
-        throw new Exception(string.Format("Could not find certificate store location '{0}'", certificateStoreLocation));
+      {
+        throw new Exception($"Could not find certificate store location '{certificateStoreLocation}'");
+      }
       return location;
     }
 
     protected static StoreName GetCertificateStoreName(string certificateStoreName)
     {
-      StoreName name;
-      if (!Enum.TryParse(certificateStoreName, out name))
-        throw new Exception(string.Format("Could not find certificate store name '{0}'", certificateStoreName));
+      if (!Enum.TryParse(certificateStoreName, out StoreName name))
+      {
+        throw new Exception($"Could not find certificate store name '{certificateStoreName}'");
+      }
       return name;
     }
   }

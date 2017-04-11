@@ -22,21 +22,11 @@ using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
 
 namespace EventStore.ClusterNode
 {
-  public class Program : ProgramBase<ClusterNodeOptions>
+  public class EventStoreService : EventStoreServiceBase<ClusterNodeOptions>
   {
     private ClusterVNode _node;
     private ExclusiveDbLock _dbLock;
     private ClusterNodeMutex _clusterNodeMutex;
-
-    public static void Main(string[] args)
-    {
-      Console.CancelKeyPress += delegate
-      {
-        Environment.Exit((int)ExitCode.Success);
-      };
-      var p = new Program();
-      p.Run(args);
-    }
 
     protected override string GetLogsDirectory(ClusterNodeOptions options)
     {
