@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Services;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
-using ILogger = EventStore.Common.Log.ILogger;
+using ILogger = EventStore.Common.Logging.ILogger;
 
 namespace EventStore.Core.Tests.ClientAPI
 {

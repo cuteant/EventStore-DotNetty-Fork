@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;

@@ -5,7 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Tcp;

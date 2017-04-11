@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Helpers;
@@ -11,7 +11,7 @@ using EventStore.Core.Services;
 using EventStore.Core.Services.UserManagement;
 using EventStore.ClientAPI;
 using NUnit.Framework;
-using ILogger = EventStore.Common.Log.ILogger;
+using ILogger = EventStore.Common.Logging.ILogger;
 
 
 namespace EventStore.Core.Tests.Services.Storage.Scavenge
