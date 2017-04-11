@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Services.Monitoring.Stats;
 
 namespace EventStore.Core.Services.Monitoring.Utils

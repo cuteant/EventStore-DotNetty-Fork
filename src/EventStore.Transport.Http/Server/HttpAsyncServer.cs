@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Server

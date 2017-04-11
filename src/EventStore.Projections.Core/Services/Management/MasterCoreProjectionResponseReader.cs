@@ -9,7 +9,7 @@ using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Messages.Persisted.Responses.Slave;
 using EventStore.Projections.Core.Services.Processing;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 
 namespace EventStore.Projections.Core.Services.Management
 {

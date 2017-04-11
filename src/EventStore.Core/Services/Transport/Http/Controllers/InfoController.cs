@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Rags;

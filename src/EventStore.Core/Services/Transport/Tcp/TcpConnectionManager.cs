@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;

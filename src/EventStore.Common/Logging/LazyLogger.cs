@@ -1,7 +1,7 @@
 ﻿using System;
 using EventStore.Common.Utils;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     public class LazyLogger : ILogger
     {

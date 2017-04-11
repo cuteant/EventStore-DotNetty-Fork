@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Util;
 using EventStore.Transport.Http;

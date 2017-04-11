@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Transport.Tcp.Formatting;
 using EventStore.Transport.Tcp.Framing;
 

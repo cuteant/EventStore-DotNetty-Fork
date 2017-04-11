@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.TransactionLog.Chunks

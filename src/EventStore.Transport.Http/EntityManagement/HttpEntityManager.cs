@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.EntityManagement

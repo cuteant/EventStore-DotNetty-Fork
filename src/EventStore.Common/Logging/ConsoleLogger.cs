@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     public class ConsoleLogger : ILogger
     {

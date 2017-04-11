@@ -2,7 +2,7 @@
 using NLog;
 using NLog.LayoutRenderers;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     [LayoutRenderer("logsdir")]
     public class NLogDirectoryLayoutRendered : LayoutRenderer

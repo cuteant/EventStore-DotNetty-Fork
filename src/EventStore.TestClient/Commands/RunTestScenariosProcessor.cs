@@ -5,11 +5,11 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.TestClient.Commands.RunTestScenarios;
 using EventStore.Transport.Tcp;
-using ILogger = EventStore.Common.Log.ILogger;
+using ILogger = EventStore.Common.Logging.ILogger;
 
 namespace EventStore.TestClient.Commands
 {

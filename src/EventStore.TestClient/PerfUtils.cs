@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 
 namespace EventStore.TestClient
 {

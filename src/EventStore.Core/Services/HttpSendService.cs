@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;

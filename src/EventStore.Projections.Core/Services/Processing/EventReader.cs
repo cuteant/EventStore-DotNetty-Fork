@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;

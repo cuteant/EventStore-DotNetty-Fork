@@ -5,7 +5,7 @@ using EventStore.Common.Utils;
 using NLog;
 using NLog.Conditions;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     public static class NLoggerHelperMethods
     {

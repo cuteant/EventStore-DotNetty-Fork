@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using Microsoft.Win32.SafeHandles;
 
 namespace EventStore.Common.Utils

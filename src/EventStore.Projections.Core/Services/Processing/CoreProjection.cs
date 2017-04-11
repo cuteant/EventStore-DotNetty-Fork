@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Text;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;

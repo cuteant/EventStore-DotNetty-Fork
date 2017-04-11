@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Threading;
 using EventStore.Common.Utils;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
 using EventStore.Core.TransactionLog;

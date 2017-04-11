@@ -9,7 +9,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Commands;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Projections.Core.Utils;
 
 namespace EventStore.Projections.Core.Services.Processing

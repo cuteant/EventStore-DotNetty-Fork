@@ -11,7 +11,7 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Responses;
 using EventStore.Projections.Core.Services.Processing;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Projections.Core.Utils;
 
 namespace EventStore.Projections.Core.Services.Management

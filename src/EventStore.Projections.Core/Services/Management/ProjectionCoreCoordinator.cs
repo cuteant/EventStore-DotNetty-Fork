@@ -6,7 +6,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Messages;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 
 namespace EventStore.Projections.Core.Services.Management
 {

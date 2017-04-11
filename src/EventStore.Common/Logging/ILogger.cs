@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     public interface ILogger
     {

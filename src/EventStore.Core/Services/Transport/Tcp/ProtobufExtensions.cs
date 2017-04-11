@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Collections.Concurrent;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using ProtoBuf;
 
 namespace EventStore.Core.Services.Transport.Tcp

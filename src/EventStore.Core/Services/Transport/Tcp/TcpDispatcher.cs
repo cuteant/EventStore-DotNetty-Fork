@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Services.Transport.Tcp

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 
 namespace EventStore.Transport.Http
 {

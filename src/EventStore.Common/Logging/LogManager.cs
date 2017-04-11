@@ -3,7 +3,7 @@ using System.Linq;
 using System.IO;
 using EventStore.Common.Utils;
 
-namespace EventStore.Common.Log
+namespace EventStore.Common.Logging
 {
     public static class LogManager
     {

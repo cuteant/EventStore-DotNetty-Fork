@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using EventStore.Common.Utils;
 using EventStore.Projections.Core.Messages;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 
 namespace EventStore.Projections.Core.v8
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using EventStore.Common.Log;
+using EventStore.Common.Logging;
 using System.Collections.Concurrent;
 
 namespace EventStore.TestClient
