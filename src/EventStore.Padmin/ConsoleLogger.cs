@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading;
 using EventStore.ClientAPI;
 
-namespace EventStore.Padmin
+namespace EventStore.PAdmin
 {
     internal class ConsoleLogger : ILogger
     {

@@ -25,7 +25,7 @@ namespace EventStore.Common.Log
             }
         }
 
-        private const string EVENTSTORE_LOG_FILENAME = "log.config";
+        private const string EVENTSTORE_LOG_FILENAME = "NLog.config";
         private static readonly ILogger GlobalLogger = GetLogger("GLOBAL-LOGGER");
         private static bool _initialized;
         private static Func<string, ILogger> _logFactory = x => new NLogger(x);

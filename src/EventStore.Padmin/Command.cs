@@ -6,7 +6,7 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Projections;
 
-namespace EventStore.Padmin
+namespace EventStore.PAdmin
 {
     internal static class Command
     {

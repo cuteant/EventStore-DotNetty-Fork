@@ -6,7 +6,7 @@ using EventStore.ClientAPI;
 using System.Linq;
 using EventStore.ClientAPI.Projections;
 
-namespace EventStore.Padmin
+namespace EventStore.PAdmin
 {
     public class Program
     {

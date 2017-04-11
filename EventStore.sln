@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Projections.Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.ClientAPI", "src\EventStore.ClientAPI\EventStore.ClientAPI.csproj", "{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Padmin", "src\EventStore.Padmin\EventStore.Padmin.csproj", "{E4CDAFC5-CF95-4846-B3FC-FC97C2CC343F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.PAdmin", "src\EventStore.Padmin\EventStore.PAdmin.csproj", "{E4CDAFC5-CF95-4846-B3FC-FC97C2CC343F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.ClusterNode", "src\EventStore.ClusterNode\EventStore.ClusterNode.csproj", "{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}"
 EndProject

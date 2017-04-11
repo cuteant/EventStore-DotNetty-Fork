@@ -7,8 +7,8 @@
     <ProjectGuid>{E4CDAFC5-CF95-4846-B3FC-FC97C2CC343F}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EventStore.Padmin</RootNamespace>
-    <AssemblyName>padmin</AssemblyName>
+    <RootNamespace>EventStore.PAdmin</RootNamespace>
+    <AssemblyName>EventStore.PAdmin</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -48,6 +48,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\common\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\common\CommonVersionInfo.cs">
+      <Link>Properties\CommonVersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Command.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="Program.cs" />
