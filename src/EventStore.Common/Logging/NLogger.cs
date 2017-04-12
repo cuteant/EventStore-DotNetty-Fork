@@ -31,6 +31,13 @@ namespace EventStore.Common.Logging
       _logger = NLog.LogManager.GetLogger(name);
     }
 
+    public bool IsTraceEnabled => _logger.IsTraceEnabled;
+    public bool IsDebugEnabled => _logger.IsDebugEnabled;
+    public bool IsInfoEnabled => _logger.IsInfoEnabled;
+    public bool IsWarnEnabled => _logger.IsWarnEnabled;
+    public bool IsErrorEnabled => _logger.IsErrorEnabled;
+    public bool IsFatalEnabled => _logger.IsFatalEnabled;
+
     public void Flush(TimeSpan? maxTimeToWait = null)
     {
       FlushLog(maxTimeToWait);

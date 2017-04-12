@@ -215,7 +215,7 @@ namespace EventStore.Core.Index
           newTables.AddRange(_awaitingMemTables.Select(
               (x, i) => i == 0 ? new TableItem(x.Table, prepareCheckpoint, commitPos) : x));
 
-          Log.Trace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
+          if (Log.IsTraceEnabled) Log.Trace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
 
           _awaitingMemTables = newTables;
           if (_inMem) return;
@@ -325,8 +325,7 @@ namespace EventStore.Core.Index
       for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
       {
         var memtable = awaitingMemTables[i].Table as IMemTable;
-        if (memtable == null || !memtable.MarkForConversion())
-          continue;
+        if (memtable == null || !memtable.MarkForConversion()) { continue; }
 
         Log.Trace("Putting awaiting file as PTable instead of MemTable [{0}].", memtable.Id);
 

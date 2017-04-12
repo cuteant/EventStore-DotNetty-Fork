@@ -83,12 +83,11 @@ namespace EventStore.Common.Logging
             Environment.SetEnvironmentVariable("EVENTSTORE_INT-COMPONENT-NAME", componentName, EnvironmentVariableTarget.Process);
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
-                var exc = e.ExceptionObject as Exception;
-                if (exc != null)
-                    GlobalLogger.FatalException(exc, "Global Unhandled Exception occurred.");
-                else
-                    GlobalLogger.Fatal("Global Unhandled Exception object: {0}.", e.ExceptionObject);
-                GlobalLogger.Flush(TimeSpan.FromMilliseconds(500));
+              if (e.ExceptionObject is Exception exc)
+                GlobalLogger.FatalException(exc, "Global Unhandled Exception occurred.");
+              else
+                GlobalLogger.Fatal("Global Unhandled Exception object: {0}.", e.ExceptionObject);
+              GlobalLogger.Flush(TimeSpan.FromMilliseconds(500));
             };
         }
 
