@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\bin\tests\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <SolutionPlatform>anycpu</SolutionPlatform>
@@ -31,8 +31,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
+    <DefineConstants>TRACE;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER</DefineConstants>
     <OutputPath>..\..\bin\tests\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
