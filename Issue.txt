@@ -1,0 +1,102 @@
+﻿☆标志 - 未解决
+★标志 - 已解决
+
+Issue.001 ☆ 反射优化，例如：GetProperties、GetCustomAttributes、GetField等
+
+Issue.002 ☆ StringBuilder
+
+Issue.003 ☆ 
+
+Issue.004 ☆ 替换 MemoryStream
+
+Issue.005 ☆ 
+
+Issue.006 ☆ Task.FromResult 替换
+
+Issue.007 ☆ StringBuilder 替换
+
+Issue.008 ☆ MakeGenericType 替换
+
+Issue.009 ☆ StartsWith & EndsWith & ToLower
+
+Issue.010 ☆ 
+
+Issue.011 ☆ 
+
+Issue.012 ☆ 
+
+Issue.013 ☆ 
+
+Issue.014 ☆ 
+
+Issue.015 ☆ 
+
+Issue.016 ☆ 
+
+Issue.017 ☆ 
+
+Issue.018 ☆ 
+
+Issue.019 ☆ 
+
+Issue.020 ☆ 
+
+Issue.021 ☆ 
+
+Issue.022 ☆ 
+
+Issue.023 ☆ 
+
+Issue.024 ☆ 
+
+Issue.025 ☆ 
+
+Issue.026 ☆ 
+
+Issue.027 ☆ 
+
+Issue.028 ☆ 
+
+Issue.029 ☆ 
+
+Issue.030 ☆ 
+
+Issue.031 ☆ 
+
+Issue.032 ☆ 
+
+Issue.033 ☆ 
+
+Issue.034 ☆ 
+
+Issue.035 ☆ 
+
+Issue.036 ☆ 
+
+Issue.037 ☆ 
+
+Issue.038 ☆ 
+
+Issue.039 ☆ 
+
+Issue.040 ☆ 
+
+Issue.041 ☆ 
+
+Issue.042 ☆ 
+
+Issue.043 ☆ 
+
+Issue.044 ☆ 
+
+Issue.045 ☆ 
+
+Issue.046 ☆ 
+
+Issue.047 ☆ 
+
+Issue.048 ☆ 
+
+Issue.049 ☆ 
+
+Issue.050 ☆ 

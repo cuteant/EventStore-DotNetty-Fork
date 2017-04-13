@@ -45,7 +45,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Rags.Tests", "te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}"
 	ProjectSection(SolutionItems) = preProject
-		clean.cmd = clean.cmd
 		common\common.props = common\common.props
 		common\define.props = common\define.props
 		NuGet.Config = NuGet.Config
@@ -76,6 +75,13 @@ EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Reflection.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.shproj", "{C7F8DBE6-77B7-494D-AF00-018F7579548C}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventStore.Common.Utils.Sources", "src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.shproj", "{4F157224-1369-4D82-B673-CC185D24F1F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D45F5E4-81DA-4123-8AE9-51165CEFE4A0}"
+	ProjectSection(SolutionItems) = preProject
+		clean.cmd = clean.cmd
+		Issue.txt = Issue.txt
+		NuGet.Config = NuGet.Config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

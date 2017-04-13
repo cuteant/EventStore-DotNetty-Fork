@@ -106,7 +106,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
             }
             catch (JsonException ex)
             {
-                _log.Error("Failed to de-serialize event #{0}. Error: '{1}'", @event.OriginalEventNumber, ex.Message);
+                _log.LogError("Failed to de-serialize event #{0}. Error: '{1}'", @event.OriginalEventNumber, ex.Message);
             }
         }
 

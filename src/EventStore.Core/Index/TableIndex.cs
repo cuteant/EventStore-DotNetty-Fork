@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.Util;
 using EventStore.Core.Index.Hashes;
+using Microsoft.Extensions.Logging;
 #if DESKTOPCLR
 using Nessos.LinqOptimizer.CSharp;
 #endif
@@ -65,15 +65,14 @@ namespace EventStore.Core.Index
                       bool inMem = false,
                       int indexCacheDepth = 16)
     {
-      Ensure.NotNullOrEmpty(directory, "directory");
-      Ensure.NotNull(memTableFactory, "memTableFactory");
-      Ensure.NotNull(lowHasher, "lowHasher");
-      Ensure.NotNull(highHasher, "highHasher");
-      Ensure.NotNull(tfReaderFactory, "tfReaderFactory");
-      if (maxTablesPerLevel <= 1)
-        throw new ArgumentOutOfRangeException("maxTablesPerLevel");
+      Ensure.NotNullOrEmpty(directory, nameof(directory));
+      Ensure.NotNull(memTableFactory, nameof(memTableFactory));
+      Ensure.NotNull(lowHasher, nameof(lowHasher));
+      Ensure.NotNull(highHasher, nameof(highHasher));
+      Ensure.NotNull(tfReaderFactory, nameof(tfReaderFactory));
+      if (maxTablesPerLevel <= 1) { throw new ArgumentOutOfRangeException(nameof(maxTablesPerLevel)); }
+      if (indexCacheDepth > 28 || indexCacheDepth < 8) throw new ArgumentOutOfRangeException(nameof(indexCacheDepth));
 
-      if (indexCacheDepth > 28 || indexCacheDepth < 8) throw new ArgumentOutOfRangeException("indexCacheDepth");
       _directory = directory;
       _memTableFactory = memTableFactory;
       _tfReaderFactory = tfReaderFactory;
@@ -92,11 +91,10 @@ namespace EventStore.Core.Index
 
     public void Initialize(long chaserCheckpoint)
     {
-      Ensure.Nonnegative(chaserCheckpoint, "chaserCheckpoint");
+      Ensure.Nonnegative(chaserCheckpoint, nameof(chaserCheckpoint));
 
       //NOT THREAD SAFE (assumes one thread)
-      if (_initialized)
-        throw new IOException("TableIndex is already initialized.");
+      if (_initialized) { throw new IOException("TableIndex is already initialized."); }
       _initialized = true;
 
       if (_inMem)
@@ -154,7 +152,7 @@ namespace EventStore.Core.Index
         sb.AppendFormat("IndexMap '{0}' content:\n", indexmapFile);
         sb.AppendLine(Helper.FormatBinaryDump(File.ReadAllBytes(indexmapFile)));
 
-        Log.Error(sb.ToString());
+        Log.LogError(sb.ToString());
       }
       catch (Exception exc)
       {
@@ -168,8 +166,8 @@ namespace EventStore.Core.Index
       try
       {
         dumpPath = Path.Combine(Path.GetDirectoryName(_directory),
-                                string.Format("index-backup-{0:yyyy-MM-dd_HH-mm-ss.fff}", DateTime.UtcNow));
-        Log.Error("Making backup of index folder for inspection to {0}...", dumpPath);
+                                $"index-backup-{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss.fff}");
+        Log.LogError("Making backup of index folder for inspection to {0}...", dumpPath);
         FileUtils.DirectoryCopy(_directory, dumpPath, copySubDirs: true);
       }
       catch (Exception exc)
@@ -181,14 +179,16 @@ namespace EventStore.Core.Index
     private static void CreateIfDoesNotExist(string directory)
     {
       if (!Directory.Exists(directory))
+      {
         Directory.CreateDirectory(directory);
+      }
     }
 
     public void Add(long commitPos, string streamId, long version, long position)
     {
-      Ensure.Nonnegative(commitPos, "commitPos");
-      Ensure.Nonnegative(version, "version");
-      Ensure.Nonnegative(position, "position");
+      Ensure.Nonnegative(commitPos, nameof(commitPos));
+      Ensure.Nonnegative(version, nameof(version));
+      Ensure.Nonnegative(position, nameof(position));
 
       AddEntries(commitPos, new[] { CreateIndexKey(streamId, version, position) });
     }
@@ -215,10 +215,10 @@ namespace EventStore.Core.Index
           newTables.AddRange(_awaitingMemTables.Select(
               (x, i) => i == 0 ? new TableItem(x.Table, prepareCheckpoint, commitPos) : x));
 
-          if (Log.IsTraceEnabled) Log.Trace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
+          if (Log.IsTraceLevelEnabled()) Log.LogTrace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
 
           _awaitingMemTables = newTables;
-          if (_inMem) return;
+          if (_inMem) { return; }
           if (!_backgroundRunning)
           {
             _backgroundRunningEvent.Reset();
@@ -227,7 +227,9 @@ namespace EventStore.Core.Index
           }
 
           if (_additionalReclaim)
+          {
             ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
+          }
         }
       }
     }
@@ -236,13 +238,14 @@ namespace EventStore.Core.Index
     {
       try
       {
+        var traceEnabled = Log.IsTraceLevelEnabled();
         while (true)
         {
           TableItem tableItem;
           //ISearchTable table;
           lock (_awaitingTablesLock)
           {
-            Log.Trace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
+            if (traceEnabled) Log.LogTrace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
             if (_awaitingMemTables.Count == 1)
             {
               _backgroundRunning = false;
@@ -259,7 +262,9 @@ namespace EventStore.Core.Index
             ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth);
           }
           else
+          {
             ptable = (PTable)tableItem.Table;
+          }
 
           var indexmapFile = Path.Combine(_directory, IndexMapFilename);
 
@@ -284,10 +289,12 @@ namespace EventStore.Core.Index
             // parallel thread could already switch table, 
             // so if we have another PTable instance with same ID,
             // we need to kill that instance as we added ours already
-            if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable)
-              ((PTable)corrTable.Table).MarkForDestruction();
+            if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable ctt)
+            {
+              ctt.MarkForDestruction();
+            }
 
-            Log.Trace("There are now {0} awaiting tables.", memTables.Count);
+            if (traceEnabled) Log.LogTrace("There are now {0} awaiting tables.", memTables.Count);
             _awaitingMemTables = memTables;
           }
           mergeResult.ToDelete.ForEach(x => x.MarkForDestruction());
@@ -308,10 +315,15 @@ namespace EventStore.Core.Index
     {
       RecordReadResult result = reader.TryReadAt(position);
       if (!result.Success)
+      {
         return new Tuple<string, bool>(String.Empty, false);
+      }
+
       if (result.LogRecord.RecordType != TransactionLog.LogRecords.LogRecordType.Prepare)
-        throw new Exception(string.Format("Incorrect type of log record {0}, expected Prepare record.",
-                                          result.LogRecord.RecordType));
+      {
+        throw new Exception($"Incorrect type of log record {result.LogRecord.RecordType}, expected Prepare record.");
+      }
+
       return new Tuple<string, bool>(((TransactionLog.LogRecords.PrepareLogRecord)result.LogRecord).EventStreamId, true);
     }
 
@@ -322,12 +334,13 @@ namespace EventStore.Core.Index
 #else
       var toPutOnDisk = awaitingMemTables.OfType<IMemTable>().Count() - MaxMemoryTables;
 #endif
+      var traceEnabled = Log.IsTraceLevelEnabled();
       for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
       {
         var memtable = awaitingMemTables[i].Table as IMemTable;
         if (memtable == null || !memtable.MarkForConversion()) { continue; }
 
-        Log.Trace("Putting awaiting file as PTable instead of MemTable [{0}].", memtable.Id);
+        if (traceEnabled) Log.LogTrace("Putting awaiting file as PTable instead of MemTable [{0}].", memtable.Id);
 
         var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth);
         var swapped = false;
@@ -336,16 +349,13 @@ namespace EventStore.Core.Index
           for (var j = _awaitingMemTables.Count - 1; j >= 1; j--)
           {
             var tableItem = _awaitingMemTables[j];
-            if (!(tableItem.Table is IMemTable) || tableItem.Table.Id != ptable.Id) continue;
+            if (!(tableItem.Table is IMemTable) || tableItem.Table.Id != ptable.Id) { continue; }
             swapped = true;
-            _awaitingMemTables[j] = new TableItem(ptable,
-                tableItem.PrepareCheckpoint,
-                tableItem.CommitCheckpoint);
+            _awaitingMemTables[j] = new TableItem(ptable, tableItem.PrepareCheckpoint, tableItem.CommitCheckpoint);
             break;
           }
         }
-        if (!swapped)
-          ptable.MarkForDestruction();
+        if (!swapped) { ptable.MarkForDestruction(); }
         toPutOnDisk--;
       }
     }
@@ -363,7 +373,7 @@ namespace EventStore.Core.Index
         }
         catch (FileBeingDeletedException)
         {
-          Log.Trace("File being deleted.");
+          if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
         }
       }
       throw new InvalidOperationException("Files are locked.");
@@ -371,21 +381,18 @@ namespace EventStore.Core.Index
 
     private bool TryGetOneValueInternal(ulong stream, long version, out long position)
     {
-      if (version < 0)
-        throw new ArgumentOutOfRangeException("version");
+      if (version < 0) { throw new ArgumentOutOfRangeException(nameof(version)); }
 
       var awaiting = _awaitingMemTables;
       foreach (var tableItem in awaiting)
       {
-        if (tableItem.Table.TryGetOneValue(stream, version, out position))
-          return true;
+        if (tableItem.Table.TryGetOneValue(stream, version, out position)) { return true; }
       }
 
       var map = _indexMap;
       foreach (var table in map.InOrder())
       {
-        if (table.TryGetOneValue(stream, version, out position))
-          return true;
+        if (table.TryGetOneValue(stream, version, out position)) { return true; }
       }
 
       position = 0;
@@ -405,7 +412,7 @@ namespace EventStore.Core.Index
         }
         catch (FileBeingDeletedException)
         {
-          Log.Trace("File being deleted.");
+          if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
         }
       }
       throw new InvalidOperationException("Files are locked.");
@@ -416,15 +423,13 @@ namespace EventStore.Core.Index
       var awaiting = _awaitingMemTables;
       foreach (var t in awaiting)
       {
-        if (t.Table.TryGetLatestEntry(stream, out entry))
-          return true;
+        if (t.Table.TryGetLatestEntry(stream, out entry)) { return true; }
       }
 
       var map = _indexMap;
       foreach (var table in map.InOrder())
       {
-        if (table.TryGetLatestEntry(stream, out entry))
-          return true;
+        if (table.TryGetLatestEntry(stream, out entry)) { return true; }
       }
 
       entry = InvalidIndexEntry;
@@ -444,7 +449,7 @@ namespace EventStore.Core.Index
         }
         catch (FileBeingDeletedException)
         {
-          Log.Trace("File being deleted.");
+          if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
         }
       }
       throw new InvalidOperationException("Files are locked.");
@@ -455,15 +460,13 @@ namespace EventStore.Core.Index
       var map = _indexMap;
       foreach (var table in map.InReverseOrder())
       {
-        if (table.TryGetOldestEntry(stream, out entry))
-          return true;
+        if (table.TryGetOldestEntry(stream, out entry)) { return true; }
       }
 
       var awaiting = _awaitingMemTables;
       for (var index = awaiting.Count - 1; index >= 0; index--)
       {
-        if (awaiting[index].Table.TryGetOldestEntry(stream, out entry))
-          return true;
+        if (awaiting[index].Table.TryGetOldestEntry(stream, out entry)) { return true; }
       }
 
       entry = InvalidIndexEntry;
@@ -483,7 +486,7 @@ namespace EventStore.Core.Index
         }
         catch (FileBeingDeletedException)
         {
-          Log.Trace("File being deleted.");
+          if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
         }
       }
       throw new InvalidOperationException("Files are locked.");
@@ -491,10 +494,8 @@ namespace EventStore.Core.Index
 
     private IEnumerable<IndexEntry> GetRangeInternal(ulong hash, long startVersion, long endVersion, int? limit = null)
     {
-      if (startVersion < 0)
-        throw new ArgumentOutOfRangeException("startVersion");
-      if (endVersion < 0)
-        throw new ArgumentOutOfRangeException("endVersion");
+      if (startVersion < 0) { throw new ArgumentOutOfRangeException(nameof(startVersion)); }
+      if (endVersion < 0) { throw new ArgumentOutOfRangeException(nameof(endVersion)); }
 
       var candidates = new List<IEnumerator<IndexEntry>>();
 
@@ -502,16 +503,14 @@ namespace EventStore.Core.Index
       for (int index = 0; index < awaiting.Count; index++)
       {
         var range = awaiting[index].Table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
-        if (range.MoveNext())
-          candidates.Add(range);
+        if (range.MoveNext()) { candidates.Add(range); }
       }
 
       var map = _indexMap;
       foreach (var table in map.InOrder())
       {
         var range = table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
-        if (range.MoveNext())
-          candidates.Add(range);
+        if (range.MoveNext()) { candidates.Add(range); }
       }
 
       var last = new IndexEntry(0, 0, 0);
@@ -529,8 +528,7 @@ namespace EventStore.Core.Index
           first = false;
         }
 
-        if (!winner.MoveNext())
-          candidates.RemoveAt(maxIdx);
+        if (!winner.MoveNext()) { candidates.RemoveAt(maxIdx); }
       }
     }
 
@@ -553,10 +551,11 @@ namespace EventStore.Core.Index
     public void Close(bool removeFiles = true)
     {
       if (!_backgroundRunningEvent.Wait(7000))
+      {
         throw new TimeoutException("Could not finish background thread in reasonable time.");
-      if (_inMem)
-        return;
-      if (_indexMap == null) return;
+      }
+      if (_inMem) { return; }
+      if (_indexMap == null) { return; }
       if (removeFiles)
       {
         _indexMap.InOrder().ToList().ForEach(x => x.MarkForDestruction());
