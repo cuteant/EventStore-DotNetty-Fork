@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                                                        IHandle<StorageMessage.RequestManagerTimerTick>
     {
         internal static readonly TimeSpan TimeoutOffset = TimeSpan.FromMilliseconds(30);
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TwoPhaseRequestManagerBase>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TwoPhaseRequestManagerBase>();
 
         protected readonly IPublisher Publisher;
         protected readonly IEnvelope PublishEnvelope;

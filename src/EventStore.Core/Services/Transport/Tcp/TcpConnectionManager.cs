@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -25,7 +25,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public const int ConnectionQueueSizeThreshold = 50000;
         public static readonly TimeSpan ConnectionTimeout = TimeSpan.FromMilliseconds(1000);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpConnectionManager>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpConnectionManager>();
 
         public readonly Guid ConnectionId;
         public readonly string ConnectionName;

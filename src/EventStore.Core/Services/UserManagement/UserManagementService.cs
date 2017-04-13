@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.UserManagement
         IPublisher publisher, IODispatcher ioDispatcher, PasswordHashAlgorithm passwordHashAlgorithm,
         bool skipInitializeStandardUsersCheck)
     {
-      _log = LogManager.GetLoggerFor<UserManagementService>();
+      _log = TraceLogger.GetLogger<UserManagementService>();
       _publisher = publisher;
       _ioDispatcher = ioDispatcher;
       _passwordHashAlgorithm = passwordHashAlgorithm;

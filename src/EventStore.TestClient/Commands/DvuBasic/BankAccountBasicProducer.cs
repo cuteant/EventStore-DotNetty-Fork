@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Transport.Http.Codecs;
@@ -10,7 +10,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
 {
     public class BankAccountBasicProducer : IBasicProducer
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<BankAccountBasicProducer>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<BankAccountBasicProducer>();
 
         public string Name
         {

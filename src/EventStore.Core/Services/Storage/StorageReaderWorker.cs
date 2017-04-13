@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.Storage
                                       IHandle<ClientMessage.ReadAllEventsBackward>,
                                       IHandle<StorageMessage.CheckStreamAccess>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<StorageReaderWorker>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<StorageReaderWorker>();
         private static readonly ResolvedEvent[] EmptyRecords = new ResolvedEvent[0];
 
         private readonly IPublisher _publisher;
@@ -185,7 +185,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error during processing ReadEvent request.");
+                    Log.LogError(exc, "Error during processing ReadEvent request.");
                     return NoData(msg, ReadEventResult.Error, exc.Message);
                 }
             }
@@ -225,7 +225,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error during processing ReadStreamEventsForward request.");
+                    Log.LogError(exc, "Error during processing ReadStreamEventsForward request.");
                     return NoData(msg, ReadStreamResult.Error, lastCommitPosition, error: exc.Message);
                 }
             }
@@ -266,7 +266,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error during processing ReadStreamEventsBackward request.");
+                    Log.LogError(exc, "Error during processing ReadStreamEventsBackward request.");
                     return NoData(msg, ReadStreamResult.Error, lastCommitPosition, error: exc.Message);
                 }
             }
@@ -311,7 +311,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error during processing ReadAllEventsForward request.");
+                    Log.LogError(exc, "Error during processing ReadAllEventsForward request.");
                     return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, exc.Message);
                 }
             }
@@ -357,7 +357,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error during processing ReadAllEventsBackward request.");
+                    Log.LogError(exc, "Error during processing ReadAllEventsBackward request.");
                     return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, exc.Message);
                 }
             }
@@ -380,7 +380,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error during processing CheckStreamAccess({0}, {1}) request.", msg.EventStreamId, msg.TransactionId);
+                Log.LogError(exc, "Error during processing CheckStreamAccess({0}, {1}) request.", msg.EventStreamId, msg.TransactionId);
                 return new StorageMessage.CheckStreamAccessCompleted(msg.CorrelationId, streamId, msg.TransactionId, 
                                                                      msg.AccessType, new StreamAccess(false));
             }
@@ -498,7 +498,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
+                    Log.LogError(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
                 }
                 // return unresolved link
                 return ResolvedEvent.ForFailedResolvedLink(eventRecord, ReadEventResult.Error, commitPosition);

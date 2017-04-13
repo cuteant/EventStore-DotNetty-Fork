@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Xml.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.TransactionLog.LogRecords;

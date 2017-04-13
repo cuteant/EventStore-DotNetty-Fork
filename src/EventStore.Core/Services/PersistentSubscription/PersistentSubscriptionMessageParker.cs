@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -13,7 +13,7 @@ namespace EventStore.Core.Services.PersistentSubscription
     {
         private readonly IODispatcher _ioDispatcher;
         private readonly string _parkedStreamId;
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PersistentSubscriptionMessageParker>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PersistentSubscriptionMessageParker>();
 
         public PersistentSubscriptionMessageParker(string subscriptionId, IODispatcher ioDispatcher)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -33,7 +33,7 @@ namespace EventStore.Projections.Core.Services.Processing
     {
         private readonly IPublisher _publisher;
         private readonly IODispatcher _ioDispatcher;
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ProjectionCoreService>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionCoreService>();
         private bool _stopped = true;
 
         private readonly Dictionary<Guid, IReaderSubscription> _subscriptions =

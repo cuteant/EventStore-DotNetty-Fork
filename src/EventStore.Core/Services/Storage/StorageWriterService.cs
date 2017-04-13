@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -34,7 +34,7 @@ namespace EventStore.Core.Services.Storage
       IHandle<StorageMessage.WriteCommit>,
       IHandle<MonitoringMessage.InternalStatsRequest>
   {
-    private static readonly ILogger Log = LogManager.GetLoggerFor<StorageWriterService>();
+    private static readonly ILogger Log = TraceLogger.GetLogger<StorageWriterService>();
 
     protected static readonly int TicksPerMs = (int)(Stopwatch.Frequency / 1000);
     private static readonly TimeSpan WaitForChaserSingleIterationTimeout = TimeSpan.FromMilliseconds(200);
@@ -299,7 +299,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally
@@ -405,7 +405,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally
@@ -434,7 +434,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally
@@ -480,7 +480,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally
@@ -510,7 +510,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally
@@ -567,7 +567,7 @@ namespace EventStore.Core.Services.Storage
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Exception in writer.");
+        Log.LogError(exc, "Exception in writer.");
         throw;
       }
       finally

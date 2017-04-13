@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Index
         public const int DefaultBufferSize = 8192;
         public const int DefaultSequentialBufferSize = 65536;
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PTable>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PTable>();
 
         public Guid Id { get { return _id; } }
         public long Count { get { return _count; } }

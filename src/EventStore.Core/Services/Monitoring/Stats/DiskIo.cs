@@ -3,14 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.Services.Monitoring.Stats
 {
     public class DiskIo
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<DiskIo>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<DiskIo>();
 
         public readonly ulong ReadBytes;
         public readonly ulong WrittenBytes;

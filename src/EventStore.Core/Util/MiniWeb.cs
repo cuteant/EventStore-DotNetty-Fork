@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Services.Transport.Http;
 using EventStore.Transport.Http;
@@ -15,7 +15,7 @@ namespace EventStore.Core.Util
     {
         private readonly string _localWebRootPath;
         private readonly string _fileSystemRoot;
-        private static readonly ILogger Logger = LogManager.GetLoggerFor<MiniWeb>();
+        private static readonly ILogger Logger = TraceLogger.GetLogger<MiniWeb>();
 
         public MiniWeb(string localWebRootPath) : this(localWebRootPath, GetWebRootFileSystemDirectory())
         {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -32,7 +32,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         public const char ETagSeparator = ';';
         public static readonly char[] ETagSeparatorArray = { ';' };
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<AtomController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<AtomController>();
 
         private static readonly HtmlFeedCodec HtmlFeedCodec = new HtmlFeedCodec(); // initialization order matters
 
@@ -171,7 +171,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                       responseStatusCode, responseMessage,
                                       manager.ResponseCodec.ContentType,
                                       null,
-                                      e => Log.ErrorException(e, "Error while writing HTTP response"));
+                                      e => Log.LogError(e, "Error while writing HTTP response"));
                         return String.Empty;
                     },
                     (args, message) => new ResponseConfiguration(HttpStatusCode.OK, manager.ResponseCodec.ContentType, manager.ResponseCodec.Encoding));

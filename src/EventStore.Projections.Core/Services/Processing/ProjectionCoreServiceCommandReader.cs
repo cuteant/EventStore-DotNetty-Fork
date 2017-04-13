@@ -9,7 +9,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Commands;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Projections.Core.Utils;
 
 namespace EventStore.Projections.Core.Services.Processing
@@ -17,7 +17,7 @@ namespace EventStore.Projections.Core.Services.Processing
     public class ProjectionCoreServiceCommandReader
         : IHandle<ProjectionCoreServiceMessage.StartCore>, IHandle<ProjectionCoreServiceMessage.StopCore>
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<ProjectionCoreServiceCommandReader>();
+        private readonly ILogger Log = TraceLogger.GetLogger<ProjectionCoreServiceCommandReader>();
         private readonly IPublisher _publisher;
         private readonly IODispatcher _ioDispatcher;
         private readonly string _coreServiceId;

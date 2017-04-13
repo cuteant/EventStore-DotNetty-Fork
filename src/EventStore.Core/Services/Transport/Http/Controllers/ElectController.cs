@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                    ISender<ElectionMessage.Proposal>,
                                    ISender<ElectionMessage.Accept>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ElectController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ElectController>();
         private static readonly ICodec[] SupportedCodecs = new ICodec[] {Codec.Json, Codec.Xml};
         private TimeSpan _operationTimeout;
         private readonly HttpAsyncClient _client;
@@ -61,7 +61,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.ViewChangeDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/viewchange)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/viewchange)")*/});
         }
 
         public void Send(ElectionMessage.ViewChangeProof message, IPEndPoint endPoint)
@@ -73,7 +73,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.ViewChangeProofDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/viewchangeproof)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/viewchangeproof)")*/});
         }
 
         public void Send(ElectionMessage.Prepare message, IPEndPoint endPoint)
@@ -85,7 +85,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.PrepareDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/prepare)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/prepare)")*/});
         }
 
         public void Send(ElectionMessage.PrepareOk message, IPEndPoint endPoint)
@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.PrepareOkDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/prepareok)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/prepareok)")*/});
         }
 
         public void Send(ElectionMessage.Proposal message, IPEndPoint endPoint)
@@ -109,7 +109,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.ProposalDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/proposal)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/proposal)")*/});
         }
 
         public void Send(ElectionMessage.Accept message, IPEndPoint endPoint)
@@ -121,7 +121,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Codec.Json.To(new ElectionMessageDto.AcceptDto(message)),
                         Codec.Json.ContentType,
                         r => {/*ignore*/},
-                        e => {/*Log.ErrorException(e, "Error occured while writing request (elections/accept)")*/});
+                        e => {/*Log.LogError(e, "Error occured while writing request (elections/accept)")*/});
         }
 
         private void OnPost<TDto, TMessage>(HttpEntityManager manager, Func<TDto, TMessage> unwrapper)

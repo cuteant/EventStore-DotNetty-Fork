@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.Replication
         public static readonly TimeSpan RoleAssignmentsInterval = TimeSpan.FromMilliseconds(1000);
         public static readonly TimeSpan NoQuorumTimeout = TimeSpan.FromMilliseconds(3000);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<MasterReplicationService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<MasterReplicationService>();
 
         public string Name { get { return _queueStats.Name; } }
 
@@ -186,7 +186,7 @@ namespace EventStore.Core.Services.Replication
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Exception while subscribing replica. Connection will be dropped.");
+                Log.LogError(exc, "Exception while subscribing replica. Connection will be dropped.");
                 replica.SendBadRequestAndClose(correlationId, string.Format("Exception while subscribing replica. Connection will be dropped. Error: {0}", exc.Message));
                 return false;
             }

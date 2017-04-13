@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
@@ -26,7 +26,7 @@ namespace EventStore.Core.Tests
 
         private void LogEnvironmentInfo()
         {
-            var log = LogManager.GetLoggerFor<TestsInitFixture>();
+            var log = TraceLogger.GetLogger<TestsInitFixture>();
 
             log.Info("\n{0,-25} {1} ({2}/{3}, {4})\n"
                      + "{5,-25} {6} ({7})\n"

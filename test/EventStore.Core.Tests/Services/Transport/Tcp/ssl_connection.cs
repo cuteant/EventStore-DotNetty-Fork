@@ -5,7 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Transport.Tcp;
@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
     [TestFixture, Category("LongRunning")]
     public class ssl_connections
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ssl_connections>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ssl_connections>();
 
         [Test]
         public void should_connect_to_each_other_and_send_data()

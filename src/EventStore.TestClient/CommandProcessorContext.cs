@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient
 {

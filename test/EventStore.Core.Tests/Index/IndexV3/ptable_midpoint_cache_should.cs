@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Index;
 using NUnit.Framework;
 

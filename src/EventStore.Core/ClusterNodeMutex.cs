@@ -2,13 +2,13 @@
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core
 {
     public class ClusterNodeMutex
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ClusterNodeMutex>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterNodeMutex>();
 
         public readonly string MutexName;
         public bool IsAcquired { get { return _acquired; } }

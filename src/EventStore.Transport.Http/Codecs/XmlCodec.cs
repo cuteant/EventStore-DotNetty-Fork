@@ -3,14 +3,14 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Codecs
 {
     public class XmlCodec : ICodec
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<XmlCodec>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<XmlCodec>();
 
         public string ContentType { get { return EventStore.Transport.Http.ContentType.Xml; } }
         public Encoding Encoding { get { return Helper.UTF8NoBom; } }
@@ -44,7 +44,7 @@ namespace EventStore.Transport.Http.Codecs
             }
             catch (Exception e)
             {
-                Log.ErrorException(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
+                Log.LogError(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
                 return default(T);
             }
         }
@@ -80,7 +80,7 @@ namespace EventStore.Transport.Http.Codecs
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error serializing object of type {0}", value.GetType().FullName);
+                Log.LogError(exc, "Error serializing object of type {0}", value.GetType().FullName);
                 return null;
             }
         }

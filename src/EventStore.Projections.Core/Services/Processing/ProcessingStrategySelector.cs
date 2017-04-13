@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Messages;
 
@@ -7,7 +7,7 @@ namespace EventStore.Projections.Core.Services.Processing
 {
     public class ProcessingStrategySelector
     {
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ProcessingStrategySelector>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProcessingStrategySelector>();
         private readonly SpooledStreamReadingDispatcher _spoolProcessingResponseDispatcher;
         private readonly ReaderSubscriptionDispatcher _subscriptionDispatcher;
 

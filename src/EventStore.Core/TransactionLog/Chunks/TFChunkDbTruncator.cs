@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
     public class TFChunkDbTruncator
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunkDbTruncator>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkDbTruncator>();
 
         private readonly TFChunkDbConfig _config;
 

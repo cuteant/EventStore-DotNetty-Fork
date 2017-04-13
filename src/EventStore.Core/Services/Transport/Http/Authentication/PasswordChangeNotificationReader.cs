@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
         {
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
-            _log = LogManager.GetLoggerFor<UserManagementService>();
+            _log = TraceLogger.GetLogger<UserManagementService>();
         }
 
         private void Start()

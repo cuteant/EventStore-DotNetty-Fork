@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Server
 {
     public sealed class HttpAsyncServer
     {
-        private static readonly ILogger Logger = LogManager.GetLoggerFor<HttpAsyncServer>();
+        private static readonly ILogger Logger = TraceLogger.GetLogger<HttpAsyncServer>();
 
         public event Action<HttpAsyncServer, HttpListenerContext> RequestReceived;
         
@@ -45,7 +45,7 @@ namespace EventStore.Transport.Http.Server
         {
             try
             {
-                Logger.Info("Starting HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
+                if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Starting HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
                 try
                 {
                     _listener.Start();
@@ -57,20 +57,20 @@ namespace EventStore.Transport.Http.Server
                         if (_listenPrefixes.Length > 0)
                             TryAddAcl(_listenPrefixes[0]);
                         CreateListener(_listenPrefixes);
-                        Logger.Info("Retrying HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
+                        if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Retrying HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
                         _listener.Start();
                     }
                 }
 
                 _listener.BeginGetContext(ContextAcquired, null);
 
-                Logger.Info("HTTP server is up and listening on [{0}]", string.Join(",", _listener.Prefixes));
+                if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("HTTP server is up and listening on [{0}]", string.Join(",", _listener.Prefixes));
 
                 return true;
             }
             catch (Exception e)
             {
-                Logger.FatalException(e, "Failed to start http server");
+                Logger.LogCritical(e, "Failed to start http server");
                 return false;
             }
         }
@@ -81,7 +81,7 @@ namespace EventStore.Transport.Http.Server
                 return;
 
             var args = string.Format("http add urlacl url={0} user=\"{1}\\{2}\"", address, Environment.UserDomainName, Environment.UserName);
-            Logger.Info("Attempting to add permissions for " + address + " using netsh " + args);
+            if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Attempting to add permissions for " + address + " using netsh " + args);
             var startInfo = new ProcessStartInfo("netsh", args)
                           {
                               Verb = "runas",
@@ -116,7 +116,7 @@ namespace EventStore.Transport.Http.Server
             }
             catch (Exception e)
             {
-                Logger.ErrorException(e, "Error while shutting down http server");
+                Logger.LogError(e, "Error while shutting down http server");
             }
         }
 
@@ -136,16 +136,16 @@ namespace EventStore.Transport.Http.Server
             {
                 // that's not application-level error, ignore and continue
             }
-			catch (ObjectDisposedException)
-			{
-				// that's ok, just continue
-			}
+      catch (ObjectDisposedException)
+      {
+        // that's ok, just continue
+      }
             catch (InvalidOperationException)
             {
             }
             catch (Exception e)
             {
-                Logger.DebugException(e, "EndGetContext exception. Status : {0}.", IsListening ? "listening" : "stopped");
+                if(Logger.IsDebugLevelEnabled()) Logger.LogDebug(e, "EndGetContext exception. Status : {0}.", IsListening ? "listening" : "stopped");
             }
 
             if (success)
@@ -164,7 +164,7 @@ namespace EventStore.Transport.Http.Server
                 }
                 catch(Exception ex) 
                 {
-                    Logger.ErrorException(ex, "ProcessRequest error");
+                    Logger.LogError(ex, "ProcessRequest error");
                 }
 
             try
@@ -185,7 +185,7 @@ namespace EventStore.Transport.Http.Server
             }
             catch (Exception e)
             {
-                Logger.ErrorException(e, "BeginGetContext error. Status : {0}.", IsListening ? "listening" : "stopped");
+                Logger.LogError(e, "BeginGetContext error. Status : {0}.", IsListening ? "listening" : "stopped");
             }
         }
 

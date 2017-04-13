@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -18,7 +18,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                     IHttpSender,
                                     ISender<GossipMessage.SendGossip>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<GossipController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<GossipController>();
         private static readonly ICodec[] SupportedCodecs = new ICodec[] {Codec.Json, Codec.ApplicationXml, Codec.Xml, Codec.Text};
 
         private readonly IPublisher _networkSendQueue;

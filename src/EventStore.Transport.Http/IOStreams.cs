@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Transport.Http
 {
     public class IOStreams
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<IOStreams>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<IOStreams>();
 
         public static void SafelyDispose(params Stream[] streams)
         {
@@ -24,7 +24,7 @@ namespace EventStore.Transport.Http
                 {
                     //Exceptions may be thrown when client shutdowned and we were unable to write all the data,
                     //Nothing we can do, ignore (another option - globally ignore write errors)
-                    Log.Info("Error while closing stream : {0}", e.Message);
+                    if (Log.IsInformationLevelEnabled()) Log.LogInformation("Error while closing stream : {0}", e.Message);
                 }
             }
         }

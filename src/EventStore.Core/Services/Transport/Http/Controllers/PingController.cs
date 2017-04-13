@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Transport.Http;
@@ -10,7 +10,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 {
     public class PingController : IHttpController
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PingController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PingController>();
 
         private static readonly ICodec[] SupportedCodecs = new ICodec[] { Codec.Json, Codec.Xml, Codec.ApplicationXml, Codec.Text };
 
@@ -28,7 +28,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                     "OK",
                                     entity.ResponseCodec.ContentType,
                                     null,
-                                    e => Log.ErrorException(e, "Error while writing HTTP response (ping)"));
+                                    e => Log.LogError(e, "Error while writing HTTP response (ping)"));
         }
     }
 }

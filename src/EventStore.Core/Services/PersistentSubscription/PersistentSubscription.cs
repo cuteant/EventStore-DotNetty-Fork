@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.PersistentSubscription
     //TODO GFY REFACTOR TO USE ACTUAL STATE MACHINE
     public class PersistentSubscription
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PersistentSubscription>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PersistentSubscription>();
         public string SubscriptionId { get { return _settings.SubscriptionId; } }
         public string EventStreamId { get { return _settings.EventStreamId; } }
         public string GroupName { get { return _settings.GroupName; } }

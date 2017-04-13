@@ -175,7 +175,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                 catch (Exception ex)
                 {
                     exception = new ApplicationException("Failed to enable by_category.", ex);
-                    Log.ErrorException(ex, "Failed to enable *$by_category* projection, retry #{0}.", retryCount);
+                    Log.LogError(ex, "Failed to enable *$by_category* projection, retry #{0}.", retryCount);
                 }
                 retryCount += 1;
             }

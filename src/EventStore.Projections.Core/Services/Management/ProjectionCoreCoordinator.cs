@@ -6,7 +6,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Messages;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Management
 {
@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Management
         IHandle<SystemMessage.StateChangeMessage>,
         IHandle<SystemMessage.SystemCoreReady>
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<ProjectionCoreCoordinator>();
+        private readonly ILogger Log = TraceLogger.GetLogger<ProjectionCoreCoordinator>();
         private readonly ProjectionType _runProjections;
         private readonly TimeoutScheduler[] _timeoutSchedulers;
         private readonly IPublisher[] _queues;

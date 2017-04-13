@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -34,7 +34,7 @@ namespace EventStore.Core.Services.Monitoring
                                      IHandle<MonitoringMessage.GetFreshTcpConnectionStats>
     {
         private static readonly ILogger RegularLog = LogManager.GetLogger("REGULAR-STATS-LOGGER");
-        private static readonly ILogger Log = LogManager.GetLoggerFor<MonitoringService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<MonitoringService>();
 
         private static readonly string StreamMetadata = string.Format("{{\"$maxAge\":{0}}}", (int)TimeSpan.FromDays(10).TotalSeconds);
         public static readonly TimeSpan MemoizePeriod = TimeSpan.FromSeconds(1);
@@ -126,7 +126,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error on regular stats collection.");
+                Log.LogError(ex, "Error on regular stats collection.");
             }
         }
 
@@ -140,7 +140,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error while collecting stats");
+                Log.LogError(ex, "Error while collecting stats");
                 statsContainer = null;
             }
 
@@ -288,7 +288,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error on getting fresh stats");
+                Log.LogError(ex, "Error on getting fresh stats");
             }
         }
 
@@ -353,7 +353,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error on getting fresh tcp connection stats");
+                Log.LogError(ex, "Error on getting fresh tcp connection stats");
             }
         }
 

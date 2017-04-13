@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -27,7 +27,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                               IHandle<SystemMessage.SystemStart>,
                               IHandle<SystemMessage.BecomeShuttingDown>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpService>();
 
         private readonly IPublisher _publisher;
         private readonly IPEndPoint _serverEndPoint;

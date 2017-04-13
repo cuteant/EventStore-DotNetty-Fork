@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -32,7 +32,7 @@ namespace EventStore.Projections.Core.Services.Processing
             string name)
         {
             _projectionCheckpointStreamId = projectionCheckpointStreamId;
-            _logger = LogManager.GetLoggerFor<CoreProjectionCheckpointWriter>();
+            _logger = TraceLogger.GetLogger<CoreProjectionCheckpointWriter>();
             _ioDispatcher = ioDispatcher;
             _projectionVersion = projectionVersion;
             _name = name;

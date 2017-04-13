@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -27,7 +27,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                                           Codec.CompetingXml,
                                                           Codec.CompetingJson,
                                                       };
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PersistentSubscriptionController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PersistentSubscriptionController>();
 
         public PersistentSubscriptionController(IHttpForwarder httpForwarder, IPublisher publisher, IPublisher networkSendQueue)
             : base(publisher)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
@@ -23,7 +23,7 @@ namespace EventStore.Projections.Core.Services.Http
 {
     public class ProjectionsController : CommunicationController
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ProjectionsController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ProjectionsController>();
 
         private static readonly ICodec[] SupportedCodecs = {Codec.Json};
 
@@ -596,7 +596,7 @@ namespace EventStore.Projections.Core.Services.Http
             Publish(new ClientMessage.RequestShutdown());
             entity.Manager.ReplyStatus(HttpStatusCode.OK,
                                  "OK",
-                                 (s, e) => Log.ErrorException(e, "Error while closing http connection (admin controller)"));
+                                 (s, e) => Log.LogError(e, "Error while closing http connection (admin controller)"));
         }
 */
     }

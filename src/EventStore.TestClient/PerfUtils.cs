@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient
 {
     public static class PerfUtils
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor(typeof(PerfUtils));
+        private static readonly ILogger Log = TraceLogger.GetLogger(typeof(PerfUtils));
 
         private const string ColumnSplitter = ";";
         private const string PairSplitter = ":";

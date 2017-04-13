@@ -313,7 +313,7 @@ namespace EventStore.ClusterNode
         }
         catch (CompositionException ex)
         {
-          Log.ErrorException(ex, "Error loading consumer strategy plugin.");
+          Log.LogError(ex, "Error loading consumer strategy plugin.");
         }
       }
 
@@ -340,7 +340,7 @@ namespace EventStore.ClusterNode
         }
         catch (CompositionException ex)
         {
-          Log.ErrorException(ex, "Error loading authentication plugin.");
+          Log.LogError(ex, "Error loading authentication plugin.");
         }
       }
 

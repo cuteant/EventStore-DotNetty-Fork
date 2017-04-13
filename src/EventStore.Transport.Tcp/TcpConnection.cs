@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.BufferManagement;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using System.Collections.Concurrent;
 
@@ -16,7 +16,7 @@ namespace EventStore.Transport.Tcp
         internal const int MaxSendPacketSize = 64 * 1024;
         internal static readonly BufferManager BufferManager = new BufferManager(TcpConfiguration.BufferChunksCount, TcpConfiguration.SocketBufferSize);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpConnection>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpConnection>();
         private static readonly SocketArgsPool SocketArgsPool = new SocketArgsPool("TcpConnection.SocketArgsPool", 
                                                                                    TcpConfiguration.SendReceivePoolSize, 
                                                                                    () => new SocketAsyncEventArgs());
@@ -206,7 +206,7 @@ namespace EventStore.Transport.Tcp
             {
                 if (_receiveCallback != null)
                 {
-                    Log.Fatal("ReceiveAsync called again while previous call was not fulfilled");
+                    Log.LogCritical("ReceiveAsync called again while previous call was not fulfilled");
                     throw new InvalidOperationException("ReceiveAsync called again while previous call was not fulfilled");
                 }
                 _receiveCallback = callback;
@@ -331,18 +331,18 @@ namespace EventStore.Transport.Tcp
 
             NotifyClosed();
 
-            if (_verbose)
+            if (_verbose && Log.IsInformationLevelEnabled())
             {
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Received bytes: {5}, Sent bytes: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Received bytes: {5}, Sent bytes: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         TotalBytesReceived, TotalBytesSent);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Send calls: {5}, callbacks: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Send calls: {5}, callbacks: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         SendCalls, SendCallbacks);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Receive calls: {5}, callbacks: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Receive calls: {5}, callbacks: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         ReceiveCalls, ReceiveCallbacks);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Close reason: [{5}] {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Close reason: [{5}] {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         socketError, reason);
             }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -27,7 +27,7 @@ namespace EventStore.Core.Services.Gossip
         private static readonly TimeSpan GossipStartupInterval = TimeSpan.FromMilliseconds(100);
         private static readonly TimeSpan DeadMemberRemovalTimeout = TimeSpan.FromMinutes(30);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<GossipServiceBase>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<GossipServiceBase>();
 
         protected readonly VNodeInfo NodeInfo;
         protected VNodeState CurrentRole = VNodeState.Initializing;
@@ -82,7 +82,7 @@ namespace EventStore.Core.Services.Gossip
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error while retrieving cluster members through DNS.");
+                Log.LogError(ex, "Error while retrieving cluster members through DNS.");
                 _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
             }
         }
@@ -96,7 +96,7 @@ namespace EventStore.Core.Services.Gossip
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error while retrieving cluster members through DNS.");
+                Log.LogError(ex, "Error while retrieving cluster members through DNS.");
                 _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
             }
         }

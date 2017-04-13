@@ -11,7 +11,7 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.Persisted.Responses;
 using EventStore.Projections.Core.Services.Processing;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Projections.Core.Utils;
 
 namespace EventStore.Projections.Core.Services.Management
@@ -19,7 +19,7 @@ namespace EventStore.Projections.Core.Services.Management
     //TODO: response reader must start before Manager (otherwise misses first responses at least in case with pre-registered workers)
     public class ProjectionManagerResponseReader : IHandle<ProjectionManagementMessage.Starting>
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<ProjectionManagerResponseReader>();
+        private readonly ILogger Log = TraceLogger.GetLogger<ProjectionManagerResponseReader>();
         private readonly IPublisher _publisher;
         private readonly IODispatcher _ioDispatcher;
         private IODispatcherAsync.CancellationScope _cancellationScope;

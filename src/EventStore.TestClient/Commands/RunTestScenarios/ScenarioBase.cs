@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Services;
 using ConsoleLogger = EventStore.ClientAPI.Common.Log.ConsoleLogger;
 using ILogger = EventStore.Common.Logging.ILogger;
@@ -21,7 +21,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 {
     internal abstract class ScenarioBase : IScenario
     {
-        protected static readonly ILogger Log = LogManager.GetLoggerFor<ScenarioBase>();
+        protected static readonly ILogger Log = TraceLogger.GetLogger<ScenarioBase>();
         protected static readonly ClientAPI.ILogger ApiLogger = new ClientApiLoggerBridge(LogManager.GetLogger("client-api"));
 
         protected readonly UserCredentials AdminCredentials = new UserCredentials(SystemUsers.Admin, SystemUsers.DefaultAdminPassword);
@@ -171,11 +171,11 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
             }
             catch (IOException ex)
             {
-                Log.ErrorException(ex, "Failed to delete dir {0}, IOException was raised", _dbPath);
+                Log.LogError(ex, "Failed to delete dir {0}, IOException was raised", _dbPath);
             }
             catch (UnauthorizedAccessException ex)
             {
-                Log.ErrorException(ex, "Failed to delete dir {0}, UnauthorizedAccessException was raised", _dbPath);
+                Log.LogError(ex, "Failed to delete dir {0}, UnauthorizedAccessException was raised", _dbPath);
             }
         }
 

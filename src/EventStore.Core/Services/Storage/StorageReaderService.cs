@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
@@ -15,7 +15,7 @@ namespace EventStore.Core.Services.Storage
                                         IHandle<SystemMessage.BecomeShutdown>,
                                         IHandle<MonitoringMessage.InternalStatsRequest>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<StorageReaderService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<StorageReaderService>();
 
         private readonly IPublisher _bus;
         private readonly IReadIndex _readIndex;
@@ -74,7 +74,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error while stopping readers multi handler.");
+                Log.LogError(exc, "Error while stopping readers multi handler.");
             }
 
             _bus.Publish(new SystemMessage.ServiceShutdown("StorageReader"));

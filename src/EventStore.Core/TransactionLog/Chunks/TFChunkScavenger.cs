@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Exceptions;
@@ -23,7 +23,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 {
   public class TFChunkScavenger
   {
-    private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunkScavenger>();
+    private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkScavenger>();
 
     private readonly TFChunkDb _db;
     private readonly IODispatcher _ioDispatcher;
@@ -162,7 +162,7 @@ namespace EventStore.Core.TransactionLog.Chunks
       }
       catch (IOException exc)
       {
-        Log.ErrorException(exc, "IOException during creating new chunk for scavenging purposes. Stopping scavenging process...");
+        Log.LogError(exc, "IOException during creating new chunk for scavenging purposes. Stopping scavenging process...");
         return false;
       }
 

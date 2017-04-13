@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.DataStructures;
@@ -17,7 +17,7 @@ namespace EventStore.Core.Services.Transport.Http
 {
     internal class AuthenticatedHttpRequestProcessor : IHandle<HttpMessage.PurgeTimedOutRequests>, IHandle<AuthenticatedHttpRequestMessage>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<AuthenticatedHttpRequestProcessor>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<AuthenticatedHttpRequestProcessor>();
 
         private readonly PairingHeap<Tuple<DateTime, HttpEntityManager>> _pending = new PairingHeap<Tuple<DateTime, HttpEntityManager>>((x, y) => x.Item1 < y.Item1);
         private readonly bool _doNotTimeout = Application.IsDefined(Application.DoNotTimeoutRequests);
@@ -48,7 +48,7 @@ namespace EventStore.Core.Services.Transport.Http
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error purging timed out requests in HTTP request processor.");
+                Log.LogError(exc, "Error purging timed out requests in HTTP request processor.");
             }
         }
 
@@ -116,14 +116,14 @@ namespace EventStore.Core.Services.Transport.Http
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while handling HTTP request '{0}'.", request.Url);
+                    Log.LogError(exc, "Error while handling HTTP request '{0}'.", request.Url);
                     InternalServerError(httpEntity);
                 }
                 
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Unhandled exception while processing HTTP request at [{0}].",
+                Log.LogError(exc, "Unhandled exception while processing HTTP request at [{0}].",
                                    string.Join(", ", httpService.ListenPrefixes));
                 InternalServerError(httpEntity);
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -13,7 +13,7 @@ namespace EventStore.Projections.Core.Services.Management
 {
     public sealed class MultiStreamMessageWriter : IMultiStreamMessageWriter
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<MultiStreamMessageWriter>();
+        private readonly ILogger Log = TraceLogger.GetLogger<MultiStreamMessageWriter>();
         private readonly IODispatcher _ioDispatcher;
 
         private readonly Dictionary<Guid, Queue> _queues = new Dictionary<Guid, Queue>();

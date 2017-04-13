@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
+  <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
@@ -27,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="NLog" Version="4.4.5" />
+    <PackageReference Include="CuteAnt" Version="2.0.0-rtm-170301" />
   </ItemGroup>
 
   <ItemGroup>

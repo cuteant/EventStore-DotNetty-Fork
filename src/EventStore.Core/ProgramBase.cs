@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using EventStore.Common.Exceptions;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Util;
@@ -17,7 +17,7 @@ namespace EventStore.Core
     where TOptions : class, IOptions, new()
   {
     // ReSharper disable StaticFieldInGenericType
-    protected static readonly ILogger Log = LogManager.GetLoggerFor<ProgramBase<TOptions>>();
+    protected static readonly ILogger Log = TraceLogger.GetLogger<ProgramBase<TOptions>>();
     // ReSharper restore StaticFieldInGenericType
 
     private int _exitCode;

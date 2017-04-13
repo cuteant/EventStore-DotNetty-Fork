@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Messages;
 

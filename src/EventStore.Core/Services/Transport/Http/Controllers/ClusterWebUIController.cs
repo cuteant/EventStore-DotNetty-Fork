@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Util;
 using EventStore.Transport.Http;
@@ -12,7 +12,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 {
     public class ClusterWebUiController : CommunicationController
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ClusterWebUiController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterWebUiController>();
 
         private readonly NodeSubsystems[] _enabledNodeSubsystems;
 

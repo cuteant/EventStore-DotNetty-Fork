@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -23,7 +23,7 @@ namespace EventStore.Core.Services
                                               IHandle<ReplicationMessage.RawChunkBulk>,
                                               IHandle<ReplicationMessage.DataChunkBulk>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ClusterStorageWriterService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterStorageWriterService>();
 
         private readonly Func<long> _getLastCommitPosition;
         private readonly LengthPrefixSuffixFramer _framer;
@@ -242,7 +242,7 @@ namespace EventStore.Core.Services
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Exception in writer.");
+                Log.LogError(exc, "Exception in writer.");
                 throw;
             }
             finally

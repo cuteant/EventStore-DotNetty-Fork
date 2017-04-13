@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Messages;
 
@@ -59,7 +59,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _publisher = publisher;
             _projectionCorrelationId = projectionCorrelationId;
             _projectionConfig = projectionConfig;
-            _logger = LogManager.GetLoggerFor<CoreProjectionCheckpointManager>();
+            _logger = TraceLogger.GetLogger<CoreProjectionCheckpointManager>();
             _namingBuilder = namingBuilder;
             _usePersistentCheckpoints = usePersistentCheckpoints;
             _requestedCheckpointState = new PartitionState("", null, _zeroTag);

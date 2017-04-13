@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Messages;
@@ -14,7 +14,7 @@ namespace EventStore.Projections.Core.Services.Management
             IHandle<CoreProjectionManagementControlMessage>,
             IHandle<PartitionProcessingResultOutputBase>
     {
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ProjectionManager>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionManager>();
         private readonly IDictionary<Guid, IPublisher> _queueMap;
 
         public ProjectionManagerMessageDispatcher(IDictionary<Guid, IPublisher> queueMap)

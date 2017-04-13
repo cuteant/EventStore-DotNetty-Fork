@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
@@ -25,7 +25,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
     public class IndexCommitter : IIndexCommitter
     {
-        public static readonly ILogger Log = LogManager.GetLoggerFor<IndexCommitter>();
+        public static readonly ILogger Log = TraceLogger.GetLogger<IndexCommitter>();
 
         public long LastCommitPosition { get { return Interlocked.Read(ref _lastCommitPosition); } }
 
@@ -136,7 +136,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
             catch (TimeoutException exc)
             {
-                Log.ErrorException(exc, "Timeout exception when trying to close TableIndex.");
+                Log.LogError(exc, "Timeout exception when trying to close TableIndex.");
                 throw;
             }
         }
@@ -394,7 +394,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error deserializing SystemSettings record.");
+                Log.LogError(exc, "Error deserializing SystemSettings record.");
             }
             return null;
         }

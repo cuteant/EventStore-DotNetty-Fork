@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Index;
 using NUnit.Framework;
 
@@ -7,7 +7,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
 {
     public class ptable_midpoint_cache_should: SpecificationWithDirectory
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ptable_midpoint_cache_should>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ptable_midpoint_cache_should>();
         protected byte _ptableVersion = PTableVersions.IndexV1;
 
         [Test, Category("LongRunning"), Ignore("Veerrrryyy long running :)")]

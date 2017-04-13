@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using System.Linq;
 
@@ -9,7 +9,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 {
     public class TFChunkManager: IDisposable
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunkManager>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkManager>();
 
         public const int MaxChunksCount = 100000; // that's enough for about 25 Tb of data
 

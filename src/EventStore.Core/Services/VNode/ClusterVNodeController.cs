@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.VNode
         private static readonly TimeSpan MasterSubscriptionRetryDelay = TimeSpan.FromMilliseconds(500);
         private static readonly TimeSpan MasterSubscriptionTimeout = TimeSpan.FromMilliseconds(1000);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ClusterVNodeController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterVNodeController>();
 
         private readonly IPublisher _outputBus;
         private readonly VNodeInfo _nodeInfo;
@@ -400,7 +400,7 @@ namespace EventStore.Core.Services.VNode
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error when publishing {0}.", message);
+                Log.LogError(exc, "Error when publishing {0}.", message);
             }
             if (_exitProcessOnShutdown)
             {
@@ -411,7 +411,7 @@ namespace EventStore.Core.Services.VNode
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error when stopping workers/main queue.");
+                    Log.LogError(exc, "Error when stopping workers/main queue.");
                 }
                 Application.Exit(ExitCode.Success, "Shutdown and exit from process was requested.");
             }

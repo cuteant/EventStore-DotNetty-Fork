@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         private long _version = ExpectedVersion.Any;
         private bool _outstandingWrite;
         private readonly string _subscriptionStateStream;
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PersistentSubscriptionCheckpointWriter>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PersistentSubscriptionCheckpointWriter>();
 
         public PersistentSubscriptionCheckpointWriter(string subscriptionId, IODispatcher ioDispatcher)
         {

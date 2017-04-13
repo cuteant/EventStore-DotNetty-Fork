@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
@@ -128,7 +128,7 @@ namespace EventStore.Core
 
         protected VNodeBuilder()
         {
-            _log = LogManager.GetLoggerFor<VNodeBuilder>();
+            _log = TraceLogger.GetLogger<VNodeBuilder>();
             _statsStorage = StatsStorage.Stream;
 
             _chunkSize = TFConsts.ChunkSize;

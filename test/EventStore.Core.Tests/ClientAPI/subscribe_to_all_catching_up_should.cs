@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Services;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.ClientAPI
     [TestFixture, Category("ClientAPI"), Category("LongRunning")]
     public class subscribe_to_all_catching_up_should : SpecificationWithDirectory
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<subscribe_to_all_catching_up_should>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<subscribe_to_all_catching_up_should>();
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(60);
 
         private MiniNode _node;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 
@@ -11,7 +11,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 {
     public class TFChunkDb: IDisposable
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunkDb>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkDb>();
 
         public readonly TFChunkDbConfig Config;
         public readonly TFChunkManager Manager;
@@ -244,7 +244,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while trying to delete remaining temp file: '{0}'.", tempFile);
+                    Log.LogError(exc, "Error while trying to delete remaining temp file: '{0}'.", tempFile);
                 }
             }
         }

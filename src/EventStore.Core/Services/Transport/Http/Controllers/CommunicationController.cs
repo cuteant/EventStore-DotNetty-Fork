@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
@@ -11,7 +11,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 {
     public abstract class CommunicationController : IHttpController
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<CommunicationController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<CommunicationController>();
         private static readonly ICodec[] DefaultCodecs = new ICodec[] { Codec.Json, Codec.Xml };
 
         private readonly IPublisher _publisher;

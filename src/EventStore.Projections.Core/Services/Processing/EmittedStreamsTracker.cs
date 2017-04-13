@@ -1,4 +1,4 @@
-﻿using EventStore.Common.Logging;
+﻿using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -18,7 +18,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public class EmittedStreamsTracker : IEmittedStreamsTracker
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<EmittedStreamsTracker>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<EmittedStreamsTracker>();
         private readonly IODispatcher _ioDispatcher;
         private readonly ProjectionConfig _projectionConfig;
         private readonly ProjectionNamesBuilder _projectionNamesBuilder;

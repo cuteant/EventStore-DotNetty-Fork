@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Management
     public sealed class ResponseWriter : IResponseWriter
     {
         private readonly IODispatcher _ioDispatcher;
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ResponseWriter>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ResponseWriter>();
 
         private bool Busy;
         private readonly List<Item> Items = new List<Item>();

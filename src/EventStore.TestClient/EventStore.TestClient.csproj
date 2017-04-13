@@ -149,9 +149,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\EventStore.Common\Logging\NLog.config">
+    <None Include="..\NLog.config">
       <Link>NLog.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
     <None Include="project.json" />

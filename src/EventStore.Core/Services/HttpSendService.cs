@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -26,7 +26,7 @@ namespace EventStore.Core.Services
                                    IHandle<HttpMessage.HttpSendPart>,
                                    IHandle<HttpMessage.HttpEndSend>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<HttpSendService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<HttpSendService>();
         private static HttpClient _client = new HttpClient();
 
         private readonly Stopwatch _watch = Stopwatch.StartNew();

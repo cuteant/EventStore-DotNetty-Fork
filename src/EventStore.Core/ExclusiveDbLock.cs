@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Util;
 
@@ -10,7 +10,7 @@ namespace EventStore.Core
 {
     public class ExclusiveDbLock
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ExclusiveDbLock>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ExclusiveDbLock>();
 
         public readonly string MutexName;
         public bool IsAcquired { get { return _acquired; } }

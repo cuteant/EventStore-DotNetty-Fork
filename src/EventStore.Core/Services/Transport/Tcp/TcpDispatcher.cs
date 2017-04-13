@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Services.Transport.Tcp
 {
     public abstract class TcpDispatcher: ITcpDispatcher
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpDispatcher>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpDispatcher>();
 
         private readonly Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, Message>[][] _unwrappers;
         private readonly IDictionary<Type, Func<Message, TcpPackage>>[] _wrappers;
@@ -72,7 +72,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error while wrapping message {0}.", message);
+                Log.LogError(exc, "Error while wrapping message {0}.", message);
             }
             return null;
         }
@@ -95,7 +95,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while unwrapping TcpPackage with command {0}.", package.Command);
+                    Log.LogError(exc, "Error while unwrapping TcpPackage with command {0}.", package.Command);
                 }
             }
             return null;

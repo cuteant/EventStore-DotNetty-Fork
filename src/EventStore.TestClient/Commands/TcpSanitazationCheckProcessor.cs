@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Services.Transport.Tcp;
 using System.Linq;
 using EventStore.Transport.Tcp;
@@ -12,7 +12,7 @@ namespace EventStore.TestClient.Commands
 {
     public class TcpSanitazationCheckProcessor : ICmdProcessor
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpSanitazationCheckProcessor>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpSanitazationCheckProcessor>();
 
         public string Keyword
         {

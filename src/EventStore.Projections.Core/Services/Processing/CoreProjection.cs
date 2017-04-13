@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;
@@ -112,7 +112,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _name = effectiveProjectionName;
             _version = version;
             _stopOnEof = projectionProcessingStrategy.GetStopOnEof();
-            _logger = logger ?? LogManager.GetLoggerFor<CoreProjection>();
+            _logger = logger ?? TraceLogger.GetLogger<CoreProjection>();
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
             _partitionStateCache = partitionStateCache;

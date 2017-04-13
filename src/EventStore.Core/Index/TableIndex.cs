@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog;
@@ -21,7 +21,7 @@ namespace EventStore.Core.Index
     public const string IndexMapFilename = "indexmap";
     private const int MaxMemoryTables = 1;
 
-    private static readonly ILogger Log = LogManager.GetLoggerFor<TableIndex>();
+    private static readonly ILogger Log = TraceLogger.GetLogger<TableIndex>();
     internal static readonly IndexEntry InvalidIndexEntry = new IndexEntry(0, -1, -1);
 
     public long CommitCheckpoint { get { return Interlocked.Read(ref _commitCheckpoint); } }
@@ -124,7 +124,7 @@ namespace EventStore.Core.Index
       }
       catch (CorruptIndexException exc)
       {
-        Log.ErrorException(exc, "ReadIndex is corrupted...");
+        Log.LogError(exc, "ReadIndex is corrupted...");
         LogIndexMapContent(indexmapFile);
         DumpAndCopyIndex();
         File.Delete(indexmapFile);
@@ -158,7 +158,7 @@ namespace EventStore.Core.Index
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Unexpected error while dumping IndexMap '{0}'.", indexmapFile);
+        Log.LogError(exc, "Unexpected error while dumping IndexMap '{0}'.", indexmapFile);
       }
     }
 
@@ -174,7 +174,7 @@ namespace EventStore.Core.Index
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Unexpected error while copying index to backup dir '{0}'", dumpPath);
+        Log.LogError(exc, "Unexpected error while copying index to backup dir '{0}'", dumpPath);
       }
     }
 
@@ -295,11 +295,11 @@ namespace EventStore.Core.Index
       }
       catch (FileBeingDeletedException exc)
       {
-        Log.ErrorException(exc, "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
+        Log.LogError(exc, "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
       }
       catch (Exception exc)
       {
-        Log.ErrorException(exc, "Error in TableIndex.ReadOffQueue");
+        Log.LogError(exc, "Error in TableIndex.ReadOffQueue");
         throw;
       }
     }

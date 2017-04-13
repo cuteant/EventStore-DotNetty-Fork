@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
@@ -48,7 +48,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
     public class IndexWriter : IIndexWriter
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<IndexWriter>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<IndexWriter>();
 
         public long CachedTransInfo { get { return Interlocked.Read(ref _cachedTransInfo); } }
         public long NotCachedTransInfo { get { return Interlocked.Read(ref _notCachedTransInfo); } }

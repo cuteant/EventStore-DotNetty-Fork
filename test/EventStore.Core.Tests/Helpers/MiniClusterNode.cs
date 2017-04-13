@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
@@ -35,7 +35,7 @@ namespace EventStore.Core.Tests.Helpers
         public const int ChunkSize = 1024*1024;
         public const int CachedChunkSize = ChunkSize + ChunkHeader.Size + ChunkFooter.Size;
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<MiniClusterNode>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<MiniClusterNode>();
 
         public IPEndPoint InternalTcpEndPoint { get; private set; }
         public IPEndPoint InternalTcpSecEndPoint { get; private set; }

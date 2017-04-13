@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster.Settings;
@@ -43,7 +43,7 @@ namespace EventStore.Core
         IHandle<SystemMessage.StateChangeMessage>,
         IHandle<SystemMessage.BecomeShutdown>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ClusterVNode>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterVNode>();
 
         public IQueuedHandler MainQueue { get { return _mainQueue; } }
         public ISubscriber MainBus { get { return _mainBus; } }

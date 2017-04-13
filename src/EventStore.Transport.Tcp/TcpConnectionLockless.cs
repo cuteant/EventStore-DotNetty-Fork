@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.BufferManagement;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using System.Collections.Concurrent;
 
@@ -16,7 +16,7 @@ namespace EventStore.Transport.Tcp
         internal const int MaxSendPacketSize = 64 * 1024;
         internal static readonly BufferManager BufferManager = new BufferManager(TcpConfiguration.BufferChunksCount, TcpConfiguration.SocketBufferSize);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpConnectionLockless>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TcpConnectionLockless>();
         private static readonly SocketArgsPool SocketArgsPool = new SocketArgsPool("TcpConnection.SocketArgsPool", 
                                                                                    TcpConfiguration.SendReceivePoolSize, 
                                                                                    () => new SocketAsyncEventArgs());
@@ -284,7 +284,7 @@ namespace EventStore.Transport.Tcp
                     var callback = Interlocked.Exchange(ref _receiveCallback, null);
                     if (callback == null)
                     {
-                        Log.Fatal("Some threading issue in TryDequeueReceivedData! Callback is null!");
+                        Log.LogCritical("Some threading issue in TryDequeueReceivedData! Callback is null!");
                         throw new Exception("Some threading issue in TryDequeueReceivedData! Callback is null!");
                     }
 
@@ -325,18 +325,18 @@ namespace EventStore.Transport.Tcp
             if (Interlocked.CompareExchange(ref _closed, 1, 0) != 0)
                 return;
             NotifyClosed();
-            if (_verbose)
+            if (_verbose && Log.IsInformationLevelEnabled())
             {
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Received bytes: {5}, Sent bytes: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Received bytes: {5}, Sent bytes: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         TotalBytesReceived, TotalBytesSent);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Send calls: {5}, callbacks: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Send calls: {5}, callbacks: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         SendCalls, SendCallbacks);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Receive calls: {5}, callbacks: {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Receive calls: {5}, callbacks: {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         ReceiveCalls, ReceiveCallbacks);
-                Log.Info("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Close reason: [{5}] {6}",
+                Log.LogInformation("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}] Close reason: [{5}] {6}",
                         GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
                         socketError, reason);
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -32,7 +32,7 @@ namespace EventStore.Core.Services
     {
         public const string AllStreamsSubscriptionId = ""; // empty stream id means subscription to all streams
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<SubscriptionsService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<SubscriptionsService>();
         private static readonly TimeSpan TimeoutPeriod = TimeSpan.FromSeconds(1);
 
         private readonly Dictionary<string, List<Subscription>> _subscriptionTopics = new Dictionary<string, List<Subscription>>();
@@ -310,7 +310,7 @@ namespace EventStore.Core.Services
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
+                    Log.LogError(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
                 }
                 // return unresolved link
                 return ResolvedEvent.ForFailedResolvedLink(eventRecord, ReadEventResult.Error, commitPosition);

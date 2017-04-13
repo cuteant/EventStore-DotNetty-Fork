@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -37,7 +37,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                                         IHandle<MonitoringMessage.GetPersistentSubscriptionStats>,
                                         IHandle<MonitoringMessage.GetStreamPersistentSubscriptionStats>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PersistentSubscriptionService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PersistentSubscriptionService>();
 
         private Dictionary<string, List<PersistentSubscription>> _subscriptionTopics;
         private Dictionary<string, PersistentSubscription> _subscriptionsById;
@@ -507,7 +507,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
+                    Log.LogError(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
                 }
 
                 return ResolvedEvent.ForFailedResolvedLink(eventRecord, ReadEventResult.Error, commitPosition);

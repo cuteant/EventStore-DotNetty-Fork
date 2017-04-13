@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using EventStore.Common.Exceptions;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Util;
@@ -16,7 +16,7 @@ namespace EventStore.ClusterNode
     where TOptions : class, IOptions, new()
   {
     // ReSharper disable StaticFieldInGenericType
-    protected static readonly ILogger Log = LogManager.GetLoggerFor<EventStoreServiceBase<TOptions>>();
+    protected static readonly ILogger Log = TraceLogger.GetLogger<EventStoreServiceBase<TOptions>>();
     // ReSharper restore StaticFieldInGenericType
 
     protected abstract string GetLogsDirectory(TOptions options);

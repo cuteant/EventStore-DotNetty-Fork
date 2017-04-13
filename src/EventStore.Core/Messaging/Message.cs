@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Messaging
 {
@@ -17,7 +17,7 @@ namespace EventStore.Core.Messaging
 
     public static class MessageHierarchy
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor(typeof(MessageHierarchy));
+        private static readonly ILogger Log = TraceLogger.GetLogger(typeof(MessageHierarchy));
 
         public static readonly Dictionary<Type, List<Type>> Descendants;
         public static readonly int[][] ParentsByTypeId;

@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.Settings;
@@ -30,7 +30,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         public const int WriteBufferSize = 8192;
         public const int ReadBufferSize = 8192;
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunk>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TFChunk>();
 
         public bool IsReadOnly { get { return _isReadOnly; } }
         public bool IsCached { get { return _isCached != 0; } }

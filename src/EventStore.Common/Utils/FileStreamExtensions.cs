@@ -3,14 +3,14 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
 
 namespace EventStore.Common.Utils
 {
     public static class FileStreamExtensions
     {
-        private static readonly ILogger Log = LogManager.GetLogger("FileStreamExtensions");
+        private static readonly ILogger Log = TraceLogger.GetLogger(typeof(FileStreamExtensions));
         private static Action<FileStream> FlushSafe;
         private static Func<FileStream, SafeFileHandle> GetFileHandle;
 
@@ -36,7 +36,7 @@ namespace EventStore.Common.Utils
         {
             if (disableFlushToDisk)
             {
-                Log.Info("FlushToDisk: DISABLED");
+                if (Log.IsInformationLevelEnabled()) Log.LogInformation("FlushToDisk: DISABLED");
                 FlushSafe = f => f.Flush(flushToDisk: false);
                 return;
             }
@@ -59,7 +59,7 @@ namespace EventStore.Common.Utils
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while compiling sneaky SafeFileHandle getter.");
+                    Log.LogError(exc, "Error while compiling sneaky SafeFileHandle getter.");
                     FlushSafe = f => f.Flush(flushToDisk: true);
                 }
             }

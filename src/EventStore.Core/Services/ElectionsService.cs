@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Services
         private static readonly TimeSpan LeaderElectionProgressTimeout = TimeSpan.FromMilliseconds(1000);
         private static readonly TimeSpan SendViewChangeProofInterval = TimeSpan.FromMilliseconds(5000);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ElectionsService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ElectionsService>();
         private static readonly IPEndPointComparer IPComparer = new IPEndPointComparer();
 
         private readonly IPublisher _publisher;

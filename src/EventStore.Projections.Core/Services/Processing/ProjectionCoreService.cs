@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Services.TimerService;
@@ -38,7 +38,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly Guid _workerId;
         private readonly IPublisher _publisher;
         private readonly IPublisher _inputQueue;
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ProjectionCoreService>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionCoreService>();
 
         private readonly Dictionary<Guid, CoreProjection> _projections = new Dictionary<Guid, CoreProjection>();
 

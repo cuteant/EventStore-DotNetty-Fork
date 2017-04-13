@@ -9,13 +9,13 @@ using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Messages.Persisted.Responses.Slave;
 using EventStore.Projections.Core.Services.Processing;
 using ResolvedEvent = EventStore.Core.Data.ResolvedEvent;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Management
 {
     public class MasterCoreProjectionResponseReader
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<MasterCoreProjectionResponseReader>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<MasterCoreProjectionResponseReader>();
 
         private readonly IPublisher _publisher;
         private readonly IODispatcher _ioDispatcher;

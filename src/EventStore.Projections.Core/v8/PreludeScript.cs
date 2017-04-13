@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Projections.Core.Utils;
 
 namespace EventStore.Projections.Core.v8
 {
     public class PreludeScript : IDisposable
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<PreludeScript>();
+        private readonly ILogger Log = TraceLogger.GetLogger<PreludeScript>();
         private readonly Func<string, Tuple<string, string>> _getModuleSourceAndFileName;
         private readonly Action<string, object[]> _logger;
         private readonly CompiledScript _script;
@@ -108,7 +108,7 @@ namespace EventStore.Projections.Core.v8
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Cannot load module '{0}'", moduleName);
+                Log.LogError(ex, "Cannot load module '{0}'", moduleName);
                 //TODO: this is not a good way to report missing module and other exceptions back to caller
                 return IntPtr.Zero;
             }

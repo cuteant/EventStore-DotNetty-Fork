@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using EventStore.ClientAPI;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;
@@ -13,7 +13,7 @@ namespace EventStore.Core.Tests.ClientAPI
     [TestFixture, Category("ClientAPI"), Category("LongRunning")]
     public class subscribe_to_stream_catching_up_should : SpecificationWithDirectoryPerTestFixture
     {
-        private static readonly EventStore.Common.Logging.ILogger Log = LogManager.GetLoggerFor<subscribe_to_stream_catching_up_should>();
+        private static readonly EventStore.Common.Logging.ILogger Log = TraceLogger.GetLogger<subscribe_to_stream_catching_up_should>();
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(500);
 
         private MiniNode _node;

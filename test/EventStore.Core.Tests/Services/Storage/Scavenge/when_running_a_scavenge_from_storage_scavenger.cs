@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Tests.Helpers;
@@ -19,7 +19,7 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
     [TestFixture]
 	public class when_running_scavenge_from_storage_scavenger : SpecificationWithDirectoryPerTestFixture
     {
-		private static readonly ILogger Log = LogManager.GetLoggerFor<when_running_scavenge_from_storage_scavenger>();
+		private static readonly ILogger Log = TraceLogger.GetLogger<when_running_scavenge_from_storage_scavenger>();
 		private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(60);
 		private MiniNode _node;
 		private List<ResolvedEvent> _result;

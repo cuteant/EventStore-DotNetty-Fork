@@ -1,132 +1,131 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EventStore.Common.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.TransactionLog.Chunks;
 using EventStore.Transport.Tcp.Framing;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Helpers
 {
-    public class LengthPrefixSuffixFramer
+  public class LengthPrefixSuffixFramer
+  {
+    private static readonly ILogger Log = TraceLogger.GetLogger<LengthPrefixSuffixFramer>();
+
+    private const int PrefixLength = sizeof(int);
+
+    public bool HasData { get { return _memStream.Length > 0; } }
+
+    private readonly int _maxPackageSize;
+    private readonly Action<BinaryReader> _packageHandler;
+
+    private readonly MemoryStream _memStream;
+    private readonly BinaryReader _binaryReader;
+
+    private int _prefixBytes;
+    private int _packageLength;
+
+    public LengthPrefixSuffixFramer(Action<BinaryReader> packageHandler, int maxPackageSize = TFConsts.MaxLogRecordSize)
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<LengthPrefixSuffixFramer>();
+      Ensure.NotNull(packageHandler, nameof(packageHandler));
+      Ensure.Positive(maxPackageSize, nameof(maxPackageSize));
 
-        private const int PrefixLength = sizeof(int);
+      _maxPackageSize = maxPackageSize;
+      _packageHandler = packageHandler;
 
-        public bool HasData { get { return _memStream.Length > 0; } }
+      _memStream = new MemoryStream();
+      _binaryReader = new BinaryReader(_memStream);
+    }
 
-        private readonly int _maxPackageSize;
-        private readonly Action<BinaryReader> _packageHandler;
+    public void Reset()
+    {
+      _memStream.SetLength(0);
+      _prefixBytes = 0;
+      _packageLength = 0;
+    }
 
-        private readonly MemoryStream _memStream;
-        private readonly BinaryReader _binaryReader;
+    public void UnFrameData(IEnumerable<ArraySegment<byte>> data)
+    {
+      if (data == null) throw new ArgumentNullException(nameof(data));
 
-        private int _prefixBytes;
-        private int _packageLength;
+      foreach (ArraySegment<byte> buffer in data)
+      {
+        Parse(buffer);
+      }
+    }
 
-        public LengthPrefixSuffixFramer(Action<BinaryReader> packageHandler, int maxPackageSize = TFConsts.MaxLogRecordSize)
+    public void UnFrameData(ArraySegment<byte> data)
+    {
+      Parse(data);
+    }
+
+    /// <summary>Parses a stream chunking based on length-prefixed-suffixed framing. Calls are re-entrant and hold state internally.</summary>
+    /// <param name="bytes">A byte array of data to append.</param>
+    private void Parse(ArraySegment<byte> bytes)
+    {
+      var data = bytes.Array;
+      for (int i = bytes.Offset; i < bytes.Offset + bytes.Count;)
+      {
+        if (_prefixBytes < PrefixLength)
         {
-            Ensure.NotNull(packageHandler, "packageHandler");
-            Ensure.Positive(maxPackageSize, "maxPackageSize");
-            
-            _maxPackageSize = maxPackageSize;
-            _packageHandler = packageHandler;
-
-            _memStream = new MemoryStream();
-            _binaryReader = new BinaryReader(_memStream);
+          _packageLength |= (data[i] << (_prefixBytes * 8)); // little-endian order
+          _prefixBytes += 1;
+          i += 1;
+          if (_prefixBytes == PrefixLength)
+          {
+            if (_packageLength <= 0 || _packageLength > _maxPackageSize)
+            {
+              Log.LogError("FRAMING ERROR! Data:");
+              Log.LogError(Helper.FormatBinaryDump(bytes));
+              throw new PackageFramingException(string.Format("Package size is out of bounds: {0} (max: {1}).",
+                                                              _packageLength, _maxPackageSize));
+            }
+            _packageLength += PrefixLength; // we need to read suffix as well
+          }
         }
-
-        public void Reset()
+        else
         {
+          int copyCnt = Math.Min(bytes.Count + bytes.Offset - i, _packageLength - (int)_memStream.Length);
+          _memStream.Write(bytes.Array, i, copyCnt);
+          i += copyCnt;
+
+          if (_memStream.Length == _packageLength)
+          {
+#if DEBUG
+            var buf = _memStream.GetBuffer();
+            int suffixLength = (buf[_packageLength - 4] << 0)
+                             | (buf[_packageLength - 3] << 8)
+                             | (buf[_packageLength - 2] << 16)
+                             | (buf[_packageLength - 1] << 24);
+            if (_packageLength - PrefixLength != suffixLength)
+            {
+              throw new Exception($"Prefix length: {_packageLength - PrefixLength} is not equal to suffix length: {suffixLength}.");
+            }
+#endif
+            _memStream.SetLength(_packageLength - PrefixLength); // remove suffix length
+            _memStream.Position = 0;
+
+            _packageHandler(_binaryReader);
+
             _memStream.SetLength(0);
             _prefixBytes = 0;
             _packageLength = 0;
+          }
         }
-
-        public void UnFrameData(IEnumerable<ArraySegment<byte>> data)
-        {
-            if (data == null) throw new ArgumentNullException("data");
-
-            foreach (ArraySegment<byte> buffer in data)
-            {
-                Parse(buffer);
-            }
-        }
-
-        public void UnFrameData(ArraySegment<byte> data)
-        {
-            Parse(data);
-        }
-
-        /// <summary>
-        /// Parses a stream chunking based on length-prefixed-suffixed framing. Calls are re-entrant and hold state internally.
-        /// </summary>
-        /// <param name="bytes">A byte array of data to append.</param>
-        private void Parse(ArraySegment<byte> bytes)
-        {
-            byte[] data = bytes.Array;
-            for (int i = bytes.Offset; i < bytes.Offset + bytes.Count; )
-            {
-                if (_prefixBytes < PrefixLength)
-                {
-                    _packageLength |= (data[i] << (_prefixBytes * 8)); // little-endian order
-                    _prefixBytes += 1;
-                    i += 1;
-                    if (_prefixBytes == PrefixLength)
-                    {
-                        if (_packageLength <= 0 || _packageLength > _maxPackageSize)
-                        {
-                            Log.Error("FRAMING ERROR! Data:");
-                            Log.Error(Helper.FormatBinaryDump(bytes));
-                            throw new PackageFramingException(string.Format("Package size is out of bounds: {0} (max: {1}).",
-                                                                            _packageLength, _maxPackageSize));
-                        }
-                        _packageLength += PrefixLength; // we need to read suffix as well
-                    }
-                }
-                else
-                {
-                    int copyCnt = Math.Min(bytes.Count + bytes.Offset - i, _packageLength - (int)_memStream.Length);
-                    _memStream.Write(bytes.Array, i, copyCnt);
-                    i += copyCnt;
-
-                    if (_memStream.Length == _packageLength)
-                    {
-#if DEBUG
-                        var buf = _memStream.GetBuffer();
-                        int suffixLength = (buf[_packageLength - 4] << 0)
-                                         | (buf[_packageLength - 3] << 8)
-                                         | (buf[_packageLength - 2] << 16)
-                                         | (buf[_packageLength - 1] << 24);
-                        if (_packageLength - PrefixLength != suffixLength)
-                        {
-                            throw new Exception(string.Format("Prefix length: {0} is not equal to suffix length: {1}.",
-                                                              _packageLength - PrefixLength, suffixLength));
-                        }
-#endif
-                        _memStream.SetLength(_packageLength - PrefixLength); // remove suffix length
-                        _memStream.Position = 0;
-                        
-                        _packageHandler(_binaryReader);
-                        
-                        _memStream.SetLength(0);
-                        _prefixBytes = 0;
-                        _packageLength = 0;
-                    }
-                }
-            }
-        }
-
-        public IEnumerable<ArraySegment<byte>> FrameData(ArraySegment<byte> data)
-        {
-            var length = data.Count;
-
-            var lengthArray = new ArraySegment<byte>(
-                    new[] { (byte)length, (byte)(length >> 8), (byte)(length >> 16), (byte)(length >> 24) });
-            yield return lengthArray;
-            yield return data;
-            yield return lengthArray;
-        }
+      }
     }
+
+    public IEnumerable<ArraySegment<byte>> FrameData(ArraySegment<byte> data)
+    {
+      var length = data.Count;
+
+      var lengthArray = new ArraySegment<byte>(new[]
+      {
+        (byte)length, (byte)(length >> 8), (byte)(length >> 16), (byte)(length >> 24)
+      });
+      yield return lengthArray;
+      yield return data;
+      yield return lengthArray;
+    }
+  }
 }

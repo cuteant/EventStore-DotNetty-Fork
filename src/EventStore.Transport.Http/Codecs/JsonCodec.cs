@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -12,7 +12,7 @@ namespace EventStore.Transport.Http.Codecs
     {
         public static Formatting Formatting = Formatting.Indented;
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<JsonCodec>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
         private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -65,7 +65,7 @@ namespace EventStore.Transport.Http.Codecs
             }
             catch (Exception e)
             {
-                Log.ErrorException(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
+                Log.LogError(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
                 return default(T);
             }
         }
@@ -84,7 +84,7 @@ namespace EventStore.Transport.Http.Codecs
             }
             catch (Exception ex)
             {
-                Log.ErrorException(ex, "Error serializing object {0}", value);
+                Log.LogError(ex, "Error serializing object {0}", value);
                 return null;
             }
         }

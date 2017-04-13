@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.TestClient.Commands.RunTestScenarios;
 using EventStore.Transport.Tcp;
@@ -15,7 +15,7 @@ namespace EventStore.TestClient.Commands
 {
     internal class RunTestScenariosProcessor : ICmdProcessor
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<RunTestScenariosProcessor>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<RunTestScenariosProcessor>();
         private const string AllScenariosFlag = "ALL";
 
         public string Keyword

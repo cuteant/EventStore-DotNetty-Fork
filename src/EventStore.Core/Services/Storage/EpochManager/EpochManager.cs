@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.DataStructures;
 using EventStore.Core.TransactionLog;
@@ -11,7 +11,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
 {
     public class EpochManager: IEpochManager
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<EpochManager>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<EpochManager>();
 
         public readonly int CachedEpochCount;
         public int LastEpochNumber { get { return _lastEpochNumber; } }

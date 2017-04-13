@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -56,7 +56,7 @@ namespace EventStore.Projections.Core.Services.Management
         public const int ProjectionQueryId = -2;
         public const int ProjectionCreationRetryCount = 1;
 
-        private readonly ILogger _logger = LogManager.GetLoggerFor<ProjectionManager>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionManager>();
 
         private readonly IPublisher _inputQueue;
         private readonly IPublisher _publisher;

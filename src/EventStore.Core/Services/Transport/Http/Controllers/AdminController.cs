@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -11,7 +11,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 {
     public class AdminController : CommunicationController
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<AdminController>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<AdminController>();
 
         private static readonly ICodec[] SupportedCodecs = new ICodec[] { Codec.Text, Codec.Json, Codec.Xml, Codec.ApplicationXml };
 

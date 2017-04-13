@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -138,7 +138,7 @@ namespace EventStore.Projections.Core.Services.Management
             _projectionId = projectionId;
             _name = name;
             _enabledToRun = enabledToRun;
-            _logger = logger ?? LogManager.GetLoggerFor<ManagedProjection>();
+            _logger = logger ?? TraceLogger.GetLogger<ManagedProjection>();
             _streamDispatcher = streamDispatcher;
             _writeDispatcher = writeDispatcher;
             _readDispatcher = readDispatcher;

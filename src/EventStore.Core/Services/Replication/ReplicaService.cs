@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -28,7 +28,7 @@ namespace EventStore.Core.Services.Replication
                                   IHandle<StorageMessage.CommitAck>,
                                   IHandle<ClientMessage.TcpForwardMessage>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ReplicaService>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ReplicaService>();
 
         private readonly TcpClientConnector _connector;
         private readonly IPublisher _publisher;

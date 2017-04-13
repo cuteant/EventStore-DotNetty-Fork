@@ -1,4 +1,4 @@
-﻿using EventStore.Common.Logging;
+﻿using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -16,7 +16,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public class EmittedStreamsDeleter : IEmittedStreamsDeleter
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<EmittedStreamsDeleter>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<EmittedStreamsDeleter>();
         private readonly IODispatcher _ioDispatcher;
         private readonly int _checkPointThreshold = 4000;
         private int _numberOfEventsProcessed = 0;

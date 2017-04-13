@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -19,7 +19,7 @@ namespace EventStore.Core.Services.Storage
     public class StorageScavenger : IHandle<ClientMessage.ScavengeDatabase>,
                                     IHandle<UserManagementMessage.UserManagementServiceInitialized>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<StorageScavenger>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<StorageScavenger>();
 
         private readonly TFChunkDb _db;
         private readonly IODispatcher _ioDispatcher;
@@ -102,7 +102,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "SCAVENGING: error while scavenging DB.");
+                Log.LogError(exc, "SCAVENGING: error while scavenging DB.");
                 result = ClientMessage.ScavengeDatabase.ScavengeResult.Failed;
                 error = string.Format("Error while scavenging DB: {0}.", exc.Message);
             }

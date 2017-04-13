@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.BufferManagement;
-using EventStore.Common.Logging;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.TestClient.Commands;
@@ -18,7 +18,7 @@ namespace EventStore.TestClient
 {
     public class Client
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<Client>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<Client>();
 
         public readonly bool InteractiveMode;
 
@@ -108,7 +108,7 @@ namespace EventStore.TestClient
                         }
                         catch (Exception exc)
                         {
-                            Log.ErrorException(exc, "Error during executing command.");
+                            Log.LogError(exc, "Error during executing command.");
                         }
                     }
                     finally
