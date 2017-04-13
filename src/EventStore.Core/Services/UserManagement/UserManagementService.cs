@@ -12,16 +12,17 @@ using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 
 namespace EventStore.Core.Services.UserManagement
 {
-  public class UserManagementService : IHandle<UserManagementMessage.Get>,
-                                       IHandle<UserManagementMessage.GetAll>,
-                                       IHandle<UserManagementMessage.Create>,
-                                       IHandle<UserManagementMessage.Update>,
-                                       IHandle<UserManagementMessage.Enable>,
-                                       IHandle<UserManagementMessage.Disable>,
-                                       IHandle<UserManagementMessage.ResetPassword>,
-                                       IHandle<UserManagementMessage.ChangePassword>,
-                                       IHandle<UserManagementMessage.Delete>,
-                                       IHandle<SystemMessage.BecomeMaster>
+  public class UserManagementService :
+      IHandle<UserManagementMessage.Get>,
+      IHandle<UserManagementMessage.GetAll>,
+      IHandle<UserManagementMessage.Create>,
+      IHandle<UserManagementMessage.Update>,
+      IHandle<UserManagementMessage.Enable>,
+      IHandle<UserManagementMessage.Disable>,
+      IHandle<UserManagementMessage.ResetPassword>,
+      IHandle<UserManagementMessage.ChangePassword>,
+      IHandle<UserManagementMessage.Delete>,
+      IHandle<SystemMessage.BecomeMaster>
   {
     public const string UserUpdated = "$UserUpdated";
     public const string PasswordChanged = "$PasswordChanged";
@@ -156,32 +157,31 @@ namespace EventStore.Core.Services.UserManagement
 
     public void Handle(UserManagementMessage.Get message)
     {
-      ReadUserDetailsAnd(
-          message, (completed, data) =>
-              {
-                if (completed.Result == ReadStreamResult.Success && completed.Events.Length == 1)
-                  message.Envelope.ReplyWith(
-                            new UserManagementMessage.UserDetailsResult(
-                                new UserManagementMessage.UserData(
-                                    message.LoginName, data.FullName, data.Groups, data.Disabled,
-                                    new DateTimeOffset(completed.Events[0].Event.TimeStamp, TimeSpan.FromHours(0)))));
-                else
-                {
-                  switch (completed.Result)
-                  {
-                    case ReadStreamResult.NoStream:
-                    case ReadStreamResult.StreamDeleted:
-                      message.Envelope.ReplyWith(
-                                new UserManagementMessage.UserDetailsResult(
-                                    UserManagementMessage.Error.NotFound));
-                      break;
-                    default:
-                      message.Envelope.ReplyWith(
-                                new UserManagementMessage.UserDetailsResult(UserManagementMessage.Error.Error));
-                      break;
-                  }
-                }
-              });
+      ReadUserDetailsAnd(message, (completed, data) =>
+      {
+        if (completed.Result == ReadStreamResult.Success && completed.Events.Length == 1)
+          message.Envelope.ReplyWith(
+                    new UserManagementMessage.UserDetailsResult(
+                        new UserManagementMessage.UserData(
+                            message.LoginName, data.FullName, data.Groups, data.Disabled,
+                            new DateTimeOffset(completed.Events[0].Event.TimeStamp, TimeSpan.FromHours(0)))));
+        else
+        {
+          switch (completed.Result)
+          {
+            case ReadStreamResult.NoStream:
+            case ReadStreamResult.StreamDeleted:
+              message.Envelope.ReplyWith(
+                        new UserManagementMessage.UserDetailsResult(
+                            UserManagementMessage.Error.NotFound));
+              break;
+            default:
+              message.Envelope.ReplyWith(
+                        new UserManagementMessage.UserDetailsResult(UserManagementMessage.Error.Error));
+              break;
+          }
+        }
+      });
     }
 
     public void Handle(UserManagementMessage.GetAll message)
@@ -249,31 +249,30 @@ namespace EventStore.Core.Services.UserManagement
         Action<ClientMessage.ReadStreamEventsBackwardCompleted, UserData> action)
     {
       string loginName = message.LoginName;
-      BeginReadUserDetails(
-          loginName, completed =>
-              {
-                switch (completed.Result)
-                {
-                  case ReadStreamResult.NoStream:
-                    ReplyNotFound(message);
-                    break;
-                  case ReadStreamResult.StreamDeleted:
-                    ReplyNotFound(message);
-                    break;
-                  case ReadStreamResult.Success:
-                    if (completed.Events.Length == 0)
-                      ReplyNotFound(message);
-                    else
-                    {
-                      var data1 = completed.Events[0].Event.Data.ParseJson<UserData>();
-                      action(completed, data1);
-                    }
-                    break;
-                  default:
-                    ReplyInternalError(message);
-                    break;
-                }
-              });
+      BeginReadUserDetails(loginName, completed =>
+      {
+        switch (completed.Result)
+        {
+          case ReadStreamResult.NoStream:
+            ReplyNotFound(message);
+            break;
+          case ReadStreamResult.StreamDeleted:
+            ReplyNotFound(message);
+            break;
+          case ReadStreamResult.Success:
+            if (completed.Events.Length == 0)
+              ReplyNotFound(message);
+            else
+            {
+              var data1 = completed.Events[0].Event.Data.ParseJson<UserData>();
+              action(completed, data1);
+            }
+            break;
+          default:
+            ReplyInternalError(message);
+            break;
+        }
+      });
     }
 
     private void BeginReadUserDetails(
@@ -283,9 +282,7 @@ namespace EventStore.Core.Services.UserManagement
       _ioDispatcher.ReadBackward(streamId, -1, 1, false, SystemAccount.Principal, completed);
     }
 
-    private void ReadUpdateWriteReply(
-        UserManagementMessage.UserManagementRequestMessage message, Func<UserData, UserData> update,
-        bool resetPasswordCache)
+    private void ReadUpdateWriteReply(UserManagementMessage.UserManagementRequestMessage message, Func<UserData, UserData> update, bool resetPasswordCache)
     {
       ReadUpdateCheckAnd(
           message, (completed, data) =>
@@ -300,8 +297,7 @@ namespace EventStore.Core.Services.UserManagement
               });
     }
 
-    private void WritePasswordChangedEventConditionalAnd(
-        UserManagementMessage.UserManagementRequestMessage message, bool resetPasswordCache, Action onCompleted)
+    private void WritePasswordChangedEventConditionalAnd(UserManagementMessage.UserManagementRequestMessage message, bool resetPasswordCache, Action onCompleted)
     {
       if (resetPasswordCache)
         BeginWritePasswordChangedEvent(
@@ -313,19 +309,15 @@ namespace EventStore.Core.Services.UserManagement
       }
     }
 
-    private void BeginWritePasswordChangedEvent(
-        string loginName, Action<ClientMessage.WriteEventsCompleted> completed)
+    private void BeginWritePasswordChangedEvent(string loginName, Action<ClientMessage.WriteEventsCompleted> completed)
     {
-      var streamMetadata =
-          new Lazy<StreamMetadata>(() => new StreamMetadata(null, TimeSpan.FromHours(1)));
+      var streamMetadata = new Lazy<StreamMetadata>(() => new StreamMetadata(null, TimeSpan.FromHours(1)));
       _ioDispatcher.ConfigureStreamAndWriteEvents(
           UserPasswordNotificationsStreamId, ExpectedVersion.Any, streamMetadata,
           new[] { CreatePasswordChangedEvent(loginName) }, SystemAccount.Principal, completed);
     }
 
-    private void WritePasswordChangedEventCompleted(
-        UserManagementMessage.UserManagementRequestMessage message,
-        ClientMessage.WriteEventsCompleted eventsCompleted, Action onCompleted)
+    private void WritePasswordChangedEventCompleted(UserManagementMessage.UserManagementRequestMessage message, ClientMessage.WriteEventsCompleted eventsCompleted, Action onCompleted)
     {
       switch (eventsCompleted.Result)
       {
@@ -354,35 +346,31 @@ namespace EventStore.Core.Services.UserManagement
       return new Event(Guid.NewGuid(), PasswordChanged, true, new { LoginName = loginName }.ToJsonBytes(), null);
     }
 
-    private void ReadUpdateCheckAnd(
-        UserManagementMessage.UserManagementRequestMessage message,
-        Action<ClientMessage.ReadStreamEventsBackwardCompleted, UserData> action)
+    private void ReadUpdateCheckAnd(UserManagementMessage.UserManagementRequestMessage message, Action<ClientMessage.ReadStreamEventsBackwardCompleted, UserData> action)
     {
       ReadUserDetailsAnd(message, action);
     }
 
-    private void WriteStreamAcl(
-        UserManagementMessage.UserManagementRequestMessage message, string loginName, Action onSucceeded)
+    private void WriteStreamAcl(UserManagementMessage.UserManagementRequestMessage message, string loginName, Action onSucceeded)
     {
-      WriteStreamAcl(
-          loginName, completed =>
-              {
-                switch (completed.Result)
-                {
-                  case OperationResult.Success:
-                    onSucceeded();
-                    break;
-                  case OperationResult.CommitTimeout:
-                  case OperationResult.ForwardTimeout:
-                  case OperationResult.PrepareTimeout:
-                  case OperationResult.WrongExpectedVersion:
-                    ReplyTryAgain(message);
-                    break;
-                  default:
-                    ReplyInternalError(message);
-                    break;
-                }
-              });
+      WriteStreamAcl(loginName, completed =>
+      {
+        switch (completed.Result)
+        {
+          case OperationResult.Success:
+            onSucceeded();
+            break;
+          case OperationResult.CommitTimeout:
+          case OperationResult.ForwardTimeout:
+          case OperationResult.PrepareTimeout:
+          case OperationResult.WrongExpectedVersion:
+            ReplyTryAgain(message);
+            break;
+          default:
+            ReplyInternalError(message);
+            break;
+        }
+      });
     }
 
     private void WriteStreamAcl(string loginName, Action<ClientMessage.WriteEventsCompleted> onCompleted)
@@ -479,8 +467,7 @@ namespace EventStore.Core.Services.UserManagement
       message.Envelope.ReplyWith(new UserManagementMessage.UpdateResult(message.LoginName));
     }
 
-    private static void ReplyError(
-        UserManagementMessage.UserManagementRequestMessage message, UserManagementMessage.Error error)
+    private static void ReplyError(UserManagementMessage.UserManagementRequestMessage message, UserManagementMessage.Error error)
     {
       //TODO: avoid 'is'
       if (message is UserManagementMessage.Get)
@@ -489,8 +476,7 @@ namespace EventStore.Core.Services.UserManagement
         message.Envelope.ReplyWith(new UserManagementMessage.UpdateResult(message.LoginName, error));
     }
 
-    private static void ReplyByWriteResult(
-        UserManagementMessage.UserManagementRequestMessage message, OperationResult operationResult)
+    private static void ReplyByWriteResult(UserManagementMessage.UserManagementRequestMessage message, OperationResult operationResult)
     {
       switch (operationResult)
       {
@@ -517,54 +503,52 @@ namespace EventStore.Core.Services.UserManagement
       var userData = CreateUserData(
           SystemUsers.Admin, "Event Store Administrator", new[] { SystemRoles.Admins },
           SystemUsers.DefaultAdminPassword);
-      WriteStreamAcl(
-          SystemUsers.Admin, completed1 =>
-          {
-            switch (completed1.Result)
+      WriteStreamAcl(SystemUsers.Admin, completed1 =>
+      {
+        switch (completed1.Result)
+        {
+          case OperationResult.CommitTimeout:
+          case OperationResult.PrepareTimeout:
+            CreateAdminUser();
+            break;
+          default:
+            _log.LogError("'admin' user account could not be created");
+            NotifyInitialized();
+            break;
+          case OperationResult.Success:
+            WriteUserEvent(userData, "$UserCreated", ExpectedVersion.NoStream, completed =>
             {
-              case OperationResult.CommitTimeout:
-              case OperationResult.PrepareTimeout:
-                CreateAdminUser();
-                break;
-              default:
-                _log.Error("'admin' user account could not be created");
-                NotifyInitialized();
-                break;
-              case OperationResult.Success:
-                WriteUserEvent(
-                          userData, "$UserCreated", ExpectedVersion.NoStream, completed =>
-                              {
-                                switch (completed.Result)
-                                {
-                                  case OperationResult.Success:
-                                    _log.Info("'admin' user account has been created.");
-                                    WriteUsersStreamEvent("admin", x =>
-                                              {
-                                                if (x.Result == OperationResult.Success)
-                                                {
-                                                  _log.Info("'admin' user added to $users.");
-                                                }
-                                                else
-                                                {
-                                                  _log.Error(string.Format("unable to add 'admin' to $users. {0}", x.Result));
-                                                }
-                                                NotifyInitialized();
-                                              });
-                                    break;
-                                  case OperationResult.CommitTimeout:
-                                  case OperationResult.PrepareTimeout:
-                                    _log.Error("'admin' user account creation timed out retrying.");
-                                    CreateAdminUser();
-                                    break;
-                                  default:
-                                    _log.Error("'admin' user account could not be created.");
-                                    NotifyInitialized();
-                                    break;
-                                }
-                              });
-                break;
-            }
-          });
+              switch (completed.Result)
+              {
+                case OperationResult.Success:
+                  if (_log.IsInformationLevelEnabled()) _log.LogInformation("'admin' user account has been created.");
+                  WriteUsersStreamEvent("admin", x =>
+                  {
+                    if (x.Result == OperationResult.Success)
+                    {
+                      if (_log.IsInformationLevelEnabled()) _log.LogInformation("'admin' user added to $users.");
+                    }
+                    else
+                    {
+                      _log.LogError(string.Format("unable to add 'admin' to $users. {0}", x.Result));
+                    }
+                    NotifyInitialized();
+                  });
+                  break;
+                case OperationResult.CommitTimeout:
+                case OperationResult.PrepareTimeout:
+                  _log.LogError("'admin' user account creation timed out retrying.");
+                  CreateAdminUser();
+                  break;
+                default:
+                  _log.LogError("'admin' user account could not be created.");
+                  NotifyInitialized();
+                  break;
+              }
+            });
+            break;
+        }
+      });
     }
 
     private void CreateOperationsUser()
@@ -572,54 +556,52 @@ namespace EventStore.Core.Services.UserManagement
       var userData = CreateUserData(
           SystemUsers.Operations, "Event Store Operations", new[] { SystemRoles.Operations },
           SystemUsers.DefaultAdminPassword);
-      WriteStreamAcl(
-          SystemUsers.Operations, completed1 =>
-          {
-            switch (completed1.Result)
+      WriteStreamAcl(SystemUsers.Operations, completed1 =>
+      {
+        switch (completed1.Result)
+        {
+          case OperationResult.CommitTimeout:
+          case OperationResult.PrepareTimeout:
+            CreateOperationsUser();
+            break;
+          default:
+            _log.LogError("'ops' user account could not be created");
+            NotifyInitialized();
+            break;
+          case OperationResult.Success:
+            WriteUserEvent(userData, "$UserCreated", ExpectedVersion.NoStream, completed =>
             {
-              case OperationResult.CommitTimeout:
-              case OperationResult.PrepareTimeout:
-                CreateOperationsUser();
-                break;
-              default:
-                _log.Error("'ops' user account could not be created");
-                NotifyInitialized();
-                break;
-              case OperationResult.Success:
-                WriteUserEvent(
-                          userData, "$UserCreated", ExpectedVersion.NoStream, completed =>
-                              {
-                                switch (completed.Result)
-                                {
-                                  case OperationResult.Success:
-                                    _log.Info("'ops' user account has been created.");
-                                    WriteUsersStreamEvent("ops", x =>
-                                              {
-                                                if (x.Result == OperationResult.Success)
-                                                {
-                                                  _log.Info("'ops' user added to $users.");
-                                                }
-                                                else
-                                                {
-                                                  _log.Error(string.Format("unable to add 'ops' to $users. {0}", x.Result));
-                                                }
-                                                NotifyInitialized();
-                                              });
-                                    break;
-                                  case OperationResult.CommitTimeout:
-                                  case OperationResult.PrepareTimeout:
-                                    _log.Error("'ops' user account creation timed out retrying.");
-                                    CreateOperationsUser();
-                                    break;
-                                  default:
-                                    _log.Error("'ops' user account could not be created.");
-                                    NotifyInitialized();
-                                    break;
-                                }
-                              });
-                break;
-            }
-          });
+              switch (completed.Result)
+              {
+                case OperationResult.Success:
+                  if (_log.IsInformationLevelEnabled()) _log.LogInformation("'ops' user account has been created.");
+                  WriteUsersStreamEvent("ops", x =>
+                  {
+                    if (x.Result == OperationResult.Success)
+                    {
+                      if (_log.IsInformationLevelEnabled()) _log.LogInformation("'ops' user added to $users.");
+                    }
+                    else
+                    {
+                      _log.LogError($"unable to add 'ops' to $users. {x.Result}");
+                    }
+                    NotifyInitialized();
+                  });
+                  break;
+                case OperationResult.CommitTimeout:
+                case OperationResult.PrepareTimeout:
+                  _log.LogError("'ops' user account creation timed out retrying.");
+                  CreateOperationsUser();
+                  break;
+                default:
+                  _log.LogError("'ops' user account could not be created.");
+                  NotifyInitialized();
+                  break;
+              }
+            });
+            break;
+        }
+      });
     }
 
     private bool IsAdmin(IPrincipal principal)
