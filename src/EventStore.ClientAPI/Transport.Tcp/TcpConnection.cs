@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
-using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
@@ -301,17 +301,19 @@ namespace EventStore.ClientAPI.Transport.Tcp
     private void CloseInternal(SocketError socketError, string reason)
     {
 #pragma warning disable 420
-      if (Interlocked.CompareExchange(ref _closed, 1, 0) != 0)
-        return;
+      if (Interlocked.CompareExchange(ref _closed, 1, 0) != 0) { return; }
 #pragma warning restore 420
 
       NotifyClosed();
 
-      _log.Info("ClientAPI {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:", GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId);
-      _log.Info("Received bytes: {0}, Sent bytes: {1}", TotalBytesReceived, TotalBytesSent);
-      _log.Info("Send calls: {0}, callbacks: {1}", SendCalls, SendCallbacks);
-      _log.Info("Receive calls: {0}, callbacks: {1}", ReceiveCalls, ReceiveCallbacks);
-      _log.Info("Close reason: [{0}] {1}", socketError, reason);
+      if (_log.IsInformationLevelEnabled())
+      {
+        _log.LogInformation("ClientAPI {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:", GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId);
+        _log.LogInformation("Received bytes: {0}, Sent bytes: {1}", TotalBytesReceived, TotalBytesSent);
+        _log.LogInformation("Send calls: {0}, callbacks: {1}", SendCalls, SendCallbacks);
+        _log.LogInformation("Receive calls: {0}, callbacks: {1}", ReceiveCalls, ReceiveCallbacks);
+        _log.LogInformation("Close reason: [{0}] {1}", socketError, reason);
+      }
 
       if (_socket != null)
       {
@@ -322,8 +324,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
       lock (_sendLock)
       {
-        if (!_isSending)
-          ReturnSendingSocketArgs();
+        if (!_isSending) { ReturnSendingSocketArgs(); }
       }
 
       _onConnectionClosed?.Invoke(this, socketError);

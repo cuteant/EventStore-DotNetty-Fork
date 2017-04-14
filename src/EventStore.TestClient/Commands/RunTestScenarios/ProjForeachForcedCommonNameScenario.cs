@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.TestClient.Commands.DvuBasic;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands.RunTestScenarios
 {
@@ -49,8 +50,8 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                                         (int)(DateTime.Now - started).TotalMinutes,
                                         _executionPeriod.TotalMinutes,
                                         GetType().Name);
-                Log.Info(msg);
-                Log.Info("##teamcity[message '{0}']", msg);
+                Log.LogInformation(msg);
+                Log.LogInformation("##teamcity[message '{0}']", msg);
 
                 
                 InnerRun();
@@ -159,7 +160,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                 var position = GetProjectionPosition(projectionName);
                 if (position == expectedAllEventsCount)
                 {
-                    Log.Debug("Expected position reached in {0}, done.", projectionName);
+                    Log.LogDebug("Expected position reached in {0}, done.", projectionName);
                     completed = true;
                 }
             }
@@ -176,7 +177,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
             var w3 = Write(WriteMode.Transactional, slices[2], EventsPerStream, CreateBankEvent);
 
             var task = Task.Factory.ContinueWhenAll(new[] { w1, w2, w3 }, Task.WaitAll);
-            return task.ContinueWith(x => Log.Info("Data written for iteration {0}.", GetIterationCode()));
+            return task.ContinueWith(x => Log.LogInformation("Data written for iteration {0}.", GetIterationCode()));
         }
 
         protected string CreateSumCheckForBankAccounts(string projectionName, string suffix = "")

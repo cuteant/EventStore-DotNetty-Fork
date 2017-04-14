@@ -7,6 +7,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.UserManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {

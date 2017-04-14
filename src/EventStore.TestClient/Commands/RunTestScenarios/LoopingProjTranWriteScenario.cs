@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands.RunTestScenarios
 {
@@ -76,8 +77,8 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                                         (int)stopWatch.Elapsed.TotalMinutes,
                                         _executionPeriod.TotalMinutes,
                                         GetType().Name);
-                Log.Info(msg);
-                Log.Info("##teamcity[message '{0}']", msg);
+                Log.LogInformation(msg);
+                Log.LogInformation("##teamcity[message '{0}']", msg);
 
                 InnerRun(runIndex);
                 runIndex += 1;
@@ -166,7 +167,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
                 WaitAndCheckIfIsFaulted(projectionName);
 
-                Log.Debug(string.Format("Done iteration {0}", runIndex));
+                Log.LogDebug(string.Format("Done iteration {0}", runIndex));
             }
             finally
             {
@@ -176,13 +177,13 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
         private Task<object> WriteTransactionData(EventStoreTransaction transaction, int startingVersion, int eventCount, Func<int, EventData> createEvent)
         {
-            Log.Info("Starting to write {0} events in tran {1}", eventCount, transaction.TransactionId);
+            Log.LogInformation("Starting to write {0} events in tran {1}", eventCount, transaction.TransactionId);
 
             var resSource = new TaskCompletionSource<object>();
 
             Action<Task> fail = prevTask =>
             {
-                Log.Info("WriteEventsInTransactionalWay for transaction {0} failed.", transaction.TransactionId);
+                Log.LogInformation("WriteEventsInTransactionalWay for transaction {0} failed.", transaction.TransactionId);
                 resSource.SetException(prevTask.Exception);
             };
 
@@ -215,7 +216,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
             Action<Task> fail = prevTask =>
             {
-                Log.Info("WriteEventsInTransactionalWay for tran {0} failed", transaction.TransactionId);
+                Log.LogInformation("WriteEventsInTransactionalWay for tran {0} failed", transaction.TransactionId);
                 resSource.SetException(prevTask.Exception);
             };
 
@@ -223,7 +224,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
             commitTask.ContinueWith(fail, TaskContinuationOptions.OnlyOnFaulted);
             commitTask.ContinueWith(t =>
             {
-                Log.Info("Committed tran {0}", transaction.TransactionId);
+                Log.LogInformation("Committed tran {0}", transaction.TransactionId);
                 resSource.SetResult(null);
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
@@ -248,7 +249,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                 var position = GetProjectionPosition(projectionName);
                 if (position >= (EventsPerStream - 1))
                 { 
-                    Log.Debug("Expected position reached, done.");
+                    Log.LogDebug("Expected position reached, done.");
                     break;
                 }
 

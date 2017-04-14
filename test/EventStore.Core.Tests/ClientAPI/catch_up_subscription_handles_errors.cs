@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.ClientOperations;
-using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
@@ -45,7 +45,7 @@ namespace EventStore.Core.Tests.ClientAPI
             _dropException = null;
 
             var settings = new CatchUpSubscriptionSettings(1, 1, false, false);
-            _subscription = new EventStoreStreamCatchUpSubscription(_connection, new NoopLogger(), StreamId, null, null,
+            _subscription = new EventStoreStreamCatchUpSubscription(_connection, NullLogger.Instance, StreamId, null, null,
                 (subscription, ev) =>
                 {
                     _raisedEvents.Add(ev);
@@ -419,7 +419,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
         private static VolatileEventStoreSubscription CreateVolatileSubscription(Action<EventStoreSubscription, ResolvedEvent> raise, Action<EventStoreSubscription, SubscriptionDropReason, Exception> drop, int? lastEventNumber)
         {
-            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(new NoopLogger(), new TaskCompletionSource<EventStoreSubscription>(), StreamId, false, null, raise, drop, false, () => null), StreamId, -1, lastEventNumber);
+            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(NullLogger.Instance, new TaskCompletionSource<EventStoreSubscription>(), StreamId, false, null, raise, drop, false, () => null), StreamId, -1, lastEventNumber);
         }
 
         private static StreamEventsSlice CreateStreamEventsSlice(int fromEvent = 0, int count = 1, bool isEnd = false)

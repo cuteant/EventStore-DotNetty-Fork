@@ -27,6 +27,8 @@ namespace EventStore.Core
     protected abstract string GetComponentName(TOptions options);
 
     protected abstract void Create(TOptions options);
+
+    protected abstract void PreInit(TOptions options);
     protected abstract void Start();
     public abstract void Stop();
 
@@ -98,10 +100,6 @@ namespace EventStore.Core
         //Log.Flush();
       }
       Environment.Exit(_exitCode);
-    }
-
-    protected virtual void PreInit(TOptions options)
-    {
     }
 
     private void CommitSuicideIfInBoehmOrOnBadVersionsOfMono(TOptions options)

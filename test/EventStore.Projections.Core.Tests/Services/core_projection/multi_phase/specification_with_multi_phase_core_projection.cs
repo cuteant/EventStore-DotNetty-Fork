@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services;
 using EventStore.Projections.Core.Services.Processing;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
 {
@@ -463,7 +463,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.multi_phase
             _phase1 = new FakeProjectionProcessingPhase(0, this, Phase1CheckpointManager, _phase1readerStrategy, _emittedStreamsTracker);
             _phase2 = new FakeProjectionProcessingPhase(1, this, Phase2CheckpointManager, _phase2readerStrategy, _emittedStreamsTracker);
             return new FakeProjectionProcessingStrategy(
-                _projectionName, _version, new ConsoleLogger(), Phase1, Phase2);
+                _projectionName, _version, NullLogger.Instance, Phase1, Phase2);
         }
 
         protected virtual FakeReaderStrategy GivenPhase2ReaderStrategy()

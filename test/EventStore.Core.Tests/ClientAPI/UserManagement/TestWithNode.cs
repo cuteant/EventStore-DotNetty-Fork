@@ -1,9 +1,9 @@
 ﻿using System;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.UserManagement;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.ClientAPI.UserManagement
@@ -20,7 +20,7 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
             base.TestFixtureSetUp();
             _node = new MiniNode(PathName);
             _node.Start();
-            _manager = new UsersManager(new NoopLogger(), _node.ExtHttpEndPoint, TimeSpan.FromSeconds(5));
+            _manager = new UsersManager(NullLogger.Instance, _node.ExtHttpEndPoint, TimeSpan.FromSeconds(5));
         }
 
         [OneTimeTearDown]

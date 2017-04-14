@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 
 namespace EventStore.ClientAPI.UserManagement
 {
-    internal class UsersClient
+  internal class UsersClient
     {
         private readonly HttpAsyncClient _client;
 

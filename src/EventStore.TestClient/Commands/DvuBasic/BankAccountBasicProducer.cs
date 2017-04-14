@@ -105,7 +105,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
 
         private static void LogExpected(object generated, object actual, string reason)
         {
-            Log.Info("Expected: {0}\n" +
+            Log.LogInformation("Expected: {0}\n" +
                      "  Actual: {1}\n" +
                      " Details: {2}",
                      generated.ToString(),

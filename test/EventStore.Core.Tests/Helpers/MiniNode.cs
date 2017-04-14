@@ -136,7 +136,7 @@ namespace EventStore.Core.Tests.Helpers
                 }
             }
 
-            Log.Info("\n{0,-25} {1} ({2}/{3}, {4})\n"
+            Log.LogInformation("\n{0,-25} {1} ({2}/{3}, {4})\n"
                      + "{5,-25} {6} ({7})\n"
                      + "{8,-25} {9} ({10}-bit)\n"
                      + "{11,-25} {12}\n"

@@ -19,7 +19,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
                 PTable ptable = null;
                 try
                 {
-                    Log.Trace("Creating PTable with count {0}", count);
+                    Log.LogTrace("Creating PTable with count {0}", count);
                     ptable = ConstructPTable(GetFilePathFor(string.Format("{0}.ptable", count)), count, rnd);
 
                     for (int depth = 0; depth < 15; ++depth)

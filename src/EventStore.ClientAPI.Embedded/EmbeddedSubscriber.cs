@@ -4,6 +4,7 @@ using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {

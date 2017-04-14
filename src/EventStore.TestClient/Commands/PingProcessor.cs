@@ -1,5 +1,6 @@
 ﻿using System;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -17,7 +18,7 @@ namespace EventStore.TestClient.Commands
                 connectionEstablished: conn =>
                 {
                     var package = new TcpPackage(TcpCommand.Ping, Guid.NewGuid(), null);
-                    context.Log.Info("[{0}:{1}]: PING...", context.Client.Options.Ip, context.Client.Options.TcpPort);
+                    context.Log.LogInformation("[{0}:{1}]: PING...", context.Client.Options.Ip, context.Client.Options.TcpPort);
                     conn.EnqueueSend(package.AsByteArray());
                 },
                 handlePackage: (conn, pkg) =>
@@ -27,7 +28,7 @@ namespace EventStore.TestClient.Commands
                         context.Fail(reason: string.Format("Unexpected TCP package: {0}.", pkg.Command));
                         return;
                     }
-                    context.Log.Info("[{0}:{1}]: PONG!", context.Client.Options.Ip, context.Client.Options.TcpPort);
+                    context.Log.LogInformation("[{0}:{1}]: PONG!", context.Client.Options.Ip, context.Client.Options.TcpPort);
                     context.Success();
                     conn.Close();
                 },

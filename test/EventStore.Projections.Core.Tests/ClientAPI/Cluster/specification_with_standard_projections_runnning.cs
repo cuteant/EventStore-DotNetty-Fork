@@ -5,7 +5,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Common.Options;
 using EventStore.Core;
@@ -13,6 +12,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Tests;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Projections.Core.Services.Processing;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using EventStore.ClientAPI.Projections;
@@ -96,7 +96,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             _conn.ConnectAsync().Wait();
 
             _manager = new ProjectionsManager(
-                new ConsoleLogger(),
+                NullLogger.Instance,
                 _nodes[0].ExternalHttpEndPoint,
                 TimeSpan.FromMilliseconds(10000));
 

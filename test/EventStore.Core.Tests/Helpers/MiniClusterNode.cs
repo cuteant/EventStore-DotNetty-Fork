@@ -95,7 +95,7 @@ namespace EventStore.Core.Tests.Helpers
                 intTcpHeartbeatTimeout: TimeSpan.FromSeconds(10), intTcpHeartbeatInterval: TimeSpan.FromSeconds(10),
                 verifyDbHash: false, maxMemtableEntryCount: memTableSize, hashCollisionReadLimit: Opts.HashCollisionReadLimitDefault, startStandardProjections: false, disableHTTPCaching: false, logHttpRequests: false);
 
-            Log.Info(
+            Log.LogInformation(
                 "\n{0,-25} {1} ({2}/{3}, {4})\n" + "{5,-25} {6} ({7})\n" + "{8,-25} {9} ({10}-bit)\n"
                 + "{11,-25} {12}\n" + "{13,-25} {14}\n" + "{15,-25} {16}\n" + "{17,-25} {18}\n" + "{19,-25} {20}\n\n",
                 "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp,

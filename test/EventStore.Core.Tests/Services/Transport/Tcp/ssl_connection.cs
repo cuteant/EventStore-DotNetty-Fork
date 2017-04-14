@@ -46,21 +46,21 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
                     foreach (var arraySegment in y)
                     {
                         received.Write(arraySegment.Array, arraySegment.Offset, arraySegment.Count);
-                        Log.Info("Received: {0} bytes, total: {1}.", arraySegment.Count, received.Length);
+                        Log.LogInformation("Received: {0} bytes, total: {1}.", arraySegment.Count, received.Length);
                     }
 
                     if (received.Length >= sent.Length)
                     {
-                        Log.Info("Done receiving...");
+                        Log.LogInformationX("Done receiving...");
                         done.Set();
                     }
                     else
                     {
-                        Log.Info("Receiving...");
+                        Log.LogInformationX("Receiving...");
                         ssl.ReceiveAsync(callback);
                     }
                 };
-                Log.Info("Receiving...");
+                Log.LogInformationX("Receiving...");
                 ssl.ReceiveAsync(callback);
             }, "Secure");
 
@@ -73,23 +73,23 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
                 TcpConnectionManager.ConnectionTimeout,
                 conn =>
                 {
-                    Log.Info("Sending bytes...");
+                    Log.LogInformationX("Sending bytes...");
                     conn.EnqueueSend(new[] {new ArraySegment<byte>(sent)});
                 },
                 (conn, err) =>
                 {
-                    Log.Error("Connecting failed: {0}.", err);
+                    Log.LogError("Connecting failed: {0}.", err);
                     done.Set();
                 },
                 verbose: true);
 
             Assert.IsTrue(done.Wait(20000), "Took too long to receive completion.");
 
-            Log.Info("Stopping listener...");
+            Log.LogInformationX("Stopping listener...");
             listener.Stop();
-            Log.Info("Closing client ssl connection...");
+            Log.LogInformationX("Closing client ssl connection...");
             clientSsl.Close("Normal close.");
-            Log.Info("Checking received data...");
+            Log.LogInformationX("Checking received data...");
             Assert.AreEqual(sent, received.ToArray());
         }
 

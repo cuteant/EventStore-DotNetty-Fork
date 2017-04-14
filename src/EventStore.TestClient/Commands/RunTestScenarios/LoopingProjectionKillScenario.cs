@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands.RunTestScenarios
 {
@@ -48,8 +49,8 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                                         (int)stopWatch.Elapsed.TotalMinutes,
                                         _executionPeriod.TotalMinutes,
                                         GetType().Name);
-                Log.Info(msg);
-                Log.Info("##teamcity[message '{0}']", msg);
+                Log.LogInformation(msg);
+                Log.LogInformation("##teamcity[message '{0}']", msg);
 
                 var iterationTask = RunIteration();
 
@@ -102,10 +103,10 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                 }
 
                 if (! CheckProjectionState(countItem, "count", x => x == expectedAllEventsCount))
-                    Log.Error("Projection '{0}' has not completed with expected result {1} in time. ", countItem, expectedAllEventsCount);
+                    Log.LogError("Projection '{0}' has not completed with expected result {1} in time. ", countItem, expectedAllEventsCount);
 
                 if (!CheckProjectionState(sumCheckForBankAccount0, "success", x => x == lastExpectedEventVersion))
-                    Log.Error("Projection '{0}' has not completed with expected result {1} in time.", sumCheckForBankAccount0, lastExpectedEventVersion);
+                    Log.LogError("Projection '{0}' has not completed with expected result {1} in time.", sumCheckForBankAccount0, lastExpectedEventVersion);
 
                 return success;
             });

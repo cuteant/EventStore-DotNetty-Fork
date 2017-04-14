@@ -91,13 +91,13 @@ namespace EventStore.TestClient.Commands
                 step++;
             }
 
-            Log.Info("Sent {0} packages. {1} invalid dtos, {2} bar formatted packages. Got {3} BadRequests. Success",
+            Log.LogInformation("Sent {0} packages. {1} invalid dtos, {2} bar formatted packages. Got {3} BadRequests. Success",
                      packages.Count(),
                      commandsToCkeck.Length,
                      packages.Count() - commandsToCkeck.Length,
                      packages.Count());
 
-            Log.Info("Now sending raw bytes...");
+            Log.LogInformation("Now sending raw bytes...");
             try
             {
                 SendRaw(context.Client.TcpEndpoint, BitConverter.GetBytes(int.MaxValue));

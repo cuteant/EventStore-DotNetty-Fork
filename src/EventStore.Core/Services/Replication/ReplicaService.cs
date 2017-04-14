@@ -194,10 +194,10 @@ namespace EventStore.Core.Services.Replication
 
       if (Log.IsInformationLevelEnabled())
       {
-        Log.LogInformation(
+        Log.LogInformation(string.Format(
           "Subscribing at LogPosition: {0} (0x{0:X}) to MASTER [{1}, {2:B}] as replica with SubscriptionId: {3:B}, ConnectionId: {4:B}, LocalEndPoint: [{5}], Epochs:\n{6}...\n.",
           logPosition, _connection.RemoteEndPoint, message.MasterId, message.SubscriptionId, _connection.ConnectionId,
-          _connection.LocalEndPoint, string.Join("\n", epochs.Select(x => x.AsString())));
+          _connection.LocalEndPoint, string.Join("\n", epochs.Select(x => x.AsString()))));
       }
 
       var chunk = _db.Manager.GetChunkFor(logPosition);

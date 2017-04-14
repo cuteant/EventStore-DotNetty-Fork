@@ -31,7 +31,7 @@ namespace EventStore.Core.Tests.ClientAPI.Helpers
         {
             var settings = ConnectionSettings.Create()
                                              .SetDefaultUserCredentials(userCredentials)
-                                             .UseCustomLogger(ClientApiLoggerBridge.Default)
+                                             //.UseCustomLogger(ClientApiLoggerBridge.Default)
                                              .EnableVerboseLogging()
                                              .LimitReconnectionsTo(10)
                                              .LimitRetriesForOperationTo(100)
@@ -59,7 +59,7 @@ namespace EventStore.Core.Tests.ClientAPI.Helpers
         {
             var settings = ConnectionSettings.Create()
                                              .SetDefaultUserCredentials(credentials)
-                                             .UseCustomLogger(ClientApiLoggerBridge.Default)
+                                             //.UseCustomLogger(ClientApiLoggerBridge.Default)
                                              .EnableVerboseLogging()
                                              .LimitReconnectionsTo(10)
                                              .LimitRetriesForOperationTo(100)

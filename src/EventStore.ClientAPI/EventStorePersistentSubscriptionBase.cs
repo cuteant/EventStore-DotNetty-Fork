@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {
@@ -49,7 +50,7 @@ namespace EventStore.ClientAPI
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
       _log = log;
-      _verbose = verboseLogging;
+      _verbose = verboseLogging && log.IsDebugLevelEnabled();
       _settings = settings;
       _bufferSize = bufferSize;
       _autoAck = autoAck;
@@ -152,7 +153,7 @@ namespace EventStore.ClientAPI
     /// <exception cref="TimeoutException"></exception>
     public void Stop(TimeSpan timeout)
     {
-      if (_verbose) _log.Debug("Persistent Subscription to {0}: requesting stop...", _streamId);
+      if (_verbose) _log.LogDebug("Persistent Subscription to {0}: requesting stop...", _streamId);
 
       EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
 
@@ -199,7 +200,7 @@ namespace EventStore.ClientAPI
         }
         if (_verbose)
         {
-          _log.Debug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
+          _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
                     _streamId,
                     resolvedEvent.OriginalEvent.EventStreamId, resolvedEvent.OriginalEvent.EventNumber, resolvedEvent.OriginalEvent.EventType, resolvedEvent.OriginalEventNumber);
         }
@@ -218,7 +219,7 @@ namespace EventStore.ClientAPI
       {
         if (_verbose)
         {
-          _log.Debug("Persistent Subscription to {0}: dropping subscription, reason: {1} {2}.",
+          _log.LogDebug("Persistent Subscription to {0}: dropping subscription, reason: {1} {2}.",
                     _streamId, reason, error == null ? string.Empty : error.ToString());
         }
 

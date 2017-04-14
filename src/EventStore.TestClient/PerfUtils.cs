@@ -36,7 +36,7 @@ namespace EventStore.TestClient
             }
             sb.AppendLine("end]]");
 
-            Log.Debug(sb.ToString());
+            Log.LogDebug(sb.ToString());
         }
 
         private static string Format(string name, object value)
@@ -53,10 +53,10 @@ namespace EventStore.TestClient
         {
             if (value < 0)
             {
-                Log.Error("Value is {0}, however TeamCity requires Value as a positive (non negative) integer.", value);
+                Log.LogError("Value is {0}, however TeamCity requires Value as a positive (non negative) integer.", value);
                 return;
             }
-            Log.Debug("\n##teamcity[buildStatisticValue key='{0}' value='{1}']", key, value);
+            Log.LogDebug("\n##teamcity[buildStatisticValue key='{0}' value='{1}']", key, value);
         }
 
         public class NameValue

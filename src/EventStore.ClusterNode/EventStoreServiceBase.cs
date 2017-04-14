@@ -16,7 +16,7 @@ namespace EventStore.ClusterNode
     where TOptions : class, IOptions, new()
   {
     // ReSharper disable StaticFieldInGenericType
-    protected static readonly ILogger Log = TraceLogger.GetLogger<EventStoreServiceBase<TOptions>>();
+    protected static ILogger Log { get; set; }
     // ReSharper restore StaticFieldInGenericType
 
     protected abstract string GetLogsDirectory(TOptions options);
@@ -68,9 +68,9 @@ namespace EventStore.ClusterNode
       catch (ApplicationInitializationException ex)
       {
         var msg = String.Format("Application initialization error: {0}", FormatExceptionMessage(ex));
-        if (LogManager.Initialized)
+        if (Log != null)
         {
-          Log.FatalException(ex, msg);
+          Log.LogCritical(ex, msg);
         }
         else
         {
@@ -80,10 +80,10 @@ namespace EventStore.ClusterNode
       catch (Exception ex)
       {
         var msg = "Unhandled exception while starting application:";
-        if (LogManager.Initialized)
+        if (Log != null)
         {
-          Log.FatalException(ex, msg);
-          Log.FatalException(ex, "{0}", FormatExceptionMessage(ex));
+          Log.LogCritical(ex, msg);
+          Log.LogCritical(ex, "{0}", FormatExceptionMessage(ex));
         }
         else
         {
@@ -93,7 +93,7 @@ namespace EventStore.ClusterNode
       }
       finally
       {
-        Log.Flush();
+        //Log.Flush();
       }
       //Environment.Exit(_exitCode);
     }
@@ -109,14 +109,14 @@ namespace EventStore.ClusterNode
         }
         if (OS.IsUnix && !(OS.GetRuntimeVersion().StartsWith("4.6.2")))
         {
-          Log.Warn("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
+          Log.LogWarning("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
         }
       }
     }
 
     public void Stop()
     {
-      LogManager.Finish();
+      //LogManager.Finish();
 
       OnStop();
 
@@ -133,14 +133,14 @@ namespace EventStore.ClusterNode
       Console.Title = string.Format("{0}, {1}", projName, componentName);
 
       string logsDirectory = Path.GetFullPath(options.Log.IsNotEmptyString() ? options.Log : GetLogsDirectory(options));
-      LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);
+      //LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);
 
-      Log.Info("\n{0,-25} {1} ({2}/{3}, {4})", "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp);
-      Log.Info("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, Environment.OSVersion);
-      Log.Info("{0,-25} {1} ({2}-bit)", "RUNTIME:", OS.GetRuntimeVersion(), Marshal.SizeOf(typeof(IntPtr)) * 8);
-      Log.Info("{0,-25} {1}", "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
-      Log.Info("{0,-25} {1}", "LOGS:", LogManager.LogsDirectory);
-      Log.Info("{0}", EventStoreOptions.DumpOptions());
+      Log.LogInformation("\n{0,-25} {1} ({2}/{3}, {4})", "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp);
+      Log.LogInformation("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, Environment.OSVersion);
+      Log.LogInformation("{0,-25} {1} ({2}-bit)", "RUNTIME:", OS.GetRuntimeVersion(), Marshal.SizeOf(typeof(IntPtr)) * 8);
+      Log.LogInformation("{0,-25} {1}", "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
+      Log.LogInformation("{0,-25} {1}", "LOGS:", ""); // LogManager.LogsDirectory
+      Log.LogInformation("{0}", EventStoreOptions.DumpOptions());
 
       //if (options.WhatIf)
       //  Application.Exit(ExitCode.Success, "WhatIf option specified");

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Security.Principal;
-using Microsoft.Extensions.Logging;
+using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
+using EventStore.Core.Helpers;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
@@ -13,9 +14,8 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Management.ManagedProjectionStates;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Utils;
+using Microsoft.Extensions.Logging;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
-using System.Threading;
-using EventStore.Core.Helpers;
 
 namespace EventStore.Projections.Core.Services.Management
 {
@@ -699,11 +699,12 @@ namespace EventStore.Projections.Core.Services.Management
     {
       if (!_writing)
       {
-        _logger.Error("Projection definition write completed in non writing state. ({0})", _name);
+        _logger.LogError("Projection definition write completed in non writing state. ({0})", _name);
       }
+      var infoEnabled = _logger.IsInformationLevelEnabled();
       if (message.Result == OperationResult.Success)
       {
-        _logger.Info("'{0}' projection source has been written", _name);
+        if (infoEnabled) _logger.LogInformation("'{0}' projection source has been written", _name);
         _pendingWritePersistedState = false;
         var writtenEventNumber = message.FirstEventNumber;
         if (writtenEventNumber != (PersistedProjectionState.Version ?? writtenEventNumber))
@@ -712,16 +713,19 @@ namespace EventStore.Projections.Core.Services.Management
         StartOrLoadStopped();
         return;
       }
-      _logger.Info(
+      if (infoEnabled)
+      {
+        _logger.LogInformation(
           "Projection '{0}' source has not been written to {1}. Error: {2}",
           _name,
           eventStreamId,
           Enum.GetName(typeof(OperationResult), message.Result));
+      }
       if (message.Result == OperationResult.CommitTimeout || message.Result == OperationResult.ForwardTimeout
           || message.Result == OperationResult.PrepareTimeout
           || message.Result == OperationResult.WrongExpectedVersion)
       {
-        _logger.Info("Retrying write projection source for {0}", _name);
+        if (infoEnabled) _logger.LogInformation("Retrying write projection source for {0}", _name);
         WritePersistedState();
       }
       else
@@ -745,16 +749,20 @@ namespace EventStore.Projections.Core.Services.Management
 
     private void DeleteStreamCompleted(ClientMessage.DeleteStreamCompleted message, string streamId, Action completed)
     {
+      var infoEnabled = _logger.IsInformationLevelEnabled();
       if (message.Result == OperationResult.Success || message.Result == OperationResult.StreamDeleted)
       {
-        _logger.Info("PROJECTIONS: Projection Stream '{0}' deleted", streamId);
+        if (infoEnabled) _logger.LogInformation("PROJECTIONS: Projection Stream '{0}' deleted", streamId);
         completed();
         return;
       }
-      _logger.Info(
+      if (infoEnabled)
+      {
+        _logger.LogInformation(
           "PROJECTIONS: Projection stream '{0}' could not be deleted. Error: {1}",
           streamId,
           Enum.GetName(typeof(OperationResult), message.Result));
+      }
       if (message.Result == OperationResult.CommitTimeout ||
           message.Result == OperationResult.ForwardTimeout)
       {
@@ -917,7 +925,7 @@ namespace EventStore.Projections.Core.Services.Management
 
     public void Fault(string reason)
     {
-      _logger.Error("The '{0}' projection faulted due to '{1}'", _name, reason);
+      _logger.LogError("The '{0}' projection faulted due to '{1}'", _name, reason);
       SetState(ManagedProjectionState.Faulted);
       _faultedReason = reason;
     }

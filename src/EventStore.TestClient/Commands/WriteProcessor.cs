@@ -5,6 +5,7 @@ using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -47,7 +48,7 @@ namespace EventStore.TestClient.Commands
                 context,
                 connectionEstablished: conn =>
                 {
-                    context.Log.Info("[{0}, L{1}]: Writing...", conn.RemoteEndPoint, conn.LocalEndPoint);
+                    context.Log.LogInformation("[{0}, L{1}]: Writing...", conn.RemoteEndPoint, conn.LocalEndPoint);
                     var writeDto = new TcpClientMessageDto.WriteEvents(
                         eventStreamId,
                         expectedVersion,
@@ -72,7 +73,7 @@ namespace EventStore.TestClient.Commands
                 handlePackage: (conn, pkg) =>
                 {
                     sw.Stop();
-                    context.Log.Info("Write request took: {0}.", sw.Elapsed);
+                    context.Log.LogInformation("Write request took: {0}.", sw.Elapsed);
 
                     if (pkg.Command != TcpCommand.WriteEventsCompleted)
                     {
@@ -83,13 +84,13 @@ namespace EventStore.TestClient.Commands
                     var dto = pkg.Data.Deserialize<TcpClientMessageDto.WriteEventsCompleted>();
                     if (dto.Result == TcpClientMessageDto.OperationResult.Success)
                     {
-                        context.Log.Info("Successfully written.");
+                        context.Log.LogInformation("Successfully written.");
                         PerfUtils.LogTeamCityGraphData(string.Format("{0}-latency-ms", Keyword), (int)Math.Round(sw.Elapsed.TotalMilliseconds));
                         context.Success();
                     }
                     else
                     {
-                        context.Log.Info("Error while writing: {0} ({1}).", dto.Message, dto.Result);
+                        context.Log.LogInformation("Error while writing: {0} ({1}).", dto.Message, dto.Result);
                         context.Fail();
                     }
 

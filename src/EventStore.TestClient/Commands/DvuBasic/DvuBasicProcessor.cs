@@ -9,6 +9,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands.DvuBasic
 {
@@ -51,7 +52,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
 
             if (args.Length != 0 && args.Length != 5)
             {
-                context.Log.Error("Invalid number of arguments. Should be 0 or 5");
+                context.Log.LogError("Invalid number of arguments. Should be 0 or 5");
                 return false;
             }
 
@@ -64,34 +65,34 @@ namespace EventStore.TestClient.Commands.DvuBasic
 
                 if (!int.TryParse(args[0], out writersArg))
                 {
-                    context.Log.Error("Invalid argument value for <writers>");
+                    context.Log.LogError("Invalid argument value for <writers>");
                     return false;
                 }
                 if (!int.TryParse(args[1], out readersArg))
                 {
-                    context.Log.Error("Invalid argument value for <readers>");
+                    context.Log.LogError("Invalid argument value for <readers>");
                     return false;
                 }
                 if (!int.TryParse(args[2], out eventsArg))
                 {
-                    context.Log.Error("Invalid argument value for <events>");
+                    context.Log.LogError("Invalid argument value for <events>");
                     return false;
                 }
                 if (!int.TryParse(args[3], out streamsArg))
                 {
-                    context.Log.Error("Invalid argument value for <streams>");
+                    context.Log.LogError("Invalid argument value for <streams>");
                     return false;
                 }
                 string[] producersArg = args[4].Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(p => p.Trim().ToLower()).Distinct().ToArray();
                 if (producersArg.Length <= 0)
                 {
-                    context.Log.Error("Invalid argument value for <plugins>");
+                    context.Log.LogError("Invalid argument value for <plugins>");
                     return false;
                 }
                 if (producersArg.Any(p => !AvailableProducers.Contains(p)))
                 {
-                    context.Log.Error("Invalid producers argument. Pass comma-separated subset of [{0}]",
+                    context.Log.LogError("Invalid producers argument. Pass comma-separated subset of [{0}]",
                                       string.Join(",", AvailableProducers));
                     return false;
                 }
@@ -167,7 +168,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
                 readNotification.Wait();
             }
 
-            context.Log.Info("dvub finished execution : ");
+            context.Log.LogInformation("dvub finished execution : ");
 
             var writersTable = new ConsoleTable("WRITER ID", "Status");
             
@@ -182,8 +183,8 @@ namespace EventStore.TestClient.Commands.DvuBasic
                 readersTable.AppendRow(rs.ThreadId.ToString(), rs.Success ? "Success" : "Fail");
             }
 
-            context.Log.Info(writersTable.CreateIndentedTable());
-            context.Log.Info(readersTable.CreateIndentedTable());
+            context.Log.LogInformation(writersTable.CreateIndentedTable());
+            context.Log.LogInformation(readersTable.CreateIndentedTable());
 
             var success = writeStatuses.All(s => s.Success) && readStatuses.All(s => s.Success);
             if (success)

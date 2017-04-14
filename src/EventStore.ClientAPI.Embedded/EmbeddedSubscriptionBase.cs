@@ -8,6 +8,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.UserManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {
@@ -131,7 +132,7 @@ namespace EventStore.ClientAPI.Embedded
                     }
                     catch (Exception exc)
                     {
-                        _log.Error(exc, "Exception during executing user callback: {0}.", exc.Message);
+                        _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
                     }
                 }
 

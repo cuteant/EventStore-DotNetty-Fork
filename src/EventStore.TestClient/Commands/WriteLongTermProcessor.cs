@@ -9,6 +9,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -151,7 +152,7 @@ namespace EventStore.TestClient.Commands
                             if (currentMinute != elapsedMinutesInt)
                             {
                                 currentMinute = elapsedMinutesInt;
-                                context.Log.Info("\nElapsed {0} of {1} minutes, sent {2}; next block coef. {3}",
+                                context.Log.LogInformation("\nElapsed {0} of {1} minutes, sent {2}; next block coef. {3}",
                                                  elapsedMinutesInt,
                                                  runTimeMinutes,
                                                  sent,
@@ -205,9 +206,9 @@ namespace EventStore.TestClient.Commands
                 client.Close();
             }
 
-            context.Log.Info("Completed. Successes: {0}, failures: {1}", succ, fail);
+            context.Log.LogInformation("Completed. Successes: {0}, failures: {1}", succ, fail);
             var reqPerSec = (requestsCnt + 0.0)/sw.ElapsedMilliseconds*1000;
-            context.Log.Info("{0} requests completed in {1}ms ({2:0.00} reqs per sec).",
+            context.Log.LogInformation("{0} requests completed in {1}ms ({2:0.00} reqs per sec).",
                              requestsCnt,
                              sw.ElapsedMilliseconds,
                              reqPerSec);

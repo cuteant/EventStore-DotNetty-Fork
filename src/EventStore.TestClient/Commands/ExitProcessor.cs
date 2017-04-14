@@ -1,4 +1,5 @@
 ﻿using EventStore.Common.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -9,7 +10,7 @@ namespace EventStore.TestClient.Commands
 
         public bool Execute(CommandProcessorContext context, string[] args)
         {
-            context.Log.Info("Exiting...");
+            context.Log.LogInformation("Exiting...");
             Application.Exit(ExitCode.Success, "Exit processor called.");
             return true;
         }

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.ClientAPI.Common.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {

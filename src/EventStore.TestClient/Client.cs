@@ -128,14 +128,14 @@ namespace EventStore.TestClient
 
         private int Execute(string[] args)
         {
-            Log.Info("Processing command: {0}.", string.Join(" ", args));
+            Log.LogInformation("Processing command: {0}.", string.Join(" ", args));
 
             var context = new CommandProcessorContext(this, Log, new ManualResetEventSlim(true));
 
             int exitCode;
             if (_commands.TryProcess(context, args, out exitCode))
             {
-                Log.Info("Command exited with code {0}.", exitCode);
+                Log.LogInformation("Command exited with code {0}.", exitCode);
                 return exitCode;
             }
 
@@ -163,7 +163,7 @@ namespace EventStore.TestClient
                     ThreadPool.QueueUserWorkItem(_ => 
                     {
                         if (!InteractiveMode)
-                            Log.Info("TcpTypedConnection: connected to [{0}, L{1}, {2:B}].", conn.RemoteEndPoint, conn.LocalEndPoint, conn.ConnectionId);
+                            Log.LogInformation("TcpTypedConnection: connected to [{0}, L{1}, {2:B}].", conn.RemoteEndPoint, conn.LocalEndPoint, conn.ConnectionId);
                         if (connectionEstablished != null)
                         {
                             if (!connectionCreatedEvent.Wait(10000))
@@ -176,7 +176,7 @@ namespace EventStore.TestClient
                 {
                     var message = string.Format("TcpTypedConnection: connection to [{0}, L{1}, {2:B}] failed. Error: {3}.",
                                                 conn.RemoteEndPoint, conn.LocalEndPoint, conn.ConnectionId, error);
-                    Log.Error(message);
+                    Log.LogError(message);
 
                     if (connectionClosed != null)
                         connectionClosed(null, error);
@@ -192,7 +192,7 @@ namespace EventStore.TestClient
                 {
                     if (!InteractiveMode || error != SocketError.Success)
                     {
-                        Log.Info("TcpTypedConnection: connection [{0}, L{1}] was closed {2}",
+                        Log.LogInformation("TcpTypedConnection: connection [{0}, L{1}] was closed {2}",
                                  conn.RemoteEndPoint, conn.LocalEndPoint,
                                  error == SocketError.Success ? "cleanly." : "with error: " + error + ".");
                     }
@@ -200,7 +200,7 @@ namespace EventStore.TestClient
                     if (connectionClosed != null)
                         connectionClosed(conn, error);
                     else
-                        Log.Info("connectionClosed callback was null");
+                        Log.LogInformation("connectionClosed callback was null");
                 };
             connectionCreatedEvent.Set();
 
@@ -225,7 +225,7 @@ namespace EventStore.TestClient
                     }
                     catch (Exception ex)
                     {
-                        Log.InfoException(ex,
+                        Log.LogInformation(ex,
                                           "TcpTypedConnection: [{0}, L{1}] ERROR for {2}. Connection will be closed.",
                                           conn.RemoteEndPoint, conn.LocalEndPoint,
                                           validPackage ? package.Command as object : "<invalid package>");

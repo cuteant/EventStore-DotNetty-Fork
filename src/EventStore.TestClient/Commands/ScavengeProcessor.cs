@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -12,7 +13,7 @@ namespace EventStore.TestClient.Commands
         public bool Execute(CommandProcessorContext context, string[] args)
         {
             var package = new TcpPackage(TcpCommand.ScavengeDatabase, Guid.NewGuid(), null);
-            context.Log.Info("Sending SCAVENGE request...");
+            context.Log.LogInformation("Sending SCAVENGE request...");
 
             var connection = context.Client.CreateTcpConnection(
                 context,

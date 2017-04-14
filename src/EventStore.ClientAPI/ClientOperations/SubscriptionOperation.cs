@@ -7,6 +7,7 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -51,6 +52,7 @@ namespace EventStore.ClientAPI.ClientOperations
       _eventAppeared = eventAppeared;
       _subscriptionDropped = subscriptionDropped ?? ((x, y, z) => { });
       _verboseLogging = verboseLogging;
+      if (_verboseLogging) { _verboseLogging = _log.IsDebugLevelEnabled(); }
       _getConnection = getConnection;
     }
 
@@ -119,7 +121,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                    new ArgumentException(string.Format("Subscription to '{0}' failed due to not found.", _streamId == string.Empty ? "<all>" : _streamId)));
                   break;
                 default:
-                  if (_verboseLogging) _log.Debug("Subscription dropped by server. Reason: {0}.", dto.Reason);
+                  if (_verboseLogging) _log.LogDebug("Subscription dropped by server. Reason: {0}.", dto.Reason);
                   DropSubscription(SubscriptionDropReason.Unknown,
                                    new CommandNotExpectedException(string.Format("Unsubscribe reason: '{0}'.", dto.Reason)));
                   break;
@@ -163,7 +165,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                               masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 
                 default:
-                  _log.Error("Unknown NotHandledReason: {0}.", message.Reason);
+                  _log.LogError("Unknown NotHandledReason: {0}.", message.Reason);
                   return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
               }
             }
@@ -202,7 +204,7 @@ namespace EventStore.ClientAPI.ClientOperations
       {
         if (_verboseLogging)
         {
-          _log.Debug("Subscription {0:B} to {1}: closing subscription, reason: {2}, exception: {3}...",
+          _log.LogDebug("Subscription {0:B} to {1}: closing subscription, reason: {2}, exception: {3}...",
                      _correlationId, _streamId == string.Empty ? "<all>" : _streamId, reason, exc);
         }
 
@@ -233,7 +235,7 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_subscription != null) { throw new Exception("Double confirmation of subscription."); }
 
       if (_verboseLogging)
-        _log.Debug("Subscription {0:B} to {1}: subscribed at CommitPosition: {2}, EventNumber: {3}.",
+        _log.LogDebug("Subscription {0:B} to {1}: subscribed at CommitPosition: {2}, EventNumber: {3}.",
                    _correlationId, _streamId == string.Empty ? "<all>" : _streamId, lastCommitPosition, lastEventNumber);
       _subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
       _source.SetResult(_subscription);
@@ -248,7 +250,7 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
 
       if (_verboseLogging)
-        _log.Debug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
+        _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
                   _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
                   e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
 
@@ -272,7 +274,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
       catch (Exception exc)
       {
-        actionWapper.Item2.Error(exc, "Exception during executing user callback: {0}.", exc.Message);
+        actionWapper.Item2.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
       }
     }
   }

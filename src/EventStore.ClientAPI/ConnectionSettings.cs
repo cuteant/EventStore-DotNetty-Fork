@@ -1,6 +1,7 @@
 ﻿using System;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {

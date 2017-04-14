@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -24,7 +25,7 @@ namespace EventStore.TestClient.Commands
             context.IsAsync();
 
             var conn = EventStoreConnection.Create(ConnectionSettings.Create()
-                                                                     .UseCustomLogger(new ClientApiLoggerBridge(context.Log))
+                                                                     //.UseCustomLogger(new ClientApiLoggerBridge(context.Log))
                                                                      .FailOnNoServerResponse()
                                                                      /*.EnableVerboseLogging()*/,
                                                                      new Uri(string.Format("tcp://{0}:{1}", context.Client.TcpEndpoint.Address, context.Client.TcpEndpoint.Port)));
@@ -43,12 +44,12 @@ namespace EventStore.TestClient.Commands
                         if (c%1000 == 0) Console.Write('\'');
                         if (c%100000 == 0)
                         {
-                            context.Log.Trace("Received total {0} events ({1} per sec)...", c, 100000.0/sw.Elapsed.TotalSeconds);
+                            context.Log.LogTrace("Received total {0} events ({1} per sec)...", c, 100000.0/sw.Elapsed.TotalSeconds);
                             sw.Restart();
                         }
                     }).Wait();
             }
-            context.Log.Info("Subscribed to {0} streams...", subscriptionCount);
+            context.Log.LogInformation("Subscribed to {0} streams...", subscriptionCount);
             return true;
         }
     }

@@ -4,6 +4,7 @@ using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -37,7 +38,7 @@ namespace EventStore.TestClient.Commands
                 context,
                 connectionEstablished: conn =>
                 {
-                    context.Log.Info("[{0}, L{1}]: Reading...", conn.RemoteEndPoint, conn.LocalEndPoint);
+                    context.Log.LogInformation("[{0}, L{1}]: Reading...", conn.RemoteEndPoint, conn.LocalEndPoint);
                     var readDto = new TcpClientMessageDto.ReadEvent(eventStreamId, fromNumber, resolveLinkTos, requireMaster);
                     var package = new TcpPackage(TcpCommand.ReadEvent, Guid.NewGuid(), readDto.Serialize()).AsByteArray();
                     sw.Start();
@@ -46,7 +47,7 @@ namespace EventStore.TestClient.Commands
                 handlePackage: (conn, pkg) =>
                 {
                     sw.Stop();
-                    context.Log.Info("Read request took: {0}.", sw.Elapsed);
+                    context.Log.LogInformation("Read request took: {0}.", sw.Elapsed);
 
                     if (pkg.Command != TcpCommand.ReadEventCompleted)
                     {
@@ -55,7 +56,7 @@ namespace EventStore.TestClient.Commands
                     }
 
                     var dto = pkg.Data.Deserialize<TcpClientMessageDto.ReadEventCompleted>();
-                    context.Log.Info("READ events from <{0}>:\n\n"
+                    context.Log.LogInformation("READ events from <{0}>:\n\n"
                                      + "\tEventStreamId: {1}\n"
                                      + "\tEventNumber:   {2}\n"
                                      + "\tReadResult:    {3}\n"

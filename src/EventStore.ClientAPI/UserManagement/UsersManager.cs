@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.UserManagement
 {

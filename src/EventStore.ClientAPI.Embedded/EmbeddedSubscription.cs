@@ -9,6 +9,7 @@ using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {

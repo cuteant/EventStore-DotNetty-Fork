@@ -174,9 +174,9 @@ namespace EventStore.Core.Services.Replication
         var epochs = lastEpochs ?? new Epoch[0];
         if (Log.IsInformationLevelEnabled())
         {
-          Log.LogInformation("SUBSCRIBE REQUEST from [{0},C:{1:B},S:{2:B},{3}(0x{3:X}),{4}]...",
+          Log.LogInformation(string.Format("SUBSCRIBE REQUEST from [{0},C:{1:B},S:{2:B},{3}(0x{3:X}),{4}]...",
                    replica.ReplicaEndPoint, replica.ConnectionId, replica.SubscriptionId, logPosition,
-                   string.Join(", ", epochs.Select(x => EpochRecordExtensions.AsString((Epoch)x))));
+                   string.Join(", ", epochs.Select(x => EpochRecordExtensions.AsString((Epoch)x)))));
         }
 
         var epochCorrectedLogPos = GetValidLogPosition(logPosition, epochs, replica.ReplicaEndPoint, replica.SubscriptionId);
@@ -225,10 +225,10 @@ namespace EventStore.Core.Services.Replication
       }
       if (commonEpoch == null)
       {
-        Log.LogError("No common epoch found for replica [{0},S{1},{2}(0x{2:X}),{3}]. Subscribing at 0. Master LogPosition: {4} (0x{4:X}), known epochs: {5}.",
+        Log.LogError(string.Format("No common epoch found for replica [{0},S{1},{2}(0x{2:X}),{3}]. Subscribing at 0. Master LogPosition: {4} (0x{4:X}), known epochs: {5}.",
                   replicaEndPoint, subscriptionId, logPosition,
                   string.Join(", ", epochs.Select(x => x.AsString())),
-                  masterCheckpoint, string.Join(", ", _epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString())));
+                  masterCheckpoint, string.Join(", ", _epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString()))));
         return 0;
       }
 
@@ -286,12 +286,12 @@ namespace EventStore.Core.Services.Replication
           var chunkStartPos = chunk.ChunkHeader.ChunkStartPosition;
           if (verbose && Log.IsInformationLevelEnabled())
           {
-            Log.LogInformation("Subscribed replica [{0}, S:{1}] for raw send at {2} (0x{2:X}) (requested {3} (0x{3:X})).",
-                     sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos, logPosition);
+            Log.LogInformation(string.Format("Subscribed replica [{0}, S:{1}] for raw send at {2} (0x{2:X}) (requested {3} (0x{3:X})).",
+                     sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos, logPosition));
             if (chunkStartPos != logPosition)
             {
-              Log.LogInformation("Forcing replica [{0}, S:{1}] to recreate chunk from position {2} (0x{2:X})...",
-                       sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos);
+              Log.LogInformation(string.Format("Forcing replica [{0}, S:{1}] to recreate chunk from position {2} (0x{2:X})...",
+                       sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos));
             }
           }
 
@@ -312,7 +312,7 @@ namespace EventStore.Core.Services.Replication
         {
           if (verbose && Log.IsInformationLevelEnabled())
           {
-            Log.LogInformation("Subscribed replica [{0},S:{1}] for data send at {2} (0x{2:X}).", sub.ReplicaEndPoint, sub.SubscriptionId, logPosition);
+            Log.LogInformation(string.Format("Subscribed replica [{0},S:{1}] for data send at {2} (0x{2:X}).", sub.ReplicaEndPoint, sub.SubscriptionId, logPosition));
           }
 
           sub.LogPosition = logPosition;

@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -30,14 +31,14 @@ namespace EventStore.TestClient.Commands
                             case TcpCommand.SubscriptionConfirmation:
                             {
                                 var dto = pkg.Data.Deserialize<TcpClientMessageDto.SubscriptionConfirmation>();
-                                context.Log.Info("Subscription to <{0}> WAS CONFIRMED! Subscribed at {1} ({2})", 
+                                context.Log.LogInformation("Subscription to <{0}> WAS CONFIRMED! Subscribed at {1} ({2})", 
                                                  streamByCorrId[pkg.CorrelationId], dto.LastCommitPosition, dto.LastEventNumber);
                                 break;
                             }
                             case TcpCommand.StreamEventAppeared:
                             {
                                 var dto = pkg.Data.Deserialize<TcpClientMessageDto.StreamEventAppeared>();
-                                context.Log.Info("NEW EVENT:\n\n"
+                                context.Log.LogInformation("NEW EVENT:\n\n"
                                                  + "\tEventStreamId: {0}\n"
                                                  + "\tEventNumber:   {1}\n"
                                                  + "\tEventType:     {2}\n"
@@ -53,7 +54,7 @@ namespace EventStore.TestClient.Commands
                             case TcpCommand.SubscriptionDropped:
                             {
                                 pkg.Data.Deserialize<TcpClientMessageDto.SubscriptionDropped>();
-                                context.Log.Error("Subscription to <{0}> WAS DROPPED!", streamByCorrId[pkg.CorrelationId]);
+                                context.Log.LogError("Subscription to <{0}> WAS DROPPED!", streamByCorrId[pkg.CorrelationId]);
                                 break;
                             }
                             default:
@@ -71,7 +72,7 @@ namespace EventStore.TestClient.Commands
 
             if (args.Length == 0)
             {
-                context.Log.Info("SUBSCRIBING TO ALL STREAMS...");
+                context.Log.LogInformation("SUBSCRIBING TO ALL STREAMS...");
                 var cmd = new TcpClientMessageDto.SubscribeToStream(string.Empty, resolveLinkTos: false);
                 Guid correlationId = Guid.NewGuid();
                 streamByCorrId[correlationId] = "$all";
@@ -81,7 +82,7 @@ namespace EventStore.TestClient.Commands
             {
                 foreach (var stream in args)
                 {
-                    context.Log.Info("SUBSCRIBING TO STREAM <{0}>...", stream);
+                    context.Log.LogInformation("SUBSCRIBING TO STREAM <{0}>...", stream);
                     var cmd = new TcpClientMessageDto.SubscribeToStream(stream, resolveLinkTos: false);
                     var correlationId = Guid.NewGuid();
                     streamByCorrId[correlationId] = stream;

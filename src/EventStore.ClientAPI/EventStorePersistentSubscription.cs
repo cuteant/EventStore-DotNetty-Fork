@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {

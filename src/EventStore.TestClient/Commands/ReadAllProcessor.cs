@@ -4,6 +4,7 @@ using System.Text;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -60,7 +61,7 @@ namespace EventStore.TestClient.Commands
                 context,
                 connectionEstablished: conn =>
                 {
-                    context.Log.Info("[{0}, L{1}]: Reading all {2}...", conn.RemoteEndPoint, conn.LocalEndPoint, forward ? "FORWARD" : "BACKWARD");
+                    context.Log.LogInformation("[{0}, L{1}]: Reading all {2}...", conn.RemoteEndPoint, conn.LocalEndPoint, forward ? "FORWARD" : "BACKWARD");
 
                     var readDto = new TcpClientMessageDto.ReadAllEvents(commitPos, preparePos, 10, resolveLinkTos, requireMaster);
                     var package = new TcpPackage(tcpCommand, Guid.NewGuid(), readDto.Serialize()).AsByteArray();
@@ -79,7 +80,7 @@ namespace EventStore.TestClient.Commands
                     if (dto.Events.IsEmpty())
                     {
                         sw.Stop();
-                        context.Log.Info("=== Reading ALL {2} completed in {0}. Total read: {1}", sw.Elapsed, total, forward ? "FORWARD" : "BACKWARD");
+                        context.Log.LogInformation("=== Reading ALL {2} completed in {0}. Total read: {1}", sw.Elapsed, total, forward ? "FORWARD" : "BACKWARD");
                         context.Success();
                         conn.Close();
                         return;
@@ -96,7 +97,7 @@ namespace EventStore.TestClient.Commands
                                         evnt.EventType);
                         total += 1;
                     }
-                    context.Log.Info("Next {0} events read:\n{1}", dto.Events.Length, sb.ToString());
+                    context.Log.LogInformation("Next {0} events read:\n{1}", dto.Events.Length, sb.ToString());
 
                     var readDto = new TcpClientMessageDto.ReadAllEvents(dto.NextCommitPosition, dto.NextPreparePosition, 10, resolveLinkTos, requireMaster);
                     var package = new TcpPackage(tcpCommand, Guid.NewGuid(), readDto.Serialize()).AsByteArray();

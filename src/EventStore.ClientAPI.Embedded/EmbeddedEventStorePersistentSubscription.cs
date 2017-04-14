@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {

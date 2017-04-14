@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 

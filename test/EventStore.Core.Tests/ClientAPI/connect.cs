@@ -41,12 +41,12 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test, Category("Network"), Platform("WIN")]
         public void should_throw_exception_when_trying_to_reopen_closed_connection()
         {
-            ClientApiLoggerBridge.Default.Info("Starting '{0}' test...", "should_throw_exception_when_trying_to_reopen_closed_connection");
+            //ClientApiLoggerBridge.Default.Info("Starting '{0}' test...", "should_throw_exception_when_trying_to_reopen_closed_connection");
 
             var closed = new ManualResetEventSlim();
             var settings = ConnectionSettings.Create()
                                              .EnableVerboseLogging()
-                                             .UseCustomLogger(ClientApiLoggerBridge.Default)
+                                             //.UseCustomLogger(ClientApiLoggerBridge.Default)
                                              .LimitReconnectionsTo(0)
                                              .WithConnectionTimeoutOf(TimeSpan.FromSeconds(10))
                                              .SetReconnectionDelayTo(TimeSpan.FromMilliseconds(0))
@@ -86,7 +86,7 @@ namespace EventStore.Core.Tests.ClientAPI
             var settings =
                 ConnectionSettings.Create()
                                   .EnableVerboseLogging()
-                                  .UseCustomLogger(ClientApiLoggerBridge.Default)
+                                  //.UseCustomLogger(ClientApiLoggerBridge.Default)
                                   .LimitReconnectionsTo(1)
                                   .WithConnectionTimeoutOf(TimeSpan.FromSeconds(10))
                                   .SetReconnectionDelayTo(TimeSpan.FromMilliseconds(0))
@@ -137,7 +137,7 @@ namespace EventStore.Core.Tests.ClientAPI
             var settings = 
                 ConnectionSettings.Create()
                                   .EnableVerboseLogging()
-                                  .UseCustomLogger(ClientApiLoggerBridge.Default)
+                                  //.UseCustomLogger(ClientApiLoggerBridge.Default)
                                   .LimitReconnectionsTo(0)
                                   .SetReconnectionDelayTo(TimeSpan.FromMilliseconds(0))
                                   .FailOnNoServerResponse()

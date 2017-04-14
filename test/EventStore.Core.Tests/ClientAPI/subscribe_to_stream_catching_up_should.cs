@@ -13,7 +13,7 @@ namespace EventStore.Core.Tests.ClientAPI
     [TestFixture, Category("ClientAPI"), Category("LongRunning")]
     public class subscribe_to_stream_catching_up_should : SpecificationWithDirectoryPerTestFixture
     {
-        private static readonly EventStore.Common.Logging.ILogger Log = TraceLogger.GetLogger<subscribe_to_stream_catching_up_should>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<subscribe_to_stream_catching_up_should>();
         private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(500);
 
         private MiniNode _node;
@@ -52,7 +52,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                null,
                                                                CatchUpSubscriptionSettings.Default,
                                                                (_, x) => appeared.Set(),
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (_, __, ___) => dropped.Signal());
 
                 Thread.Sleep(100); // give time for first pull phase
@@ -79,7 +79,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                null,
                                                                CatchUpSubscriptionSettings.Default,
                                                                (_, x) => appeared.Signal(),
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (_, __, ___) => dropped.Signal());
 
                 store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
@@ -111,13 +111,13 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        null,
                                                        CatchUpSubscriptionSettings.Default,
                                                        (_, e) => appeared.Signal(),
-                                                        _ => Log.Info("Live processing started."),
+                                                        _ => Log.LogInformationX("Live processing started."),
                                                        (x, y, z) => dropped1.Set());
                 var sub2 = store.SubscribeToStreamFrom(stream,
                                                        null,
                                                        CatchUpSubscriptionSettings.Default,
                                                        (_, e) => appeared.Signal(),
-                                                        _ => Log.Info("Live processing started."),
+                                                        _ => Log.LogInformationX("Live processing started."),
                                                        (x, y, z) => dropped2.Set());
 
                 store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
@@ -152,7 +152,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                null,
                                                                CatchUpSubscriptionSettings.Default,
                                                                (x, y) => { },
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (x, y, z) => dropped.Signal());
                 Assert.IsFalse(dropped.Wait(0));
                 subscription.Stop(Timeout);
@@ -173,7 +173,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.SubscribeToStreamFrom(stream, null,
                                                CatchUpSubscriptionSettings.Default,
                                                (x, y) => { throw new Exception("Error"); },
-                                               _ => Log.Info("Live processing started."),
+                                               _ => Log.LogInformationX("Live processing started."),
                                                (x, y, z) => dropped.Signal());
                 Assert.IsTrue(dropped.Wait(Timeout));
             }
@@ -204,7 +204,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                    events.Add(y);
                                                                    appeared.Signal();
                                                                },
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (x, y, z) => dropped.Signal());
                 for (int i = 10; i < 20; ++i)
                 {
@@ -254,7 +254,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                    events.Add(y);
                                                                    appeared.Signal();
                                                                },
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (x, y, z) => dropped.Signal());
                 for (int i = 20; i < 30; ++i)
                 {
@@ -308,7 +308,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                                    events.Add(y);
                                                                    appeared.Signal();
                                                                },
-                                                               _ => Log.Info("Live processing started."),
+                                                               _ => Log.LogInformationX("Live processing started."),
                                                                (x, y, z) => dropped.Signal());
                 if (!appeared.Wait(Timeout))
                 {
