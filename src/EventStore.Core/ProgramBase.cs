@@ -5,19 +5,19 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using EventStore.Common.Exceptions;
-using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Util;
 using EventStore.Rags;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core
 {
-  public abstract class ProgramBase<TOptions> 
+  public abstract class ProgramBase<TOptions>
     where TOptions : class, IOptions, new()
   {
     // ReSharper disable StaticFieldInGenericType
-    protected static readonly ILogger Log = TraceLogger.GetLogger<ProgramBase<TOptions>>();
+    protected ILogger Log { get; set; }
     // ReSharper restore StaticFieldInGenericType
 
     private int _exitCode;
@@ -70,9 +70,9 @@ namespace EventStore.Core
       catch (ApplicationInitializationException ex)
       {
         var msg = String.Format("Application initialization error: {0}", FormatExceptionMessage(ex));
-        if (LogManager.Initialized)
+        if (Log != null)
         {
-          Log.FatalException(ex, msg);
+          Log.LogCritical(ex, msg);
         }
         else
         {
@@ -82,10 +82,10 @@ namespace EventStore.Core
       catch (Exception ex)
       {
         var msg = "Unhandled exception while starting application:";
-        if (LogManager.Initialized)
+        if (Log != null)
         {
-          Log.FatalException(ex, msg);
-          Log.FatalException(ex, "{0}", FormatExceptionMessage(ex));
+          Log.LogCritical(ex, msg);
+          Log.LogCritical(ex, "{0}", FormatExceptionMessage(ex));
         }
         else
         {
@@ -95,7 +95,7 @@ namespace EventStore.Core
       }
       finally
       {
-        Log.Flush();
+        //Log.Flush();
       }
       Environment.Exit(_exitCode);
     }
@@ -115,14 +115,14 @@ namespace EventStore.Core
         }
         if (OS.IsUnix && !(OS.GetRuntimeVersion().StartsWith("4.6.2")))
         {
-          Log.Warn("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
+          Log.LogWarning("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
         }
       }
     }
 
     private void Exit(int exitCode)
     {
-      LogManager.Finish();
+      //LogManager.Finish();
 
       _exitCode = exitCode;
       _exitEvent.Set();
@@ -142,17 +142,19 @@ namespace EventStore.Core
       Console.Title = string.Format("{0}, {1}", projName, componentName);
 
       string logsDirectory = Path.GetFullPath(options.Log.IsNotEmptyString() ? options.Log : GetLogsDirectory(options));
-      LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);
+      //LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);
 
-      Log.Info("\n{0,-25} {1} ({2}/{3}, {4})", "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp);
-      Log.Info("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, Environment.OSVersion);
-      Log.Info("{0,-25} {1} ({2}-bit)", "RUNTIME:", OS.GetRuntimeVersion(), Marshal.SizeOf(typeof(IntPtr)) * 8);
-      Log.Info("{0,-25} {1}", "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
-      Log.Info("{0,-25} {1}", "LOGS:", LogManager.LogsDirectory);
-      Log.Info("{0}", EventStoreOptions.DumpOptions());
+      Log.LogInformation("\n{0,-25} {1} ({2}/{3}, {4})", "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp);
+      Log.LogInformation("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, Environment.OSVersion);
+      Log.LogInformation("{0,-25} {1} ({2}-bit)", "RUNTIME:", OS.GetRuntimeVersion(), Marshal.SizeOf(typeof(IntPtr)) * 8);
+      Log.LogInformation("{0,-25} {1}", "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
+      Log.LogInformation("{0,-25} {1}", "LOGS:", ""); //LogManager.LogsDirectory
+      Log.LogInformation("{0}", EventStoreOptions.DumpOptions());
 
       if (options.WhatIf)
+      {
         Application.Exit(ExitCode.Success, "WhatIf option specified");
+      }
     }
 
     private string FormatExceptionMessage(Exception ex)

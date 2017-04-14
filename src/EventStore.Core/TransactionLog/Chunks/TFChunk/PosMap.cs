@@ -39,7 +39,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         public override string ToString()
         {
-            return string.Format("LogPos: {0}, ActualPos: {1}", LogPos, ActualPos);
+            return $"LogPos: {LogPos}, ActualPos: {ActualPos}";
         }
     }
 }
