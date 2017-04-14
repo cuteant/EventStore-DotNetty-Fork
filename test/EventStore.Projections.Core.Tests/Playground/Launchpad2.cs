@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNOFFICIALTESTING
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -73,3 +74,4 @@ namespace EventStore.Projections.Core.Tests.Playground
         private static extern bool AllocConsole();
     }
 }
+#endif

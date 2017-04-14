@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\bin\tests\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;UNOFFICIALTESTING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <SolutionPlatform>anycpu</SolutionPlatform>
@@ -31,7 +31,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER</DefineConstants>
+    <DefineConstants>TRACE;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;UNOFFICIALTESTING</DefineConstants>
     <OutputPath>..\..\bin\tests\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -102,6 +102,10 @@
     <Compile Include="Other\Stopwatch.cs" />
     <Compile Include="Other\when_matching_remaining_path.cs" />
     <Compile Include="Playground\BusTestingExtentions.cs" />
+    <Compile Include="Playground\Launchpad.cs" />
+    <Compile Include="Playground\Launchpad2.cs" />
+    <Compile Include="Playground\Launchpad3.cs" />
+    <Compile Include="Playground\LaunchpadBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\checkpoint_tag\checkpoint_tag_by_phase.cs" />
     <Compile Include="Services\checkpoint_tag\checkpoint_tag_by_prepare_position.cs" />

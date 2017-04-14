@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !UNOFFICIALTESTING
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -94,3 +95,4 @@ namespace EventStore.Projections.Core.Tests.Playground
         }
     }
 }
+#endif
