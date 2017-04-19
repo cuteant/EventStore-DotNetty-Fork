@@ -1,9 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿#if false
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 
@@ -12,8 +13,6 @@ namespace EventStore.ClientAPI
   /// <summary>Represents a persistent subscription connection.</summary>
   public abstract class EventStorePersistentSubscriptionBase
   {
-    private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
-
     ///<summary>The default buffer size for the persistent subscription</summary>
     public const int DefaultBufferSize = 10;
 
@@ -28,24 +27,22 @@ namespace EventStore.ClientAPI
     private readonly bool _autoAck;
 
     private PersistentEventStoreSubscription _subscription;
-    private readonly ConcurrentQueue<ResolvedEvent> _queue = new ConcurrentQueue<ResolvedEvent>();
-    private int _isProcessing;
+    private ActionBlock<ResolvedEvent> _resolvedEventBlock;
     private DropData _dropData;
 
     private int _isDropped;
-    private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
     private readonly int _bufferSize;
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId,
-        string streamId,
-        Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-        Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-        UserCredentials userCredentials,
-        ILogger log,
-        bool verboseLogging,
-        ConnectionSettings settings,
-        int bufferSize = 10,
-        bool autoAck = true)
+      string streamId,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+      UserCredentials userCredentials,
+      ILogger log,
+      bool verboseLogging,
+      ConnectionSettings settings,
+      int bufferSize = 10,
+      bool autoAck = true)
     {
       _subscriptionId = subscriptionId;
       _streamId = streamId;
@@ -61,11 +58,31 @@ namespace EventStore.ClientAPI
 
     internal async Task<EventStorePersistentSubscriptionBase> Start()
     {
-      _stopped.Reset();
-
       _subscription = await StartSubscription(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppeared, OnSubscriptionDropped, _settings);
+      InitResolvedEventBlock();
 
       return this;
+    }
+
+    private void InitResolvedEventBlock()
+    {
+      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(new Action<ResolvedEvent>(ProcessResolvedEvent));
+      var completionTask = _resolvedEventBlock.Completion;
+      completionTask.ContinueWith((task, state) =>
+        {
+          var dropData = state as DropData;
+          if (dropData == null)
+          {
+            //throw new Exception("Drop reason not specified.");
+            dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
+          }
+          DropSubscription(dropData.Reason, dropData.Error);
+        },
+        _dropData,
+        CancellationToken.None,
+        TaskContinuationOptions.DenyChildAttach | TaskContinuationOptions.ExecuteSynchronously,
+        TaskScheduler.Default
+      );
     }
 
     internal abstract Task<PersistentEventStoreSubscription> StartSubscription(
@@ -129,7 +146,6 @@ namespace EventStore.ClientAPI
       _subscription.NotifyEventsFailed(ids, action, reason);
     }
 
-
     /// <summary>Disconnects this client from the persistent subscriptions.</summary>
     /// <param name="timeout"></param>
     /// <exception cref="TimeoutException"></exception>
@@ -141,7 +157,9 @@ namespace EventStore.ClientAPI
       }
 
       EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
-      if (!_stopped.Wait(timeout))
+
+      var completion = _resolvedEventBlock.Completion;
+      if (!Task.WaitAll(new[] { completion }, timeout))
       {
         throw new TimeoutException($"Could not stop {GetType().Name} in time.");
       }
@@ -153,7 +171,7 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-        Enqueue(DropSubscriptionEvent);
+        _resolvedEventBlock.Complete();
       }
     }
 
@@ -164,69 +182,32 @@ namespace EventStore.ClientAPI
 
     private void OnEventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
     {
-      Enqueue(resolvedEvent);
+      _resolvedEventBlock.Post(resolvedEvent);
     }
 
-    private void Enqueue(ResolvedEvent resolvedEvent)
+    private void ProcessResolvedEvent(ResolvedEvent resolvedEvent)
     {
-      _queue.Enqueue(resolvedEvent);
-      if (Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0)
+      try
       {
-        ThreadPool.QueueUserWorkItem(_ => ProcessQueue());
+        _eventAppeared(this, resolvedEvent);
+        if (_autoAck)
+        {
+          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
+        }
+        if (_verbose && _log.IsDebugLevelEnabled())
+        {
+          _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
+                    _streamId,
+                    resolvedEvent.OriginalEvent.EventStreamId, resolvedEvent.OriginalEvent.EventNumber, resolvedEvent.OriginalEvent.EventType, resolvedEvent.OriginalEventNumber);
+        }
+      }
+      catch (Exception exc)
+      {
+        // TODO GFY should we autonak here?
+        DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
+        return;
       }
     }
-
-
-    private void ProcessQueue()
-    {
-      do
-      {
-        if (_subscription == null)
-        {
-          Thread.Sleep(1);
-        }
-        else
-        {
-          while (_queue.TryDequeue(out ResolvedEvent e))
-          {
-            if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
-            {
-              if (_dropData == null) throw new Exception("Drop reason not specified.");
-              DropSubscription(_dropData.Reason, _dropData.Error);
-              return;
-            }
-            if (_dropData != null)
-            {
-              DropSubscription(_dropData.Reason, _dropData.Error);
-              return;
-            }
-            try
-            {
-              _eventAppeared(this, e);
-              if (_autoAck)
-              {
-                _subscription.NotifyEventsProcessed(new[] { e.OriginalEvent.EventId });
-              }
-
-              if (_verbose && _log.IsDebugLevelEnabled())
-              {
-                _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
-                          _streamId,
-                          e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalEventNumber);
-              }
-            }
-            catch (Exception exc)
-            {
-              //TODO GFY should we autonak here?
-              DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
-              return;
-            }
-          }
-        }
-        Interlocked.CompareExchange(ref _isProcessing, 0, 1);
-      } while (_queue.Count > 0 && Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0);
-    }
-
 
     private void DropSubscription(SubscriptionDropReason reason, Exception error)
     {
@@ -240,7 +221,6 @@ namespace EventStore.ClientAPI
 
         _subscription?.Unsubscribe();
         _subscriptionDropped?.Invoke(this, reason, error);
-        _stopped.Set();
       }
     }
 
@@ -257,3 +237,4 @@ namespace EventStore.ClientAPI
     }
   }
 }
+#endif
