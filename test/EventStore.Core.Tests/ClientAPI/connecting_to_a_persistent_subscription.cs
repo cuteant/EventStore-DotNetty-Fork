@@ -98,8 +98,9 @@ namespace EventStore.Core.Tests.ClientAPI
       catch (Exception ex)
       {
         var innerEx = ex.InnerException;
-        Assert.IsInstanceOf<AggregateException>(innerEx);
-        Assert.IsInstanceOf<AccessDeniedException>(innerEx.InnerException);
+        //Assert.IsInstanceOf<AggregateException>(innerEx);
+        //Assert.IsInstanceOf<AccessDeniedException>(innerEx.InnerException);
+        Assert.IsInstanceOf<AccessDeniedException>(innerEx);
       }
     }
   }
@@ -147,8 +148,9 @@ namespace EventStore.Core.Tests.ClientAPI
     [Test]
     public void the_second_subscription_fails_to_connect()
     {
-      Assert.IsInstanceOf<AggregateException>(_exception);
-      Assert.IsInstanceOf<MaximumSubscribersReachedException>(_exception.InnerException);
+      //Assert.IsInstanceOf<AggregateException>(_exception);
+      //Assert.IsInstanceOf<MaximumSubscribersReachedException>(_exception.InnerException);
+      Assert.IsInstanceOf<MaximumSubscribersReachedException>(_exception);
     }
   }
 
