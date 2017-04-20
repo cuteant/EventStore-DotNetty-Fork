@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using CuteAnt.IO;
 using EventStore.Common.Exceptions;
-using Microsoft.Extensions.Logging;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Util;
 using EventStore.Rags;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClusterNode
 {
@@ -34,7 +36,14 @@ namespace EventStore.ClusterNode
       {
         //Application.RegisterExitAction(Exit);
 
-        var options = EventStoreOptions.Parse<TOptions>(null, Opts.EnvPrefix, Path.Combine(Locations.DefaultConfigurationDirectory, DefaultFiles.DefaultConfigFile));
+        string[] args = null;
+        var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");
+        if (!string.IsNullOrWhiteSpace(esConfigFile))
+        {
+          args = new string[] { "-config", PathHelper.ApplicationBasePathCombine(esConfigFile) };
+        }
+        var options = EventStoreOptions.Parse<TOptions>(args, Opts.EnvPrefix, Path.Combine(Locations.DefaultConfigurationDirectory, DefaultFiles.DefaultConfigFile));
+
         //if (options.Help)
         //{
         //  Console.WriteLine("Options:");

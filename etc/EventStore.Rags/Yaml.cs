@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EventStore.Rags.YamlDotNet.RepresentationModel;
+using YamlDotNet.RepresentationModel;
 
 namespace EventStore.Rags
 {

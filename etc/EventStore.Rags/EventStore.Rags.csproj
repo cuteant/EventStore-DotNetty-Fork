@@ -24,4 +24,8 @@
     <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
     <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet.Signed" Version="4.1.0" />
+  </ItemGroup>
 </Project>

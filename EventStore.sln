@@ -44,6 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{77F3B1A0
 		common\common.props = common\common.props
 		common\define.props = common\define.props
 		NuGet.Config = NuGet.Config
+		src\EventStore.Common\Utils\VersionInfo.cs = src\EventStore.Common\Utils\VersionInfo.cs
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "es", "es", "{759E1DB9-D74D-4922-B8D1-04EF888CB890}"

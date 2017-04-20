@@ -75,6 +75,10 @@
     </None>
     <None Include="App.config" />
     <None Include="project.json" />
+    <None Include="eventStore.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\etc\EventStore.Rags\EventStore.Rags.csproj">
