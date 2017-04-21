@@ -78,9 +78,9 @@ namespace EventStore.ClientAPI
         }
 
         /// <summary>
-        /// Whether to randomly choose a node that's alive from the known nodes. 
+        /// Whether or nto to randomly choose a node that's alive from the known nodes.
         /// </summary>
-        /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
+        /// <returns>A <see cref="GossipSeedClusterSettingsBuilder"/> for further configuration.</returns>
         public GossipSeedClusterSettingsBuilder PreferRandomNode()
         {
             _preferRandomNode = true;

@@ -39,7 +39,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
       using (var memory = new MemoryStream())
       {
         Serializer.Serialize(memory, protoContract);
+#if NET_4_5_GREATER
+        memory.TryGetBuffer(out ArraySegment<byte> res);
+#else
         var res = new ArraySegment<byte>(memory.GetBuffer(), 0, (int)memory.Length);
+#endif
         return res;
       }
     }

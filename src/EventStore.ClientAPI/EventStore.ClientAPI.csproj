@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Client.StrongName</PackageId>
-    <Title>EventStore.Client.StrongName</Title>
+    <PackageId>EventStore.Client.Unofficial</PackageId>
+    <Title>EventStore.Client.Unofficial</Title>
     <Description>The client API for the Event Store. Get the open source or commercial versions of the Event Store server from http://geteventstore.com</Description>
     <PackageTags>eventstore client</PackageTags>
   </PropertyGroup>

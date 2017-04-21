@@ -9,7 +9,7 @@ Issue.003 ☆ Tuple 替换
 
 Issue.004 ☆ 替换 MemoryStream
 
-Issue.005 ☆ 
+Issue.005 ☆ 替换 MemoryStream.GetBuffer()
 
 Issue.006 ☆ Task.FromResult 替换
 

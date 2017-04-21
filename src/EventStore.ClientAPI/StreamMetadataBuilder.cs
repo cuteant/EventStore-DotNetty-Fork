@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI
         private string[] _aclMetaRead;
         private string[] _aclMetaWrite;
 
-        private readonly IDictionary<string, JToken> _customMetadata = new Dictionary<string, JToken>();
+        private readonly IDictionary<string, JToken> _customMetadata;
 
         internal StreamMetadataBuilder(
             long? maxCount = null,
@@ -43,7 +43,7 @@ namespace EventStore.ClientAPI
             _aclDelete = aclDelete;
             _aclMetaRead = aclMetaRead;
             _aclMetaWrite = aclMetaWrite;
-            _customMetadata = customMetadata == null ? new Dictionary<string, JToken>() : new Dictionary<string, JToken>(customMetadata);
+            _customMetadata = customMetadata == null ? new Dictionary<string, JToken>(StringComparer.Ordinal) : new Dictionary<string, JToken>(customMetadata, StringComparer.Ordinal);
         }
 
         /// <summary>

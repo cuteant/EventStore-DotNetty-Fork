@@ -40,8 +40,7 @@ namespace EventStore.ClientAPI
     private int _gossipExternalHttpPort = Consts.DefaultClusterManagerExternalHttpPort;
     private TimeSpan _gossipTimeout = TimeSpan.FromSeconds(1);
     private GossipSeed[] _gossipSeeds;
-    private bool _preferRandomNode = false;
-
+    private bool _preferRandomNode;
 
     internal ConnectionSettingsBuilder()
     {

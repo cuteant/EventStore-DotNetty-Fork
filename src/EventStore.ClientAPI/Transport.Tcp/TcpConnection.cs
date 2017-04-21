@@ -150,7 +150,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
           break;
       }
 
+#if NET_4_5_GREATER
+      _memoryStream.TryGetBuffer(out ArraySegment<byte> buffer);
+      _sendSocketArgs.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+#else
       _sendSocketArgs.SetBuffer(_memoryStream.GetBuffer(), 0, (int)_memoryStream.Length);
+#endif
 
       try
       {
@@ -318,7 +323,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
       if (_socket != null)
       {
         Helper.EatException(() => _socket.Shutdown(SocketShutdown.Both));
+#if DESKTOPCLR
         Helper.EatException(() => _socket.Close(TcpConfiguration.SocketCloseTimeoutMs));
+#else
+        Helper.EatException(() => _socket.Dispose());
+#endif
         _socket = null;
       }
 

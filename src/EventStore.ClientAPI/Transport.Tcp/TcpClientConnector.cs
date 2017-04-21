@@ -121,7 +121,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
             var onConnectionFailed = callbacks.OnConnectionFailed;
             var pendingConnection = callbacks.PendingConnection;
 
+#if DESKTOPCLR
             Helper.EatException(() => socketArgs.AcceptSocket.Close(TcpConfiguration.SocketCloseTimeoutMs));
+#else
+            Helper.EatException(() => socketArgs.AcceptSocket.Dispose());
+#endif
             socketArgs.AcceptSocket = null;
             callbacks.Reset();
             _connectSocketArgsPool.Return(socketArgs);

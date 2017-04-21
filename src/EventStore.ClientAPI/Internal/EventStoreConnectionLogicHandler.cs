@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
+using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
-using EventStore.ClientAPI.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Internal

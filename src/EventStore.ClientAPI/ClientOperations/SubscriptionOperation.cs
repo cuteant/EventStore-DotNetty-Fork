@@ -210,8 +210,8 @@ namespace EventStore.ClientAPI.ClientOperations
 
         if (reason != SubscriptionDropReason.UserInitiated)
         {
-          var er = exc ?? new Exception(String.Format("Subscription dropped for {0}", reason));
-          _source.TrySetException(er);
+          exc = exc ?? new Exception($"Subscription dropped for {reason}");
+          _source.TrySetException(exc);
         }
 
         if (reason == SubscriptionDropReason.UserInitiated && _subscription != null && connection != null)

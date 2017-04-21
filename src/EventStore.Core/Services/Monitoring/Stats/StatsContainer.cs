@@ -127,7 +127,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
         {
             public bool Equals(string x, string y)
             {
-                return string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase);
+                return string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
             }
 
             public int GetHashCode(string obj)

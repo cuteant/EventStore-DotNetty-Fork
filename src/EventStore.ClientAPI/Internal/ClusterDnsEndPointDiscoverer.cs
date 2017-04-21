@@ -24,7 +24,6 @@ namespace EventStore.ClientAPI.Internal
     private readonly HttpAsyncClient _client;
     private ClusterMessages.MemberInfoDto[] _oldGossip;
     private TimeSpan _gossipTimeout;
-
     private readonly bool _preferRandomNode;
 
     public ClusterDnsEndPointDiscoverer(ILogger log,
@@ -43,51 +42,51 @@ namespace EventStore.ClientAPI.Internal
       _managerExternalHttpPort = managerExternalHttpPort;
       _gossipSeeds = gossipSeeds;
       _gossipTimeout = gossipTimeout;
-      _client = new HttpAsyncClient(_gossipTimeout);
       _preferRandomNode = preferRandomNode;
+      _client = new HttpAsyncClient(_gossipTimeout);
     }
 
-    public Task<NodeEndPoints> DiscoverAsync(IPEndPoint failedTcpEndPoint)
+    public async Task<NodeEndPoints> DiscoverAsync(IPEndPoint failedTcpEndPoint)
     {
-      return Task.Factory.StartNew(state =>
+      var infoEnabled = _log.IsInformationLevelEnabled();
+      for (int attempt = 1; attempt <= _maxDiscoverAttempts; ++attempt)
       {
-        var infoEnabled = _log.IsInformationLevelEnabled();
-        for (int attempt = 1; attempt <= _maxDiscoverAttempts; ++attempt)
+        //_log.Info("Discovering cluster. Attempt {0}/{1}...", attempt, _maxDiscoverAttempts);
+        try
         {
-          //_log.Info("Discovering cluster. Attempt {0}/{1}...", attempt, _maxDiscoverAttempts);
-          try
+          var endPoints = await DiscoverEndPoint(failedTcpEndPoint).ConfigureAwait(false);
+          if (endPoints != null)
           {
-            var endPoints = DiscoverEndPoint(failedTcpEndPoint);
-            if (endPoints != null)
-            {
-              if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} successful: best candidate is {2}.", attempt, _maxDiscoverAttempts, endPoints);
-              return endPoints.Value;
-            }
-
-            if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed: no candidate found.", attempt, _maxDiscoverAttempts);
-          }
-          catch (Exception exc)
-          {
-            if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed with error: {2}.", attempt, _maxDiscoverAttempts, exc);
+            if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} successful: best candidate is {2}.", attempt, _maxDiscoverAttempts, endPoints);
+            return endPoints.Value;
           }
 
-          Thread.Sleep(500);
+          if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed: no candidate found.", attempt, _maxDiscoverAttempts);
         }
-        throw new ClusterException(string.Format("Failed to discover candidate in {0} attempts.", _maxDiscoverAttempts));
-      }, Tuple.Create(_log, _maxDiscoverAttempts, failedTcpEndPoint));
+        catch (Exception exc)
+        {
+          if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed with error: {2}.", attempt, _maxDiscoverAttempts, exc);
+        }
+
+        //Thread.Sleep(500);
+        await Task.Delay(500);
+      }
+      throw new ClusterException($"Failed to discover candidate in {_maxDiscoverAttempts} attempts.");
     }
 
-    private NodeEndPoints? DiscoverEndPoint(IPEndPoint failedEndPoint)
+    private async Task<NodeEndPoints?> DiscoverEndPoint(IPEndPoint failedEndPoint)
     {
       var oldGossip = Interlocked.Exchange(ref _oldGossip, null);
       var gossipCandidates = oldGossip != null
                                      ? GetGossipCandidatesFromOldGossip(oldGossip, failedEndPoint)
-                                     : GetGossipCandidatesFromDns();
+                                     : await GetGossipCandidatesFromDns();
       for (int i = 0; i < gossipCandidates.Length; ++i)
       {
         var gossip = TryGetGossipFrom(gossipCandidates[i]);
         if (gossip == null || gossip.Members == null || gossip.Members.Length == 0)
+        {
           continue;
+        }
 
         var bestNode = TryDetermineBestNode(gossip.Members, _preferRandomNode);
         if (bestNode != null)
@@ -100,7 +99,7 @@ namespace EventStore.ClientAPI.Internal
       return null;
     }
 
-    private GossipSeed[] GetGossipCandidatesFromDns()
+    private async Task<GossipSeed[]> GetGossipCandidatesFromDns()
     {
       //_log.Debug("ClusterDnsEndPointDiscoverer: GetGossipCandidatesFromDns");
       GossipSeed[] endpoints;
@@ -110,26 +109,29 @@ namespace EventStore.ClientAPI.Internal
       }
       else
       {
-        endpoints = ResolveDns(_clusterDns).Select(x => new GossipSeed(new IPEndPoint(x, _managerExternalHttpPort))).ToArray();
+        endpoints = (await ResolveDns(_clusterDns)).Select(x => new GossipSeed(new IPEndPoint(x, _managerExternalHttpPort))).ToArray();
       }
 
       RandomShuffle(endpoints, 0, endpoints.Length - 1);
       return endpoints;
     }
 
-    private IPAddress[] ResolveDns(string dns)
+    private async Task<IPAddress[]> ResolveDns(string dns)
     {
       IPAddress[] addresses;
       try
       {
-        addresses = Dns.GetHostAddresses(dns);
+        addresses = await Dns.GetHostAddressesAsync(dns);
       }
       catch (Exception exc)
       {
-        throw new ClusterException(string.Format("Error while resolving DNS entry '{0}'.", _clusterDns), exc);
+        throw new ClusterException($"Error while resolving DNS entry '{_clusterDns}'.", exc);
       }
       if (addresses == null || addresses.Length == 0)
-        throw new ClusterException(string.Format("DNS entry '{0}' resolved into empty list.", _clusterDns));
+      {
+        throw new ClusterException($"DNS entry '{_clusterDns}' resolved into empty list.");
+      }
+
       return addresses;
     }
 
@@ -152,9 +154,13 @@ namespace EventStore.ClientAPI.Internal
       for (int k = 0; k < members.Length; ++k)
       {
         if (members[k].State == ClusterMessages.VNodeState.Manager)
+        {
           result[--j] = new GossipSeed(new IPEndPoint(IPAddress.Parse(members[k].ExternalHttpIp), members[k].ExternalHttpPort));
+        }
         else
+        {
           result[++i] = new GossipSeed(new IPEndPoint(IPAddress.Parse(members[k].ExternalHttpIp), members[k].ExternalHttpPort));
+        }
       }
       RandomShuffle(result, 0, i); // shuffle nodes
       RandomShuffle(result, j, members.Length - 1); // shuffle managers
@@ -164,8 +170,7 @@ namespace EventStore.ClientAPI.Internal
 
     private void RandomShuffle<T>(T[] arr, int i, int j)
     {
-      if (i >= j)
-        return;
+      if (i >= j) return;
       var rnd = new Random(Guid.NewGuid().GetHashCode());
       for (int k = i; k <= j; ++k)
       {
@@ -220,10 +225,10 @@ namespace EventStore.ClientAPI.Internal
     {
       var notAllowedStates = new[]
       {
-                ClusterMessages.VNodeState.Manager,
-                ClusterMessages.VNodeState.ShuttingDown,
-                ClusterMessages.VNodeState.Shutdown
-            };
+        ClusterMessages.VNodeState.Manager,
+        ClusterMessages.VNodeState.ShuttingDown,
+        ClusterMessages.VNodeState.Shutdown
+      };
 
       var nodes = members.Where(x => x.IsAlive)
                          .Where(x => !notAllowedStates.Contains(x.State))

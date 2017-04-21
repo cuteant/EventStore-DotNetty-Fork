@@ -116,47 +116,49 @@ ProjectionThreads: 3
 # External IP Address.
 # ExtIp: 127.0.0.1
 
+# Internal TCP Port.
+# IntTcpPort: 1112
+
+# External TCP Port.
+# ExtTcpPort: 1113
+
 # Internal HTTP Port.
 # IntHttpPort: 2112
 
 # External HTTP Port.
 # ExtHttpPort: 2113
 
-# Internal TCP Port.
-# IntTcpPort: 1112
-
 # Internal Secure TCP Port.
 # IntSecureTcpPort: 0
-
-# External TCP Port.
-# ExtTcpPort: 1113
-
-# Advertise Secure External Tcp Port As.
-# ExtSecureTcpPortAdvertiseAs: 0
 
 # External Secure TCP Port.
 # ExtSecureTcpPort: 0
 
-# Advertise External Tcp Address As.
-# ExtIpAdvertiseAs: 
-
-# Advertise External Tcp Port As.
-# ExtTcpPortAdvertiseAs: 0
-
-# Advertise External Http Port As.
-# ExtHttpPortAdvertiseAs: 0
 
 # Advertise Internal Tcp Address As.
 # IntIpAdvertiseAs: 
 
-# Advertise Secure Internal Tcp Port As.
-# IntSecureTcpPortAdvertiseAs: 0
+# Advertise External Tcp Address As.
+# ExtIpAdvertiseAs: 
 
 # Advertise Internal Tcp Port As.
 # IntTcpPortAdvertiseAs: 0
 
+# Advertise External Tcp Port As.
+# ExtTcpPortAdvertiseAs: 0
+
 # Advertise Internal Http Port As.
 # IntHttpPortAdvertiseAs: 0
+
+# Advertise External Http Port As.
+# ExtHttpPortAdvertiseAs: 0
+
+# Advertise Secure Internal Tcp Port As.
+# IntSecureTcpPortAdvertiseAs: 0
+
+# Advertise Secure External Tcp Port As.
+# ExtSecureTcpPortAdvertiseAs: 0
+
 
 # Heartbeat timeout for internal TCP sockets
 IntTcpHeartbeatTimeout: 700
@@ -241,7 +243,7 @@ CommitCount: -1
 PrepareCount: -1
 
 # Whether to use DNS lookup to discover other cluster nodes.
-DiscoverViaDns: true
+DiscoverViaDns: false
 
 # DNS name from which other nodes can be discovered.
 # ClusterDns: fake.dns

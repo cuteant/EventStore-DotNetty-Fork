@@ -210,7 +210,7 @@ namespace EventStore.TestClient.Commands
       Log.LogInformation("Found scenarios {0} total :\n{1}.", allScenarios.Length, allScenarios.Aggregate(new StringBuilder(),
                                                                                                  (sb, s) => sb.AppendFormat("{0}, ", s.GetType().Name)));
       var scenarios = allScenarios.Where(x => scenarioName == AllScenariosFlag
-                                              || x.GetType().Name.Equals(scenarioName, StringComparison.InvariantCultureIgnoreCase))
+                                              || x.GetType().Name.Equals(scenarioName, StringComparison.OrdinalIgnoreCase))
                                   .ToArray();
 
       Log.LogInformation("Running test scenarios ({0} total)...", scenarios.Length);

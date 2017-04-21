@@ -58,7 +58,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var url = _serverEndPoint.ToHttpUrl("/ping?format=json");
             Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.ContentType),
                                                             ContentType.Json,
-                                                            StringComparison.InvariantCultureIgnoreCase);
+                                                            StringComparison.OrdinalIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
             Assert.IsTrue(result.Item1, result.Item2);
@@ -70,7 +70,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var url = _serverEndPoint.ToHttpUrl("/ping?format=xml");
             Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.ContentType),
                                                             ContentType.Xml,
-                                                            StringComparison.InvariantCultureIgnoreCase);
+                                                            StringComparison.OrdinalIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
             Assert.IsTrue(result.Item1, result.Item2);
@@ -82,7 +82,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var url = _serverEndPoint.ToHttpUrl("/ping?format=text");
             Func<HttpResponse, bool> verifier = response => string.Equals(StripAdditionalAttributes(response.ContentType),
                                                             ContentType.PlainText,
-                                                            StringComparison.InvariantCultureIgnoreCase);
+                                                            StringComparison.OrdinalIgnoreCase);
 
             var result = _portableServer.StartServiceAndSendRequest(HttpBootstrap.RegisterPing, url, verifier);
             Assert.IsTrue(result.Item1, result.Item2);

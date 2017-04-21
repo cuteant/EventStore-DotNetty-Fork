@@ -120,7 +120,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
           memStream.Write(segment.Array, segment.Offset, segment.Count);
           bytes += segment.Count;
         }
+#if NET_4_5_GREATER
+        memStream.TryGetBuffer(out ArraySegment<byte> buffer);
+        _sendQueue.Enqueue(new ArraySegment<byte>(buffer.Array, buffer.Offset, buffer.Count));
+#else
         _sendQueue.Enqueue(new ArraySegment<byte>(memStream.GetBuffer(), 0, (int)memStream.Length));
+#endif
         NotifySendScheduled(bytes);
       }
 
@@ -143,7 +148,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
             if (_memoryStream.Length >= TcpConnection.MaxSendPacketSize) { break; }
           }
 
+#if NET_4_5_GREATER
+          _memoryStream.TryGetBuffer(out ArraySegment<byte> buffer);
+          _sendSocketArgs.SetBuffer(buffer.Array, buffer.Offset, buffer.Count);
+#else
           _sendSocketArgs.SetBuffer(_memoryStream.GetBuffer(), 0, (int)_memoryStream.Length);
+#endif
 
           try
           {
@@ -310,7 +320,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
       if (socket != null)
       {
         Helper.EatException(() => socket.Shutdown(SocketShutdown.Both));
+#if DESKTOPCLR
         Helper.EatException(() => socket.Close(TcpConfiguration.SocketCloseTimeoutMs));
+#else
+        Helper.EatException(() => socket.Dispose());
+#endif
       }
     }
 
