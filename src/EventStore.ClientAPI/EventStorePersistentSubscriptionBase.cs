@@ -181,48 +181,48 @@ namespace EventStore.ClientAPI
     {
       do
       {
-        if (_subscription == null)
+        //if (_subscription == null)
+        //{
+        //  Thread.Sleep(1);
+        //}
+        //else
+        //{
+        while (_queue.TryDequeue(out ResolvedEvent e))
         {
-          Thread.Sleep(1);
-        }
-        else
-        {
-          while (_queue.TryDequeue(out ResolvedEvent e))
+          if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
           {
-            if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+            if (_dropData == null) throw new Exception("Drop reason not specified.");
+            DropSubscription(_dropData.Reason, _dropData.Error);
+            return;
+          }
+          if (_dropData != null)
+          {
+            DropSubscription(_dropData.Reason, _dropData.Error);
+            return;
+          }
+          try
+          {
+            _eventAppeared(this, e);
+            if (_autoAck)
             {
-              if (_dropData == null) throw new Exception("Drop reason not specified.");
-              DropSubscription(_dropData.Reason, _dropData.Error);
-              return;
+              _subscription.NotifyEventsProcessed(new[] { e.OriginalEvent.EventId });
             }
-            if (_dropData != null)
-            {
-              DropSubscription(_dropData.Reason, _dropData.Error);
-              return;
-            }
-            try
-            {
-              _eventAppeared(this, e);
-              if (_autoAck)
-              {
-                _subscription.NotifyEventsProcessed(new[] { e.OriginalEvent.EventId });
-              }
 
-              if (_verbose && _log.IsDebugLevelEnabled())
-              {
-                _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
-                          _streamId,
-                          e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalEventNumber);
-              }
-            }
-            catch (Exception exc)
+            if (_verbose && _log.IsDebugLevelEnabled())
             {
-              //TODO GFY should we autonak here?
-              DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
-              return;
+              _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
+                        _streamId,
+                        e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalEventNumber);
             }
           }
+          catch (Exception exc)
+          {
+            //TODO GFY should we autonak here?
+            DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
+            return;
+          }
         }
+        //}
         Interlocked.CompareExchange(ref _isProcessing, 0, 1);
       } while (_queue.Count > 0 && Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0);
     }

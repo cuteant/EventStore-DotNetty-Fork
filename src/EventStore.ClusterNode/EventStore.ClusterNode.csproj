@@ -77,7 +77,6 @@
     <None Include="project.json" />
     <None Include="eventStore.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

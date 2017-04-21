@@ -1,4 +1,267 @@
-﻿HttpPort: 2115
-GossipSeed:
-   - 127.0.0.1:1000
-   - 127.0.0.2:2000
+﻿## Application Options
+
+# Start the built in system projections.
+StartStandardProjections: false
+# Disable HTTP caching.
+DisableHTTPCaching: false
+
+# Minimum number of worker threads when running under mono. Set to 0 to leave machine defaults.
+MonoMinThreadpoolSize: 10
+
+# Force the Event Store to run in possibly harmful environments such as with Boehm GC.
+Force: false
+
+# The number of seconds between statistics gathers.
+StatsPeriodSec: 30
+
+# The number of threads to use for pool of worker services.
+WorkerThreads: 5
+
+# Enables the tracking of various histograms in the backend, typically only used for debugging etc
+EnableHistograms: false
+
+# Log Http Requests and Responses before processing them.
+LogHttpRequests: false
+
+
+
+
+## Database Options
+
+# The minimum flush delay in milliseconds.
+# MinFlushDelayMs: 2
+
+# Disables the merging of chunks when scavenge is running
+DisableScavengeMerging: false
+# The number of days to keep scavenge history
+ScavengeHistoryMaxAge: 30
+
+# The number of reader threads to use for processing reads.
+ReaderThreadsCount: 4
+
+# The number of chunks to cache in unmanaged memory.
+# CachedChunks: -1
+# The amount of unmanaged memory to use for caching chunks.
+# ChunksCacheSize: 536871424
+
+# Adjusts the maximum size of a mem table.
+MaxMemTableSize: 1000000
+# The number of events to read per candidate in the case of a hash collision
+HashCollisionReadLimit: 100
+
+# The path the db should be loaded/saved to.
+# Db: data
+# The path the index should be loaded/saved to.
+# Index:
+
+# Keep everything in memory, no directories or files are created.
+MemDb: false
+# Bypasses the checking of file hashes of database during startup (allows for faster startup).
+SkipDbVerify: false
+
+# Enables Write Through when writing to the file system, this bypasses filesystem caches.
+WriteThrough: false
+
+# Enables Unbuffered/DirectIO when writing to the file system, this bypasses filesystem caches.
+Unbuffered: false
+
+# Prepare timeout (in milliseconds).
+PrepareTimeoutMs: 2000                  # 2 seconds
+# Commit timeout (in milliseconds).
+CommitTimeoutMs: 2000                   # 2 seconds
+
+# Disable flushing to disk.  (UNSAFE: on power off)
+UnsafeDisableFlushToDisk: false
+
+# Enable Queue affinity on reads during write process to try to get better ordering.
+BetterOrdering: false
+
+# Disables Hard Deletes (UNSAFE: use to remove hard deletes)
+UnsafeIgnoreHardDelete: false
+
+# Sets the depth to cache for the mid point cache in index.
+IndexCacheDepth: 16
+
+# Always keeps the newer chunks from a scavenge operation.
+AlwaysKeepScavenged: false
+
+
+
+
+## Projections Options
+
+# Enables the running of projections. System runs built-in projections, All runs user projections.
+RunProjections: None                    # None / System / All
+# The number of threads to use for projections.
+ProjectionThreads: 3
+
+
+
+
+## Authentication Options
+
+# The type of authentication to use.
+# AuthenticationType: internal
+# Path to the configuration file for authentication configuration (if applicable).
+# AuthenticationConfig: 
+
+
+
+
+## Interface Options
+
+# Internal IP Address.
+# IntIp: 127.0.0.1
+
+# External IP Address.
+# ExtIp: 127.0.0.1
+
+# Internal HTTP Port.
+# IntHttpPort: 2112
+
+# External HTTP Port.
+# ExtHttpPort: 2113
+
+# Internal TCP Port.
+# IntTcpPort: 1112
+
+# Internal Secure TCP Port.
+# IntSecureTcpPort: 0
+
+# External TCP Port.
+# ExtTcpPort: 1113
+
+# Advertise Secure External Tcp Port As.
+# ExtSecureTcpPortAdvertiseAs: 0
+
+# External Secure TCP Port.
+# ExtSecureTcpPort: 0
+
+# Advertise External Tcp Address As.
+# ExtIpAdvertiseAs: 
+
+# Advertise External Tcp Port As.
+# ExtTcpPortAdvertiseAs: 0
+
+# Advertise External Http Port As.
+# ExtHttpPortAdvertiseAs: 0
+
+# Advertise Internal Tcp Address As.
+# IntIpAdvertiseAs: 
+
+# Advertise Secure Internal Tcp Port As.
+# IntSecureTcpPortAdvertiseAs: 0
+
+# Advertise Internal Tcp Port As.
+# IntTcpPortAdvertiseAs: 0
+
+# Advertise Internal Http Port As.
+# IntHttpPortAdvertiseAs: 0
+
+# Heartbeat timeout for internal TCP sockets
+IntTcpHeartbeatTimeout: 700
+# Heartbeat timeout for external TCP sockets
+ExtTcpHeartbeatTimeout: 1000
+
+# Heartbeat interval for internal TCP sockets
+IntTcpHeartbeatInterval: 700
+# Heartbeat interval for external TCP sockets
+ExtTcpHeartbeatInterval: 2000
+
+# When enabled tells a single node to run gossip as if it is a cluster
+GossipOnSingleNode: false
+
+# Whether or not to run the admin ui on the external HTTP endpoint
+AdminOnExt: true
+# Whether or not to accept statistics requests on the external HTTP endpoint, needed if you use admin ui
+StatsOnExt: true
+# Whether or not to accept gossip requests on the external HTTP endpoint
+GossipOnExt: true
+
+# The prefixes that the internal HTTP server should respond to.
+# IntHttpPrefixes:
+#   - 
+#   - 
+
+# The prefixes that the external HTTP server should respond to.
+# ExtHttpPrefixes:
+#   - 
+#   - 
+
+# Enables trusted authentication by an intermediary in the HTTP
+EnableTrustedAuth: false
+# Add interface prefixes
+AddInterfacePrefixes: true
+
+# Whether to use secure internal communication.
+UseInternalSsl: false
+# Whether to disable insecure TCP communication
+DisableInsecureTCP: false
+# Target host of server's SSL certificate.
+SslTargetHost: n/a
+# Whether to validate that server's certificate is trusted.
+SslValidateServer: true
+
+
+
+
+## Certificate Options
+
+# The certificate store location name.
+# CertificateStoreLocation:
+
+# The certificate store name.
+# CertificateStoreName:
+
+# The certificate subject name.
+# CertificateSubjectName:
+
+# The certificate fingerprint/thumbprint.
+# CertificateThumbprint:
+
+# The path to certificate file.
+# CertificateFile:
+
+# The password to certificate in file.
+# CertificatePassword:
+
+
+
+
+## Cluster Options
+
+# The number of nodes in the cluster.
+ClusterSize: 1
+# The node priority used during master election
+NodePriority: 0
+
+# The number of nodes which must acknowledge commits before acknowledging to a client.
+CommitCount: -1
+# The number of nodes which must acknowledge prepares.
+PrepareCount: -1
+
+# Whether to use DNS lookup to discover other cluster nodes.
+DiscoverViaDns: true
+
+# DNS name from which other nodes can be discovered.
+# ClusterDns: fake.dns
+
+# The port on which cluster nodes' managers are running.
+# ClusterGossipPort: 30777
+
+# Endpoints for other cluster nodes from which to seed gossip
+# GossipSeed:
+#   - 
+#   - 
+
+# The interval, in ms, nodes should try to gossip with each other.
+GossipIntervalMs: 1000
+# The amount of drift, in ms, between clocks on nodes allowed before gossip is rejected.
+GossipAllowedDifferenceMs: 60000
+# The timeout, in ms, on gossip to another node.
+GossipTimeoutMs: 500
+
+
+
+
+# Manager Options
