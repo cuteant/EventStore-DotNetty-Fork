@@ -2,19 +2,25 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
+using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster.Settings;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
+using EventStore.Core.Helpers;
 using EventStore.Core.Index;
 using EventStore.Core.Index.Hashes;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services;
 using EventStore.Core.Services.Gossip;
+using EventStore.Core.Services.Histograms;
 using EventStore.Core.Services.Monitoring;
+using EventStore.Core.Services.PersistentSubscription;
+using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
 using EventStore.Core.Services.Replication;
 using EventStore.Core.Services.RequestManager;
 using EventStore.Core.Services.Storage;
@@ -29,13 +35,7 @@ using EventStore.Core.Services.VNode;
 using EventStore.Core.Settings;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks;
-using EventStore.Core.Authentication;
-using EventStore.Core.Helpers;
-using EventStore.Core.Services.PersistentSubscription;
-using System.Threading;
-using EventStore.Core.Services.Histograms;
-using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core
 {
@@ -81,10 +81,10 @@ namespace EventStore.Core
 
 
     public ClusterVNode(TFChunkDb db,
-                        ClusterVNodeSettings vNodeSettings,
-                        IGossipSeedSource gossipSeedSource,
-                        InfoController infoController,
-                        params ISubsystem[] subsystems)
+                          ClusterVNodeSettings vNodeSettings,
+                          IGossipSeedSource gossipSeedSource,
+                          InfoController infoController,
+                          params ISubsystem[] subsystems)
     {
       Ensure.NotNull(db, nameof(db));
       Ensure.NotNull(vNodeSettings, nameof(vNodeSettings));
@@ -95,11 +95,11 @@ namespace EventStore.Core
       _mainBus = new InMemoryBus("MainBus");
 
       var forwardingProxy = new MessageForwardingProxy();
-      //start watching jitter
-      HistogramService.StartJitterMonitor();
       if (vNodeSettings.EnableHistograms)
       {
         HistogramService.CreateHistograms();
+        //start watching jitter
+        HistogramService.StartJitterMonitor();
       }
       // MISC WORKERS
       _workerBuses = Enumerable.Range(0, vNodeSettings.WorkerThreads).Select(queueNum =>

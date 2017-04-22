@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
+using EventStore.Core.Services.Histograms;
 using EventStore.Core.Services.Monitoring.Stats;
 using EventStore.Core.Services.Storage.EpochManager;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
-using EventStore.Core.Services.Histograms;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Storage
 {
@@ -27,7 +27,11 @@ namespace EventStore.Core.Services.Storage
 
     private static readonly int TicksPerMs = (int)(Stopwatch.Frequency / 1000);
     private static readonly int MinFlushDelay = 2 * TicksPerMs;
+#if MONO
+    private readonly AutoResetEvent _flushSignal = new AutoResetEvent(false);
+#else
     private readonly ManualResetEventSlim _flushSignal = new ManualResetEventSlim();
+#endif
     private static readonly TimeSpan FlushWaitTimeout = TimeSpan.FromMilliseconds(10);
 
     public string Name { get { return _queueStats.Name; } }
@@ -181,9 +185,12 @@ namespace EventStore.Core.Services.Storage
       if (!result.Success)
       {
         _queueStats.EnterIdle();
-
         var startwait = _watch.ElapsedTicks;
+#if MONO
+        _flushSignal.WaitOne(FlushWaitTimeout);
+#else
         _flushSignal.Wait(FlushWaitTimeout);
+#endif
         HistogramService.SetValue(_chaserWaitHistogram,
             (long)((((double)_watch.ElapsedTicks - startwait) / Stopwatch.Frequency) * 1000000000));
       }
