@@ -271,7 +271,7 @@ namespace EventStore.Projections.Core.Services.Management
         var enabledSuffix = ((_state == ManagedProjectionState.Stopped || _state == ManagedProjectionState.Faulted) && Enabled ? " (Enabled)" : "");
         status.Status = (status.Status == "Stopped" && _state == ManagedProjectionState.Completed
                             ? _state.EnumValueName()
-                            : (!status.Status.StartsWith(_state.EnumValueName())
+                            : (!status.Status.StartsWith(_state.EnumValueName(), StringComparison.Ordinal)
                                    ? _state.EnumValueName() + "/" + status.Status
                                    : status.Status)) + enabledSuffix;
         status.MasterStatus = _state;

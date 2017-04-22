@@ -27,7 +27,7 @@ namespace EventStore.Rags
             {
                 var token = args[i];
 
-                if (token.StartsWith("-"))
+                if (token.StartsWith("-", StringComparison.Ordinal))
                 {
                     string key = token.Substring(1);
 
@@ -37,14 +37,14 @@ namespace EventStore.Rags
 
                     // Handles a special case --arg-name- where we have a trailing -
                     // it's a shortcut way of disabling an option
-                    if (key.StartsWith("-") && key.EndsWith("-") ||
-                        key.StartsWith("-") && key.EndsWith("+"))
+                    if (key.StartsWith("-", StringComparison.Ordinal) && key.EndsWith("-", StringComparison.Ordinal) ||
+                        key.StartsWith("-", StringComparison.Ordinal) && key.EndsWith("+", StringComparison.Ordinal))
                     {
                         value = key.Substring(key.Length - 1, 1);
                         key = key.Substring(1, key.Length - 2);
                     }
                     // Handles long form syntax --argName=argValue.
-                    else if (key.StartsWith("-") && key.Contains("="))
+                    else if (key.StartsWith("-", StringComparison.Ordinal) && key.Contains("="))
                     {
                         var index = key.IndexOf("=");
                         value = key.Substring(index + 1);
@@ -52,7 +52,7 @@ namespace EventStore.Rags
                     }
                     else
                     {
-                        if (key.StartsWith("-"))
+                        if (key.StartsWith("-", StringComparison.Ordinal))
                         {
                             key = key.Substring(1);
                         }
@@ -62,7 +62,7 @@ namespace EventStore.Rags
                         }
                         else if (IsBool<T>(key))
                         {
-                            var next = args[i + 1].ToLower();
+                            var next = args[i + 1].ToLowerInvariant();
 
                             if (next == "true" || next == "false" || next == "0" || next == "1")
                             {

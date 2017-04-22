@@ -27,7 +27,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override string GetCategory(string positionStreamId)
         {
-            if (!positionStreamId.StartsWith("$ce-"))
+            if (!positionStreamId.StartsWith("$ce-", StringComparison.Ordinal))
                 throw new ArgumentException(string.Format("'{0}' is not a category stream", positionStreamId), "positionStreamId");
             return positionStreamId.Substring("$ce-".Length);
         }

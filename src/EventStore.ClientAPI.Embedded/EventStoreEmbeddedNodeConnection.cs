@@ -34,7 +34,7 @@ namespace EventStore.ClientAPI.Embedded
 
             public Assembly TryLoadAssemblyFromEmbeddedResource(object sender, ResolveEventArgs e)
             {
-                if (!e.Name.StartsWith("js1")) return null;
+                if (!e.Name.StartsWith("js1", StringComparison.Ordinal)) return null;
 
                 byte[] rawAssembly = ReadResource("js1.dll");
                 byte[] rawSymbolStore = ReadResource("js1.pdb");

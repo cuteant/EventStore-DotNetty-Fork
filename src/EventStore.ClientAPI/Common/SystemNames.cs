@@ -1,4 +1,6 @@
-﻿namespace EventStore.ClientAPI.Common
+﻿using System;
+
+namespace EventStore.ClientAPI.Common
 {
     static class SystemStreams
     {
@@ -13,7 +15,7 @@
 
         public static bool IsMetastream(string streamId)
         {
-            return streamId.StartsWith("$$");
+            return streamId.StartsWith("$$", StringComparison.Ordinal);
         }
 
         public static string OriginalStreamOf(string metastreamId)

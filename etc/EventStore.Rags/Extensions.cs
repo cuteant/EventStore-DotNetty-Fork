@@ -116,11 +116,11 @@ namespace EventStore.Rags
 
         internal static bool TryMatchEnumShortcut(this Type enumType, string value, bool ignoreCase, out object enumResult)
         {
-            if (ignoreCase) value = value.ToLower();
+            if (ignoreCase) value = value.ToLowerInvariant();
             foreach (var field in enumType.GetFields().Where(f => f.IsSpecialName == false))
             {
                 var shortcuts = field.GetEnumShortcuts();
-                if (ignoreCase) shortcuts = shortcuts.Select(s => s.ToLower()).ToList();
+                if (ignoreCase) shortcuts = shortcuts.Select(s => s.ToLowerInvariant()).ToList();
                 var match = (from s in shortcuts where s == value select s).SingleOrDefault();
                 if (match == null) continue;
                 enumResult = Enum.Parse(enumType, field.Name);
@@ -139,7 +139,7 @@ namespace EventStore.Rags
             foreach (var field in enumType.GetFields().Where(f => f.IsSpecialName == false))
             {
                 var shortcutsForThisField = field.GetEnumShortcuts();
-                if (ignoreCase) shortcutsForThisField = shortcutsForThisField.Select(s => s.ToLower()).ToList();
+                if (ignoreCase) shortcutsForThisField = shortcutsForThisField.Select(s => s.ToLowerInvariant()).ToList();
 
                 foreach (var shortcut in shortcutsForThisField)
                 {

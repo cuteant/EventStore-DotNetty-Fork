@@ -1,4 +1,6 @@
-﻿namespace EventStore.Projections.Core.Standard
+﻿using System;
+
+namespace EventStore.Projections.Core.Standard
 {
     public class StreamCategoryExtractorByFirstSeparator : StreamCategoryExtractor
     {
@@ -12,7 +14,7 @@
         public override string GetCategoryByStreamId(string streamId)
         {
             string category = null;
-            if (!streamId.StartsWith("$"))
+            if (!streamId.StartsWith("$", StringComparison.Ordinal))
             {
                 var lastSeparatorPosition = streamId.IndexOf(_separator);
                 if (lastSeparatorPosition > 0)

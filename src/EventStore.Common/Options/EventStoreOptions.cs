@@ -18,7 +18,7 @@ namespace EventStore.Common.Options
                 .Flatten()
                 .Cleanup()
                 .UseAliases<TOptions>()
-                .ToLookup(x => x.Name.ToLower())
+                .ToLookup(x => x.Name.ToLowerInvariant())
                 .Select(ResolvePrecedence)
                 .EnsureExistence<TOptions>()
                 .EnsureCorrectType<TOptions>()
@@ -29,7 +29,7 @@ namespace EventStore.Common.Options
         private static IEnumerable<IEnumerable<OptionSource>> GetConfig<TOptions>(string[] args, string environmentPrefix, string defaultConfigLocation = null) where TOptions : class, IOptions, new()
         {
             var commandline = CommandLine.Parse<TOptions>(args).Normalize();
-            var commanddict = commandline.ToDictionary(x => x.Name.ToLower());
+            var commanddict = commandline.ToDictionary(x => x.Name.ToLowerInvariant());
             yield return commandline;
             yield return EnvironmentVariables.Parse<TOptions>(x => NameTranslators.PrefixEnvironmentVariable(x, environmentPrefix).ToUpper());
             var configFile = commanddict.ContainsKey("config") ?
@@ -80,7 +80,7 @@ namespace EventStore.Common.Options
             var displayingModifiedOptions = true;
             dumpOptionsBuilder.AppendLine("MODIFIED OPTIONS:");
             dumpOptionsBuilder.AppendLine();
-            if (_effectiveOptions.Count(x => !x.Source.ToLower().Contains("default")) == 0)
+            if (_effectiveOptions.Count(x => !x.Source.ToLowerInvariant().Contains("default")) == 0)
             {
                 dumpOptionsBuilder.AppendLine("NONE");
                 dumpOptionsBuilder.AppendLine();
@@ -88,9 +88,9 @@ namespace EventStore.Common.Options
                 dumpOptionsBuilder.AppendLine();
                 displayingModifiedOptions = false;
             }
-            foreach (var option in _effectiveOptions.OrderBy(x => x.Source.ToLower().Contains("default") ? 1 : 0))
+            foreach (var option in _effectiveOptions.OrderBy(x => x.Source.ToLowerInvariant().Contains("default") ? 1 : 0))
             {
-                if (option.Source.ToLower().Contains("default") && displayingModifiedOptions)
+                if (option.Source.ToLowerInvariant().Contains("default") && displayingModifiedOptions)
                 {
                     dumpOptionsBuilder.AppendLine();
                     dumpOptionsBuilder.AppendLine(defaultOptionsHeading);

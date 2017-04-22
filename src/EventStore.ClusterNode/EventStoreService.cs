@@ -46,11 +46,11 @@ namespace EventStore.ClusterNode
       TraceLogger.Initialize(loggerFactory);
       Log = TraceLogger.GetLogger<Program>();
 
-      if (options.Db.StartsWith("~") && !options.Force)
+      if (options.Db.StartsWith("~", StringComparison.Ordinal) && !options.Force)
       {
         throw new ApplicationInitializationException("The given database path starts with a '~'. We don't expand '~'. You can use --force to override this error.");
       }
-      if (options.Log.StartsWith("~") && !options.Force)
+      if (options.Log.StartsWith("~", StringComparison.Ordinal) && !options.Force)
       {
         throw new ApplicationInitializationException("The given log path starts with a '~'. We don't expand '~'. You can use --force to override this error.");
       }

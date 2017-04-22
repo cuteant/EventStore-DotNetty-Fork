@@ -84,7 +84,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
                     return false;
                 }
                 string[] producersArg = args[4].Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(p => p.Trim().ToLower()).Distinct().ToArray();
+                    .Select(p => p.Trim().ToLowerInvariant()).Distinct().ToArray();
                 if (producersArg.Length <= 0)
                 {
                     context.Log.LogError("Invalid argument value for <plugins>");

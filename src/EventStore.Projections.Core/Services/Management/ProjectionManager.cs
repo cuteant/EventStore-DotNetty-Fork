@@ -736,7 +736,7 @@ namespace EventStore.Projections.Core.Services.Management
     private bool IsProjectionEnabledToRunByMode(string projectionName)
     {
       return _runProjections >= ProjectionType.All
-             || _runProjections == ProjectionType.System && projectionName.StartsWith("$");
+             || _runProjections == ProjectionType.System && projectionName.StartsWith("$", StringComparison.Ordinal);
     }
 
     private void RequestSystemProjections()

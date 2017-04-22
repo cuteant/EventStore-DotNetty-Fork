@@ -48,7 +48,9 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       entity.ReplyTextContent(Codec.Json.To(new
       {
         ESVersion = VersionInfo.Version,
-        State = _currentState.ToString().ToLower(),
+        // ## 苦竹 修改 ##
+        //State = _currentState.ToString().ToLower(),
+        State = VNodeStateHelper.ConvertToLower(_currentState),
         ProjectionsMode = _projectionType
       }),
       HttpStatusCode.OK,

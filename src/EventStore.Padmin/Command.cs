@@ -36,7 +36,7 @@ namespace EventStore.PAdmin
                 return;
             }
 
-            var type = commandArgs[0].Trim().ToLower();
+            var type = commandArgs[0].Trim().ToLowerInvariant();
             var queryInfo = GetQueryAndCredentials(commandArgs.Skip(1).ToArray());
             if (queryInfo == null || (type != "onetime" && string.IsNullOrEmpty(queryInfo.Item1)))
             {
@@ -73,7 +73,7 @@ namespace EventStore.PAdmin
                 return;
             }
             var userCredentials = commandArgs.Length == 3 ? new UserCredentials(commandArgs[1], commandArgs[2]) : null;
-            var mode = commandArgs[0].Trim().ToLower();
+            var mode = commandArgs[0].Trim().ToLowerInvariant();
             switch (mode)
             {
                 case "all":

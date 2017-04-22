@@ -74,7 +74,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
             //NOTE: this is fix for Mono incompatibility in UriTemplate behavior for /a/b{*C}
             //todo: use IsMono here?
-            if (statPath.StartsWith("stats/"))
+            if (statPath.StartsWith("stats/", StringComparison.Ordinal))
             {
                 statPath = statPath.Substring(6);
                 if (string.IsNullOrEmpty(statPath))

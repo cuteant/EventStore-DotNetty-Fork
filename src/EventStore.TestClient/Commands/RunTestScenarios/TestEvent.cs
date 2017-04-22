@@ -19,7 +19,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
         public static void VerifyIfMatched(RecordedEvent evnt)
         {
-            if (evnt.EventType.StartsWith("TestEvent"))
+            if (evnt.EventType.StartsWith("TestEvent", StringComparison.Ordinal))
             {
                 var data = Common.Utils.Helper.UTF8NoBom.GetString(evnt.Data);
                 var atoms = data.Split('-');

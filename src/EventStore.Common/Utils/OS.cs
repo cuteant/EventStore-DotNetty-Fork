@@ -61,7 +61,7 @@ namespace EventStore.Common.Utils
             {
                 Log.LogError(ex, "Couldn't determine the flavor of Unix-like OS.");
             }
-            uname = uname.Trim().ToLower();
+            uname = uname.Trim().ToLowerInvariant();
             switch (uname)
             {
                 case "linux":

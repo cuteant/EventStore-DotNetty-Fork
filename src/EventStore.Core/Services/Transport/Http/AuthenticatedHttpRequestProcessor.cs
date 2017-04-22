@@ -184,22 +184,37 @@ namespace EventStore.Core.Services.Transport.Http
                          e => Log.LogDebug("Error while closing HTTP connection (HTTP service core): {0}.", e.Message));
     }
 
+    private static readonly HashSet<string> _httpMethods = new HashSet<string>(new string[]
+    {
+      HttpMethod.Post, HttpMethod.Put, HttpMethod.Delete
+    }, StringComparer.OrdinalIgnoreCase);
+
     private ICodec SelectRequestCodec(string method, string contentType, ICodec[] supportedCodecs)
     {
       if (string.IsNullOrEmpty(contentType))
       {
         return supportedCodecs != null && supportedCodecs.Length > 0 ? null : Codec.NoCodec;
       }
-      switch (method.ToUpper())
+      #region ## 苦竹 修改 ##
+      if (_httpMethods.Contains(method))
       {
-        case HttpMethod.Post:
-        case HttpMethod.Put:
-        case HttpMethod.Delete:
-          return supportedCodecs.SingleOrDefault(c => c.CanParse(MediaType.Parse(contentType)));
-
-        default:
-          return Codec.NoCodec;
+        return supportedCodecs.SingleOrDefault(c => c.CanParse(MediaType.Parse(contentType)));
       }
+      else
+      {
+        return Codec.NoCodec;
+      }
+      //switch (method.ToUpper())
+      //{
+      //  case HttpMethod.Post:
+      //  case HttpMethod.Put:
+      //  case HttpMethod.Delete:
+      //    return supportedCodecs.SingleOrDefault(c => c.CanParse(MediaType.Parse(contentType)));
+
+      //  default:
+      //    return Codec.NoCodec;
+      //}
+      #endregion
     }
 
     private ICodec SelectResponseCodec(NameValueCollection query, string[] acceptTypes, ICodec[] supported, ICodec @default)

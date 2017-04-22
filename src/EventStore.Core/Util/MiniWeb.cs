@@ -73,7 +73,7 @@ namespace EventStore.Core.Util
         var fullPath = Path.Combine(_fileSystemRoot, contentLocalPath);
 
         if (string.IsNullOrEmpty(extension)
-        || !extensionToContentType.TryGetValue(extension.ToLower(), out string contentType)
+        || !extensionToContentType.TryGetValue(extension.ToLowerInvariant(), out string contentType)
         || !File.Exists(fullPath))
         {
           if (Logger.IsInformationLevelEnabled())
@@ -106,12 +106,12 @@ namespace EventStore.Core.Util
 
     private static ResponseConfiguration GetWebPageConfig(string contentType)
     {
-      var encoding = contentType.StartsWith("image") ? null : Helper.UTF8NoBom;
+      var encoding = contentType.StartsWith("image", StringComparison.Ordinal) ? null : Helper.UTF8NoBom;
       int? cacheSeconds =
 #if RELEASE || CACHE_WEB_CONTENT
-                60*60; // 1 hour
+          60*60; // 1 hour
 #else
- null; // no caching
+          null; // no caching
 #endif
       // ReSharper disable ExpressionIsAlwaysNull
       return Configure.Ok(contentType, encoding, null, cacheSeconds, isCachePublic: true);

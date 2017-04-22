@@ -95,7 +95,7 @@ namespace EventStore.PAdmin
 
     private static void Execute(ProjectionsManager manager, string[] args)
     {
-      var command = args[0].Trim().ToLower();
+      var command = args[0].Trim().ToLowerInvariant();
       var commandArgs = args.Skip(1).ToArray();
 
       Action<ProjectionsManager, string[]> executor;
@@ -117,7 +117,7 @@ namespace EventStore.PAdmin
 
         foreach (var line in lines)
         {
-          var kvp = line.Split(new[] { "=" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim().ToLower()).ToArray();
+          var kvp = line.Split(new[] { "=" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim().ToLowerInvariant()).ToArray();
           if (kvp.Length == 2 && !config.ContainsKey(kvp[0]))
             config[kvp[0]] = kvp[1];
         }

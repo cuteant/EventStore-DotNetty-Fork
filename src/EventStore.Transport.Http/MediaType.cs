@@ -96,7 +96,7 @@ namespace EventStore.Transport.Http
                 for (var i = 1; i < parts.Length; i++)
                 {
                     var part = parts[i].ToLowerInvariant().Trim();
-                    if (part.StartsWith("q="))
+                    if (part.StartsWith("q=", StringComparison.Ordinal))
                     {
                         var quality = part.Substring(2);
                         float q;
@@ -104,8 +104,8 @@ namespace EventStore.Transport.Http
                         {
                             priority = q;
                         }
-                    } 
-                    else if (part.StartsWith("charset="))
+                    }
+                    else if (part.StartsWith("charset=", StringComparison.Ordinal))
                     {
                         encodingSpecified = true;
                         try

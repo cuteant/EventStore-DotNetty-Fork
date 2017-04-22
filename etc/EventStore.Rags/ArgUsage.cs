@@ -31,12 +31,12 @@ namespace EventStore.Rags
             : this()
         {
             Property = toAutoGen;
-            Name = "-" + NameTranslators.CombineByPascalCase(toAutoGen.Name, "-").ToLower();
+            Name = "-" + NameTranslators.CombineByPascalCase(toAutoGen.Name, "-").ToLowerInvariant();
 
             Aliases.Add("-" + Property.Name);
             if (Aliases.Count == 0)
             {
-                Aliases.Add("-" + Name.ToLower());
+              Aliases.Add("-" + Name.ToLowerInvariant());
             }
             var argAliases = Property.HasAttr<ArgAliasAttribute>() ? Property.Attr<ArgAliasAttribute>().Aliases : null;
             if(argAliases != null)

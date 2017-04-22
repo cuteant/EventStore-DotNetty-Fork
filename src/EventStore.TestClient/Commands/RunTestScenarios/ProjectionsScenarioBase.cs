@@ -17,8 +17,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
     protected bool CheckProjectionState(string projectionName, string key, Func<string, bool> checkValue)
     {
       var state = GetProjectionState(projectionName);
-      string value;
-      return state != null && state.Count > 0 && state.TryGetValue(key, out value) && checkValue(value);
+      return state != null && state.Count > 0 && state.TryGetValue(key, out string value) && checkValue(value);
     }
 
     protected T GetProjectionStateValue<T>(string projectionName, string key, Func<string, T> convert, T defaultValue)
@@ -26,8 +25,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
       var result = defaultValue;
 
       var state = GetProjectionState(projectionName);
-      string value;
-      if (state != null && state.Count > 0 && state.TryGetValue(key, out value))
+      if (state != null && state.Count > 0 && state.TryGetValue(key, out string value))
         result = convert(value);
 
       return result;
@@ -37,8 +35,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
     {
       var dic = GetProjectionStatistics(projectionName);
 
-      string value;
-      var isRunning = dic != null && dic.TryGetValue("status", out value) && value == "Running";
+      var isRunning = dic != null && dic.TryGetValue("status", out string value) && value == "Running";
 
       return isRunning;
     }
@@ -49,8 +46,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
       long result = -1;
 
-      string value;
-      if (dic != null && dic.TryGetValue("position", out value))
+      if (dic != null && dic.TryGetValue("position", out string value))
       {
         if (!string.IsNullOrWhiteSpace(value))
         {
@@ -72,8 +68,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
     {
       var dic = GetProjectionStatistics(projectionName);
 
-      string status;
-      var isFaulted = dic != null && dic.TryGetValue("status", out status) && status.StartsWith("Faulted");
+      var isFaulted = dic != null && dic.TryGetValue("status", out string status) && status.StartsWith("Faulted", StringComparison.Ordinal);
 
       if (isFaulted)
         dic.TryGetValue("stateReason", out reason);

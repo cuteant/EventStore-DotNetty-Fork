@@ -28,8 +28,8 @@ namespace EventStore.Core.Services.Transport.Http
             foreach (var segm in segments)
             {
                 var segment = Uri.UnescapeDataString(segm);
-                string path = segment.StartsWith("{*") ? GreedyPlaceholder
-                            : segment.StartsWith("{") ? Placeholder
+                string path = segment.StartsWith("{*", StringComparison.Ordinal) ? GreedyPlaceholder
+                            : segment.StartsWith("{", StringComparison.Ordinal) ? Placeholder
                             : segment;
 
                 RouterNode child;
@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.Transport.Http
             if (index == segments.Length)
             {
                 // /stats/ should match /stats/{*greedyStatsPath}
-                if (uri.OriginalString.EndsWith("/") && node.Children.TryGetValue(GreedyPlaceholder, out child))
+                if (uri.OriginalString.EndsWith("/", StringComparison.Ordinal) && node.Children.TryGetValue(GreedyPlaceholder, out child))
                     AddMatchingRoutes(child.LeafRoutes, baseAddress, uri, matches);
 
                 AddMatchingRoutes(node.LeafRoutes, baseAddress, uri, matches);

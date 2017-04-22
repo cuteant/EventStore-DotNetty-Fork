@@ -80,7 +80,7 @@ namespace EventStore.ClientAPI
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
     public static IEventStoreConnection Create(ConnectionSettings connectionSettings, Uri uri, string connectionName = null)
     {
-      var scheme = uri == null ? "" : uri.Scheme.ToLower();
+      var scheme = uri == null ? "" : uri.Scheme.ToLowerInvariant();
 
       connectionSettings = connectionSettings ?? ConnectionSettings.Default;
       var credential = GetCredentialFromUri(uri);

@@ -111,8 +111,8 @@ namespace EventStore.Query
                 {
                     throw new Exception("Query Polling Failed with Status Code: " + response.StatusCode + "\n" + s);
                 }
-                var faulted = json["status"].Value<string>().StartsWith( "Faulted");
-                var completed = json["status"].Value<string>().StartsWith("Completed");   
+                var faulted = json["status"].Value<string>().StartsWith("Faulted", StringComparison.Ordinal);
+                var completed = json["status"].Value<string>().StartsWith("Completed", StringComparison.Ordinal);   
                 var faultReason = json["stateReason"].Value<string>();
                 var streamurl = json["resultStreamUrl"];
                 var resulturl = json["resultUrl"];
@@ -233,7 +233,7 @@ namespace EventStore.Query
                 var rel = c["relation"];
                 if (rel == null) continue;
                 var r = rel.Value<string>();
-                if (r.ToLower() == "alternate")
+                if (string.Equals(r, "alternate", StringComparison.OrdinalIgnoreCase))
                 {
                     var request = (HttpWebRequest) WebRequest.Create(new Uri(c["uri"].Value<string>()));
                     request.Credentials = credential;

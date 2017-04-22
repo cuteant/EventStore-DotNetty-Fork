@@ -1,23 +1,23 @@
 ﻿☆标志 - 未解决
 ★标志 - 已解决
 
-Issue.001 ☆ 反射优化，例如：GetProperties、GetCustomAttributes、GetField等
+Issue.001 ★ 反射优化，例如：GetProperties、GetCustomAttributes、GetField等
 
-Issue.002 ☆ StringBuilder
+Issue.002 ☆ 
 
 Issue.003 ☆ Tuple 替换
 
-Issue.004 ☆ 替换 MemoryStream
+Issue.004 ★ 替换 MemoryStream
 
-Issue.005 ☆ 替换 MemoryStream.GetBuffer()
+Issue.005 ★ 替换 MemoryStream.GetBuffer()
 
-Issue.006 ☆ Task.FromResult 替换
+Issue.006 ★ Task.FromResult 替换
 
 Issue.007 ☆ StringBuilder 替换
 
-Issue.008 ☆ MakeGenericType 替换
+Issue.008 ★ MakeGenericType 替换
 
-Issue.009 ☆ StartsWith & EndsWith & ToLower
+Issue.009 ☆ StartsWith & EndsWith & ToLower & ToUpper
 
 Issue.010 ☆ 
 
