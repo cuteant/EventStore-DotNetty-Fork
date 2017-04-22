@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CuteAnt.IO;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using EventStore.ClientAPI.Internal;
 
 namespace EventStore.ClientAPI
 {
@@ -204,9 +205,9 @@ namespace EventStore.ClientAPI
         /// <returns>Byte array representing the stream metadata.</returns>
         public byte[] AsJsonBytes()
         {
-            using (var memoryStream = new MemoryStream())
+            using (var memoryStream = MemoryStreamManager.GetStream())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom)))
+                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
                 {
                     WriteAsJson(jsonWriter);
                 }

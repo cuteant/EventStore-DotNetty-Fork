@@ -122,7 +122,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
         }
 #if NET_4_5_GREATER
         memStream.TryGetBuffer(out ArraySegment<byte> buffer);
-        _sendQueue.Enqueue(new ArraySegment<byte>(buffer.Array, buffer.Offset, buffer.Count));
+        _sendQueue.Enqueue(buffer);
 #else
         _sendQueue.Enqueue(new ArraySegment<byte>(memStream.GetBuffer(), 0, (int)memStream.Length));
 #endif

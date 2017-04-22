@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CuteAnt.IO;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
 using Newtonsoft.Json;
@@ -103,9 +104,9 @@ namespace EventStore.ClientAPI
         /// <returns>A byte array containing a UTF-8 string with no byte order mark.</returns>
         public byte[] ToJsonBytes()
         {
-            using (var memoryStream = new MemoryStream())
+            using (var memoryStream = MemoryStreamManager.GetStream())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom)))
+                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
                 {
                     WriteAsJson(jsonWriter);
                 }

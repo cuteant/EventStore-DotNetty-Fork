@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Exceptions;
@@ -278,36 +279,40 @@ namespace EventStore.Core.Index
     {
       var tmpIndexMap = $"{filename}.{Guid.NewGuid()}.indexmap.tmp";
 
-      using (var memStream = new MemoryStream())
-      using (var memWriter = new StreamWriter(memStream))
+      using (var memStream = MemoryStreamManager.GetStream())
       {
-        memWriter.WriteLine(new string('0', 32)); // pre-allocate space for MD5 hash
-        memWriter.WriteLine(Version);
-        memWriter.WriteLine("{0}/{1}", PrepareCheckpoint, CommitCheckpoint);
-        for (int i = 0; i < _map.Count; i++)
+        using (var memWriter = new StreamWriter(memStream, Helper.UTF8NoBom, 4096, true))
         {
-          for (int j = 0; j < _map[i].Count; j++)
+          memWriter.WriteLine(new string('0', 32)); // pre-allocate space for MD5 hash
+          memWriter.WriteLine(Version);
+          memWriter.WriteLine("{0}/{1}", PrepareCheckpoint, CommitCheckpoint);
+          for (int i = 0; i < _map.Count; i++)
           {
-            memWriter.WriteLine("{0},{1},{2}", i, j, new FileInfo(_map[i][j].Filename).Name);
+            for (int j = 0; j < _map[i].Count; j++)
+            {
+              memWriter.WriteLine("{0},{1},{2}", i, j, new FileInfo(_map[i][j].Filename).Name);
+            }
           }
-        }
-        memWriter.Flush();
+          memWriter.Flush();
 
-        memStream.Position = 32;
-        var hash = MD5Hash.GetHashFor(memStream);
+          memStream.Position = 32;
+          var hash = MD5Hash.GetHashFor(memStream);
 
-        memStream.Position = 0;
-        foreach (var t in hash)
-        {
-          memWriter.Write(t.ToString("X2"));
-        }
-        memWriter.Flush();
+          memStream.Position = 0;
+          foreach (var t in hash)
+          {
+            memWriter.Write(t.ToString("X2"));
+          }
+          memWriter.Flush();
 
-        memStream.Position = 0;
-        using (var f = File.OpenWrite(tmpIndexMap))
-        {
-          f.Write(memStream.GetBuffer(), 0, (int)memStream.Length);
-          f.FlushToDisk();
+          memStream.Position = 0;
+          using (var f = File.OpenWrite(tmpIndexMap))
+          {
+            // ## 苦竹 修改 ##
+            //f.Write(memStream.GetBuffer(), 0, (int)memStream.Length);
+            memStream.CopyTo(f);
+            f.FlushToDisk();
+          }
         }
       }
 

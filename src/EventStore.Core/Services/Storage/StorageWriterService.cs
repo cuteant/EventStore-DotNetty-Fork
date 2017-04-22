@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -348,9 +349,9 @@ namespace EventStore.Core.Services.Storage
       {
         var jobj = JObject.Parse(Encoding.UTF8.GetString(rawMeta));
         jobj[SystemMetadata.TruncateBefore] = recreateFromEventNumber;
-        using (var memoryStream = new MemoryStream())
+        using (var memoryStream = MemoryStreamManager.GetStream())
         {
-          using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream)))
+          using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
           {
             jobj.WriteTo(jsonWriter);
           }

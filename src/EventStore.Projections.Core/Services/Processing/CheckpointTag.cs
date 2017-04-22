@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CuteAnt.IO;
 using CuteAnt.Pool;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
@@ -535,9 +536,9 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", "projectionVersion");
 
-            using (var memoryStream = new MemoryStream())
+            using (var memoryStream = MemoryStreamManager.GetStream())
             {
-                using (var textWriter = new StreamWriter(memoryStream, Helper.UTF8NoBom))
+                using (var textWriter = new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true))
                 using (var jsonWriter = new JsonTextWriter(textWriter))
                 {
                     WriteTo(projectionVersion, extraMetaData, jsonWriter);

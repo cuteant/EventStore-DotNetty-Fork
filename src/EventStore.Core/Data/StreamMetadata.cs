@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
@@ -210,9 +211,9 @@ namespace EventStore.Core.Data
 
         public byte[] ToJsonBytes()
         {
-            using (var memoryStream = new MemoryStream())
+            using (var memoryStream = MemoryStreamManager.GetStream())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom)))
+                using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
                 {
                     WriteAsJson(jsonWriter);
                 }

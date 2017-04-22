@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CuteAnt.IO;
 using Microsoft.Extensions.Logging;
 using ProtoBuf;
 
@@ -50,7 +51,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
     public static byte[] SerializeToArray<T>(this T protoContract)
     {
-      using (var memory = new MemoryStream())
+      using (var memory = MemoryStreamManager.GetStream())
       {
         Serializer.Serialize(memory, protoContract);
         return memory.ToArray();
