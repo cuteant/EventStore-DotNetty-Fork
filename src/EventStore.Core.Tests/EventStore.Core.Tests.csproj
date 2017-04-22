@@ -710,8 +710,9 @@
     <Folder Include="TransactionLog\Manager\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\NLog.config">
+    <None Include="..\..\test\NLog.config">
       <Link>NLog.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestConfigs\test_config_with_incorrectly_cased_option.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -61,7 +61,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "his", "his", "{29D55B48-853
 		common\HistogramVersion.props = common\HistogramVersion.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core.Tests", "test\EventStore.Core.Tests\EventStore.Core.Tests.csproj", "{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core.Tests", "src\EventStore.Core.Tests\EventStore.Core.Tests.csproj", "{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}"
 EndProject
@@ -78,11 +78,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.Config = NuGet.Config
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.BufferManagement.Tests", "test\EventStore.BufferManagement.Tests\EventStore.BufferManagement.Tests.csproj", "{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.BufferManagement.Tests", "src\EventStore.BufferManagement.Tests\EventStore.BufferManagement.Tests.csproj", "{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Rags.Tests", "test\EventStore.Rags.Tests\EventStore.Rags.Tests.csproj", "{9749BF52-4157-4032-80A4-F5B2DF04E244}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Rags.Tests", "etc\EventStore.Rags.Tests\EventStore.Rags.Tests.csproj", "{9749BF52-4157-4032-80A4-F5B2DF04E244}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Projections.Core.Tests", "test\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{B3792B44-423E-4937-B065-F2D61785017F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Projections.Core.Tests", "src\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{B3792B44-423E-4937-B065-F2D61785017F}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
