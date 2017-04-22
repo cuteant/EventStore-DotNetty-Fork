@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -6,12 +7,10 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
-using EventStore.ClientAPI.Common;
-using EventStore.ClientAPI.Common.Utils;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using CuteAnt.Pool;
+using EventStore.ClientAPI.Common.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
@@ -154,7 +153,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
     {
       if (!_log.IsInformationLevelEnabled()) { return; }
 
-      var sb = new StringBuilder();
+      var sb = StringBuilderManager.Allocate();
       sb.AppendFormat("[S{0}, L{1}]:\n", RemoteEndPoint, LocalEndPoint);
       sb.AppendFormat("Cipher: {0} strength {1}\n", stream.CipherAlgorithm, stream.CipherStrength);
       sb.AppendFormat("Hash: {0} strength {1}\n", stream.HashAlgorithm, stream.HashStrength);
@@ -188,7 +187,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
         sb.AppendFormat("Remote certificate is null.\n");
       }
 
-      _log.LogInformation(sb.ToString());
+      _log.LogInformation(StringBuilderManager.ReturnAndFree(sb));
     }
 
     public void EnqueueSend(IEnumerable<ArraySegment<byte>> data)

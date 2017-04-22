@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using CuteAnt.Pool;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 
@@ -395,19 +396,19 @@ namespace EventStore.Transport.Http.EntityManagement
 
     private string CreateHeaderLog(NameValueCollection headers)
     {
-      var logBuilder = new StringBuilder();
+      var logBuilder = StringBuilderManager.Allocate();
       foreach (var header in HttpEntity.Request.Headers)
       {
         logBuilder.AppendFormat("{0}: {1}\n", header.ToString(), HttpEntity.Request.Headers[header.ToString()]);
       }
-      return logBuilder.ToString();
+      return StringBuilderManager.ReturnAndFree(logBuilder);
     }
 
     private void LogRequest(byte[] body)
     {
-      if (_logHttpRequests)
+      if (_logHttpRequests && Log.IsDebugLevelEnabled())
       {
-        var logBuilder = new StringBuilder();
+        var logBuilder = StringBuilderManager.Allocate();
         logBuilder.AppendLine("HTTP Request Received");
         logBuilder.AppendFormat("{0}\n", DateTime.Now);
         logBuilder.AppendFormat("From: {0}\n", HttpEntity.Request.RemoteEndPoint.ToString());
@@ -417,15 +418,15 @@ namespace EventStore.Transport.Http.EntityManagement
         {
           logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
         }
-        if (Log.IsDebugLevelEnabled()) Log.LogDebug(logBuilder.ToString());
+        Log.LogDebug(StringBuilderManager.ReturnAndFree(logBuilder));
       }
     }
 
     private void LogResponse(byte[] body)
     {
-      if (_logHttpRequests)
+      if (_logHttpRequests && Log.IsDebugLevelEnabled())
       {
-        var logBuilder = new StringBuilder();
+        var logBuilder = StringBuilderManager.Allocate();
         logBuilder.AppendLine("HTTP Response");
         logBuilder.AppendFormat("{0}\n", DateTime.Now);
         logBuilder.AppendFormat("{0} {1}\n", HttpEntity.Response.StatusCode, HttpEntity.Response.StatusDescription);
@@ -434,7 +435,7 @@ namespace EventStore.Transport.Http.EntityManagement
         {
           logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
         }
-        if (Log.IsDebugLevelEnabled()) Log.LogDebug(logBuilder.ToString());
+        Log.LogDebug(StringBuilderManager.ReturnAndFree(logBuilder));
       }
     }
   }

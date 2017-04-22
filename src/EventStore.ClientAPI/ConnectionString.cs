@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using CuteAnt.Pool;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -92,7 +93,8 @@ namespace EventStore.ClientAPI
 
         private static string WithSpaces(string name)
         {
-            StringBuilder nameWithSpaces = new StringBuilder(32);
+            //StringBuilder nameWithSpaces = new StringBuilder(32);
+            var nameWithSpaces = StringBuilderManager.Allocate();
             nameWithSpaces.Append(name[0]);
 
             for (int i = 1; i < name.Length; i++)
@@ -105,7 +107,7 @@ namespace EventStore.ClientAPI
                 nameWithSpaces.Append(c);
             }
 
-            return nameWithSpaces.ToString();
+            return StringBuilderManager.ReturnAndFree(nameWithSpaces);
         }
 
         private static T Apply<T>(IEnumerable<KeyValuePair<string, string>> items, T obj)

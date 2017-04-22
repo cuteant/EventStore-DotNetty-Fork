@@ -1,6 +1,7 @@
 ﻿using EventStore.ClientAPI.Internal;
 using System;
 using System.Text;
+using CuteAnt.Pool;
 
 namespace EventStore.ClientAPI.Common.Utils
 {
@@ -45,7 +46,7 @@ namespace EventStore.ClientAPI.Common.Utils
             if (logBulk.Count == 0)
                 return "--- NO DATA ---";
 
-            var sb = new StringBuilder();
+            var sb = StringBuilderManager.Allocate();
             int cur = 0;
             int len = logBulk.Count;
             for (int row = 0, rows = (logBulk.Count + 15) / 16; row < rows; ++row)
@@ -70,7 +71,7 @@ namespace EventStore.ClientAPI.Common.Utils
                 }
                 sb.AppendLine();
             }
-            return sb.ToString();
+            return StringBuilderManager.ReturnAndFree(sb);
         }
     }
 }

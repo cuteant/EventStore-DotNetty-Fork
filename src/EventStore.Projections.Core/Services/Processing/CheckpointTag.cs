@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CuteAnt.Pool;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
@@ -425,7 +426,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     break;
                 case Mode.MultiStream:
                 case Mode.EventTypeIndex:
-                    var sb = new StringBuilder();
+                    var sb = StringBuilderManager.Allocate();
                     if (Mode_ == Mode.EventTypeIndex)
                     {
                         sb.Append(Position.ToString());
@@ -435,7 +436,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     {
                         sb.AppendFormat("{0}: {1}; ", stream.Key, stream.Value);
                     }
-                    result = sb.ToString();
+                    result = StringBuilderManager.ReturnAndFree(sb);
                     break;
                 case Mode.ByStream:
                     result = string.Format(

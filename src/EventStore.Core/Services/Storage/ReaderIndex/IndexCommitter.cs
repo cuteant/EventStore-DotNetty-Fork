@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using CuteAnt.Pool;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
@@ -256,7 +257,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         if (prepare.EventStreamId != streamId)
         {
-          var sb = new StringBuilder();
+          var sb = StringBuilderManager.Allocate();
           sb.Append($"ERROR: Expected stream: {streamId}, actual: {prepare.EventStreamId}.");
           sb.Append(Environment.NewLine);
           sb.Append(Environment.NewLine);
@@ -278,7 +279,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             sb.Append("Data: " + Encoding.UTF8.GetString(p.Data));
             sb.Append(Environment.NewLine);
           }
-          throw new Exception(sb.ToString());
+          throw new Exception(StringBuilderManager.ReturnAndFree(sb));
         }
 
         if (prepare.LogPosition < lastCommitPosition || (prepare.LogPosition == lastCommitPosition && !_indexRebuild))

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog;
@@ -148,11 +149,11 @@ namespace EventStore.Core.Index
     {
       try
       {
-        var sb = new StringBuilder();
+        var sb = StringBuilderManager.Allocate();
         sb.AppendFormat("IndexMap '{0}' content:\n", indexmapFile);
         sb.AppendLine(Helper.FormatBinaryDump(File.ReadAllBytes(indexmapFile)));
 
-        Log.LogError(sb.ToString());
+        Log.LogError(StringBuilderManager.ReturnAndFree(sb));
       }
       catch (Exception exc)
       {

@@ -13,11 +13,11 @@ Issue.005 ★ 替换 MemoryStream.GetBuffer()
 
 Issue.006 ★ Task.FromResult 替换
 
-Issue.007 ☆ StringBuilder 替换
+Issue.007 ★ StringBuilder 替换
 
 Issue.008 ★ MakeGenericType 替换
 
-Issue.009 ☆ StartsWith & EndsWith & ToLower & ToUpper
+Issue.009 ★ StartsWith & EndsWith & ToLower & ToUpper
 
 Issue.010 ☆ 
 
