@@ -47,7 +47,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{77F3B1A0
 		src\EventStore.Common\Utils\VersionInfo.cs = src\EventStore.Common\Utils\VersionInfo.cs
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "es", "es", "{759E1DB9-D74D-4922-B8D1-04EF888CB890}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{759E1DB9-D74D-4922-B8D1-04EF888CB890}"
 	ProjectSection(SolutionItems) = preProject
 		common\CommonAssemblyInfo.cs = common\CommonAssemblyInfo.cs
 		common\CommonVersionInfo.cs = common\CommonVersionInfo.cs
@@ -55,7 +55,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "es", "es", "{759E1DB9-D74D-
 		common\nuget.props = common\nuget.props
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "his", "his", "{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HdrHistogram", "HdrHistogram", "{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C}"
 	ProjectSection(SolutionItems) = preProject
 		etc\HdrHistogram\Properties\AssemblyInfo.g.cs = etc\HdrHistogram\Properties\AssemblyInfo.g.cs
 		common\HistogramVersion.props = common\HistogramVersion.props
@@ -84,11 +84,26 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Rags.Tests", "et
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Projections.Core.Tests", "src\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{B3792B44-423E-4937-B065-F2D61785017F}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Nito.AsyncEx.Tasks.Sources", "..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.shproj", "{90BCC560-AA2B-4146-858A-9E524B696F75}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly", "etc\Polly\Polly.csproj", "{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly.Specs", "test\Polly.Specs\Polly.Specs.csproj", "{D9D564FF-A729-476F-A071-AD9326AD3A6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{201CB597-F20D-4E30-9B7D-34EDF1B4C660}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Polly", "Polly", "{C704360F-5D59-4D67-8D99-49783F10FF5D}"
+	ProjectSection(SolutionItems) = preProject
+		common\PollyVersion.props = common\PollyVersion.props
+		common\PollyVersionInfo.cs = common\PollyVersionInfo.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{0294fd68-461c-46db-9fcf-b279bbfda5f6}*SharedItemsImports = 4
 		src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems*{4f157224-1369-4d82-b673-cc185d24f1f0}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{f5d3314d-e4b9-4d82-90c5-f1cefa527365}*SharedItemsImports = 4
 		src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems*{f5d3314d-e4b9-4d82-90c5-f1cefa527365}*SharedItemsImports = 4
@@ -170,6 +185,14 @@ Global
 		{B3792B44-423E-4937-B065-F2D61785017F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3792B44-423E-4937-B065-F2D61785017F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3792B44-423E-4937-B065-F2D61785017F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -198,6 +221,10 @@ Global
 		{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{9749BF52-4157-4032-80A4-F5B2DF04E244} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{B3792B44-423E-4937-B065-F2D61785017F} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
+		{90BCC560-AA2B-4146-858A-9E524B696F75} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
+		{C704360F-5D59-4D67-8D99-49783F10FF5D} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj
