@@ -83,17 +83,17 @@ namespace EventStore.ClusterNode
 
       if (!opts.MemDb)
       {
-        _dbLock = new ExclusiveDbLock(dbPath);
-        if (!_dbLock.Acquire())
-        {
-          throw new Exception($"Couldn't acquire exclusive lock on DB at '{dbPath}'.");
-        }
+        //_dbLock = new ExclusiveDbLock(dbPath);
+        //if (!_dbLock.Acquire())
+        //{
+        //  throw new Exception($"Couldn't acquire exclusive lock on DB at '{dbPath}'.");
+        //}
       }
-      _clusterNodeMutex = new ClusterNodeMutex();
-      if (!_clusterNodeMutex.Acquire())
-      {
-        throw new Exception($"Couldn't acquire exclusive Cluster Node mutex '{_clusterNodeMutex.MutexName}'.");
-      }
+      //_clusterNodeMutex = new ClusterNodeMutex();
+      //if (!_clusterNodeMutex.Acquire())
+      //{
+      //  throw new Exception($"Couldn't acquire exclusive Cluster Node mutex '{_clusterNodeMutex.MutexName}'.");
+      //}
 
       if (!opts.DiscoverViaDns && opts.GossipSeed.Length == 0)
       {
@@ -386,16 +386,30 @@ namespace EventStore.ClusterNode
       _node.Start();
     }
 
-    protected override void OnStop()
+    protected override bool OnStop()
     {
       //_node.StopNonblocking(true, true);
-      _node.Stop(TimeSpan.FromSeconds(20), true, true);
+      return _node.Stop(TimeSpan.FromSeconds(20), true, true);
     }
 
     protected override void OnProgramExit()
     {
-      if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
-      if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
+      try
+      {
+        if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
+      }
+      catch(Exception exc)
+      {
+        Log.LogError(exc.ToString());
+      }
+      try
+      {
+        if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
+      }
+      catch (Exception exc)
+      {
+        Log.LogError(exc.ToString());
+      }
     }
   }
 }

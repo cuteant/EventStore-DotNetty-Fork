@@ -15,16 +15,8 @@ namespace EventStore.ClusterNode
         {
           serviceConfiguration.ConstructUsing(_ => EventStoreServiceFactory.CreateScheduler());
 
-          serviceConfiguration.WhenStarted((service, _) =>
-          {
-            service.Start();
-            return true;
-          });
-          serviceConfiguration.WhenStopped((service, _) =>
-          {
-            service.Stop();
-            return true;
-          });
+          serviceConfiguration.WhenStarted((service, _) => service.Start());
+          serviceConfiguration.WhenStopped((service, _) => service.Stop());
         });
 
         hostConfiguration.UseSerilog(new LoggerConfiguration().ReadFrom.AppSettings());

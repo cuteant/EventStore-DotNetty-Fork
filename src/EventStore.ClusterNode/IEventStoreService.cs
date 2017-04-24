@@ -4,8 +4,8 @@ namespace EventStore.ClusterNode
 {
   public interface IEventStoreService
   {
-    void Start();
+    bool Start();
 
-    void Stop();
+    bool Stop();
   }
 }

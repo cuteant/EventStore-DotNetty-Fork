@@ -27,11 +27,13 @@ namespace EventStore.ClusterNode
     protected abstract void Create(TOptions options);
     protected abstract void PreInit(TOptions options);
     protected abstract void OnStart();
-    protected abstract void OnStop();
+    protected abstract bool OnStop();
     protected abstract void OnProgramExit();
 
-    public void Start()
+    public bool Start()
     {
+      var success = false;
+
       try
       {
         //Application.RegisterExitAction(Exit);
@@ -63,6 +65,7 @@ namespace EventStore.ClusterNode
           Create(options);
           OnStart();
 
+          success = true;
           //_exitEvent.Wait();
         }
       }
@@ -105,6 +108,8 @@ namespace EventStore.ClusterNode
         //Log.Flush();
       }
       //Environment.Exit(_exitCode);
+
+      return success;
     }
 
     private void CommitSuicideIfInBoehmOrOnBadVersionsOfMono(TOptions options)
@@ -123,13 +128,22 @@ namespace EventStore.ClusterNode
       }
     }
 
-    public void Stop()
+    public bool Stop()
     {
       //LogManager.Finish();
 
-      OnStop();
-
+      var result = false;
+      try
+      {
+        result = OnStop();
+      }
+      catch(Exception exc)
+      {
+        Log.LogError(exc.ToString());
+      }
       OnProgramExit();
+
+      return result;
     }
 
     private void Init(TOptions options)

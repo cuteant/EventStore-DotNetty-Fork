@@ -18,12 +18,12 @@ namespace EventStore.Core
 
     public ClusterNodeMutex()
     {
-      MutexName = string.Format("ESCLUSTERNODE:{0}", Process.GetCurrentProcess().Id);
+      MutexName = $"ESCLUSTERNODE:{Process.GetCurrentProcess().Id}";
     }
 
     public bool Acquire()
     {
-      if (_acquired) throw new InvalidOperationException(string.Format("Cluster Node mutex '{0}' is already acquired.", MutexName));
+      if (_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' is already acquired.");
 
       try
       {
@@ -45,7 +45,7 @@ namespace EventStore.Core
 
     public void Release()
     {
-      if (!_acquired) throw new InvalidOperationException(string.Format("Cluster Node mutex '{0}' was not acquired.", MutexName));
+      if (!_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' was not acquired.");
       _clusterNodeMutex.ReleaseMutex();
     }
 
