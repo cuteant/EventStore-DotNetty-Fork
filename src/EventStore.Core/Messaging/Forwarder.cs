@@ -55,7 +55,7 @@ namespace EventStore.Core.Messaging
 
             public void Handle(T message)
             {
-                Console.WriteLine(_prefix + message.GetType().Name);
+                //Console.WriteLine(_prefix + message.GetType().Name);
                 _to.Publish(message);
             }
         }

@@ -68,22 +68,22 @@ namespace EventStore.ClusterNode
       }
       catch (OptionException exc)
       {
-        Console.Error.WriteLine("Error while parsing options:");
-        Console.Error.WriteLine(FormatExceptionMessage(exc));
-        Console.Error.WriteLine();
-        Console.Error.WriteLine("Options:");
-        Console.Error.WriteLine(EventStoreOptions.GetUsage<TOptions>());
+        Log.LogError("Error while parsing options:");
+        Log.LogError(FormatExceptionMessage(exc));
+        Log.LogError("");
+        Log.LogError("Options:");
+        Log.LogError(EventStoreOptions.GetUsage<TOptions>());
       }
       catch (ApplicationInitializationException ex)
       {
-        var msg = String.Format("Application initialization error: {0}", FormatExceptionMessage(ex));
+        var msg = $"Application initialization error: {FormatExceptionMessage(ex)}";
         if (Log != null)
         {
           Log.LogCritical(ex, msg);
         }
         else
         {
-          Console.Error.WriteLine(msg);
+          Log.LogError(msg);
         }
       }
       catch (Exception ex)
@@ -96,8 +96,8 @@ namespace EventStore.ClusterNode
         }
         else
         {
-          Console.Error.WriteLine(msg);
-          Console.Error.WriteLine(FormatExceptionMessage(ex));
+          Log.LogError(msg);
+          Log.LogError(FormatExceptionMessage(ex));
         }
       }
       finally
@@ -139,7 +139,7 @@ namespace EventStore.ClusterNode
       var projName = Assembly.GetEntryAssembly().GetName().Name.Replace(".", " - ");
       var componentName = GetComponentName(options);
 
-      Console.Title = string.Format("{0}, {1}", projName, componentName);
+      Log.LogInformation($"{projName}, {componentName}");
 
       string logsDirectory = Path.GetFullPath(options.Log.IsNotEmptyString() ? options.Log : GetLogsDirectory(options));
       //LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);

@@ -177,7 +177,7 @@ namespace EventStore.Projections.Core.Services.Http
                 (o, s) =>
                 Publish(
                     new ProjectionManagementMessage.Command.UpdateQuery(
-                        envelope, match.BoundVariables["name"], GetRunAs(http, match), match.BoundVariables["type"], s, emitEnabled: emitEnabled)), Console.WriteLine);
+                        envelope, match.BoundVariables["name"], GetRunAs(http, match), match.BoundVariables["type"], s, emitEnabled: emitEnabled)), ex => Log.LogError(ex.ToString()));
         }
 
         private void OnProjectionCommandDisable(HttpEntityManager http, UriTemplateMatch match)

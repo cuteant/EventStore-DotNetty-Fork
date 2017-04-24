@@ -21,6 +21,8 @@ using EventStore.Core.Data;
 using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
 using Microsoft.Extensions.Logging;
 
+// http://stackoverflow.com/questions/23791696/how-to-catch-exception-and-stop-topshelf-service
+
 namespace EventStore.ClusterNode
 {
   public class EventStoreService : EventStoreServiceBase<ClusterNodeOptions>
@@ -386,12 +388,14 @@ namespace EventStore.ClusterNode
 
     protected override void OnStop()
     {
-      _node.StopNonblocking(true, true);
+      //_node.StopNonblocking(true, true);
+      _node.Stop(TimeSpan.FromSeconds(20), true, true);
     }
 
     protected override void OnProgramExit()
     {
       if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
+      if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
     }
   }
 }

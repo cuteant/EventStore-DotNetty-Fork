@@ -7,10 +7,26 @@ namespace EventStore.ClusterNode
 {
   class Program
   {
-    public static void Main()
+    public static void Main(string[] args)
     {
       HostFactory.Run(hostConfiguration =>
       {
+        hostConfiguration.Service<IEventStoreService>(serviceConfiguration =>
+        {
+          serviceConfiguration.ConstructUsing(_ => EventStoreServiceFactory.CreateScheduler());
+
+          serviceConfiguration.WhenStarted((service, _) =>
+          {
+            service.Start();
+            return true;
+          });
+          serviceConfiguration.WhenStopped((service, _) =>
+          {
+            service.Stop();
+            return true;
+          });
+        });
+
         hostConfiguration.UseSerilog(new LoggerConfiguration().ReadFrom.AppSettings());
 
         var dependsOnServices = ConfigurationManager.AppSettings.Get("dependsOnServices");
@@ -39,28 +55,12 @@ namespace EventStore.ClusterNode
         var serviceDescription = ConfigurationManager.AppSettings.Get("serviceDescription");
         if (string.IsNullOrWhiteSpace(serviceDescription)) { serviceDescription = "ES.ClusterNode"; }
         var serviceDisplayName = ConfigurationManager.AppSettings.Get("serviceDisplayName");
-        if (string.IsNullOrWhiteSpace(serviceDescription)) { serviceDisplayName = "ES.ClusterNode"; }
+        if (string.IsNullOrWhiteSpace(serviceDisplayName)) { serviceDisplayName = "ES.ClusterNode"; }
         var serviceName = ConfigurationManager.AppSettings.Get("serviceName");
-        if (string.IsNullOrWhiteSpace(serviceDescription)) { serviceName = "ESCluster"; }
+        if (string.IsNullOrWhiteSpace(serviceName)) { serviceName = "ESCluster"; }
         hostConfiguration.SetDescription(serviceDescription);
         hostConfiguration.SetDisplayName(serviceDisplayName);
         hostConfiguration.SetServiceName(serviceName);
-
-        hostConfiguration.Service<IEventStoreService>(serviceConfiguration =>
-        {
-          serviceConfiguration.ConstructUsing(_ => EventStoreServiceFactory.CreateScheduler());
-
-          serviceConfiguration.WhenStarted((service, _) =>
-          {
-            service.Start();
-            return true;
-          });
-          serviceConfiguration.WhenStopped((service, _) =>
-          {
-            service.Stop();
-            return true;
-          });
-        });
       });
     }
   }

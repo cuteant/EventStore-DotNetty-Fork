@@ -100,7 +100,7 @@ namespace EventStore.Core.Util
       }
       catch (Exception ex)
       {
-        http.ReplyTextContent(ex.ToString(), 500, "Internal Server Error", "text/plain", null, Console.WriteLine);
+        http.ReplyTextContent(ex.ToString(), 500, "Internal Server Error", "text/plain", null, exc => Logger.LogError(exc.ToString()));
       }
     }
 

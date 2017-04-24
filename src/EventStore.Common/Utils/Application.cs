@@ -57,8 +57,8 @@ namespace EventStore.Common.Utils
 
       if (!silent)
       {
-        var message = string.Format("Exiting with exit code: {0}.\nExit reason: {1}", exitCode, reason);
-        Console.WriteLine(message);
+        var message = $"Exiting with exit code: {exitCode}.\nExit reason: {reason}";
+        if (Log.IsInformationLevelEnabled()) Log.LogInformation(message);
         if (exitCode != 0)
         {
           Log.LogError(message);
@@ -70,8 +70,7 @@ namespace EventStore.Common.Utils
       }
 
       var exit = _exit;
-      if (exit != null)
-        exit(exitCode);
+      exit?.Invoke(exitCode);
     }
 
     public static void AddDefines(IEnumerable<string> defines)

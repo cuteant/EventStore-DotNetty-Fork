@@ -107,7 +107,10 @@ namespace EventStore.Transport.Tcp
       Ensure.NotNull(certificate, "certificate");
 
       InitConnectionBase(socket);
-      if (verbose) Console.WriteLine("TcpConnectionSsl::InitClientSocket({0}, L{1})", RemoteEndPoint, LocalEndPoint);
+      if (verbose)
+      {
+        Log.LogTrace("TcpConnectionSsl::InitClientSocket({0}, L{1})", RemoteEndPoint, LocalEndPoint);
+      }
 
       lock (_streamLock)
       {
@@ -180,7 +183,10 @@ namespace EventStore.Transport.Tcp
       Ensure.NotNull(targetHost, "targetHost");
 
       InitConnectionBase(socket);
-      if (verbose) Console.WriteLine("TcpConnectionSsl::InitClientSocket({0}, L{1})", RemoteEndPoint, LocalEndPoint);
+      if (verbose)
+      {
+        Log.LogTrace("TcpConnectionSsl::InitClientSocket({0}, L{1})", RemoteEndPoint, LocalEndPoint);
+      }
 
       _validateServer = validateServer;
 
