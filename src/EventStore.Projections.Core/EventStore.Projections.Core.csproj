@@ -43,11 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="NLog" Version="4.4.5" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\EventStore.Core\EventStore.Core.csproj" />
   </ItemGroup>
 
