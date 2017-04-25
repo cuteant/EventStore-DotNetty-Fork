@@ -296,3 +296,4 @@ NuGet200.rar
 /NuGet.Config
 *.project.lock.json
 /src/NuGet.Config
+/tests

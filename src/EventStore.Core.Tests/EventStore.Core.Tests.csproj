@@ -17,7 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <OutputPath>..\..\bin\tests\</OutputPath>
+    <OutputPath>..\..\tests\</OutputPath>
     <DefineConstants>TRACE;DEBUG;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;UNOFFICIALTESTING</DefineConstants>
     <DebugType>full</DebugType>
     <WarningLevel>4</WarningLevel>
@@ -32,7 +32,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <OutputPath>..\..\bin\tests\</OutputPath>
+    <OutputPath>..\..\tests\</OutputPath>
     <DefineConstants>TRACE;DESKTOPCLR;NET461;NET_3_5_GREATER;NET_4_0_GREATER;NET_4_5_GREATER;UNOFFICIALTESTING</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>none</DebugType>
