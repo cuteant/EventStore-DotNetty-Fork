@@ -2,11 +2,12 @@
 <Project>
   <PropertyGroup>
     <PlatformTarget>anycpu</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>$(DefineConstants);NET_3_5_GREATER;SIGNED</DefineConstants>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.1'">
