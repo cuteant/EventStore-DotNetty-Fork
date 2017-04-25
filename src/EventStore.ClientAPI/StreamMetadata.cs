@@ -221,7 +221,7 @@ namespace EventStore.ClientAPI
         /// <returns>A string representing the stream metadata.</returns>
         public string AsJsonString()
         {
-            using (var stringWriter = new StringWriter())
+            using (var stringWriter = new StringWriterX())
             {
                 using (var jsonWriter = new JsonTextWriter(stringWriter))
                 {

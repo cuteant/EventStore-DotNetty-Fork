@@ -9,6 +9,7 @@
     <Import_RootNamespace>EventStore.Common.Utils.Sources</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)EncodingExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Ensure.cs" />
   </ItemGroup>
 </Project>

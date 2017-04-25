@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using CuteAnt.Pool;
+using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
@@ -274,9 +275,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             sb.Append(Environment.NewLine);
             sb.Append("Type: " + p.EventType);
             sb.Append(Environment.NewLine);
-            sb.Append("MetaData: " + Encoding.UTF8.GetString(p.Metadata));
+            sb.Append("MetaData: " + Encoding.UTF8.GetStringWithBuffer(p.Metadata));
             sb.Append(Environment.NewLine);
-            sb.Append("Data: " + Encoding.UTF8.GetString(p.Data));
+            sb.Append("Data: " + Encoding.UTF8.GetStringWithBuffer(p.Data));
             sb.Append(Environment.NewLine);
           }
           throw new Exception(StringBuilderManager.ReturnAndFree(sb));

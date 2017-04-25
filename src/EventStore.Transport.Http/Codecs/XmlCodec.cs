@@ -51,7 +51,7 @@ namespace EventStore.Transport.Http.Codecs
 
     public string To<T>(T value)
     {
-      if ((object)value == null) { return null; }
+      if (value == null) { return null; }
 
       if ((object)value == Empty.Result) { return Empty.Xml; }
 
@@ -73,7 +73,7 @@ namespace EventStore.Transport.Http.Codecs
             }
 
             writer.Flush();
-            return Helper.UTF8NoBom.GetString(memory.GetBuffer(), 0, (int)memory.Length);
+            return Helper.UTF8NoBom.GetStringWithBuffer(memory.GetBuffer(), 0, (int)memory.Length);
           }
         }
       }

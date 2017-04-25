@@ -9,6 +9,7 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Internal
@@ -502,7 +503,7 @@ namespace EventStore.ClientAPI.Internal
 
       if (package.Command == TcpCommand.BadRequest && package.CorrelationId == Guid.Empty)
       {
-        string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+        string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
         var exc = new EventStoreConnectionException($"Bad request received from server. Error: {(string.IsNullOrEmpty(message) ? "<no message>" : message)}");
         CloseConnection("Connection-wide BadRequest received. Too dangerous to continue.", exc);
         return;

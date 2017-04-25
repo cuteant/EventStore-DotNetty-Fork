@@ -416,7 +416,7 @@ namespace EventStore.Transport.Http.EntityManagement
         logBuilder.AppendLine(CreateHeaderLog(HttpEntity.Request.Headers));
         if (body != null && body.Length > 0)
         {
-          logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
+          logBuilder.AppendLine(System.Text.Encoding.Default.GetStringWithBuffer(body));
         }
         Log.LogDebug(StringBuilderManager.ReturnAndFree(logBuilder));
       }
@@ -433,7 +433,7 @@ namespace EventStore.Transport.Http.EntityManagement
         logBuilder.AppendLine(CreateHeaderLog(HttpEntity.Response.Headers));
         if (body != null && body.Length > 0)
         {
-          logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
+          logBuilder.AppendLine(System.Text.Encoding.Default.GetStringWithBuffer(body));
         }
         Log.LogDebug(StringBuilderManager.ReturnAndFree(logBuilder));
       }

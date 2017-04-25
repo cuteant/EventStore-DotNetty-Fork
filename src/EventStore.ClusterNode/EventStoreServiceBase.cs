@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 using EventStore.Common.Exceptions;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
@@ -37,6 +38,8 @@ namespace EventStore.ClusterNode
       try
       {
         //Application.RegisterExitAction(Exit);
+
+        StringBuilderManager.Threshold = 1024 * 32;
 
         string[] args = null;
         var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");

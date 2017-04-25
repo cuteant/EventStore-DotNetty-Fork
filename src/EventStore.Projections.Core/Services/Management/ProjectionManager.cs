@@ -665,14 +665,14 @@ namespace EventStore.Projections.Core.Services.Management
         var projectionRegistrations =
             completed.Events.Where(e => e.Event.EventType == "$ProjectionCreated" ||
                                         e.Event.EventType == "$ProjectionDeleted").ToArray();
-        var grouped = projectionRegistrations.ToLookup(x => Helper.UTF8NoBom.GetString(x.Event.Data))
+        var grouped = projectionRegistrations.ToLookup(x => Helper.UTF8NoBom.GetStringWithBuffer(x.Event.Data))
             .Select(ResolveState)
             .Where(x => x.Event != null)
             .ToArray();
 
         if (_logger.IsDebugLevelEnabled())
         {
-          _logger.LogDebug("PROJECTIONS: Found the following projections in {0}. {1}", completed.EventStreamId, String.Join(",", grouped.Select(x => Helper.UTF8NoBom.GetString(x.Event.Data))));
+          _logger.LogDebug("PROJECTIONS: Found the following projections in {0}. {1}", completed.EventStreamId, String.Join(",", grouped.Select(x => Helper.UTF8NoBom.GetStringWithBuffer(x.Event.Data))));
         }
 
         if (grouped.IsNotEmpty())
@@ -680,7 +680,7 @@ namespace EventStore.Projections.Core.Services.Management
           foreach (var @event in grouped)
           {
             anyFound = true;
-            var projectionName = Helper.UTF8NoBom.GetString(@event.Event.Data);
+            var projectionName = Helper.UTF8NoBom.GetStringWithBuffer(@event.Event.Data);
             if (string.IsNullOrEmpty(projectionName)
                 || _projections.ContainsKey(projectionName))
             {

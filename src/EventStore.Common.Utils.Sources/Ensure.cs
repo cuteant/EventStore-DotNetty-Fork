@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !CLIENTAPI
+using System;
 using System.Runtime.CompilerServices;
 
 namespace EventStore.Common.Utils
@@ -76,3 +77,4 @@ namespace EventStore.Common.Utils
     }
   }
 }
+#endif

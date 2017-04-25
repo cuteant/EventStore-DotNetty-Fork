@@ -7,6 +7,7 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
@@ -114,24 +115,24 @@ namespace EventStore.ClientAPI.ClientOperations
                   break;
                 case ClientMessage.SubscriptionDropped.SubscriptionDropReason.AccessDenied:
                   DropSubscription(SubscriptionDropReason.AccessDenied,
-                                   new AccessDeniedException(string.Format("Subscription to '{0}' failed due to access denied.", _streamId == string.Empty ? "<all>" : _streamId)));
+                                   new AccessDeniedException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to access denied."));
                   break;
                 case ClientMessage.SubscriptionDropped.SubscriptionDropReason.NotFound:
                   DropSubscription(SubscriptionDropReason.NotFound,
-                                   new ArgumentException(string.Format("Subscription to '{0}' failed due to not found.", _streamId == string.Empty ? "<all>" : _streamId)));
+                                   new ArgumentException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to not found."));
                   break;
                 default:
                   if (_verboseLogging) _log.LogDebug("Subscription dropped by server. Reason: {0}.", dto.Reason);
                   DropSubscription(SubscriptionDropReason.Unknown,
-                                   new CommandNotExpectedException(string.Format("Unsubscribe reason: '{0}'.", dto.Reason)));
+                                   new CommandNotExpectedException($"Unsubscribe reason: '{dto.Reason}'."));
                   break;
               }
-              return new InspectionResult(InspectionDecision.EndOperation, string.Format("SubscriptionDropped: {0}", dto.Reason));
+              return new InspectionResult(InspectionDecision.EndOperation, $"SubscriptionDropped: {dto.Reason}");
             }
 
           case TcpCommand.NotAuthenticated:
             {
-              string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+              string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
               DropSubscription(SubscriptionDropReason.NotAuthenticated,
                                new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
               return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
@@ -139,10 +140,10 @@ namespace EventStore.ClientAPI.ClientOperations
 
           case TcpCommand.BadRequest:
             {
-              string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+              string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
               DropSubscription(SubscriptionDropReason.ServerError,
                                new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
-              return new InspectionResult(InspectionDecision.EndOperation, string.Format("BadRequest: {0}", message));
+              return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest: {message}");
             }
 
           case TcpCommand.NotHandled:

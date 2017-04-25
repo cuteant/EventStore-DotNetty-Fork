@@ -347,7 +347,7 @@ namespace EventStore.Core.Services.Storage
     {
       try
       {
-        var jobj = JObject.Parse(Encoding.UTF8.GetString(rawMeta));
+        var jobj = JObject.Parse(Encoding.UTF8.GetStringWithBuffer(rawMeta));
         jobj[SystemMetadata.TruncateBefore] = recreateFromEventNumber;
         using (var memoryStream = MemoryStreamManager.GetStream())
         {
