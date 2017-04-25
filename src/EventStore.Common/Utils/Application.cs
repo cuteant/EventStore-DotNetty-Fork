@@ -25,11 +25,11 @@ namespace EventStore.Common.Utils
     private static Action<int> _exit;
     private static int _exited;
 
-    private static readonly HashSet<string> _defines = new HashSet<string>();
+    private static readonly HashSet<string> _defines = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     public static void RegisterExitAction(Action<int> exitAction)
     {
-      Ensure.NotNull(exitAction, "exitAction");
+      Ensure.NotNull(exitAction, nameof(exitAction));
 
       _exit = exitAction;
     }
@@ -77,14 +77,14 @@ namespace EventStore.Common.Utils
     {
       foreach (var define in defines.Safe())
       {
-        _defines.Add(define.ToUpper());
+        _defines.Add(define);
       }
     }
 
     public static bool IsDefined(string define)
     {
-      Ensure.NotNull(define, "define");
-      return _defines.Contains(define.ToUpper());
+      Ensure.NotNull(define, nameof(define));
+      return _defines.Contains(define);
     }
   }
 }

@@ -180,12 +180,12 @@ namespace EventStore.Core
                                       inMem: db.Config.InMemDb,
                                       indexCacheDepth: vNodeSettings.IndexCacheDepth);
       var readIndex = new ReadIndex(_mainQueue,
-                                          readerPool,
-                                          tableIndex,
-                                          ESConsts.StreamInfoCacheCapacity,
-                                          Application.IsDefined(Application.AdditionalCommitChecks),
-                                          Application.IsDefined(Application.InfiniteMetastreams) ? int.MaxValue : 1,
-                                          vNodeSettings.HashCollisionReadLimit);
+                                    readerPool,
+                                    tableIndex,
+                                    ESConsts.StreamInfoCacheCapacity,
+                                    Application.IsDefined(Application.AdditionalCommitChecks),
+                                    Application.IsDefined(Application.InfiniteMetastreams) ? int.MaxValue : 1,
+                                    vNodeSettings.HashCollisionReadLimit);
       var writer = new TFChunkWriter(db);
       var epochManager = new EpochManager(ESConsts.CachedEpochCount,
                                           db.Config.EpochCheckpoint,

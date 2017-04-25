@@ -1,5 +1,14 @@
 ﻿## Application Options
 
+# Run-time conditionals.
+#Defines:
+#  - INFINITE_METASTREAMS
+#  - ADDITIONAL_COMMIT_CHECKS
+#  - DUMP_STATISTICS
+#  - DO_NOT_TIMEOUT_REQUESTS
+#  - ALWAYS_KEEP_SCAVENGED
+#  - DISABLE_MERGE_CHUNKS
+
 # Start the built in system projections.
 StartStandardProjections: false
 # Disable HTTP caching.
@@ -266,4 +275,4 @@ GossipTimeoutMs: 500
 
 
 
-# Manager Options
+## Manager Options
