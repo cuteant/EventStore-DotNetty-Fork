@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
@@ -25,13 +26,15 @@ namespace EventStore.Core.Data
 
     public override string ToString()
     {
-      return string.Format("UserStreamAcl: ({0}), SystemStreamAcl: ({1})", UserStreamAcl, SystemStreamAcl);
+      return $"UserStreamAcl: ({UserStreamAcl}), SystemStreamAcl: ({SystemStreamAcl})";
     }
 
     public static SystemSettings FromJsonBytes(byte[] json)
     {
       using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
       {
+        reader.ArrayPool = Json.GlobalCharacterArrayPool;
+
         Check(reader.Read(), reader);
         Check(JsonToken.StartObject, reader);
 
@@ -41,8 +44,7 @@ namespace EventStore.Core.Data
         while (true)
         {
           Check(reader.Read(), reader);
-          if (reader.TokenType == JsonToken.EndObject)
-            break;
+          if (reader.TokenType == JsonToken.EndObject) { break; }
           Check(JsonToken.PropertyName, reader);
           var name = (string)reader.Value;
           switch (name)
@@ -64,22 +66,21 @@ namespace EventStore.Core.Data
 
     private static void Check(JsonToken type, JsonTextReader reader)
     {
-      if (reader.TokenType != type)
-        throw new Exception("Invalid JSON");
+      if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
     }
 
     private static void Check(bool read, JsonTextReader reader)
     {
-      if (!read)
-        throw new Exception("Invalid JSON");
+      if (!read) { throw new Exception("Invalid JSON"); }
     }
 
     public byte[] ToJsonBytes()
     {
-      using (var memoryStream = new MemoryStream())
+      using (var memoryStream = MemoryStreamManager.GetStream())
       {
-        using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom)))
+        using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
         {
+          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
           WriteAsJson(jsonWriter);
         }
         return memoryStream.ToArray();
@@ -88,14 +89,14 @@ namespace EventStore.Core.Data
 
     public string ToJsonString()
     {
-      using (var stringWriter = new StringWriterX())
+      var stringWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(stringWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(stringWriter))
-        {
-          WriteAsJson(jsonWriter);
-        }
-        return stringWriter.ToString();
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteAsJson(jsonWriter);
       }
+      return StringWriterManager.ReturnAndFree(stringWriter);
     }
 
     private void WriteAsJson(JsonTextWriter jsonWriter)

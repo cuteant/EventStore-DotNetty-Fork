@@ -63,7 +63,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
             _includeDeletedStreamNotification = includeDeletedStreamNotification;
             _timeProvider = timeProvider;
-            _eventTypes = new HashSet<string>(eventTypes);
+            _eventTypes = new HashSet<string>(eventTypes, StringComparer.Ordinal);
             if (includeDeletedStreamNotification)
                 _eventTypes.Add("$deleted");
             _streamToEventType = eventTypes.ToDictionary(v => "$et-" + v, v => v);
@@ -197,14 +197,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         {
             private readonly Dictionary<string, string> _streamToEventType;
-            private readonly HashSet<string> _eventsRequested = new HashSet<string>();
+            private readonly HashSet<string> _eventsRequested = new HashSet<string>(StringComparer.Ordinal);
             private readonly HashSet<Guid> _validRequests = new HashSet<Guid>();
             private bool _indexCheckpointStreamRequested;
             private long _lastKnownIndexCheckpointEventNumber = -1;
             private TFPos? _lastKnownIndexCheckpointPosition = null;
 
             private readonly Dictionary<string, Queue<PendingEvent>> _buffers =
-                new Dictionary<string, Queue<PendingEvent>>();
+                new Dictionary<string, Queue<PendingEvent>>(StringComparer.Ordinal);
 
             private readonly Dictionary<string, bool> _eofs;
             private bool _disposed;
@@ -222,7 +222,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 // let subscription handle this 
                 _publisher = _reader._publisher;
 
-                _pendingRequests = new Dictionary<string, Guid>();
+                _pendingRequests = new Dictionary<string, Guid>(StringComparer.Ordinal);
                 _pendingRequests.Add("$et", Guid.Empty);
                 foreach (var stream in _streamToEventType.Keys)
                 {

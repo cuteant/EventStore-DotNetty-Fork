@@ -24,13 +24,13 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly bool _resolveLinkTos;
         private readonly ITimeProvider _timeProvider;
 
-        private readonly HashSet<string> _eventsRequested = new HashSet<string>();
-        private readonly Dictionary<string, long?> _preparePositions = new Dictionary<string, long?>();
+        private readonly HashSet<string> _eventsRequested = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, long?> _preparePositions = new Dictionary<string, long?>(StringComparer.Ordinal);
 
         // event, link, progress
         // null element in a queue means tream deleted 
         private readonly Dictionary<string, Queue<Tuple<EventStore.Core.Data.ResolvedEvent, float>>> _buffers =
-            new Dictionary<string, Queue<Tuple<EventStore.Core.Data.ResolvedEvent, float>>>();
+            new Dictionary<string, Queue<Tuple<EventStore.Core.Data.ResolvedEvent, float>>>(StringComparer.Ordinal);
 
         private const int _maxReadCount = 111;
         private long? _safePositionToJoin;
@@ -49,14 +49,14 @@ namespace EventStore.Projections.Core.Services.Processing
             if (streams == null) throw new ArgumentNullException("streams");
             if (timeProvider == null) throw new ArgumentNullException("timeProvider");
             if (streams.Length == 0) throw new ArgumentException("streams");
-            _streams = new HashSet<string>(streams);
+            _streams = new HashSet<string>(streams, StringComparer.Ordinal);
             _eofs = _streams.ToDictionary(v => v, v => false);
             var positions = CheckpointTag.FromStreamPositions(phase, fromPositions);
             ValidateTag(positions);
             _fromPositions = positions;
             _resolveLinkTos = resolveLinkTos;
             _timeProvider = timeProvider;
-            _pendingRequests = new Dictionary<string, Guid>();
+            _pendingRequests = new Dictionary<string, Guid>(StringComparer.Ordinal);
             foreach (var stream in streams)
             {
                 _pendingRequests.Add(stream, Guid.Empty);

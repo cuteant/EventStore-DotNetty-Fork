@@ -37,7 +37,7 @@ namespace EventStore.Core.Services.Monitoring
 
     public IDictionary<string, object> GetSystemStats()
     {
-      var stats = new Dictionary<string, object>();
+      var stats = new Dictionary<string, object>(StringComparer.Ordinal);
       GetPerfCounterInformation(stats, 0);
       var process = Process.GetCurrentProcess();
 

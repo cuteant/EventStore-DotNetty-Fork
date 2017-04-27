@@ -18,10 +18,10 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (eventTypes == null) throw new ArgumentNullException("eventTypes");
             if (eventTypes.Length == 0) throw new ArgumentException("eventTypes");
-            _eventTypes = new HashSet<string>(eventTypes);
+            _eventTypes = new HashSet<string>(eventTypes, StringComparer.Ordinal);
             if (includeStreamDeletedNotification)
                 _eventTypes.Add("$deleted");
-            _streams = new HashSet<string>(from eventType in eventTypes select "$et-" + eventType);
+            _streams = new HashSet<string>(from eventType in eventTypes select "$et-" + eventType, StringComparer.Ordinal);
             _streamToEventType = eventTypes.ToDictionary(v => "$et-" + v, v => v);
         }
 

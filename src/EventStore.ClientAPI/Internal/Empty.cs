@@ -12,6 +12,6 @@ namespace EventStore.ClientAPI.Internal
 
         public static readonly Action Action = () => { };
 
-        public static readonly IDictionary<string, JToken> CustomStreamMetadata = new Dictionary<string, JToken>();
+        public static readonly IDictionary<string, JToken> CustomStreamMetadata = new Dictionary<string, JToken>(StringComparer.Ordinal);
     }
 }

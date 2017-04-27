@@ -11,7 +11,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
         private readonly ISubscriber _mainBus;
 
         private readonly IDictionary<string, IPersistentSubscriptionConsumerStrategyFactory> _factoryLookup =
-            new Dictionary<string, IPersistentSubscriptionConsumerStrategyFactory>();
+            new Dictionary<string, IPersistentSubscriptionConsumerStrategyFactory>(StringComparer.Ordinal);
 
         public PersistentSubscriptionConsumerStrategyRegistry(IPublisher mainQueue, ISubscriber mainBus, IPersistentSubscriptionConsumerStrategyFactory[] additionalConsumerStrategies)
         {

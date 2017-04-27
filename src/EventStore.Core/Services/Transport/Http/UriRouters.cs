@@ -96,7 +96,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         private class RouterNode
         {
-            public readonly Dictionary<string, RouterNode> Children = new Dictionary<string, RouterNode>();
+            public readonly Dictionary<string, RouterNode> Children = new Dictionary<string, RouterNode>(StringComparer.Ordinal);
             public readonly List<HttpRoute> LeafRoutes = new List<HttpRoute>();
         }
     }

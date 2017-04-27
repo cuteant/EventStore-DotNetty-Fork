@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
@@ -30,12 +30,12 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         entity.ReplyStatus(HttpStatusCode.NotFound, "Not found", _ => { });
         return;
       }
-      var writer = new StringWriterX();
+      var writer = StringWriterManager.Allocate();
       lock (histogram)
       {
         histogram.OutputPercentileDistribution(writer, outputValueUnitScalingRatio: 1000.0 * 1000.0);
       }
-      var response = Encoding.ASCII.GetBytes(writer.ToString());
+      var response = Encoding.ASCII.GetBytes(StringWriterManager.ReturnAndFree(writer));
       entity.Reply(response,
           HttpStatusCode.OK,
           "OK",

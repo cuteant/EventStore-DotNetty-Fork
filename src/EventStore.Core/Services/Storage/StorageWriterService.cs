@@ -353,6 +353,7 @@ namespace EventStore.Core.Services.Storage
         {
           using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
           {
+            jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
             jobj.WriteTo(jsonWriter);
           }
           modifiedMeta = memoryStream.ToArray();

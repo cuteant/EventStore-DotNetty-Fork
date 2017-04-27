@@ -13,7 +13,7 @@ namespace EventStore.Core.Services.AwakeReaderService
 
     {
         private readonly Dictionary<string, HashSet<AwakeServiceMessage.SubscribeAwake>> _subscribers =
-            new Dictionary<string, HashSet<AwakeServiceMessage.SubscribeAwake>>();
+            new Dictionary<string, HashSet<AwakeServiceMessage.SubscribeAwake>>(StringComparer.Ordinal);
 
         private readonly Dictionary<Guid, AwakeServiceMessage.SubscribeAwake> _map =
             new Dictionary<Guid, AwakeServiceMessage.SubscribeAwake>();

@@ -36,10 +36,10 @@ namespace EventStore.Core.Services
     private static readonly ILogger Log = TraceLogger.GetLogger<SubscriptionsService>();
     private static readonly TimeSpan TimeoutPeriod = TimeSpan.FromSeconds(1);
 
-    private readonly Dictionary<string, List<Subscription>> _subscriptionTopics = new Dictionary<string, List<Subscription>>();
+    private readonly Dictionary<string, List<Subscription>> _subscriptionTopics = new Dictionary<string, List<Subscription>>(StringComparer.Ordinal);
     private readonly Dictionary<Guid, Subscription> _subscriptionsById = new Dictionary<Guid, Subscription>();
 
-    private readonly Dictionary<string, List<PollSubscription>> _pollTopics = new Dictionary<string, List<PollSubscription>>();
+    private readonly Dictionary<string, List<PollSubscription>> _pollTopics = new Dictionary<string, List<PollSubscription>>(StringComparer.Ordinal);
     private long _lastSeenCommitPosition = -1;
 
     private readonly IPublisher _bus;

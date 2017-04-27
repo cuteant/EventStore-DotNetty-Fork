@@ -21,7 +21,7 @@ MonoMinThreadpoolSize: 10
 Force: false
 
 # The number of seconds between statistics gathers.
-StatsPeriodSec: 30
+StatsPeriodSec: 3600
 
 # The number of threads to use for pool of worker services.
 WorkerThreads: 5

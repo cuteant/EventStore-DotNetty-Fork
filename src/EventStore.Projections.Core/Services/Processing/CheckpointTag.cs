@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using CuteAnt.IO;
 using CuteAnt.Pool;
-using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using Newtonsoft.Json;
@@ -71,10 +69,10 @@ namespace EventStore.Projections.Core.Services.Processing
       Phase = phase;
       foreach (var stream in streams)
       {
-        if (stream.Key == "") throw new ArgumentException("Empty stream name", "streams");
-        if (stream.Value < 0 && stream.Value != ExpectedVersion.NoStream) throw new ArgumentException("Invalid sequence number", "streams");
+        if (stream.Key == "") throw new ArgumentException("Empty stream name", nameof(streams));
+        if (stream.Value < 0 && stream.Value != ExpectedVersion.NoStream) throw new ArgumentException("Invalid sequence number", nameof(streams));
       }
-      Streams = new Dictionary<string, long>(streams); // clone
+      Streams = new Dictionary<string, long>(streams, StringComparer.Ordinal); // clone
       Position = new TFPos(Int64.MinValue, Int64.MinValue);
       Mode_ = CalculateMode();
     }
@@ -85,21 +83,21 @@ namespace EventStore.Projections.Core.Services.Processing
       Position = position;
       foreach (var stream in eventTypes)
       {
-        if (stream.Key == "") throw new ArgumentException("Empty stream name", "eventTypes");
-        if (stream.Value < 0 && stream.Value != ExpectedVersion.NoStream) throw new ArgumentException("Invalid sequence number", "eventTypes");
+        if (stream.Key == "") throw new ArgumentException("Empty stream name", nameof(eventTypes));
+        if (stream.Value < 0 && stream.Value != ExpectedVersion.NoStream) throw new ArgumentException("Invalid sequence number", nameof(eventTypes));
       }
-      Streams = new Dictionary<string, long>(eventTypes); // clone
+      Streams = new Dictionary<string, long>(eventTypes, StringComparer.Ordinal); // clone
       Mode_ = CalculateMode();
     }
 
     private CheckpointTag(int phase, string stream, long sequenceNumber)
     {
       Phase = phase;
-      if (stream == null) throw new ArgumentNullException("stream");
-      if (stream == "") throw new ArgumentException("stream");
-      if (sequenceNumber < 0 && sequenceNumber != ExpectedVersion.NoStream) throw new ArgumentException("sequenceNumber");
+      if (stream == null) throw new ArgumentNullException(nameof(stream));
+      if (stream == "") throw new ArgumentException(nameof(stream));
+      if (sequenceNumber < 0 && sequenceNumber != ExpectedVersion.NoStream) throw new ArgumentException(nameof(sequenceNumber));
       Position = new TFPos(Int64.MinValue, Int64.MinValue);
-      Streams = new Dictionary<string, long> { { stream, sequenceNumber } };
+      Streams = new Dictionary<string, long>(StringComparer.Ordinal) { { stream, sequenceNumber } };
       Mode_ = CalculateMode();
     }
 
@@ -119,38 +117,44 @@ namespace EventStore.Projections.Core.Services.Processing
     private Mode CalculateMode()
     {
       if (Streams == null || Streams.Count == 0)
+      {
         if (Position.CommitPosition == Int64.MinValue && Position.PreparePosition == Int64.MinValue)
+        {
           return Mode.Phase;
+        }
         else if (Position.CommitPosition == Int64.MaxValue && Position.PreparePosition == Int64.MaxValue)
+        {
           return Mode.Phase;
+        }
         else if (Position.CommitPosition == Int64.MinValue && Position.PreparePosition != Int64.MinValue)
+        {
           return Mode.PreparePosition;
+        }
         else
+        {
           return Mode.Position;
-      if (Position != new TFPos(Int64.MinValue, Int64.MinValue))
-        return Mode.EventTypeIndex;
-      if (Streams.Count == 1)
-        return Mode.Stream;
+        }
+      }
+
+      if (Position != new TFPos(Int64.MinValue, Int64.MinValue)) { return Mode.EventTypeIndex; }
+      if (Streams.Count == 1) { return Mode.Stream; }
       return Mode.MultiStream;
     }
 
     public static bool operator >(CheckpointTag left, CheckpointTag right)
     {
-      if (ReferenceEquals(left, right))
-        return false;
-      if (!ReferenceEquals(left, null) && ReferenceEquals(right, null))
-        return true;
-      if (ReferenceEquals(left, null) && !ReferenceEquals(right, null))
-        return false;
-      if (left.Phase > right.Phase)
-        return true;
-      if (left.Phase < right.Phase)
-        return false;
+      if (ReferenceEquals(left, right)) return false;
+      if (!ReferenceEquals(left, null) && ReferenceEquals(right, null)) return true;
+      if (ReferenceEquals(left, null) && !ReferenceEquals(right, null)) return false;
+      if (left.Phase > right.Phase) return true;
+      if (left.Phase < right.Phase) return false;
       var leftMode = left.Mode_;
       var rightMode = right.Mode_;
       UpgradeModes(ref leftMode, ref rightMode);
       if (leftMode != rightMode)
+      {
         throw new NotSupportedException("Cannot compare checkpoint tags in different modes");
+      }
       switch (leftMode)
       {
         case Mode.ByStream:
@@ -170,14 +174,11 @@ namespace EventStore.Projections.Core.Services.Processing
           var result = left.Streams.Values.First() > right.Streams.Values.First();
           return result;
         case Mode.MultiStream:
-          long rvalue;
-          bool anyLeftGreater = left.Streams.Any(l => !right.Streams.TryGetValue(l.Key, out rvalue) || l.Value > rvalue);
+          bool anyLeftGreater = left.Streams.Any(l => !right.Streams.TryGetValue(l.Key, out long rvalue) || l.Value > rvalue);
 
-          long lvalue;
-          bool anyRightGreater = right.Streams.Any(r => !left.Streams.TryGetValue(r.Key, out lvalue) || r.Value > lvalue);
+          bool anyRightGreater = right.Streams.Any(r => !left.Streams.TryGetValue(r.Key, out long lvalue) || r.Value > lvalue);
 
-          if (anyLeftGreater && anyRightGreater)
-            ThrowIncomparable(left, right);
+          if (anyLeftGreater && anyRightGreater) { ThrowIncomparable(left, right); }
           return anyLeftGreater;
         default:
           throw new NotSupportedException("Checkpoint tag mode is not supported in comparison");
@@ -187,32 +188,30 @@ namespace EventStore.Projections.Core.Services.Processing
     private static void CheckCatalogCompatibility(CheckpointTag left, CheckpointTag right)
     {
       if (left.CatalogStream != right.CatalogStream)
+      {
         throw new Exception("Cannot compare tags with different catalog streams");
+      }
     }
 
     private static void ThrowIncomparable(CheckpointTag left, CheckpointTag right)
     {
-      throw new InvalidOperationException(
-          string.Format("Incomparable multi-stream checkpoint tags. '{0}' and '{1}'", left, right));
+      throw new InvalidOperationException($"Incomparable multi-stream checkpoint tags. '{left}' and '{right}'");
     }
 
     public static bool operator >=(CheckpointTag left, CheckpointTag right)
     {
-      if (ReferenceEquals(left, right))
-        return true;
-      if (!ReferenceEquals(left, null) && ReferenceEquals(right, null))
-        return true;
-      if (ReferenceEquals(left, null) && !ReferenceEquals(right, null))
-        return false;
-      if (left.Phase > right.Phase)
-        return true;
-      if (left.Phase < right.Phase)
-        return false;
+      if (ReferenceEquals(left, right)) return true;
+      if (!ReferenceEquals(left, null) && ReferenceEquals(right, null)) return true;
+      if (ReferenceEquals(left, null) && !ReferenceEquals(right, null)) return false;
+      if (left.Phase > right.Phase) return true;
+      if (left.Phase < right.Phase) return false;
       var leftMode = left.Mode_;
       var rightMode = right.Mode_;
       UpgradeModes(ref leftMode, ref rightMode);
       if (leftMode != rightMode)
+      {
         throw new NotSupportedException("Cannot compare checkpoint tags in different modes");
+      }
       switch (leftMode)
       {
         case Mode.ByStream:
@@ -228,18 +227,17 @@ namespace EventStore.Projections.Core.Services.Processing
           return left.PreparePosition >= right.PreparePosition;
         case Mode.Stream:
           if (left.Streams.Keys.First() != right.Streams.Keys.First())
+          {
             throw new InvalidOperationException("Cannot compare checkpoint tags across different streams");
+          }
           var result = left.Streams.Values.First() >= right.Streams.Values.First();
           return result;
         case Mode.MultiStream:
-          long rvalue;
-          bool anyLeftGreater = left.Streams.Any(l => !right.Streams.TryGetValue(l.Key, out rvalue) || l.Value > rvalue);
+          bool anyLeftGreater = left.Streams.Any(l => !right.Streams.TryGetValue(l.Key, out long rvalue) || l.Value > rvalue);
 
-          long lvalue;
-          bool anyRightGreater = right.Streams.Any(r => !left.Streams.TryGetValue(r.Key, out lvalue) || r.Value > lvalue);
+          bool anyRightGreater = right.Streams.Any(r => !left.Streams.TryGetValue(r.Key, out long lvalue) || r.Value > lvalue);
 
-          if (anyLeftGreater && anyRightGreater)
-            ThrowIncomparable(left, right);
+          if (anyLeftGreater && anyRightGreater) { ThrowIncomparable(left, right); }
           return !anyRightGreater;
         default:
           throw new NotSupportedException("Checkpoint tag mode is not supported in comparison");
@@ -441,8 +439,7 @@ namespace EventStore.Projections.Core.Services.Processing
           result = StringBuilderManager.ReturnAndFree(sb);
           break;
         case Mode.ByStream:
-          result = string.Format(
-              "{0}:{1}/{2}:{3}/{4}", CatalogStream, CatalogPosition, DataStream, DataPosition, CommitPosition);
+          result = $"{CatalogStream}:{CatalogPosition}/{DataStream}:{DataPosition}/{CommitPosition}";
           break;
         default:
           return "Unsupported mode: " + Mode_.ToString();
@@ -509,7 +506,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
     private Dictionary<string, long> PatchStreamsDictionary(string streamId, long eventSequenceNumber)
     {
-      var resultDictionary = new Dictionary<string, long>();
+      var resultDictionary = new Dictionary<string, long>(StringComparer.Ordinal);
       var was = false;
       foreach (var stream in Streams)
       {
@@ -535,13 +532,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public byte[] ToJsonBytes(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
     {
-      if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", "projectionVersion");
+      if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
       using (var memoryStream = MemoryStreamManager.GetStream())
       {
         using (var textWriter = new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true))
         using (var jsonWriter = new JsonTextWriter(textWriter))
         {
+          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
           WriteTo(projectionVersion, extraMetaData, jsonWriter);
         }
         return memoryStream.ToArray();
@@ -550,40 +548,40 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public string ToJsonString(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
     {
-      if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", "projectionVersion");
+      if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
-      using (var textWriter = new StringWriterX())
+      var textWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(textWriter))
-        {
-          WriteTo(projectionVersion, extraMetaData, jsonWriter);
-        }
-        return textWriter.ToString();
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteTo(projectionVersion, extraMetaData, jsonWriter);
       }
+      return StringWriterManager.ReturnAndFree(textWriter);
     }
 
     public string ToJsonString(IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
     {
-      using (var textWriter = new StringWriterX())
+      var textWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(textWriter))
-        {
-          WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
-        }
-        return textWriter.ToString();
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
       }
+      return StringWriterManager.ReturnAndFree(textWriter);
     }
 
     public JRaw ToJsonRaw(IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
     {
-      using (var textWriter = new StringWriterX())
+      var textWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(textWriter))
-        {
-          WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
-        }
-        return new JRaw(textWriter.ToString());
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
       }
+      return new JRaw(StringWriterManager.ReturnAndFree(textWriter));
     }
 
     public void WriteTo(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData, JsonWriter jsonWriter)
@@ -775,12 +773,11 @@ namespace EventStore.Projections.Core.Services.Processing
             else
             {
               Check(JsonToken.StartObject, reader);
-              streams = new Dictionary<string, long>();
+              streams = new Dictionary<string, long>(StringComparer.Ordinal);
               while (true)
               {
                 Check(reader.Read(), reader);
-                if (reader.TokenType == JsonToken.EndObject)
-                  break;
+                if (reader.TokenType == JsonToken.EndObject) { break; }
                 Check(JsonToken.PropertyName, reader);
                 var streamName = (string)reader.Value;
                 Check(reader.Read(), reader);
@@ -796,13 +793,15 @@ namespace EventStore.Projections.Core.Services.Processing
           case "$m":
             Check(reader.Read(), reader);
             var readMode = (string)reader.Value;
-            if (readMode != "bs")
-              throw new ApplicationException("Unknown checkpoint tag mode: " + readMode);
+            if (!string.Equals(readMode, "bs", StringComparison.Ordinal))
+              throw new ApplicationException($"Unknown checkpoint tag mode: {readMode}");
             byStreamMode = true;
             break;
           default:
             if (extra == null)
-              extra = new Dictionary<string, JToken>();
+            {
+              extra = new Dictionary<string, JToken>(StringComparer.Ordinal);
+            }
             Check(reader.Read(), reader);
             var jToken = JToken.ReadFrom(reader);
             extra.Add(name, jToken);
@@ -827,14 +826,12 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public static void Check(JsonToken type, JsonReader reader)
     {
-      if (reader.TokenType != type)
-        throw new Exception("Invalid JSON");
+      if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
     }
 
     public static void Check(bool read, JsonReader reader)
     {
-      if (!read)
-        throw new Exception("Invalid JSON");
+      if (!read) { throw new Exception("Invalid JSON"); }
     }
   }
 

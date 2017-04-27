@@ -8,85 +8,92 @@ using Newtonsoft.Json.Serialization;
 
 namespace EventStore.Transport.Http.Codecs
 {
-    public class JsonCodec : ICodec
+  public class JsonCodec : ICodec
+  {
+    public static Formatting Formatting = Formatting.Indented;
+
+    private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
+    private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
     {
-        public static Formatting Formatting = Formatting.Indented;
+      ContractResolver = new CamelCasePropertyNamesContractResolver(),
+      DateParseHandling = DateParseHandling.None,
+      NullValueHandling = NullValueHandling.Ignore,
+      DefaultValueHandling = DefaultValueHandling.Ignore,
+      MissingMemberHandling = MissingMemberHandling.Ignore,
+      TypeNameHandling = TypeNameHandling.None,
+      Converters = new JsonConverter[]
+      {
+        new StringEnumConverter(),
+        new Newtonsoft.Json.Converters.IPAddressConverter(),
+        new Newtonsoft.Json.Converters.IPEndPointConverter(),
+        new CombGuidConverter()
+      }
+    };
 
-        private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
-        private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            DateParseHandling = DateParseHandling.None,
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Ignore,
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            TypeNameHandling = TypeNameHandling.None,
-            Converters = new JsonConverter[]
-            {
-                new StringEnumConverter()
-            }
-        };
-
-        public static readonly JsonSerializerSettings ToSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            DateFormatHandling = DateFormatHandling.IsoDateFormat,
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Include,
-            MissingMemberHandling = MissingMemberHandling.Ignore,
-            TypeNameHandling = TypeNameHandling.None,
-            Converters = new JsonConverter[] {new StringEnumConverter()}
-        };
+    public static readonly JsonSerializerSettings ToSettings = new JsonSerializerSettings
+    {
+      ContractResolver = new CamelCasePropertyNamesContractResolver(),
+      DateFormatHandling = DateFormatHandling.IsoDateFormat,
+      NullValueHandling = NullValueHandling.Ignore,
+      DefaultValueHandling = DefaultValueHandling.Include,
+      MissingMemberHandling = MissingMemberHandling.Ignore,
+      TypeNameHandling = TypeNameHandling.None,
+      Converters = new JsonConverter[]
+      {
+        new StringEnumConverter(),
+        new Newtonsoft.Json.Converters.IPAddressConverter(),
+        new Newtonsoft.Json.Converters.IPEndPointConverter(),
+        new CombGuidConverter()
+      }
+    };
 
 
-        public string ContentType { get { return Http.ContentType.Json; } }
-        public Encoding Encoding { get { return Helper.UTF8NoBom; } }
-        public bool HasEventIds { get { return false; }}
-        public bool HasEventTypes { get { return false; }}
+    public string ContentType { get { return Http.ContentType.Json; } }
+    public Encoding Encoding { get { return Helper.UTF8NoBom; } }
+    public bool HasEventIds { get { return false; } }
+    public bool HasEventTypes { get { return false; } }
 
-        public bool CanParse(MediaType format)
-        {
-            return format != null && format.Matches(ContentType, Encoding);
-        }
-
-        public bool SuitableForResponse(MediaType component)
-        {
-            return component.Type == "*"
-                   || (string.Equals(component.Type, "application", StringComparison.OrdinalIgnoreCase)
-                       && (component.Subtype == "*"
-                           || string.Equals(component.Subtype, "json", StringComparison.OrdinalIgnoreCase)));
-        }
-
-        public T From<T>(string text)
-        {
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(text, FromSettings);
-            }
-            catch (Exception e)
-            {
-                Log.LogError(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
-                return default(T);
-            }
-        }
-
-        public string To<T>(T value)
-        {
-            if (value == null)
-                return "";
-
-            if ((object)value == Empty.Result)
-                return Empty.Json;
-
-            try
-            {
-                return JsonConvert.SerializeObject(value, Formatting, ToSettings);
-            }
-            catch (Exception ex)
-            {
-                Log.LogError(ex, "Error serializing object {0}", value);
-                return null;
-            }
-        }
+    public bool CanParse(MediaType format)
+    {
+      return format != null && format.Matches(ContentType, Encoding);
     }
+
+    public bool SuitableForResponse(MediaType component)
+    {
+      return string.Equals(component.Type, "*", StringComparison.Ordinal)
+             || (string.Equals(component.Type, "application", StringComparison.OrdinalIgnoreCase)
+                 && (string.Equals(component.Subtype, "*", StringComparison.Ordinal)
+                     || string.Equals(component.Subtype, "json", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    public T From<T>(string text)
+    {
+      try
+      {
+        return JsonConvert.DeserializeObject<T>(text, FromSettings);
+      }
+      catch (Exception e)
+      {
+        Log.LogError(e, "'{0}' is not a valid serialized {1}", text, typeof(T).FullName);
+        return default(T);
+      }
+    }
+
+    public string To<T>(T value)
+    {
+      if (value == null) { return ""; }
+
+      if ((object)value == Empty.Result) { return Empty.Json; }
+
+      try
+      {
+        return JsonConvert.SerializeObject(value, Formatting, ToSettings);
+      }
+      catch (Exception ex)
+      {
+        Log.LogError(ex, "Error serializing object {0}", value);
+        return null;
+      }
+    }
+  }
 }

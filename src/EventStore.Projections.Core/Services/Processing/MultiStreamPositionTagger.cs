@@ -14,7 +14,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (streams == null) throw new ArgumentNullException("streams");
             if (streams.Length == 0) throw new ArgumentException("streams");
-            _streams = new HashSet<string>(streams);
+            _streams = new HashSet<string>(streams, StringComparer.Ordinal);
         }
 
         public override bool IsMessageAfterCheckpointTag(

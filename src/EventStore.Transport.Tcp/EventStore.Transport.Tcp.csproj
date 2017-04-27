@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="protobuf-net.unofficial" Version="3.0.0-rtm-170303" />
+    <PackageReference Include="protobuf-net.unofficial" Version="3.0.0-rtm-170401" />
   </ItemGroup>
 
   <ItemGroup>

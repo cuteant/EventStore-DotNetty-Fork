@@ -127,7 +127,7 @@ namespace EventStore.Projections.Core.Services.Management
               v => v.CorrelationId,
               new PublishEnvelope(_inputQueue));
 
-      _projections = new Dictionary<string, ManagedProjection>();
+      _projections = new Dictionary<string, ManagedProjection>(StringComparer.Ordinal);
       _projectionsMap = new Dictionary<Guid, string>();
       _publishEnvelope = new PublishEnvelope(_inputQueue, crossThread: true);
       _getStateDispatcher =
@@ -1086,7 +1086,7 @@ namespace EventStore.Projections.Core.Services.Management
 
     public void Handle(ProjectionManagementMessage.Command.StartSlaveProjections message)
     {
-      var result = new Dictionary<string, SlaveProjectionCommunicationChannel[]>();
+      var result = new Dictionary<string, SlaveProjectionCommunicationChannel[]>(StringComparer.Ordinal);
       var counter = 0;
       foreach (var g in message.SlaveProjections.Definitions)
       {

@@ -77,8 +77,8 @@ namespace EventStore.Core.Services.PersistentSubscription
     public void InitToEmpty()
     {
       _handleTick = false;
-      _subscriptionTopics = new Dictionary<string, List<PersistentSubscription>>();
-      _subscriptionsById = new Dictionary<string, PersistentSubscription>();
+      _subscriptionTopics = new Dictionary<string, List<PersistentSubscription>>(StringComparer.Ordinal);
+      _subscriptionsById = new Dictionary<string, PersistentSubscription>(StringComparer.Ordinal);
     }
 
     public void Handle(SystemMessage.StateChangeMessage message)

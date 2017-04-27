@@ -7,7 +7,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 {
     public class StatsContainer
     {
-        private readonly Dictionary<string, object> _stats = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _stats = new Dictionary<string, object>(StringComparer.Ordinal);
 
         private const string Separator = "-";
         private static readonly string[] SplitSeparator = new[] {Separator};
@@ -50,7 +50,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         private Dictionary<string, object> GetRawStatsWithMetadata()
         {
-            return new Dictionary<string, object>(_stats);
+            return new Dictionary<string, object>(_stats, StringComparer.Ordinal);
         }
 
         private Dictionary<string, object> GetRawStats()

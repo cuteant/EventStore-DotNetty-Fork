@@ -39,7 +39,7 @@ namespace EventStore.ClusterNode
       {
         //Application.RegisterExitAction(Exit);
 
-        StringBuilderManager.Threshold = 1024 * 32;
+        StringBuilderManager.DefaultPolicy.MaximumRetainedCapacity = 1024 * 32;
 
         string[] args = null;
         var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");
@@ -140,7 +140,7 @@ namespace EventStore.ClusterNode
       {
         result = OnStop();
       }
-      catch(Exception exc)
+      catch (Exception exc)
       {
         Log.LogError(exc.ToString());
       }

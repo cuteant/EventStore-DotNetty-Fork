@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CuteAnt;
 using CuteAnt.Buffers;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 
 namespace EventStore.Common.Utils
 {
@@ -48,54 +49,53 @@ namespace EventStore.Common.Utils
       if (stream == null) { throw new ArgumentNullException(nameof(stream)); }
       if (bufferManager == null) { bufferManager = BufferManager.GlobalManager; }
 
-      using (var sw = new StringWriterX())
+      var sw = StringWriterManager.Allocate();
+
+      // Get a Decoder.
+      var decoder = encoding.GetDecoder();
+
+      // Guarantee the output buffer large enough to convert a few characters.
+      var UseBufferSize = 64;
+      if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
+      var chars = new Char[UseBufferSize];
+
+      // Intentionally make the input byte buffer larger than the output character buffer so the 
+      // conversion loop executes more than one cycle. 
+      //var bytes = new Byte[UseBufferSize * 4];
+      var bufferSize = UseBufferSize * 4;
+      var bytes = bufferManager.TakeBuffer(bufferSize);
+
+      Int32 bytesRead;
+      do
       {
-        // Get a Decoder.
-        var decoder = encoding.GetDecoder();
+        // Read at most the number of bytes that will fit in the input buffer. The 
+        // return value is the actual number of bytes read, or zero if no bytes remain. 
+        bytesRead = stream.Read(bytes, 0, bufferSize);
 
-        // Guarantee the output buffer large enough to convert a few characters.
-        var UseBufferSize = 64;
-        if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
-        var chars = new Char[UseBufferSize];
+        var completed = false;
+        var byteIndex = 0;
 
-        // Intentionally make the input byte buffer larger than the output character buffer so the 
-        // conversion loop executes more than one cycle. 
-        //var bytes = new Byte[UseBufferSize * 4];
-        var bufferSize = UseBufferSize * 4;
-        var bytes = bufferManager.TakeBuffer(bufferSize);
-
-        Int32 bytesRead;
-        do
+        while (!completed)
         {
-          // Read at most the number of bytes that will fit in the input buffer. The 
-          // return value is the actual number of bytes read, or zero if no bytes remain. 
-          bytesRead = stream.Read(bytes, 0, bufferSize);
+          // If this is the last input data, flush the decoder's internal buffer and state.
+          var flush = (bytesRead == 0);
+          decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
+                          chars, 0, UseBufferSize, flush,
+                          out int bytesUsed, out int charsUsed, out completed);
 
-          var completed = false;
-          var byteIndex = 0;
+          // The conversion produced the number of characters indicated by charsUsed. Write that number
+          // of characters to the output file.
+          sw.Write(chars, 0, charsUsed);
 
-          while (!completed)
-          {
-            // If this is the last input data, flush the decoder's internal buffer and state.
-            var flush = (bytesRead == 0);
-            decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
-                            chars, 0, UseBufferSize, flush,
-                            out int bytesUsed, out int charsUsed, out completed);
-
-            // The conversion produced the number of characters indicated by charsUsed. Write that number
-            // of characters to the output file.
-            sw.Write(chars, 0, charsUsed);
-
-            // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
-            byteIndex += bytesUsed;
-          }
+          // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
+          byteIndex += bytesUsed;
         }
-        while (bytesRead != 0);
-
-        bufferManager.ReturnBuffer(bytes);
-
-        return sw.ToString();
       }
+      while (bytesRead != 0);
+
+      bufferManager.ReturnBuffer(bytes);
+
+      return StringWriterManager.ReturnAndFree(sw);
     }
 
     /// <summary>Gets String from the stream.</summary>
@@ -108,54 +108,53 @@ namespace EventStore.Common.Utils
       if (stream == null) { throw new ArgumentNullException(nameof(stream)); }
       if (bufferManager == null) { bufferManager = BufferManager.GlobalManager; }
 
-      using (var sw = new StringWriterX())
+      var sw = StringWriterManager.Allocate();
+
+      // Get a Decoder.
+      var decoder = encoding.GetDecoder();
+
+      // Guarantee the output buffer large enough to convert a few characters.
+      var UseBufferSize = 64;
+      if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
+      var chars = new Char[UseBufferSize];
+
+      // Intentionally make the input byte buffer larger than the output character buffer so the 
+      // conversion loop executes more than one cycle. 
+      //var bytes = new Byte[UseBufferSize * 4];
+      var bufferSize = UseBufferSize * 4;
+      var bytes = bufferManager.TakeBuffer(bufferSize);
+
+      Int32 bytesRead;
+      do
       {
-        // Get a Decoder.
-        var decoder = encoding.GetDecoder();
+        // Read at most the number of bytes that will fit in the input buffer. The 
+        // return value is the actual number of bytes read, or zero if no bytes remain. 
+        bytesRead = await stream.ReadAsync(bytes, 0, bufferSize);
 
-        // Guarantee the output buffer large enough to convert a few characters.
-        var UseBufferSize = 64;
-        if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
-        var chars = new Char[UseBufferSize];
+        var completed = false;
+        var byteIndex = 0;
 
-        // Intentionally make the input byte buffer larger than the output character buffer so the 
-        // conversion loop executes more than one cycle. 
-        //var bytes = new Byte[UseBufferSize * 4];
-        var bufferSize = UseBufferSize * 4;
-        var bytes = bufferManager.TakeBuffer(bufferSize);
-
-        Int32 bytesRead;
-        do
+        while (!completed)
         {
-          // Read at most the number of bytes that will fit in the input buffer. The 
-          // return value is the actual number of bytes read, or zero if no bytes remain. 
-          bytesRead = await stream.ReadAsync(bytes, 0, bufferSize);
+          // If this is the last input data, flush the decoder's internal buffer and state.
+          var flush = (bytesRead == 0);
+          decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
+                          chars, 0, UseBufferSize, flush,
+                          out int bytesUsed, out int charsUsed, out completed);
 
-          var completed = false;
-          var byteIndex = 0;
+          // The conversion produced the number of characters indicated by charsUsed. Write that number
+          // of characters to the output file.
+          await sw.WriteAsync(chars, 0, charsUsed);
 
-          while (!completed)
-          {
-            // If this is the last input data, flush the decoder's internal buffer and state.
-            var flush = (bytesRead == 0);
-            decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
-                            chars, 0, UseBufferSize, flush,
-                            out int bytesUsed, out int charsUsed, out completed);
-
-            // The conversion produced the number of characters indicated by charsUsed. Write that number
-            // of characters to the output file.
-            await sw.WriteAsync(chars, 0, charsUsed);
-
-            // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
-            byteIndex += bytesUsed;
-          }
+          // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
+          byteIndex += bytesUsed;
         }
-        while (bytesRead != 0);
-
-        bufferManager.ReturnBuffer(bytes);
-
-        return sw.ToString();
       }
+      while (bytesRead != 0);
+
+      bufferManager.ReturnBuffer(bytes);
+
+      return StringWriterManager.ReturnAndFree(sw);
     }
 
     /// <summary>Gets String from the stream.</summary>
@@ -173,66 +172,65 @@ namespace EventStore.Common.Utils
 
       if (bufferManager == null) { bufferManager = BufferManager.GlobalManager; }
 
-      using (var sw = new StringWriterX())
+      var sw = StringWriterManager.Allocate();
+
+      //stream.Seek(offset, SeekOrigin.Begin);
+      stream.Position = offset;
+      var max = offset + count;
+      if (max > stream.Length) { max = stream.Length; }
+
+      // Get a Decoder.
+      var decoder = encoding.GetDecoder();
+
+      // Guarantee the output buffer large enough to convert a few characters.
+      var UseBufferSize = 64;
+      if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
+      var chars = new Char[UseBufferSize];
+
+      // Intentionally make the input byte buffer larger than the output character buffer so the 
+      // conversion loop executes more than one cycle. 
+      var bufferSize = UseBufferSize * 4;
+      //var bytes = new Byte[bufferSize];
+      var bytes = bufferManager.TakeBuffer(bufferSize);
+      var total = offset;
+
+      while (true)
       {
-        //stream.Seek(offset, SeekOrigin.Begin);
-        stream.Position = offset;
-        var max = offset + count;
-        if (max > stream.Length) { max = stream.Length; }
+        var bytesRead = bufferSize;
+        if (total >= max) { break; }
 
-        // Get a Decoder.
-        var decoder = encoding.GetDecoder();
+        // 最后一次读取大小不同
+        if (bytesRead > max - total) { bytesRead = (Int32)(max - total); }
 
-        // Guarantee the output buffer large enough to convert a few characters.
-        var UseBufferSize = 64;
-        if (UseBufferSize < encoding.GetMaxCharCount(10)) { UseBufferSize = encoding.GetMaxCharCount(10); }
-        var chars = new Char[UseBufferSize];
+        // Read at most the number of bytes that will fit in the input buffer. The 
+        // return value is the actual number of bytes read, or zero if no bytes remain. 
+        bytesRead = await stream.ReadAsync(bytes, 0, bytesRead);
+        if (bytesRead <= 0) { break; }
+        total += bytesRead;
 
-        // Intentionally make the input byte buffer larger than the output character buffer so the 
-        // conversion loop executes more than one cycle. 
-        var bufferSize = UseBufferSize * 4;
-        //var bytes = new Byte[bufferSize];
-        var bytes = bufferManager.TakeBuffer(bufferSize);
-        var total = offset;
+        var completed = false;
+        var byteIndex = 0;
 
-        while (true)
+        while (!completed)
         {
-          var bytesRead = bufferSize;
-          if (total >= max) { break; }
+          // If this is the last input data, flush the decoder's internal buffer and state.
+          var flush = (bytesRead == 0);
+          decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
+                          chars, 0, UseBufferSize, flush,
+                          out int bytesUsed, out int charsUsed, out completed);
 
-          // 最后一次读取大小不同
-          if (bytesRead > max - total) { bytesRead = (Int32)(max - total); }
+          // The conversion produced the number of characters indicated by charsUsed. Write that number
+          // of characters to the output file.
+          await sw.WriteAsync(chars, 0, charsUsed);
 
-          // Read at most the number of bytes that will fit in the input buffer. The 
-          // return value is the actual number of bytes read, or zero if no bytes remain. 
-          bytesRead = await stream.ReadAsync(bytes, 0, bytesRead);
-          if (bytesRead <= 0) { break; }
-          total += bytesRead;
-
-          var completed = false;
-          var byteIndex = 0;
-
-          while (!completed)
-          {
-            // If this is the last input data, flush the decoder's internal buffer and state.
-            var flush = (bytesRead == 0);
-            decoder.Convert(bytes, byteIndex, bytesRead - byteIndex,
-                            chars, 0, UseBufferSize, flush,
-                            out int bytesUsed, out int charsUsed, out completed);
-
-            // The conversion produced the number of characters indicated by charsUsed. Write that number
-            // of characters to the output file.
-            await sw.WriteAsync(chars, 0, charsUsed);
-
-            // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
-            byteIndex += bytesUsed;
-          }
+          // Increment byteIndex to the next block of bytes in the input buffer, if any, to convert.
+          byteIndex += bytesUsed;
         }
-
-        bufferManager.ReturnBuffer(bytes);
-
-        return sw.ToString();
       }
+
+      bufferManager.ReturnBuffer(bytes);
+
+      return StringWriterManager.ReturnAndFree(sw);
     }
 
     #endregion

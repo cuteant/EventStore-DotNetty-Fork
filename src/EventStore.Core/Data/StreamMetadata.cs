@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using EventStore.Core.Util;
@@ -24,21 +25,25 @@ namespace EventStore.Core.Data
     public readonly StreamAcl Acl;
 
     public StreamMetadata(long? maxCount = null, TimeSpan? maxAge = null,
-                          long? truncateBefore = null, bool? tempStream = null,
-                          TimeSpan? cacheControl = null, StreamAcl acl = null)
+                            long? truncateBefore = null, bool? tempStream = null,
+                            TimeSpan? cacheControl = null, StreamAcl acl = null)
     {
       if (maxCount <= 0)
-        throw new ArgumentOutOfRangeException(
-            "maxCount", string.Format("{0} should be positive value.", SystemMetadata.MaxCount));
+      {
+        throw new ArgumentOutOfRangeException(nameof(maxCount), $"{SystemMetadata.MaxCount} should be positive value.");
+      }
       if (maxAge <= TimeSpan.Zero)
-        throw new ArgumentOutOfRangeException(
-            "maxAge", string.Format("{0} should be positive time span.", SystemMetadata.MaxAge));
+      {
+        throw new ArgumentOutOfRangeException(nameof(maxAge), $"{SystemMetadata.MaxAge} should be positive time span.");
+      }
       if (truncateBefore < 0)
-        throw new ArgumentOutOfRangeException(
-            "truncateBefore", string.Format("{0} should be non-negative value.", SystemMetadata.TruncateBefore));
+      {
+        throw new ArgumentOutOfRangeException(nameof(truncateBefore), $"{SystemMetadata.TruncateBefore} should be non-negative value.");
+      }
       if (cacheControl <= TimeSpan.Zero)
-        throw new ArgumentOutOfRangeException(
-            "cacheControl", string.Format("{0} should be positive time span.", SystemMetadata.CacheControl));
+      {
+        throw new ArgumentOutOfRangeException(nameof(cacheControl), $"{SystemMetadata.CacheControl} should be positive time span.");
+      }
 
       MaxCount = maxCount;
       MaxAge = maxAge;
@@ -58,6 +63,7 @@ namespace EventStore.Core.Data
     {
       using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
       {
+        reader.ArrayPool = Json.GlobalCharacterArrayPool;
         return FromJsonReader(reader);
       }
     }
@@ -66,6 +72,7 @@ namespace EventStore.Core.Data
     {
       using (var reader = new JsonTextReader(new StringReader(json)))
       {
+        reader.ArrayPool = Json.GlobalCharacterArrayPool;
         return FromJsonReader(reader);
       }
     }
@@ -85,8 +92,7 @@ namespace EventStore.Core.Data
       while (true)
       {
         Check(reader.Read(), reader);
-        if (reader.TokenType == JsonToken.EndObject)
-          break;
+        if (reader.TokenType == JsonToken.EndObject) { break; }
         Check(JsonToken.PropertyName, reader);
         var name = (string)reader.Value;
         switch (name)
@@ -159,8 +165,7 @@ namespace EventStore.Core.Data
       while (true)
       {
         Check(reader.Read(), reader);
-        if (reader.TokenType == JsonToken.EndObject)
-          break;
+        if (reader.TokenType == JsonToken.EndObject) { break; }
         Check(JsonToken.PropertyName, reader);
         var name = (string)reader.Value;
         switch (name)
@@ -179,7 +184,9 @@ namespace EventStore.Core.Data
     {
       Check(reader.Read(), reader);
       if (reader.TokenType == JsonToken.String)
+      {
         return new[] { (string)reader.Value };
+      }
 
       if (reader.TokenType == JsonToken.StartArray)
       {
@@ -187,8 +194,7 @@ namespace EventStore.Core.Data
         while (true)
         {
           Check(reader.Read(), reader);
-          if (reader.TokenType == JsonToken.EndArray)
-            break;
+          if (reader.TokenType == JsonToken.EndArray) { break; }
           Check(JsonToken.String, reader);
           roles.Add((string)reader.Value);
         }
@@ -200,14 +206,12 @@ namespace EventStore.Core.Data
 
     private static void Check(JsonToken type, JsonTextReader reader)
     {
-      if (reader.TokenType != type)
-        throw new Exception("Invalid JSON");
+      if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
     }
 
     private static void Check(bool read, JsonTextReader reader)
     {
-      if (!read)
-        throw new Exception("Invalid JSON");
+      if (!read) { throw new Exception("Invalid JSON"); }
     }
 
     public byte[] ToJsonBytes()
@@ -216,6 +220,7 @@ namespace EventStore.Core.Data
       {
         using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
         {
+          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
           WriteAsJson(jsonWriter);
         }
         return memoryStream.ToArray();
@@ -224,14 +229,14 @@ namespace EventStore.Core.Data
 
     public string ToJsonString()
     {
-      using (var stringWriter = new StringWriterX())
+      var stringWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(stringWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(stringWriter))
-        {
-          WriteAsJson(jsonWriter);
-        }
-        return stringWriter.ToString();
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteAsJson(jsonWriter);
       }
+      return StringWriterManager.ReturnAndFree(stringWriter);
     }
 
     private void WriteAsJson(JsonTextWriter jsonWriter)
@@ -283,8 +288,7 @@ namespace EventStore.Core.Data
 
     private static void WriteAclRoles(JsonTextWriter jsonWriter, string propertyName, string[] roles)
     {
-      if (roles == null)
-        return;
+      if (roles == null) { return; }
       jsonWriter.WritePropertyName(propertyName);
       if (roles.Length == 1)
       {

@@ -69,13 +69,13 @@ namespace EventStore.Core.Tests.Helpers
 
         protected readonly SortedList<TFPos, EventRecord> _all = new SortedList<TFPos, EventRecord>();
 
-        protected readonly HashSet<string> _deletedStreams = new HashSet<string>();
+        protected readonly HashSet<string> _deletedStreams = new HashSet<string>(StringComparer.Ordinal);
 
         protected readonly Dictionary<long, Transaction> _activeTransactions = new Dictionary<long, Transaction>();
 
         private int _fakePosition = 100;
         private bool _allWritesSucceed;
-        private readonly HashSet<string> _writesToSucceed = new HashSet<string>();
+        private readonly HashSet<string> _writesToSucceed = new HashSet<string>(StringComparer.Ordinal);
         private bool _allWritesQueueUp;
         private Queue<ClientMessage.WriteEvents> _writesQueue;
         private bool _readAllEnabled;
@@ -632,7 +632,7 @@ namespace EventStore.Core.Tests.Helpers
             if (data.Length > 0)
                 Assert.IsNotEmpty(events, message + "The stream is empty.");
 
-            var eventsData = new HashSet<string>(events.Select(v => Encoding.UTF8.GetString(v.Data)));
+            var eventsData = new HashSet<string>(events.Select(v => Encoding.UTF8.GetString(v.Data)), StringComparer.Ordinal);
             var missing = data.Where(v => !eventsData.Contains(v)).ToArray();
 
             Assert.That(missing.Length == 0, string.Format("{0} does not contain: {1}", streamId, missing.Aggregate("", (a, v) => a + " " + v)));

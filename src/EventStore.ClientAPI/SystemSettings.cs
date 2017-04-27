@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using CuteAnt.IO;
+using CuteAnt.Pool;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
 using Newtonsoft.Json;
@@ -55,6 +56,8 @@ namespace EventStore.ClientAPI
     {
       using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
       {
+        reader.ArrayPool = Json.GlobalCharacterArrayPool;
+
         Check(reader.Read(), reader);
         Check(JsonToken.StartObject, reader);
 
@@ -108,6 +111,7 @@ namespace EventStore.ClientAPI
       {
         using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
         {
+          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
           WriteAsJson(jsonWriter);
         }
         return memoryStream.ToArray();
@@ -121,14 +125,14 @@ namespace EventStore.ClientAPI
     /// <returns>A string representing this <see cref="SystemSettings"/>.</returns>
     public string ToJsonString()
     {
-      using (var stringWriter = new StringWriterX())
+      var stringWriter = StringWriterManager.Allocate();
+      using (var jsonWriter = new JsonTextWriter(stringWriter))
       {
-        using (var jsonWriter = new JsonTextWriter(stringWriter))
-        {
-          WriteAsJson(jsonWriter);
-        }
-        return stringWriter.ToString();
+        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.CloseOutput = false;
+        WriteAsJson(jsonWriter);
       }
+      return StringWriterManager.ReturnAndFree(stringWriter);
     }
 
     private void WriteAsJson(JsonTextWriter jsonWriter)

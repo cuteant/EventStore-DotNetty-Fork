@@ -11,7 +11,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly LinkedList<Tuple<CheckpointTag, string>> _cacheOrder = new LinkedList<Tuple<CheckpointTag, string>>();
 
         private readonly Dictionary<string, Tuple<PartitionState, CheckpointTag>> _partitionStates =
-            new Dictionary<string, Tuple<PartitionState, CheckpointTag>>();
+            new Dictionary<string, Tuple<PartitionState, CheckpointTag>>(StringComparer.Ordinal);
         private int _cachedItemCount;
 
         private CheckpointTag _unlockedBefore;

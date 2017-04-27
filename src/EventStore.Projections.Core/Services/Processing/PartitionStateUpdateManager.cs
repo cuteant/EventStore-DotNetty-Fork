@@ -12,7 +12,7 @@ namespace EventStore.Projections.Core.Services.Processing
             public CheckpointTag ExpectedTag;
         }
 
-        private readonly Dictionary<string, State> _states = new Dictionary<string, State>();
+        private readonly Dictionary<string, State> _states = new Dictionary<string, State>(StringComparer.Ordinal);
         private readonly ProjectionNamesBuilder _namingBuilder;
 
         private readonly EmittedStream.WriterConfiguration.StreamMetadata _partitionCheckpointStreamMetadata =

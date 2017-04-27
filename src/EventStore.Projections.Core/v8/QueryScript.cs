@@ -12,7 +12,7 @@ namespace EventStore.Projections.Core.v8
     private readonly ILogger Log = TraceLogger.GetLogger<QueryScript>();
     private readonly PreludeScript _prelude;
     private readonly CompiledScript _script;
-    private readonly Dictionary<string, IntPtr> _registeredHandlers = new Dictionary<string, IntPtr>();
+    private readonly Dictionary<string, IntPtr> _registeredHandlers = new Dictionary<string, IntPtr>(StringComparer.Ordinal);
 
     private Func<string, string[], string> _getStatePartition;
     private Func<string, string[], string> _transformCatalogEvent;

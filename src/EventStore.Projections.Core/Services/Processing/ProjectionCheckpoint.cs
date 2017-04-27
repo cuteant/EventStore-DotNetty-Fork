@@ -17,7 +17,7 @@ namespace EventStore.Projections.Core.Services.Processing
     private readonly int _maxWriteBatchLength;
     private readonly ILogger _logger;
 
-    private readonly Dictionary<string, EmittedStream> _emittedStreams = new Dictionary<string, EmittedStream>();
+    private readonly Dictionary<string, EmittedStream> _emittedStreams = new Dictionary<string, EmittedStream>(StringComparer.Ordinal);
     private readonly IPrincipal _runAs;
     private readonly CheckpointTag _from;
     private CheckpointTag _last;

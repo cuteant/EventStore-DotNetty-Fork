@@ -89,7 +89,7 @@ namespace EventStore.Core.Services.Storage
         void IHandle<MonitoringMessage.InternalStatsRequest>.Handle(MonitoringMessage.InternalStatsRequest message)
         {
             var s = _readIndex.GetStatistics();
-            var stats = new Dictionary<string, object>
+            var stats = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 {"es-readIndex-cachedRecord", s.CachedRecordReads},
                 {"es-readIndex-notCachedRecord", s.NotCachedRecordReads},
