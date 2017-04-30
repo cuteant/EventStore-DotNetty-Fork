@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -6,7 +7,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Core.Settings;
-using System;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Processing
 {

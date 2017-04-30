@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -8,12 +10,9 @@ using EventStore.Core.Services.Transport.Http.Controllers;
 using EventStore.Core.TransactionLog.LogRecords;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Atom;
+using EventStore.Transport.Http.Codecs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Linq;
-using System.Collections.Generic;
-using EventStore.Transport.Http.Codecs;
-using System.Xml.Serialization;
 
 namespace EventStore.Core.Services.Transport.Http
 {
@@ -356,11 +355,11 @@ namespace EventStore.Core.Services.Transport.Http
       if (string.IsNullOrEmpty(unformattedjson)) { return unformattedjson; }
       JsonReader reader = new JsonTextReader(new System.IO.StringReader(unformattedjson))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool,
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
         DateParseHandling = DateParseHandling.None
       };
       var jo = JObject.Load(reader);
-      var json = JsonConvert.SerializeObject(jo, Formatting.Indented);
+      var json = JsonConvertX.SerializeObject(jo, Formatting.Indented);
       return json;
     }
   }

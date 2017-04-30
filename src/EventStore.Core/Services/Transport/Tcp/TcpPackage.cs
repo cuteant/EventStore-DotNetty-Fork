@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.Services.Transport.Tcp

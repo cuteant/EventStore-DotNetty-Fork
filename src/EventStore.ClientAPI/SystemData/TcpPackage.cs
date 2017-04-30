@@ -1,7 +1,7 @@
 ﻿using System;
+using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
-using EventStore.Common.Utils;
 
 namespace EventStore.ClientAPI.SystemData
 {

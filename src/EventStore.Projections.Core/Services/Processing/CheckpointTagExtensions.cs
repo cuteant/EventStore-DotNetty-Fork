@@ -34,7 +34,7 @@ namespace EventStore.Projections.Core.Services.Processing
       if (string.IsNullOrEmpty(source)) { return null; }
       var reader = new JsonTextReader(new StringReader(source))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool
       };
       return CheckpointTag.FromJson(reader, default(ProjectionVersion)).Tag;
     }
@@ -44,7 +44,7 @@ namespace EventStore.Projections.Core.Services.Processing
       if (source == null || source.Length == 0) { return null; }
       var reader = new JsonTextReader(new StreamReader(new MemoryStream(source)))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool
       };
       return CheckpointTag.FromJson(reader, default(ProjectionVersion)).Tag;
     }
@@ -57,7 +57,7 @@ namespace EventStore.Projections.Core.Services.Processing
       }
       var reader = new JsonTextReader(new StreamReader(new MemoryStream(source)))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool
       };
       return CheckpointTag.FromJson(reader, current);
     }
@@ -70,7 +70,7 @@ namespace EventStore.Projections.Core.Services.Processing
       }
       var reader = new JsonTextReader(new StringReader(source))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool
       };
       return CheckpointTag.FromJson(reader, current);
     }
@@ -80,7 +80,7 @@ namespace EventStore.Projections.Core.Services.Processing
       if (string.IsNullOrEmpty(source)) { return null; }
       var reader = new JsonTextReader(new StringReader(source))
       {
-        ArrayPool = Json.GlobalCharacterArrayPool
+        ArrayPool = JsonConvertX.GlobalCharacterArrayPool
       };
       return CheckpointTag.FromJson(reader, default(ProjectionVersion)).ExtraMetadata;
     }
@@ -92,7 +92,7 @@ namespace EventStore.Projections.Core.Services.Processing
         if (string.IsNullOrEmpty(source)) { return null; }
         var reader = new JsonTextReader(new StringReader(source))
         {
-          ArrayPool = Json.GlobalCharacterArrayPool
+          ArrayPool = JsonConvertX.GlobalCharacterArrayPool
         };
         if (!reader.Read()) return null;
         if (reader.TokenType != JsonToken.StartObject) return null;

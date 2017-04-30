@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
+using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -29,8 +30,8 @@ namespace EventStore.Core.Services.Transport.Http
         case ContentType.Xml:
         case ContentType.ApplicationXml:
           {
-            var serializeObject = JsonConvert.SerializeObject(dto.data);
-            var deserializeXmlNode = JsonConvert.DeserializeXmlNode(serializeObject, "data");
+            var serializeObject = JsonConvertX.SerializeObject(dto.data);
+            var deserializeXmlNode = JsonConvertX.DeserializeXmlNode(serializeObject, "data");
             return deserializeXmlNode.InnerXml;
           }
         case ContentType.Json:
@@ -40,8 +41,8 @@ namespace EventStore.Core.Services.Transport.Http
         case ContentType.Atom:
         case ContentType.EventXml:
           {
-            var serializeObject = JsonConvert.SerializeObject(dto);
-            var deserializeXmlNode = JsonConvert.DeserializeXmlNode(serializeObject, "event");
+            var serializeObject = JsonConvertX.SerializeObject(dto);
+            var deserializeXmlNode = JsonConvertX.DeserializeXmlNode(serializeObject, "event");
             return deserializeXmlNode.InnerXml;
           }
 
@@ -142,10 +143,10 @@ namespace EventStore.Core.Services.Transport.Http
         //                    element.RemoveAttributes();
         //                }
 
-        var json = JsonConvert.SerializeXNode(doc.Root, Formatting.None, true);
-        var root = JsonConvert.DeserializeObject<HttpClientMessageDto.WriteEventsDynamic>(json);
+        var json = JsonConvertX.SerializeXNode(doc.Root, Formatting.None, true);
+        var root = JsonConvertX.DeserializeObject<HttpClientMessageDto.WriteEventsDynamic>(json);
         return root.events;
-        //                var root = JsonConvert.DeserializeObject<JObject>(json);
+        //                var root = JsonConvertX.DeserializeObject<JObject>(json);
         //                var dynamicEvents = root.ToObject<HttpClientMessageDto.WriteEventsDynamic>();
         //                return dynamicEvents.events;
       }

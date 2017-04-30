@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using CuteAnt.Buffers;
 using CuteAnt.IO;
 using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;

@@ -1,4 +1,5 @@
-﻿using EventStore.Common.Utils;
+﻿using CuteAnt.Buffers;
+using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Index.Hashes;
 using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.PinnedState;

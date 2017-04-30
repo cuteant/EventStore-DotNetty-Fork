@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Xml.Serialization;
+using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.TransactionLog.LogRecords;

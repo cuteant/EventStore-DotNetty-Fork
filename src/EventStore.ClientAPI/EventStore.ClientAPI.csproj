@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
-  <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
@@ -38,10 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="2.0.0-rtm-170401" />
-    <PackageReference Include="CuteAnt.Runtime" Version="2.0.0-rtm-170401" />
+    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="2.0.0-rtm-170501" />
+    <PackageReference Include="CuteAnt.Runtime" Version="2.0.0-rtm-170501" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="protobuf-net.unofficial" Version="3.0.0-rtm-170401" />
+    <PackageReference Include="protobuf-net.unofficial" Version="3.0.0-rtm-170501" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>

@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
+using CuteAnt.Buffers;
 using CuteAnt.Pool;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;

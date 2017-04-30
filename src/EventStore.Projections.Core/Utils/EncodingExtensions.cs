@@ -1,4 +1,5 @@
-﻿using EventStore.Common.Utils;
+﻿using CuteAnt.Buffers;
+using EventStore.Common.Utils;
 
 namespace EventStore.Projections.Core.Utils
 {

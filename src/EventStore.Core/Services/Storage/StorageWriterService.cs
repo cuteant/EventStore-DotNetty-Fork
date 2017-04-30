@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CuteAnt.Buffers;
 using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -353,7 +354,7 @@ namespace EventStore.Core.Services.Storage
         {
           using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
           {
-            jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+            jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
             jobj.WriteTo(jsonWriter);
           }
           modifiedMeta = memoryStream.ToArray();

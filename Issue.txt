@@ -3,7 +3,11 @@
 
 Issue.001 ★ 反射优化，例如：GetProperties、GetCustomAttributes、GetField等
 
-Issue.002 ☆ 
+Issue.002 ★ Json 优化：
+             1、JsonSerializerSettings 全部使用静态变量
+             2、JsonSerializer 使用缓存池，替换 JsonSerializer.Create & JsonSerializer.CreateDefault & new JsonSerializer
+             3、JsonConvert => JsonConvertX
+             4、JsonTextReader & JsonTextWriter
 
 Issue.003 ☆ Tuple 替换
 

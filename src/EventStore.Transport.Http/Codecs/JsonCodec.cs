@@ -70,7 +70,7 @@ namespace EventStore.Transport.Http.Codecs
     {
       try
       {
-        return JsonConvert.DeserializeObject<T>(text, FromSettings);
+        return JsonConvertX.DeserializeObject<T>(text, FromSettings);
       }
       catch (Exception e)
       {
@@ -87,7 +87,7 @@ namespace EventStore.Transport.Http.Codecs
 
       try
       {
-        return JsonConvert.SerializeObject(value, Formatting, ToSettings);
+        return JsonConvertX.SerializeObject(value, Formatting, ToSettings);
       }
       catch (Exception ex)
       {

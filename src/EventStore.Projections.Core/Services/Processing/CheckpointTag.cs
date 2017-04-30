@@ -539,7 +539,7 @@ namespace EventStore.Projections.Core.Services.Processing
         using (var textWriter = new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true))
         using (var jsonWriter = new JsonTextWriter(textWriter))
         {
-          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+          jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
           WriteTo(projectionVersion, extraMetaData, jsonWriter);
         }
         return memoryStream.ToArray();
@@ -553,7 +553,7 @@ namespace EventStore.Projections.Core.Services.Processing
       var textWriter = StringWriterManager.Allocate();
       using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         jsonWriter.CloseOutput = false;
         WriteTo(projectionVersion, extraMetaData, jsonWriter);
       }
@@ -565,7 +565,7 @@ namespace EventStore.Projections.Core.Services.Processing
       var textWriter = StringWriterManager.Allocate();
       using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         jsonWriter.CloseOutput = false;
         WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
       }
@@ -577,7 +577,7 @@ namespace EventStore.Projections.Core.Services.Processing
       var textWriter = StringWriterManager.Allocate();
       using (var jsonWriter = new JsonTextWriter(textWriter))
       {
-        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         jsonWriter.CloseOutput = false;
         WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
       }

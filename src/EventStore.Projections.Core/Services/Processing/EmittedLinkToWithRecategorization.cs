@@ -38,9 +38,9 @@ namespace EventStore.Projections.Core.Services.Processing
         public override IEnumerable<KeyValuePair<string, string>> ExtraMetaData()
         {
             if (!string.IsNullOrEmpty(_originalStreamId))
-                yield return new KeyValuePair<string, string>("$o", JsonConvert.ToString(_originalStreamId));
+                yield return new KeyValuePair<string, string>("$o", JsonConvertX.ToString(_originalStreamId));
             if (_streamDeletedAt != null)
-                yield return new KeyValuePair<string, string>("$deleted", JsonConvert.ToString(_streamDeletedAt.Value));
+                yield return new KeyValuePair<string, string>("$deleted", JsonConvertX.ToString(_streamDeletedAt.Value));
         }
     }
 }

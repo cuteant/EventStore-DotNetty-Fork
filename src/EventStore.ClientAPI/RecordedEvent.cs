@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
+using CuteAnt.Buffers;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Internal;
-using EventStore.Common.Utils;
 
 namespace EventStore.ClientAPI
 {

@@ -63,7 +63,7 @@ namespace EventStore.Core.Data
     {
       using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
       {
-        reader.ArrayPool = Json.GlobalCharacterArrayPool;
+        reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         return FromJsonReader(reader);
       }
     }
@@ -72,7 +72,7 @@ namespace EventStore.Core.Data
     {
       using (var reader = new JsonTextReader(new StringReader(json)))
       {
-        reader.ArrayPool = Json.GlobalCharacterArrayPool;
+        reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         return FromJsonReader(reader);
       }
     }
@@ -220,7 +220,7 @@ namespace EventStore.Core.Data
       {
         using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
         {
-          jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+          jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
           WriteAsJson(jsonWriter);
         }
         return memoryStream.ToArray();
@@ -232,7 +232,7 @@ namespace EventStore.Core.Data
       var stringWriter = StringWriterManager.Allocate();
       using (var jsonWriter = new JsonTextWriter(stringWriter))
       {
-        jsonWriter.ArrayPool = Json.GlobalCharacterArrayPool;
+        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
         jsonWriter.CloseOutput = false;
         WriteAsJson(jsonWriter);
       }

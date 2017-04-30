@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Buffers;
 using System.Xml;
-using CuteAnt.Extensions.Serialization.Internal;
-using EventStore.Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -13,8 +10,6 @@ namespace EventStore.ClientAPI.Common.Utils
 {
   static class Json
   {
-    public static readonly IArrayPool<char> GlobalCharacterArrayPool = new JsonArrayPool<char>(ArrayPool<char>.Shared);
-
     public static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
     {
       ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -34,42 +29,54 @@ namespace EventStore.ClientAPI.Common.Utils
 
     public static byte[] ToJsonBytes(this object source)
     {
-      string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-      return Helper.UTF8NoBom.GetBytes(instring);
+      return JsonConvertX.SerializeObjectToBytes(source, Formatting.Indented, JsonSettings);
     }
 
     public static string ToJson(this object source)
     {
-      return JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
+      return JsonConvertX.SerializeObject(source, Formatting.Indented, JsonSettings);
     }
 
     public static string ToCanonicalJson(this object source)
     {
-      return JsonConvert.SerializeObject(source);
+      return JsonConvertX.SerializeObject(source);
     }
 
     public static T ParseJson<T>(this string json)
     {
-      return JsonConvert.DeserializeObject<T>(json, JsonSettings);
+      return JsonConvertX.DeserializeObject<T>(json, JsonSettings);
     }
 
     public static T ParseJson<T>(this byte[] json)
     {
-      return JsonConvert.DeserializeObject<T>(Helper.UTF8NoBom.GetStringWithBuffer(json), JsonSettings);
+      return JsonConvertX.ParseJson<T>(json, JsonSettings);
     }
 
     public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
     {
-      var jsonSerializer = JsonSerializer.Create(settings);
-      return jsonSerializer.Deserialize(new JTokenReader(value), type);
+      var jsonSerializer = JsonConvertX.AllocateSerializer(settings);
+      try
+      {
+        return jsonSerializer.Deserialize(new JTokenReader(value), type);
+      }
+      finally
+      {
+        JsonConvertX.FreeSerializer(settings, jsonSerializer);
+      }
     }
 
     public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
     {
-      var settings = converters == null || converters.Length <= 0
-                                       ? null
-                                       : new JsonSerializerSettings { Converters = converters };
-      return DeserializeObject(value, type, settings);
+      if (converters == null || converters.Length <= 0)
+      {
+        return DeserializeObject(value, type, (JsonSerializerSettings)null);
+      }
+      else
+      {
+        var settings =  new JsonSerializerSettings { Converters = converters };
+        var jsonSerializer = JsonSerializer.Create(settings);
+        return jsonSerializer.Deserialize(new JTokenReader(value), type);
+      }
     }
 
     public static XmlDocument ToXmlDocument(this JObject value, string deserializeRootElementName, bool writeArrayAttribute)
