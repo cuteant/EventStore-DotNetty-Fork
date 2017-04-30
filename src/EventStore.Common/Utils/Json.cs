@@ -36,7 +36,8 @@ namespace EventStore.Common.Utils
 
       _jsonFormatter = new JsonMessageFormatter()
       {
-        DefaultSerializerSettings = JsonSettings
+        DefaultSerializerSettings = JsonSettings,
+        Indent = true
       };
     }
 

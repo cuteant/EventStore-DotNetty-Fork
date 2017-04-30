@@ -35,7 +35,8 @@ namespace EventStore.ClientAPI.Common.Utils
 
       _jsonFormatter = new JsonMessageFormatter()
       {
-        DefaultSerializerSettings = JsonSettings
+        DefaultSerializerSettings = JsonSettings,
+        Indent = true
       };
     }
 
@@ -87,7 +88,7 @@ namespace EventStore.ClientAPI.Common.Utils
       }
       else
       {
-        var settings =  new JsonSerializerSettings { Converters = converters };
+        var settings = new JsonSerializerSettings { Converters = converters };
         var jsonSerializer = JsonSerializer.Create(settings);
         return jsonSerializer.Deserialize(new JTokenReader(value), type);
       }
