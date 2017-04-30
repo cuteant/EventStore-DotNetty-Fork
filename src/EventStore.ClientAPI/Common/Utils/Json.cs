@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Xml;
+using CuteAnt.Extensions.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -10,26 +11,38 @@ namespace EventStore.ClientAPI.Common.Utils
 {
   static class Json
   {
-    public static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+    public static readonly JsonSerializerSettings JsonSettings;
+    private static readonly JsonMessageFormatter _jsonFormatter;
+
+    static Json()
     {
-      ContractResolver = new CamelCasePropertyNamesContractResolver(),
-      DateFormatHandling = DateFormatHandling.IsoDateFormat,
-      NullValueHandling = NullValueHandling.Ignore,
-      DefaultValueHandling = DefaultValueHandling.Ignore,
-      MissingMemberHandling = MissingMemberHandling.Ignore,
-      TypeNameHandling = TypeNameHandling.None,
-      Converters = new JsonConverter[]
+      JsonSettings = new JsonSerializerSettings
       {
-        new StringEnumConverter(),
-        new Newtonsoft.Json.Converters.IPAddressConverter(),
-        new Newtonsoft.Json.Converters.IPEndPointConverter(),
-        new CombGuidConverter()
-      }
-    };
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        DateFormatHandling = DateFormatHandling.IsoDateFormat,
+        NullValueHandling = NullValueHandling.Ignore,
+        DefaultValueHandling = DefaultValueHandling.Ignore,
+        MissingMemberHandling = MissingMemberHandling.Ignore,
+        TypeNameHandling = TypeNameHandling.None,
+        Converters = new JsonConverter[]
+        {
+          new StringEnumConverter(),
+          new Newtonsoft.Json.Converters.IPAddressConverter(),
+          new Newtonsoft.Json.Converters.IPEndPointConverter(),
+          new CombGuidConverter()
+        }
+      };
+
+      _jsonFormatter = new JsonMessageFormatter()
+      {
+        DefaultSerializerSettings = JsonSettings
+      };
+    }
 
     public static byte[] ToJsonBytes(this object source)
     {
-      return JsonConvertX.SerializeObjectToBytes(source, Formatting.Indented, JsonSettings);
+      //return JsonConvertX.SerializeObjectToBytes(source, Formatting.Indented, JsonSettings);
+      return _jsonFormatter.SerializeToBytes(source);
     }
 
     public static string ToJson(this object source)
@@ -49,7 +62,8 @@ namespace EventStore.ClientAPI.Common.Utils
 
     public static T ParseJson<T>(this byte[] json)
     {
-      return JsonConvertX.ParseJson<T>(json, JsonSettings);
+      //return JsonConvertX.ParseJson<T>(json, JsonSettings);
+      return _jsonFormatter.DeserializeFromBytes<T>(json);
     }
 
     public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
