@@ -44,7 +44,7 @@ namespace EventStore.Core.Tests.ClientAPI
             _dropReason = SubscriptionDropReason.Unknown;
             _dropException = null;
 
-            var settings = new CatchUpSubscriptionSettings(1, 1, false, false);
+            var settings = new CatchUpSubscriptionSettings(1, 1, false, false, String.Empty);
             _subscription = new EventStoreStreamCatchUpSubscription(_connection, NullLogger.Instance, StreamId, null, null,
                 (subscription, ev) =>
                 {
@@ -553,7 +553,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
         public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, bool resolveLinkTos,
             Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-            UserCredentials userCredentials = null, int readBatchSize = 500)
+            UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "")
         {
             throw new NotImplementedException();
         }
@@ -585,7 +585,8 @@ namespace EventStore.Core.Tests.ClientAPI
 
         public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, bool resolveLinkTos, Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
             Action<EventStoreCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null,
-            int readBatchSize = 500)
+            int readBatchSize = 500,
+            string subscriptionName = "")
         {
             throw new NotImplementedException();
         }
