@@ -4,7 +4,6 @@ using CuteAnt.Extensions.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using Formatting = Newtonsoft.Json.Formatting;
 
 namespace EventStore.ClientAPI.Common.Utils
@@ -18,12 +17,18 @@ namespace EventStore.ClientAPI.Common.Utils
     {
       JsonSettings = new JsonSerializerSettings
       {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+        ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
+
         DateFormatHandling = DateFormatHandling.IsoDateFormat,
         NullValueHandling = NullValueHandling.Ignore,
         DefaultValueHandling = DefaultValueHandling.Ignore,
         MissingMemberHandling = MissingMemberHandling.Ignore,
         TypeNameHandling = TypeNameHandling.None,
+
+        PreserveReferencesHandling = PreserveReferencesHandling.None,
+        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+        FloatParseHandling = FloatParseHandling.Decimal,
+
         Converters = new JsonConverter[]
         {
           new StringEnumConverter(),

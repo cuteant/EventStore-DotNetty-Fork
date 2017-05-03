@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
-using Microsoft.Extensions.Logging;
+using CuteAnt.Extensions.Serialization;
 using EventStore.Common.Utils;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace EventStore.Transport.Http.Codecs
 {
@@ -15,12 +15,18 @@ namespace EventStore.Transport.Http.Codecs
     private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
     private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
     {
-      ContractResolver = new CamelCasePropertyNamesContractResolver(),
+      ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
+
       DateParseHandling = DateParseHandling.None,
       NullValueHandling = NullValueHandling.Ignore,
       DefaultValueHandling = DefaultValueHandling.Ignore,
       MissingMemberHandling = MissingMemberHandling.Ignore,
       TypeNameHandling = TypeNameHandling.None,
+
+      PreserveReferencesHandling = PreserveReferencesHandling.None,
+      ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+      FloatParseHandling = FloatParseHandling.Decimal,
+
       Converters = new JsonConverter[]
       {
         new StringEnumConverter(),
@@ -32,12 +38,18 @@ namespace EventStore.Transport.Http.Codecs
 
     public static readonly JsonSerializerSettings ToSettings = new JsonSerializerSettings
     {
-      ContractResolver = new CamelCasePropertyNamesContractResolver(),
+      ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
+
       DateFormatHandling = DateFormatHandling.IsoDateFormat,
       NullValueHandling = NullValueHandling.Ignore,
       DefaultValueHandling = DefaultValueHandling.Include,
       MissingMemberHandling = MissingMemberHandling.Ignore,
       TypeNameHandling = TypeNameHandling.None,
+
+      PreserveReferencesHandling = PreserveReferencesHandling.None,
+      ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+      FloatParseHandling = FloatParseHandling.Decimal,
+
       Converters = new JsonConverter[]
       {
         new StringEnumConverter(),
