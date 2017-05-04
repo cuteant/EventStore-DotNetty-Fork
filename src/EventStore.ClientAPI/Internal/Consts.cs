@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-    internal static class Consts
+    public static class Consts
     {
         public const int DefaultMaxQueueSize = 5000;
         public const int DefaultMaxConcurrentItems = 5000;

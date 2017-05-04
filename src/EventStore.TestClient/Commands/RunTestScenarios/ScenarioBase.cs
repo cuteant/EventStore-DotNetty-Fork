@@ -84,14 +84,14 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
       _connections = new IEventStoreConnection[connections];
 
       Log.LogInformation("Projection manager points to {0}.", _nodeConnection);
-      _projectionsManager = new ProjectionsManager(TraceLogger.GetLogger("Scenarios"), new IPEndPoint(_nodeConnection.IpAddress, _nodeConnection.HttpPort), TimeSpan.FromMilliseconds(5000));
+      _projectionsManager = new ProjectionsManager(new IPEndPoint(_nodeConnection.IpAddress, _nodeConnection.HttpPort), TimeSpan.FromMilliseconds(5000)); // TraceLogger.GetLogger("Scenarios")
 
       _writeHandlers = new Dictionary<WriteMode, Func<string, int, Func<int, EventData>, Task>>
-            {
-                    {WriteMode.SingleEventAtTime, WriteSingleEventAtTime},
-                    {WriteMode.Bucket, WriteBucketOfEventsAtTime},
-                    {WriteMode.Transactional, WriteEventsInTransactionalWay}
-            };
+      {
+        {WriteMode.SingleEventAtTime, WriteSingleEventAtTime},
+        {WriteMode.Bucket, WriteBucketOfEventsAtTime},
+        {WriteMode.Transactional, WriteEventsInTransactionalWay}
+      };
     }
 
     private static string CreateNewDbPath(string dbParentPath)

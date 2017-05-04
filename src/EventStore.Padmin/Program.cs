@@ -82,7 +82,7 @@ namespace EventStore.PAdmin
         var port = int.Parse(config["http-port"]);
         var endPoint = new IPEndPoint(ip, port);
 
-        var manager = new ProjectionsManager(TraceLogger.GetLogger<Program>(), endPoint, TimeSpan.FromMilliseconds(5000));
+        var manager = new ProjectionsManager(endPoint, TimeSpan.FromMilliseconds(5000));
         Execute(manager, args);
         return true;
       }
