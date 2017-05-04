@@ -27,14 +27,13 @@ namespace EventStore.ClientAPI.ClientOperations
     protected abstract InspectionResult InspectResponse(TResponse response);
     protected abstract TResult TransformResponse(TResponse response);
 
-    protected OperationBase(ILogger log, TaskCompletionSource<TResult> source,
+    protected OperationBase(TaskCompletionSource<TResult> source,
                             TcpCommand requestCommand, TcpCommand responseCommand,
                             UserCredentials userCredentials)
     {
-      Ensure.NotNull(log, "log");
       Ensure.NotNull(source, "source");
 
-      Log = log;
+      Log = TraceLogger.GetLogger(this.GetType());
       _source = source;
       _requestCommand = requestCommand;
       _responseCommand = responseCommand;

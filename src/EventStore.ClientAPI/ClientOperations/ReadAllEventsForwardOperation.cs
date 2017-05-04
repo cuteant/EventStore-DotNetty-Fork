@@ -14,10 +14,10 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _resolveLinkTos;
         private readonly bool _requireMaster;
 
-        public ReadAllEventsForwardOperation(ILogger log, TaskCompletionSource<AllEventsSlice> source,
+        public ReadAllEventsForwardOperation(TaskCompletionSource<AllEventsSlice> source,
                                              Position position, int maxCount, bool resolveLinkTos, bool requireMaster,
                                              UserCredentials userCredentials)
-            : base(log, source, TcpCommand.ReadAllEventsForward, TcpCommand.ReadAllEventsForwardCompleted, userCredentials)
+            : base(source, TcpCommand.ReadAllEventsForward, TcpCommand.ReadAllEventsForwardCompleted, userCredentials)
         {
             _position = position;
             _maxCount = maxCount;

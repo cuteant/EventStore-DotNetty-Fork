@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.UserManagement
 {
@@ -24,12 +23,11 @@ namespace EventStore.ClientAPI.UserManagement
         /// <param name="log">An instance of <see cref="ILogger"/> to use for logging.</param>
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="operationTimeout"></param>
-        public UsersManager(ILogger log, IPEndPoint httpEndPoint, TimeSpan operationTimeout)
+        public UsersManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
         {
-            Ensure.NotNull(log, "log");
             Ensure.NotNull(httpEndPoint, "httpEndPoint");
 
-            _client = new UsersClient(log, operationTimeout);
+            _client = new UsersClient(operationTimeout);
             _httpEndPoint = httpEndPoint;
         }
 

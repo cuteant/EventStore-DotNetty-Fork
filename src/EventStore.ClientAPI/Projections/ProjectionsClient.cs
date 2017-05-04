@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 
@@ -16,7 +15,7 @@ namespace EventStore.ClientAPI.Projections
         private readonly HttpAsyncClient _client;
         private readonly TimeSpan _operationTimeout;
 
-        public ProjectionsClient(ILogger log, TimeSpan operationTimeout)
+        public ProjectionsClient(TimeSpan operationTimeout)
         {
             _operationTimeout = operationTimeout;
             _client = new HttpAsyncClient(_operationTimeout);

@@ -46,47 +46,6 @@ namespace EventStore.ClientAPI
     {
     }
 
-    ///// <summary>
-    ///// Configures the connection to output log messages to the given <see cref="ILogger" />.
-    ///// </summary>
-    ///// <param name="logger">The <see cref="ILogger"/> to use.</param>
-    ///// <returns></returns>
-    //public ConnectionSettingsBuilder UseCustomLogger(ILogger logger)
-    //{
-    //  Ensure.NotNull(logger, "logger");
-    //  _log = logger;
-    //  return this;
-    //}
-
-    ///// <summary>
-    ///// Configures the connection to output log messages to the console.
-    ///// </summary>
-    //public ConnectionSettingsBuilder UseConsoleLogger()
-    //{
-    //  _log = new ConsoleLogger();
-    //  return this;
-    //}
-
-    ///// <summary>
-    ///// Configures the connection to output log messages to the listeners
-    ///// configured on <see cref="System.Diagnostics.Debug" />.
-    ///// </summary>
-    //public ConnectionSettingsBuilder UseDebugLogger()
-    //{
-    //  _log = new DebugLogger();
-    //  return this;
-    //}
-
-
-    ///// <summary>
-    ///// Configures the connection to output log messages to a file.
-    ///// </summary>
-    //public ConnectionSettingsBuilder UseFileLogger(string filename)
-    //{
-    //  _log = new FileLogger(filename);
-    //  return this;
-    //}
-
     /// <summary>
     /// Turns on verbose <see cref="EventStoreConnection"/> internal logic logging.
     /// </summary>

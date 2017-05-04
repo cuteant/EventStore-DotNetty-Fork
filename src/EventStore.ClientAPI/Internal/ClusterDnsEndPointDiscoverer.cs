@@ -15,7 +15,7 @@ namespace EventStore.ClientAPI.Internal
 {
   internal class ClusterDnsEndPointDiscoverer : IEndPointDiscoverer
   {
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger<ClusterDnsEndPointDiscoverer>();
     private readonly string _clusterDns;
     private readonly int _maxDiscoverAttempts;
     private readonly int _managerExternalHttpPort;
@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI.Internal
     private TimeSpan _gossipTimeout;
     private readonly bool _preferRandomNode;
 
-    public ClusterDnsEndPointDiscoverer(ILogger log,
+    public ClusterDnsEndPointDiscoverer(
                                         string clusterDns,
                                         int maxDiscoverAttempts,
                                         int managerExternalHttpPort,
@@ -34,9 +34,6 @@ namespace EventStore.ClientAPI.Internal
                                         TimeSpan gossipTimeout,
                                         bool preferRandomNode)
     {
-      Ensure.NotNull(log, nameof(log));
-
-      _log = log;
       _clusterDns = clusterDns;
       _maxDiscoverAttempts = maxDiscoverAttempts;
       _managerExternalHttpPort = managerExternalHttpPort;

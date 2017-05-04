@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.ClientAPI.Common.Utils;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
@@ -35,8 +34,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
             return socketArgs;
         }
 
-        public ITcpConnection ConnectTo(ILogger log,
-                                        Guid connectionId,
+        public ITcpConnection ConnectTo(Guid connectionId,
                                         IPEndPoint remoteEndPoint,
                                         bool ssl,
                                         string targetHost,
@@ -51,11 +49,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
             {
                 Ensure.NotNullOrEmpty(targetHost, "targetHost");
                 return TcpConnectionSsl.CreateConnectingConnection(
-                        log, connectionId, remoteEndPoint, targetHost, validateServer,
+                        connectionId, remoteEndPoint, targetHost, validateServer,
                         this, timeout, onConnectionEstablished, onConnectionFailed, onConnectionClosed);
             }
             return TcpConnection.CreateConnectingConnection(
-                    log, connectionId, remoteEndPoint, this, timeout,
+                    connectionId, remoteEndPoint, this, timeout,
                     onConnectionEstablished, onConnectionFailed, onConnectionClosed);
         }
 

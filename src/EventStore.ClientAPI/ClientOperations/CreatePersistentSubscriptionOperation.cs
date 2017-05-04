@@ -28,13 +28,13 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly int _maxSubscriberCount;
         private readonly string _namedConsumerStrategy;
 
-        public CreatePersistentSubscriptionOperation(ILogger log,
+        public CreatePersistentSubscriptionOperation(
                                        TaskCompletionSource<PersistentSubscriptionCreateResult> source,
                                        string stream,
                                        string groupName,
                                        PersistentSubscriptionSettings settings,
                                        UserCredentials userCredentials)
-            : base(log, source, TcpCommand.CreatePersistentSubscription, TcpCommand.CreatePersistentSubscriptionCompleted, userCredentials)
+            : base(source, TcpCommand.CreatePersistentSubscription, TcpCommand.CreatePersistentSubscriptionCompleted, userCredentials)
         {
             Ensure.NotNull(settings, "settings");
             _resolveLinkTos = settings.ResolveLinkTos;

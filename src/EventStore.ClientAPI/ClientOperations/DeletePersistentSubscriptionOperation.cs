@@ -13,12 +13,12 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly string _stream;
         private readonly string _groupName;
 
-        public DeletePersistentSubscriptionOperation(ILogger log,
+        public DeletePersistentSubscriptionOperation(
                                        TaskCompletionSource<PersistentSubscriptionDeleteResult> source,
                                        string stream,
                                        string groupName,
                                        UserCredentials userCredentials)
-            : base(log, source, TcpCommand.DeletePersistentSubscription, TcpCommand.DeletePersistentSubscriptionCompleted, userCredentials)
+            : base(source, TcpCommand.DeletePersistentSubscription, TcpCommand.DeletePersistentSubscriptionCompleted, userCredentials)
         {
             _stream = stream;
             _groupName = groupName;

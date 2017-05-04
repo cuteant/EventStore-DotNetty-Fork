@@ -30,8 +30,7 @@ namespace EventStore.ClientAPI.ClientOperations
     private int _unsubscribed;
     protected Guid _correlationId;
 
-    protected SubscriptionOperation(ILogger log,
-                                       TaskCompletionSource<T> source,
+    protected SubscriptionOperation(TaskCompletionSource<T> source,
                                        string streamId,
                                        bool resolveLinkTos,
                                        UserCredentials userCredentials,
@@ -40,12 +39,11 @@ namespace EventStore.ClientAPI.ClientOperations
                                        bool verboseLogging,
                                        Func<TcpPackageConnection> getConnection)
     {
-      Ensure.NotNull(log, nameof(log));
       Ensure.NotNull(source, nameof(source));
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
       Ensure.NotNull(getConnection, nameof(getConnection));
 
-      _log = log;
+      _log = TraceLogger.GetLogger(this.GetType());
       _source = source;
       _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
       _resolveLinkTos = resolveLinkTos;

@@ -18,14 +18,13 @@ namespace EventStore.ClientAPI.ClientOperations
 
     private bool _wasCommitTimeout;
 
-    public ConditionalAppendToStreamOperation(ILogger log,
-                                                   TaskCompletionSource<ConditionalWriteResult> source,
+    public ConditionalAppendToStreamOperation(TaskCompletionSource<ConditionalWriteResult> source,
                                                    bool requireMaster,
                                                    string stream,
                                                    long expectedVersion,
                                                    IEnumerable<EventData> events,
                                                    UserCredentials userCredentials)
-      : base(log, source, TcpCommand.WriteEvents, TcpCommand.WriteEventsCompleted, userCredentials)
+      : base(source, TcpCommand.WriteEvents, TcpCommand.WriteEventsCompleted, userCredentials)
     {
       _requireMaster = requireMaster;
       _stream = stream;

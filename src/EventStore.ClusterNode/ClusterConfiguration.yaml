@@ -1,4 +1,5 @@
-﻿## Application Options
+﻿---
+## Application Options
 
 # Run-time conditionals.
 #Defines:
@@ -9,8 +10,8 @@
 #  - ALWAYS_KEEP_SCAVENGED
 #  - DISABLE_MERGE_CHUNKS
 
-# Start the built in system projections.
-StartStandardProjections: false
+# Start the built in system projections. Default: false
+StartStandardProjections: true
 # Disable HTTP caching.
 DisableHTTPCaching: false
 
@@ -99,8 +100,8 @@ AlwaysKeepScavenged: false
 
 ## Projections Options
 
-# Enables the running of projections. System runs built-in projections, All runs user projections.
-RunProjections: None                    # None / System / All
+# Enables the running of projections. System runs built-in projections, All runs user projections. Default: None
+RunProjections: All                    # None / System / All
 # The number of threads to use for projections.
 ProjectionThreads: 3
 
@@ -276,3 +277,4 @@ GossipTimeoutMs: 500
 
 
 ## Manager Options
+---

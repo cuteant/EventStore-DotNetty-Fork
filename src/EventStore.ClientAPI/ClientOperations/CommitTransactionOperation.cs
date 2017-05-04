@@ -12,9 +12,9 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _requireMaster;
         private readonly long _transactionId;
 
-        public CommitTransactionOperation(ILogger log, TaskCompletionSource<WriteResult> source,
+        public CommitTransactionOperation(TaskCompletionSource<WriteResult> source,
                                           bool requireMaster, long transactionId, UserCredentials userCredentials)
-            : base(log, source, TcpCommand.TransactionCommit, TcpCommand.TransactionCommitCompleted, userCredentials)
+            : base(source, TcpCommand.TransactionCommit, TcpCommand.TransactionCommitCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _transactionId = transactionId;

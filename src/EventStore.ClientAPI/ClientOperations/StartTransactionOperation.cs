@@ -15,10 +15,10 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly long _expectedVersion;
         private readonly IEventStoreTransactionConnection _parentConnection;
 
-        public StartTransactionOperation(ILogger log, TaskCompletionSource<EventStoreTransaction> source,
+        public StartTransactionOperation(TaskCompletionSource<EventStoreTransaction> source,
                                          bool requireMaster, string stream, long expectedVersion, IEventStoreTransactionConnection parentConnection,
                                          UserCredentials userCredentials)
-            : base(log, source, TcpCommand.TransactionStart, TcpCommand.TransactionStartCompleted, userCredentials)
+            : base(source, TcpCommand.TransactionStart, TcpCommand.TransactionStartCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _stream = stream;

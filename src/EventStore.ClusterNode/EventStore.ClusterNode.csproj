@@ -75,7 +75,7 @@
     </None>
     <None Include="App.config" />
     <None Include="project.json" />
-    <None Include="eventStore.yaml">
+    <None Include="ClusterConfiguration.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="svcreg.cmd">

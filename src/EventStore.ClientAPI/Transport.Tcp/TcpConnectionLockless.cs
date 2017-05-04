@@ -12,8 +12,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 {
   internal class TcpConnectionLockless : TcpConnectionBase, ITcpConnection
   {
-    internal static ITcpConnection CreateConnectingConnection(ILogger log,
-                                                                  Guid connectionId,
+    internal static ITcpConnection CreateConnectingConnection(Guid connectionId,
                                                                   IPEndPoint remoteEndPoint,
                                                                   TcpClientConnector connector,
                                                                   TimeSpan connectionTimeout,
@@ -21,7 +20,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
                                                                   Action<ITcpConnection, SocketError> onConnectionFailed,
                                                                   Action<ITcpConnection, SocketError> onConnectionClosed)
     {
-      var connection = new TcpConnectionLockless(log, connectionId, remoteEndPoint, onConnectionClosed);
+      var connection = new TcpConnectionLockless(connectionId, remoteEndPoint, onConnectionClosed);
       // ReSharper disable ImplicitlyCapturedClosure
       connector.InitConnect(remoteEndPoint,
                             (_, socket) =>
@@ -45,7 +44,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
     public int SendQueueSize { get { return _sendQueue.Count; } }
 
     private readonly Guid _connectionId;
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger<TcpConnectionLockless>();
 
     private Socket _socket;
     private SocketAsyncEventArgs _receiveSocketArgs;
@@ -62,14 +61,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
     private Action<ITcpConnection, IEnumerable<ArraySegment<byte>>> _receiveCallback;
     private readonly Action<ITcpConnection, SocketError> _onConnectionClosed;
 
-    private TcpConnectionLockless(ILogger log, Guid connectionId, IPEndPoint remoteEndPoint,
+    private TcpConnectionLockless(Guid connectionId, IPEndPoint remoteEndPoint,
                                   Action<ITcpConnection, SocketError> onConnectionClosed) : base(remoteEndPoint)
     {
-      Ensure.NotNull(log, "log");
       Ensure.NotEmptyGuid(connectionId, "connectionId");
 
       _connectionId = connectionId;
-      _log = log;
       _onConnectionClosed = onConnectionClosed;
     }
 

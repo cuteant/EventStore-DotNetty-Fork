@@ -6,7 +6,6 @@ using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 
@@ -18,7 +17,7 @@ namespace EventStore.ClientAPI.UserManagement
 
         private readonly TimeSpan _operationTimeout;
 
-        public UsersClient(ILogger log, TimeSpan operationTimeout)
+        public UsersClient(TimeSpan operationTimeout)
         {
             _operationTimeout = operationTimeout;
             _client = new HttpAsyncClient(_operationTimeout);

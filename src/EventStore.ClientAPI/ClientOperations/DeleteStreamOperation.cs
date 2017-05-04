@@ -14,10 +14,10 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly long _expectedVersion;
         private readonly bool _hardDelete;
 
-        public DeleteStreamOperation(ILogger log, TaskCompletionSource<DeleteResult> source,
+        public DeleteStreamOperation(TaskCompletionSource<DeleteResult> source,
                                      bool requireMaster, string stream, long expectedVersion, bool hardDelete,
                                      UserCredentials userCredentials)
-            :base(log, source, TcpCommand.DeleteStream, TcpCommand.DeleteStreamCompleted, userCredentials)
+            :base(source, TcpCommand.DeleteStream, TcpCommand.DeleteStreamCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _stream = stream;

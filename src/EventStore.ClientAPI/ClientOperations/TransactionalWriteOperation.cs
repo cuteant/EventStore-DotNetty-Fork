@@ -15,10 +15,10 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly long _transactionId;
         private readonly IEnumerable<EventData> _events;
 
-        public TransactionalWriteOperation(ILogger log, TaskCompletionSource<object> source,
+        public TransactionalWriteOperation(TaskCompletionSource<object> source,
                                            bool requireMaster, long transactionId, IEnumerable<EventData> events,
                                            UserCredentials userCredentials)
-                : base(log, source, TcpCommand.TransactionWrite, TcpCommand.TransactionWriteCompleted, userCredentials)
+                : base(source, TcpCommand.TransactionWrite, TcpCommand.TransactionWriteCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _transactionId = transactionId;

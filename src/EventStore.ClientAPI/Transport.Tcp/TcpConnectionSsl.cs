@@ -17,8 +17,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 {
   internal class TcpConnectionSsl : TcpConnectionBase, ITcpConnection
   {
-    public static ITcpConnection CreateConnectingConnection(ILogger log,
-                                                                Guid connectionId,
+    public static ITcpConnection CreateConnectingConnection(Guid connectionId,
                                                                 IPEndPoint remoteEndPoint,
                                                                 string targetHost,
                                                                 bool validateServer,
@@ -28,7 +27,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
                                                                 Action<ITcpConnection, SocketError> onConnectionFailed,
                                                                 Action<ITcpConnection, SocketError> onConnectionClosed)
     {
-      var connection = new TcpConnectionSsl(log, connectionId, remoteEndPoint, onConnectionClosed);
+      var connection = new TcpConnectionSsl(connectionId, remoteEndPoint, onConnectionClosed);
       // ReSharper disable ImplicitlyCapturedClosure
       connector.InitConnect(remoteEndPoint,
                             (_, socket) =>
@@ -50,7 +49,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
     public int SendQueueSize { get { return _sendQueue.Count; } }
 
     private readonly Guid _connectionId;
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger<TcpConnectionSsl>();
 
     private readonly ConcurrentQueue<ArraySegment<byte>> _sendQueue = new ConcurrentQueue<ArraySegment<byte>>();
     private readonly ConcurrentQueue<ArraySegment<byte>> _receiveQueue = new ConcurrentQueue<ArraySegment<byte>>();
@@ -70,13 +69,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
     private bool _validateServer;
     private readonly byte[] _receiveBuffer = new byte[TcpConfiguration.SocketBufferSize];
 
-    private TcpConnectionSsl(ILogger log, Guid connectionId, IPEndPoint remoteEndPoint,
+    private TcpConnectionSsl(Guid connectionId, IPEndPoint remoteEndPoint,
                                Action<ITcpConnection, SocketError> onConnectionClosed) : base(remoteEndPoint)
     {
-      Ensure.NotNull(log, "log");
       Ensure.NotEmptyGuid(connectionId, "connectionId");
 
-      _log = log;
       _connectionId = connectionId;
       _onConnectionClosed = onConnectionClosed;
     }

@@ -15,10 +15,10 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _resolveLinkTos;
         private readonly bool _requireMaster;
 
-        public ReadStreamEventsBackwardOperation(ILogger log, TaskCompletionSource<StreamEventsSlice> source,
+        public ReadStreamEventsBackwardOperation(TaskCompletionSource<StreamEventsSlice> source,
                                                  string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
                                                  bool requireMaster, UserCredentials userCredentials)
-            : base(log, source, TcpCommand.ReadStreamEventsBackward, TcpCommand.ReadStreamEventsBackwardCompleted, userCredentials)
+            : base(source, TcpCommand.ReadStreamEventsBackward, TcpCommand.ReadStreamEventsBackwardCompleted, userCredentials)
         {
             _stream = stream;
             _fromEventNumber = fromEventNumber;

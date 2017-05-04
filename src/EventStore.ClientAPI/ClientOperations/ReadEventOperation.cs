@@ -14,9 +14,9 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _resolveLinkTo;
         private readonly bool _requireMaster;
 
-        public ReadEventOperation(ILogger log, TaskCompletionSource<EventReadResult> source,
+        public ReadEventOperation(TaskCompletionSource<EventReadResult> source,
                                   string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
-            : base(log, source, TcpCommand.ReadEvent, TcpCommand.ReadEventCompleted, userCredentials)
+            : base(source, TcpCommand.ReadEvent, TcpCommand.ReadEventCompleted, userCredentials)
         {
             _stream = stream;
             _eventNumber = eventNumber;

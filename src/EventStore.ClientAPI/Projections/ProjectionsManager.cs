@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Projections
 {
@@ -23,12 +22,11 @@ namespace EventStore.ClientAPI.Projections
     /// <param name="log">An instance of <see cref="ILogger"/> to use for logging.</param>
     /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
     /// <param name="operationTimeout"></param>
-    public ProjectionsManager(ILogger log, IPEndPoint httpEndPoint, TimeSpan operationTimeout)
+    public ProjectionsManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
     {
-      Ensure.NotNull(log, nameof(log));
       Ensure.NotNull(httpEndPoint, nameof(httpEndPoint));
 
-      _client = new ProjectionsClient(log, operationTimeout);
+      _client = new ProjectionsClient(operationTimeout);
       _httpEndPoint = httpEndPoint;
     }
 

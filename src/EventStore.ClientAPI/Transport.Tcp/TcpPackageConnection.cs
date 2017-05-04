@@ -19,15 +19,14 @@ namespace EventStore.ClientAPI.Transport.Tcp
     public IPEndPoint LocalEndPoint { get { return _connection.LocalEndPoint; } }
     public readonly Guid ConnectionId;
 
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger<TcpPackageConnection>();
     private readonly Action<TcpPackageConnection, TcpPackage> _handlePackage;
     private readonly Action<TcpPackageConnection, Exception> _onError;
 
     private readonly LengthPrefixMessageFramer _framer;
     private readonly ITcpConnection _connection;
 
-    public TcpPackageConnection(ILogger log,
-                                IPEndPoint remoteEndPoint,
+    public TcpPackageConnection(IPEndPoint remoteEndPoint,
                                 Guid connectionId,
                                 bool ssl,
                                 string targetHost,
@@ -38,7 +37,6 @@ namespace EventStore.ClientAPI.Transport.Tcp
                                 Action<TcpPackageConnection> connectionEstablished,
                                 Action<TcpPackageConnection, SocketError> connectionClosed)
     {
-      Ensure.NotNull(log, "log");
       Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
       Ensure.NotEmptyGuid(connectionId, "connectionId");
       Ensure.NotNull(handlePackage, "handlePackage");
@@ -46,7 +44,6 @@ namespace EventStore.ClientAPI.Transport.Tcp
         Ensure.NotNullOrEmpty(targetHost, "targetHost");
 
       ConnectionId = connectionId;
-      _log = log;
       _handlePackage = handlePackage;
       _onError = onError;
 
@@ -57,7 +54,6 @@ namespace EventStore.ClientAPI.Transport.Tcp
       var connectionCreated = new ManualResetEventSlim();
       // ReSharper disable ImplicitlyCapturedClosure
       _connection = Connector.ConnectTo(
-          log,
           connectionId,
           remoteEndPoint,
           ssl,
@@ -67,27 +63,27 @@ namespace EventStore.ClientAPI.Transport.Tcp
           tcpConnection =>
           {
             connectionCreated.Wait();
-            if (log.IsDebugLevelEnabled())
+            if (_log.IsDebugLevelEnabled())
             {
-              log.LogDebug("TcpPackageConnection: connected to [{0}, L{1}, {2:B}].", tcpConnection.RemoteEndPoint, tcpConnection.LocalEndPoint, connectionId);
+              _log.LogDebug("TcpPackageConnection: connected to [{0}, L{1}, {2:B}].", tcpConnection.RemoteEndPoint, tcpConnection.LocalEndPoint, connectionId);
             }
             connectionEstablished?.Invoke(this);
           },
           (conn, error) =>
           {
             connectionCreated.Wait();
-            if (log.IsDebugLevelEnabled())
+            if (_log.IsDebugLevelEnabled())
             {
-              log.LogDebug("TcpPackageConnection: connection to [{0}, L{1}, {2:B}] failed. Error: {3}.", conn.RemoteEndPoint, conn.LocalEndPoint, connectionId, error);
+              _log.LogDebug("TcpPackageConnection: connection to [{0}, L{1}, {2:B}] failed. Error: {3}.", conn.RemoteEndPoint, conn.LocalEndPoint, connectionId, error);
             }
             connectionClosed?.Invoke(this, error);
           },
           (conn, error) =>
           {
             connectionCreated.Wait();
-            if (log.IsDebugLevelEnabled())
+            if (_log.IsDebugLevelEnabled())
             {
-              log.LogDebug("TcpPackageConnection: connection [{0}, L{1}, {2:B}] was closed {3}", conn.RemoteEndPoint, conn.LocalEndPoint,
+              _log.LogDebug("TcpPackageConnection: connection [{0}, L{1}, {2:B}] was closed {3}", conn.RemoteEndPoint, conn.LocalEndPoint,
                             ConnectionId, error == SocketError.Success ? "cleanly." : "with error: " + error + ".");
             }
 

@@ -99,8 +99,7 @@ namespace EventStore.ClientAPI
         Ensure.NotNull(connectionSettings, "connectionSettings");
         Ensure.NotNull(clusterSettings, "clusterSettings");
 
-        var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(connectionSettings.Log,
-                                                                  clusterSettings.ClusterDns,
+        var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                   clusterSettings.MaxDiscoverAttempts,
                                                                   clusterSettings.ExternalGossipPort,
                                                                   clusterSettings.GossipSeeds,
@@ -128,7 +127,7 @@ namespace EventStore.ClientAPI
         Ensure.NotNull(connectionSettings, "connectionSettings");
         Ensure.NotNull(clusterSettings, "clusterSettings");
 
-        var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(connectionSettings.Log,
+        var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(
             clusterSettings.ClusterDns,
             clusterSettings.MaxDiscoverAttempts,
             clusterSettings.ExternalGossipPort,
@@ -212,8 +211,7 @@ namespace EventStore.ClientAPI
       Ensure.NotNull(connectionSettings, "connectionSettings");
       Ensure.NotNull(clusterSettings, "clusterSettings");
 
-      var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(connectionSettings.Log,
-                                                                clusterSettings.ClusterDns,
+      var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                 clusterSettings.MaxDiscoverAttempts,
                                                                 clusterSettings.ExternalGossipPort,
                                                                 clusterSettings.GossipSeeds,

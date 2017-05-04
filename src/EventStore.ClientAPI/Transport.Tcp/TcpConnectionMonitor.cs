@@ -8,7 +8,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 {
   internal class TcpConnectionMonitor
   {
-    private static TcpConnectionMonitor _default = new TcpConnectionMonitor(NullLogger.Instance);
+    private static TcpConnectionMonitor _default = new TcpConnectionMonitor();
     public static TcpConnectionMonitor Default { get { return _default; } }
 
     public static void SetDefault(TcpConnectionMonitor monitor)
@@ -17,7 +17,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
       _default = monitor;
     }
 
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger<TcpConnectionMonitor>();
     private readonly object _statsLock = new object();
 
     private readonly ConcurrentDictionary<IMonitoredTcpConnection, ConnectionData> _connections = new ConcurrentDictionary<IMonitoredTcpConnection, ConnectionData>();
@@ -33,10 +33,8 @@ namespace EventStore.ClientAPI.Transport.Tcp
     private bool _anySendBlockedOnLastRun;
     private DateTime _lastUpdateTime;
 
-    private TcpConnectionMonitor(ILogger log)
+    private TcpConnectionMonitor()
     {
-      Ensure.NotNull(log, "log");
-      _log = log;
     }
 
     public void Register(IMonitoredTcpConnection connection)
@@ -85,15 +83,15 @@ namespace EventStore.ClientAPI.Transport.Tcp
                                measurePeriod);
 
 #if DUMP_STATISTICS
-            _log.Debug("\n# Total connections: {0,3}. Out: {1:0.00}b/s  In: {2:0.00}b/s  Pending Send: {3}  " +
-                       "In Send: {4}  Pending Received: {5} Measure Time: {6}",
-                       stats.Connections,
-                       stats.SendingSpeed,
-                       stats.ReceivingSpeed,
-                       stats.PendingSend,
-                       stats.InSend,
-                       stats.PendingSend,
-                       stats.MeasureTime);
+      _log.Debug("\n# Total connections: {0,3}. Out: {1:0.00}b/s  In: {2:0.00}b/s  Pending Send: {3}  " +
+                  "In Send: {4}  Pending Received: {5} Measure Time: {6}",
+                  stats.Connections,
+                  stats.SendingSpeed,
+                  stats.ReceivingSpeed,
+                  stats.PendingSend,
+                  stats.InSend,
+                  stats.PendingSend,
+                  stats.MeasureTime);
 #endif
       return stats;
     }

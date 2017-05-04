@@ -149,7 +149,6 @@ namespace EventStore.ClientAPI.Internal
 
       _connectingPhase = ConnectingPhase.ConnectionEstablishing;
       _connection = new TcpPackageConnection(
-              _settings.Log,
               endPoint,
               Guid.NewGuid(),
               _settings.UseSslConnection,
@@ -415,7 +414,7 @@ namespace EventStore.ClientAPI.Internal
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
-          var operation = new VolatileSubscriptionOperation(_settings.Log, msg.Source, msg.StreamId, msg.ResolveLinkTos,
+          var operation = new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.ResolveLinkTos,
                                                     msg.UserCredentials, msg.EventAppeared, msg.SubscriptionDropped,
                                                     _settings.VerboseLogging, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
@@ -441,7 +440,7 @@ namespace EventStore.ClientAPI.Internal
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
-          var operation = new ConnectToPersistentSubscriptionOperation(_settings.Log, msg.Source, msg.SubscriptionId, msg.BufferSize, msg.StreamId,
+          var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.BufferSize, msg.StreamId,
                                                     msg.UserCredentials, msg.EventAppeared, msg.SubscriptionDropped,
                                                     _settings.VerboseLogging, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
