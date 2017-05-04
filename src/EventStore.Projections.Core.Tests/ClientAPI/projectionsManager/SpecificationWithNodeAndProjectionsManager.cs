@@ -51,7 +51,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.projectionsManager
 
             try
             {
-                _projManager = new ProjectionsManager(NullLogger.Instance, _node.ExtHttpEndPoint, _timeout);
+                _projManager = new ProjectionsManager(_node.ExtHttpEndPoint, _timeout);
                 Given();
                 When();
             }

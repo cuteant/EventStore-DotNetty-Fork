@@ -29,7 +29,7 @@ namespace EventStore.ClientAPI.Embedded
         protected Guid CorrelationId;
 
         protected EmbeddedSubscriptionBase(
-            ILogger log, IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
+            IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
             string streamId, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
             Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
         {
@@ -41,7 +41,7 @@ namespace EventStore.ClientAPI.Embedded
             Publisher = publisher;
             StreamId = streamId;
             ConnectionId = connectionId;
-            _log = log;
+            _log = TraceLogger.GetLogger(this.GetType());
             _source = source;
             _eventAppeared = eventAppeared;
             _subscriptionDropped = subscriptionDropped ?? ((a, b, c) => { });

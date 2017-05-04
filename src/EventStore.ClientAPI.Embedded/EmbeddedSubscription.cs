@@ -9,7 +9,6 @@ using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {
@@ -21,11 +20,11 @@ namespace EventStore.ClientAPI.Embedded
 
 
         public EmbeddedSubscription(
-            ILogger log, IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
+            IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
             string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
             bool resolveLinkTos, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
             Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
-            : base(log, publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
+            : base(publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
         {
             _userCredentials = userCredentials;
             _authenticationProvider = authenticationProvider;

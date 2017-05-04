@@ -46,6 +46,7 @@ namespace EventStore.ClientAPI.Internal
 
   internal class SubscriptionsManager
   {
+    private static readonly ILogger s_logger = TraceLogger.GetLogger<SubscriptionsManager>();
     private readonly string _connectionName;
     private readonly ConnectionSettings _settings;
     private readonly Dictionary<Guid, SubscriptionItem> _activeSubscriptions = new Dictionary<Guid, SubscriptionItem>();
@@ -111,7 +112,7 @@ namespace EventStore.ClientAPI.Internal
           var err = String.Format("EventStoreConnection '{0}': subscription never got confirmation from server.\n" +
                                   "UTC now: {1:HH:mm:ss.fff}, operation: {2}.",
                                   _connectionName, DateTime.UtcNow, subscription);
-          _settings.Log.LogError(err);
+          s_logger.LogError(err);
 
           if (_settings.FailOnNoServerResponse)
           {
@@ -212,9 +213,9 @@ namespace EventStore.ClientAPI.Internal
 
     private void LogDebug(string message, params object[] parameters)
     {
-      if (_settings.VerboseLogging && _settings.Log.IsDebugLevelEnabled())
+      if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
       {
-        _settings.Log.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
+        s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
       }
     }
   }

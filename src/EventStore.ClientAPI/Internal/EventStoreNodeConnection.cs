@@ -297,7 +297,7 @@ namespace EventStore.ClientAPI.Internal
             Ensure.NotNull(settings, "settings");
             Ensure.NotNull(eventAppeared, "eventAppeared");
             var catchUpSubscription =
-                    new EventStoreStreamCatchUpSubscription(this, _settings.Log, stream, lastCheckpoint,
+                    new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppeared, liveProcessingStarted,
                                                             subscriptionDropped, settings);
             catchUpSubscription.Start();
@@ -345,7 +345,7 @@ namespace EventStore.ClientAPI.Internal
             Ensure.NotNull(eventAppeared, "eventAppeared");
             Ensure.NotNull(settings, "settings");
             var catchUpSubscription =
-                    new EventStoreAllCatchUpSubscription(this, _settings.Log, lastCheckpoint,
+                    new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppeared, liveProcessingStarted,
                                                          subscriptionDropped, settings);
             catchUpSubscription.Start();
@@ -366,7 +366,7 @@ namespace EventStore.ClientAPI.Internal
             Ensure.NotNull(eventAppeared, "eventAppeared");
 
             var subscription = new EventStorePersistentSubscription(
-                groupName, stream, eventAppeared, subscriptionDropped, userCredentials, _settings.Log,
+                groupName, stream, eventAppeared, subscriptionDropped, userCredentials,
                 _settings.VerboseLogging, _settings, _handler, bufferSize, autoAck);
 
             subscription.Start().Wait();
@@ -387,7 +387,7 @@ namespace EventStore.ClientAPI.Internal
             Ensure.NotNull(eventAppeared, "eventAppeared");
 
             var subscription = new EventStorePersistentSubscription(
-                groupName, stream, eventAppeared, subscriptionDropped, userCredentials, _settings.Log,
+                groupName, stream, eventAppeared, subscriptionDropped, userCredentials,
                 _settings.VerboseLogging, _settings, _handler, bufferSize, autoAck);
 
             return subscription.Start();

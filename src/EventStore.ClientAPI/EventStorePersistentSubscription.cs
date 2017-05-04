@@ -15,10 +15,10 @@ namespace EventStore.ClientAPI
         string subscriptionId, string streamId,
         Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
         Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-        UserCredentials userCredentials, ILogger log, bool verboseLogging, ConnectionSettings settings,
+        UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
         EventStoreConnectionLogicHandler handler, int bufferSize = 10, bool autoAck = true)
         : base(
-            subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, log, verboseLogging,
+            subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, verboseLogging,
             settings, bufferSize, autoAck)
     {
       _handler = handler;

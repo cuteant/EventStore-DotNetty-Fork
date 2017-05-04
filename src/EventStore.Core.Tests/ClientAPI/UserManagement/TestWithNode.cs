@@ -20,7 +20,7 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
             base.TestFixtureSetUp();
             _node = new MiniNode(PathName);
             _node.Start();
-            _manager = new UsersManager(NullLogger.Instance, _node.ExtHttpEndPoint, TimeSpan.FromSeconds(5));
+            _manager = new UsersManager(_node.ExtHttpEndPoint, TimeSpan.FromSeconds(5));
         }
 
         [OneTimeTearDown]

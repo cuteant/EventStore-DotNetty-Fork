@@ -41,7 +41,6 @@ namespace EventStore.ClientAPI
         Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
         Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
         UserCredentials userCredentials,
-        ILogger log,
         bool verboseLogging,
         ConnectionSettings settings,
         int bufferSize = 10,
@@ -52,7 +51,7 @@ namespace EventStore.ClientAPI
       _eventAppeared = eventAppeared;
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
-      _log = log;
+      _log = TraceLogger.GetLogger(this.GetType());
       _verbose = verboseLogging;
       _settings = settings;
       _bufferSize = bufferSize;

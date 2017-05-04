@@ -12,7 +12,6 @@ namespace EventStore.ClientAPI
   /// </summary>
   public class ConnectionSettingsBuilder
   {
-    private static readonly ILogger _log = TraceLogger.GetLogger<ConnectionSettingsBuilder>();
     private bool _verboseLogging;
 
     private int _maxQueueSize = Consts.DefaultMaxQueueSize;
@@ -388,8 +387,7 @@ namespace EventStore.ClientAPI
     /// </summary>
     public ConnectionSettings Build()
     {
-      return new ConnectionSettings(_log,
-                                    _verboseLogging,
+      return new ConnectionSettings(_verboseLogging,
                                     _maxQueueSize,
                                     _maxConcurrentItems,
                                     _maxRetries,

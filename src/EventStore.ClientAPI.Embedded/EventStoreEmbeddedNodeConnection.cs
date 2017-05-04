@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI.Embedded
             _publisher = publisher;
             _authenticationProvider = authenticationProvider;
             _subscriptionBus = new InMemoryBus("Embedded Client Subscriptions");
-            _subscriptions = new EmbeddedSubscriber(_subscriptionBus, _authenticationProvider, _settings.Log, connectionId);
+            _subscriptions = new EmbeddedSubscriber(_subscriptionBus, _authenticationProvider, connectionId);
 
             _subscriptionBus.Subscribe<ClientMessage.SubscriptionConfirmation>(_subscriptions);
             _subscriptionBus.Subscribe<ClientMessage.SubscriptionDropped>(_subscriptions);
@@ -396,7 +396,7 @@ namespace EventStore.ClientAPI.Embedded
             Ensure.NotNull(settings, "settings");
             Ensure.NotNull(eventAppeared, "eventAppeared");
             var catchUpSubscription =
-                    new EventStoreStreamCatchUpSubscription(this, _settings.Log, stream, lastCheckpoint,
+                    new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppeared, liveProcessingStarted,
                                                             subscriptionDropped, settings);
             catchUpSubscription.Start();
@@ -432,7 +432,7 @@ namespace EventStore.ClientAPI.Embedded
             Ensure.NotNull(eventAppeared, "eventAppeared");
 
             var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppeared, subscriptionDropped,
-                GetUserCredentials(_settings, userCredentials), _settings.Log, _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
+                GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
                 autoAck);
 
             subscription.Start().Wait();
@@ -446,7 +446,7 @@ namespace EventStore.ClientAPI.Embedded
             UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
         {
             var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppeared, subscriptionDropped,
-                GetUserCredentials(_settings, userCredentials), _settings.Log, _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
+                GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
                 autoAck);
 
             return subscription.Start();
@@ -478,7 +478,7 @@ namespace EventStore.ClientAPI.Embedded
             Ensure.NotNull(eventAppeared, "eventAppeared");
             Ensure.NotNull(settings, "settings");
             var catchUpSubscription =
-                    new EventStoreAllCatchUpSubscription(this, _settings.Log, lastCheckpoint,
+                    new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppeared, liveProcessingStarted,
                                                          subscriptionDropped, settings);
             catchUpSubscription.Start();

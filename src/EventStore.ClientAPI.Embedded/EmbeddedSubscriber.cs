@@ -18,15 +18,13 @@ namespace EventStore.ClientAPI.Embedded
         private readonly EmbeddedSubcriptionsManager _subscriptions;
         private readonly IPublisher _publisher;
         private readonly IAuthenticationProvider _authenticationProvider;
-        private readonly ILogger _log;
         private readonly Guid _connectionId;
 
 
-        public EmbeddedSubscriber(IPublisher publisher, IAuthenticationProvider authenticationProvider, ILogger log, Guid connectionId)
+        public EmbeddedSubscriber(IPublisher publisher, IAuthenticationProvider authenticationProvider, Guid connectionId)
         {
             _publisher = publisher;
             _authenticationProvider = authenticationProvider;
-            _log = log;
             _connectionId = connectionId;
             _subscriptions = new EmbeddedSubcriptionsManager();
         }
@@ -83,7 +81,7 @@ namespace EventStore.ClientAPI.Embedded
         public void StartSubscription(Guid correlationId, TaskCompletionSource<EventStoreSubscription> source, string stream, UserCredentials userCredentials, bool resolveLinkTos, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
         {
             var subscription = new EmbeddedSubscription(
-                _log, _publisher, _connectionId, source, stream, userCredentials, _authenticationProvider,
+                _publisher, _connectionId, source, stream, userCredentials, _authenticationProvider,
                 resolveLinkTos, eventAppeared,
                 subscriptionDropped);
 
@@ -92,7 +90,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public void StartPersistentSubscription(Guid correlationId, TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId, UserCredentials userCredentials, int bufferSize, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries, TimeSpan operationTimeout)
         {
-            var subscription = new EmbeddedPersistentSubscription(_log, _publisher, _connectionId, source,
+            var subscription = new EmbeddedPersistentSubscription(_publisher, _connectionId, source,
                 subscriptionId, streamId, userCredentials, _authenticationProvider, bufferSize, eventAppeared,
                 subscriptionDropped, maxRetries, operationTimeout);
 

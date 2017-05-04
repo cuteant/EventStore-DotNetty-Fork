@@ -29,10 +29,10 @@ namespace EventStore.ClientAPI
             return new ConnectionSettingsBuilder();
         }
 
-        /// <summary>
-        /// The <see cref="ILogger"/> that this connection will use
-        /// </summary>
-        public readonly ILogger Log;
+        ///// <summary>
+        ///// The <see cref="ILogger"/> that this connection will use
+        ///// </summary>
+        //public readonly ILogger Log;
         /// <summary>
         /// Whether or not do excessive logging of <see cref="EventStoreConnection"/> internal logic.
         /// </summary>
@@ -132,7 +132,7 @@ namespace EventStore.ClientAPI
         /// </summary>
         public readonly TimeSpan ClientConnectionTimeout;
 
-        internal ConnectionSettings(ILogger log,
+        internal ConnectionSettings(
                                     bool verboseLogging,
                                     int maxQueueSize,
                                     int maxConcurrentItems,
@@ -157,7 +157,6 @@ namespace EventStore.ClientAPI
                                     TimeSpan gossipTimeout,
                                     bool preferRandomNode)
         {
-            Ensure.NotNull(log, "log");
             Ensure.Positive(maxQueueSize, "maxQueueSize");
             Ensure.Positive(maxConcurrentItems, "maxConcurrentItems");
             if (maxRetries < -1)
@@ -166,7 +165,7 @@ namespace EventStore.ClientAPI
                 throw new ArgumentOutOfRangeException("maxReconnections", string.Format("maxReconnections value is out of range: {0}. Allowed range: [-1, infinity].", maxRetries));
             if (useSslConnection)
                 Ensure.NotNullOrEmpty(targetHost, "targetHost");
-            Log = log;
+
             VerboseLogging = verboseLogging;
             MaxQueueSize = maxQueueSize;
             MaxConcurrentItems = maxConcurrentItems;

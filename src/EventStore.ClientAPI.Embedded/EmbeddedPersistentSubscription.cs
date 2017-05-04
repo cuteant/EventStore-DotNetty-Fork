@@ -20,13 +20,13 @@ namespace EventStore.ClientAPI.Embedded
         private string _subscriptionId;
 
         public EmbeddedPersistentSubscription(
-            ILogger log, IPublisher publisher, Guid connectionId,
+            IPublisher publisher, Guid connectionId,
             TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
             UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
             Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
             Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
             TimeSpan operationTimeout)
-            : base(log, publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
+            : base(publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
         {
             _subscriptionId = subscriptionId;
             _userCredentials = userCredentials;

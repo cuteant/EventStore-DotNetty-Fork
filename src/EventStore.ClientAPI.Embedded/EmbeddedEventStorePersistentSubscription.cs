@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {
@@ -13,11 +12,11 @@ namespace EventStore.ClientAPI.Embedded
             string subscriptionId, string streamId,
             Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
             Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-            UserCredentials userCredentials, ILogger log, bool verboseLogging, ConnectionSettings settings,
+            UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
             EmbeddedSubscriber subscriptions,
             int bufferSize = 10, bool autoAck = true)
             : base(
-                subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, log, verboseLogging,
+                subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, verboseLogging,
                 settings, bufferSize, autoAck)
         {
             _subscriptions = subscriptions;

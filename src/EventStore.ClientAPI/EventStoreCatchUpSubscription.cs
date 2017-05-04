@@ -72,7 +72,6 @@ namespace EventStore.ClientAPI
 
     /// <summary>Constructs state for EventStoreCatchUpSubscription.</summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="log">The <see cref="ILogger"/> to use.</param>
     /// <param name="streamId">The stream name.</param>
     /// <param name="userCredentials">User credentials for the operations.</param>
     /// <param name="eventAppeared">Action invoked when events are received.</param>
@@ -80,7 +79,6 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
     /// <param name="settings">Settings for this subscription.</param>
     protected EventStoreCatchUpSubscription(IEventStoreConnection connection,
-                                                ILogger log,
                                                 string streamId,
                                                 UserCredentials userCredentials,
                                                 Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
@@ -89,7 +87,7 @@ namespace EventStore.ClientAPI
                                                 CatchUpSubscriptionSettings settings)
     {
       _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-      Log = log ?? throw new ArgumentNullException(nameof(log));
+      Log = TraceLogger.GetLogger(this.GetType());
       _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
       _resolveLinkTos = settings.ResolveLinkTos;
       _userCredentials = userCredentials;
@@ -99,7 +97,7 @@ namespace EventStore.ClientAPI
       EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
       _liveProcessingStarted = liveProcessingStarted;
       _subscriptionDropped = subscriptionDropped;
-      Verbose = settings.VerboseLogging && log.IsDebugLevelEnabled();
+      Verbose = settings.VerboseLogging && Log.IsDebugLevelEnabled();
       _subscriptionName = settings.SubscriptionName ?? String.Empty;
     }
 
@@ -370,14 +368,13 @@ namespace EventStore.ClientAPI
     private TaskCompletionSource<bool> _completion;
 
     internal EventStoreAllCatchUpSubscription(IEventStoreConnection connection,
-                                                  ILogger log,
                                                   Position? fromPositionExclusive, /* if null -- from the very beginning */
                                                   UserCredentials userCredentials,
                                                   Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
                                                   Action<EventStoreCatchUpSubscription> liveProcessingStarted,
                                                   Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                   CatchUpSubscriptionSettings settings)
-      : base(connection, log, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
+      : base(connection, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
     {
       _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
       _nextReadPosition = fromPositionExclusive ?? Position.Start;
@@ -498,7 +495,6 @@ namespace EventStore.ClientAPI
     private TaskCompletionSource<bool> _completion;
 
     internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
-                                                     ILogger log,
                                                      string streamId,
                                                      long? fromEventNumberExclusive, /* if null -- from the very beginning */
                                                      UserCredentials userCredentials,
@@ -506,7 +502,7 @@ namespace EventStore.ClientAPI
                                                      Action<EventStoreCatchUpSubscription> liveProcessingStarted,
                                                      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                      CatchUpSubscriptionSettings settings)
-      : base(connection, log, streamId, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
+      : base(connection, streamId, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
     {
       Ensure.NotNullOrEmpty(streamId, nameof(streamId));
 

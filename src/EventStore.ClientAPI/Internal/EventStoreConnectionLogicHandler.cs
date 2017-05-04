@@ -16,6 +16,7 @@ namespace EventStore.ClientAPI.Internal
 {
   internal class EventStoreConnectionLogicHandler : IEventStoreConnectionLogicHandler
   {
+    private static readonly ILogger s_logger = TraceLogger.GetLogger<EventStoreConnectionLogicHandler>();
     private static readonly TimerTickMessage TimerTickMessage = new TimerTickMessage();
 
     public int TotalOperationCount { get { return _operations.TotalOperationCount; } }
@@ -378,7 +379,7 @@ namespace EventStore.ClientAPI.Internal
         var msg = string.Format("EventStoreConnection '{0}': closing TCP connection [{1}, {2}, {3}] due to HEARTBEAT TIMEOUT at pkgNum {4}.",
                                 _esConnection.ConnectionName, _connection.RemoteEndPoint, _connection.LocalEndPoint,
                                 _connection.ConnectionId, packageNumber);
-        if (_settings.Log.IsInformationLevelEnabled()) { _settings.Log.LogInformation(msg); }
+        if (s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
         CloseTcpConnection(msg);
       }
     }
@@ -575,7 +576,7 @@ namespace EventStore.ClientAPI.Internal
       if (_state != ConnectionState.Connected || _connection.RemoteEndPoint.Equals(endPoint)) { return; }
 
       var msg = $"EventStoreConnection '{_esConnection.ConnectionName}': going to reconnect to [{endPoint}]. Current endpoint: [{_connection.RemoteEndPoint}, L{_connection.LocalEndPoint}].";
-      if (_settings.VerboseLogging && _settings.Log.IsInformationLevelEnabled()) { _settings.Log.LogInformation(msg); }
+      if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
       CloseTcpConnection(msg);
 
       _state = ConnectionState.Connecting;
@@ -585,17 +586,17 @@ namespace EventStore.ClientAPI.Internal
 
     private void LogDebug(string message, params object[] parameters)
     {
-      if (_settings.VerboseLogging && _settings.Log.IsDebugLevelEnabled())
+      if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
       {
-        _settings.Log.LogDebug("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
+        s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
       }
     }
 
     private void LogInfo(string message, params object[] parameters)
     {
-      if (_settings.VerboseLogging && _settings.Log.IsInformationLevelEnabled())
+      if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled())
       {
-        _settings.Log.LogInformation("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
+        s_logger.LogInformation("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
       }
     }
 

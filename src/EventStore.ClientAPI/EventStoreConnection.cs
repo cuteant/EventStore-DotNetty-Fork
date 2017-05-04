@@ -86,7 +86,7 @@ namespace EventStore.ClientAPI
       var credential = GetCredentialFromUri(uri);
       if (credential != null)
       {
-        connectionSettings = new ConnectionSettings(connectionSettings.Log, connectionSettings.VerboseLogging, connectionSettings.MaxQueueSize, connectionSettings.MaxConcurrentItems,
+        connectionSettings = new ConnectionSettings(connectionSettings.VerboseLogging, connectionSettings.MaxQueueSize, connectionSettings.MaxConcurrentItems,
         connectionSettings.MaxRetries, connectionSettings.MaxReconnections, connectionSettings.RequireMaster, connectionSettings.ReconnectionDelay, connectionSettings.OperationTimeout,
         connectionSettings.OperationTimeoutCheckPeriod, credential, connectionSettings.UseSslConnection, connectionSettings.TargetHost,
         connectionSettings.ValidateServer, connectionSettings.FailOnNoServerResponse, connectionSettings.HeartbeatInterval, connectionSettings.HeartbeatTimeout,
