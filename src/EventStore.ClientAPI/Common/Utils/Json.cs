@@ -27,6 +27,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
         PreserveReferencesHandling = PreserveReferencesHandling.None,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+        ObjectCreationHandling= ObjectCreationHandling.Replace,
         FloatParseHandling = FloatParseHandling.Decimal,
 
         Converters = new JsonConverter[]
