@@ -28,8 +28,8 @@ namespace EventStore.ClusterNode
   public class EventStoreService : EventStoreServiceBase<ClusterNodeOptions>
   {
     private ClusterVNode _node;
-    private ExclusiveDbLock _dbLock;
-    private ClusterNodeMutex _clusterNodeMutex;
+    private ExclusiveDbLock _dbLock = null;
+    private ClusterNodeMutex _clusterNodeMutex = null;
 
     protected override string GetLogsDirectory(ClusterNodeOptions options)
     {
@@ -398,7 +398,7 @@ namespace EventStore.ClusterNode
       {
         if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
       }
-      catch(Exception exc)
+      catch (Exception exc)
       {
         Log.LogError(exc.ToString());
       }

@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Text;
-using CuteAnt.Buffers;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Internal;
+#if DEBUG
+using System.Text;
+using CuteAnt.Buffers;
+#endif
 
 namespace EventStore.ClientAPI
 {

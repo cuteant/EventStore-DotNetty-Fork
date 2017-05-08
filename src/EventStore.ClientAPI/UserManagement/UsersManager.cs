@@ -20,7 +20,6 @@ namespace EventStore.ClientAPI.UserManagement
         /// <summary>
         /// Creates a new instance of <see cref="UsersManager"/>.
         /// </summary>
-        /// <param name="log">An instance of <see cref="ILogger"/> to use for logging.</param>
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="operationTimeout"></param>
         public UsersManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)

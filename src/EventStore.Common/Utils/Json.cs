@@ -26,6 +26,7 @@ namespace EventStore.Common.Utils
         MissingMemberHandling = MissingMemberHandling.Ignore,
         TypeNameHandling = TypeNameHandling.None,
 
+        Formatting = Formatting.Indented,
         PreserveReferencesHandling = PreserveReferencesHandling.None,
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
         ObjectCreationHandling = ObjectCreationHandling.Replace,
@@ -40,22 +41,17 @@ namespace EventStore.Common.Utils
         }
       };
 
-      _jsonFormatter = new JsonMessageFormatter()
-      {
-        DefaultSerializerSettings = JsonSettings,
-        Indent = true
-      };
+      _jsonFormatter = new JsonMessageFormatter() { DefaultSerializerSettings = JsonSettings };
     }
 
     public static byte[] ToJsonBytes(this object source)
     {
-      //return JsonConvertX.SerializeObjectToBytes(source, Formatting.Indented, JsonSettings);
       return _jsonFormatter.SerializeToBytes(source);
     }
 
     public static string ToJson(this object source)
     {
-      return JsonConvertX.SerializeObject(source, Formatting.Indented, JsonSettings);
+      return JsonConvertX.SerializeObject(source, JsonSettings);
     }
 
     public static string ToCanonicalJson(this object source)
@@ -70,7 +66,6 @@ namespace EventStore.Common.Utils
 
     public static T ParseJson<T>(this byte[] json)
     {
-      //return JsonConvertX.ParseJson<T>(json, JsonSettings);
       return _jsonFormatter.DeserializeFromBytes<T>(json);
     }
 

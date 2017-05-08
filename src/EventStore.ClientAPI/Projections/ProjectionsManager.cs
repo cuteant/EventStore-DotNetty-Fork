@@ -19,7 +19,6 @@ namespace EventStore.ClientAPI.Projections
     /// <summary>
     /// Creates a new instance of <see cref="ProjectionsManager"/>.
     /// </summary>
-    /// <param name="log">An instance of <see cref="ILogger"/> to use for logging.</param>
     /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
     /// <param name="operationTimeout"></param>
     public ProjectionsManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
