@@ -1,4 +1,4 @@
-using System;
+锘縰sing System;
 
 namespace CuteAnt
 {
@@ -53,18 +53,18 @@ namespace CuteAnt
 
     /// <summary>
     /// 1.x
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String VersionShort = VersionMajor + "." + VersionMinor;
 
     /// <summary>
     /// 1.x.2.168
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String StaticVersion = VersionShort + ".6.168";
 
     /// <summary>1.2
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
 #if NETSTANDARD1_0 || NET40
     public const String FileVersion = VersionShort + ".0.168";
@@ -86,57 +86,57 @@ namespace CuteAnt
 
     ///// <summary>
     ///// v1.x
-    ///// - x代表NetFX版本
+    ///// - x浠ｈ〃NetFX鐗堟湰
     ///// </summary>
     //public const String VSuffixWithoutSeparator = "v" + VersionShort;
 
     /// <summary>
     /// .v1.x
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     //public const String VSuffix = "." + VSuffixWithoutSeparator;
     public const String VSuffix = "";
 
     /// <summary>
     /// .v1.x.Design
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String VSuffixDesign = VSuffix + ".Design";
 
     /// <summary>
     /// 1x
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     //public const String VSuffixWin = VersionMajor + NETVersion;
     public const String VSuffixWin = "";
 
     /// <summary>
     /// .v1.x, PublicKey=00240000048000009400000006020000002400005253413100040000010001003df2cefc3e3c196195f046768979f5998131a23270da7485c84d0e46175140c4227e93fe392829d51d1e1ffbe0d6edb3bb0b2b05556f829f2f1a184f23ce052e2b2134ba0ae7aa9143a7959cea16accb18d1417bf48dabac10c2c0828ede943c5960e85713ca29eea555959ea6dbdd41d1000bf62da370883c4dc5c3508a22df
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String PublicKeyString = VSuffix + ", PublicKey=" + PublicKey;
 
     /// <summary>
     /// .v1.x.Design, PublicKey=00240000048000009400000006020000002400005253413100040000010001003df2cefc3e3c196195f046768979f5998131a23270da7485c84d0e46175140c4227e93fe392829d51d1e1ffbe0d6edb3bb0b2b05556f829f2f1a184f23ce052e2b2134ba0ae7aa9143a7959cea16accb18d1417bf48dabac10c2c0828ede943c5960e85713ca29eea555959ea6dbdd41d1000bf62da370883c4dc5c3508a22df
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String DesignPublicKeyString = VSuffixDesign + ", PublicKey=" + PublicKey;
 
     /// <summary>
     /// , Version=1.x.2.168, Culture=neutral, PublicKeyToken=8df3f1eee85cc956
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String AssemblyInfoSuffix = ", Version=" + StaticVersion + ", Culture=" + Culture + ", PublicKeyToken=" + PublicKeyToken;
 
     /// <summary>
     /// .v1.x, Version=1.x.2.168, Culture=neutral, PublicKeyToken=8df3f1eee85cc956
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String AssemblyInfoVSuffix = VSuffix + AssemblyInfoSuffix;
 
     /// <summary>
     /// .v1.x.Design, Version=1.x.2.168, Culture=neutral, PublicKeyToken=8df3f1eee85cc956
-    /// - x代表NetFX版本
+    /// - x浠ｈ〃NetFX鐗堟湰
     /// </summary>
     public const String AssemblyInfoVSuffixDesign = VSuffixDesign + AssemblyInfoSuffix;
   }
