@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using CuteAnt.Extensions.Serialization;
 using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -13,54 +12,19 @@ namespace EventStore.Transport.Http.Codecs
     public static Formatting Formatting = Formatting.Indented;
 
     private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
-    private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings FromSettings;
+    public static readonly JsonSerializerSettings ToSettings;
+
+    static JsonCodec()
     {
-      ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
+      FromSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
+      FromSettings.DateParseHandling = DateParseHandling.None;
+      FromSettings.Converters.Add(new StringEnumConverter());
 
-      DateParseHandling = DateParseHandling.None,
-      NullValueHandling = NullValueHandling.Ignore,
-      DefaultValueHandling = DefaultValueHandling.Ignore,
-      MissingMemberHandling = MissingMemberHandling.Ignore,
-      TypeNameHandling = TypeNameHandling.None,
-
-      PreserveReferencesHandling = PreserveReferencesHandling.None,
-      ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-      ObjectCreationHandling = ObjectCreationHandling.Replace,
-      FloatParseHandling = FloatParseHandling.Decimal,
-
-      Converters = new JsonConverter[]
-      {
-        new StringEnumConverter(),
-        new Newtonsoft.Json.Converters.IPAddressConverter(),
-        new Newtonsoft.Json.Converters.IPEndPointConverter(),
-        new CombGuidConverter()
-      }
-    };
-
-    public static readonly JsonSerializerSettings ToSettings = new JsonSerializerSettings
-    {
-      ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
-
-      DateFormatHandling = DateFormatHandling.IsoDateFormat,
-      NullValueHandling = NullValueHandling.Ignore,
-      DefaultValueHandling = DefaultValueHandling.Include,
-      MissingMemberHandling = MissingMemberHandling.Ignore,
-      TypeNameHandling = TypeNameHandling.None,
-
-      PreserveReferencesHandling = PreserveReferencesHandling.None,
-      ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-      ObjectCreationHandling = ObjectCreationHandling.Replace,
-      FloatParseHandling = FloatParseHandling.Decimal,
-
-      Converters = new JsonConverter[]
-      {
-        new StringEnumConverter(),
-        new Newtonsoft.Json.Converters.IPAddressConverter(),
-        new Newtonsoft.Json.Converters.IPEndPointConverter(),
-        new CombGuidConverter()
-      }
-    };
-
+      ToSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
+      ToSettings.DefaultValueHandling = DefaultValueHandling.Include;
+      ToSettings.Converters.Add(new StringEnumConverter());
+    }
 
     public string ContentType { get { return Http.ContentType.Json; } }
     public Encoding Encoding { get { return Helper.UTF8NoBom; } }

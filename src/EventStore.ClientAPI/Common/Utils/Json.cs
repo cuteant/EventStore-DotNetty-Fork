@@ -4,48 +4,31 @@ using CuteAnt.Extensions.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using Formatting = Newtonsoft.Json.Formatting;
 
 namespace EventStore.ClientAPI.Common.Utils
 {
   static class Json
   {
+    private const int c_defaultBufferSize = 1024 * 2;
+    public const int MinBufferSize = 128;
+    public const int TinyBufferSize = 256;
+    public const int SmallBufferSize = 512;
+    public const int MediumBufferSize = 1024;
+
     public static readonly JsonSerializerSettings JsonSettings;
     private static readonly JsonMessageFormatter _jsonFormatter;
 
     static Json()
     {
-      JsonSettings = new JsonSerializerSettings
-      {
-        ContractResolver = new JsonCamelCasePropertyNamesContractResolver(),
-
-        DateFormatHandling = DateFormatHandling.IsoDateFormat,
-        NullValueHandling = NullValueHandling.Ignore,
-        DefaultValueHandling = DefaultValueHandling.Ignore,
-        MissingMemberHandling = MissingMemberHandling.Ignore,
-        TypeNameHandling = TypeNameHandling.None,
-
-        Formatting = Formatting.Indented,
-        PreserveReferencesHandling = PreserveReferencesHandling.None,
-        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-        ObjectCreationHandling = ObjectCreationHandling.Replace,
-        FloatParseHandling = FloatParseHandling.Decimal,
-
-        Converters = new JsonConverter[]
-        {
-          new StringEnumConverter(),
-          new Newtonsoft.Json.Converters.IPAddressConverter(),
-          new Newtonsoft.Json.Converters.IPEndPointConverter(),
-          new CombGuidConverter()
-        }
-      };
+      JsonSettings = JsonConvertX.CreateSerializerSettings(Newtonsoft.Json.Formatting.Indented, TypeNameHandling.None, null, true);
+      JsonSettings.Converters.Add(new StringEnumConverter());
 
       _jsonFormatter = new JsonMessageFormatter() { DefaultSerializerSettings = JsonSettings };
     }
 
-    public static byte[] ToJsonBytes(this object source)
+    public static byte[] ToJsonBytes(this object source, int bufferSize = c_defaultBufferSize)
     {
-      return _jsonFormatter.SerializeToBytes(source);
+      return _jsonFormatter.SerializeToBytes(source, bufferSize);
     }
 
     public static string ToJson(this object source)
