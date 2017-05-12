@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -63,7 +64,9 @@ namespace EventStore.Core.Services.Storage
     {
       if (Interlocked.CompareExchange(ref _isScavengingRunning, 1, 0) == 0)
       {
-        ThreadPool.QueueUserWorkItem(_ => Scavenge(message));
+        //ThreadPool.QueueUserWorkItem(_ => Scavenge(message));
+        Task.Factory.StartNew(state => Scavenge((ClientMessage.ScavengeDatabase)state),
+                              message, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
       }
       else
       {

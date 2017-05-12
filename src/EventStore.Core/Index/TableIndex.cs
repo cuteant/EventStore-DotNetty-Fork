@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
@@ -224,12 +225,15 @@ namespace EventStore.Core.Index
           {
             _backgroundRunningEvent.Reset();
             _backgroundRunning = true;
-            ThreadPool.QueueUserWorkItem(x => ReadOffQueue());
+            //ThreadPool.QueueUserWorkItem(x => ReadOffQueue());
+            Task.Factory.StartNew(ReadOffQueue, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
           }
 
           if (_additionalReclaim)
           {
-            ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
+            //ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
+            Task.Factory.StartNew(state => ReclaimMemoryIfNeeded((List<TableItem>)state),
+                _awaitingMemTables, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
           }
         }
       }

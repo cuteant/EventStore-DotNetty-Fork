@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
@@ -134,35 +135,40 @@ namespace EventStore.Core.TransactionLog.Chunks
       {
         var preLastChunk = Manager.GetChunk(lastChunkNum - 1);
         var lastBgChunkNum = preLastChunk.ChunkHeader.ChunkStartNumber - 1;
-        ThreadPool.QueueUserWorkItem(_ =>
+        //ThreadPool.QueueUserWorkItem(_ =>
+        Task.Factory.StartNew(state =>
         {
-          for (int chunkNum = lastBgChunkNum; chunkNum >= 0;)
+          var stateWrapper = (Tuple<int, TFChunkManager, ILogger>)state;
+          var innerManager = stateWrapper.Item2;
+          var innerLog = stateWrapper.Item3;
+          var traceEnabled = innerLog.IsTraceLevelEnabled();
+          for (int chunkNum = stateWrapper.Item1; chunkNum >= 0;)
           {
-            var chunk = Manager.GetChunk(chunkNum);
+            var chunk = innerManager.GetChunk(chunkNum);
             try
             {
               chunk.VerifyFileHash();
             }
             catch (FileBeingDeletedException exc)
             {
-              if (Log.IsTraceLevelEnabled())
+              if (traceEnabled)
               {
-                Log.LogTrace("{0} exception was thrown while doing background validation of chunk {1}.",
+                innerLog.LogTrace("{0} exception was thrown while doing background validation of chunk {1}.",
                                   exc.GetType().Name, chunk);
-                Log.LogTrace("That's probably OK, especially if truncation was request at the same time: {0}.",
+                innerLog.LogTrace("That's probably OK, especially if truncation was request at the same time: {0}.",
                                   exc.Message);
               }
             }
             catch (Exception exc)
             {
-              var msg = string.Format("Verification of chunk {0} failed, terminating server...", chunk);
-              Log.LogCritical(exc, msg);
+              var msg = $"Verification of chunk {chunk} failed, terminating server...";
+              innerLog.LogCritical(exc, msg);
               Application.Exit(ExitCode.Error, msg);
               return;
             }
             chunkNum = chunk.ChunkHeader.ChunkStartNumber - 1;
           }
-        });
+        }, Tuple.Create(lastBgChunkNum, Manager, Log), CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
       }
 
       Manager.EnableCaching();

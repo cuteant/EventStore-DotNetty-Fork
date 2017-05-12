@@ -64,7 +64,7 @@ namespace EventStore.Core.Services.Histograms
     public static void StartJitterMonitor()
     {
       CreateHistogram("jitter");
-      Task.Factory.StartNew(x =>
+      Task.Factory.StartNew(() =>
       {
         var watch = new Stopwatch();
         watch.Start();
@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.Histograms
             Thread.Sleep(1);
           }
         }
-      }, null, TaskCreationOptions.LongRunning);
+      }, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
   }
 

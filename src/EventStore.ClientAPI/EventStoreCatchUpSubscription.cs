@@ -278,7 +278,8 @@ namespace EventStore.ClientAPI
     {
       if (Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0)
       {
-        ThreadPool.QueueUserWorkItem(_ => ProcessLiveQueue());
+        //ThreadPool.QueueUserWorkItem(_ => ProcessLiveQueue());
+        Task.Factory.StartNew(ProcessLiveQueue, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
       }
     }
 

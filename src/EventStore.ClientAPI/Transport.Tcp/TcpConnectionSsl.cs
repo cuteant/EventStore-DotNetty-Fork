@@ -34,12 +34,18 @@ namespace EventStore.ClientAPI.Transport.Tcp
                             {
                               connection.InitClientSocket(socket, targetHost, validateServer);
                               if (onConnectionEstablished != null)
-                                ThreadPool.QueueUserWorkItem(o => onConnectionEstablished(connection));
+                              {
+                                //ThreadPool.QueueUserWorkItem(o => onConnectionEstablished(connection));
+                                Task.Run(() => onConnectionEstablished(connection));
+                              }
                             },
                             (_, socketError) =>
                             {
                               if (onConnectionFailed != null)
-                                ThreadPool.QueueUserWorkItem(o => onConnectionFailed(connection, socketError));
+                              {
+                                //ThreadPool.QueueUserWorkItem(o => onConnectionFailed(connection, socketError));
+                                Task.Run(() => onConnectionFailed(connection, socketError));
+                              }
                             }, connection, connectionTimeout);
       // ReSharper restore ImplicitlyCapturedClosure
       return connection;

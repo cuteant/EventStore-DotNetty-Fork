@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -78,7 +79,7 @@ namespace EventStore.Core.Bus
       _queueMonitor.Unregister(this);
     }
 
-    private void ReadFromQueue(object o)
+    private void ReadFromQueue()//object o)
     {
       var proceed = true;
       var traceEnabled = Log.IsTraceLevelEnabled();
@@ -150,7 +151,8 @@ namespace EventStore.Core.Bus
       _queue.Enqueue(message);
       if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
       {
-        ThreadPool.QueueUserWorkItem(ReadFromQueue);
+        //ThreadPool.QueueUserWorkItem(ReadFromQueue);
+        Task.Factory.StartNew(ReadFromQueue, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
       }
     }
 

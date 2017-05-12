@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using EventStore.Common.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
@@ -41,7 +42,7 @@ namespace EventStore.Core.TransactionLog.Chunks
       }
     }
 
-    private void BackgroundCachingProcess(object state)
+    private void BackgroundCachingProcess()//object state)
     {
       do
       {
@@ -292,7 +293,8 @@ namespace EventStore.Core.TransactionLog.Chunks
       Interlocked.Increment(ref _backgroundPassesRemaining);
       if (Interlocked.CompareExchange(ref _backgroundRunning, 1, 0) == 0)
       {
-        ThreadPool.QueueUserWorkItem(BackgroundCachingProcess);
+        //ThreadPool.QueueUserWorkItem(BackgroundCachingProcess);
+        Task.Factory.StartNew(BackgroundCachingProcess, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
       }
 
       if (!chunk.IsReadOnly && chunk.ChunkHeader.ChunkSize + ChunkHeader.Size + ChunkFooter.Size <= _config.MaxChunksCacheSize)
