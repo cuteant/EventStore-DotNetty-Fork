@@ -1,8 +1,8 @@
-﻿#if false
+﻿#if true
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
@@ -13,7 +13,9 @@ namespace EventStore.ClientAPI
   /// <summary>Base class representing catch-up subscriptions.</summary>
   public abstract class EventStoreCatchUpSubscription
   {
+#if DEBUG
     private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
+#endif
 
     /// <summary>Indicates whether the subscription is to all events or to a specific stream.</summary>
     public bool IsSubscribedToAll => _streamId == string.Empty;
@@ -44,11 +46,11 @@ namespace EventStore.ClientAPI
     protected readonly bool Verbose;
     private readonly string _subscriptionName;
 
-    private readonly ConcurrentQueue<ResolvedEvent> _liveQueue = new ConcurrentQueue<ResolvedEvent>();
+    private readonly BufferBlock<ResolvedEvent> _liveQueue;
+    private readonly ActionBlock<ResolvedEvent> _processBlock;
+    private IDisposable _link;
     private EventStoreSubscription _subscription;
     private DropData _dropData;
-    private volatile bool _allowProcessing;
-    private int _isProcessing;
 
     ///<summary>stop has been called.</summary>
     protected volatile bool ShouldStop;
@@ -100,6 +102,10 @@ namespace EventStore.ClientAPI
       _subscriptionDropped = subscriptionDropped;
       Verbose = settings.VerboseLogging && Log.IsDebugLevelEnabled();
       _subscriptionName = settings.SubscriptionName ?? String.Empty;
+
+      _liveQueue = new BufferBlock<ResolvedEvent>();
+      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e),
+                                                     new ExecutionDataflowBlockOptions { SingleProducerConstrained = true });
     }
 
     internal Task Start()
@@ -117,7 +123,7 @@ namespace EventStore.ClientAPI
       if (Verbose) Log.LogDebug("Waiting on subscription {0} to stop", SubscriptionName);
       if (!_stopped.Wait(timeout))
       {
-        throw new TimeoutException($"Could not stop {GetType().Name} in time.");
+        throw new TimeoutException(string.Format("Could not stop {0} in time.", GetType().Name));
       }
     }
 
@@ -129,7 +135,6 @@ namespace EventStore.ClientAPI
         Log.LogDebug("Catch-up Subscription {0} to {1}: requesting stop...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
         Log.LogDebug("Catch-up Subscription {0} to {1}: unhooking from connection.Connected.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       }
-      
       _connection.Connected -= OnReconnect;
 
       ShouldStop = true;
@@ -143,7 +148,6 @@ namespace EventStore.ClientAPI
         Log.LogDebug("Catch-up Subscription {0} to {1}: recovering after reconnection.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
         Log.LogDebug("Catch-up Subscription {0} to {1}: unhooking from connection.Connected.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       }
-
       _connection.Connected -= OnReconnect;
       RunSubscription();
     }
@@ -156,7 +160,8 @@ namespace EventStore.ClientAPI
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: running...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
       _stopped.Reset();
-      _allowProcessing = false;
+      var link = Interlocked.Exchange(ref _link, null);
+      link?.Dispose();
 
       if (!ShouldStop)
       {
@@ -223,8 +228,8 @@ namespace EventStore.ClientAPI
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: hooking to connection.Connected", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       _connection.Connected += OnReconnect;
 
-      _allowProcessing = true;
-      EnsureProcessingPushQueue();
+      var link = _liveQueue.LinkTo(_processBlock);
+      Interlocked.Exchange(ref _link, link);
     }
 
     private void HandleErrorOrContinue(Task task, Action continuation = null)
@@ -255,16 +260,14 @@ namespace EventStore.ClientAPI
                   e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
       }
 
-      if (_liveQueue.Count >= MaxPushQueueSize)
+      if (_processBlock.InputCount >= MaxPushQueueSize)
       {
         EnqueueSubscriptionDropNotification(SubscriptionDropReason.ProcessingQueueOverflow, null);
         subscription.Unsubscribe();
         return;
       }
 
-      _liveQueue.Enqueue(e);
-
-      if (_allowProcessing) { EnsureProcessingPushQueue(); }
+      _liveQueue.Post(e);
     }
 
     private void ServerSubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason reason, Exception exc)
@@ -278,50 +281,34 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-        _liveQueue.Enqueue(DropSubscriptionEvent);
-        if (_allowProcessing) { EnsureProcessingPushQueue(); }
-      }
-    }
-
-    private void EnsureProcessingPushQueue()
-    {
-      if (Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0)
-      {
-        //ThreadPool.QueueUserWorkItem(_ => ProcessLiveQueue());
-        Task.Factory.StartNew(ProcessLiveQueue, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
-      }
-    }
-
-    private void ProcessLiveQueue()
-    {
-      do
-      {
-        while (_liveQueue.TryDequeue(out ResolvedEvent e))
+#if DEBUG
+        _liveQueue.Post(DropSubscriptionEvent);
+#endif
+        if (_dropData == null)
         {
-          if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
-          {
-            if (_dropData == null)
-            {
-              _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
-            }
-            DropSubscription(_dropData.Reason, _dropData.Error);
-            Interlocked.CompareExchange(ref _isProcessing, 0, 1);
-            return;
-          }
-
-          try
-          {
-            TryProcess(e);
-          }
-          catch (Exception exc)
-          {
-            Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
-            DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
-            return;
-          }
+          _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
         }
-        Interlocked.CompareExchange(ref _isProcessing, 0, 1);
-      } while (_liveQueue.Count > 0 && Interlocked.CompareExchange(ref _isProcessing, 1, 0) == 0);
+        DropSubscription(_dropData.Reason, _dropData.Error);
+      }
+    }
+
+    private void ProcessLiveQueue(ResolvedEvent e)
+    {
+#if DEBUG
+      if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+      {
+        return;
+      }
+#endif
+      try
+      {
+        TryProcess(e);
+      }
+      catch (Exception exc)
+      {
+        Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+        DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
+      }
     }
 
     private void DropSubscription(SubscriptionDropReason reason, Exception error)
@@ -342,7 +329,7 @@ namespace EventStore.ClientAPI
       }
     }
 
-    private class DropData
+    private sealed class DropData
     {
       public readonly SubscriptionDropReason Reason;
       public readonly Exception Error;

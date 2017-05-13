@@ -96,7 +96,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
             _conn.ConnectAsync().Wait();
 
             _manager = new ProjectionsManager(
-                NullLogger.Instance,
                 _nodes[0].ExternalHttpEndPoint,
                 TimeSpan.FromMilliseconds(10000));
 

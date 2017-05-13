@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -257,3 +258,4 @@ namespace EventStore.ClientAPI
     }
   }
 }
+#endif

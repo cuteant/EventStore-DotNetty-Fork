@@ -1,4 +1,4 @@
-﻿#if false
+﻿#if true
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,8 @@ namespace EventStore.ClientAPI
   /// <summary>Represents a persistent subscription connection.</summary>
   public abstract class EventStorePersistentSubscriptionBase
   {
+    private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
+
     ///<summary>The default buffer size for the persistent subscription</summary>
     public const int DefaultBufferSize = 10;
 
@@ -31,6 +33,7 @@ namespace EventStore.ClientAPI
     private DropData _dropData;
 
     private int _isDropped;
+    private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
     private readonly int _bufferSize;
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId,
@@ -38,7 +41,6 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
       UserCredentials userCredentials,
-      ILogger log,
       bool verboseLogging,
       ConnectionSettings settings,
       int bufferSize = 10,
@@ -49,7 +51,7 @@ namespace EventStore.ClientAPI
       _eventAppeared = eventAppeared;
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
-      _log = log;
+      _log = TraceLogger.GetLogger(this.GetType());
       _verbose = verboseLogging;
       _settings = settings;
       _bufferSize = bufferSize;
@@ -58,31 +60,12 @@ namespace EventStore.ClientAPI
 
     internal async Task<EventStorePersistentSubscriptionBase> Start()
     {
+      _stopped.Reset();
+
       _subscription = await StartSubscription(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppeared, OnSubscriptionDropped, _settings);
-      InitResolvedEventBlock();
+      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = true });
 
       return this;
-    }
-
-    private void InitResolvedEventBlock()
-    {
-      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(new Action<ResolvedEvent>(ProcessResolvedEvent));
-      var completionTask = _resolvedEventBlock.Completion;
-      completionTask.ContinueWith((task, state) =>
-        {
-          var dropData = state as DropData;
-          if (dropData == null)
-          {
-            //throw new Exception("Drop reason not specified.");
-            dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
-          }
-          DropSubscription(dropData.Reason, dropData.Error);
-        },
-        _dropData,
-        CancellationToken.None,
-        TaskContinuationOptions.DenyChildAttach | TaskContinuationOptions.ExecuteSynchronously,
-        TaskScheduler.Default
-      );
     }
 
     internal abstract Task<PersistentEventStoreSubscription> StartSubscription(
@@ -158,8 +141,7 @@ namespace EventStore.ClientAPI
 
       EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
 
-      var completion = _resolvedEventBlock.Completion;
-      if (!Task.WaitAll(new[] { completion }, timeout))
+      if (!_stopped.Wait(timeout))
       {
         throw new TimeoutException($"Could not stop {GetType().Name} in time.");
       }
@@ -171,7 +153,7 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-        _resolvedEventBlock.Complete();
+        _resolvedEventBlock.Post(DropSubscriptionEvent);
       }
     }
 
@@ -187,6 +169,17 @@ namespace EventStore.ClientAPI
 
     private void ProcessResolvedEvent(ResolvedEvent resolvedEvent)
     {
+      if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+      {
+        if (_dropData == null) throw new Exception("Drop reason not specified.");
+        DropSubscription(_dropData.Reason, _dropData.Error);
+        return;
+      }
+      if (_dropData != null)
+      {
+        DropSubscription(_dropData.Reason, _dropData.Error);
+        return;
+      }
       try
       {
         _eventAppeared(this, resolvedEvent);
@@ -221,10 +214,11 @@ namespace EventStore.ClientAPI
 
         _subscription?.Unsubscribe();
         _subscriptionDropped?.Invoke(this, reason, error);
+        _stopped.Set();
       }
     }
 
-    private class DropData
+    private sealed class DropData
     {
       public readonly SubscriptionDropReason Reason;
       public readonly Exception Error;

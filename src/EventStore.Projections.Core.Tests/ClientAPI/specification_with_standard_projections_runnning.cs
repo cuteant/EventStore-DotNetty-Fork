@@ -41,7 +41,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
                 _conn.ConnectAsync().Wait();
 
                 _manager = new ProjectionsManager(
-                    NullLogger.Instance,
                     _node.ExtHttpEndPoint,
                     TimeSpan.FromMilliseconds(10000));
                 WaitIdle();
