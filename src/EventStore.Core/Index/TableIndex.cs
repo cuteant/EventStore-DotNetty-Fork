@@ -40,7 +40,7 @@ namespace EventStore.Core.Index
     private readonly Func<TFReaderLease> _tfReaderFactory;
     private readonly IIndexFilenameProvider _fileNameProvider;
 
-    private readonly object _awaitingTablesLock = new object();
+    private readonly ReaderWriterLockSlim _awaitingTablesLock = new ReaderWriterLockSlim();
 
     private IndexMap _indexMap;
     private List<TableItem> _awaitingMemTables;
@@ -211,7 +211,7 @@ namespace EventStore.Core.Index
           prepareCheckpoint = Math.Max(prepareCheckpoint, collection[i].Position);
         }
 
-        lock (_awaitingTablesLock)
+        using (var lockToken = _awaitingTablesLock.CreateToken(false))
         {
           var newTables = new List<TableItem> { new TableItem(_memTableFactory(), -1, -1) };
           newTables.AddRange(_awaitingMemTables.Select(
@@ -219,7 +219,7 @@ namespace EventStore.Core.Index
 
           if (Log.IsTraceLevelEnabled()) Log.LogTrace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
 
-          _awaitingMemTables = newTables;
+          Interlocked.Exchange(ref _awaitingMemTables, newTables);
           if (_inMem) { return; }
           if (!_backgroundRunning)
           {
@@ -248,7 +248,7 @@ namespace EventStore.Core.Index
         {
           TableItem tableItem;
           //ISearchTable table;
-          lock (_awaitingTablesLock)
+          using (var lockToken = _awaitingTablesLock.CreateToken(true))
           {
             if (traceEnabled) Log.LogTrace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
             if (_awaitingMemTables.Count == 1)
@@ -284,7 +284,7 @@ namespace EventStore.Core.Index
           _indexMap = mergeResult.MergedMap;
           _indexMap.SaveToFile(indexmapFile);
 
-          lock (_awaitingTablesLock)
+          using (var lockToken = _awaitingTablesLock.CreateToken(false))
           {
             var memTables = _awaitingMemTables.ToList();
 
@@ -300,7 +300,7 @@ namespace EventStore.Core.Index
             }
 
             if (traceEnabled) Log.LogTrace("There are now {0} awaiting tables.", memTables.Count);
-            _awaitingMemTables = memTables;
+            Interlocked.Exchange(ref _awaitingMemTables, memTables);
           }
           mergeResult.ToDelete.ForEach(x => x.MarkForDestruction());
         }
@@ -349,7 +349,7 @@ namespace EventStore.Core.Index
 
         var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth);
         var swapped = false;
-        lock (_awaitingTablesLock)
+        using (var token = _awaitingTablesLock.CreateToken(false))
         {
           for (var j = _awaitingMemTables.Count - 1; j >= 1; j--)
           {
@@ -388,7 +388,7 @@ namespace EventStore.Core.Index
     {
       if (version < 0) { throw new ArgumentOutOfRangeException(nameof(version)); }
 
-      var awaiting = _awaitingMemTables;
+      var awaiting = Volatile.Read(ref _awaitingMemTables);
       foreach (var tableItem in awaiting)
       {
         if (tableItem.Table.TryGetOneValue(stream, version, out position)) { return true; }
@@ -425,7 +425,7 @@ namespace EventStore.Core.Index
 
     private bool TryGetLatestEntryInternal(ulong stream, out IndexEntry entry)
     {
-      var awaiting = _awaitingMemTables;
+      var awaiting = Volatile.Read(ref _awaitingMemTables);
       foreach (var t in awaiting)
       {
         if (t.Table.TryGetLatestEntry(stream, out entry)) { return true; }
@@ -468,7 +468,7 @@ namespace EventStore.Core.Index
         if (table.TryGetOldestEntry(stream, out entry)) { return true; }
       }
 
-      var awaiting = _awaitingMemTables;
+      var awaiting = Volatile.Read(ref _awaitingMemTables);
       for (var index = awaiting.Count - 1; index >= 0; index--)
       {
         if (awaiting[index].Table.TryGetOldestEntry(stream, out entry)) { return true; }
@@ -504,7 +504,7 @@ namespace EventStore.Core.Index
 
       var candidates = new List<IEnumerator<IndexEntry>>();
 
-      var awaiting = _awaitingMemTables;
+      var awaiting = Volatile.Read(ref _awaitingMemTables);
       for (int index = 0; index < awaiting.Count; index++)
       {
         var range = awaiting[index].Table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
