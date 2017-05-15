@@ -63,7 +63,7 @@ namespace EventStore.ClientAPI
       _stopped.Reset();
 
       _subscription = await StartSubscription(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppeared, OnSubscriptionDropped, _settings);
-      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = true });
+      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
 
       return this;
     }

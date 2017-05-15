@@ -13,9 +13,7 @@ namespace EventStore.ClientAPI
   /// <summary>Base class representing catch-up subscriptions.</summary>
   public abstract class EventStoreCatchUpSubscription
   {
-#if DEBUG
     private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
-#endif
 
     /// <summary>Indicates whether the subscription is to all events or to a specific stream.</summary>
     public bool IsSubscribedToAll => _streamId == string.Empty;
@@ -104,8 +102,7 @@ namespace EventStore.ClientAPI
       _subscriptionName = settings.SubscriptionName ?? String.Empty;
 
       _liveQueue = new BufferBlock<ResolvedEvent>();
-      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e),
-                                                     new ExecutionDataflowBlockOptions { SingleProducerConstrained = true });
+      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
     }
 
     internal Task Start()
@@ -281,25 +278,21 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-#if DEBUG
         _liveQueue.Post(DropSubscriptionEvent);
-#endif
-        if (_dropData == null)
-        {
-          _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
-        }
-        DropSubscription(_dropData.Reason, _dropData.Error);
       }
     }
 
     private void ProcessLiveQueue(ResolvedEvent e)
     {
-#if DEBUG
       if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
+        if (_dropData == null)
+        {
+          _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
+        }
+        DropSubscription(_dropData.Reason, _dropData.Error);
         return;
       }
-#endif
       try
       {
         TryProcess(e);
