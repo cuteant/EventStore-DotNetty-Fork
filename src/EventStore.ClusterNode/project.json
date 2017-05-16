@@ -1,7 +1,7 @@
 ﻿{
   "dependencies": {
     "CuteAnt.Extensions.Logging.NLog": "2.0.0-rtm-170301",
-    "CuteAnt.Topshelf.Serilog": "4.0.7",
+    "Topshelf.Serilog.Unofficial": "4.0.0-rtm-170501",
     "NLog": "4.4.9",
     "Serilog.Settings.AppSettings": "2.1.0",
     "Serilog.Sinks.ColoredConsole": "2.0.0",
