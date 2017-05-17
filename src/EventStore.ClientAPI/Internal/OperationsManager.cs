@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
@@ -55,6 +56,7 @@ namespace EventStore.ClientAPI.Internal
 
     private readonly string _connectionName;
     private readonly ConnectionSettings _settings;
+    private readonly bool verboseLogging;
     private readonly Dictionary<Guid, OperationItem> _activeOperations = new Dictionary<Guid, OperationItem>();
     private readonly Queue<OperationItem> _waitingOperations = new Queue<OperationItem>();
     private readonly List<OperationItem> _retryPendingOperations = new List<OperationItem>();
@@ -63,10 +65,11 @@ namespace EventStore.ClientAPI.Internal
 
     public OperationsManager(string connectionName, ConnectionSettings settings)
     {
-      Ensure.NotNull(connectionName, "connectionName");
-      Ensure.NotNull(settings, "settings");
+      Ensure.NotNull(connectionName, nameof(connectionName));
+      Ensure.NotNull(settings, nameof(settings));
       _connectionName = connectionName;
       _settings = settings;
+      verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
     }
 
     public bool TryGetActiveOperation(Guid correlationId, out OperationItem operation)
@@ -76,7 +79,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void CleanUp()
     {
-      var connectionClosedException = new ConnectionClosedException(string.Format("Connection '{0}' was closed.", _connectionName));
+      var connectionClosedException = new ConnectionClosedException($"Connection '{_connectionName}' was closed.");
       foreach (var operation in _activeOperations.Values
                                 .Concat(_waitingOperations)
                                 .Concat(_retryPendingOperations))
@@ -91,10 +94,11 @@ namespace EventStore.ClientAPI.Internal
 
     public void CheckTimeoutsAndRetry(TcpPackageConnection connection)
     {
-      Ensure.NotNull(connection, "connection");
+      Ensure.NotNull(connection, nameof(connection));
 
       var retryOperations = new List<OperationItem>();
       var removeOperations = new List<OperationItem>();
+      var debugEnabled = s_logger.IsDebugLevelEnabled();
       foreach (var operation in _activeOperations.Values)
       {
         if (operation.ConnectionId != connection.ConnectionId)
@@ -106,7 +110,7 @@ namespace EventStore.ClientAPI.Internal
           var err = string.Format("EventStoreConnection '{0}': operation never got response from server.\n"
                                   + "UTC now: {1:HH:mm:ss.fff}, operation: {2}.",
                                   _connectionName, DateTime.UtcNow, operation);
-          if (s_logger.IsDebugLevelEnabled()) s_logger.LogDebug(err);
+          if (debugEnabled) s_logger.LogDebug(err);
 
           if (_settings.FailOnNoServerResponse)
           {
@@ -148,8 +152,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void ScheduleOperationRetry(OperationItem operation)
     {
-      if (!RemoveOperation(operation))
-        return;
+      if (!RemoveOperation(operation)) { return; }
 
       LogDebug("ScheduleOperationRetry for {0}", operation);
       if (operation.MaxRetries >= 0 && operation.RetryCount >= operation.MaxRetries)
@@ -174,7 +177,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void TryScheduleWaitingOperations(TcpPackageConnection connection)
     {
-      Ensure.NotNull(connection, "connection");
+      Ensure.NotNull(connection, nameof(connection));
       lock (_lock)
       {
         while (_waitingOperations.Count > 0 && _activeOperations.Count < _settings.MaxConcurrentItems)
@@ -204,14 +207,15 @@ namespace EventStore.ClientAPI.Internal
 
     public void ScheduleOperation(OperationItem operation, TcpPackageConnection connection)
     {
-      Ensure.NotNull(connection, "connection");
+      Ensure.NotNull(connection, nameof(connection));
       _waitingOperations.Enqueue(operation);
       TryScheduleWaitingOperations(connection);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void LogDebug(string message, params object[] parameters)
     {
-      if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
+      if (verboseLogging)
       {
         s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
       }

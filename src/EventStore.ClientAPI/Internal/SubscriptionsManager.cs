@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
@@ -49,16 +50,18 @@ namespace EventStore.ClientAPI.Internal
     private static readonly ILogger s_logger = TraceLogger.GetLogger<SubscriptionsManager>();
     private readonly string _connectionName;
     private readonly ConnectionSettings _settings;
+    private readonly bool verboseLogging;
     private readonly Dictionary<Guid, SubscriptionItem> _activeSubscriptions = new Dictionary<Guid, SubscriptionItem>();
     private readonly Queue<SubscriptionItem> _waitingSubscriptions = new Queue<SubscriptionItem>();
     private readonly List<SubscriptionItem> _retryPendingSubscriptions = new List<SubscriptionItem>();
 
     public SubscriptionsManager(string connectionName, ConnectionSettings settings)
     {
-      Ensure.NotNull(connectionName, "connectionName");
-      Ensure.NotNull(settings, "settings");
+      Ensure.NotNull(connectionName, nameof(connectionName));
+      Ensure.NotNull(settings, nameof(settings));
       _connectionName = connectionName;
       _settings = settings;
+      verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
     }
 
     public bool TryGetActiveSubscription(Guid correlationId, out SubscriptionItem subscription)
@@ -96,7 +99,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void CheckTimeoutsAndRetry(TcpPackageConnection connection)
     {
-      Ensure.NotNull(connection, "connection");
+      Ensure.NotNull(connection, nameof(connection));
 
       var retrySubscriptions = new List<SubscriptionItem>();
       var removeSubscriptions = new List<SubscriptionItem>();
@@ -185,7 +188,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void StartSubscription(SubscriptionItem subscription, TcpPackageConnection connection)
     {
-      Ensure.NotNull(connection, "connection");
+      Ensure.NotNull(connection, nameof(connection));
 
       if (subscription.IsSubscribed)
       {
@@ -211,9 +214,10 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void LogDebug(string message, params object[] parameters)
     {
-      if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
+      if (verboseLogging)
       {
         s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
       }
