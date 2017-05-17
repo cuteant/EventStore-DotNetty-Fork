@@ -245,7 +245,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public void Handle(CoreProjectionManagementMessage.GetState message)
     {
-      if (_state == State.LoadStateRequested || _state == State.StateLoaded)
+      if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase == null)
       {
         _publisher.Publish(
             new CoreProjectionStatusMessage.StateReport(
@@ -262,7 +262,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public void Handle(CoreProjectionManagementMessage.GetResult message)
     {
-      if (_state == State.LoadStateRequested || _state == State.StateLoaded)
+      if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase == null)
       {
         _publisher.Publish(
             new CoreProjectionStatusMessage.ResultReport(
