@@ -22,8 +22,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
     [Test, Category("v8"), Category("Manual"), Explicit]
     public void can_compile_million_times_seabiscuit_changed()
     {
-      //for (var i = 0; i < 10000000; i++)
+#if UNOFFICIALTESTING
       for (var i = 0; i < 100; i++)
+#else
+      for (var i = 0; i < 10000000; i++)
+#endif
       {
         if (_stateHandler != null)
           _stateHandler.Dispose();
@@ -72,8 +75,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                     return {};
                 });
             ";
-      //for (var i = 0; i < 10000000; i++)
+#if UNOFFICIALTESTING
       for (var i = 0; i < 100; i++)
+#else
+      for (var i = 0; i < 10000000; i++)
+#endif
       {
         _logged = new List<string>();
         var preludeSource = DefaultV8ProjectionStateHandler.GetModuleSource("1Prelude");
@@ -91,8 +97,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
     public void can_compile_script_million_times()
     {
       _loadModuleDelegate = (ptr, name) => IntPtr.Zero;
-      //for (var i = 0; i < 10000000; i++)
+#if UNOFFICIALTESTING
       for (var i = 0; i < 100; i++)
+#else
+      for (var i = 0; i < 10000000; i++)
+#endif
       {
         IntPtr prelude = Js1.CompilePrelude("return {};", "test.js", _loadModuleDelegate, () => true, () => true, _logDelegate);
         Js1.DisposeScript(prelude);

@@ -1,5 +1,4 @@
-﻿#if false
-// Copyright (c) 2012, Event Store LLP
+﻿// Copyright (c) 2012, Event Store LLP
 // All rights reserved.
 // 
 // Redistribution and use in source and binary forms, with or without
@@ -71,4 +70,3 @@ fromAll().foreachStream().when({
         }
     }
 }
-#endif

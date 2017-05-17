@@ -55,8 +55,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
     [Test, Category("v8"), Category("Manual"), Explicit]
     public void can_pass_though_millions_of_events_seabiscuit_changed()
     {
-      //for (var i = 0; i < 100000000; i++)
+#if UNOFFICIALTESTING
       for (var i = 0; i < 100; i++)
+#else
+      for (var i = 0; i < 100000000; i++)
+#endif
       {
         string state;
         EmittedEventEnvelope[] emittedEvents;
