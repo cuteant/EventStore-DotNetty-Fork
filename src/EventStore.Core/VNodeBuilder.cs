@@ -90,6 +90,7 @@ namespace EventStore.Core
     protected TimeSpan _intTcpHeartbeatInterval;
     protected TimeSpan _extTcpHeartbeatTimeout;
     protected TimeSpan _extTcpHeartbeatInterval;
+    protected int _connectionPendingSendBytesThreshold;
 
     protected bool _skipVerifyDbHashes;
     protected int _maxMemtableSize;
@@ -187,6 +188,7 @@ namespace EventStore.Core
       _intTcpHeartbeatTimeout = TimeSpan.FromMilliseconds(Opts.IntTcpHeartbeatTimeoutDefault);
       _extTcpHeartbeatInterval = TimeSpan.FromMilliseconds(Opts.ExtTcpHeartbeatIntervalDefault);
       _extTcpHeartbeatTimeout = TimeSpan.FromMilliseconds(Opts.ExtTcpHeartbeatTimeoutDefault);
+      _connectionPendingSendBytesThreshold = Opts.ConnectionPendingSendBytesThresholdDefault;
 
       _skipVerifyDbHashes = Opts.SkipDbVerifyDefault;
       _maxMemtableSize = Opts.MaxMemtableSizeDefault;
@@ -735,6 +737,17 @@ namespace EventStore.Core
       _extTcpHeartbeatTimeout = heartbeatTimeout;
       return this;
     }
+
+        /// <summary>
+        /// Sets the maximum number of pending send bytes allowed before a connection is closed.
+        /// </summary>
+        /// <param name="WithConnectionPendingSendBytesThreshold">The number of pending send bytes allowed</param>
+        /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+        public VNodeBuilder WithConnectionPendingSendBytesThreshold(int connectionPendingSendBytesThreshold)
+        {
+            _connectionPendingSendBytesThreshold = connectionPendingSendBytesThreshold;
+            return this;
+        }
 
     /// <summary>
     /// Sets the gossip interval
@@ -1314,6 +1327,7 @@ namespace EventStore.Core
               _startStandardProjections,
               _disableHTTPCaching,
               _logHttpRequests,
+              _connectionPendingSendBytesThreshold,
               _index,
               _enableHistograms,
               _indexCacheDepth,

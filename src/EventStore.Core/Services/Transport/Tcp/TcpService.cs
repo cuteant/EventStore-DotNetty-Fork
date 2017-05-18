@@ -41,6 +41,7 @@ namespace EventStore.Core.Services.Transport.Tcp
     private readonly TimeSpan _heartbeatTimeout;
     private readonly IAuthenticationProvider _authProvider;
     private readonly X509Certificate _certificate;
+    private readonly int _connectionPendingSendBytesThreshold;
 
     public TcpService(IPublisher publisher,
                       IPEndPoint serverEndPoint,
@@ -51,9 +52,10 @@ namespace EventStore.Core.Services.Transport.Tcp
                       TimeSpan heartbeatInterval,
                       TimeSpan heartbeatTimeout,
                       IAuthenticationProvider authProvider,
-                      X509Certificate certificate)
+                      X509Certificate certificate,
+                      int connectionPendingSendBytesThreshold)
         : this(publisher, serverEndPoint, networkSendQueue, serviceType, securityType, (_, __) => dispatcher,
-               heartbeatInterval, heartbeatTimeout, authProvider, certificate)
+               heartbeatInterval, heartbeatTimeout, authProvider, certificate, connectionPendingSendBytesThreshold)
     {
     }
 
@@ -66,7 +68,8 @@ namespace EventStore.Core.Services.Transport.Tcp
                       TimeSpan heartbeatInterval,
                       TimeSpan heartbeatTimeout,
                       IAuthenticationProvider authProvider,
-                      X509Certificate certificate)
+                      X509Certificate certificate,
+                      int connectionPendingSendBytesThreshold)
     {
       Ensure.NotNull(publisher, "publisher");
       Ensure.NotNull(serverEndPoint, "serverEndPoint");
@@ -87,6 +90,7 @@ namespace EventStore.Core.Services.Transport.Tcp
       _heartbeatTimeout = heartbeatTimeout;
       _authProvider = authProvider;
       _certificate = certificate;
+      _connectionPendingSendBytesThreshold = connectionPendingSendBytesThreshold;
     }
 
     public void Handle(SystemMessage.SystemInit message)
@@ -132,7 +136,8 @@ namespace EventStore.Core.Services.Transport.Tcp
               _authProvider,
               _heartbeatInterval,
               _heartbeatTimeout,
-              (m, e) => _publisher.Publish(new TcpMessage.ConnectionClosed(m, e))); // TODO AN: race condition
+              (m, e) => _publisher.Publish(new TcpMessage.ConnectionClosed(m, e)), // TODO AN: race condition
+              connectionPendingSendBytesThreshold);
       _publisher.Publish(new TcpMessage.ConnectionEstablished(manager));
       manager.StartReceiving();
     }
