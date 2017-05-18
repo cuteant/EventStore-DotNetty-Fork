@@ -237,7 +237,7 @@ namespace EventStore.Projections.Core.Services.Processing
       switch (message.Result)
       {
         case OperationResult.WrongExpectedVersion:
-          RequestRestart(string.Format("The '{0}' stream has been written to from the outside", _streamId));
+          RequestRestart(string.Format("The '{0}' stream has been written to from the outside. Expected Version: {1}, Current Version: {2}. Checkpoint: {3}.", _streamId, _lastKnownEventNumber, message.CurrentVersion, _fromCheckpointPosition));
           break;
         case OperationResult.PrepareTimeout:
         case OperationResult.ForwardTimeout:
@@ -246,14 +246,14 @@ namespace EventStore.Projections.Core.Services.Processing
           {
             if (_logger.IsInformationLevelEnabled())
             {
-              _logger.LogInformation("Retrying write to {0} (Retry {1} of {2})", _streamId, (MaxRetryCount - retryCount) + 1, MaxRetryCount);
+              _logger.LogInformation("Retrying write to {0} (Retry {1} of {2}). Checkpoint: {3}.", _streamId, (MaxRetryCount - retryCount) + 1, MaxRetryCount, _fromCheckpointPosition);
             }
 
             PublishWriteEvents(--retryCount);
           }
           else
           {
-            Failed(string.Format("Failed to write an events to {0}. Retry limit of {1} reached. Reason: {2}", _streamId, MaxRetryCount, message.Result));
+            Failed(string.Format("Failed to write events to {0}. Retry limit of {1} reached. Reason: {2}. Checkpoint: {3}.", _streamId, MaxRetryCount, message.Result, _fromCheckpointPosition));
           }
           break;
         default:
