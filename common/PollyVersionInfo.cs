@@ -2,4 +2,4 @@
 
 using System.Reflection;
 
-[assembly: AssemblyInformationalVersion("5.0.0-rtm-170501")]
+[assembly: AssemblyInformationalVersion("5.0.0-rtm-170502")]
