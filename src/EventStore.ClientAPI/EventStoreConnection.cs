@@ -51,11 +51,11 @@ namespace EventStore.ClientAPI
       var uri = GetUriFromConnectionString(connectionString);
       if (uri == null && (settings.GossipSeeds == null || settings.GossipSeeds.Length == 0))
       {
-        throw new Exception(string.Format("Did not find ConnectTo or GossipSeeds in the connection string.\n'{0}'", connectionString));
+        throw new Exception($"Did not find ConnectTo or GossipSeeds in the connection string.\n'{connectionString}'");
       }
       if (uri != null && settings.GossipSeeds != null && settings.GossipSeeds.Length > 0)
       {
-        throw new NotSupportedException(string.Format("Setting ConnectTo as well as GossipSeeds on the connection string is currently not supported.\n{0}", connectionString));
+        throw new NotSupportedException($"Setting ConnectTo as well as GossipSeeds on the connection string is currently not supported.\n{connectionString}");
       }
       return Create(settings, uri, connectionName);
     }
@@ -96,8 +96,8 @@ namespace EventStore.ClientAPI
       if (scheme == "discover")
       {
         var clusterSettings = new ClusterSettings(uri.Host, connectionSettings.MaxDiscoverAttempts, uri.Port, connectionSettings.GossipTimeout, connectionSettings.PreferRandomNode);
-        Ensure.NotNull(connectionSettings, "connectionSettings");
-        Ensure.NotNull(clusterSettings, "clusterSettings");
+        Ensure.NotNull(connectionSettings, nameof(connectionSettings));
+        Ensure.NotNull(clusterSettings, nameof(clusterSettings));
 
         var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                   clusterSettings.MaxDiscoverAttempts,
@@ -124,8 +124,8 @@ namespace EventStore.ClientAPI
             connectionSettings.MaxDiscoverAttempts,
             connectionSettings.GossipTimeout,
             connectionSettings.PreferRandomNode);
-        Ensure.NotNull(connectionSettings, "connectionSettings");
-        Ensure.NotNull(clusterSettings, "clusterSettings");
+        Ensure.NotNull(connectionSettings, nameof(connectionSettings));
+        Ensure.NotNull(clusterSettings, nameof(clusterSettings));
 
         var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(
             clusterSettings.ClusterDns,
@@ -138,7 +138,7 @@ namespace EventStore.ClientAPI
         return new EventStoreNodeConnection(connectionSettings, clusterSettings, endPointDiscoverer,
             connectionName);
       }
-      throw new Exception(string.Format("Unknown scheme for connection '{0}'", scheme));
+      throw new Exception($"Unknown scheme for connection '{scheme}'");
     }
 
 #if DESKTOPCLR
@@ -149,10 +149,10 @@ namespace EventStore.ClientAPI
       if (!IPAddress.TryParse(uri.Host, out ipaddress))
       {
         var entries = Dns.GetHostAddresses(uri.Host);
-        if (entries.Length == 0) throw new Exception(string.Format("Unable to parse IP address or lookup DNS host for '{0}'", uri.Host));
+        if (entries.Length == 0) throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'");
         //pick an IPv4 address, if one exists
         ipaddress = entries.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
-        if (ipaddress == null) throw new Exception(string.Format("Could not get an IPv4 address for host '{0}'", uri.Host));
+        if (ipaddress == null) throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'");
       }
       var port = uri.IsDefaultPort ? 2113 : uri.Port;
       return new IPEndPoint(ipaddress, port);
@@ -163,14 +163,14 @@ namespace EventStore.ClientAPI
     {
       if (uri == null || string.IsNullOrEmpty(uri.UserInfo)) return null;
       var pieces = uri.UserInfo.Split(':');
-      if (pieces.Length != 2) throw new Exception(string.Format("Unable to parse user information '{0}'", uri.UserInfo));
+      if (pieces.Length != 2) throw new Exception($"Unable to parse user information '{uri.UserInfo}'");
       return new UserCredentials(pieces[0], pieces[1]);
     }
 
-    private static Uri GetUriFromConnectionString(string connectionString)
+    internal static Uri GetUriFromConnectionString(string connectionString)
     {
       var connto = ConnectionString.GetConnectionStringInfo(connectionString)
-                      .FirstOrDefault(x => x.Key.ToUpperInvariant() == "CONNECTTO").Value;
+                                   .FirstOrDefault(x => string.Equals(x.Key, "CONNECTTO", StringComparison.OrdinalIgnoreCase)).Value;
       return connto == null ? null : new Uri(connto);
     }
     /// <summary>
@@ -193,8 +193,8 @@ namespace EventStore.ClientAPI
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
     public static IEventStoreConnection Create(ConnectionSettings connectionSettings, IPEndPoint tcpEndPoint, string connectionName = null)
     {
-      Ensure.NotNull(connectionSettings, "settings");
-      Ensure.NotNull(tcpEndPoint, "tcpEndPoint");
+      Ensure.NotNull(connectionSettings, nameof(connectionSettings));
+      Ensure.NotNull(tcpEndPoint, nameof(tcpEndPoint));
       return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
     }
 
@@ -208,8 +208,8 @@ namespace EventStore.ClientAPI
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
     public static IEventStoreConnection Create(ConnectionSettings connectionSettings, ClusterSettings clusterSettings, string connectionName = null)
     {
-      Ensure.NotNull(connectionSettings, "connectionSettings");
-      Ensure.NotNull(clusterSettings, "clusterSettings");
+      Ensure.NotNull(connectionSettings, nameof(connectionSettings));
+      Ensure.NotNull(clusterSettings, nameof(clusterSettings));
 
       var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                 clusterSettings.MaxDiscoverAttempts,

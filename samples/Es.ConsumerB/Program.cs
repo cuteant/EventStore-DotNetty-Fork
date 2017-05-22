@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.SystemData;
 
 namespace Es.Consumer
@@ -37,6 +38,52 @@ namespace Es.Consumer
           Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
           Console.WriteLine(data);
         }, null, null, 10, true);
+        conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
+        {
+          var data = Encoding.ASCII.GetString(x.Event.Data);
+          Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+          Console.WriteLine(data);
+        }, null, null, 10, true);
+
+        #region VolatileSubscription
+        //var sub = conn.SubscribeToStreamAsync(STREAM, true,
+        //    (_, x) =>
+        //    {
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
+        //var sub1 = conn.SubscribeToStreamAsync(STREAM, true,
+        //    (_, x) =>
+        //    {
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
+        #endregion
+
+        #region CatchupSubscription
+        //Note the subscription is subscribing from the beginning every time. You could also save
+        //your checkpoint of the last seen event and subscribe to that checkpoint at the beginning.
+        //If stored atomically with the processing of the event this will also provide simulated
+        //transactional messaging.
+
+        //var sub = conn.SubscribeToStreamFrom(STREAM, null, true,
+        //    (_, x) =>
+        //    {
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
+        //var sub1 = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, true,
+        //    (_, x) =>
+        //    {
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
+
+        #endregion
 
         Console.WriteLine("waiting for events. press enter to exit");
         Console.ReadKey();
@@ -48,7 +95,8 @@ namespace Es.Consumer
     {
       PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
           .DoNotResolveLinkTos()
-          .StartFromCurrent();
+          .StartFromCurrent()
+          .PreferRoundRobin();
 
       try
       {
