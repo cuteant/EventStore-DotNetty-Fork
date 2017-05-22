@@ -287,11 +287,11 @@ namespace EventStore.Projections.Core.Services.Processing
       {
         _publisher.Publish(
             new AwakeServiceMessage.SubscribeAwake(
-                new PublishEnvelope(_publisher, crossThread: true), Guid.NewGuid(), stream,
+                new PublishEnvelope(_publisher, crossThread: true), Guid.NewGuid(), null,
                 new TFPos(_lastPosition, _lastPosition), CreateReadTimeoutMessage(pendingRequestCorrelationId, stream)));
         _publisher.Publish(
             new AwakeServiceMessage.SubscribeAwake(
-                new PublishEnvelope(_publisher, crossThread: true), Guid.NewGuid(), stream,
+                new PublishEnvelope(_publisher, crossThread: true), Guid.NewGuid(), null,
                 new TFPos(_lastPosition, _lastPosition), readEventsForward));
       }
       else
