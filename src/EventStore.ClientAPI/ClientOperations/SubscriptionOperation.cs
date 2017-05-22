@@ -24,8 +24,7 @@ namespace EventStore.ClientAPI.ClientOperations
     private readonly bool _verboseLogging;
     protected readonly Func<TcpPackageConnection> _getConnection;
     private readonly int _maxQueueSize = 2000;
-    private readonly ActionBlock<Tuple<Action, ILogger>> _actionQueue =
-        new ActionBlock<Tuple<Action, ILogger>>(new Action<Tuple<Action, ILogger>>(ExecuteActions));
+    private readonly ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _actionQueue;
     private T _subscription;
     private int _unsubscribed;
     protected Guid _correlationId;
@@ -53,6 +52,8 @@ namespace EventStore.ClientAPI.ClientOperations
       _verboseLogging = verboseLogging;
       if (_verboseLogging) { _verboseLogging = _log.IsDebugLevelEnabled(); }
       _getConnection = getConnection;
+      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+            new Action<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(ProcessItem));
     }
 
     protected void EnqueueSend(TcpPackage package)
@@ -220,7 +221,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         if (_subscription != null)
         {
-          ExecuteActionAsync(() => _subscriptionDropped(_subscription, reason, exc));
+          EnqueueMessage((false, ResolvedEvent.Null, reason, exc));
         }
       }
     }
@@ -234,8 +235,10 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_subscription != null) { throw new Exception("Double confirmation of subscription."); }
 
       if (_verboseLogging)
+      {
         _log.LogDebug("Subscription {0:B} to {1}: subscribed at CommitPosition: {2}, EventNumber: {3}.",
                    _correlationId, _streamId == string.Empty ? "<all>" : _streamId, lastCommitPosition, lastEventNumber);
+      }
       _subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
       _source.SetResult(_subscription);
     }
@@ -249,19 +252,32 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
 
       if (_verboseLogging)
+      {
         _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
                   _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
                   e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
-
-      ExecuteActionAsync(() => _eventAppeared(_subscription, e));
+      }
+      EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
     }
 
-    private void ExecuteActionAsync(Action action)
+    private void EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      _actionQueue.Post(Tuple.Create(action, _log));
+      _actionQueue.Post(item);
       if (_actionQueue.InputCount > _maxQueueSize)
       {
         DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
+      }
+    }
+
+    private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    {
+      if (item.isResolvedEvent)
+      {
+        _eventAppeared(_subscription, item.resolvedEvent);
+      }
+      else
+      {
+        _subscriptionDropped(_subscription, item.dropReason, item.exc);
       }
     }
 

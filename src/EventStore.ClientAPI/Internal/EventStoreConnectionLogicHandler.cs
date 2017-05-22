@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           task.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception(string.Format("Unknown state: {0}", _state));
+        default: throw new Exception($"Unknown state: {_state}");
       }
     }
 
@@ -349,7 +349,7 @@ namespace EventStore.ClientAPI.Internal
             break;
           }
         case ConnectionState.Closed: break;
-        default: throw new Exception(string.Format("Unknown state: {0}.", _state));
+        default: throw new Exception($"Unknown state: {_state}.");
       }
     }
 
@@ -390,7 +390,7 @@ namespace EventStore.ClientAPI.Internal
       switch (_state)
       {
         case ConnectionState.Init:
-          operation.Fail(new InvalidOperationException(string.Format("EventStoreConnection '{0}' is not active.", _esConnection.ConnectionName)));
+          operation.Fail(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
           break;
         case ConnectionState.Connecting:
           LogDebug("StartOperation enqueue {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, maxRetries, timeout);
@@ -403,7 +403,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           operation.Fail(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception(string.Format("Unknown state: {0}.", _state));
+        default: throw new Exception($"Unknown state: {_state}.");
       }
     }
 
@@ -412,7 +412,7 @@ namespace EventStore.ClientAPI.Internal
       switch (_state)
       {
         case ConnectionState.Init:
-          msg.Source.SetException(new InvalidOperationException(string.Format("EventStoreConnection '{0}' is not active.", _esConnection.ConnectionName)));
+          msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
@@ -429,7 +429,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception(string.Format("Unknown state: {0}.", _state));
+        default: throw new Exception($"Unknown state: {_state}.");
       }
     }
 
@@ -438,7 +438,7 @@ namespace EventStore.ClientAPI.Internal
       switch (_state)
       {
         case ConnectionState.Init:
-          msg.Source.SetException(new InvalidOperationException(string.Format("EventStoreConnection '{0}' is not active.", _esConnection.ConnectionName)));
+          msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
@@ -455,7 +455,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception(string.Format("Unknown state: {0}.", _state));
+        default: throw new Exception($"Unknown state: {_state}.");
       }
     }
 
@@ -527,7 +527,7 @@ namespace EventStore.ClientAPI.Internal
             ReconnectTo(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint));
             _operations.ScheduleOperationRetry(operation);
             break;
-          default: throw new Exception(string.Format("Unknown InspectionDecision: {0}", result.Decision));
+          default: throw new Exception($"Unknown InspectionDecision: {result.Decision}");
         }
         if (_state == ConnectionState.Connected)
         {
@@ -554,7 +554,7 @@ namespace EventStore.ClientAPI.Internal
           case InspectionDecision.Subscribed:
             subscription.IsSubscribed = true;
             break;
-          default: throw new Exception(string.Format("Unknown InspectionDecision: {0}", result.Decision));
+          default: throw new Exception($"Unknown InspectionDecision: {result.Decision}");
         }
       }
       else

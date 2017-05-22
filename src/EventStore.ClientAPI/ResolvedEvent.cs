@@ -61,5 +61,7 @@ namespace EventStore.ClientAPI
             Link = evnt.Link == null ? null : new RecordedEvent(evnt.Link);
             OriginalPosition = null;
         }
-    }
+
+        public static readonly ResolvedEvent Null = new ResolvedEvent();
+  }
 }
