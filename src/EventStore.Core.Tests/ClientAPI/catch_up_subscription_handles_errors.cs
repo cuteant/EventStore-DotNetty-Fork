@@ -290,35 +290,32 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             var finalEvent = new ManualResetEventSlim();
             int callCount = 0;
-            _connection.HandleReadStreamEventsForwardAsync((stream, start, max) =>
+            _connection.HandleReadStreamEventsForwardAsync((stream, start, max) => Task.Run(() =>
             {
                 callCount++;
 
-                var taskCompletionSource = new TaskCompletionSource<StreamEventsSlice>();
                 if (callCount == 1)
                 {
-                    taskCompletionSource.SetResult(CreateStreamEventsSlice(isEnd: true));
+                    return Task.FromResult(CreateStreamEventsSlice(isEnd: true));
                 }
                 else if (callCount == 2)
                 {
-                    taskCompletionSource.SetResult(CreateStreamEventsSlice(fromEvent:1, isEnd: true));
+                    var result = Task.FromResult(CreateStreamEventsSlice(fromEvent:1, isEnd: true));
                     Assert.That(finalEvent.Wait(TimeoutMs));
+                    return result;
                 }
-                
-                return taskCompletionSource.Task;
-            });
+                else
+                {
+                    throw new InvalidOperationException("Should not get a third call");
+                }
+            }));
 
-            _connection.HandleSubscribeToStreamAsync((stream, raise, drop) =>
-            {
-                var taskCompletionSource = new TaskCompletionSource<EventStoreSubscription>();
-                taskCompletionSource.SetResult(CreateVolatileSubscription(raise, drop, 1));
-                return taskCompletionSource.Task;
-            });
+            _connection.HandleSubscribeToStreamAsync((stream, raise, drop) => Task.FromResult<EventStoreSubscription>(CreateVolatileSubscription(raise, drop, 1)));
 
             var task = _subscription.Start();
 
             Assert.That(task.Status, Is.Not.EqualTo(TaskStatus.RanToCompletion));
-            
+
             finalEvent.Set();
 
             Assert.That(task.Wait(TimeoutMs));
