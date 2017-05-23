@@ -5,7 +5,7 @@ namespace EventStore.ClientAPI
     /// <summary>
     /// Settings for <see cref="EventStoreCatchUpSubscription"/>
     /// </summary>
-    public class CatchUpSubscriptionSettings
+    public partial class CatchUpSubscriptionSettings
     {
         /// <summary>
         /// The maximum amount to cache when processing from live subscription. Going above will drop subscription.

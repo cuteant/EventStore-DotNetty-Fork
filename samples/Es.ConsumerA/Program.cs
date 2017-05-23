@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CuteAnt.AsyncEx;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.SystemData;
@@ -21,8 +22,8 @@ namespace Es.Consumer
     {
 
       //uncommet to enable verbose logging in client.
-      var settings = ConnectionSettings.Create();//.EnableVerboseLogging().UseConsoleLogger();
-      using (var conn = EventStoreConnection.Create(settings, new IPEndPoint(IPAddress.Loopback, DEFAULTPORT)))
+      var connSettings = ConnectionSettings.Create();//.EnableVerboseLogging().UseConsoleLogger();
+      using (var conn = EventStoreConnection.Create(connSettings, new IPEndPoint(IPAddress.Loopback, DEFAULTPORT)))
       {
         conn.ConnectAsync().Wait();
 
@@ -32,30 +33,36 @@ namespace Es.Consumer
         CreateSubscription(conn);
         //UpdateSubscription(conn);
 
-        conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
-        {
-          var data = Encoding.ASCII.GetString(x.Event.Data);
-          Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-          Console.WriteLine(data);
-        }, null, null, 10, true);
-        conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
-        {
-          var data = Encoding.ASCII.GetString(x.Event.Data);
-          Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-          Console.WriteLine(data);
-        }, null, null, 10, true);
+        //conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
+        //{
+        //  await TaskConstants.Completed;
+        //  var data = Encoding.ASCII.GetString(x.Event.Data);
+        //  Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //  Console.WriteLine(data);
+        //}, null, null, 10, true);
+
+        //conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
+        //{
+        //  await TaskConstants.Completed;
+        //  var data = Encoding.ASCII.GetString(x.Event.Data);
+        //  Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //  Console.WriteLine(data);
+        //}, null, null, 10, true);
 
         #region VolatileSubscription
         //var sub = conn.SubscribeToStreamAsync(STREAM, true,
-        //    (_, x) =>
+        //    async (_, x) =>
         //    {
+        //      await TaskConstants.Completed;
         //      var data = Encoding.ASCII.GetString(x.Event.Data);
         //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
         //      Console.WriteLine(data);
         //    });
+
         //var sub1 = conn.SubscribeToStreamAsync(STREAM, true,
-        //    (_, x) =>
+        //    async (_, x) =>
         //    {
+        //      await TaskConstants.Completed;
         //      var data = Encoding.ASCII.GetString(x.Event.Data);
         //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
         //      Console.WriteLine(data);
@@ -68,21 +75,25 @@ namespace Es.Consumer
         //If stored atomically with the processing of the event this will also provide simulated
         //transactional messaging.
 
-        //var sub = conn.SubscribeToStreamFrom(STREAM, null, true,
-        //    (_, x) =>
-        //    {
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //    });
-        //var sub1 = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, true,
-        //    (_, x) =>
-        //    {
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //    });
+        var settings = CatchUpSubscriptionSettings.Create(true);
 
+        var sub = conn.SubscribeToStreamFrom(STREAM, null, settings,
+            eventAppearedAsync: async (_, x) =>
+            {
+              await TaskConstants.Completed;
+              var data = Encoding.ASCII.GetString(x.Event.Data);
+              Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+              Console.WriteLine(data);
+            });
+
+        //var sub1 = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, settings,
+        //    eventAppearedAsync: async (_, x) =>
+        //    {
+        //      await TaskConstants.Completed;
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
         #endregion
 
         Console.WriteLine("waiting for events. press enter to exit");

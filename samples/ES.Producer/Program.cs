@@ -26,7 +26,7 @@ namespace ES.Producer
               ExpectedVersion.Any,
               GetEventDataFor(x)).Wait();
           Console.WriteLine("event " + x + " written.");
-          Thread.Sleep(100);
+          Thread.Sleep(200);
         }
       }
 
