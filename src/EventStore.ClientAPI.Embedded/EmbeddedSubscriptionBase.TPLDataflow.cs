@@ -164,7 +164,7 @@ namespace EventStore.ClientAPI.Embedded
       {
         if (item.isResolvedEvent)
         {
-          await _eventAppearedAsync(_subscription, item.resolvedEvent);
+          await _eventAppearedAsync(_subscription, item.resolvedEvent).ConfigureAwait(false);
         }
         else
         {

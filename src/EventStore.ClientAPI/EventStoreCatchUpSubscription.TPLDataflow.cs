@@ -146,7 +146,7 @@ namespace EventStore.ClientAPI
     internal Task Start()
     {
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: starting...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
-      return RunSubscription();
+      return RunSubscriptionAsync();
     }
 
     /// <summary>Attempts to stop the subscription.</summary>
@@ -184,13 +184,12 @@ namespace EventStore.ClientAPI
         Log.LogDebug("Catch-up Subscription {0} to {1}: unhooking from connection.Connected.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       }
       _connection.Connected -= OnReconnect;
-      RunSubscription();
+      RunSubscriptionAsync();
     }
 
-    private Task RunSubscription()
-        => Task.Factory.StartNew(LoadHistoricalEvents, TaskCreationOptions.AttachedToParent).ContinueWith(_ => HandleErrorOrContinue(_));
+    private Task RunSubscriptionAsync() => LoadHistoricalEventsAsync();
 
-    private void LoadHistoricalEvents()
+    private async Task LoadHistoricalEventsAsync()
     {
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: running...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
@@ -202,8 +201,16 @@ namespace EventStore.ClientAPI
       {
         if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: pulling events...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
-        ReadEventsTillAsync(_connection, _resolveLinkTos, _userCredentials, null, null)
-            .ContinueWith(_ => HandleErrorOrContinue(_, SubscribeToStream), TaskContinuationOptions.AttachedToParent);
+        try
+        {
+          await ReadEventsTillAsync(_connection, _resolveLinkTos, _userCredentials, null, null).ConfigureAwait(false);
+          await SubscribeToStreamAsync().ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+          DropSubscription(SubscriptionDropReason.CatchUpError, ex);
+          throw;
+        }
       }
       else
       {
@@ -211,21 +218,18 @@ namespace EventStore.ClientAPI
       }
     }
 
-    private void SubscribeToStream()
+    private async Task SubscribeToStreamAsync()
     {
       if (!ShouldStop)
       {
         if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
-        var subscribeTask = _streamId == string.Empty
-            ? _connection.SubscribeToAllAsync(_resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials)
-            : _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials);
+        var subscription = StreamId == string.Empty
+            ? await _connection.SubscribeToAllAsync(_resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false)
+            : await _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false);
 
-        subscribeTask.ContinueWith(_ => HandleErrorOrContinue(_, () =>
-                                                                    {
-                                                                      _subscription = _.Result;
-                                                                      ReadMissedHistoricEvents();
-                                                                    }), TaskContinuationOptions.AttachedToParent);
+        _subscription = subscription;
+        await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
       }
       else
       {
@@ -233,14 +237,14 @@ namespace EventStore.ClientAPI
       }
     }
 
-    private void ReadMissedHistoricEvents()
+    private async Task ReadMissedHistoricEventsAsync()
     {
       if (!ShouldStop)
       {
         if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: pulling events (if left)...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
-        ReadEventsTillAsync(_connection, _resolveLinkTos, _userCredentials, _subscription.LastCommitPosition, _subscription.LastEventNumber)
-            .ContinueWith(_ => HandleErrorOrContinue(_, StartLiveProcessing), TaskContinuationOptions.AttachedToParent);
+        await ReadEventsTillAsync(_connection, _resolveLinkTos, _userCredentials, _subscription.LastCommitPosition, _subscription.LastEventNumber).ConfigureAwait(false);
+        StartLiveProcessing();
       }
       else
       {
@@ -265,24 +269,6 @@ namespace EventStore.ClientAPI
 
       var link = _liveQueue.LinkTo(_processBlock);
       Interlocked.Exchange(ref _link, link);
-    }
-
-    private void HandleErrorOrContinue(Task task, Action continuation = null)
-    {
-      if (task.IsFaulted)
-      {
-        DropSubscription(SubscriptionDropReason.CatchUpError, task.Exception.GetBaseException());
-        task.Wait();
-      }
-      else if (task.IsCanceled)
-      {
-        DropSubscription(SubscriptionDropReason.CatchUpError, new TaskCanceledException(task));
-        task.Wait();
-      }
-      else
-      {
-        continuation?.Invoke();
-      }
     }
 
     private void EnqueuePushedEvent(EventStoreSubscription subscription, ResolvedEvent e)
@@ -354,7 +340,7 @@ namespace EventStore.ClientAPI
       }
       try
       {
-        await TryProcessAsync(e);
+        await TryProcessAsync(e).ConfigureAwait(false);
       }
       catch (Exception exc)
       {
@@ -362,8 +348,7 @@ namespace EventStore.ClientAPI
         DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
       }
     }
-
-    private void DropSubscription(SubscriptionDropReason reason, Exception error)
+    internal void DropSubscription(SubscriptionDropReason reason, Exception error)
     {
       if (Interlocked.CompareExchange(ref _isDropped, 1, 0) == 0)
       {
@@ -375,7 +360,7 @@ namespace EventStore.ClientAPI
                     reason, error == null ? string.Empty : error.ToString());
         }
 
-        if (_subscription != null) { _subscription.Unsubscribe(); }
+        _subscription?.Unsubscribe();
         _subscriptionDropped?.Invoke(this, reason, error);
         _stopped.Set();
       }
@@ -414,7 +399,6 @@ namespace EventStore.ClientAPI
 
     private Position _nextReadPosition;
     private Position _lastProcessedPosition;
-    private TaskCompletionSource<bool> _completion;
 
     internal EventStoreAllCatchUpSubscription(IEventStoreConnection connection,
                                                   Position? fromPositionExclusive, /* if null -- from the very beginning */
@@ -451,66 +435,52 @@ namespace EventStore.ClientAPI
     /// <returns></returns>
     protected override Task ReadEventsTillAsync(IEventStoreConnection connection, bool resolveLinkTos,
       UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
-    {
-      _completion = new TaskCompletionSource<bool>();
-      ReadEventsInternal(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-      return _completion.Task;
-    }
+        => ReadEventsInternalAsync(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
 
-    private void ReadEventsInternal(IEventStoreConnection connection, bool resolveLinkTos,
+    private async Task ReadEventsInternalAsync(IEventStoreConnection connection, bool resolveLinkTos,
       UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
     {
-      try
+      var slice = await connection.ReadAllEventsForwardAsync(_nextReadPosition, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+      await ReadEventsCallbackAsync(slice, connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber).ConfigureAwait(false);
+    }
+
+    private async Task ReadEventsCallbackAsync(AllEventsSlice slice, IEventStoreConnection connection, bool resolveLinkTos,
+                   UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
+    {
+      if (!(await ProcessEventsAsync(lastCommitPosition, slice).ConfigureAwait(false)) && !ShouldStop)
       {
-        connection.ReadAllEventsForwardAsync(_nextReadPosition, ReadBatchSize, resolveLinkTos, userCredentials)
-        .ContinueWith(_ =>
-        {
-          ReadEventsCallback(_, connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-        });
+        await ReadEventsInternalAsync(connection, resolveLinkTos, userCredentials,
+            lastCommitPosition, lastEventNumber).ConfigureAwait(false);
       }
-      catch (Exception ex)
+      else
       {
-        _completion.TrySetException(ex);
+        if (Verbose)
+        {
+          Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadPosition = {2}.",
+              SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadPosition);
+        }
       }
     }
 
-    private void ReadEventsCallback(Task<AllEventsSlice> task, IEventStoreConnection connection, bool resolveLinkTos,
-      UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
+    private async Task<bool> ProcessEventsAsync(long? lastCommitPosition, AllEventsSlice slice)
     {
-      try
+      if (EventAppeared != null)
       {
-        if (task.IsFaulted || task.IsCanceled)
+        foreach (var e in slice.Events)
         {
-          task.Wait(); //force exception to be thrown
+          if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
+          TryProcess(e);
         }
+      }
+      else
+      {
+        foreach (var e in slice.Events)
+        {
+          if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
+          await TryProcessAsync(e).ConfigureAwait(false);
+        }
+      }
 
-        if (!ProcessEvents(lastCommitPosition, task.Result) && !ShouldStop)
-        {
-          ReadEventsInternal(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-        }
-        else
-        {
-          if (Verbose)
-          {
-            Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadPosition = {2}.",
-                SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadPosition);
-          }
-          _completion.TrySetResult(true);
-        }
-      }
-      catch (Exception e)
-      {
-        _completion.TrySetException(e);
-      }
-    }
-
-    private bool ProcessEvents(long? lastCommitPosition, AllEventsSlice slice)
-    {
-      foreach (var e in slice.Events)
-      {
-        if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
-        TryProcess(e);
-      }
       _nextReadPosition = slice.NextPosition;
 
       var done = lastCommitPosition == null
@@ -534,7 +504,15 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalPosition > _lastProcessedPosition)
       {
-        EventAppeared(this, e);
+        try
+        {
+          EventAppeared(this, e);
+        }
+        catch (Exception ex)
+        {
+          DropSubscription(SubscriptionDropReason.EventHandlerException, ex);
+          throw;
+        }
         _lastProcessedPosition = e.OriginalPosition.Value;
         processed = true;
       }
@@ -555,7 +533,15 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalPosition > _lastProcessedPosition)
       {
-        await EventAppearedAsync(this, e);
+        try
+        {
+          await EventAppearedAsync(this, e).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+          DropSubscription(SubscriptionDropReason.EventHandlerException, ex);
+          throw;
+        }
         _lastProcessedPosition = e.OriginalPosition.Value;
         processed = true;
       }
@@ -574,11 +560,10 @@ namespace EventStore.ClientAPI
   public class EventStoreStreamCatchUpSubscription : EventStoreCatchUpSubscription
   {
     /// <summary>The last event number processed on the subscription.</summary>
-    public long LastProcessedEventNumber { get { return _lastProcessedEventNumber; } }
+    public long LastProcessedEventNumber => _lastProcessedEventNumber;
 
     private long _nextReadEventNumber;
     private long _lastProcessedEventNumber;
-    private TaskCompletionSource<bool> _completion;
 
     internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
                                                       string streamId,
@@ -621,69 +606,52 @@ namespace EventStore.ClientAPI
     /// <returns></returns>
     protected override Task ReadEventsTillAsync(IEventStoreConnection connection, bool resolveLinkTos,
       UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
+        => ReadEventsInternalAsync(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
+
+    private async Task ReadEventsInternalAsync(IEventStoreConnection connection, bool resolveLinkTos,
+                   UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
     {
-      _completion = new TaskCompletionSource<bool>();
-      ReadEventsInternal(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-      return _completion.Task;
+      var slice = await connection.ReadStreamEventsForwardAsync(StreamId, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+      await ReadEventsCallbackAsync(slice, connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber).ConfigureAwait(false);
     }
 
-    private void ReadEventsInternal(IEventStoreConnection connection, bool resolveLinkTos,
-      UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
+    private async Task ReadEventsCallbackAsync(StreamEventsSlice slice, IEventStoreConnection connection, bool resolveLinkTos,
+                   UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
     {
-      try
+      if (!(await ProcessEventsAsync(lastEventNumber, slice).ConfigureAwait(false)) && !ShouldStop)
       {
-        connection.ReadStreamEventsForwardAsync(StreamId, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials)
-                  .ContinueWith(_ =>
-                  {
-                    ReadEventsCallback(_, connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-                  });
+        await ReadEventsInternalAsync(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber).ConfigureAwait(false);
       }
-      catch (Exception ex)
+      else
       {
-        _completion.TrySetException(ex);
-      }
-    }
-
-    private void ReadEventsCallback(Task<StreamEventsSlice> task, IEventStoreConnection connection, bool resolveLinkTos,
-      UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
-    {
-      try
-      {
-        if (task.IsFaulted || task.IsCanceled)
+        if (Verbose)
         {
-          task.Wait(); //force exception to be thrown
+          Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadEventNumber = {2}.",
+              SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadEventNumber);
         }
-
-        if (!ProcessEvents(lastEventNumber, task.Result) && !ShouldStop)
-        {
-          ReadEventsInternal(connection, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
-        }
-        else
-        {
-          if (Verbose)
-          {
-            Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadEventNumber = {2}.",
-                        SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadEventNumber);
-          }
-          _completion.TrySetResult(true);
-        }
-      }
-      catch (Exception e)
-      {
-        _completion.TrySetException(e);
       }
     }
 
-    private bool ProcessEvents(long? lastEventNumber, StreamEventsSlice slice)
+    private async Task<bool> ProcessEventsAsync(long? lastEventNumber, StreamEventsSlice slice)
     {
       bool done;
       switch (slice.Status)
       {
         case SliceReadStatus.Success:
           {
-            foreach (var e in slice.Events)
+            if (EventAppeared != null)
             {
-              TryProcess(e);
+              foreach (var e in slice.Events)
+              {
+                TryProcess(e);
+              }
+            }
+            else
+            {
+              foreach (var e in slice.Events)
+              {
+                await TryProcessAsync(e).ConfigureAwait(false);
+              }
             }
             _nextReadEventNumber = slice.NextEventNumber;
             done = lastEventNumber == null ? slice.IsEndOfStream : slice.NextEventNumber > lastEventNumber;
@@ -721,7 +689,15 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalEventNumber > _lastProcessedEventNumber)
       {
-        EventAppeared(this, e);
+        try
+        {
+          EventAppeared(this, e);
+        }
+        catch (Exception ex)
+        {
+          DropSubscription(SubscriptionDropReason.EventHandlerException, ex);
+          throw;
+        }
         _lastProcessedEventNumber = e.OriginalEventNumber;
         processed = true;
       }
@@ -741,7 +717,15 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalEventNumber > _lastProcessedEventNumber)
       {
-        await EventAppearedAsync(this, e);
+        try
+        {
+          await EventAppearedAsync(this, e).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+          DropSubscription(SubscriptionDropReason.EventHandlerException, ex);
+          throw;
+        }
         _lastProcessedEventNumber = e.OriginalEventNumber;
         processed = true;
       }

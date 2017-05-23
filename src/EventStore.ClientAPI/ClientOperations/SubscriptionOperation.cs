@@ -322,7 +322,7 @@ namespace EventStore.ClientAPI.ClientOperations
       {
         if (item.isResolvedEvent)
         {
-          await _eventAppearedAsync(_subscription, item.resolvedEvent);
+          await _eventAppearedAsync(_subscription, item.resolvedEvent).ConfigureAwait(false);
         }
         else
         {

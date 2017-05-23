@@ -239,7 +239,7 @@ namespace EventStore.ClientAPI
       }
       try
       {
-        await _eventAppearedAsync(this, resolvedEvent);
+        await _eventAppearedAsync(this, resolvedEvent).ConfigureAwait(false);
         if (_autoAck)
         {
           _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });

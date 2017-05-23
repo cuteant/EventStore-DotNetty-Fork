@@ -32,19 +32,19 @@ namespace Es.Consumer
         CreateSubscription(conn);
         //UpdateSubscription(conn);
 
-        //conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
-        //{
-        //  var data = Encoding.ASCII.GetString(x.Event.Data);
-        //  Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //  Console.WriteLine(data);
-        //}, null, null, 10, true);
+        conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
+        {
+          var data = Encoding.ASCII.GetString(x.Event.Data);
+          Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+          Console.WriteLine(data);
+        }, null, null, 10, true);
 
-        //conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
-        //{
-        //  var data = Encoding.ASCII.GetString(x.Event.Data);
-        //  Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //  Console.WriteLine(data);
-        //}, null, null, 10, true);
+        conn.ConnectToPersistentSubscription(STREAM, GROUP, (_, x) =>
+        {
+          var data = Encoding.ASCII.GetString(x.Event.Data);
+          Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+          Console.WriteLine(data);
+        }, null, null, 10, true);
 
         #region VolatileSubscription
         //var sub = conn.SubscribeToStreamAsync(STREAM, true,
@@ -70,13 +70,13 @@ namespace Es.Consumer
         //If stored atomically with the processing of the event this will also provide simulated
         //transactional messaging.
 
-        var sub = conn.SubscribeToStreamFrom(STREAM, null, true,
-            (_, x) =>
-            {
-              var data = Encoding.ASCII.GetString(x.Event.Data);
-              Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-              Console.WriteLine(data);
-            });
+        //var sub = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, true,
+        //    (_, x) =>
+        //    {
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //    });
 
         //var sub1 = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, true,
         //    (_, x) =>

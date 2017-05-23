@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -166,7 +165,7 @@ namespace EventStore.ClientAPI
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">An action invoked when a new event is received over the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
@@ -231,7 +230,7 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppearedAsync">An action invoked when an event is received over the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
     /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
@@ -267,7 +266,7 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="groupName">The subscription group to connect to</param>
     /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">An action invoked when an event appears</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
@@ -308,7 +307,7 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="groupName">The subscription group to connect to</param>
     /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">An action invoked when an event appears</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
@@ -515,7 +514,7 @@ namespace EventStore.ClientAPI
     /// will be pushed to the client.
     /// </summary>
     /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">An action invoked when a new event is received over the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
@@ -651,7 +650,7 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="Position.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppearedAsync">An action invoked when an event is received over the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
     /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
