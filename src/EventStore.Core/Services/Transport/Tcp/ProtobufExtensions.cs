@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.IO;
-using System.Threading;
+using CuteAnt.Buffers;
 using Microsoft.Extensions.Logging;
 using ProtoBuf;
 
@@ -9,40 +8,8 @@ namespace EventStore.Core.Services.Transport.Tcp
 {
   public static class ProtobufExtensions
   {
-    private static readonly ConcurrentStack<MemoryStream> _streams;
-
-    static ProtobufExtensions()
-    {
-      _streams = new ConcurrentStack<MemoryStream>();
-      for (var i = 0; i < 300; i++)
-      {
-        _streams.Push(new MemoryStream(2048));
-      }
-    }
-
+    private const int c_bufferSize = 1024 * 2;
     private static readonly ILogger Log = TraceLogger.GetLogger(typeof(ProtobufExtensions));
-
-    static MemoryStream AcquireStream()
-    {
-      for (var i = 0; i < 1000; i++)
-      {
-        if (_streams.TryPop(out MemoryStream ret))
-        {
-          ret.SetLength(0);
-          return ret;
-        }
-        if ((i + 1) % 5 == 0)
-        {
-          Thread.Sleep(1); //need to do better than this
-        }
-      }
-      throw new UnableToAcquireStreamException();
-    }
-
-    static void ReleaseStream(MemoryStream stream)
-    {
-      _streams.Push(stream);
-    }
 
     public static T Deserialize<T>(this byte[] data)
     {
@@ -68,38 +35,24 @@ namespace EventStore.Core.Services.Transport.Tcp
 
     public static ArraySegment<byte> Serialize<T>(this T protoContract)
     {
-      MemoryStream stream = null;
-      try
+      using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
       {
-        stream = AcquireStream();
-        Serializer.Serialize(stream, protoContract);
-        var res = new ArraySegment<byte>(stream.ToArray(), 0, (int)stream.Length);
-        return res;
-      }
-      finally
-      {
-        if (stream != null)
-        {
-          ReleaseStream(stream);
-        }
+        var outputStream = pooledOutputStream.Object;
+        outputStream.Reinitialize(c_bufferSize);
+        Serializer.Serialize(outputStream, protoContract);
+        var bytes = outputStream.ToByteArray();
+        return new ArraySegment<byte>(bytes);
       }
     }
 
     public static byte[] SerializeToArray<T>(this T protoContract)
     {
-      MemoryStream stream = null;
-      try
+      using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
       {
-        stream = AcquireStream();
-        Serializer.Serialize(stream, protoContract);
-        return stream.ToArray();
-      }
-      finally
-      {
-        if (stream != null)
-        {
-          ReleaseStream(stream);
-        }
+        var outputStream = pooledOutputStream.Object;
+        outputStream.Reinitialize(c_bufferSize);
+        Serializer.Serialize(outputStream, protoContract);
+        return outputStream.ToByteArray();
       }
     }
   }
