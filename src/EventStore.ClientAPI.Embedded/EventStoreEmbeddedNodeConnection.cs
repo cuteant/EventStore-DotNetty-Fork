@@ -17,7 +17,7 @@ using Message = EventStore.Core.Messaging.Message;
 
 namespace EventStore.ClientAPI.Embedded
 {
-    internal class EventStoreEmbeddedNodeConnection : IEventStoreConnection, IEventStoreTransactionConnection
+    internal partial class EventStoreEmbeddedNodeConnection : IEventStoreConnection, IEventStoreTransactionConnection
     {
         private class V8IntegrationAssemblyResolver
         {

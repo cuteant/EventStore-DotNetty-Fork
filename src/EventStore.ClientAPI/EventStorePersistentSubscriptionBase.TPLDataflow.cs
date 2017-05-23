@@ -21,6 +21,7 @@ namespace EventStore.ClientAPI
     private readonly string _subscriptionId;
     private readonly string _streamId;
     private readonly Action<EventStorePersistentSubscriptionBase, ResolvedEvent> _eventAppeared;
+    private readonly Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> _eventAppearedAsync;
     private readonly Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> _subscriptionDropped;
     private readonly UserCredentials _userCredentials;
     private readonly ILogger _log;
@@ -36,19 +37,33 @@ namespace EventStore.ClientAPI
     private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
     private readonly int _bufferSize;
 
-    internal EventStorePersistentSubscriptionBase(string subscriptionId,
-      string streamId,
+    internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials,
-      bool verboseLogging,
-      ConnectionSettings settings,
-      int bufferSize = 10,
-      bool autoAck = true)
+      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+      int bufferSize = 10, bool autoAck = true)
+      : this(subscriptionId, streamId, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+    {
+      _eventAppeared = eventAppeared;
+    }
+
+    internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+      int bufferSize = 10, bool autoAck = true)
+      : this(subscriptionId, streamId, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+    {
+      _eventAppearedAsync = eventAppearedAsync;
+    }
+
+    private EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+      int bufferSize, bool autoAck)
     {
       _subscriptionId = subscriptionId;
       _streamId = streamId;
-      _eventAppeared = eventAppeared;
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
       _log = TraceLogger.GetLogger(this.GetType());
@@ -63,7 +78,14 @@ namespace EventStore.ClientAPI
       _stopped.Reset();
 
       _subscription = await StartSubscription(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppeared, OnSubscriptionDropped, _settings);
-      _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+      if (_eventAppeared != null)
+      {
+        _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+      }
+      else
+      {
+        _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEventAsync(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+      }
 
       return this;
     }
@@ -183,6 +205,41 @@ namespace EventStore.ClientAPI
       try
       {
         _eventAppeared(this, resolvedEvent);
+        if (_autoAck)
+        {
+          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
+        }
+        if (_verbose && _log.IsDebugLevelEnabled())
+        {
+          _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
+                    _streamId,
+                    resolvedEvent.OriginalEvent.EventStreamId, resolvedEvent.OriginalEvent.EventNumber, resolvedEvent.OriginalEvent.EventType, resolvedEvent.OriginalEventNumber);
+        }
+      }
+      catch (Exception exc)
+      {
+        // TODO GFY should we autonak here?
+        DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
+        return;
+      }
+    }
+
+    private async Task ProcessResolvedEventAsync(ResolvedEvent resolvedEvent)
+    {
+      if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+      {
+        if (_dropData == null) throw new Exception("Drop reason not specified.");
+        DropSubscription(_dropData.Reason, _dropData.Error);
+        return;
+      }
+      if (_dropData != null)
+      {
+        DropSubscription(_dropData.Reason, _dropData.Error);
+        return;
+      }
+      try
+      {
+        await _eventAppearedAsync(this, resolvedEvent);
         if (_autoAck)
         {
           _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });

@@ -177,9 +177,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscriptionAsync(
        _stream,
        _group,
-       HandleEvent,
-       (sub, reason, ex) => { },
-       DefaultData.AdminCredentials).Wait();
+       eventAppeared: HandleEvent,
+       subscriptionDropped: (sub, reason, ex) => { },
+       userCredentials: DefaultData.AdminCredentials).Wait();
     }
 
     protected override void When()
@@ -228,9 +228,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscriptionAsync(
        _stream,
        _group,
-       HandleEvent,
-       (sub, reason, ex) => { },
-       DefaultData.AdminCredentials).Wait();
+       eventAppeared: HandleEvent,
+       subscriptionDropped: (sub, reason, ex) => { },
+       userCredentials: DefaultData.AdminCredentials).Wait();
     }
 
     protected override void When()
@@ -298,9 +298,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscriptionAsync(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials).Wait();
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials).Wait();
     }
 
     private void HandleEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent resolvedEvent)
@@ -356,9 +356,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscriptionAsync(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials).Wait();
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials).Wait();
     }
 
     private void HandleEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent resolvedEvent)

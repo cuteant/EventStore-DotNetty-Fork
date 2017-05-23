@@ -69,7 +69,7 @@ namespace EventStore.ClientAPI
       var connections = new List<IEventStoreConnection>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
-        connections.Add(EventStoreConnection.Create(connectionSettings, uri, $"InnerEsConnection-{idx + 1}"));
+        connections.Add(EventStoreConnection.Create(connectionSettings, uri, $"ES-{idx + 1}-{Guid.NewGuid()}"));
       }
       return new EventStoreNodeConnectionMultiplexer(connections);
     }
@@ -97,7 +97,7 @@ namespace EventStore.ClientAPI
       var connections = new List<IEventStoreConnection>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
-        connections.Add(EventStoreConnection.Create(connectionSettings, tcpEndPoint, $"InnerEsConnection-{idx + 1}"));
+        connections.Add(EventStoreConnection.Create(connectionSettings, tcpEndPoint, $"ES-{idx + 1}-{Guid.NewGuid()}"));
       }
       return new EventStoreNodeConnectionMultiplexer(connections);
     }
@@ -117,7 +117,7 @@ namespace EventStore.ClientAPI
       var connections = new List<IEventStoreConnection>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
-        connections.Add(EventStoreConnection.Create(connectionSettings, clusterSettings, $"InnerEsConnection-{idx + 1}"));
+        connections.Add(EventStoreConnection.Create(connectionSettings, clusterSettings, $"ES-{idx + 1}-{Guid.NewGuid()}"));
       }
       return new EventStoreNodeConnectionMultiplexer(connections);
     }

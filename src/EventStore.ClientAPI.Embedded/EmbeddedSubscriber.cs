@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Embedded
 {
-    internal class EmbeddedSubscriber : 
+    internal partial class EmbeddedSubscriber : 
         IHandle<ClientMessage.SubscriptionConfirmation>, 
         IHandle<ClientMessage.StreamEventAppeared>, 
         IHandle<ClientMessage.SubscriptionDropped>,

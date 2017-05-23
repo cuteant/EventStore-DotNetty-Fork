@@ -30,8 +30,19 @@ namespace EventStore.ClientAPI.Embedded
             _authenticationProvider = authenticationProvider;
             _resolveLinkTos = resolveLinkTos;
         }
+        public EmbeddedSubscription(
+            IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
+            string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
+            bool resolveLinkTos, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
+            : base(publisher, connectionId, source, streamId, eventAppearedAsync, subscriptionDropped)
+        {
+          _userCredentials = userCredentials;
+          _authenticationProvider = authenticationProvider;
+          _resolveLinkTos = resolveLinkTos;
+        }
 
-        override protected EventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
+        protected override EventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
         {
             return new EmbeddedVolatileEventStoreSubscription(Unsubscribe, StreamId, lastCommitPosition, lastEventNumber);
         }

@@ -37,6 +37,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Action invoked when a new event appears on the subscription.</summary>
     protected readonly Action<EventStoreCatchUpSubscription, ResolvedEvent> EventAppeared;
+    protected readonly Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> EventAppearedAsync;
     private readonly Action<EventStoreCatchUpSubscription> _liveProcessingStarted;
     private readonly Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
 
@@ -67,9 +68,14 @@ namespace EventStore.ClientAPI
                                                    UserCredentials userCredentials,
                                                    long? lastCommitPosition,
                                                    long? lastEventNumber);
+
     /// <summary>Try to process a single <see cref="ResolvedEvent"/>.</summary>
     /// <param name="e">The <see cref="ResolvedEvent"/> to process.</param>
     protected abstract void TryProcess(ResolvedEvent e);
+
+    /// <summary>Try to process a single <see cref="ResolvedEvent"/>.</summary>
+    /// <param name="e">The <see cref="ResolvedEvent"/> to process.</param>
+    protected abstract Task TryProcessAsync(ResolvedEvent e);
 
     /// <summary>Constructs state for EventStoreCatchUpSubscription.</summary>
     /// <param name="connection">The connection.</param>
@@ -86,6 +92,39 @@ namespace EventStore.ClientAPI
                                                 Action<EventStoreCatchUpSubscription> liveProcessingStarted,
                                                 Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                 CatchUpSubscriptionSettings settings)
+      : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
+    {
+      EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
+      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+    }
+
+    /// <summary>Constructs state for EventStoreCatchUpSubscription.</summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="streamId">The stream name.</param>
+    /// <param name="userCredentials">User credentials for the operations.</param>
+    /// <param name="eventAppearedAsync">Action invoked when events are received.</param>
+    /// <param name="liveProcessingStarted">Action invoked when the read phase finishes.</param>
+    /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
+    /// <param name="settings">Settings for this subscription.</param>
+    protected EventStoreCatchUpSubscription(IEventStoreConnection connection,
+                                                string streamId,
+                                                UserCredentials userCredentials,
+                                                Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                                Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                CatchUpSubscriptionSettings settings)
+      : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
+    {
+      EventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
+      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueueAsync(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+    }
+
+    private EventStoreCatchUpSubscription(IEventStoreConnection connection,
+                                              string streamId,
+                                              UserCredentials userCredentials,
+                                              Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                              Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              CatchUpSubscriptionSettings settings)
     {
       _connection = connection ?? throw new ArgumentNullException(nameof(connection));
       Log = TraceLogger.GetLogger(this.GetType());
@@ -95,15 +134,14 @@ namespace EventStore.ClientAPI
       ReadBatchSize = settings.ReadBatchSize;
       MaxPushQueueSize = settings.MaxLiveQueueSize;
 
-      EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
       _liveProcessingStarted = liveProcessingStarted;
       _subscriptionDropped = subscriptionDropped;
       Verbose = settings.VerboseLogging && Log.IsDebugLevelEnabled();
       _subscriptionName = settings.SubscriptionName ?? String.Empty;
 
       _liveQueue = new BufferBlock<ResolvedEvent>();
-      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
     }
+
 
     internal Task Start()
     {
@@ -180,8 +218,8 @@ namespace EventStore.ClientAPI
         if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
         var subscribeTask = _streamId == string.Empty
-            ? _connection.SubscribeToAllAsync(_resolveLinkTos, EnqueuePushedEvent, ServerSubscriptionDropped, _userCredentials)
-            : _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, EnqueuePushedEvent, ServerSubscriptionDropped, _userCredentials);
+            ? _connection.SubscribeToAllAsync(_resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials)
+            : _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials);
 
         subscribeTask.ContinueWith(_ => HandleErrorOrContinue(_, () =>
                                                                     {
@@ -303,6 +341,27 @@ namespace EventStore.ClientAPI
         DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
       }
     }
+    private async Task ProcessLiveQueueAsync(ResolvedEvent e)
+    {
+      if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+      {
+        if (_dropData == null)
+        {
+          _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
+        }
+        DropSubscription(_dropData.Reason, _dropData.Error);
+        return;
+      }
+      try
+      {
+        await TryProcessAsync(e);
+      }
+      catch (Exception exc)
+      {
+        Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+        DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
+      }
+    }
 
     private void DropSubscription(SubscriptionDropReason reason, Exception error)
     {
@@ -365,6 +424,19 @@ namespace EventStore.ClientAPI
                                                   Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                   CatchUpSubscriptionSettings settings)
       : base(connection, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
+    {
+      _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
+      _nextReadPosition = fromPositionExclusive ?? Position.Start;
+    }
+
+    internal EventStoreAllCatchUpSubscription(IEventStoreConnection connection,
+                                                  Position? fromPositionExclusive, /* if null -- from the very beginning */
+                                                  UserCredentials userCredentials,
+                                                  Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                                  Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                  Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  CatchUpSubscriptionSettings settings)
+      : base(connection, string.Empty, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
     {
       _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
       _nextReadPosition = fromPositionExclusive ?? Position.Start;
@@ -472,6 +544,27 @@ namespace EventStore.ClientAPI
                     e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
       }
     }
+
+    /// <summary>Try to process a single <see cref="ResolvedEvent"/>.</summary>
+    /// <param name="e">The <see cref="ResolvedEvent"/> to process.</param>
+    protected override async Task TryProcessAsync(ResolvedEvent e)
+    {
+      bool processed = false;
+      if (e.OriginalPosition > _lastProcessedPosition)
+      {
+        await EventAppearedAsync(this, e);
+        _lastProcessedPosition = e.OriginalPosition.Value;
+        processed = true;
+      }
+      if (Verbose)
+      {
+        Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
+                    SubscriptionName,
+                    IsSubscribedToAll ? "<all>" : StreamId,
+                    processed ? "processed" : "skipping",
+                    e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
+      }
+    }
   }
 
   /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
@@ -485,14 +578,30 @@ namespace EventStore.ClientAPI
     private TaskCompletionSource<bool> _completion;
 
     internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
-                                                     string streamId,
-                                                     long? fromEventNumberExclusive, /* if null -- from the very beginning */
-                                                     UserCredentials userCredentials,
-                                                     Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-                                                     Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                     Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                     CatchUpSubscriptionSettings settings)
+                                                      string streamId,
+                                                      long? fromEventNumberExclusive, /* if null -- from the very beginning */
+                                                      UserCredentials userCredentials,
+                                                      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+                                                      Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                      CatchUpSubscriptionSettings settings)
       : base(connection, streamId, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
+    {
+      Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+
+      _lastProcessedEventNumber = fromEventNumberExclusive ?? -1;
+      _nextReadEventNumber = fromEventNumberExclusive ?? 0;
+    }
+
+    internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
+                                                      string streamId,
+                                                      long? fromEventNumberExclusive, /* if null -- from the very beginning */
+                                                      UserCredentials userCredentials,
+                                                      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                                      Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                      CatchUpSubscriptionSettings settings)
+      : base(connection, streamId, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
     {
       Ensure.NotNullOrEmpty(streamId, nameof(streamId));
 
@@ -607,6 +716,26 @@ namespace EventStore.ClientAPI
       if (e.OriginalEventNumber > _lastProcessedEventNumber)
       {
         EventAppeared(this, e);
+        _lastProcessedEventNumber = e.OriginalEventNumber;
+        processed = true;
+      }
+      if (Verbose)
+      {
+        Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
+                    SubscriptionName,
+                    IsSubscribedToAll ? "<all>" : StreamId, processed ? "processed" : "skipping",
+                    e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalEventNumber);
+      }
+    }
+
+    /// <summary>Try to process a single <see cref="ResolvedEvent"/>.</summary>
+    /// <param name="e">The <see cref="ResolvedEvent"/> to process.</param>
+    protected override async Task TryProcessAsync(ResolvedEvent e)
+    {
+      bool processed = false;
+      if (e.OriginalEventNumber > _lastProcessedEventNumber)
+      {
+        await EventAppearedAsync(this, e);
         _lastProcessedEventNumber = e.OriginalEventNumber;
         processed = true;
       }

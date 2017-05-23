@@ -100,31 +100,58 @@ namespace EventStore.ClientAPI.Internal
         public readonly bool ResolveLinkTos;
         public readonly UserCredentials UserCredentials;
         public readonly Action<EventStoreSubscription, ResolvedEvent> EventAppeared;
+        public readonly Func<EventStoreSubscription, ResolvedEvent, Task> EventAppearedAsync;
         public readonly Action<EventStoreSubscription, SubscriptionDropReason, Exception> SubscriptionDropped;
            
         public readonly int MaxRetries;
         public readonly TimeSpan Timeout;
 
         public StartSubscriptionMessage(TaskCompletionSource<EventStoreSubscription> source,
-                                        string streamId,
-                                        bool resolveLinkTos, 
-                                        UserCredentials userCredentials,
-                                        Action<EventStoreSubscription, ResolvedEvent> eventAppeared, 
-                                        Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, 
-                                        int maxRetries, 
-                                        TimeSpan timeout)
+                                            string streamId,
+                                            bool resolveLinkTos, 
+                                            UserCredentials userCredentials,
+                                            Action<EventStoreSubscription, ResolvedEvent> eventAppeared, 
+                                            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, 
+                                            int maxRetries, 
+                                            TimeSpan timeout)
+          :this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, maxRetries, timeout)
         {
-            Ensure.NotNull(source, "source");
-            Ensure.NotNull(eventAppeared, "eventAppeared");
+            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
-            Source = source;
-            StreamId = streamId;
-            ResolveLinkTos = resolveLinkTos;
-            UserCredentials = userCredentials;
             EventAppeared = eventAppeared;
-            SubscriptionDropped = subscriptionDropped;
-            MaxRetries = maxRetries;
-            Timeout = timeout;
+        }
+        public StartSubscriptionMessage(TaskCompletionSource<EventStoreSubscription> source,
+                                            string streamId,
+                                            bool resolveLinkTos,
+                                            UserCredentials userCredentials,
+                                            Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                            int maxRetries,
+                                            TimeSpan timeout)
+          : this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, maxRetries, timeout)
+        {
+          Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+
+          EventAppearedAsync = eventAppearedAsync;
+        }
+
+        private StartSubscriptionMessage(TaskCompletionSource<EventStoreSubscription> source,
+                                            string streamId,
+                                            bool resolveLinkTos,
+                                            UserCredentials userCredentials,
+                                            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                            int maxRetries,
+                                            TimeSpan timeout)
+        {
+          Ensure.NotNull(source, nameof(source));
+
+          Source = source;
+          StreamId = streamId;
+          ResolveLinkTos = resolveLinkTos;
+          UserCredentials = userCredentials;
+          SubscriptionDropped = subscriptionDropped;
+          MaxRetries = maxRetries;
+          Timeout = timeout;
         }
     }
 

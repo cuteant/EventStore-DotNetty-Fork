@@ -282,7 +282,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         {
             var result = document.Element(XDocumentAtomExtensions.AtomNamespace + "feed")
                                   .Element(XDocumentAtomExtensions.AtomNamespace + "entry")
-                                  .GetLink("nack"); ;
+                                  .GetLink("nack");
             var nackLink = String.Format("subscriptions/{0}/{1}/nack/{2}", TestStreamName, SubscriptionGroupName, _eventIds[0]);
             Assert.AreEqual(MakeUrl(nackLink), result);
         }

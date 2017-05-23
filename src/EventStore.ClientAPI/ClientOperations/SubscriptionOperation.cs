@@ -20,6 +20,7 @@ namespace EventStore.ClientAPI.ClientOperations
     protected readonly bool _resolveLinkTos;
     protected readonly UserCredentials _userCredentials;
     protected readonly Action<T, ResolvedEvent> _eventAppeared;
+    protected readonly Func<T, ResolvedEvent, Task> _eventAppearedAsync;
     private readonly Action<T, SubscriptionDropReason, Exception> _subscriptionDropped;
     private readonly bool _verboseLogging;
     protected readonly Func<TcpPackageConnection> _getConnection;
@@ -37,9 +38,39 @@ namespace EventStore.ClientAPI.ClientOperations
                                        Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
                                        bool verboseLogging,
                                        Func<TcpPackageConnection> getConnection)
+      : this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, verboseLogging, getConnection)
+    {
+      _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
+
+      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+          e => ProcessItem(e));
+    }
+
+    protected SubscriptionOperation(TaskCompletionSource<T> source,
+                                       string streamId,
+                                       bool resolveLinkTos,
+                                       UserCredentials userCredentials,
+                                       Func<T, ResolvedEvent, Task> eventAppearedAsync,
+                                       Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
+                                       bool verboseLogging,
+                                       Func<TcpPackageConnection> getConnection)
+      : this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, verboseLogging, getConnection)
+    {
+      _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
+
+      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+          e => ProcessItemAsync(e));
+    }
+
+    private SubscriptionOperation(TaskCompletionSource<T> source,
+                                     string streamId,
+                                     bool resolveLinkTos,
+                                     UserCredentials userCredentials,
+                                     Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
+                                     bool verboseLogging,
+                                     Func<TcpPackageConnection> getConnection)
     {
       Ensure.NotNull(source, nameof(source));
-      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
       Ensure.NotNull(getConnection, nameof(getConnection));
 
       _log = TraceLogger.GetLogger(this.GetType());
@@ -47,13 +78,10 @@ namespace EventStore.ClientAPI.ClientOperations
       _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
       _resolveLinkTos = resolveLinkTos;
       _userCredentials = userCredentials;
-      _eventAppeared = eventAppeared;
       _subscriptionDropped = subscriptionDropped ?? ((x, y, z) => { });
       _verboseLogging = verboseLogging;
       if (_verboseLogging) { _verboseLogging = _log.IsDebugLevelEnabled(); }
       _getConnection = getConnection;
-      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
-            new Action<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(ProcessItem));
     }
 
     protected void EnqueueSend(TcpPackage package)
@@ -271,27 +299,40 @@ namespace EventStore.ClientAPI.ClientOperations
 
     private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      if (item.isResolvedEvent)
-      {
-        _eventAppeared(_subscription, item.resolvedEvent);
-      }
-      else
-      {
-        _subscriptionDropped(_subscription, item.dropReason, item.exc);
-      }
-    }
-
-    private static void ExecuteActions(Tuple<Action, ILogger> actionWapper)
-    {
       try
       {
-        actionWapper.Item1.Invoke();
+        if (item.isResolvedEvent)
+        {
+          _eventAppeared(_subscription, item.resolvedEvent);
+        }
+        else
+        {
+          _subscriptionDropped(_subscription, item.dropReason, item.exc);
+        }
       }
       catch (Exception exc)
       {
-        actionWapper.Item2.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+        _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+      }
+    }
+
+    private async Task ProcessItemAsync((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    {
+      try
+      {
+        if (item.isResolvedEvent)
+        {
+          await _eventAppearedAsync(_subscription, item.resolvedEvent);
+        }
+        else
+        {
+          _subscriptionDropped(_subscription, item.dropReason, item.exc);
+        }
+      }
+      catch (Exception exc)
+      {
+        _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
       }
     }
   }
-
 }

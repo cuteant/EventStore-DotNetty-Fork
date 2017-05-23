@@ -33,6 +33,20 @@ namespace EventStore.ClientAPI.Embedded
             _authenticationProvider = authenticationProvider;
             _bufferSize = bufferSize;
         }
+        public EmbeddedPersistentSubscription(
+            IPublisher publisher, Guid connectionId,
+            TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
+            UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
+            Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
+            TimeSpan operationTimeout)
+            : base(publisher, connectionId, source, streamId, eventAppearedAsync, subscriptionDropped)
+        {
+          _subscriptionId = subscriptionId;
+          _userCredentials = userCredentials;
+          _authenticationProvider = authenticationProvider;
+          _bufferSize = bufferSize;
+        }
 
         protected override PersistentEventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
         {

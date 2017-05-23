@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if false
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
@@ -143,3 +144,4 @@ namespace EventStore.ClientAPI.Embedded
         public abstract void Start(Guid correlationId);
     }
 }
+#endif

@@ -21,6 +21,19 @@ namespace EventStore.ClientAPI.Embedded
         {
             _subscriptions = subscriptions;
         }
+        internal EmbeddedEventStorePersistentSubscription(
+            string subscriptionId, string streamId,
+            Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+            Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+            UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+            EmbeddedSubscriber subscriptions,
+            int bufferSize = 10, bool autoAck = true)
+            : base(
+                subscriptionId, streamId, eventAppearedAsync, subscriptionDropped, userCredentials, verboseLogging,
+                settings, bufferSize, autoAck)
+        {
+          _subscriptions = subscriptions;
+        }
 
         internal override Task<PersistentEventStoreSubscription> StartSubscription(
             string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials,

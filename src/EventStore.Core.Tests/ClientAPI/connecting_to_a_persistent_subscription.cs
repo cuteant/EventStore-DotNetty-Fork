@@ -176,9 +176,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
        _stream,
        _group,
-       HandleEvent,
-       (sub, reason, ex) => { },
-       DefaultData.AdminCredentials);
+       eventAppeared: HandleEvent,
+       subscriptionDropped: (sub, reason, ex) => { },
+       userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -228,9 +228,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
        _stream,
        _group,
-       HandleEvent,
-       (sub, reason, ex) => { },
-       DefaultData.AdminCredentials);
+       eventAppeared: HandleEvent,
+       subscriptionDropped: (sub, reason, ex) => { },
+       userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -299,9 +299,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
     }
 
     private void HandleEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent resolvedEvent)
@@ -356,9 +356,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
     }
 
     private void HandleEvent(EventStorePersistentSubscriptionBase sub, ResolvedEvent resolvedEvent)
@@ -394,9 +394,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -456,9 +456,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -517,9 +517,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          Dropped,
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: Dropped,
+          userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -577,9 +577,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -639,9 +639,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _conn.ConnectToPersistentSubscription(
           _stream,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
 
     }
 
@@ -716,9 +716,9 @@ namespace EventStore.Core.Tests.ClientAPI
       _store.ConnectToPersistentSubscription(
           _linkedStreamName,
           _group,
-          HandleEvent,
-          (sub, reason, ex) => { },
-          DefaultData.AdminCredentials);
+          eventAppeared: HandleEvent,
+          subscriptionDropped: (sub, reason, ex) => { },
+          userCredentials: DefaultData.AdminCredentials);
       _store.AppendToStreamAsync(_linkedStreamName, ExpectedVersion.Any, new EventData(Guid.NewGuid(),
                   SystemEventTypes.LinkTo, false, Helper.UTF8NoBom.GetBytes(
                       string.Format("{0}@{1}", intMaxValue + 1, StreamName)), null));
