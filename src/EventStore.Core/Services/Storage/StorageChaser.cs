@@ -98,6 +98,7 @@ namespace EventStore.Core.Services.Storage
       _queueStats.Start();
       QueueMonitor.Default.Register(this);
 
+      var spinner = new SpinWait();
       try
       {
         _writerCheckpoint.Flushed += OnWriterFlushed;
@@ -119,7 +120,8 @@ namespace EventStore.Core.Services.Storage
           }
           else
           {
-            Thread.Sleep(1);
+            //Thread.Sleep(1);
+            spinner.SpinOnce();
           }
         }
       }
@@ -131,7 +133,8 @@ namespace EventStore.Core.Services.Storage
         Application.Exit(ExitCode.Error, "Error in StorageChaser. Terminating...\nError: " + exc.Message);
         while (!_stop)
         {
-          Thread.Sleep(100);
+          //Thread.Sleep(100);
+          spinner.SpinOnce();
         }
         _queueStats.ProcessingEnded(0);
       }

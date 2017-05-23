@@ -221,10 +221,12 @@ namespace EventStore.Core.Services.Storage
       if (Writer.Checkpoint.Read() != Writer.Checkpoint.ReadNonFlushed()) { Writer.Flush(); }
 
       var sw = Stopwatch.StartNew();
+      var spinner = new SpinWait();
       while (Db.Config.ChaserCheckpoint.Read() < Db.Config.WriterCheckpoint.Read() &&
              sw.Elapsed < WaitForChaserSingleIterationTimeout)
       {
-        Thread.Sleep(1);
+        //Thread.Sleep(1);
+        spinner.SpinOnce();
       }
 
       if (Db.Config.ChaserCheckpoint.Read() == Db.Config.WriterCheckpoint.Read())

@@ -92,6 +92,7 @@ namespace EventStore.Core.Bus
       const int spinmax = 5000;
       var iterationsCount = 0;
       var traceEnabled = Log.IsTraceLevelEnabled();
+      var spinner = new SpinWait();
       while (!_stop)
       {
         Message msg = null;
@@ -108,7 +109,8 @@ namespace EventStore.Core.Bus
             }
             else
             {
-              Thread.Sleep(1);
+              //Thread.Sleep(1);
+              spinner.SpinOnce();
             }
           }
           else

@@ -66,13 +66,15 @@ namespace EventStore.Core.Services.Histograms
       CreateHistogram("jitter");
       Task.Factory.StartNew(() =>
       {
+        var spinner = new SpinWait();
         var watch = new Stopwatch();
         watch.Start();
         while (true)
         {
           using (Measure("jitter"))
           {
-            Thread.Sleep(1);
+            //Thread.Sleep(1);
+            spinner.SpinOnce();
           }
         }
       }, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);

@@ -48,6 +48,7 @@ namespace EventStore.Core.Services.TimerService
             _queueStats.Start();
             QueueMonitor.Default.Register(this);
 
+            var spinner = new SpinWait();
             while (!_stop)
             {
                 _queueStats.EnterBusy();
@@ -77,7 +78,8 @@ namespace EventStore.Core.Services.TimerService
                 {
                     _queueStats.EnterIdle();
 
-                    Thread.Sleep(10);
+                    //Thread.Sleep(10);
+                    spinner.SpinOnce();
                 }
             }
 

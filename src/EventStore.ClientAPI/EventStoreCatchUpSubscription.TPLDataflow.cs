@@ -519,7 +519,10 @@ namespace EventStore.ClientAPI
 
       if (!done && slice.IsEndOfStream)
       {
-        Thread.Sleep(1); // we are waiting for server to flush its data
+        // we are waiting for server to flush its data
+        //Thread.Sleep(1); 
+        var spinner = new SpinWait();
+        spinner.SpinOnce();
       }
       return done;
     }
@@ -703,7 +706,10 @@ namespace EventStore.ClientAPI
 
       if (!done && slice.IsEndOfStream)
       {
-        Thread.Sleep(1); // we are waiting for server to flush its data
+        // we are waiting for server to flush its data
+        //Thread.Sleep(1); 
+        var spinner = new SpinWait();
+        spinner.SpinOnce();
       }
       return done;
     }

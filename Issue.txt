@@ -23,7 +23,7 @@ Issue.008 ★ MakeGenericType 替换
 
 Issue.009 ★ StartsWith & EndsWith & ToLower & ToUpper
 
-Issue.010 ☆ 
+Issue.010 ★ SpinWait 替换 Thread.Sleep(1)
 
 Issue.011 ☆ 
 
