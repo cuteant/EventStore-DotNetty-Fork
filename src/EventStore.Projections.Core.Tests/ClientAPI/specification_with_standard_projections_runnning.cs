@@ -46,7 +46,6 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
                     TimeSpan.FromMilliseconds(10000));
 
                 _queryManager = new QueryManager(
-                    new ConsoleLogger(), 
                     _node.ExtHttpEndPoint,
                     TimeSpan.FromMilliseconds(10000),
                     TimeSpan.FromMilliseconds(10000));
