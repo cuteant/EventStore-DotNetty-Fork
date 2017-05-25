@@ -3,7 +3,6 @@ using System.Text;
 using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace EventStore.Transport.Http.Codecs
 {
@@ -19,11 +18,11 @@ namespace EventStore.Transport.Http.Codecs
     {
       FromSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
       FromSettings.DateParseHandling = DateParseHandling.None;
-      FromSettings.Converters.Add(new StringEnumConverter());
+      FromSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
 
       ToSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
       ToSettings.DefaultValueHandling = DefaultValueHandling.Include;
-      ToSettings.Converters.Add(new StringEnumConverter());
+      ToSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
     }
 
     public string ContentType { get { return Http.ContentType.Json; } }

@@ -22,9 +22,9 @@ namespace EventStore.Common.Utils
     static Json()
     {
       JsonSettings = JsonConvertX.CreateSerializerSettings(Newtonsoft.Json.Formatting.Indented, TypeNameHandling.None, null, true);
-      JsonSettings.Converters.Add(new StringEnumConverter());
+      JsonSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
 
-      _jsonFormatter = new JsonMessageFormatter() { DefaultSerializerSettings = JsonSettings };
+      _jsonFormatter = new JsonMessageFormatter() { DefaultSerializerSettings = JsonSettings, DefaultDeserializerSettings = JsonSettings };
     }
 
     public static byte[] ToJsonBytes(this object source, int bufferSize = c_defaultBufferSize)
@@ -69,7 +69,7 @@ namespace EventStore.Common.Utils
     {
       if (converters == null || converters.Length <= 0)
       {
-        return DeserializeObject(value, type, (JsonSerializerSettings)null);
+        return DeserializeObject(value, type, settings: null);
       }
       else
       {
