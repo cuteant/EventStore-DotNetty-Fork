@@ -112,9 +112,7 @@ namespace EventStore.ClientAPI.Internal
         }
         else if (subscription.Timeout > TimeSpan.Zero && DateTime.UtcNow - subscription.LastUpdated > _settings.OperationTimeout)
         {
-          var err = String.Format("EventStoreConnection '{0}': subscription never got confirmation from server.\n" +
-                                  "UTC now: {1:HH:mm:ss.fff}, operation: {2}.",
-                                  _connectionName, DateTime.UtcNow, subscription);
+          var err = $"EventStoreConnection '{_connectionName}': subscription never got confirmation from server.\n UTC now: {DateTime.UtcNow:HH:mm:ss.fff}, operation: {subscription}.";
           s_logger.LogError(err);
 
           if (_settings.FailOnNoServerResponse)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt.Buffers;
@@ -423,9 +424,13 @@ namespace EventStore.ClientAPI.Internal
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
           if (_state == ConnectionState.Connecting)
+          {
             _subscriptions.EnqueueSubscription(subscription);
+          }
           else
+          {
             _subscriptions.StartSubscription(subscription, _connection);
+          }
           break;
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
@@ -444,14 +449,18 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
           var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.BufferSize, msg.StreamId,
-                                                    msg.UserCredentials, msg.EventAppeared, msg.SubscriptionDropped,
+                                                    msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped,
                                                     _settings.VerboseLogging, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
           if (_state == ConnectionState.Connecting)
+          {
             _subscriptions.EnqueueSubscription(subscription);
+          }
           else
+          {
             _subscriptions.StartSubscription(subscription, _connection);
+          }
           break;
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
@@ -586,6 +595,7 @@ namespace EventStore.ClientAPI.Internal
       EstablishTcpConnection(endPoints);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void LogDebug(string message, params object[] parameters)
     {
       if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())

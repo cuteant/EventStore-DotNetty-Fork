@@ -290,7 +290,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
     private void EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      _actionQueue.Post(item);
+      _actionQueue.SendAsync(item).ConfigureAwait(false).GetAwaiter().GetResult();
       if (_actionQueue.InputCount > _maxQueueSize)
       {
         DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));

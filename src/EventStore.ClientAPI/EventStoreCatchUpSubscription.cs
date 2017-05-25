@@ -224,8 +224,8 @@ namespace EventStore.ClientAPI
         if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
         var subscription = StreamId == string.Empty
-            ? await _connection.SubscribeToAllAsync(_resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false)
-            : await _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, eventAppeared: EnqueuePushedEvent, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false);
+            ? await _connection.SubscribeToAllAsync(_resolveLinkTos, eventAppearedAsync: EnqueuePushedEventAsync, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false)
+            : await _connection.SubscribeToStreamAsync(_streamId, _resolveLinkTos, eventAppearedAsync: EnqueuePushedEventAsync, subscriptionDropped: ServerSubscriptionDropped, userCredentials: _userCredentials).ConfigureAwait(false);
 
         _subscription = subscription;
         await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
@@ -270,7 +270,7 @@ namespace EventStore.ClientAPI
       Interlocked.Exchange(ref _link, link);
     }
 
-    private void EnqueuePushedEvent(EventStoreSubscription subscription, ResolvedEvent e)
+    private async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, ResolvedEvent e)
     {
       if (Verbose)
       {
@@ -287,7 +287,7 @@ namespace EventStore.ClientAPI
         return;
       }
 
-      _liveQueue.Post(e);
+      await _liveQueue.SendAsync(e).ConfigureAwait(false);
     }
 
     private void ServerSubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason reason, Exception exc)

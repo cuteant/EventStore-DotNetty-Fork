@@ -37,13 +37,13 @@ namespace EventStore.ClientAPI
       _handler = handler;
     }
 
-    internal override Task<PersistentEventStoreSubscription> StartSubscription(
-        string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials, Action<EventStoreSubscription, ResolvedEvent> onEventAppeared,
+    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
+        string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials, Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
         Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped, ConnectionSettings settings)
     {
       var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
       _handler.EnqueueMessage(new StartPersistentSubscriptionMessage(source, subscriptionId, streamId, bufferSize,
-          userCredentials, onEventAppeared,
+          userCredentials, onEventAppearedAsync,
           onSubscriptionDropped, settings.MaxRetries, settings.OperationTimeout));
 
       return source.Task;

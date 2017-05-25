@@ -107,9 +107,7 @@ namespace EventStore.ClientAPI.Internal
         }
         else if (operation.Timeout > TimeSpan.Zero && DateTime.UtcNow - operation.LastUpdated > _settings.OperationTimeout)
         {
-          var err = string.Format("EventStoreConnection '{0}': operation never got response from server.\n"
-                                  + "UTC now: {1:HH:mm:ss.fff}, operation: {2}.",
-                                  _connectionName, DateTime.UtcNow, operation);
+          var err = $"EventStoreConnection '{_connectionName}': operation never got response from server.\n UTC now: {DateTime.UtcNow:HH:mm:ss.fff}, operation: {operation}.";
           if (debugEnabled) s_logger.LogDebug(err);
 
           if (_settings.FailOnNoServerResponse)

@@ -27,15 +27,15 @@ namespace EventStore.ClientAPI.Embedded
       _subscriptions = subscriptions;
     }
 
-    internal override Task<PersistentEventStoreSubscription> StartSubscription(
+    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
       string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials,
-      Action<EventStoreSubscription, ResolvedEvent> onEventAppeared,
+      Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings settings)
     {
       var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
 
-      _subscriptions.StartPersistentSubscription(Guid.NewGuid(), source, subscriptionId, streamId, userCredentials, bufferSize, onEventAppeared,
+      _subscriptions.StartPersistentSubscription(Guid.NewGuid(), source, subscriptionId, streamId, userCredentials, bufferSize, onEventAppearedAsync,
           onSubscriptionDropped, settings.MaxRetries, settings.OperationTimeout);
 
       return source.Task;

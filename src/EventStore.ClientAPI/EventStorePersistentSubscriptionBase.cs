@@ -76,7 +76,7 @@ namespace EventStore.ClientAPI
     {
       _stopped.Reset();
 
-      _subscription = await StartSubscription(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppeared, OnSubscriptionDropped, _settings);
+      _subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _settings).ConfigureAwait(false);
       if (_eventAppeared != null)
       {
         _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
@@ -89,9 +89,9 @@ namespace EventStore.ClientAPI
       return this;
     }
 
-    internal abstract Task<PersistentEventStoreSubscription> StartSubscription(
+    internal abstract Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
         string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials,
-        Action<EventStoreSubscription, ResolvedEvent> onEventAppeared,
+        Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
         Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
         ConnectionSettings settings);
 
@@ -183,9 +183,9 @@ namespace EventStore.ClientAPI
       EnqueueSubscriptionDropNotification(reason, exception);
     }
 
-    private void OnEventAppeared(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
+    private async Task OnEventAppearedAsync(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
     {
-      _resolvedEventBlock.Post(resolvedEvent);
+      await _resolvedEventBlock.SendAsync(resolvedEvent).ConfigureAwait(false);
     }
 
     private void ProcessResolvedEvent(ResolvedEvent resolvedEvent)
