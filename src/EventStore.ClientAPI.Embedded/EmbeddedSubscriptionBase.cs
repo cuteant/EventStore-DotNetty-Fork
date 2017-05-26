@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI.Embedded
       _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
           e => ProcessItemAsync(e));
     }
-    protected EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
+    private EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
       string streamId, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
     {
       Ensure.NotNull(source, nameof(source));
@@ -84,12 +84,12 @@ namespace EventStore.ClientAPI.Embedded
       }
     }
 
-    public void EventAppeared(Core.Data.ResolvedEvent resolvedEvent)
+    public async Task EventAppeared(Core.Data.ResolvedEvent resolvedEvent)
     {
       var e = resolvedEvent.OriginalPosition == null
           ? new ResolvedEvent(resolvedEvent.ConvertToClientResolvedIndexEvent())
           : new ResolvedEvent(resolvedEvent.ConvertToClientResolvedEvent());
-      EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
+      await EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
     }
 
     public void ConfirmSubscription(long lastCommitPosition, long? lastEventNumber)
@@ -128,15 +128,15 @@ namespace EventStore.ClientAPI.Embedded
 
         if (_subscription != null)
         {
-          EnqueueMessage((false, ResolvedEvent.Null, reason, exception));
+          EnqueueMessage((false, ResolvedEvent.Null, reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
         }
       }
     }
 
 
-    private void EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    private async Task EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      _actionQueue.Post(item);
+      await _actionQueue.SendAsync(item).ConfigureAwait(false);
     }
 
     private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)

@@ -36,8 +36,8 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test]
         public void the_subscription_fails_to_connect_with_argument_exception()
         {
-            Assert.IsInstanceOf<AggregateException>(_innerEx);
-            Assert.IsInstanceOf<ArgumentException>(_innerEx.InnerException);
+            //Assert.IsInstanceOf<AggregateException>(_innerEx);
+            Assert.IsInstanceOf<ArgumentException>(_innerEx);
         }
     }
 
@@ -103,8 +103,8 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test]
         public void the_subscription_fails_to_connect_with_access_denied_exception()
         {
-            Assert.IsInstanceOf<AggregateException>(_innerEx);
-            Assert.IsInstanceOf<AccessDeniedException>(_innerEx.InnerException);
+            //Assert.IsInstanceOf<AggregateException>(_innerEx);
+            Assert.IsInstanceOf<AccessDeniedException>(_innerEx);
         }
     }
 
@@ -168,8 +168,8 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test]
         public void the_second_subscription_throws_maximum_subscribers_reached_exception()
         {
-            Assert.IsInstanceOf<AggregateException>(_innerEx);
-            Assert.IsInstanceOf<MaximumSubscribersReachedException>(_innerEx.InnerException);
+            //Assert.IsInstanceOf<AggregateException>(_innerEx);
+            Assert.IsInstanceOf<MaximumSubscribersReachedException>(_innerEx);
         }
     }
 

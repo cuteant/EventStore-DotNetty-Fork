@@ -142,7 +142,7 @@ namespace EventStore.ClientAPI
     }
 
 
-    internal Task Start()
+    internal Task StartAsync()
     {
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: starting...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       return RunSubscriptionAsync();

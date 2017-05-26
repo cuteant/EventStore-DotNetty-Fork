@@ -398,7 +398,7 @@ namespace EventStore.ClientAPI.Embedded
               new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppeared, liveProcessingStarted,
                                                       subscriptionDropped, settings);
-      catchUpSubscription.Start();
+      catchUpSubscription.StartAsync();
       return catchUpSubscription;
     }
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -414,7 +414,7 @@ namespace EventStore.ClientAPI.Embedded
               new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppearedAsync, liveProcessingStarted,
                                                       subscriptionDropped, settings);
-      catchUpSubscription.Start();
+      catchUpSubscription.StartAsync();
       return catchUpSubscription;
     }
 
@@ -531,7 +531,7 @@ namespace EventStore.ClientAPI.Embedded
               new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                    userCredentials, eventAppeared, liveProcessingStarted,
                                                    subscriptionDropped, settings);
-      catchUpSubscription.Start();
+      catchUpSubscription.StartAsync();
       return catchUpSubscription;
     }
     public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -546,7 +546,7 @@ namespace EventStore.ClientAPI.Embedded
               new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                    userCredentials, eventAppearedAsync, liveProcessingStarted,
                                                    subscriptionDropped, settings);
-      catchUpSubscription.Start();
+      catchUpSubscription.StartAsync();
       return catchUpSubscription;
     }
 

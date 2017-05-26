@@ -34,7 +34,7 @@ namespace EventStore.Core.Tests.ClientAPI.ExpectedVersion64Bit
             _store = BuildConnection(Node);
             _store.ConnectAsync().Wait();
 
-            _store.SubscribeToStreamAsync(_linkedStreamName, true, eventAppeared: HandleEvent).Wait();
+            _store.SubscribeToStreamAsync(_linkedStreamName, true, eventAppearedAsync: HandleEvent).Wait();
             _store.AppendToStreamAsync(_linkedStreamName, ExpectedVersion.NoStream,
                     new EventData(Guid.NewGuid(),
                         SystemEventTypes.LinkTo, false, Helper.UTF8NoBom.GetBytes(
