@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using EventStore.ClientAPI.SystemData;
+﻿using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
 {

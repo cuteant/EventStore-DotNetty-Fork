@@ -35,8 +35,8 @@ namespace Es.Consumer
         //Normally the creating of the subscription group is not done in your general executable code. 
         //Instead it is normally done as a step during an install or as an admin task when setting 
         //things up. You should assume the subscription exists in your code.
-        CreateSubscription(conn);
-        //UpdateSubscription(conn);
+        //CreateSubscription(conn);
+        UpdateSubscription(conn);
 
         conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
         {
@@ -151,20 +151,9 @@ namespace Es.Consumer
     {
       PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
           .DoNotResolveLinkTos()
-          .StartFromCurrent();
+          .StartFromBeginning();
 
-      try
-      {
-        conn.UpdatePersistentSubscriptionAsync(STREAM, GROUP, settings).Wait();
-      }
-      catch (AggregateException ex)
-      {
-        if (ex.InnerException.GetType() != typeof(InvalidOperationException)
-            && ex.InnerException?.Message != $"Subscription group {GROUP} on stream {STREAM} already exists")
-        {
-          throw;
-        }
-      }
+      conn.UpdatePersistentSubscription(STREAM, GROUP, settings);
     }
   }
 }

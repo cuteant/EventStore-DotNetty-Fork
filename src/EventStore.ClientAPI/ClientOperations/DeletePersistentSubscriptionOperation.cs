@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
@@ -39,7 +40,7 @@ namespace EventStore.ClientAPI.ClientOperations
           Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
         case ClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.DoesNotExist:
-          Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} does not exist"));
+          Fail(new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Consts.PersistentSubscriptionDoesNotExist, _groupName, _stream)));
           return new InspectionResult(InspectionDecision.EndOperation, "DoesNotExist");
         default:
           throw new Exception($"Unexpected OperationResult: {response.Result}.");
