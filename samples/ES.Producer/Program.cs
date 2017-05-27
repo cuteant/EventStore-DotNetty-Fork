@@ -6,18 +6,25 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
 
 namespace ES.Producer
 {
   class Program
   {
+    const string STREAM = "a_test_stream";
+    const int DEFAULTPORT = 1113;
+
     static void Main(string[] args)
     {
-      const string STREAM = "a_test_stream";
-      const int DEFAULTPORT = 1113;
-      //uncomment to enable verbose logging in client.
-      var settings = ConnectionSettings.Create();//.EnableVerboseLogging().UseConsoleLogger();
-      using (var conn = EventStoreConnection.Create(settings, new IPEndPoint(IPAddress.Loopback, DEFAULTPORT)))
+      var logFactory = new LoggerFactory();
+      logFactory.AddNLog();
+      TraceLogger.Initialize(logFactory);
+
+
+      var connStr = "ConnectTo=tcp://admin:changeit@localhost:1113";
+      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();
+      using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().Wait();
         for (var x = 0; x < 100; x++)
@@ -26,7 +33,7 @@ namespace ES.Producer
               ExpectedVersion.Any,
               GetEventDataFor(x)).Wait();
           Console.WriteLine("event " + x + " written.");
-          Thread.Sleep(200);
+          Thread.Sleep(1000);
         }
       }
 

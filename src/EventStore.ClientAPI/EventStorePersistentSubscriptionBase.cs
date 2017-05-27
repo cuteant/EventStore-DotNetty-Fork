@@ -66,7 +66,7 @@ namespace EventStore.ClientAPI
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
       _log = TraceLogger.GetLogger(this.GetType());
-      _verbose = verboseLogging;
+      _verbose = verboseLogging && _log.IsDebugLevelEnabled();
       _settings = settings;
       _bufferSize = bufferSize;
       _autoAck = autoAck;
@@ -155,7 +155,7 @@ namespace EventStore.ClientAPI
     /// <exception cref="TimeoutException"></exception>
     public void Stop(TimeSpan timeout)
     {
-      if (_verbose && _log.IsDebugLevelEnabled())
+      if (_verbose)
       {
         _log.LogDebug("Persistent Subscription to {0}: requesting stop...", _streamId);
       }
@@ -192,7 +192,7 @@ namespace EventStore.ClientAPI
     {
       if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
-        if (_dropData == null) throw new Exception("Drop reason not specified.");
+        if (_dropData == null) { throw new Exception("Drop reason not specified."); }
         DropSubscription(_dropData.Reason, _dropData.Error);
         return;
       }
@@ -208,7 +208,7 @@ namespace EventStore.ClientAPI
         {
           _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
         }
-        if (_verbose && _log.IsDebugLevelEnabled())
+        if (_verbose)
         {
           _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
                     _streamId,
@@ -227,7 +227,7 @@ namespace EventStore.ClientAPI
     {
       if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
-        if (_dropData == null) throw new Exception("Drop reason not specified.");
+        if (_dropData == null) { throw new Exception("Drop reason not specified."); }
         DropSubscription(_dropData.Reason, _dropData.Error);
         return;
       }
@@ -243,7 +243,7 @@ namespace EventStore.ClientAPI
         {
           _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
         }
-        if (_verbose && _log.IsDebugLevelEnabled())
+        if (_verbose)
         {
           _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
                     _streamId,
@@ -262,7 +262,7 @@ namespace EventStore.ClientAPI
     {
       if (Interlocked.CompareExchange(ref _isDropped, 1, 0) == 0)
       {
-        if (_verbose && _log.IsDebugLevelEnabled())
+        if (_verbose)
         {
           _log.LogDebug("Persistent Subscription to {0}: dropping subscription, reason: {1} {2}.",
                     _streamId, reason, error == null ? string.Empty : error.ToString());

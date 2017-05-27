@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
+using Microsoft.Extensions.Logging;
 
 namespace Es.Receiver
 {
@@ -18,21 +19,13 @@ namespace Es.Receiver
 
     static void Main(string[] args)
     {
-      //uncommet to enable verbose logging in client.
-      var settings = ConnectionSettings.Create();//.EnableVerboseLogging().UseConsoleLogger();
+      var logFactory = new LoggerFactory();
+      logFactory.AddNLog();
+      TraceLogger.Initialize(logFactory);
 
-      //using (var conn = EventStoreConnection.Create(settings, new IPEndPoint(IPAddress.Loopback, DEFAULTPORT)))
-      //{
-      //  conn.ConnectAsync().Wait();
-
-      //  conn.DeleteStreamAsync(STREAM, ExpectedVersion.Any, new UserCredentials("admin", "changeit"));
-
-      //  Console.WriteLine("waiting for events. press enter to exit");
-      //  Console.ReadKey();
-      //  return;
-      //}
-
-      using (var conn = EventStoreConnection.Create(settings, new IPEndPoint(IPAddress.Loopback, DEFAULTPORT)))
+      var connStr = "ConnectTo=tcp://admin:changeit@localhost:1113";
+      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();
+      using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().Wait();
 

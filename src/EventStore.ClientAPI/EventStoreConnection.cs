@@ -1,9 +1,9 @@
-﻿using System.Net;
+﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
-using System;
 using EventStore.ClientAPI.SystemData;
 #if NETSTANDARD
 using EventStore.ClientApi.Core.Internal;
@@ -11,14 +11,10 @@ using EventStore.ClientApi.Core.Internal;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>
-  /// Contains factory methods for building connections to an Event Store server.
-  /// </summary>
+  /// <summary>Contains factory methods for building connections to an Event Store server.</summary>
   public static class EventStoreConnection
   {
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes</param>
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
@@ -27,9 +23,8 @@ namespace EventStore.ClientAPI
       return Create(ConnectionSettings.Default, uri, connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/> provided via a connectionstring
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/> 
+    /// provided via a connectionstring.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="connectionString">The connection string to for this connection.</param>
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
@@ -38,9 +33,8 @@ namespace EventStore.ClientAPI
       return Create(connectionString, null, connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/> provided via a connectionstring
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/> 
+    /// provided via a connectionstring.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="builder">Pre-populated settings builder, optional. If not specified, a new builder will be created.</param>
     /// <param name="connectionString">The connection string to for this connection.</param>
@@ -60,20 +54,16 @@ namespace EventStore.ClientAPI
       return Create(settings, uri, connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using <see cref="ConnectionSettings"/> passed
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using <see cref="ConnectionSettings"/> passed.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
     public static IEventStoreConnection Create(ConnectionSettings connectionSettings, string connectionName = null)
     {
-      return Create(connectionSettings, (Uri)null, connectionName);
+      return Create(connectionSettings, uri: null, connectionName: connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes via dns</param>
@@ -144,15 +134,15 @@ namespace EventStore.ClientAPI
 #if DESKTOPCLR
     private static IPEndPoint GetSingleNodeIPEndPointFrom(Uri uri)
     {
-      //TODO GFY move this all the way back into the connection so it can be done on connect not on create
+      // TODO GFY move this all the way back into the connection so it can be done on connect not on create
       var ipaddress = IPAddress.Any;
       if (!IPAddress.TryParse(uri.Host, out ipaddress))
       {
         var entries = Dns.GetHostAddresses(uri.Host);
-        if (entries.Length == 0) throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'");
+        if (entries.Length == 0) { throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'"); }
         //pick an IPv4 address, if one exists
         ipaddress = entries.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
-        if (ipaddress == null) throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'");
+        if (ipaddress == null) { throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'"); }
       }
       var port = uri.IsDefaultPort ? 2113 : uri.Port;
       return new IPEndPoint(ipaddress, port);
@@ -161,9 +151,9 @@ namespace EventStore.ClientAPI
 
     private static UserCredentials GetCredentialFromUri(Uri uri)
     {
-      if (uri == null || string.IsNullOrEmpty(uri.UserInfo)) return null;
+      if (uri == null || string.IsNullOrEmpty(uri.UserInfo)) { return null; }
       var pieces = uri.UserInfo.Split(':');
-      if (pieces.Length != 2) throw new Exception($"Unable to parse user information '{uri.UserInfo}'");
+      if (pieces.Length != 2) { throw new Exception($"Unable to parse user information '{uri.UserInfo}'"); }
       return new UserCredentials(pieces[0], pieces[1]);
     }
 
@@ -173,9 +163,7 @@ namespace EventStore.ClientAPI
                                    .FirstOrDefault(x => string.Equals(x.Key, "CONNECTTO", StringComparison.OrdinalIgnoreCase)).Value;
       return connto == null ? null : new Uri(connto);
     }
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="tcpEndPoint">The <see cref="IPEndPoint"/> to connect to.</param>
     /// <returns>a new <see cref="IEventStoreConnection"/></returns>
@@ -184,9 +172,7 @@ namespace EventStore.ClientAPI
       return Create(ConnectionSettings.Default, tcpEndPoint, connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to single node using specific <see cref="ConnectionSettings"/>
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using specific <see cref="ConnectionSettings"/>.</summary>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <param name="tcpEndPoint">The <see cref="IPEndPoint"/> to connect to.</param>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
@@ -198,10 +184,8 @@ namespace EventStore.ClientAPI
       return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
     }
 
-    /// <summary>
-    /// Creates a new <see cref="IEventStoreConnection"/> to EventStore cluster 
-    /// using specific <see cref="ConnectionSettings"/> and <see cref="ClusterSettings"/>
-    /// </summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection"/> to EventStore cluster 
+    /// using specific <see cref="ConnectionSettings"/> and <see cref="ClusterSettings"/>.</summary>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <param name="clusterSettings">The <see cref="ClusterSettings"/> that determine cluster behavior.</param>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
