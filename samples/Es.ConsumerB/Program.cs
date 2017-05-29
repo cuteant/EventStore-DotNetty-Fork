@@ -44,9 +44,9 @@ namespace Es.Consumer
           var data = Encoding.ASCII.GetString(x.Event.Data);
           if (x.Event.EventNumber % 3 == 0)
           {
-            var errorMsg = $"error event number: {x.Event.EventNumber}";
-            Console.WriteLine(errorMsg);
-            throw new InvalidOperationException(errorMsg);
+            //var errorMsg = $"error event number: {x.Event.EventNumber}";
+            //Console.WriteLine(errorMsg);
+            //throw new InvalidOperationException(errorMsg);
           }
           Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
           Console.WriteLine(data);

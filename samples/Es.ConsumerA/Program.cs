@@ -16,6 +16,7 @@ namespace Es.Consumer
   class Program
   {
     const string STREAM = "a_test_stream";
+    const string STREAM_META = "a_test_stream_meta";
     const string GROUP = "a_test_group_1";
     const int DEFAULTPORT = 1113;
 
@@ -38,15 +39,17 @@ namespace Es.Consumer
         //CreateSubscription(conn);
         UpdateSubscription(conn);
 
+        UpdateStreamMetadata(conn);
+
         conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
         {
           await TaskConstants.Completed;
           var data = Encoding.ASCII.GetString(x.Event.Data);
           if (x.Event.EventNumber % 3 == 0)
           {
-            var errorMsg = $"error event number: {x.Event.EventNumber}";
-            Console.WriteLine(errorMsg);
-            throw new InvalidOperationException(errorMsg);
+            //var errorMsg = $"error event number: {x.Event.EventNumber}";
+            //Console.WriteLine(errorMsg);
+            //throw new InvalidOperationException(errorMsg);
           }
           Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
           Console.WriteLine(data);
@@ -154,6 +157,12 @@ namespace Es.Consumer
           .StartFromBeginning();
 
       conn.UpdatePersistentSubscription(STREAM, GROUP, settings);
+    }
+
+    private static void UpdateStreamMetadata(IEventStoreConnection conn)
+    {
+      conn.SetStreamMetadataAsync(STREAM, ExpectedVersion.Any, StreamMetadata.Create(1000, TimeSpan.FromMinutes(30)))
+          .ConfigureAwait(false).GetAwaiter().GetResult();
     }
   }
 }
