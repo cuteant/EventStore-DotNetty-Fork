@@ -367,6 +367,15 @@ namespace EventStore.ClientAPI.ClientOperations
         }
         else
         {
+          if (_bufferBlock != null)
+          {
+            _bufferBlock.Complete();
+            _links?.Dispose();
+          }
+          else if (_actionBlocks != null && _actionBlocks.Count > 0)
+          {
+            _actionBlocks[0]?.Complete();
+          }
           _subscriptionDropped(_subscription, item.dropReason, item.exc);
         }
       }
@@ -386,6 +395,15 @@ namespace EventStore.ClientAPI.ClientOperations
         }
         else
         {
+          if (_bufferBlock != null)
+          {
+            _bufferBlock.Complete();
+            _links?.Dispose();
+          }
+          else if (_actionBlocks != null && _actionBlocks.Count > 0)
+          {
+            _actionBlocks[0]?.Complete();
+          }
           _subscriptionDropped(_subscription, item.dropReason, item.exc);
         }
       }

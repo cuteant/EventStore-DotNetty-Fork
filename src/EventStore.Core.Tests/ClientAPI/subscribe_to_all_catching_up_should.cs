@@ -80,9 +80,9 @@ namespace EventStore.Core.Tests.ClientAPI
 
         var dropped = new CountdownEvent(1);
         store.SubscribeToAllFrom(null, CatchUpSubscriptionSettings.Default,
-                                   (x, y) => { throw new Exception("Error"); },
-                                   _ => Log.LogInformationX("Live processing started."),
-                                   (x, y, z) => dropped.Signal());
+                                 (x, y) => { throw new Exception("Error"); },
+                                 _ => Log.LogInformationX("Live processing started."),
+                                 (x, y, z) => dropped.Signal());
         Assert.IsTrue(dropped.Wait(Timeout));
       }
     }

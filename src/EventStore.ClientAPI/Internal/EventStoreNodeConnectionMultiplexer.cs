@@ -96,70 +96,64 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].ReadStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
     }
 
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, bool resolveLinkTos, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].SubscribeToStreamAsync(stream, resolveLinkTos, eventAppeared, subscriptionDropped, userCredentials);
+      return _innerConnections[index].SubscribeToStreamAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, bool resolveLinkTos, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent, Task> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].SubscribeToStreamAsync(stream, resolveLinkTos, eventAppeared, subscriptionDropped, userCredentials);
+      return _innerConnections[index].SubscribeToStreamAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
-    public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(
+      string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
-    public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(
+      string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
-    }
-
-    public EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(string stream, string groupName,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
-    {
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].ConnectToPersistentSubscription(stream, groupName, eventAppeared, subscriptionDropped, userCredentials, bufferSize, autoAck);
-    }
-
-    public EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(string stream, string groupName,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppeared,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
-    {
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].ConnectToPersistentSubscription(stream, groupName, eventAppeared, subscriptionDropped, userCredentials, bufferSize, autoAck);
+      return _innerConnections[index].SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].ConnectToPersistentSubscriptionAsync(stream, groupName, eventAppeared, subscriptionDropped, userCredentials, bufferSize, autoAck);
+      return _innerConnections[index].ConnectToPersistentSubscriptionAsync(stream, groupName, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppeared,
+      ConnectToPersistentSubscriptionSettings settings,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].ConnectToPersistentSubscriptionAsync(stream, groupName, eventAppeared, subscriptionDropped, userCredentials, bufferSize, autoAck);
+      return _innerConnections[index].ConnectToPersistentSubscriptionAsync(stream, groupName, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
     public Task UpdatePersistentSubscriptionAsync(string stream, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials)

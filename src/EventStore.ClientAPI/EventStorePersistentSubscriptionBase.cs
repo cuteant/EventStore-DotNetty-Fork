@@ -48,8 +48,7 @@ namespace EventStore.ClientAPI
       ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, ConnectionSettings connSettings,
-      int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppeared = eventAppeared;
@@ -59,8 +58,7 @@ namespace EventStore.ClientAPI
       ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, ConnectionSettings connSettings,
-      int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppearedAsync = eventAppearedAsync;
@@ -207,6 +205,16 @@ namespace EventStore.ClientAPI
       if (!_stopped.Wait(timeout))
       {
         throw new TimeoutException($"Could not stop {GetType().Name} in time.");
+      }
+
+      if (_bufferBlock != null)
+      {
+        _bufferBlock.Complete();
+        _links?.Dispose();
+      }
+      else if (_actionBlocks != null && _actionBlocks.Count > 0)
+      {
+        _actionBlocks[0]?.Complete();
       }
     }
 

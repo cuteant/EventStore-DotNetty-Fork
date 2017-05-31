@@ -9,34 +9,34 @@ namespace EventStore.ClientAPI.Embedded
     private readonly EmbeddedSubscriber _subscriptions;
 
     internal EmbeddedEventStorePersistentSubscription(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
-      EmbeddedSubscriber subscriptions, int bufferSize = 10, bool autoAck = true)
-      : base(subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+      UserCredentials userCredentials, ConnectionSettings conSettings, EmbeddedSubscriber subscriptions)
+      : base(subscriptionId, streamId, settings, eventAppeared, subscriptionDropped, userCredentials, conSettings)
     {
       _subscriptions = subscriptions;
     }
     internal EmbeddedEventStorePersistentSubscription(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
-      EmbeddedSubscriber subscriptions, int bufferSize = 10, bool autoAck = true)
-      : base(subscriptionId, streamId, eventAppearedAsync, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+      UserCredentials userCredentials, ConnectionSettings conSettings, EmbeddedSubscriber subscriptions)
+      : base(subscriptionId, streamId, settings, eventAppearedAsync, subscriptionDropped, userCredentials, conSettings)
     {
       _subscriptions = subscriptions;
     }
 
     internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
-      string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials,
+      string subscriptionId, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
       Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
-      ConnectionSettings settings)
+      ConnectionSettings connSettings)
     {
       var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
 
-      _subscriptions.StartPersistentSubscription(Guid.NewGuid(), source, subscriptionId, streamId, userCredentials, bufferSize, onEventAppearedAsync,
-          onSubscriptionDropped, settings.MaxRetries, settings.OperationTimeout);
+      _subscriptions.StartPersistentSubscription(Guid.NewGuid(), source, subscriptionId, streamId, userCredentials, settings.BufferSize,
+          onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout);
 
       return source.Task;
     }

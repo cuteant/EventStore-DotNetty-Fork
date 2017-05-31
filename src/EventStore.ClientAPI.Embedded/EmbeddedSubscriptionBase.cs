@@ -65,26 +65,26 @@ namespace EventStore.ClientAPI.Embedded
       _subscriptionDropped = subscriptionDropped ?? ((a, b, c) => { });
     }
 
-    public void DropSubscription(Core.Services.SubscriptionDropReason reason, Exception ex)
+    public void DropSubscription(EventStore.Core.Services.SubscriptionDropReason reason, Exception ex)
     {
       switch (reason)
       {
-        case Core.Services.SubscriptionDropReason.AccessDenied:
+        case EventStore.Core.Services.SubscriptionDropReason.AccessDenied:
           DropSubscription(SubscriptionDropReason.AccessDenied,
               ex ?? new AccessDeniedException(string.Format("Subscription to '{0}' failed due to access denied.",
                   StreamId == string.Empty ? "<all>" : StreamId)));
           break;
-        case Core.Services.SubscriptionDropReason.Unsubscribed:
+        case EventStore.Core.Services.SubscriptionDropReason.Unsubscribed:
           Unsubscribe();
           break;
-        case Core.Services.SubscriptionDropReason.NotFound:
+        case EventStore.Core.Services.SubscriptionDropReason.NotFound:
           DropSubscription(SubscriptionDropReason.NotFound,
               new ArgumentException("Subscription not found"));
           break;
       }
     }
 
-    public async Task EventAppeared(Core.Data.ResolvedEvent resolvedEvent)
+    public async Task EventAppeared(EventStore.Core.Data.ResolvedEvent resolvedEvent)
     {
       var e = resolvedEvent.OriginalPosition == null
           ? new ResolvedEvent(resolvedEvent.ConvertToClientResolvedIndexEvent())

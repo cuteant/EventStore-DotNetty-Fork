@@ -187,6 +187,13 @@ namespace EventStore.ClientAPI
       {
         throw new TimeoutException(string.Format("Could not stop {0} in time.", GetType().Name));
       }
+
+      _liveQueue?.Complete();
+      _links?.Dispose();
+      foreach (var block in _actionBlocks)
+      {
+        block?.Complete();
+      }
     }
 
     /// <summary>Attempts to stop the subscription without blocking for completion of stop.</summary>

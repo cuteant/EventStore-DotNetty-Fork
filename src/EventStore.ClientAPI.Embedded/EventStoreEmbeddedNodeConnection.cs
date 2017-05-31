@@ -341,7 +341,7 @@ namespace EventStore.ClientAPI.Embedded
 
       return source.Task;
     }
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, bool resolveLinkTos,
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
@@ -353,11 +353,11 @@ namespace EventStore.ClientAPI.Embedded
 
       var corrId = Guid.NewGuid();
 
-      _subscriptions.StartSubscription(corrId, source, stream, GetUserCredentials(_settings, userCredentials), resolveLinkTos, eventAppeared, subscriptionDropped);
+      _subscriptions.StartSubscription(corrId, source, stream, GetUserCredentials(_settings, userCredentials), settings.ResolveLinkTos, eventAppeared, subscriptionDropped);
 
       return source.Task;
     }
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, bool resolveLinkTos,
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
@@ -369,20 +369,9 @@ namespace EventStore.ClientAPI.Embedded
 
       var corrId = Guid.NewGuid();
 
-      _subscriptions.StartSubscription(corrId, source, stream, GetUserCredentials(_settings, userCredentials), resolveLinkTos, eventAppearedAsync, subscriptionDropped);
+      _subscriptions.StartSubscription(corrId, source, stream, GetUserCredentials(_settings, userCredentials), settings.ResolveLinkTos, eventAppearedAsync, subscriptionDropped);
 
       return source.Task;
-    }
-
-    public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, bool resolveLinkTos,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "")
-    {
-      var settings = new CatchUpSubscriptionSettings(Consts.CatchUpDefaultMaxPushQueueSize, readBatchSize,
-                                                     _settings.VerboseLogging, resolveLinkTos, subscriptionName);
-      return SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -418,7 +407,7 @@ namespace EventStore.ClientAPI.Embedded
       return catchUpSubscription;
     }
 
-    public Task<EventStoreSubscription> SubscribeToAllAsync(bool resolveLinkTos,
+    public Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
@@ -429,11 +418,12 @@ namespace EventStore.ClientAPI.Embedded
 
       var corrId = Guid.NewGuid();
 
-      _subscriptions.StartSubscription(corrId, source, string.Empty, GetUserCredentials(_settings, userCredentials), resolveLinkTos, eventAppeared, subscriptionDropped);
+      _subscriptions.StartSubscription(corrId, source, string.Empty, GetUserCredentials(_settings, userCredentials),
+          settings.ResolveLinkTos, eventAppeared, subscriptionDropped);
 
       return source.Task;
     }
-    public Task<EventStoreSubscription> SubscribeToAllAsync(bool resolveLinkTos,
+    public Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
@@ -444,79 +434,33 @@ namespace EventStore.ClientAPI.Embedded
 
       var corrId = Guid.NewGuid();
 
-      _subscriptions.StartSubscription(corrId, source, string.Empty, GetUserCredentials(_settings, userCredentials), resolveLinkTos, eventAppearedAsync, subscriptionDropped);
+      _subscriptions.StartSubscription(corrId, source, string.Empty, GetUserCredentials(_settings, userCredentials),
+          settings.ResolveLinkTos, eventAppearedAsync, subscriptionDropped);
 
       return source.Task;
     }
 
-
-    public EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(string stream, string groupName,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
-    {
-      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-      Ensure.NotNullOrEmpty(stream, nameof(stream));
-      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
-
-      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppeared, subscriptionDropped,
-          GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
-          autoAck);
-
-      subscription.StartAsync().Wait();
-
-      return subscription;
-    }
-    public EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(string stream, string groupName,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
-    {
-      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-      Ensure.NotNullOrEmpty(stream, nameof(stream));
-      Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
-
-      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppearedAsync, subscriptionDropped,
-          GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
-          autoAck);
-
-      subscription.StartAsync().Wait();
-
-      return subscription;
-    }
-
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials = null)
     {
-      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppeared, subscriptionDropped,
-          GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
-          autoAck);
+      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, settings, eventAppeared, subscriptionDropped,
+          GetUserCredentials(_settings, userCredentials), _settings, _subscriptions);
 
       return subscription.StartAsync();
     }
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true)
+      UserCredentials userCredentials = null)
     {
-      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, eventAppearedAsync, subscriptionDropped,
-          GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
-          autoAck);
+      var subscription = new EmbeddedEventStorePersistentSubscription(groupName, stream, settings, eventAppearedAsync, subscriptionDropped,
+          GetUserCredentials(_settings, userCredentials), _settings, _subscriptions);
 
       return subscription.StartAsync();
-    }
-
-    public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, bool resolveLinkTos,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "")
-    {
-      var settings = new CatchUpSubscriptionSettings(Consts.CatchUpDefaultMaxPushQueueSize, readBatchSize,
-                                                     _settings.VerboseLogging, resolveLinkTos, subscriptionName);
-      return SubscribeToAllFrom(lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,

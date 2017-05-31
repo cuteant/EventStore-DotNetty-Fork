@@ -186,9 +186,9 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region -- SubscribeToStreamFromAsync --
+    #region -- SubscribeToStreamFrom --
 
-    /// <summary>Asynchronously subscribes to a single event stream. Existing events from
+    /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
     /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
     /// as if they had been pushed.
@@ -216,11 +216,11 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamFromAsync(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
-    /// <summary>Asynchronously subscribes to a single event stream. Existing events from
+    /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
     /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
     /// as if they had been pushed.
@@ -248,7 +248,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamFromAsync(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
@@ -385,7 +385,7 @@ namespace EventStore.ClientAPI
   {
     /// <summary>Gets the name of this connection. A connection name can be used for disambiguation in log files.</summary>
     string ConnectionName { get; }
-    
+
     /// <summary>Continues transaction by provided transaction ID.</summary>
     /// <remarks>A <see cref="EventStoreTransaction"/> allows the calling of multiple writes with multiple
     /// round trips over long periods of time between the caller and the event store. This method
@@ -429,6 +429,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
+
     /// <summary>Asynchronously subscribes to all events in the Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
@@ -444,36 +445,9 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    /*
-    /// <summary>
-    /// Subscribes a persistent subscription (competing consumer) to all events in the event store
-    /// </summary>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
-    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
-    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <remarks>This will connect you to a persistent subscription group for all events. The subscription group
-    /// must first be created with CreatePersistentSubscriptionAsync many connections
-    /// can connect to the same group and they will be treated as competing consumers within the group.
-    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
-    /// you attempt to connect to a group that does not exist you will be given an exception.
-    /// </remarks>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    EventStorePersistentSubscription ConnectToPersistentSubscriptionForAll(
-        string groupName,
-        Action<EventStorePersistentSubscription, ResolvedEvent> eventAppeared,
-        Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-        UserCredentials userCredentials = null,
-        int? bufferSize = null,
-        bool autoAck = true);
-    */
+    #region -- SubscribeToAllFrom --
 
-    #region -- SubscribeToAllFromAsync --
-
-    /// <summary>Asynchronously subscribes to a all events. Existing events from lastCheckpoint
+    /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
     /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
     ///
@@ -499,13 +473,13 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    Task<EventStoreAllCatchUpSubscription> SubscribeToAllFromAsync(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 
-    /// <summary>Asynchronously subscribes to a all events. Existing events from lastCheckpoint
+    /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
     /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
     ///
@@ -531,35 +505,13 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    Task<EventStoreAllCatchUpSubscription> SubscribeToAllFromAsync(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 
     #endregion
-
-    /*
-/// <summary>
-/// Asynchronously create a persistent subscription group for all events
-/// </summary>
-/// <param name="groupName">The name of the group to create</param>
-/// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
-/// /// <param name="credentials">The credentials to be used for this operation.</param>
-/// <returns>A <see cref="PersistentSubscriptionCreateResult"/>.</returns>
-Task<PersistentSubscriptionCreateResult> CreatePersistentSubscriptionForAllAsync(string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials);
-    */
-
-
-    /*
-    /// <summary>
-    /// Asynchronously delete a persistent subscription group for all events
-    /// </summary>
-    /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="PersistentSubscriptionDeleteResult"/>.</returns>
-    Task<PersistentSubscriptionDeleteResult> DeletePersistentSubscriptionForAllAsync(string groupName, UserCredentials userCredentials = null);
-    */
 
     #region -- Event handlers --
 
