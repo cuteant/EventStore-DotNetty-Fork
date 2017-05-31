@@ -6,13 +6,13 @@ using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 #if NETSTANDARD
-using EventStore.ClientApi.Core.Internal;
+using EventStore.ClientAPI.Core.Internal;
 #endif
 
 namespace EventStore.ClientAPI
 {
   /// <summary>Contains factory methods for building connections to an Event Store server.</summary>
-  public static class EventStoreConnection
+  public static partial class EventStoreConnection
   {
     /// <summary>Creates a new <see cref="IEventStoreConnection"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>

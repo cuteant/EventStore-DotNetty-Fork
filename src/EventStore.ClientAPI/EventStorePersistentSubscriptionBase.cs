@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 
@@ -25,75 +26,116 @@ namespace EventStore.ClientAPI
     private readonly UserCredentials _userCredentials;
     private readonly ILogger _log;
     private readonly bool _verbose;
-    private readonly ConnectionSettings _settings;
+    private readonly ConnectionSettings _connSettings;
     private readonly bool _autoAck;
 
     private PersistentEventStoreSubscription _subscription;
-    private ActionBlock<ResolvedEvent> _resolvedEventBlock;
+    private BufferBlock<ResolvedEvent> _bufferBlock;
+    private List<ActionBlock<ResolvedEvent>> _actionBlocks;
+    private ITargetBlock<ResolvedEvent> _targetBlock;
+    private ConnectToPersistentSubscriptionSettings _settings;
+    private IDisposable _links;
     private DropData _dropData;
 
     private int _isDropped;
     private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
     private readonly int _bufferSize;
 
+    /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
+    internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
+
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+      UserCredentials userCredentials, ConnectionSettings connSettings,
       int bufferSize = 10, bool autoAck = true)
-      : this(subscriptionId, streamId, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+      : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppeared = eventAppeared;
     }
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
+      UserCredentials userCredentials, ConnectionSettings connSettings,
       int bufferSize = 10, bool autoAck = true)
-      : this(subscriptionId, streamId, subscriptionDropped, userCredentials, verboseLogging, settings, bufferSize, autoAck)
+      : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppearedAsync = eventAppearedAsync;
     }
 
     private EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
-      int bufferSize, bool autoAck)
+      UserCredentials userCredentials, ConnectionSettings connSettings)
     {
       _subscriptionId = subscriptionId;
       _streamId = streamId;
+      _settings = settings;
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
       _log = TraceLogger.GetLogger(this.GetType());
-      _verbose = verboseLogging && _log.IsDebugLevelEnabled();
-      _settings = settings;
-      _bufferSize = bufferSize;
-      _autoAck = autoAck;
+      _verbose = settings.VerboseLogging && _log.IsDebugLevelEnabled();
+      _connSettings = connSettings;
+      _bufferSize = settings.BufferSize;
+      _autoAck = settings.AutoAck;
     }
 
-    internal async Task<EventStorePersistentSubscriptionBase> Start()
+    internal async Task<EventStorePersistentSubscriptionBase> StartAsync()
     {
       _stopped.Reset();
 
-      _subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _bufferSize, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _settings).ConfigureAwait(false);
+      _subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _settings, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _connSettings)
+                            .ConfigureAwait(false);
+
+      var numActionBlocks = _settings.NumActionBlocks;
+      if (SubscriptionSettings.Unbounded == _settings.BoundedCapacityPerBlock)
+      {
+        // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
+        numActionBlocks = 1;
+      }
+      _actionBlocks = new List<ActionBlock<ResolvedEvent>>(numActionBlocks);
       if (_eventAppeared != null)
       {
-        _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+        for (var idx = 0; idx < numActionBlocks; idx++)
+        {
+          _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
+        }
       }
       else
       {
-        _resolvedEventBlock = new ActionBlock<ResolvedEvent>(e => ProcessResolvedEventAsync(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+        for (var idx = 0; idx < numActionBlocks; idx++)
+        {
+          _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
+        }
+      }
+      if (numActionBlocks > 1)
+      {
+        var links = new CompositeDisposable();
+        _bufferBlock = new BufferBlock<ResolvedEvent>(_settings.ToBufferBlockOptions());
+        for (var idx = 0; idx < numActionBlocks; idx++)
+        {
+          var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
+          links.Add(_bufferBlock.LinkTo(_actionBlocks[idx], linkOptions));
+        }
+        _links = links;
+        _targetBlock = _bufferBlock;
+      }
+      else
+      {
+        _targetBlock = _actionBlocks[0];
       }
 
       return this;
     }
 
-    internal abstract Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
-        string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials,
-        Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
-        Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
-        ConnectionSettings settings);
+    internal abstract Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
+      ConnectionSettings connSettings);
 
     /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
     /// <remarks>There is no need to ack a message if you have Auto Ack enabled</remarks>
@@ -174,7 +216,7 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-        _resolvedEventBlock.Post(DropSubscriptionEvent);
+        _targetBlock.SendAsync(DropSubscriptionEvent).ConfigureAwait(false).GetAwaiter().GetResult();
       }
     }
 
@@ -185,7 +227,7 @@ namespace EventStore.ClientAPI
 
     private async Task OnEventAppearedAsync(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
     {
-      await _resolvedEventBlock.SendAsync(resolvedEvent).ConfigureAwait(false);
+      await _targetBlock.SendAsync(resolvedEvent).ConfigureAwait(false);
     }
 
     private void ProcessResolvedEvent(ResolvedEvent resolvedEvent)

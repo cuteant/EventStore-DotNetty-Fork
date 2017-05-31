@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -6,6 +7,7 @@ using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
+using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
@@ -14,10 +16,12 @@ namespace EventStore.ClientAPI.ClientOperations
 {
   internal abstract class SubscriptionOperation<T> : ISubscriptionOperation where T : EventStoreSubscription
   {
-    private readonly ILogger _log;
+    private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.SubscriptionOperation");
+
     private readonly TaskCompletionSource<T> _source;
     protected readonly string _streamId;
     protected readonly bool _resolveLinkTos;
+    protected readonly SubscriptionSettings _subscriptionSettings;
     protected readonly UserCredentials _userCredentials;
     protected readonly Action<T, ResolvedEvent> _eventAppeared;
     protected readonly Func<T, ResolvedEvent, Task> _eventAppearedAsync;
@@ -25,41 +29,99 @@ namespace EventStore.ClientAPI.ClientOperations
     private readonly bool _verboseLogging;
     protected readonly Func<TcpPackageConnection> _getConnection;
     private readonly int _maxQueueSize = 2000;
-    private readonly ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _actionQueue;
+    private readonly BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _bufferBlock;
+    private readonly List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>> _actionBlocks;
+    private readonly ITargetBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _targetBlock;
+    private readonly IDisposable _links;
     private T _subscription;
     private int _unsubscribed;
     protected Guid _correlationId;
 
+    /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
+    internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
+
     protected SubscriptionOperation(TaskCompletionSource<T> source,
                                        string streamId,
-                                       bool resolveLinkTos,
+                                       SubscriptionSettings settings,
                                        UserCredentials userCredentials,
                                        Action<T, ResolvedEvent> eventAppeared,
                                        Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
-                                       bool verboseLogging,
                                        Func<TcpPackageConnection> getConnection)
-      : this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, verboseLogging, getConnection)
+      : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
     {
       _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
 
-      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
-          e => ProcessItem(e));
+      var numActionBlocks = settings.NumActionBlocks;
+      if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
+      {
+        // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
+        numActionBlocks = 1;
+      }
+      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+      for (var idx = 0; idx < numActionBlocks; idx++)
+      {
+        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+            e => ProcessItem(e),
+            settings.ToExecutionDataflowBlockOptions(true)));
+      }
+      if (numActionBlocks > 1)
+      {
+        var links = new CompositeDisposable();
+        _bufferBlock = new BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+        for (var idx = 0; idx < numActionBlocks; idx++)
+        {
+          var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
+          links.Add(_bufferBlock.LinkTo(_actionBlocks[idx], linkOptions));
+        }
+        _links = links;
+        _targetBlock = _bufferBlock;
+      }
+      else
+      {
+        _targetBlock = _actionBlocks[0];
+      }
     }
 
     protected SubscriptionOperation(TaskCompletionSource<T> source,
                                        string streamId,
-                                       bool resolveLinkTos,
+                                       SubscriptionSettings settings,
                                        UserCredentials userCredentials,
                                        Func<T, ResolvedEvent, Task> eventAppearedAsync,
                                        Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
-                                       bool verboseLogging,
                                        Func<TcpPackageConnection> getConnection)
-      : this(source, streamId, resolveLinkTos, userCredentials, subscriptionDropped, verboseLogging, getConnection)
+      : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
     {
       _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
 
-      _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
-          e => ProcessItemAsync(e));
+      var numActionBlocks = settings.NumActionBlocks;
+      if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
+      {
+        // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
+        numActionBlocks = 1;
+      }
+      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+      for (var idx = 0; idx < numActionBlocks; idx++)
+      {
+        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+          e => ProcessItemAsync(e),
+          settings.ToExecutionDataflowBlockOptions()));
+      }
+      if (numActionBlocks > 1)
+      {
+        var links = new CompositeDisposable();
+        _bufferBlock = new BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+        for (var idx = 0; idx < numActionBlocks; idx++)
+        {
+          var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
+          links.Add(_bufferBlock.LinkTo(_actionBlocks[idx], linkOptions));
+        }
+        _links = links;
+        _targetBlock = _bufferBlock;
+      }
+      else
+      {
+        _targetBlock = _actionBlocks[0];
+      }
     }
 
     private SubscriptionOperation(TaskCompletionSource<T> source,
@@ -73,14 +135,12 @@ namespace EventStore.ClientAPI.ClientOperations
       Ensure.NotNull(source, nameof(source));
       Ensure.NotNull(getConnection, nameof(getConnection));
 
-      _log = TraceLogger.GetLogger(this.GetType());
       _source = source;
       _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
       _resolveLinkTos = resolveLinkTos;
       _userCredentials = userCredentials;
       _subscriptionDropped = subscriptionDropped ?? ((x, y, z) => { });
-      _verboseLogging = verboseLogging;
-      if (_verboseLogging) { _verboseLogging = _log.IsDebugLevelEnabled(); }
+      _verboseLogging = verboseLogging && _log.IsDebugLevelEnabled();
       _getConnection = getConnection;
     }
 
@@ -290,8 +350,8 @@ namespace EventStore.ClientAPI.ClientOperations
 
     private void EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      _actionQueue.SendAsync(item).ConfigureAwait(false).GetAwaiter().GetResult();
-      if (_actionQueue.InputCount > _maxQueueSize)
+      _targetBlock.SendAsync(item).ConfigureAwait(false).GetAwaiter().GetResult();
+      if (InputCount > _maxQueueSize)
       {
         DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
       }

@@ -11,40 +11,37 @@ namespace EventStore.ClientAPI
   {
     private readonly EventStoreConnectionLogicHandler _handler;
 
-    internal EventStorePersistentSubscription(
-        string subscriptionId, string streamId,
-        Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-        Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-        UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
-        EventStoreConnectionLogicHandler handler, int bufferSize = 10, bool autoAck = true)
-        : base(
-            subscriptionId, streamId, eventAppeared, subscriptionDropped, userCredentials, verboseLogging,
-            settings, bufferSize, autoAck)
+    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+      UserCredentials userCredentials, ConnectionSettings connSettings,
+      EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppeared, subscriptionDropped, userCredentials, connSettings)
     {
       _handler = handler;
     }
 
-    internal EventStorePersistentSubscription(
-        string subscriptionId, string streamId,
-        Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
-        Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-        UserCredentials userCredentials, bool verboseLogging, ConnectionSettings settings,
-        EventStoreConnectionLogicHandler handler, int bufferSize = 10, bool autoAck = true)
-        : base(
-            subscriptionId, streamId, eventAppearedAsync, subscriptionDropped, userCredentials, verboseLogging,
-            settings, bufferSize, autoAck)
+    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+      UserCredentials userCredentials, ConnectionSettings connSettings,
+      EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppearedAsync, subscriptionDropped, userCredentials, connSettings)
     {
       _handler = handler;
     }
 
-    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(
-        string subscriptionId, string streamId, int bufferSize, UserCredentials userCredentials, Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
-        Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped, ConnectionSettings settings)
+    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
+      ConnectionSettings connSettings)
     {
       var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
-      _handler.EnqueueMessage(new StartPersistentSubscriptionMessage(source, subscriptionId, streamId, bufferSize,
-          userCredentials, onEventAppearedAsync,
-          onSubscriptionDropped, settings.MaxRetries, settings.OperationTimeout));
+      _handler.EnqueueMessage(new StartPersistentSubscriptionMessage(source, subscriptionId, streamId, settings, userCredentials,
+          onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
 
       return source.Task;
     }

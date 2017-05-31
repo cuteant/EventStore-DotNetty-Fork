@@ -6,7 +6,7 @@ using EventStore.ClientAPI.Internal;
 
 namespace EventStore.ClientAPI
 {
-  public static class EventStoreConnectionMultiplexer
+  partial class EventStoreConnection
   {
     /// <summary>Creates a new <see cref="IEventStoreConnectionMultiplexer"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
     /// <param name="numConnections">The number of eventstore connection.</param>

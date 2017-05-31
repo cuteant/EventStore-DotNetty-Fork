@@ -4,18 +4,25 @@ using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
   internal class VolatileSubscriptionOperation : SubscriptionOperation<EventStoreSubscription>
   {
-    public VolatileSubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source, string streamId, bool resolveLinkTos, UserCredentials userCredentials, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool verboseLogging, Func<TcpPackageConnection> getConnection)
-      : base(source, streamId, resolveLinkTos, userCredentials, eventAppeared, subscriptionDropped, verboseLogging, getConnection)
+    public VolatileSubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, getConnection)
     {
     }
-    public VolatileSubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source, string streamId, bool resolveLinkTos, UserCredentials userCredentials, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool verboseLogging, Func<TcpPackageConnection> getConnection)
-      : base(source, streamId, resolveLinkTos, userCredentials, eventAppearedAsync, subscriptionDropped, verboseLogging, getConnection)
+    public VolatileSubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
     }
 

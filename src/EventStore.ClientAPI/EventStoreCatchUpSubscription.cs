@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
+using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 
@@ -45,8 +47,9 @@ namespace EventStore.ClientAPI
     private readonly string _subscriptionName;
 
     private readonly BufferBlock<ResolvedEvent> _liveQueue;
-    private readonly ActionBlock<ResolvedEvent> _processBlock;
-    private IDisposable _link;
+    private readonly int _numActionBlocks;
+    private readonly List<ActionBlock<ResolvedEvent>> _actionBlocks;
+    private IDisposable _links;
     private EventStoreSubscription _subscription;
     private DropData _dropData;
 
@@ -54,6 +57,9 @@ namespace EventStore.ClientAPI
     protected volatile bool ShouldStop;
     private int _isDropped;
     private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
+
+    /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
+    internal Int32 InputCount { get { return _numActionBlocks == 1 ? _actionBlocks[0].InputCount : _liveQueue.Count; } }
 
     /// <summary>Read events until the given position or event number async.</summary>
     /// <param name="connection">The connection.</param>
@@ -94,7 +100,18 @@ namespace EventStore.ClientAPI
       : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
     {
       EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
-      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+
+      _numActionBlocks = settings.NumActionBlocks;
+      if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
+      {
+        // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
+        _numActionBlocks = 1;
+      }
+      _actionBlocks = new List<ActionBlock<ResolvedEvent>>(_numActionBlocks);
+      for (var idx = 0; idx < _numActionBlocks; idx++)
+      {
+        _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessLiveQueue(e), settings.ToExecutionDataflowBlockOptions(true)));
+      }
     }
 
     /// <summary>Constructs state for EventStoreCatchUpSubscription.</summary>
@@ -115,7 +132,18 @@ namespace EventStore.ClientAPI
       : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
     {
       EventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
-      _processBlock = new ActionBlock<ResolvedEvent>(e => ProcessLiveQueueAsync(e), new ExecutionDataflowBlockOptions { SingleProducerConstrained = false });
+
+      _numActionBlocks = settings.NumActionBlocks;
+      if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
+      {
+        // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
+        _numActionBlocks = 1;
+      }
+      _actionBlocks = new List<ActionBlock<ResolvedEvent>>(_numActionBlocks);
+      for (var idx = 0; idx < _numActionBlocks; idx++)
+      {
+        _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessLiveQueueAsync(e), settings.ToExecutionDataflowBlockOptions()));
+      }
     }
 
     private EventStoreCatchUpSubscription(IEventStoreConnection connection,
@@ -138,7 +166,7 @@ namespace EventStore.ClientAPI
       Verbose = settings.VerboseLogging && Log.IsDebugLevelEnabled();
       _subscriptionName = settings.SubscriptionName ?? String.Empty;
 
-      _liveQueue = new BufferBlock<ResolvedEvent>();
+      _liveQueue = new BufferBlock<ResolvedEvent>(settings.ToBufferBlockOptions());
     }
 
 
@@ -193,7 +221,7 @@ namespace EventStore.ClientAPI
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: running...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
 
       _stopped.Reset();
-      var link = Interlocked.Exchange(ref _link, null);
+      var link = Interlocked.Exchange(ref _links, null);
       link?.Dispose();
 
       if (!ShouldStop)
@@ -266,8 +294,13 @@ namespace EventStore.ClientAPI
       if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: hooking to connection.Connected", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
       _connection.Connected += OnReconnect;
 
-      var link = _liveQueue.LinkTo(_processBlock);
-      Interlocked.Exchange(ref _link, link);
+      var links = new CompositeDisposable();
+      for (var idx = 0; idx < _numActionBlocks; idx++)
+      {
+        links.Add(_liveQueue.LinkTo(_actionBlocks[idx]));
+      }
+
+      Interlocked.Exchange(ref _links, links);
     }
 
     private async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, ResolvedEvent e)
@@ -280,7 +313,7 @@ namespace EventStore.ClientAPI
                   e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
       }
 
-      if (_processBlock.InputCount >= MaxPushQueueSize)
+      if (InputCount >= MaxPushQueueSize)
       {
         EnqueueSubscriptionDropNotification(SubscriptionDropReason.ProcessingQueueOverflow, null);
         subscription.Unsubscribe();

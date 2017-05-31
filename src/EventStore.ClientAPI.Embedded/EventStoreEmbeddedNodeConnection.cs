@@ -463,7 +463,7 @@ namespace EventStore.ClientAPI.Embedded
           GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
           autoAck);
 
-      subscription.Start().Wait();
+      subscription.StartAsync().Wait();
 
       return subscription;
     }
@@ -480,7 +480,7 @@ namespace EventStore.ClientAPI.Embedded
           GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
           autoAck);
 
-      subscription.Start().Wait();
+      subscription.StartAsync().Wait();
 
       return subscription;
     }
@@ -494,7 +494,7 @@ namespace EventStore.ClientAPI.Embedded
           GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
           autoAck);
 
-      return subscription.Start();
+      return subscription.StartAsync();
     }
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
@@ -505,7 +505,7 @@ namespace EventStore.ClientAPI.Embedded
           GetUserCredentials(_settings, userCredentials), _settings.VerboseLogging, _settings, _subscriptions, bufferSize,
           autoAck);
 
-      return subscription.Start();
+      return subscription.StartAsync();
     }
 
     public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, bool resolveLinkTos,

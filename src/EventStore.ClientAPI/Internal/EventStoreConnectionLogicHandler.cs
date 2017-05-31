@@ -415,12 +415,10 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
           var operation = msg.EventAppeared != null
-                        ? new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.ResolveLinkTos,
-                                                            msg.UserCredentials, msg.EventAppeared, msg.SubscriptionDropped,
-                                                            _settings.VerboseLogging, () => _connection)
-                        : new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.ResolveLinkTos,
-                                                            msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped,
-                                                            _settings.VerboseLogging, () => _connection);
+                        ? new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                            msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
+                        : new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                            msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
           if (_state == ConnectionState.Connecting)
@@ -448,9 +446,8 @@ namespace EventStore.ClientAPI.Internal
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
-          var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.BufferSize, msg.StreamId,
-                                                    msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped,
-                                                    _settings.VerboseLogging, () => _connection);
+          var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings,
+                                                    msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
           if (_state == ConnectionState.Connecting)

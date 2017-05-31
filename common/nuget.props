@@ -7,7 +7,7 @@
   
   <PropertyGroup Label="NuGet">
     <IsPackable>true</IsPackable>
-    <Authors>Event Store LLP</Authors>
+    <Authors>Event Store LLP, Seabiscuit</Authors>
     <Copyright>Copyright 2012-2017 Event Store LLP</Copyright>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageIconUrl>http://geteventstore.com/assets/ouro-200.png</PackageIconUrl>

@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Internal;
 
-namespace EventStore.ClientApi.Core.Internal
+namespace EventStore.ClientAPI.Core.Internal
 {
   internal class SingleEndpointDiscoverer : IEndPointDiscoverer
   {

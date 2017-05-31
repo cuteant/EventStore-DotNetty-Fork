@@ -6,7 +6,6 @@ using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -16,17 +15,27 @@ namespace EventStore.ClientAPI.ClientOperations
     private readonly int _bufferSize;
     private string _subscriptionId;
 
-    public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source, string groupName, int bufferSize, string streamId, UserCredentials userCredentials, Action<PersistentEventStoreSubscription, ResolvedEvent> eventAppeared, Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool verboseLogging, Func<TcpPackageConnection> getConnection)
-      : base(source, streamId, false, userCredentials, eventAppeared, subscriptionDropped, verboseLogging, getConnection)
+    //public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+    //  string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+    //  Action<PersistentEventStoreSubscription, ResolvedEvent> eventAppeared,
+    //  Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+    //  Func<TcpPackageConnection> getConnection)
+    //  : base(source, streamId, new SubscriptionSettings { ResolveLinkTos = false }, userCredentials, eventAppeared, subscriptionDropped, getConnection)
+    //{
+    //  _groupName = groupName;
+    //  _bufferSize = settings.BufferSize;
+    //}
+    public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, streamId, 
+          new SubscriptionSettings { ResolveLinkTos = false, TaskScheduler = settings.TaskScheduler, CancellationToken = settings.CancellationToken }, 
+          userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
       _groupName = groupName;
-      _bufferSize = bufferSize;
-    }
-    public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source, string groupName, int bufferSize, string streamId, UserCredentials userCredentials, Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool verboseLogging, Func<TcpPackageConnection> getConnection)
-      : base(source, streamId, false, userCredentials, eventAppearedAsync, subscriptionDropped, verboseLogging, getConnection)
-    {
-      _groupName = groupName;
-      _bufferSize = bufferSize;
+      _bufferSize = settings.BufferSize;
     }
 
     protected override TcpPackage CreateSubscriptionPackage()
