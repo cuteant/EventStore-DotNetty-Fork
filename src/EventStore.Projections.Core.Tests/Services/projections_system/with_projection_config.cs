@@ -1,4 +1,6 @@
-﻿namespace EventStore.Projections.Core.Tests.Services.projections_system
+﻿using EventStore.Projections.Core.Services.Processing;
+
+namespace EventStore.Projections.Core.Tests.Services.projections_system
 {
     public abstract class with_projection_config : with_projections_subsystem
     {
@@ -18,9 +20,9 @@
             _trackEmittedStreams = true;
             _emitEnabled = true;
 
-            NoStream("$projections-" + _projectionName + "-checkpoint");
-            NoStream("$projections-" + _projectionName + "-order");
-            NoStream("$projections-" + _projectionName + "-emittedstreams");
+            NoStream(ProjectionNamesBuilder.ProjectionsStreamPrefix + _projectionName + "-checkpoint");
+            NoStream(ProjectionNamesBuilder.ProjectionsStreamPrefix + _projectionName + "-order");
+            NoStream(ProjectionNamesBuilder.ProjectionsStreamPrefix + _projectionName + "-emittedstreams");
             AllWritesSucceed();
         }
 
