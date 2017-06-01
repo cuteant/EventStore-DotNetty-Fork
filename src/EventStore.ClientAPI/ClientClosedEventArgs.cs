@@ -10,7 +10,7 @@ namespace EventStore.ClientAPI
     {
         /// <summary>
         /// A description of the reason the connection was closed if closing was initiated by the server or client API directly
-        /// rather than by calling <see cref="IEventStoreConnection.Close"/>.
+        /// rather than by calling <see cref="IEventStoreConnectionBase.Close"/>.
         /// </summary>
         public string Reason { get; private set; }
 

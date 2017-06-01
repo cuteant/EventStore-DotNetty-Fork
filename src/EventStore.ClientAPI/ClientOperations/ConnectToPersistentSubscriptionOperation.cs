@@ -30,8 +30,9 @@ namespace EventStore.ClientAPI.ClientOperations
       Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
-      : base(source, streamId, 
-          new SubscriptionSettings { ResolveLinkTos = false, TaskScheduler = settings.TaskScheduler, CancellationToken = settings.CancellationToken }, 
+      : base(source, streamId,
+          //new SubscriptionSettings { ResolveLinkTos = false, TaskScheduler = settings.TaskScheduler, CancellationToken = settings.CancellationToken }, 
+          SubscriptionSettings.Default,
           userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
       _groupName = groupName;

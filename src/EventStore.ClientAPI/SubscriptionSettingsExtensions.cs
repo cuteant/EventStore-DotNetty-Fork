@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace EventStore.ClientAPI
 {
-  public static class SubscriptionSettingsExtensions
+  internal static class SubscriptionSettingsExtensions
   {
     /// <summary>Creates a <see cref="DataflowBlockOptions"/> object.</summary>
     /// <param name="settings"></param>

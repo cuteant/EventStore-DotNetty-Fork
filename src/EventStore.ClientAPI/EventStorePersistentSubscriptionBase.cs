@@ -14,6 +14,7 @@ namespace EventStore.ClientAPI
   public abstract class EventStorePersistentSubscriptionBase
   {
     private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
+    private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.PersistentSubscription");
 
     ///<summary>The default buffer size for the persistent subscription</summary>
     public const int DefaultBufferSize = 10;
@@ -24,7 +25,6 @@ namespace EventStore.ClientAPI
     private readonly Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> _eventAppearedAsync;
     private readonly Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> _subscriptionDropped;
     private readonly UserCredentials _userCredentials;
-    private readonly ILogger _log;
     private readonly bool _verbose;
     private readonly ConnectionSettings _connSettings;
     private readonly bool _autoAck;
@@ -74,7 +74,6 @@ namespace EventStore.ClientAPI
       _settings = settings;
       _subscriptionDropped = subscriptionDropped;
       _userCredentials = userCredentials;
-      _log = TraceLogger.GetLogger(this.GetType());
       _verbose = settings.VerboseLogging && _log.IsDebugLevelEnabled();
       _connSettings = connSettings;
       _bufferSize = settings.BufferSize;

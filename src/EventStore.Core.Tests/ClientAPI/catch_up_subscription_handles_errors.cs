@@ -9,7 +9,6 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
@@ -21,7 +20,8 @@ namespace EventStore.Core.Tests.ClientAPI
   [TestFixture, Category("ClientAPI"), Category("LongRunning")]
   public class catch_up_subscription_handles_errors
   {
-    private static readonly int TimeoutMs = Debugger.IsAttached ? Timeout.Infinite : 2000;
+    //private static readonly int TimeoutMs = Debugger.IsAttached ? Timeout.Infinite : 2000;
+    private static readonly int TimeoutMs = 2000;
     private FakeEventStoreConnection _connection;
     private IList<ResolvedEvent> _raisedEvents;
     private bool _liveProcessingStarted;
@@ -139,6 +139,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 
@@ -171,6 +172,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 
@@ -193,6 +195,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 
@@ -216,6 +219,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 
@@ -248,6 +252,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 
@@ -283,6 +288,7 @@ namespace EventStore.Core.Tests.ClientAPI
       });
 
       AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+      Thread.Sleep(1000);
       Assert.That(_raisedEvents.Count, Is.EqualTo(1));
     }
 

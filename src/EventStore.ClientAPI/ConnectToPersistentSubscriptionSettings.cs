@@ -5,6 +5,15 @@ namespace EventStore.ClientAPI
   /// <summary>Settings for <see cref="EventStoreCatchUpSubscription"/></summary>
   public partial class ConnectToPersistentSubscriptionSettings : SubscriptionSettings
   {
+    /// <inheritdoc />
+    public override int BoundedCapacityPerBlock { get => Unbounded; set { } }
+
+    /// <inheritdoc />
+    public override int MaxDegreeOfParallelismPerBlock { get => DefaultDegreeOfParallelism; set { } }
+
+    /// <inheritdoc />
+    public override int NumActionBlocks { get => DefaultNumActionBlocks; set { } }
+
     /// <summary>The buffer size to use for the persistent subscription.</summary>
     public readonly int BufferSize;
 

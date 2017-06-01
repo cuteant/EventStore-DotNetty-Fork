@@ -33,7 +33,7 @@ namespace ES.Producer
               ExpectedVersion.Any,
               GetEventDataFor(x)).Wait();
           Console.WriteLine("event " + x + " written.");
-          Thread.Sleep(1000);
+          Thread.Sleep(100);
         }
       }
 

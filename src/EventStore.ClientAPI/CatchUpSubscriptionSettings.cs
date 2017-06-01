@@ -6,17 +6,20 @@ namespace EventStore.ClientAPI
   /// <summary>Settings for <see cref="EventStoreCatchUpSubscription"/></summary>
   public partial class CatchUpSubscriptionSettings : SubscriptionSettings
   {
+    /// <inheritdoc />
+    public override int BoundedCapacityPerBlock { get => Unbounded; set { } }
+
+    /// <inheritdoc />
+    public override int MaxDegreeOfParallelismPerBlock { get => DefaultDegreeOfParallelism; set { } }
+
+    /// <inheritdoc />
+    public override int NumActionBlocks { get => DefaultNumActionBlocks; set { } }
+
     /// <summary>The maximum amount to cache when processing from live subscription. Going above will drop subscription.</summary>
     public readonly int MaxLiveQueueSize;
 
     /// <summary>The number of events to read per batch when reading history.</summary>
     public readonly int ReadBatchSize;
-
-    ///// <summary>Enables verbose logging on the subscription.</summary>
-    //public readonly bool VerboseLogging;
-
-    ///// <summary>Whether or not to resolve link events.</summary>
-    //public readonly bool ResolveLinkTos;
 
     /// <summary>The name of subscription.</summary>
     public readonly string SubscriptionName;

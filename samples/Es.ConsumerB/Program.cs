@@ -38,61 +38,56 @@ namespace Es.Consumer
         //CreateSubscription(conn);
         UpdateSubscription(conn);
 
-        conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
-        {
-          await TaskConstants.Completed;
-          var data = Encoding.ASCII.GetString(x.Event.Data);
-          if (x.Event.EventNumber % 3 == 0)
-          {
-            //var errorMsg = $"error event number: {x.Event.EventNumber}";
-            //Console.WriteLine(errorMsg);
-            //throw new InvalidOperationException(errorMsg);
-          }
-          Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-          Console.WriteLine(data);
-        },
-        (subscription, reason, exc) =>
-        {
-          Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        },
-        null, 10, true);
+        #region PersistentSubscription 
 
-        //conn.ConnectToPersistentSubscription(STREAM, GROUP, async (_, x) =>
+        //var settings = new ConnectToPersistentSubscriptionSettings();
+        ////var settings = new ConnectToPersistentSubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        ////var settings = new ConnectToPersistentSubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+
+        //conn.ConnectToPersistentSubscription(STREAM, GROUP, settings, async (_, x) =>
         //{
-        //  await TaskConstants.Completed;
         //  var data = Encoding.ASCII.GetString(x.Event.Data);
-        //  Console.WriteLine("2 Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //  if (x.Event.EventNumber % 3 == 0)
+        //  {
+        //    //var errorMsg = $"error event number: {x.Event.EventNumber}";
+        //    //Console.WriteLine(errorMsg);
+        //    //throw new InvalidOperationException(errorMsg);
+        //  }
+        //  Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
         //  Console.WriteLine(data);
-        //}, null, null, 10, true);
+        //  await Task.Delay(500);
+        //},
+        //(subscription, reason, exc) =>
+        //{
+        //  Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+        //});
+
+        #endregion
 
         #region VolatileSubscription
-        //var sub = conn.SubscribeToStreamAsync(STREAM, true,
+
+        ////var settings = new SubscriptionSettings() { };
+        ////var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        //var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+        //var sub = conn.SubscribeToStreamAsync(STREAM, settings,
         //    eventAppearedAsync: async (_, x) =>
         //    {
-        //      await TaskConstants.Completed;
         //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      if (x.Event.EventNumber % 3 == 0)
-        //      {
-        //        var errorMsg = $"error event number: {x.Event.EventNumber}";
-        //        Console.WriteLine(errorMsg);
-        //        throw new InvalidOperationException(errorMsg);
-        //      }
+        //      //if (x.Event.EventNumber % 3 == 0)
+        //      //{
+        //      //  var errorMsg = $"error event number: {x.Event.EventNumber}";
+        //      //  Console.WriteLine(errorMsg);
+        //      //  throw new InvalidOperationException(errorMsg);
+        //      //}
         //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
         //      Console.WriteLine(data);
+        //      await Task.Delay(500);
         //    },
         //    subscriptionDropped: (subscription, reason, exc) =>
         //    {
         //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
         //    });
 
-        //var sub1 = conn.SubscribeToStreamAsync(STREAM, true,
-        //    async (_, x) =>
-        //    {
-        //      await TaskConstants.Completed;
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //    });
         #endregion
 
         #region CatchupSubscription
@@ -101,35 +96,33 @@ namespace Es.Consumer
         //If stored atomically with the processing of the event this will also provide simulated
         //transactional messaging.
 
-        //var settings = CatchUpSubscriptionSettings.Create(true);
+        var settings = CatchUpSubscriptionSettings.Create(20, true);
 
-        //var sub = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, settings,
-        //    eventAppearedAsync: async (_, x) =>
-        //    {
-        //      await TaskConstants.Completed;
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      if (x.Event.EventNumber % 3 == 0)
-        //      {
-        //        var errorMsg = $"error event number: {x.Event.EventNumber}";
-        //        Console.WriteLine(errorMsg);
-        //        throw new InvalidOperationException(errorMsg);
-        //      }
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //    },
-        //    subscriptionDropped: (subscription, reason, exc) =>
-        //    {
-        //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        //    });
+        //settings.MaxDegreeOfParallelismPerBlock = 5;
 
-        //var sub1 = conn.SubscribeToStreamFrom(STREAM, StreamPosition.Start, settings,
-        //    eventAppearedAsync: async (_, x) =>
-        //    {
-        //      await TaskConstants.Completed;
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //    });
+        //settings.BoundedCapacityPerBlock = 2;
+        //settings.NumActionBlocks = 5;
+
+        var sub = conn.SubscribeToStreamFrom(STREAM, null, settings,
+            eventAppearedAsync: async (_, x) =>
+            {
+              await TaskConstants.Completed;
+              var data = Encoding.ASCII.GetString(x.Event.Data);
+              //if (x.Event.EventNumber % 3 == 0)
+              //{
+              //  var errorMsg = $"error event number: {x.Event.EventNumber}";
+              //  Console.WriteLine(errorMsg);
+              //  throw new InvalidOperationException(errorMsg);
+              //}
+              Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+              Console.WriteLine(data);
+              await Task.Delay(500);
+            },
+            subscriptionDropped: (subscription, reason, exc) =>
+            {
+              Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+            });
+
         #endregion
 
         Console.WriteLine("waiting for events. press enter to exit");

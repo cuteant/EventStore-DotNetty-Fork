@@ -12,9 +12,15 @@ namespace EventStore.ClientAPI
     /// that provide an upper bound. This field is constant.</summary>
     public const Int32 Unbounded = -1;
 
+    /// <summary>The default number of tasks that may be used concurrently to process messages.</summary>
+    public const Int32 DefaultDegreeOfParallelism = 1;
+
+    public const Int32 DefaultNumActionBlocks = 1;
+
     /// <summary>A default instance of <see cref="SubscriptionSettings"/>.</summary>
     /// <remarks>Do not change the values of this instance.  It is shared by all of our subscriptions when no options are provided by the user.</remarks>
     public static readonly SubscriptionSettings Default = new SubscriptionSettings();
+    internal static readonly SubscriptionSettings ResolveLinkTosSettings = new SubscriptionSettings { ResolveLinkTos = true };
 
     /// <summary>Initializes the <see cref="SubscriptionSettings"/>.</summary>
     public SubscriptionSettings()
@@ -68,7 +74,7 @@ namespace EventStore.ClientAPI
     private Int32 _boundedCapacityPerBlock = Unbounded;
 
     /// <summary>Gets or sets the maximum number of messages that may be buffered by the block.</summary>
-    public Int32 BoundedCapacityPerBlock
+    public virtual Int32 BoundedCapacityPerBlock
     {
       get { return _boundedCapacityPerBlock; }
       set
@@ -80,10 +86,10 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>The maximum number of tasks that may be used concurrently to process messages.</summary>
-    private Int32 _maxDegreeOfParallelismPerBlock = 1;
+    private Int32 _maxDegreeOfParallelismPerBlock = DefaultDegreeOfParallelism;
 
     /// <summary>Gets the maximum number of messages that may be processed by the block concurrently.</summary>
-    public Int32 MaxDegreeOfParallelismPerBlock
+    public virtual Int32 MaxDegreeOfParallelismPerBlock
     {
       get { return _maxDegreeOfParallelismPerBlock; }
       set
@@ -94,8 +100,8 @@ namespace EventStore.ClientAPI
       }
     }
 
-    private Int32 _numActionBlocks = 1;
-    public Int32 NumActionBlocks
+    private Int32 _numActionBlocks = DefaultNumActionBlocks;
+    public virtual Int32 NumActionBlocks
     {
       get { return _numActionBlocks; }
       set
