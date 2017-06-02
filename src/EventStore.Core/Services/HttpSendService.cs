@@ -233,26 +233,30 @@ namespace EventStore.Core.Services
       manager.ReplyStatus(HttpStatusCode.InternalServerError, "Error while forwarding request", _ => { });
     }
 
+    private static Action<HttpEntityManager> s_forwardReplyFailed = ForwardReplyFailed;
     private static void ForwardResponse(HttpEntityManager manager, HttpRequestMessage request)
     {
       _client.SendAsync(request)
-          .ContinueWith(t =>
-          {
-            HttpResponseMessage response;
-            try
-            {
-              response = t.Result;
-            }
-            catch (Exception ex)
-            {
-              Log.LogDebug("Error in SendAsync for forwarded request for '{0}': {1}.",
-                              manager.RequestedUrl, ex.InnerException.Message);
-              ForwardReplyFailed(manager);
-              return;
-            }
+             .ContinueWith((t, s) =>
+             {
+               var state = (Tuple<HttpEntityManager, Action<HttpEntityManager>, ILogger>)s;
+               var manager1 = state.Item1;
 
-            manager.ForwardReply(response, exc => Log.LogDebug("Error forwarding response for '{0}': {1}.", manager.RequestedUrl, exc.Message));
-          });
+               HttpResponseMessage response;
+               try
+               {
+                 response = t.Result;
+               }
+               catch (Exception ex)
+               {
+                 state.Item3.LogDebug("Error in SendAsync for forwarded request for '{0}': {1}.",
+                                 manager1.RequestedUrl, ex.InnerException.Message);
+                 state.Item2.Invoke(manager1);
+                 return;
+               }
+
+               manager1.ForwardReply(response, exc => state.Item3.LogDebug("Error forwarding response for '{0}': {1}.", manager1.RequestedUrl, exc.Message));
+             }, Tuple.Create(manager, s_forwardReplyFailed, Log));
     }
   }
 }

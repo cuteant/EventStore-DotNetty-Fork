@@ -35,25 +35,34 @@ namespace EventStore.ClientAPI.Projections
     /// <returns>String of JSON containing query result.</returns>
     public async Task<string> ExecuteAsync(string name, string query, TimeSpan initialPollingDelay, TimeSpan maximumPollingDelay, UserCredentials userCredentials = null)
     {
-      return await Task.Run(async () =>
-      {
-        await _projectionsManager.CreateTransientAsync(name, query, userCredentials);
-        await WaitForCompletedAsync(name, initialPollingDelay, maximumPollingDelay, userCredentials);
-        return await _projectionsManager.GetStateAsync(name, userCredentials);
-      }).WithTimeout(_queryTimeout).ConfigureAwait(false);
+      //return await Task.Run(async () =>
+      //{
+      //  await _projectionsManager.CreateTransientAsync(name, query, userCredentials).ConfigureAwait(false);
+      //  await WaitForCompletedAsync(name, initialPollingDelay, maximumPollingDelay, userCredentials).ConfigureAwait(false);
+      //  return await _projectionsManager.GetStateAsync(name, userCredentials).ConfigureAwait(false);
+      //}).WithTimeout(_queryTimeout).ConfigureAwait(false);
+      return await
+        Task.Factory
+            .Run(async (ProjectionsManager projectionsManager, Func<string, TimeSpan, TimeSpan, UserCredentials, Task> waitForCompletedAsync, string name1, string query1, Tuple<TimeSpan, TimeSpan> delay, UserCredentials userCredentials1) =>
+                {
+                  await projectionsManager.CreateTransientAsync(name1, query1, userCredentials1).ConfigureAwait(false);
+                  await waitForCompletedAsync(name1, delay.Item1, delay.Item2, userCredentials1).ConfigureAwait(false);
+                  return await projectionsManager.GetStateAsync(name1, userCredentials1).ConfigureAwait(false);
+                }, _projectionsManager, WaitForCompletedAsync, name, query, Tuple.Create(initialPollingDelay, maximumPollingDelay), userCredentials)
+            .WithTimeout(_queryTimeout).ConfigureAwait(false);
     }
 
     private async Task WaitForCompletedAsync(string name, TimeSpan initialPollingDelay, TimeSpan maximumPollingDelay, UserCredentials userCredentials)
     {
       var attempts = 0;
-      var status = await GetStatusAsync(name, userCredentials);
+      var status = await GetStatusAsync(name, userCredentials).ConfigureAwait(false);
 
       while (!status.Contains("Completed"))
       {
         attempts++;
 
-        await DelayPollingAsync(attempts, initialPollingDelay, maximumPollingDelay);
-        status = await GetStatusAsync(name, userCredentials);
+        await DelayPollingAsync(attempts, initialPollingDelay, maximumPollingDelay).ConfigureAwait(false);
+        status = await GetStatusAsync(name, userCredentials).ConfigureAwait(false);
       }
     }
 
@@ -67,7 +76,7 @@ namespace EventStore.ClientAPI.Projections
 
     private async Task<string> GetStatusAsync(string name, UserCredentials userCredentials)
     {
-      var projectionStatus = await _projectionsManager.GetStatusAsync(name, userCredentials);
+      var projectionStatus = await _projectionsManager.GetStatusAsync(name, userCredentials).ConfigureAwait(false);
       return projectionStatus.ParseJson<JObject>()["status"].ToString();
     }
   }
