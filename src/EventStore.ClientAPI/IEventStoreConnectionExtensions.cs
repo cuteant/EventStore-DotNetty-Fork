@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using CuteAnt.AsyncEx;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -406,6 +407,158 @@ namespace EventStore.ClientAPI
     }
 
     #endregion
+
+    #region -- SubscribeToStreamStart --
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
+      string stream, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      return connection.SubscribeToStreamFrom(stream, StreamPosition.Start, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
+      string stream, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      return connection.SubscribeToStreamFrom(stream, StreamPosition.Start, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- SubscribeToStreamEnd --
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
+      string stream, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      return null;
+    }
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
+      string stream, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      var task = TaskConstants.Completed;
+      task.RunSynchronously()
+      return null;
+    }
+
+    #endregion
+
+    ///// <summary>Queues a task for execution, and begins executing all tasks in the queue. This method returns when all tasks have been completed and the outstanding asynchronous operation count is zero. This method will unwrap and propagate errors from the task proxy.</summary>
+    ///// <param name="action">The action to execute. May not be <c>null</c>.</param>
+    //public static void Run(Func<Task> action)
+    //{
+    //  if (action == null) throw new ArgumentNullException(nameof(action));
+
+    //  // ReSharper disable AccessToDisposedClosure
+    //  using (var context = new AsyncContext())
+    //  {
+    //    context.OperationStarted();
+    //    var task = context._taskFactory.Run(action).ContinueWith(t =>
+    //    {
+    //      context.OperationCompleted();
+    //      t.WaitAndUnwrapException();
+    //    }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, context._taskScheduler);
+    //    context.Execute();
+    //    task.WaitAndUnwrapException();
+    //  }
+    //  // ReSharper restore AccessToDisposedClosure
+    //}
+
 
     #region -- SubscribeToStreamAsync --
 
