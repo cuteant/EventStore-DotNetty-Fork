@@ -472,7 +472,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region -- SubscribeToStreamEnd --
+    #region -- SubscribeToStreamEndAsync --
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
@@ -494,14 +494,23 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
+    public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      return null;
+      if (null == settings) { throw new ArgumentNullException(nameof(settings)); }
+
+      long lastCheckpoint = StreamPosition.Start;
+      var readResult = await ReadLastEventAsync(connection, stream, settings.ResolveLinkTos, userCredentials);
+      if (EventReadStatus.Success == readResult.Status)
+      {
+        lastCheckpoint = readResult.EventNumber;
+      }
+
+      return connection.SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -524,41 +533,26 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
-    public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
+    public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      var task = TaskConstants.Completed;
-      task.RunSynchronously()
-      return null;
+      if (null == settings) { throw new ArgumentNullException(nameof(settings)); }
+
+      long lastCheckpoint = StreamPosition.Start;
+      var readResult = await ReadLastEventAsync(connection, stream, settings.ResolveLinkTos, userCredentials);
+      if (EventReadStatus.Success == readResult.Status)
+      {
+        lastCheckpoint = readResult.EventNumber;
+      }
+
+      return connection.SubscribeToStreamFrom(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
-
-    ///// <summary>Queues a task for execution, and begins executing all tasks in the queue. This method returns when all tasks have been completed and the outstanding asynchronous operation count is zero. This method will unwrap and propagate errors from the task proxy.</summary>
-    ///// <param name="action">The action to execute. May not be <c>null</c>.</param>
-    //public static void Run(Func<Task> action)
-    //{
-    //  if (action == null) throw new ArgumentNullException(nameof(action));
-
-    //  // ReSharper disable AccessToDisposedClosure
-    //  using (var context = new AsyncContext())
-    //  {
-    //    context.OperationStarted();
-    //    var task = context._taskFactory.Run(action).ContinueWith(t =>
-    //    {
-    //      context.OperationCompleted();
-    //      t.WaitAndUnwrapException();
-    //    }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, context._taskScheduler);
-    //    context.Execute();
-    //    task.WaitAndUnwrapException();
-    //  }
-    //  // ReSharper restore AccessToDisposedClosure
-    //}
-
 
     #region -- SubscribeToStreamAsync --
 
