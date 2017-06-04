@@ -47,7 +47,7 @@ namespace EventStore.ClientAPI.ClientOperations
       if (package.Command == TcpCommand.StreamEventAppeared)
       {
         var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-        EventAppeared(new ResolvedEvent(dto.Event));
+        EventAppeared(dto.Event.ToResolvedEvent());
         result = new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
         return true;
       }

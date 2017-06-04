@@ -1,5 +1,5 @@
-﻿using EventStore.ClientAPI.Internal;
-using System;
+﻿using System;
+using CuteAnt;
 
 namespace EventStore.ClientAPI
 {
@@ -48,8 +48,8 @@ namespace EventStore.ClientAPI
             EventId = eventId;
             Type = type;
             IsJson = isJson;
-            Data = data ?? Empty.ByteArray;
-            Metadata = metadata ?? Empty.ByteArray;
+            Data = data ?? EmptyArray<byte>.Instance;
+            Metadata = metadata ?? EmptyArray<byte>.Instance;
         }
     }
 }

@@ -48,4 +48,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <PackageReference Include="System.Net.Http" Version="4.3.2" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
+  </ItemGroup>
 </Project>

@@ -1,9 +1,6 @@
 ﻿using System;
-using EventStore.ClientAPI.Messages;
-using EventStore.ClientAPI.Internal;
 #if DEBUG
 using System.Text;
-using CuteAnt.Buffers;
 #endif
 
 namespace EventStore.ClientAPI
@@ -67,7 +64,7 @@ namespace EventStore.ClientAPI
     /// </summary>
     public string DebugDataView
     {
-      get { return Encoding.UTF8.GetStringWithBuffer(Data); }
+      get { return Encoding.UTF8.GetString(Data); }
     }
 
     /// <summary>
@@ -77,29 +74,30 @@ namespace EventStore.ClientAPI
     /// </summary>
     public string DebugMetadataView
     {
-      get { return Encoding.UTF8.GetStringWithBuffer(Metadata); }
+      get { return Encoding.UTF8.GetString(Metadata); }
     }
 #endif
 
-    internal RecordedEvent(ClientMessage.EventRecord systemRecord)
+    internal RecordedEvent(string streamId, Guid eventId, long eventNumber, string eventType,
+      long? created, long? createdEpoch, byte[] data, byte[] metaData, bool isJson)
     {
-      EventStreamId = systemRecord.EventStreamId;
+      EventStreamId = streamId;
 
-      EventId = new Guid(systemRecord.EventId);
-      EventNumber = systemRecord.EventNumber;
+      EventId = eventId;
+      EventNumber = eventNumber;
 
-      EventType = systemRecord.EventType;
-      if (systemRecord.Created.HasValue)
+      EventType = eventType;
+      if (created.HasValue)
       {
-        Created = DateTime.FromBinary(systemRecord.Created.Value);
+        Created = DateTime.FromBinary(created.Value);
       }
-      if (systemRecord.CreatedEpoch.HasValue)
+      if (createdEpoch.HasValue)
       {
-        CreatedEpoch = systemRecord.CreatedEpoch.Value;
+        CreatedEpoch = createdEpoch.Value;
       }
-      Data = systemRecord.Data ?? Empty.ByteArray;
-      Metadata = systemRecord.Metadata ?? Empty.ByteArray;
-      IsJson = systemRecord.DataContentType == 1;
+      Data = data;
+      Metadata = metaData;
+      IsJson = isJson;
     }
   }
 }

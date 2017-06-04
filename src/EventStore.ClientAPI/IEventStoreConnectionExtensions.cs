@@ -389,11 +389,11 @@ namespace EventStore.ClientAPI
       if (EventReadStatus.Success == readStatus)
       {
         var lastEvent = sliceEvents[0];
-        return EventReadResult.Create(readStatus, slice.Stream, lastEvent.OriginalEventNumber, resolvedEvent: lastEvent);
+        return new EventReadResult(readStatus, slice.Stream, lastEvent.OriginalEventNumber, lastEvent);
       }
       else
       {
-        return EventReadResult.Create(readStatus, slice.Stream, -1, resolvedEvent: null);
+        return new EventReadResult(readStatus, slice.Stream, -1, null);
       }
     }
 

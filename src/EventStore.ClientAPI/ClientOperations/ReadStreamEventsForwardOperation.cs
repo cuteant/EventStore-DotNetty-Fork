@@ -62,7 +62,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                          _stream,
                                          _fromEventNumber,
                                          ReadDirection.Forward,
-                                         response.Events,
+                                         response.Events.ToResolvedEvents(),
                                          response.NextEventNumber,
                                          response.LastEventNumber,
                                          response.IsEndOfStream);

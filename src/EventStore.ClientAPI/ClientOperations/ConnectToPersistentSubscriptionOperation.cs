@@ -63,7 +63,7 @@ namespace EventStore.ClientAPI.ClientOperations
       if (package.Command == TcpCommand.PersistentSubscriptionStreamEventAppeared)
       {
         var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionStreamEventAppeared>();
-        EventAppeared(new ResolvedEvent(dto.Event));
+        EventAppeared(dto.Event.ToResolvedEvent());
         result = new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
         return true;
       }

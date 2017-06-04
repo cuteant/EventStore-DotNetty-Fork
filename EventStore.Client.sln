@@ -1,0 +1,154 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.ClientAPI", "src\EventStore.ClientAPI\EventStore.ClientAPI.csproj", "{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "etc", "etc", "{E89F2D25-67E8-491D-A506-4CCD748F297D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}"
+	ProjectSection(SolutionItems) = preProject
+		common\common.props = common\common.props
+		common\define.props = common\define.props
+		NuGet.Config = NuGet.Config
+		src\EventStore.Common\Utils\VersionInfo.cs = src\EventStore.Common\Utils\VersionInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{759E1DB9-D74D-4922-B8D1-04EF888CB890}"
+	ProjectSection(SolutionItems) = preProject
+		common\CommonAssemblyInfo.cs = common\CommonAssemblyInfo.cs
+		common\CommonVersionInfo.cs = common\CommonVersionInfo.cs
+		common\EsVersion.props = common\EsVersion.props
+		common\nuget.props = common\nuget.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HdrHistogram", "HdrHistogram", "{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C}"
+	ProjectSection(SolutionItems) = preProject
+		etc\HdrHistogram\Properties\AssemblyInfo.g.cs = etc\HdrHistogram\Properties\AssemblyInfo.g.cs
+		common\HistogramVersion.props = common\HistogramVersion.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Logging.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.shproj", "{8DBB7DC8-2B90-4A8C-A60D-D41466174BDE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Reflection.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.shproj", "{C7F8DBE6-77B7-494D-AF00-018F7579548C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D45F5E4-81DA-4123-8AE9-51165CEFE4A0}"
+	ProjectSection(SolutionItems) = preProject
+		clean.cmd = clean.cmd
+		Issue.txt = Issue.txt
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Nito.AsyncEx.Tasks.Sources", "..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.shproj", "{90BCC560-AA2B-4146-858A-9E524B696F75}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly", "etc\Polly\Polly.csproj", "{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly.Specs", "test\Polly.Specs\Polly.Specs.csproj", "{D9D564FF-A729-476F-A071-AD9326AD3A6D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{201CB597-F20D-4E30-9B7D-34EDF1B4C660}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Polly", "Polly", "{C704360F-5D59-4D67-8D99-49783F10FF5D}"
+	ProjectSection(SolutionItems) = preProject
+		common\PollyVersion.props = common\PollyVersion.props
+		common\PollyVersionInfo.cs = common\PollyVersionInfo.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ES.Producer", "samples\ES.Producer\ES.Producer.csproj", "{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.SharedModels", "samples\Es.SharedModels\Es.SharedModels.csproj", "{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.ConsumerA", "samples\Es.ConsumerA\Es.ConsumerA.csproj", "{7E349883-CCA0-44B6-85E5-6B0F7997A855}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.ConsumerB", "samples\Es.ConsumerB\Es.ConsumerB.csproj", "{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.Receiver", "samples\Es.Receiver\Es.Receiver.csproj", "{6A75D699-F88E-411D-8BF9-28C80616C958}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.ReaderWriterLockSlim.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.shproj", "{65E9ED9B-9545-47D8-A39C-DA22C323ABB2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Abstractions", "src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj", "{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.TaskFactory.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.shproj", "{B38B6795-2812-4CD5-92F6-935734090816}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems*{65e9ed9b-9545-47d8-a39c-da22c323abb2}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E349883-CCA0-44B6-85E5-6B0F7997A855}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E349883-CCA0-44B6-85E5-6B0F7997A855}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E349883-CCA0-44B6-85E5-6B0F7997A855}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E349883-CCA0-44B6-85E5-6B0F7997A855}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A75D699-F88E-411D-8BF9-28C80616C958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A75D699-F88E-411D-8BF9-28C80616C958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A75D699-F88E-411D-8BF9-28C80616C958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A75D699-F88E-411D-8BF9-28C80616C958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{759E1DB9-D74D-4922-B8D1-04EF888CB890} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
+		{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
+		{8DBB7DC8-2B90-4A8C-A60D-D41466174BDE} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{C7F8DBE6-77B7-494D-AF00-018F7579548C} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{90BCC560-AA2B-4146-858A-9E524B696F75} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
+		{D9D564FF-A729-476F-A071-AD9326AD3A6D} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
+		{C704360F-5D59-4D67-8D99-49783F10FF5D} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
+		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{7E349883-CCA0-44B6-85E5-6B0F7997A855} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{6A75D699-F88E-411D-8BF9-28C80616C958} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{65E9ED9B-9545-47D8-A39C-DA22C323ABB2} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{B38B6795-2812-4CD5-92F6-935734090816} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj
+	EndGlobalSection
+EndGlobal
