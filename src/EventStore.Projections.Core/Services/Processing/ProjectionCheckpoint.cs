@@ -27,12 +27,13 @@ namespace EventStore.Projections.Core.Services.Processing
     private bool _checkpointRequested = false;
     private int _requestedCheckpoints;
     private bool _started = false;
+    private bool _processing = false;
 
     private readonly IODispatcher _ioDispatcher;
 
     private readonly ProjectionVersion _projectionVersion;
 
-    private List<IEnvelope> _awaitingStreams;
+    private Queue<EmittedStream> _queue;
 
     public ProjectionCheckpoint(
         IODispatcher ioDispatcher,
@@ -57,6 +58,7 @@ namespace EventStore.Projections.Core.Services.Processing
       _from = _last = from;
       _maxWriteBatchLength = maxWriteBatchLength;
       _logger = logger;
+      _queue = new Queue<EmittedStream>();
     }
 
     public void Start()
@@ -66,8 +68,9 @@ namespace EventStore.Projections.Core.Services.Processing
       _started = true;
       foreach (var stream in _emittedStreams.Values)
       {
-        stream.Start();
+        _queue.Enqueue(stream);
       }
+      ProcessQueue();
     }
 
     public void ValidateOrderAndEmitEvents(EmittedEventEnvelope[] events)
@@ -80,6 +83,7 @@ namespace EventStore.Projections.Core.Services.Processing
       {
         EmitEventsToStream(eventGroup.Key, eventGroup.ToArray());
       }
+      ProcessQueue();
     }
 
     private void UpdateLastPosition(EmittedEventEnvelope[] events)
@@ -142,9 +146,8 @@ namespace EventStore.Projections.Core.Services.Processing
         stream = new EmittedStream(
             streamId, writerConfiguration, _projectionVersion, _positionTagger, _from, _ioDispatcher, this);
 
-        if (_started)
-          stream.Start();
         _emittedStreams.Add(streamId, stream);
+        _queue.Enqueue(stream);
       }
       stream.EmitEvents(emittedEvents.Select(v => v.Event).ToArray());
     }
@@ -209,18 +212,42 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public void Handle(CoreProjectionProcessingMessage.EmittedStreamAwaiting message)
     {
-      if (_awaitingStreams == null)
-        _awaitingStreams = new List<IEnvelope>();
-      _awaitingStreams.Add(message.Envelope);
+      _processing = false;
+      ProcessQueue();
     }
 
     public void Handle(CoreProjectionProcessingMessage.EmittedStreamWriteCompleted message)
     {
-      var awaitingStreams = _awaitingStreams;
-      _awaitingStreams = null; // still awaiting will re-register
-      if (awaitingStreams != null)
-        foreach (var stream in awaitingStreams)
-          stream.ReplyWith(message);
+      _processing = false;
+      ProcessQueue();
+    }
+
+    private void ProcessQueue()
+    {
+      if (!_started || _processing) return;
+
+      _processing = true;
+      for (int i = 0; i < _queue.Count; i++)
+      {
+        EmittedStream emittedStream = null;
+        try
+        {
+          emittedStream = _queue.Dequeue();
+          if (emittedStream != null)
+          {
+            if (emittedStream.GetWritePendingEvents() > 0)
+            {
+              emittedStream.ProcessQueue();
+              return;
+            }
+          }
+        }
+        finally
+        {
+          if(emittedStream != null) { _queue.Enqueue(emittedStream); }
+        }
+      }
+      _processing = false;
     }
   }
 }
