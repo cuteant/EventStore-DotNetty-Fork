@@ -18,7 +18,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -41,7 +41,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -63,7 +63,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection,
       string stream, SubscriptionSettings subscriptionSettings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -85,7 +85,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection,
       string stream, SubscriptionSettings subscriptionSettings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -111,7 +111,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToStreamAsync(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -130,7 +130,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToStreamAsync(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -154,7 +154,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -175,7 +175,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -195,7 +195,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -214,7 +214,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -237,7 +237,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToAllAsync(this IEventStoreConnection connection, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -256,7 +256,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToAllAsync(this IEventStoreConnection connection, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

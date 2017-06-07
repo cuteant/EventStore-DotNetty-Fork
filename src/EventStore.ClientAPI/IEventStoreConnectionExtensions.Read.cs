@@ -15,7 +15,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A result of the read operation</returns>
+    /// <returns>A <see cref="EventReadResult"/> containing the results of the read operation.</returns>
     public static EventReadResult ReadEvent(this IEventStoreConnectionBase connection,
       string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI
     /// <param name="count">The count of items to read</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A result of the read operation</returns>
+    /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice ReadStreamEventsForward(this IEventStoreConnectionBase connection,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
@@ -51,7 +51,7 @@ namespace EventStore.ClientAPI
     /// <param name="count">The count to read from the position</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>An result of the read operation</returns>
+    /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice ReadStreamEventsBackward(this IEventStoreConnectionBase connection,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {

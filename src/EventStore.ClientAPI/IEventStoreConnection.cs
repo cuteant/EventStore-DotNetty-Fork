@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
     /// is only available through the TCP interface and no equivalent exists for the RESTful interface.</remarks>
     /// <param name="transactionId">The transaction ID that needs to be continued.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns><see cref="EventStoreTransaction"/> object.</returns>
+    /// <returns>A <see cref="EventStoreTransaction"/> representing a multi-request transaction.</returns>
     EventStoreTransaction ContinueTransaction(long transactionId, UserCredentials userCredentials = null);
 
     #region -- Read all events --
@@ -36,7 +36,7 @@ namespace EventStore.ClientAPI
     /// <param name="maxCount">The maximum count to read</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="AllEventsSlice"/> containing the records read</returns>
+    /// <returns>A <see cref="Task&lt;AllEventsSlice&gt;"/> containing the records read.</returns>
     Task<AllEventsSlice> ReadAllEventsForwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     /// <summary>Reads All Events in the node backwards (e.g. end to beginning).</summary>
@@ -44,7 +44,7 @@ namespace EventStore.ClientAPI
     /// <param name="maxCount">The maximum count to read</param>
     /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="AllEventsSlice"/> containing the records read</returns>
+    /// <returns>A <see cref="Task&lt;AllEventsSlice&gt;"/> containing the records read.</returns>
     Task<AllEventsSlice> ReadAllEventsBackwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     #endregion
@@ -58,7 +58,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -71,7 +71,7 @@ namespace EventStore.ClientAPI
     /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -106,7 +106,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
@@ -138,7 +138,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,

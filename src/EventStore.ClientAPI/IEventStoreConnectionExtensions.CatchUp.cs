@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -94,7 +94,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
@@ -128,7 +128,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
@@ -206,7 +206,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -262,7 +262,7 @@ namespace EventStore.ClientAPI
     /// <param name="readBatchSize">The batch size to use during the read phase</param>
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     //[Obsolete("This method will be obsoleted in the next major version please switch to the overload with a settings object")]
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
@@ -308,7 +308,7 @@ namespace EventStore.ClientAPI
     /// <param name="readBatchSize">The batch size to use during the read phase</param>
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -355,7 +355,7 @@ namespace EventStore.ClientAPI
     /// <param name="readBatchSize">The batch size to use during the read phase</param>
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     //[Obsolete("This overload will be removed in the next major release please use the overload with a settings object")]
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
       Position? lastCheckpoint, bool resolveLinkTos,
@@ -398,7 +398,7 @@ namespace EventStore.ClientAPI
     /// <param name="readBatchSize">The batch size to use during the read phase</param>
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStoreSubscription"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
       Position? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,

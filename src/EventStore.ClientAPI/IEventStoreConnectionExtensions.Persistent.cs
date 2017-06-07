@@ -124,7 +124,7 @@ namespace EventStore.ClientAPI
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
@@ -156,7 +156,7 @@ namespace EventStore.ClientAPI
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
@@ -184,7 +184,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       ConnectToPersistentSubscriptionSettings subscriptionSettings,
@@ -212,7 +212,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       ConnectToPersistentSubscriptionSettings subscriptionSettings,
@@ -247,7 +247,7 @@ namespace EventStore.ClientAPI
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
@@ -275,7 +275,7 @@ namespace EventStore.ClientAPI
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <returns>An <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription</returns>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,

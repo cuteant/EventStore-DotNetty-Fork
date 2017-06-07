@@ -21,7 +21,7 @@ namespace EventStore.ClientAPI
     /// <param name="stream">The stream to continue a transaction on</param>
     /// <param name="transactionId">The transaction ID that needs to be continued.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns><see cref="EventStoreTransaction"/> object.</returns>
+    /// <returns>A <see cref="EventStoreTransaction"/> representing a multi-request transaction.</returns>
     EventStoreTransaction ContinueTransaction(string stream, long transactionId, UserCredentials userCredentials = null);
   }
 }

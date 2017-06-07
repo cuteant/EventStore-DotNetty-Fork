@@ -22,6 +22,7 @@ namespace EventStore.ClientAPI
     /// <param name="stream">The name of the stream to append events to</param>
     /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
     /// <param name="events">The events to append to the stream</param>
+    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult AppendToStream(this IEventStoreConnectionBase connection, string stream, long expectedVersion, params EventData[] events)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -45,6 +46,7 @@ namespace EventStore.ClientAPI
     /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <param name="events">The events to append to the stream</param>
+    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult AppendToStream(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
     {
@@ -69,6 +71,7 @@ namespace EventStore.ClientAPI
     /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
     /// <param name="events">The events to append to the stream</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult AppendToStream(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
     {
@@ -97,7 +100,7 @@ namespace EventStore.ClientAPI
     /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
     /// <param name="events">The events to append to the stream</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>If the operation succeeded and, if not, the reason for failure (which can be either stream version mismatch or trying to write to a deleted stream)</returns>
+    /// <returns>A <see cref="ConditionalWriteResult"/> describing if the operation succeeded and, if not, the reason for failure (which can be either stream version mismatch or trying to write to a deleted stream).</returns>
     public static ConditionalWriteResult ConditionalAppendToStream(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
     {
