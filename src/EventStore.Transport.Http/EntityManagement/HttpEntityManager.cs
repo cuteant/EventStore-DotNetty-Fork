@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -36,9 +35,6 @@ namespace EventStore.Transport.Http.EntityManagement
     private readonly ICodec _requestCodec;
     private readonly ICodec _responseCodec;
     private readonly Uri _requestedUrl;
-    private readonly string _responseContentEncoding;
-    private static readonly HashSet<string> SupportedCompressionAlgorithms;
-    private static readonly HashSet<string> SupportedCompressionAlgorithmsIgnoreCase;
     private readonly bool _logHttpRequests;
 
     public readonly DateTime TimeStamp;
@@ -65,7 +61,6 @@ namespace EventStore.Transport.Http.EntityManagement
       _requestCodec = requestCodec;
       _responseCodec = responseCodec;
       _requestedUrl = httpEntity.RequestedUrl;
-      _responseContentEncoding = GetRequestedContentEncoding(httpEntity);
       _logHttpRequests = logHttpRequests;
 
       if (HttpEntity.Request != null && HttpEntity.Request.ContentLength64 == 0)
@@ -172,18 +167,6 @@ namespace EventStore.Transport.Http.EntityManagement
       }
     }
 
-    private void SetContentEncodingHeader(String contentEncoding)
-    {
-      try
-      {
-        HttpEntity.Response.AddHeader("Content-Encoding", contentEncoding);
-      }
-      catch (Exception e)
-      {
-        if (Log.IsDebugLevelEnabled()) Log.LogDebug("Failed to set Content-Encoding header: {0}.", e.Message);
-      }
-    }
-
     private void SetAdditionalHeaders(IEnumerable<KeyValuePair<string, string>> headers)
     {
       try
@@ -229,10 +212,7 @@ namespace EventStore.Transport.Http.EntityManagement
       SetResponseCode(code);
       SetResponseDescription(description);
       SetContentType(contentType, encoding);
-
       SetRequiredHeaders();
-      if (!string.IsNullOrEmpty(_responseContentEncoding))
-        SetContentEncodingHeader(_responseContentEncoding);
 
       SetAdditionalHeaders(headers.Safe());
       return true;
@@ -280,10 +260,6 @@ namespace EventStore.Transport.Http.EntityManagement
       else
       {
         LogResponse(response);
-        if (!string.IsNullOrEmpty(_responseContentEncoding))
-        {
-          response = CompressResponse(response, _responseContentEncoding);
-        }
         SetResponseLength(response.Length);
         BeginWriteResponse();
         ContinueWriteResponseAsync(response, () => { }, onError, () => { });
@@ -470,64 +446,6 @@ namespace EventStore.Transport.Http.EntityManagement
         }
         Log.LogDebug(StringBuilderManager.ReturnAndFree(logBuilder));
       }
-    }
-
-    public static byte[] CompressResponse(byte[] response, string compressionAlgorithm)
-    {
-      if (string.IsNullOrEmpty(compressionAlgorithm) ||
-          !(SupportedCompressionAlgorithms.Contains(compressionAlgorithm) || SupportedCompressionAlgorithmsIgnoreCase.Contains(compressionAlgorithm)))
-      {
-        return response;
-      }
-
-      using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
-      {
-        var outputStream = pooledOutputStream.Object;
-        outputStream.Reinitialize(response.Length);
-
-        Stream compressedStream = null;
-        if (string.Equals(CompressionAlgorithms.Gzip, compressionAlgorithm, StringComparison.Ordinal) ||
-            string.Equals(CompressionAlgorithms.Gzip, compressionAlgorithm, StringComparison.OrdinalIgnoreCase))
-        {
-          compressedStream = new GZipStream(outputStream, CompressionLevel.Fastest, true);
-        }
-        else if (string.Equals(CompressionAlgorithms.Deflate, compressionAlgorithm, StringComparison.Ordinal) ||
-                 string.Equals(CompressionAlgorithms.Deflate, compressionAlgorithm, StringComparison.OrdinalIgnoreCase))
-        {
-          compressedStream = new DeflateStream(outputStream, CompressionLevel.Fastest, true);
-        }
-        using (compressedStream)
-        {
-          compressedStream.Write(response, 0, response.Length);
-        }
-
-        return outputStream.ToByteArray();
-      }
-    }
-
-    private string GetRequestedContentEncoding(HttpEntity httpEntity)
-    {
-      const string _acceptEncoding = "Accept-Encoding";
-
-      if (null == httpEntity) { return null; }
-      var httpEntityRequest = httpEntity.Request;
-      if (null == httpEntityRequest) { return null; }
-
-      string contentEncoding = null;
-      var values = httpEntityRequest.Headers.GetValues(_acceptEncoding);
-      if (values != null)
-      {
-        foreach (string value in values)
-        {
-          if (SupportedCompressionAlgorithms.Contains(value) || SupportedCompressionAlgorithmsIgnoreCase.Contains(value))
-          {
-            contentEncoding = value;
-            break;
-          }
-        }
-      }
-
-      return contentEncoding;
     }
 
   }
