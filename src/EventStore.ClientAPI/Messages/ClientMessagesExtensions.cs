@@ -51,10 +51,14 @@ namespace EventStore.ClientAPI.Messages
 
     internal static ClientAPI.ResolvedEvent ToResolvedEvent(this ClientMessage.ResolvedIndexedEvent evnt)
     {
-      return new ClientAPI.ResolvedEvent(
-          evnt.Event?.ToRecordedEvent(),
-          evnt.Link?.ToRecordedEvent(),
-          null);
+      return new ClientAPI.ResolvedEvent(evnt.Event?.ToRecordedEvent(), evnt.Link?.ToRecordedEvent(), null);
+    }
+
+    internal static ClientAPI.ResolvedEvent? ToResolvedEvent(this ClientMessage.ResolvedIndexedEvent evnt, EventReadStatus readStatus)
+    {
+      return readStatus == EventReadStatus.Success
+            ? new ClientAPI.ResolvedEvent(evnt.Event?.ToRecordedEvent(), evnt.Link?.ToRecordedEvent(), null)
+            : default(ClientAPI.ResolvedEvent?);
     }
 
     internal static ClientAPI.ResolvedEvent[] ToResolvedEvents(this ClientMessage.ResolvedEvent[] events)

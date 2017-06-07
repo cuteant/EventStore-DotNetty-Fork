@@ -39,12 +39,6 @@ namespace EventStore.Transport.Http.EntityManagement
 
     public readonly DateTime TimeStamp;
 
-    static HttpEntityManager()
-    {
-      SupportedCompressionAlgorithms = new HashSet<string>(new[] { CompressionAlgorithms.Gzip, CompressionAlgorithms.Deflate }, StringComparer.Ordinal);
-      SupportedCompressionAlgorithmsIgnoreCase = new HashSet<string>(new[] { CompressionAlgorithms.Gzip, CompressionAlgorithms.Deflate }, StringComparer.OrdinalIgnoreCase);
-    }
-
     internal HttpEntityManager(
         HttpEntity httpEntity, string[] allowedMethods, Action<HttpEntity> onRequestSatisfied, ICodec requestCodec,
         ICodec responseCodec, bool logHttpRequests)

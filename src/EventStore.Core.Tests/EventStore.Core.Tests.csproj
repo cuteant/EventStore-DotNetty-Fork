@@ -507,7 +507,6 @@
     <Compile Include="Services\Transport\Http\Authentication\basic_http_authentication_provider.cs" />
     <Compile Include="Services\Transport\Http\Authentication\rfc_2898_password_hash_algorithm.cs" />
     <Compile Include="Authentication\with_internal_authentication_provider.cs" />
-    <Compile Include="Services\Transport\Http\compress_response_should.cs" />
     <Compile Include="Services\Transport\Http\media_type.cs" />
     <Compile Include="Services\Transport\Http\atom_specs.cs" />
     <Compile Include="Services\Transport\Http\auto_convertion.cs" />
@@ -705,6 +704,10 @@
     <ProjectReference Include="..\..\src\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj">
       <Project>{A3C1CBE0-4728-451F-B709-480134432880}</Project>
       <Name>EventStore.Transport.Tcp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj">
+      <Project>{9c8e5742-6e84-40e5-9aaa-3ecbfdd92a93}</Project>
+      <Name>EventStore.ClientAPI.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,8 @@ using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
-using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
+using  EventStore.ClientAPI.Messages;
+//using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
 using SystemSettings = EventStore.ClientAPI.SystemSettings;
@@ -397,7 +398,7 @@ namespace EventStore.Core.Tests.ClientAPI
         VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
         taskCompletionSource.SetResult(volatileEventStoreSubscription);
 
-        raise(volatileEventStoreSubscription2, new ResolvedEvent(event1));
+        raise(volatileEventStoreSubscription2, event1.ToResolvedEvent());
 
         return taskCompletionSource.Task;
       });
@@ -436,7 +437,7 @@ namespace EventStore.Core.Tests.ClientAPI
                           null, null, null), null))
           .ToArray();
 
-      return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events, fromEvent + count, 100, isEnd);
+      return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events.ToResolvedEvents(), fromEvent + count, 100, isEnd);
     }
   }
 

@@ -26,5 +26,15 @@ namespace EventStore.ClientAPI
       EventNumber = eventNumber;
       Event = @event;
     }
+
+    //internal EventReadResult(EventReadStatus status, string stream, long eventNumber, ClientMessage.ResolvedIndexedEvent @event)
+    //{
+    //  Ensure.NotNullOrEmpty(stream, "stream");
+
+    //  Status = status;
+    //  Stream = stream;
+    //  EventNumber = eventNumber;
+    //  Event = status == EventReadStatus.Success ? new ResolvedEvent(@event) : (ResolvedEvent?)null;
+    //}
   }
 }

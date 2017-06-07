@@ -123,6 +123,10 @@
       <Project>{A794D3FB-06AC-471F-AB8D-6E98CBFA0021}</Project>
       <Name>EventStore.BufferManagement</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj">
+      <Project>{9c8e5742-6e84-40e5-9aaa-3ecbfdd92a93}</Project>
+      <Name>EventStore.ClientAPI.Abstractions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventStore.ClientAPI.Embedded\EventStore.ClientAPI.Embedded.csproj">
       <Project>{0ed5bed0-ebf0-4c9d-b2a3-0ea54a767c3f}</Project>
       <Name>EventStore.ClientAPI.Embedded</Name>

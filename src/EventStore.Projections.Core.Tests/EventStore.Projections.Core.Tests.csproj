@@ -548,6 +548,10 @@
       <Project>{B4C9BE3D-43B1-4049-A23A-5DC53DB3F0B0}</Project>
       <Name>EventStore.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj">
+      <Project>{9c8e5742-6e84-40e5-9aaa-3ecbfdd92a93}</Project>
+      <Name>EventStore.ClientAPI.Abstractions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EventStore.Core.Tests\EventStore.Core.Tests.csproj">
       <Project>{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}</Project>
       <Name>EventStore.Core.Tests</Name>

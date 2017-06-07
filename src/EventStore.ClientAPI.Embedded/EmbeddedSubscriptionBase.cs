@@ -3,12 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.UserManagement;
 using Microsoft.Extensions.Logging;
+using CoreClientMessage = EventStore.Core.Messages.ClientMessage;
 
 namespace EventStore.ClientAPI.Embedded
 {
@@ -87,8 +89,8 @@ namespace EventStore.ClientAPI.Embedded
     public async Task EventAppeared(EventStore.Core.Data.ResolvedEvent resolvedEvent)
     {
       var e = resolvedEvent.OriginalPosition == null
-          ? new ResolvedEvent(resolvedEvent.ConvertToClientResolvedIndexEvent())
-          : new ResolvedEvent(resolvedEvent.ConvertToClientResolvedEvent());
+          ? resolvedEvent.ConvertToClientResolvedIndexEvent().ToResolvedEvent()
+          : resolvedEvent.ConvertToClientResolvedEvent().ToResolvedEvent();
       await EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
     }
 
@@ -123,7 +125,7 @@ namespace EventStore.ClientAPI.Embedded
 
         if (reason == SubscriptionDropReason.UserInitiated && _subscription != null)
         {
-          Publisher.Publish(new ClientMessage.UnsubscribeFromStream(Guid.NewGuid(), CorrelationId, new NoopEnvelope(), SystemAccount.Principal));
+          Publisher.Publish(new CoreClientMessage.UnsubscribeFromStream(Guid.NewGuid(), CorrelationId, new NoopEnvelope(), SystemAccount.Principal));
         }
 
         if (_subscription != null)

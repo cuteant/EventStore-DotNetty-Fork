@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI.ClientOperations
     protected override EventReadResult TransformResponse(ClientMessage.ReadEventCompleted response)
     {
       var readStatus = Convert(response.Result);
-      return new EventReadResult(readStatus, _stream, _eventNumber, readStatus == EventReadStatus.Success ? response.Event.ToResolvedEvent() : default(ResolvedEvent?));
+      return new EventReadResult(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus));
     }
 
 
