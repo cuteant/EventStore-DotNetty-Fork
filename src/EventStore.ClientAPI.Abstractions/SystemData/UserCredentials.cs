@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI.SystemData
 {
   /// <summary>A username/password pair used for authentication and
-  /// authorization to perform operations over an <see cref="IEventStoreConnection"/>.</summary>
+  /// authorization to perform operations over an <see cref="T:EventStore.ClientAPI.IEventStoreConnection"/>.</summary>
   public class UserCredentials
   {
     /// <summary>The username</summary>

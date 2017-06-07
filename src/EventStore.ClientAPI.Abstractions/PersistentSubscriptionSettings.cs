@@ -3,7 +3,7 @@ using EventStore.ClientAPI.Common;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Represents the settings for a <see cref="PersistentEventStoreSubscription"/>. 
+  /// <summary>Represents the settings for a <see cref="T:EventStore.ClientAPI.PersistentEventStoreSubscription"/>.
   /// This should not be used directly, but instead created via a <see cref="PersistentSubscriptionSettingsBuilder"/>.</summary>
   public class PersistentSubscriptionSettings
   {
@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
                                                        namedConsumerStrategies: SystemConsumerStrategies.RoundRobin);
     }
 
-    /// <summary>Whether or not the <see cref="PersistentEventStoreSubscription"/> should resolve linkTo events to their linked events.</summary>
+    /// <summary>Whether or not the <see cref="T:EventStore.ClientAPI.PersistentEventStoreSubscription"/> should resolve linkTo events to their linked events.</summary>
     public readonly bool ResolveLinkTos;
 
     /// <summary>Where the subscription should start from (position).</summary>
@@ -71,8 +71,15 @@ namespace EventStore.ClientAPI
                                                 TimeSpan checkPointAfter, int minCheckPointCount, int maxCheckPointCount,
                                                 int maxSubscriberCount, string namedConsumerStrategy)
     {
-      if (messageTimeout.TotalMilliseconds > Int32.MaxValue) throw new ArgumentException(nameof(messageTimeout), "milliseconds must be less or equal to than int32.MaxValue");
-      if (checkPointAfter.TotalMilliseconds > Int32.MaxValue) throw new ArgumentException(nameof(checkPointAfter), "milliseconds must be less or equal to than int32.MaxValue");
+      if (messageTimeout.TotalMilliseconds > Int32.MaxValue)
+      {
+        throw new ArgumentException(nameof(messageTimeout), "milliseconds must be less or equal to than int32.MaxValue");
+      }
+      if (checkPointAfter.TotalMilliseconds > Int32.MaxValue)
+      {
+        throw new ArgumentException(nameof(checkPointAfter), "milliseconds must be less or equal to than int32.MaxValue");
+      }
+
       MessageTimeout = messageTimeout;
       ResolveLinkTos = resolveLinkTos;
       StartFrom = startFrom;
@@ -87,6 +94,5 @@ namespace EventStore.ClientAPI
       MaxSubscriberCount = maxSubscriberCount;
       NamedConsumerStrategy = namedConsumerStrategy;
     }
-
   }
 }

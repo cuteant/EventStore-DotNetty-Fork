@@ -37,15 +37,11 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
     public static ArraySegment<byte> Serialize<T>(this T protoContract)
     {
-      using (var memory = new MemoryStream())
+      using (var memory = MemoryStreamManager.GetStream())
       {
         Serializer.Serialize(memory, protoContract);
-#if NET_4_5_GREATER
-        memory.TryGetBuffer(out ArraySegment<byte> res);
-#else
-        var res = new ArraySegment<byte>(memory.GetBuffer(), 0, (int)memory.Length);
-#endif
-        return res;
+        var bytes = memory.ToArray();
+        return new ArraySegment<byte>(bytes, 0, bytes.Length);
       }
     }
 

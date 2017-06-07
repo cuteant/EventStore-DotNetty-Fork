@@ -56,9 +56,17 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj">
+      <Project>{9c8e5742-6e84-40e5-9aaa-3ecbfdd92a93}</Project>
+      <Name>EventStore.ClientAPI.Abstractions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EventStore.ClientAPI\EventStore.ClientAPI.csproj">
       <Project>{c7c0a3c2-a0eb-4ff4-a0cd-67eadf3f553f}</Project>
       <Name>EventStore.ClientAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Es.SharedModels\Es.SharedModels.csproj">
+      <Project>{9c13968c-a9f6-42ae-a857-f3e18f6b0d4a}</Project>
+      <Name>Es.SharedModels</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

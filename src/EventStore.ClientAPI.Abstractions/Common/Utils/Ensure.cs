@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace EventStore.ClientAPI.Common.Utils
 {
-  static class Ensure
+  internal static class Ensure
   {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotNull<T>(T argument, string argumentName) where T : class

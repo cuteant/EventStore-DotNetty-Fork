@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common\common.props" />
+  <Import Project="..\..\common\define.props" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <RootNamespace>EventStore.ClientAPI.Tests</RootNamespace>
+    <AssemblyName>EventStore.ClientAPI.Tests</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net452'">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventStore.ClientAPI\EventStore.ClientAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+</Project>

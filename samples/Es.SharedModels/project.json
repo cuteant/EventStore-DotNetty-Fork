@@ -1,5 +1,6 @@
-{
+﻿{
   "dependencies": {
+    "protobuf-net.unofficial": "3.0.0-rtm-170502"
   },
   "frameworks": {
     "net461": {}

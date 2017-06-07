@@ -76,8 +76,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Abstra
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.TaskFactory.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.shproj", "{B38B6795-2812-4CD5-92F6-935734090816}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.GZip.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.shproj", "{64B440E4-D885-4270-8E12-53FDA499B6E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Tests", "test\EventStore.ClientAPI.Tests\EventStore.ClientAPI.Tests.csproj", "{7F1DFA27-AAF8-4106-89D1-08A916D65DDA}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.projitems*{64b440e4-d885-4270-8e12-53fda499b6e4}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems*{65e9ed9b-9545-47d8-a39c-da22c323abb2}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
@@ -125,6 +130,10 @@ Global
 		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -147,6 +156,8 @@ Global
 		{65E9ED9B-9545-47D8-A39C-DA22C323ABB2} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{B38B6795-2812-4CD5-92F6-935734090816} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{64B440E4-D885-4270-8E12-53FDA499B6E4} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj

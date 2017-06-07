@@ -153,7 +153,7 @@ namespace EventStore.ClientAPI.Internal
 
       var source = new TaskCompletionSource<ConditionalWriteResult>();
       EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
-                                                   stream, expectedVersion, events, userCredentials));
+                                                              stream, expectedVersion, events, userCredentials));
       return source.Task;
       // ReSharper restore PossibleMultipleEnumeration
     }

@@ -3,7 +3,7 @@ using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Settings for <see cref="EventStoreCatchUpSubscription"/></summary>
+  /// <summary>Settings for <see cref="T:EventStore.ClientAPI.EventStoreCatchUpSubscription"/></summary>
   public partial class CatchUpSubscriptionSettings : SubscriptionSettings
   {
     /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI
     /// <summary>The name of subscription.</summary>
     public readonly string SubscriptionName;
 
-    ///<summary>Returns default settings.</summary>
+    /// <summary>Returns default settings.</summary>
     public new static readonly CatchUpSubscriptionSettings Default = new CatchUpSubscriptionSettings(
         Consts.CatchUpDefaultMaxPushQueueSize,
         Consts.CatchUpDefaultReadBatchSize,

@@ -45,9 +45,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj">
+      <Project>{9c8e5742-6e84-40e5-9aaa-3ecbfdd92a93}</Project>
+      <Name>EventStore.ClientAPI.Abstractions</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -3,7 +3,7 @@ using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
+// General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
@@ -23,8 +23,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
+// Setting ComVisible to false makes the types in this assembly not visible
+// to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
 
 [assembly: ComVisible(false)]
@@ -32,7 +32,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
 [assembly: Guid("CD293731-28B9-4FAB-ACF9-9AD0AD7394ED")]
-
 [assembly: AssemblyVersion("4.0.0.0")]
 #if NETSTANDARD1_0 || NET40
 [assembly: AssemblyFileVersion("4.0.0.0")]

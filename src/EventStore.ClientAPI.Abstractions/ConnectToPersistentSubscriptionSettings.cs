@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Settings for <see cref="EventStoreCatchUpSubscription"/></summary>
+  /// <summary>Settings for <see cref="T:EventStore.ClientAPI.EventStoreCatchUpSubscription"/></summary>
   public partial class ConnectToPersistentSubscriptionSettings : SubscriptionSettings
   {
     /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI
     /// <summary>Whether or not to resolve link events.</summary>
     public override bool ResolveLinkTos { get => false; set { } }
 
-    ///<summary>Returns default settings.</summary>
+    /// <summary>Returns default settings.</summary>
     public new static readonly ConnectToPersistentSubscriptionSettings Default = new ConnectToPersistentSubscriptionSettings();
 
     /// <summary>Constructs a <see cref="ConnectToPersistentSubscriptionSettings"/> object.</summary>

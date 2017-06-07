@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI
     {
     }
 
-    /// <summary>Turns on verbose <see cref="EventStoreConnection"/> internal logic logging.</summary>
+    /// <summary>Turns on verbose <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic logging.</summary>
     /// <returns></returns>
     public ConnectionSettingsBuilder EnableVerboseLogging()
     {
@@ -204,7 +204,7 @@ namespace EventStore.ClientAPI
       return this;
     }
 
-    /// <summary>Sets how long to wait without heartbeats before determining a connection 
+    /// <summary>Sets how long to wait without heartbeats before determining a connection
     /// to be dead (must be longer than heartbeat interval).</summary>
     /// <param name="timeout"></param>
     /// <returns></returns>
@@ -267,11 +267,11 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Sets the well-known port on which the cluster gossip is taking place.
-    /// 
+    ///
     /// If you are using the commercial edition of Event Store HA, with Manager nodes in
     /// place, this should be the port number of the External HTTP port on which the
     /// managers are running.
-    /// 
+    ///
     /// If you are using the open source edition of Event Store HA, this should be the
     /// External HTTP port that the nodes are running on. If you cannot use a well-known
     /// port for this across all nodes, you can instead use gossip seed discovery and set
@@ -286,11 +286,11 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Sets gossip seed endpoints for the client.
-    /// 
+    ///
     /// Note that this should be the external HTTP endpoint of the server, as it is required
     /// for the client to exchange gossip with the server. The standard port which should be
     /// used here is 2113.
-    /// 
+    ///
     /// If the server requires a specific Host header to be sent as part of the gossip
     /// request, use the overload of this method taking <see cref="GossipSeed" /> instead.</summary>
     /// <param name="gossipSeeds"><see cref="IPEndPoint" />s representing the endpoints of nodes from which to seed gossip.</param>
@@ -319,7 +319,6 @@ namespace EventStore.ClientAPI
       _gossipSeeds = gossipSeeds;
       return this;
     }
-
 
     /// <summary>Convert the mutable <see cref="ConnectionSettingsBuilder"/> object to an immutable
     /// <see cref="ConnectionSettings"/> object.</summary>

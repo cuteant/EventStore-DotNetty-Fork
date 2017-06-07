@@ -20,6 +20,7 @@ namespace EventStore.ClientAPI
     /// <summary>A default instance of <see cref="SubscriptionSettings"/>.</summary>
     /// <remarks>Do not change the values of this instance.  It is shared by all of our subscriptions when no options are provided by the user.</remarks>
     public static readonly SubscriptionSettings Default = new SubscriptionSettings();
+
     internal static readonly SubscriptionSettings ResolveLinkTosSettings = new SubscriptionSettings { ResolveLinkTos = true };
 
     /// <summary>Initializes the <see cref="SubscriptionSettings"/>.</summary>
@@ -101,6 +102,7 @@ namespace EventStore.ClientAPI
     }
 
     private Int32 _numActionBlocks = DefaultNumActionBlocks;
+
     public virtual Int32 NumActionBlocks
     {
       get { return _numActionBlocks; }
@@ -111,9 +113,6 @@ namespace EventStore.ClientAPI
         _numActionBlocks = value;
       }
     }
-
-
-
 
     /// <summary>Whether or not to resolve link events.</summary>
     public virtual bool ResolveLinkTos { get; set; }

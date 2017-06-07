@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Logging;
+using Es.SharedModels;
 
 namespace ES.Producer
 {
@@ -27,14 +28,23 @@ namespace ES.Producer
       using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().Wait();
-        for (var x = 0; x < 100; x++)
-        {
-          conn.AppendToStreamAsync(STREAM,
-              ExpectedVersion.Any,
-              GetEventDataFor(x)).Wait();
-          Console.WriteLine("event " + x + " written.");
-          Thread.Sleep(100);
-        }
+
+        #region AppendToStreamAsync 
+        //for (var x = 0; x < 100; x++)
+        //{
+        //  conn.AppendToStreamAsync(STREAM,
+        //      ExpectedVersion.Any,
+        //      GetEventDataFor(x)).Wait();
+        //  Console.WriteLine("event " + x + " written.");
+        //  Thread.Sleep(100);
+        //}
+        #endregion
+
+        #region SendAsync
+        conn.SendAsync("a_test_stream_sending", new TestMessage { Id = 10, Text = "this is a test." });
+        conn.SendAsync("a_test_stream_animal", new Cat { Name = "MyCat", Meow = "meowing......" });
+        conn.SendAsync("a_test_stream_animal", new Dog { Name = "MyCat", Bark = "barking......" });
+        #endregion
       }
 
       Console.WriteLine("按任意键退出！");

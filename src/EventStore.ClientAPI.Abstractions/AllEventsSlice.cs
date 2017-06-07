@@ -1,34 +1,21 @@
-﻿
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
-  /// <summary>
-  /// The result of a read operation from the $all stream.
-  /// </summary>
+  /// <summary>The result of a read operation from the $all stream.</summary>
   public class AllEventsSlice
   {
-    /// <summary>
-    /// The direction of read request.
-    /// </summary>
+    /// <summary>The direction of read request.</summary>
     public readonly ReadDirection ReadDirection;
 
-    /// <summary>
-    /// A <see cref="Position"/> representing the position where this slice was read from.
-    /// </summary>
+    /// <summary>A <see cref="Position"/> representing the position where this slice was read from.</summary>
     public readonly Position FromPosition;
 
-    /// <summary>
-    /// A <see cref="Position"/> representing the position where the next slice should be read from.
-    /// </summary>
+    /// <summary>A <see cref="Position"/> representing the position where the next slice should be read from.</summary>
     public readonly Position NextPosition;
 
-    /// <summary>
-    /// The events read.
-    /// </summary>
+    /// <summary>The events read.</summary>
     public readonly ResolvedEvent[] Events;
 
-    /// <summary>
-    /// A boolean representing whether or not this is the end of the $all stream.
-    /// </summary>
+    /// <summary>A boolean representing whether or not this is the end of the $all stream.</summary>
     public bool IsEndOfStream { get { return Events.Length == 0; } }
 
     internal AllEventsSlice(ReadDirection readDirection, Position fromPosition, Position nextPosition, ResolvedEvent[] events)

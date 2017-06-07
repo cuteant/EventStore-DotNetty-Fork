@@ -7,6 +7,11 @@ using System.Net.Sockets;
 using System.Threading;
 using EventStore.ClientAPI.Common.Utils;
 using Microsoft.Extensions.Logging;
+#if DESKTOPCLR
+using Nessos.LinqOptimizer.CSharp;
+#else
+using System.Linq;
+#endif
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
@@ -109,13 +114,17 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
     public void EnqueueSend(IEnumerable<ArraySegment<byte>> data)
     {
-      using (var memStream = new MemoryStream())
+#if DESKTOPCLR
+      var totalCount = data.AsQueryExpr().Select(x => x.Count).Sum().Run();
+#else
+      var totalCount = data.Select(x => x.Count).Sum();
+#endif
+
+      using (var memStream = new MemoryStream(totalCount))
       {
-        int bytes = 0;
         foreach (var segment in data)
         {
           memStream.Write(segment.Array, segment.Offset, segment.Count);
-          bytes += segment.Count;
         }
 #if NET_4_5_GREATER
         memStream.TryGetBuffer(out ArraySegment<byte> buffer);
@@ -123,7 +132,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 #else
         _sendQueue.Enqueue(new ArraySegment<byte>(memStream.GetBuffer(), 0, (int)memStream.Length));
 #endif
-        NotifySendScheduled(bytes);
+        NotifySendScheduled(totalCount);
       }
 
       TrySend();
