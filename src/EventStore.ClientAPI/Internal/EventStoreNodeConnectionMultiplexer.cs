@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Internal
@@ -95,6 +96,46 @@ namespace EventStore.ClientAPI.Internal
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].ReadStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
     }
+
+    public Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetEventAsync(stream, eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
+    }
+
+    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetEventAsync<TEvent>(eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsForwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsBackwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
+    }
+
 
     public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,

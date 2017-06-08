@@ -14,12 +14,10 @@ namespace EventStore.ClientAPI.Serialization
 
     public JsonEventSerializer()
     {
-      var jsonSettings = JsonConvertX.CreateSerializerSettings(Formatting.Indented, TypeNameHandling.Auto, TypeNameAssemblyFormatHandling.Simple);
-      jsonSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
       _jsonFormatter = new JsonMessageFormatter()
       {
-        DefaultSerializerSettings = jsonSettings,
-        DefaultDeserializerSettings = jsonSettings
+        DefaultSerializerSettings = JsonConvertX.IndentedStringEnumSettings,
+        DefaultDeserializerSettings = JsonConvertX.IndentedStringEnumSettings
       };
     }
 

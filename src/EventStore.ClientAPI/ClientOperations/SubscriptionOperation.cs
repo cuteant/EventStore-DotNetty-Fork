@@ -188,7 +188,7 @@ namespace EventStore.ClientAPI.ClientOperations
           case TcpCommand.StreamEventAppeared:
             {
               var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-              EventAppeared(dto.Event.ToResolvedEvent());
+              EventAppeared(dto.Event.ToRawResolvedEvent());
               return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
             }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
+using Es.SharedModels;
 
 namespace Es.Receiver
 {
@@ -27,22 +28,28 @@ namespace Es.Receiver
       var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();
       using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
-        conn.ConnectAsync().Wait();
+        conn.Connect();
 
-        var eventSlice = conn.ReadStreamEventsForwardAsync(STREAM, 0, 2000, true).GetAwaiter().GetResult();
-
-        Console.WriteLine("FromEventNumber: {0}", eventSlice.FromEventNumber);
-        Console.WriteLine("NextEventNumber: {0}", eventSlice.NextEventNumber);
-        Console.WriteLine("LastEventNumber: {0}", eventSlice.LastEventNumber);
-        Console.WriteLine("IsEndOfStream: {0}", eventSlice.IsEndOfStream);
-
-        foreach (var x in eventSlice.Events)
+        try
         {
-          var data = Encoding.ASCII.GetString(x.OriginalEvent.Data);
-          Console.WriteLine("Received: " + x.OriginalEvent.EventStreamId + ":" + x.OriginalEvent.EventNumber);
-          Console.WriteLine(data);
-        }
+          var eventSlice = conn.GetStreamEventsForward<IAnimal>(0, 2000, true);
+          //var eventSlice = conn.GetStreamEventsBackward<IAnimal>(StreamPosition.End, 2000, true);
 
+          Console.WriteLine("FromEventNumber: {0}", eventSlice.FromEventNumber);
+          Console.WriteLine("NextEventNumber: {0}", eventSlice.NextEventNumber);
+          Console.WriteLine("LastEventNumber: {0}", eventSlice.LastEventNumber);
+          Console.WriteLine("IsEndOfStream: {0}", eventSlice.IsEndOfStream);
+
+          foreach (var x in eventSlice.Events)
+          {
+            Console.WriteLine("Received: " + x.OriginalEvent.EventStreamId + ":" + x.OriginalEvent.EventNumber);
+            Console.WriteLine(x.OriginalEvent.FullEvent.Value.Name);
+          }
+        }
+        catch (Exception exc)
+        {
+          Console.WriteLine(exc.ToString());
+        }
 
 
 

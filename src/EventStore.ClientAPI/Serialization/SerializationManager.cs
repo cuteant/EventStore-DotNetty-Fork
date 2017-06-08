@@ -284,6 +284,16 @@ namespace EventStore.ClientAPI.Serialization
 
     #endregion
 
+    #region -- GetStreamId --
+
+    public static string GetStreamId(Type actualType, Type expectedType = null)
+    {
+      var streamAttr = GetStreamProvider(actualType, expectedType);
+      return streamAttr != null ? streamAttr.StreamId : JsonConvertX.SerializeTypeName(expectedType ?? actualType);
+    }
+
+    #endregion
+
     #region -- SerializeEvent --
 
     public static EventData SerializeEvent(object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
@@ -362,11 +372,7 @@ namespace EventStore.ClientAPI.Serialization
           data = _lz4ProtobufSerializer.Serialize(@event);
           break;
         case SerializationToken.External:
-          //if (expectedType != null && TryLookupExternalSerializer(expectedType, out IExternalSerializer serializer))
-          //{
-          //  data = serializer.Serialize(@event);
-          //}
-          //else if (TryLookupExternalSerializer(actualType, out serializer))
+          // 此处不考虑 expectedType
           if (TryLookupExternalSerializer(actualType, out IExternalSerializer serializer))
           {
             data = serializer.Serialize(@event);
@@ -554,9 +560,34 @@ namespace EventStore.ClientAPI.Serialization
 
     internal static IFullEvent DeserializeEvent(byte[] metadata, byte[] data)
     {
+      DeserializeEvent(metadata, data, out IEventDescriptor eventDescriptor, out object obj);
+      return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
+    }
+
+    internal static IFullEvent<T> DeserializeEvent<T>(byte[] metadata, byte[] data) where T : class
+    {
+      DeserializeEvent(metadata, data, out IEventDescriptor eventDescriptor, out object obj);
+      return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
+    }
+
+    private static void DeserializeEvent(byte[] metadata, byte[] data, out IEventDescriptor eventDescriptor, out object obj)
+    {
+      if (null == metadata || metadata.Length == 0)
+      {
+        eventDescriptor = null;
+        obj = null;
+        return;
+      }
       var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
+
+      eventDescriptor = meta.Context != null ? new DefaultEventDescriptor(meta.Context) : NullEventDescriptor.Instance;
+
+      if (null == data || data.Length == 0)
+      {
+        obj = null;
+        return;
+      }
       var type = JsonConvertX.ResolveType(meta.EventType);
-      object obj = null;
       switch (meta.Token)
       {
         case SerializationToken.GzJson:
@@ -584,7 +615,6 @@ namespace EventStore.ClientAPI.Serialization
           obj = _lz4ProtobufSerializer.Deserialize(type, data);
           break;
         case SerializationToken.External:
-
           if (TryLookupExternalSerializer(type, out IExternalSerializer serializer))
           {
             obj = serializer.Deserialize(type, data);
@@ -599,58 +629,6 @@ namespace EventStore.ClientAPI.Serialization
           obj = _jsonSerializer.Deserialize(type, data);
           break;
       }
-      var eventDescriptor = meta.Context != null ? new DefaultEventDescriptor(meta.Context) : NullEventDescriptor.Instance;
-      return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
-    }
-    internal static IFullEvent<T> DeserializeEvent<T>(byte[] metadata, byte[] data) where T : class
-    {
-      var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
-      var type = JsonConvertX.ResolveType(meta.EventType);
-      T obj = null;
-      switch (meta.Token)
-      {
-        case SerializationToken.GzJson:
-          obj = _gzJsonSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.Lz4Json:
-          obj = _lz4JsonSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.Hyperion:
-          obj = _hyperionSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.GzHyperion:
-          obj = _gzHyperionSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.Lz4Hyperion:
-          obj = _lz4HyperionSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.Protobuf:
-          obj = _protobufSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.GzProtobuf:
-          obj = _gzProtobufSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.Lz4Protobuf:
-          obj = _lz4ProtobufSerializer.Deserialize(type, data) as T;
-          break;
-        case SerializationToken.External:
-
-          if (TryLookupExternalSerializer(type, out IExternalSerializer serializer))
-          {
-            obj = serializer.Deserialize(type, data) as T;
-          }
-          else
-          {
-            throw new InvalidOperationException($"Non-serializable exception of type {type.AssemblyQualifiedName}");
-          }
-          break;
-        case SerializationToken.Json:
-        default:
-          obj = _jsonSerializer.Deserialize(type, data) as T;
-          break;
-      }
-      var eventDescriptor = meta.Context != null ? new DefaultEventDescriptor(meta.Context) : NullEventDescriptor.Instance;
-      return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj };
     }
 
     #endregion

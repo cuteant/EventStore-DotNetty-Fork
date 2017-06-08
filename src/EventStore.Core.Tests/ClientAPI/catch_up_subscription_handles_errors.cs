@@ -10,7 +10,7 @@ using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
-using  EventStore.ClientAPI.Messages;
+using EventStore.ClientAPI.Messages;
 //using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
@@ -398,7 +398,7 @@ namespace EventStore.Core.Tests.ClientAPI
         VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
         taskCompletionSource.SetResult(volatileEventStoreSubscription);
 
-        raise(volatileEventStoreSubscription2, event1.ToResolvedEvent());
+        raise(volatileEventStoreSubscription2, event1.ToRawResolvedEvent());
 
         return taskCompletionSource.Task;
       });
@@ -437,7 +437,7 @@ namespace EventStore.Core.Tests.ClientAPI
                           null, null, null), null))
           .ToArray();
 
-      return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events.ToResolvedEvents(), fromEvent + count, 100, isEnd);
+      return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events.ToRawResolvedEvents(), fromEvent + count, 100, isEnd);
     }
   }
 
@@ -680,6 +680,36 @@ namespace EventStore.Core.Tests.ClientAPI
     }
 
     public Task SetSystemSettingsAsync(SystemSettings settings, UserCredentials userCredentials = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       throw new NotImplementedException();
     }

@@ -3,20 +3,64 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-  internal class ReadEventOperation : OperationBase<EventReadResult, ClientMessage.ReadEventCompleted>
+  internal class ReadEventOperation : ReadEventOperationBase<EventReadResult<object>>
   {
-    private readonly string _stream;
-    private readonly long _eventNumber;
+    public ReadEventOperation(TaskCompletionSource<EventReadResult<object>> source,
+      string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+      : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
+    {
+    }
+
+    protected override EventReadResult<object> TransformResponse(ClientMessage.ReadEventCompleted response)
+    {
+      var readStatus = Convert(response.Result);
+      return new EventReadResult<object>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus));
+    }
+  }
+
+  internal class ReadEventOperation<T> : ReadEventOperationBase<EventReadResult<T>> where T : class
+  {
+    public ReadEventOperation(TaskCompletionSource<EventReadResult<T>> source,
+      string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+      : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
+    {
+    }
+
+    protected override EventReadResult<T> TransformResponse(ClientMessage.ReadEventCompleted response)
+    {
+      var readStatus = Convert(response.Result);
+      return new EventReadResult<T>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent<T>(readStatus));
+    }
+  }
+
+  internal class RawReadEventOperation : ReadEventOperationBase<EventReadResult>
+  {
+    public RawReadEventOperation(TaskCompletionSource<EventReadResult> source,
+      string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+      : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
+    {
+    }
+
+    protected override EventReadResult TransformResponse(ClientMessage.ReadEventCompleted response)
+    {
+      var readStatus = Convert(response.Result);
+      return new EventReadResult(readStatus, _stream, _eventNumber, response.Event.ToRawResolvedEvent(readStatus));
+    }
+  }
+
+  internal abstract class ReadEventOperationBase<TResult> : OperationBase<TResult, ClientMessage.ReadEventCompleted>
+  {
+    internal readonly string _stream;
+    internal readonly long _eventNumber;
     private readonly bool _resolveLinkTo;
     private readonly bool _requireMaster;
 
-    public ReadEventOperation(TaskCompletionSource<EventReadResult> source,
-                              string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
-        : base(source, TcpCommand.ReadEvent, TcpCommand.ReadEventCompleted, userCredentials)
+    public ReadEventOperationBase(TaskCompletionSource<TResult> source,
+      string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+      : base(source, TcpCommand.ReadEvent, TcpCommand.ReadEventCompleted, userCredentials)
     {
       _stream = stream;
       _eventNumber = eventNumber;
@@ -49,21 +93,14 @@ namespace EventStore.ClientAPI.ClientOperations
           Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
           return new InspectionResult(InspectionDecision.EndOperation, "Error");
         case ClientMessage.ReadEventCompleted.ReadEventResult.AccessDenied:
-          Fail(new AccessDeniedException(string.Format("Read access denied for stream '{0}'.", _stream)));
+          Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
         default:
-          throw new Exception(string.Format("Unexpected ReadEventResult: {0}.", response.Result));
+          throw new Exception($"Unexpected ReadEventResult: {response.Result}.");
       }
     }
 
-    protected override EventReadResult TransformResponse(ClientMessage.ReadEventCompleted response)
-    {
-      var readStatus = Convert(response.Result);
-      return new EventReadResult(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus));
-    }
-
-
-    private static EventReadStatus Convert(ClientMessage.ReadEventCompleted.ReadEventResult result)
+    internal static EventReadStatus Convert(ClientMessage.ReadEventCompleted.ReadEventResult result)
     {
       switch (result)
       {
@@ -76,14 +113,13 @@ namespace EventStore.ClientAPI.ClientOperations
         case ClientMessage.ReadEventCompleted.ReadEventResult.StreamDeleted:
           return EventReadStatus.StreamDeleted;
         default:
-          throw new Exception(string.Format("Unexpected ReadEventResult: {0}.", result));
+          throw new Exception($"Unexpected ReadEventResult: {result}.");
       }
     }
 
     public override string ToString()
     {
-      return string.Format("Stream: {0}, EventNumber: {1}, ResolveLinkTo: {2}, RequireMaster: {3}",
-                           _stream, _eventNumber, _resolveLinkTo, _requireMaster);
+      return $"Stream: {_stream}, EventNumber: {_eventNumber}, ResolveLinkTo: {_resolveLinkTo}, RequireMaster: {_requireMaster}";
     }
   }
 }

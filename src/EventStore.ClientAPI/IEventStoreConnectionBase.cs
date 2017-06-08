@@ -167,6 +167,59 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+    #region -- Get event(s) --
+
+    /// <summary>Asynchronously reads a single event from a stream.</summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
+    Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null);
+
+    /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="start">The starting point to read from</param>
+    /// <param name="count">The count of items to read</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
+
+    /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
+    /// <param name="stream">The Event Stream to read from</param>
+    /// <param name="start">The position to start reading from</param>
+    /// <param name="count">The count to read from the position</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
+
+    /// <summary>Asynchronously reads a single event from a stream.</summary>
+    /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
+    Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+
+    /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
+    /// <param name="start">The starting point to read from</param>
+    /// <param name="count">The count of items to read</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+
+    /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
+    /// <param name="start">The position to start reading from</param>
+    /// <param name="count">The count to read from the position</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+
+    #endregion
+
     #region -- SubscribeToStreamAsync --
 
     /// <summary>Asynchronously subscribes to a single event stream. New events

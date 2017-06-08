@@ -89,8 +89,8 @@ namespace EventStore.ClientAPI.Embedded
     public async Task EventAppeared(EventStore.Core.Data.ResolvedEvent resolvedEvent)
     {
       var e = resolvedEvent.OriginalPosition == null
-          ? resolvedEvent.ConvertToClientResolvedIndexEvent().ToResolvedEvent()
-          : resolvedEvent.ConvertToClientResolvedEvent().ToResolvedEvent();
+          ? resolvedEvent.ConvertToClientResolvedIndexEvent().ToRawResolvedEvent()
+          : resolvedEvent.ConvertToClientResolvedEvent().ToRawResolvedEvent();
       await EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
     }
 

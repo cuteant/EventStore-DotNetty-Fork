@@ -28,10 +28,10 @@ namespace EventStore.ClientAPI.ClientOperations
     protected abstract TResult TransformResponse(TResponse response);
 
     protected OperationBase(TaskCompletionSource<TResult> source,
-                            TcpCommand requestCommand, TcpCommand responseCommand,
-                            UserCredentials userCredentials)
+                              TcpCommand requestCommand, TcpCommand responseCommand,
+                              UserCredentials userCredentials)
     {
-      Ensure.NotNull(source, "source");
+      Ensure.NotNull(source, nameof(source));
 
       Log = TraceLogger.GetLogger(this.GetType());
       _source = source;
