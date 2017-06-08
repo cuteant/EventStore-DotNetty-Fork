@@ -10,9 +10,9 @@ namespace EventStore.ClientAPI
 {
   partial class IEventStoreConnectionExtensions
   {
-    #region -- SendAsync --
+    #region -- SendEventAsync --
 
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, TEvent @event,
+    public static Task<WriteResult> SendEventAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -22,9 +22,9 @@ namespace EventStore.ClientAPI
         if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
         actualType = @event?.GetType();
       }
-      return SendAsync(connection, stream, actualType, @event, eventContext, expectedType, userCredentials);
+      return SendEventAsync(connection, stream, actualType, @event, eventContext, expectedType, userCredentials);
     }
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, TEvent @event,
+    public static Task<WriteResult> SendEventAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -40,10 +40,11 @@ namespace EventStore.ClientAPI
       return connection.AppendToStreamAsync(stream, streamAttr != null ? streamAttr.ExpectedVersion : ExpectedVersion.Any, userCredentials, eventData);
     }
 
+    #endregion
 
+    #region -- SendEventsAsync --
 
-
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, IEnumerable<TEvent> events,
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -58,9 +59,9 @@ namespace EventStore.ClientAPI
         var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
         return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
       }
-      return SendAsync(connection, stream, actualType, events, eventContext, expectedType, userCredentials);
+      return SendEventsAsync(connection, stream, actualType, events, eventContext, expectedType, userCredentials);
     }
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, IEnumerable<TEvent> events,
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -75,11 +76,49 @@ namespace EventStore.ClientAPI
 
       return connection.AppendToStreamAsync(stream, streamAttr != null ? streamAttr.ExpectedVersion : ExpectedVersion.Any, eventDatas, userCredentials);
     }
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, int batchSize,
+      ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+
+      var actualType = typeof(TEvent);
+      if (actualType == TypeHelper.ObjectType)
+      {
+        if (null == events) { throw new ArgumentNullException(nameof(events)); }
+        //var eventDatas = SerializationManager.SerializeEvents(events, eventContext, expectedType);
+        var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
+        return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
+      }
+      return SendEventsAsync(connection, stream, actualType, events, eventContext, expectedType, userCredentials);
+    }
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, int batchSize, Type actualType,
+      ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
+      if (null == events) { throw new ArgumentNullException(nameof(events)); }
+      if (events.Count <= batchSize)
+      {
+        return SendEventsAsync(connection, stream, actualType, events: events, eventContext: eventContext, expectedType: expectedType, userCredentials: userCredentials);
+      }
+
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+
+      var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
+
+      var eventDatas = SerializationManager.SerializeEvents(streamAttr, actualType, events, eventContext, expectedType);
+
+      return connection.AppendToStreamAsync(stream, streamAttr != null ? streamAttr.ExpectedVersion : ExpectedVersion.Any, eventDatas, userCredentials);
+    }
 
 
 
 
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, IList<TEvent> events,
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -93,9 +132,9 @@ namespace EventStore.ClientAPI
         var eventDatas = SerializationManager.SerializeEvents(events, eventContexts, expectedType);
         return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
       }
-      return SendAsync(connection, stream, actualType, events, eventContexts, expectedType, userCredentials);
+      return SendEventsAsync(connection, stream, actualType, events, eventContexts, expectedType, userCredentials);
     }
-    public static Task<WriteResult> SendAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, IList<TEvent> events,
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {

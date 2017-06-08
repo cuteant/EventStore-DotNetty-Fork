@@ -11,9 +11,9 @@ namespace EventStore.ClientAPI
 {
   partial class IEventStoreConnectionExtensions
   {
-    #region -- PublishAsync --
+    #region -- PublishEventAsync --
 
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, TEvent @event,
+    public static Task<WriteResult> PublishEventAsync<TEvent>(this IEventStoreConnectionBase connection, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -23,9 +23,9 @@ namespace EventStore.ClientAPI
         if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
         actualType = @event.GetType();
       }
-      return PublishAsync(connection, actualType, @event, eventContext, expectedType, userCredentials);
+      return PublishEventAsync(connection, actualType, @event, eventContext, expectedType, userCredentials);
     }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, TEvent @event,
+    public static Task<WriteResult> PublishEventAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -47,7 +47,42 @@ namespace EventStore.ClientAPI
 
 
 
-    public static async Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, IEnumerable<TEvent> events,
+    public static Task<WriteResult> PublishEventAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, TEvent @event,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      var actualType = typeof(TEvent);
+      if (actualType == TypeHelper.ObjectType)
+      {
+        if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+        actualType = @event.GetType();
+      }
+      return PublishEventAsync(connection, topic, actualType, @event, eventContext, expectedType, userCredentials);
+    }
+    public static Task<WriteResult> PublishEventAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, TEvent @event,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+      //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+
+      var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
+
+      var eventData = SerializationManager.SerializeEvent(streamAttr, actualType, @event, eventContext, expectedType);
+
+      if (streamAttr != null)
+      {
+        return connection.AppendToStreamAsync(CombineStreamId(streamAttr.StreamId, topic), streamAttr.ExpectedVersion, userCredentials, eventData);
+      }
+      return connection.AppendToStreamAsync(CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, userCredentials, eventData);
+    }
+
+    #endregion
+
+    #region -- PublishEventsAsync --
+
+    public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -60,14 +95,14 @@ namespace EventStore.ClientAPI
         WriteResult result = default(WriteResult);
         foreach (var @event in events)
         {
-          result = await PublishAsync(connection, @event.GetType(), @event, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+          result = await PublishEventAsync(connection, @event.GetType(), @event, eventContext, expectedType, userCredentials).ConfigureAwait(false);
         }
         return result;
       }
 
-      return await PublishAsync(connection, actualType, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+      return await PublishEventsAsync(connection, actualType, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
     }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, IEnumerable<TEvent> events,
+    public static Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -89,7 +124,7 @@ namespace EventStore.ClientAPI
 
 
 
-    public static async Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, IList<TEvent> events,
+    public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -106,13 +141,13 @@ namespace EventStore.ClientAPI
         for (var idx = 0; idx < events.Count; idx++)
         {
           var @event = events[idx];
-          result = await PublishAsync(connection, @event.GetType(), @event, eventContexts[idx], expectedType, userCredentials).ConfigureAwait(false);
+          result = await PublishEventAsync(connection, @event.GetType(), @event, eventContexts[idx], expectedType, userCredentials).ConfigureAwait(false);
         }
         return result;
       }
-      return await PublishAsync(connection, actualType, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
+      return await PublishEventsAsync(connection, actualType, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
     }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, IList<TEvent> events,
+    public static Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, Type actualType, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -134,41 +169,7 @@ namespace EventStore.ClientAPI
 
 
 
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, TEvent @event,
-      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
-      where TEvent : class
-    {
-      var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
-      {
-        if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
-        actualType = @event.GetType();
-      }
-      return PublishAsync(connection, topic, actualType, @event, eventContext, expectedType, userCredentials);
-    }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, TEvent @event,
-      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
-      where TEvent : class
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
-
-      var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
-
-      var eventData = SerializationManager.SerializeEvent(streamAttr, actualType, @event, eventContext, expectedType);
-
-      if (streamAttr != null)
-      {
-        return connection.AppendToStreamAsync(CombineStreamId(streamAttr.StreamId, topic), streamAttr.ExpectedVersion, userCredentials, eventData);
-      }
-      return connection.AppendToStreamAsync(CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, userCredentials, eventData);
-    }
-
-
-
-
-    public static async Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, IEnumerable<TEvent> events,
+    public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -181,14 +182,14 @@ namespace EventStore.ClientAPI
         WriteResult result = default(WriteResult);
         foreach (var @event in events)
         {
-          result = await PublishAsync(connection, topic, @event.GetType(), @event, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+          result = await PublishEventAsync(connection, topic, @event.GetType(), @event, eventContext, expectedType, userCredentials).ConfigureAwait(false);
         }
         return result;
       }
 
-      return await PublishAsync(connection, topic, actualType, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+      return await PublishEventsAsync(connection, topic, actualType, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
     }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, IEnumerable<TEvent> events,
+    public static Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -210,7 +211,7 @@ namespace EventStore.ClientAPI
 
 
 
-    public static async Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, IList<TEvent> events,
+    public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
@@ -227,13 +228,13 @@ namespace EventStore.ClientAPI
         for (var idx = 0; idx < events.Count; idx++)
         {
           var @event = events[idx];
-          result = await PublishAsync(connection, topic, @event.GetType(), @event, eventContexts[idx], expectedType, userCredentials).ConfigureAwait(false);
+          result = await PublishEventAsync(connection, topic, @event.GetType(), @event, eventContexts[idx], expectedType, userCredentials).ConfigureAwait(false);
         }
         return result;
       }
-      return await PublishAsync(connection, topic, actualType, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
+      return await PublishEventsAsync(connection, topic, actualType, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
     }
-    public static Task<WriteResult> PublishAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, IList<TEvent> events,
+    public static Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, Type actualType, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
