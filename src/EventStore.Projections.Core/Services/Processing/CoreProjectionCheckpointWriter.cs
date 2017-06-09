@@ -91,7 +91,6 @@ namespace EventStore.Projections.Core.Services.Processing
               _inCheckpointWriteAttempt = 0;
               return;
             }
-            if (infoEnabled) _logger.LogInformation("Retrying write checkpoint to {0}", eventStreamId);
             _inCheckpointWriteAttempt++;
             PublishWriteStreamMetadataAndCheckpointEvent();
             break;

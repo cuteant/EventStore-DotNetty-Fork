@@ -235,11 +235,6 @@ namespace EventStore.Projections.Core.Services.Processing
         case OperationResult.CommitTimeout:
           if (retryCount > 0)
           {
-            if (_logger.IsInformationLevelEnabled())
-            {
-              _logger.LogInformation("Retrying write to {0} (Retry {1} of {2}). Checkpoint: {3}.", _streamId, (MaxRetryCount - retryCount) + 1, MaxRetryCount, _fromCheckpointPosition);
-            }
-
             PublishWriteEvents(--retryCount);
           }
           else
@@ -474,10 +469,6 @@ namespace EventStore.Projections.Core.Services.Processing
         case OperationResult.CommitTimeout:
           if (retryCount > 0)
           {
-            if (_logger.IsInformationLevelEnabled())
-            {
-              _logger.LogInformation("Retrying write to {0} (Retry {1} of {2})", _metadataStreamId, (MaxRetryCount - retryCount) + 1, MaxRetryCount);
-            }
             PublishWriteMetaStream(--retryCount);
           }
           else
