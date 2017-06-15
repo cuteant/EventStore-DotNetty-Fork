@@ -28,9 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="2.0.0-rtm-170502" />
+    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="2.0.0-rtm-170601" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="CuteAnt.Runtime" Version="2.0.0-rtm-170502" />
+    <PackageReference Include="CuteAnt.Runtime" Version="2.0.0-rtm-170601" />
   </ItemGroup>
 
   <ItemGroup>

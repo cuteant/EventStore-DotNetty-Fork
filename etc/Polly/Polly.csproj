@@ -49,7 +49,7 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <PackageReference Include="CuteAnt.AsyncEx" Version="2.0.0-rtm-170501" />
+    <PackageReference Include="CuteAnt.AsyncEx" Version="2.0.0-rtm-170601" />
   </ItemGroup>
   
   <ItemGroup>

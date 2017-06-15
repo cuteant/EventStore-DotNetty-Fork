@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CuteAnt" Version="2.0.0-rtm-170501" />
+    <PackageReference Include="CuteAnt" Version="2.0.0-rtm-170601" />
   </ItemGroup>
 
   <ItemGroup>

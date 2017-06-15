@@ -1,8 +1,8 @@
 ﻿{
   "dependencies": {
-    "CuteAnt.Extensions.Logging.NLog": "2.0.0-rtm-170501",
+    "CuteAnt.Extensions.Logging.NLog": "2.0.0-rtm-170601",
     "Newtonsoft.Json": "10.0.2",
-    "NLog": "4.4.9"
+    "NLog": "4.4.10"
   },
   "frameworks": {
     "net461": {}

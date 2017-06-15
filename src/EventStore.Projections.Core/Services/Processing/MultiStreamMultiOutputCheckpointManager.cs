@@ -236,15 +236,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public void Handle(CoreProjectionProcessingMessage.EmittedStreamAwaiting message)
     {
-      if (_stopped)
-        return;
+      if (_stopped) { return; }
       throw new NotImplementedException();
     }
 
     public void Handle(CoreProjectionProcessingMessage.EmittedStreamWriteCompleted message)
     {
-      if (_stopped) return;
-      orderStream.ProcessQueue();
+      if (_stopped) { return; }
+      _orderStream.ProcessQueue();
     }
   }
 }
