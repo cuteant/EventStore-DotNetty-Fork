@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using CuteAnt;
 using CuteAnt.IO;
 using Hyperion;
 using Hyperion.SerializerFactories;
@@ -34,15 +35,15 @@ namespace EventStore.ClientAPI.Serialization
     /// <inheritdoc/>
     public override object Deserialize(Type expectedType, byte[] data)
     {
-      using (var ms = new MemoryStream(data))
-      {
-        return _hyperionSerializer.Deserialize(ms);
-      }
+      var ms = new MemoryStream(data);
+      return _hyperionSerializer.Deserialize(ms);
     }
 
     /// <inheritdoc/>
     public override byte[] Serialize(object value)
     {
+      if (null == value) { return EmptyArray<byte>.Instance; }
+
       using (var ms = MemoryStreamManager.GetStream())
       {
         _hyperionSerializer.Serialize(value, ms);
@@ -67,8 +68,6 @@ namespace EventStore.ClientAPI.Serialization
     /// <inheritdoc/>
     public override object Deserialize(Type expectedType, byte[] data)
     {
-      if (null == data) { throw new ArgumentNullException(nameof(data)); }
-
       var compressedData = this.Decompression(data);
 
       return base.Deserialize(expectedType, compressedData);
@@ -77,6 +76,8 @@ namespace EventStore.ClientAPI.Serialization
     /// <inheritdoc/>
     public override byte[] Serialize(object value)
     {
+      if (null == value) { return EmptyArray<byte>.Instance; }
+
       using (var ms = MemoryStreamManager.GetStream())
       {
         _hyperionSerializer.Serialize(value, ms);

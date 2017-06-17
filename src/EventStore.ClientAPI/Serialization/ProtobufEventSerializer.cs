@@ -1,31 +1,33 @@
 ﻿using System;
 using System.IO;
+using CuteAnt;
 using CuteAnt.IO;
 using LZ4;
-using ProtoBuf;
+using ProtoBuf.Meta;
 
 namespace EventStore.ClientAPI.Serialization
 {
   internal class ProtobufEventSerializer : EventSerializer
   {
+    internal static readonly RuntimeTypeModel RuntimeModel = RuntimeTypeModel.Default;
     /// <inheritdoc/>
     public override bool IsSupportedType(Type itemType) => true;
 
     /// <inheritdoc/>
     public override object Deserialize(Type expectedType, byte[] data)
     {
-      using (var stream = new MemoryStream(data))
-      {
-        return Serializer.Deserialize(expectedType, stream);
-      }
+      var stream = new MemoryStream(data);
+      return RuntimeModel.Deserialize(stream, null, expectedType);
     }
 
     /// <inheritdoc/>
     public override byte[] Serialize(object value)
     {
+      if (null == value) { return EmptyArray<byte>.Instance; }
+
       using (var stream = MemoryStreamManager.GetStream())
       {
-        Serializer.Serialize(stream, value);
+        RuntimeModel.Serialize(stream, value, null);
         return stream.ToArray();
       }
     }
@@ -36,8 +38,6 @@ namespace EventStore.ClientAPI.Serialization
     /// <inheritdoc/>
     public override object Deserialize(Type expectedType, byte[] data)
     {
-      if (null == data) { throw new ArgumentNullException(nameof(data)); }
-
       var compressedData = this.Decompression(data);
 
       return base.Deserialize(expectedType, compressedData);
@@ -46,9 +46,11 @@ namespace EventStore.ClientAPI.Serialization
     /// <inheritdoc/>
     public override byte[] Serialize(object value)
     {
+      if (null == value) { return EmptyArray<byte>.Instance; }
+
       using (var ms = MemoryStreamManager.GetStream())
       {
-        Serializer.Serialize(ms, value);
+        RuntimeModel.Serialize(ms, value, null);
         var getBuffer = ms.GetBuffer();
         return Compression(getBuffer, 0, (int)ms.Length);
       }
