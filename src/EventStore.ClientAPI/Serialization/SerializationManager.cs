@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
+using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
 using Hyperion;
 using Hyperion.SerializerFactories;
@@ -572,13 +573,16 @@ namespace EventStore.ClientAPI.Serialization
 
     private static void DeserializeEvent(byte[] metadata, byte[] data, out IEventDescriptor eventDescriptor, out object obj)
     {
+      const string _metadataEmpty = "The meta-data of EventRecord is not available.";
       if (null == metadata || metadata.Length == 0)
       {
-        eventDescriptor = null;
-        obj = null;
-        return;
+        throw new EventMetadataDeserializationException(_metadataEmpty);
       }
       var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
+      if (null == meta)
+      {
+        throw new EventMetadataDeserializationException(_metadataEmpty);
+      }
 
       eventDescriptor = meta.Context != null ? new DefaultEventDescriptor(meta.Context) : NullEventDescriptor.Instance;
 
@@ -587,47 +591,54 @@ namespace EventStore.ClientAPI.Serialization
         obj = null;
         return;
       }
-      var type = JsonConvertX.ResolveType(meta.EventType);
-      switch (meta.Token)
+      try
       {
-        case SerializationToken.GzJson:
-          obj = _gzJsonSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.Lz4Json:
-          obj = _lz4JsonSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.Hyperion:
-          obj = _hyperionSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.GzHyperion:
-          obj = _gzHyperionSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.Lz4Hyperion:
-          obj = _lz4HyperionSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.Protobuf:
-          obj = _protobufSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.GzProtobuf:
-          obj = _gzProtobufSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.Lz4Protobuf:
-          obj = _lz4ProtobufSerializer.Deserialize(type, data);
-          break;
-        case SerializationToken.External:
-          if (TryLookupExternalSerializer(type, out IExternalSerializer serializer))
-          {
-            obj = serializer.Deserialize(type, data);
-          }
-          else
-          {
-            throw new InvalidOperationException($"Non-serializable exception of type {type.AssemblyQualifiedName}");
-          }
-          break;
-        case SerializationToken.Json:
-        default:
-          obj = _jsonSerializer.Deserialize(type, data);
-          break;
+        var type = JsonConvertX.ResolveType(meta.EventType);
+        switch (meta.Token)
+        {
+          case SerializationToken.GzJson:
+            obj = _gzJsonSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.Lz4Json:
+            obj = _lz4JsonSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.Hyperion:
+            obj = _hyperionSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.GzHyperion:
+            obj = _gzHyperionSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.Lz4Hyperion:
+            obj = _lz4HyperionSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.Protobuf:
+            obj = _protobufSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.GzProtobuf:
+            obj = _gzProtobufSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.Lz4Protobuf:
+            obj = _lz4ProtobufSerializer.Deserialize(type, data);
+            break;
+          case SerializationToken.External:
+            if (TryLookupExternalSerializer(type, out IExternalSerializer serializer))
+            {
+              obj = serializer.Deserialize(type, data);
+            }
+            else
+            {
+              throw new Exception($"Non-serializable exception of type {type.AssemblyQualifiedName}");
+            }
+            break;
+          case SerializationToken.Json:
+          default:
+            obj = _jsonSerializer.Deserialize(type, data);
+            break;
+        }
+      }
+      catch(Exception exc)
+      {
+        throw new EventDataDeserializationException(exc.Message, exc);
       }
     }
 

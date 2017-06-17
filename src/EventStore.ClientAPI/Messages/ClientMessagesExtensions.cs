@@ -3,11 +3,14 @@ using System.Net;
 using CuteAnt;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Messages
 {
   internal static partial class ClientMessage
   {
+    private static ILogger s_logger = TraceLogger.GetLogger(typeof(ClientMessage));
+
     #region -- class NotHandled --
 
     public partial class NotHandled
@@ -116,27 +119,61 @@ namespace EventStore.ClientAPI.Messages
 
     internal static RecordedEvent<object> ToRecordedEvent(this ClientMessage.EventRecord systemRecord)
     {
-      return new RecordedEvent<object>(
-        systemRecord.EventStreamId,
-        new Guid(systemRecord.EventId),
-        systemRecord.EventNumber,
-        systemRecord.EventType,
-        systemRecord.Created,
-        systemRecord.CreatedEpoch,
-        SerializationManager.DeserializeEvent(systemRecord.Metadata, systemRecord.Data),
-        systemRecord.DataContentType == 1);
+      try
+      {
+        return new RecordedEvent<object>(
+          systemRecord.EventStreamId,
+          new Guid(systemRecord.EventId),
+          systemRecord.EventNumber,
+          systemRecord.EventType,
+          systemRecord.Created,
+          systemRecord.CreatedEpoch,
+          SerializationManager.DeserializeEvent(systemRecord.Metadata, systemRecord.Data),
+          systemRecord.DataContentType == 1);
+      }
+      catch (Exception exc)
+      {
+        s_logger.LogWarning(exc,
+            $"Can't deserialize the recorded event: StreamId - {systemRecord.EventStreamId}, EventId - {systemRecord.EventId}, EventNumber - {systemRecord.EventNumber}, EventType - {systemRecord.EventType}");
+        return new RecordedEvent<object>(
+          systemRecord.EventStreamId,
+          new Guid(systemRecord.EventId),
+          systemRecord.EventNumber,
+          systemRecord.EventType,
+          systemRecord.Created,
+          systemRecord.CreatedEpoch,
+          DefaultFullEvent.Null,
+          systemRecord.DataContentType == 1);
+      }
     }
     internal static RecordedEvent<T> ToRecordedEvent<T>(this ClientMessage.EventRecord systemRecord) where T : class
     {
-      return new RecordedEvent<T>(
-        systemRecord.EventStreamId,
-        new Guid(systemRecord.EventId),
-        systemRecord.EventNumber,
-        systemRecord.EventType,
-        systemRecord.Created,
-        systemRecord.CreatedEpoch,
-        SerializationManager.DeserializeEvent<T>(systemRecord.Metadata, systemRecord.Data),
-        systemRecord.DataContentType == 1);
+      try
+      {
+        return new RecordedEvent<T>(
+          systemRecord.EventStreamId,
+          new Guid(systemRecord.EventId),
+          systemRecord.EventNumber,
+          systemRecord.EventType,
+          systemRecord.Created,
+          systemRecord.CreatedEpoch,
+          SerializationManager.DeserializeEvent<T>(systemRecord.Metadata, systemRecord.Data),
+          systemRecord.DataContentType == 1);
+      }
+      catch (Exception exc)
+      {
+        s_logger.LogWarning(exc,
+            $"Can't deserialize the recorded event: StreamId - {systemRecord.EventStreamId}, EventId - {systemRecord.EventId}, EventNumber - {systemRecord.EventNumber}, EventType - {systemRecord.EventType}");
+        return new RecordedEvent<T>(
+          systemRecord.EventStreamId,
+          new Guid(systemRecord.EventId),
+          systemRecord.EventNumber,
+          systemRecord.EventType,
+          systemRecord.Created,
+          systemRecord.CreatedEpoch,
+          DefaultFullEvent<T>.Null,
+          systemRecord.DataContentType == 1);
+      }
     }
 
     #endregion
