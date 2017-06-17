@@ -49,9 +49,9 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
 
-  internal class RawReadStreamEventsForwardOperation : ReadStreamEventsForwardOperationBase<StreamEventsSlice>
+  internal class ReadRawStreamEventsForwardOperation : ReadStreamEventsForwardOperationBase<StreamEventsSlice>
   {
-    public RawReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice> source,
+    public ReadRawStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice> source,
                                                     string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
                                                     bool requireMaster, UserCredentials userCredentials)
       : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)

@@ -17,7 +17,7 @@ namespace EventStore.ClientAPI.Serialization
     public override object Deserialize(Type expectedType, byte[] data)
     {
       var stream = new MemoryStream(data);
-      return RuntimeModel.Deserialize(stream, null, expectedType);
+      return RuntimeModel.Deserialize(stream, null, expectedType, null);
     }
 
     /// <inheritdoc/>

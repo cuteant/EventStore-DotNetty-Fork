@@ -210,7 +210,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNullOrEmpty(stream, nameof(stream));
       if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
       var source = new TaskCompletionSource<EventReadResult>();
-      var operation = new RawReadEventOperation(source, stream, eventNumber, resolveLinkTos,
+      var operation = new ReadRawEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                 _settings.RequireMaster, userCredentials);
       EnqueueOperation(operation);
       return source.Task;
@@ -223,7 +223,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.Positive(count, nameof(count));
       if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
       var source = new TaskCompletionSource<StreamEventsSlice>();
-      var operation = new RawReadStreamEventsForwardOperation(source, stream, start, count,
+      var operation = new ReadRawStreamEventsForwardOperation(source, stream, start, count,
                                                               resolveLinkTos, _settings.RequireMaster, userCredentials);
       EnqueueOperation(operation);
       return source.Task;
@@ -235,7 +235,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.Positive(count, nameof(count));
       if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
       var source = new TaskCompletionSource<StreamEventsSlice>();
-      var operation = new RawReadStreamEventsBackwardOperation(source, stream, start, count,
+      var operation = new ReadRawStreamEventsBackwardOperation(source, stream, start, count,
                                                                resolveLinkTos, _settings.RequireMaster, userCredentials);
       EnqueueOperation(operation);
       return source.Task;

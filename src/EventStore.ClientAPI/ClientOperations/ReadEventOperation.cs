@@ -36,9 +36,9 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
 
-  internal class RawReadEventOperation : ReadEventOperationBase<EventReadResult>
+  internal class ReadRawEventOperation : ReadEventOperationBase<EventReadResult>
   {
-    public RawReadEventOperation(TaskCompletionSource<EventReadResult> source,
+    public ReadRawEventOperation(TaskCompletionSource<EventReadResult> source,
       string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
       : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
     {
