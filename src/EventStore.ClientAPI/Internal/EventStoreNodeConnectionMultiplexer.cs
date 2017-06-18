@@ -9,10 +9,10 @@ namespace EventStore.ClientAPI.Internal
 {
   internal sealed class EventStoreNodeConnectionMultiplexer : IEventStoreConnectionMultiplexer
   {
-    private readonly IList<IEventStoreConnection> _innerConnections;
+    private readonly IList<IEventStoreConnection2> _innerConnections;
     private readonly int _connectionCount;
 
-    internal EventStoreNodeConnectionMultiplexer(IList<IEventStoreConnection> connections)
+    internal EventStoreNodeConnectionMultiplexer(IList<IEventStoreConnection2> connections)
     {
       _innerConnections = connections;
       _connectionCount = connections.Count;
@@ -137,6 +137,59 @@ namespace EventStore.ClientAPI.Internal
     }
 
 
+    public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync<TEvent>(settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync<TEvent>(settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync<TEvent>(topic, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].VolatileSubscribeAsync<TEvent>(topic, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
     public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -145,7 +198,6 @@ namespace EventStore.ClientAPI.Internal
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].SubscribeToStreamAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
-
     public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

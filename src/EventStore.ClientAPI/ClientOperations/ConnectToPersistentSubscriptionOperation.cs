@@ -9,7 +9,89 @@ using EventStore.ClientAPI.Transport.Tcp;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-  internal class ConnectToPersistentSubscriptionOperation : SubscriptionOperation<PersistentEventStoreSubscription>, IConnectToPersistentSubscriptions
+  #region == class PersistentSubscriptionOperation ==
+
+  internal sealed class PersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent<object>>
+  {
+    public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
+    {
+    }
+
+    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent();
+    }
+
+    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent();
+    }
+  }
+
+  #endregion
+
+  #region == class PersistentSubscriptionOperation<TEvent> ==
+
+  internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent<TEvent>>
+    where TEvent : class
+  {
+    public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
+    {
+    }
+
+    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent<TEvent>();
+    }
+
+    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent<TEvent>();
+    }
+  }
+
+  #endregion
+
+  #region == class ConnectToPersistentSubscriptionOperation ==
+
+  internal sealed class ConnectToPersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent>
+  {
+    public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
+    {
+    }
+
+    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    {
+      return rawEvent.ToRawResolvedEvent();
+    }
+
+    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
+    {
+      return rawEvent.ToRawResolvedEvent();
+    }
+  }
+
+  #endregion
+
+  #region == class ConnectToPersistentSubscriptionOperationBase<TResolvedEvent> ==
+
+  internal abstract class ConnectToPersistentSubscriptionOperationBase<TResolvedEvent> : SubscriptionOperation<PersistentEventStoreSubscription, TResolvedEvent>, IConnectToPersistentSubscriptions
+    where TResolvedEvent : IResolvedEvent
   {
     private readonly string _groupName;
     private readonly int _bufferSize;
@@ -17,7 +99,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
     //public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
     //  string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-    //  Action<PersistentEventStoreSubscription, ResolvedEvent> eventAppeared,
+    //  Action<PersistentEventStoreSubscription, TResolvedEvent> eventAppeared,
     //  Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
     //  Func<TcpPackageConnection> getConnection)
     //  : base(source, streamId, new SubscriptionSettings { ResolveLinkTos = false }, userCredentials, eventAppeared, subscriptionDropped, getConnection)
@@ -25,9 +107,9 @@ namespace EventStore.ClientAPI.ClientOperations
     //  _groupName = groupName;
     //  _bufferSize = settings.BufferSize;
     //}
-    public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
+    public ConnectToPersistentSubscriptionOperationBase(TaskCompletionSource<PersistentEventStoreSubscription> source,
       string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Func<PersistentEventStoreSubscription, TResolvedEvent, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
       : base(source, streamId,
@@ -63,7 +145,7 @@ namespace EventStore.ClientAPI.ClientOperations
       if (package.Command == TcpCommand.PersistentSubscriptionStreamEventAppeared)
       {
         var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionStreamEventAppeared>();
-        EventAppeared(dto.Event.ToRawResolvedEvent());
+        EventAppeared(TransformEvent(dto.Event));
         result = new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
         return true;
       }
@@ -143,31 +225,36 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
 
-  /// <summary>
-  /// Thrown when max subscribers is set on subscription and it has been reached
-  /// </summary>
+  #endregion
+
+  #region -- class MaximumSubscribersReachedException --
+
+  /// <summary>Thrown when max subscribers is set on subscription and it has been reached</summary>
   public class MaximumSubscribersReachedException : Exception
   {
-    /// <summary>
-    /// Constructs a <see cref="MaximumSubscribersReachedException"></see>
-    /// </summary>
+    const string _errorMsg = "Maximum subscriptions reached.";
+    /// <summary>Constructs a <see cref="MaximumSubscribersReachedException" />.</summary>
     public MaximumSubscribersReachedException()
-      : base("Maximum subscriptions reached.")
+      : base(_errorMsg)
     {
-
     }
   }
-  /// <summary>
-  /// Thrown when the persistent subscription has been deleted to subscribers connected to it
-  /// </summary>
+
+  #endregion
+
+  #region -- class PersistentSubscriptionDeletedException --
+
+  /// <summary>Thrown when the persistent subscription has been deleted to subscribers connected to it.</summary>
   public class PersistentSubscriptionDeletedException : Exception
   {
-    /// <summary>
-    /// Constructs a <see cref="PersistentSubscriptionDeletedException"></see>
-    /// </summary>
-    public PersistentSubscriptionDeletedException() : base("The subscription has been deleted.")
-    {
+    const string _errorMsg = "The subscription has been deleted.";
 
+    /// <summary>Constructs a <see cref="PersistentSubscriptionDeletedException" />.</summary>
+    public PersistentSubscriptionDeletedException()
+      : base(_errorMsg)
+    {
     }
   }
+
+  #endregion
 }

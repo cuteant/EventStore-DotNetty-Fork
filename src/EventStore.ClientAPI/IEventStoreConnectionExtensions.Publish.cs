@@ -44,8 +44,9 @@ namespace EventStore.ClientAPI
       return connection.AppendToStreamAsync(JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, userCredentials, eventData);
     }
 
+    #endregion
 
-
+    #region -- PublishEventAsync(Topic) --
 
     public static Task<WriteResult> PublishEventAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
@@ -64,6 +65,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
 
@@ -165,8 +167,9 @@ namespace EventStore.ClientAPI
       return connection.AppendToStreamAsync(JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, userCredentials);
     }
 
+    #endregion
 
-
+    #region -- PublishEventsAsync(Topic) --
 
     public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
@@ -176,6 +179,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
         WriteResult result = default(WriteResult);
@@ -193,6 +197,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -218,6 +223,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
         if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
         if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
@@ -237,6 +243,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -253,7 +260,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region -- PublishEventsAsync Using Transaction --
+    #region -- PublishEventsAsync(Transaction) --
 
     public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, int batchSize, ICollection<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
@@ -356,8 +363,9 @@ namespace EventStore.ClientAPI
       }
     }
 
+    #endregion
 
-
+    #region -- PublishEventsAsync(Transaction & Topic) --
 
     public static async Task<WriteResult> PublishEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string topic, int batchSize, ICollection<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
@@ -466,9 +474,9 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region ** CombineStreamId **
+    #region == CombineStreamId ==
 
-    private static string CombineStreamId(string stream, string topic)
+    internal static string CombineStreamId(string stream, string topic)
     {
       const char _separator = '-';
 

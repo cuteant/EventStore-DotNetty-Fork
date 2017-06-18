@@ -1,7 +1,7 @@
 ﻿namespace EventStore.ClientAPI
 {
   /// <summary>A structure representing a single event or an resolved link event.</summary>
-  public struct ResolvedEvent<T> where T : class
+  public struct ResolvedEvent<T> : IResolvedEvent where T : class
   {
     /// <summary>The event, or the resolved link event if this <see cref="ResolvedEvent"/> is a link event.</summary>
     public readonly RecordedEvent<T> Event;
@@ -13,19 +13,22 @@
     ///
     /// If this <see cref="ResolvedEvent"/> represents a link event, the Link
     /// will be the <see cref="OriginalEvent"/>, otherwise it will be the Event.</summary>
-    public RecordedEvent<T> OriginalEvent { get { return Link ?? Event; } }
+    public RecordedEvent<T> OriginalEvent => Link ?? Event;
 
     /// <summary>Indicates whether this <see cref="ResolvedEvent"/> is a resolved link event.</summary>
-    public bool IsResolved { get { return Link != null && Event != null; } }
+    public bool IsResolved => Link != null && Event != null;
 
     /// <summary>The logical position of the <see cref="OriginalEvent"/>.</summary>
     public readonly Position? OriginalPosition;
 
     /// <summary>The stream name of the <see cref="OriginalEvent" />.</summary>
-    public string OriginalStreamId { get { return OriginalEvent.EventStreamId; } }
+    public string OriginalStreamId => OriginalEvent.EventStreamId;
 
     /// <summary>The event number in the stream of the <see cref="OriginalEvent"/>.</summary>
-    public long OriginalEventNumber { get { return OriginalEvent.EventNumber; } }
+    public long OriginalEventNumber => OriginalEvent.EventNumber;
+
+    Position? IResolvedEvent.OriginalPosition => OriginalPosition;
+    string IResolvedEvent.OriginalEventType => OriginalEvent.EventType;
 
     internal ResolvedEvent(RecordedEvent<T> evnt, RecordedEvent<T> link, Position? position)
     {

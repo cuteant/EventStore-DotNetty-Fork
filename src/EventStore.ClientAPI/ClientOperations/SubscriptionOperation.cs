@@ -14,39 +14,41 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-  internal abstract class SubscriptionOperation<T> : ISubscriptionOperation where T : EventStoreSubscription
+  internal abstract class SubscriptionOperation<TSubscription, TResolvedEvent> : ISubscriptionOperation
+    where TSubscription : EventStoreSubscription
+    where TResolvedEvent : IResolvedEvent
   {
     private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.SubscriptionOperation");
 
-    private readonly TaskCompletionSource<T> _source;
+    private readonly TaskCompletionSource<TSubscription> _source;
     protected readonly string _streamId;
     protected readonly bool _resolveLinkTos;
     protected readonly SubscriptionSettings _subscriptionSettings;
     protected readonly UserCredentials _userCredentials;
-    protected readonly Action<T, ResolvedEvent> _eventAppeared;
-    protected readonly Func<T, ResolvedEvent, Task> _eventAppearedAsync;
-    private readonly Action<T, SubscriptionDropReason, Exception> _subscriptionDropped;
+    protected readonly Action<TSubscription, TResolvedEvent> _eventAppeared;
+    protected readonly Func<TSubscription, TResolvedEvent, Task> _eventAppearedAsync;
+    private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
     private readonly bool _verboseLogging;
     protected readonly Func<TcpPackageConnection> _getConnection;
     private readonly int _maxQueueSize = 2000;
-    private readonly BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _bufferBlock;
-    private readonly List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>> _actionBlocks;
-    private readonly ITargetBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _targetBlock;
+    private readonly BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _bufferBlock;
+    private readonly List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>> _actionBlocks;
+    private readonly ITargetBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _targetBlock;
     private readonly IDisposable _links;
-    private T _subscription;
+    private TSubscription _subscription;
     private int _unsubscribed;
     protected Guid _correlationId;
 
     /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
     internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
 
-    protected SubscriptionOperation(TaskCompletionSource<T> source,
-                                       string streamId,
-                                       SubscriptionSettings settings,
-                                       UserCredentials userCredentials,
-                                       Action<T, ResolvedEvent> eventAppeared,
-                                       Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
-                                       Func<TcpPackageConnection> getConnection)
+    protected SubscriptionOperation(TaskCompletionSource<TSubscription> source,
+                                    string streamId,
+                                    SubscriptionSettings settings,
+                                    UserCredentials userCredentials,
+                                    Action<TSubscription, TResolvedEvent> eventAppeared,
+                                    Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                    Func<TcpPackageConnection> getConnection)
       : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
     {
       _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
@@ -57,17 +59,17 @@ namespace EventStore.ClientAPI.ClientOperations
         // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
         numActionBlocks = 1;
       }
-      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
       for (var idx = 0; idx < numActionBlocks; idx++)
       {
-        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
             e => ProcessItem(e),
             settings.ToExecutionDataflowBlockOptions(true)));
       }
       if (numActionBlocks > 1)
       {
         var links = new CompositeDisposable();
-        _bufferBlock = new BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+        _bufferBlock = new BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
         for (var idx = 0; idx < numActionBlocks; idx++)
         {
           var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -82,13 +84,13 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    protected SubscriptionOperation(TaskCompletionSource<T> source,
-                                       string streamId,
-                                       SubscriptionSettings settings,
-                                       UserCredentials userCredentials,
-                                       Func<T, ResolvedEvent, Task> eventAppearedAsync,
-                                       Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
-                                       Func<TcpPackageConnection> getConnection)
+    protected SubscriptionOperation(TaskCompletionSource<TSubscription> source,
+                                    string streamId,
+                                    SubscriptionSettings settings,
+                                    UserCredentials userCredentials,
+                                    Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
+                                    Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                    Func<TcpPackageConnection> getConnection)
       : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
     {
       _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
@@ -99,17 +101,17 @@ namespace EventStore.ClientAPI.ClientOperations
         // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
         numActionBlocks = 1;
       }
-      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+      _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
       for (var idx = 0; idx < numActionBlocks; idx++)
       {
-        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+        _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
           e => ProcessItemAsync(e),
           settings.ToExecutionDataflowBlockOptions()));
       }
       if (numActionBlocks > 1)
       {
         var links = new CompositeDisposable();
-        _bufferBlock = new BufferBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+        _bufferBlock = new BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
         for (var idx = 0; idx < numActionBlocks; idx++)
         {
           var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -124,13 +126,13 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    private SubscriptionOperation(TaskCompletionSource<T> source,
-                                     string streamId,
-                                     bool resolveLinkTos,
-                                     UserCredentials userCredentials,
-                                     Action<T, SubscriptionDropReason, Exception> subscriptionDropped,
-                                     bool verboseLogging,
-                                     Func<TcpPackageConnection> getConnection)
+    private SubscriptionOperation(TaskCompletionSource<TSubscription> source,
+                                  string streamId,
+                                  bool resolveLinkTos,
+                                  UserCredentials userCredentials,
+                                  Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                  bool verboseLogging,
+                                  Func<TcpPackageConnection> getConnection)
     {
       Ensure.NotNull(source, nameof(source));
       Ensure.NotNull(getConnection, nameof(getConnection));
@@ -174,6 +176,9 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected abstract bool InspectPackage(TcpPackage package, out InspectionResult result);
 
+    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent);
+    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent);
+
     public InspectionResult InspectPackage(TcpPackage package)
     {
       try
@@ -188,7 +193,7 @@ namespace EventStore.ClientAPI.ClientOperations
           case TcpCommand.StreamEventAppeared:
             {
               var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-              EventAppeared(dto.Event.ToRawResolvedEvent());
+              EventAppeared(TransformEvent(dto.Event));
               return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
             }
 
@@ -293,7 +298,7 @@ namespace EventStore.ClientAPI.ClientOperations
         if (_verboseLogging)
         {
           _log.LogDebug("Subscription {0:B} to {1}: closing subscription, reason: {2}, exception: {3}...",
-                     _correlationId, _streamId == string.Empty ? "<all>" : _streamId, reason, exc);
+                        _correlationId, _streamId == string.Empty ? "<all>" : _streamId, reason, exc);
         }
 
         if (reason != SubscriptionDropReason.UserInitiated)
@@ -309,7 +314,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         if (_subscription != null)
         {
-          EnqueueMessage((false, ResolvedEvent.Null, reason, exc));
+          EnqueueMessage((false, default(TResolvedEvent), reason, exc));
         }
       }
     }
@@ -325,15 +330,15 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_verboseLogging)
       {
         _log.LogDebug("Subscription {0:B} to {1}: subscribed at CommitPosition: {2}, EventNumber: {3}.",
-                   _correlationId, _streamId == string.Empty ? "<all>" : _streamId, lastCommitPosition, lastEventNumber);
+                      _correlationId, _streamId == string.Empty ? "<all>" : _streamId, lastCommitPosition, lastEventNumber);
       }
       _subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
       _source.SetResult(_subscription);
     }
 
-    protected abstract T CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber);
+    protected abstract TSubscription CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber);
 
-    protected void EventAppeared(ResolvedEvent e)
+    protected void EventAppeared(TResolvedEvent e)
     {
       if (_unsubscribed != 0) { return; }
 
@@ -342,13 +347,13 @@ namespace EventStore.ClientAPI.ClientOperations
       if (_verboseLogging)
       {
         _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
-                  _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
-                  e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
+                      _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
+                      e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
       }
       EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
     }
 
-    private void EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    private void EnqueueMessage((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
       _targetBlock.SendAsync(item).ConfigureAwait(false).GetAwaiter().GetResult();
       if (InputCount > _maxQueueSize)
@@ -357,7 +362,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    private void ProcessItem((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
       try
       {
@@ -385,7 +390,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    private async Task ProcessItemAsync((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    private async Task ProcessItemAsync((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
       try
       {

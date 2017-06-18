@@ -66,7 +66,7 @@ namespace EventStore.ClientAPI
     {
       if (numConnections <= 1) { throw new ArgumentOutOfRangeException(nameof(numConnections), $"The {nameof(numConnections)} must be at least two connections."); }
 
-      var connections = new List<IEventStoreConnection>(numConnections);
+      var connections = new List<IEventStoreConnection2>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
         connections.Add(EventStoreConnection.Create(connectionSettings, uri, $"ES-{idx + 1}-{Guid.NewGuid()}"));
@@ -94,7 +94,7 @@ namespace EventStore.ClientAPI
       Ensure.NotNull(tcpEndPoint, nameof(tcpEndPoint));
       if (numConnections <= 1) { throw new ArgumentOutOfRangeException(nameof(numConnections), $"The {nameof(numConnections)} must be at least two connections."); }
 
-      var connections = new List<IEventStoreConnection>(numConnections);
+      var connections = new List<IEventStoreConnection2>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
         connections.Add(EventStoreConnection.Create(connectionSettings, tcpEndPoint, $"ES-{idx + 1}-{Guid.NewGuid()}"));
@@ -114,7 +114,7 @@ namespace EventStore.ClientAPI
       Ensure.NotNull(clusterSettings, nameof(clusterSettings));
       if (numConnections <= 1) { throw new ArgumentOutOfRangeException(nameof(numConnections), $"The {nameof(numConnections)} must be at least two connections."); }
 
-      var connections = new List<IEventStoreConnection>(numConnections);
+      var connections = new List<IEventStoreConnection2>(numConnections);
       for (var idx = 0; idx < numConnections; idx++)
       {
         connections.Add(EventStoreConnection.Create(connectionSettings, clusterSettings, $"ES-{idx + 1}-{Guid.NewGuid()}"));

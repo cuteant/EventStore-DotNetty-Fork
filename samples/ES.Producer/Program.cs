@@ -26,10 +26,12 @@ namespace ES.Producer
           if (x % 2 == 0)
           {
             conn.PublishEventAsync(new Cat { Name = "Cat-" + x, Meow = $"meowing......" }, expectedType: typeof(IAnimal));
+            //conn.PublishEventAsync("00", new Cat { Name = "Cat-" + x, Meow = $"meowing......" }, expectedType: typeof(IAnimal));
           }
           else
           {
             conn.PublishEventAsync(new Dog { Name = "Dog-" + x, Bark = $"barking......" }, expectedType: typeof(IAnimal));
+            //conn.PublishEventAsync("00", new Dog { Name = "Dog-" + x, Bark = $"barking......" }, expectedType: typeof(IAnimal));
           }
           Console.WriteLine("event " + x + " written.");
           Thread.Sleep(100);

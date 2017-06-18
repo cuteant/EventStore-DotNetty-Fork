@@ -287,7 +287,7 @@ namespace EventStore.ClientAPI.Serialization
 
     #region -- GetStreamId --
 
-    public static string GetStreamId(Type actualType, Type expectedType = null)
+    internal static string GetStreamId(Type actualType, Type expectedType = null)
     {
       var streamAttr = GetStreamProvider(actualType, expectedType);
       return streamAttr != null ? streamAttr.StreamId : JsonConvertX.SerializeTypeName(expectedType ?? actualType);
@@ -636,7 +636,7 @@ namespace EventStore.ClientAPI.Serialization
             break;
         }
       }
-      catch(Exception exc)
+      catch (Exception exc)
       {
         throw new EventDataDeserializationException(exc.Message, exc);
       }

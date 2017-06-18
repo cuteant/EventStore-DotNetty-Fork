@@ -45,29 +45,29 @@ namespace EventStore.ClientAPI
     internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
-      ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, ConnectionSettings connSettings)
+                                                  ConnectToPersistentSubscriptionSettings settings,
+                                                  Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppeared = eventAppeared;
     }
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
-      ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, ConnectionSettings connSettings)
+                                                  ConnectToPersistentSubscriptionSettings settings,
+                                                  Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
       _eventAppearedAsync = eventAppearedAsync;
     }
 
     private EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
-      ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
-      UserCredentials userCredentials, ConnectionSettings connSettings)
+                                                 ConnectToPersistentSubscriptionSettings settings,
+                                                 Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                 UserCredentials userCredentials, ConnectionSettings connSettings)
     {
       _subscriptionId = subscriptionId;
       _streamId = streamId;

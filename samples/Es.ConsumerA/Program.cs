@@ -10,15 +10,14 @@ using EventStore.ClientAPI;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
+using Es.SharedModels;
 
 namespace Es.Consumer
 {
   class Program
   {
-    const string STREAM = "a_test_stream";
-    const string STREAM_META = "a_test_stream_meta";
+    const string STREAM = "test-animal";
     const string GROUP = "a_test_group_1";
-    const int DEFAULTPORT = 1113;
 
     static void Main(string[] args)
     {
@@ -33,57 +32,75 @@ namespace Es.Consumer
       {
         conn.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-        //Normally the creating of the subscription group is not done in your general executable code. 
-        //Instead it is normally done as a step during an install or as an admin task when setting 
-        //things up. You should assume the subscription exists in your code.
-        //CreateSubscription(conn);
-        UpdateSubscription(conn);
+        //UpdateSubscription(conn);
 
-        UpdateStreamMetadata(conn);
+        //UpdateStreamMetadata(conn);
 
         #region PersistentSubscription
 
-        var settings = new ConnectToPersistentSubscriptionSettings();
-        //var settings = new ConnectToPersistentSubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
-        //var settings = new ConnectToPersistentSubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+        //var settings = new ConnectToPersistentSubscriptionSettings();
+        ////var settings = new ConnectToPersistentSubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        ////var settings = new ConnectToPersistentSubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
 
-        conn.ConnectToPersistentSubscription(STREAM, GROUP, settings, async (_, x) =>
-        {
-          var data = Encoding.ASCII.GetString(x.Event.Data);
-          if (x.Event.EventNumber % 3 == 0)
-          {
-            //var errorMsg = $"error event number: {x.Event.EventNumber}";
-            //Console.WriteLine(errorMsg);
-            //throw new InvalidOperationException(errorMsg);
-          }
-          Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-          Console.WriteLine(data);
-          await Task.Delay(500);
-        },
-        (subscription, reason, exc) =>
-        {
-          Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        });
+        //conn.ConnectToPersistentSubscription(STREAM, GROUP, settings, async (_, x) =>
+        //{
+        //  var data = Encoding.ASCII.GetString(x.Event.Data);
+        //  if (x.Event.EventNumber % 3 == 0)
+        //  {
+        //    //var errorMsg = $"error event number: {x.Event.EventNumber}";
+        //    //Console.WriteLine(errorMsg);
+        //    //throw new InvalidOperationException(errorMsg);
+        //  }
+        //  Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //  Console.WriteLine(data);
+        //  await Task.Delay(500);
+        //},
+        //(subscription, reason, exc) =>
+        //{
+        //  Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+        //});
 
         #endregion
 
         #region VolatileSubscription
 
-        ////var settings = new SubscriptionSettings();
-        //var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
-        ////var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
-        //var sub = conn.SubscribeToStreamAsync(STREAM, settings,
+        //var settings = new SubscriptionSettings();
+        var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        //var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+
+        var sub = conn.VolatileSubscribeAsync(STREAM, settings,
+            eventAppearedAsync: async (_, x) =>
+            {
+              Console.WriteLine("Received: " + x.OriginalEvent.EventStreamId + ":" + x.OriginalEvent.EventNumber);
+              var msg = x.OriginalEvent.FullEvent.Value;
+              if (msg is Cat cat)
+              {
+                Console.WriteLine("Cat: " + cat.Name + ":" + cat.Meow);
+              }
+              if (msg is Dog dog)
+              {
+                Console.WriteLine("Dog: " + dog.Name + ":" + dog.Bark);
+              }
+              await Task.Delay(500);
+            },
+            subscriptionDropped: (subscription, reason, exc) =>
+            {
+              Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+            });
+
+        //var sub = conn.VolatileSubscribeAsync<IAnimal>(settings,
         //    eventAppearedAsync: async (_, x) =>
         //    {
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      //if (x.Event.EventNumber % 3 == 0)
-        //      //{
-        //      //  var errorMsg = $"error event number: {x.Event.EventNumber}";
-        //      //  Console.WriteLine(errorMsg);
-        //      //  throw new InvalidOperationException(errorMsg);
-        //      //}
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
+        //      Console.WriteLine("Received: " + x.OriginalEvent.EventStreamId + ":" + x.OriginalEvent.EventNumber);
+        //      var msg = x.OriginalEvent.FullEvent.Value;
+        //      if (msg is Cat cat)
+        //      {
+        //        Console.WriteLine("Cat: " + cat.Name + ":" + cat.Meow);
+        //      }
+        //      if (msg is Dog dog)
+        //      {
+        //        Console.WriteLine("Dog: " + dog.Name + ":" + dog.Bark);
+        //      }
         //      await Task.Delay(500);
         //    },
         //    subscriptionDropped: (subscription, reason, exc) =>
@@ -134,29 +151,19 @@ namespace Es.Consumer
       }
     }
 
-    private static void CreateSubscription(IEventStoreConnection conn)
-    {
-      PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
-          .DoNotResolveLinkTos()
-          .StartFromCurrent()
-          .PreferRoundRobin();
+    //private static void UpdateSubscription(IEventStoreConnection conn)
+    //{
+    //  PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
+    //      .DoNotResolveLinkTos()
+    //      .StartFromBeginning();
 
-      conn.CreatePersistentSubscription(STREAM, GROUP, settings);
-    }
+    //  conn.UpdatePersistentSubscription(STREAM, GROUP, settings);
+    //}
 
-    private static void UpdateSubscription(IEventStoreConnection conn)
-    {
-      PersistentSubscriptionSettings settings = PersistentSubscriptionSettings.Create()
-          .DoNotResolveLinkTos()
-          .StartFromBeginning();
-
-      conn.UpdatePersistentSubscription(STREAM, GROUP, settings);
-    }
-
-    private static void UpdateStreamMetadata(IEventStoreConnection conn)
-    {
-      conn.SetStreamMetadataAsync(STREAM, ExpectedVersion.Any, StreamMetadata.Create(1000, TimeSpan.FromMinutes(30)))
-          .ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    //private static void UpdateStreamMetadata(IEventStoreConnection conn)
+    //{
+    //  conn.SetStreamMetadataAsync(STREAM, ExpectedVersion.Any, StreamMetadata.Create(1000, TimeSpan.FromMinutes(30)))
+    //      .ConfigureAwait(false).GetAwaiter().GetResult();
+    //}
   }
 }

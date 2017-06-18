@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI.Internal
   /// (even if you call the synchronous behaviors). Many threads can use an <see cref="EventStoreConnection"/> at the same
   /// time or a single thread can make many asynchronous requests. To get the most performance out of the connection
   /// it is generally recommended to use it in this way.</remarks>
-  internal class EventStoreNodeConnection : IEventStoreConnection, IEventStoreTransactionConnection
+  internal class EventStoreNodeConnection : IEventStoreConnection2, IEventStoreTransactionConnection
   {
     #region @@ Fields @@
 
@@ -361,10 +361,11 @@ namespace EventStore.ClientAPI.Internal
 
     #endregion
 
-    #region -- SubscribeToStreamAsync --
 
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
-      Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
+    #region -- VolatileSubscribeAsync  --
+
+    public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<object>> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -378,8 +379,8 @@ namespace EventStore.ClientAPI.Internal
                                                            _settings.MaxRetries, _settings.OperationTimeout));
       return source.Task;
     }
-    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
-      Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+    public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -394,7 +395,124 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      return InternalVolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      return InternalVolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNullOrEmpty(topic, nameof(topic));
+
+      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      return InternalVolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNullOrEmpty(topic, nameof(topic));
+
+      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      return InternalVolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    private Task<EventStoreSubscription> InternalVolatileSubscribeAsync<TEvent>(string stream, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+
+      var source = new TaskCompletionSource<EventStoreSubscription>();
+      _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
+      {
+        Source = source,
+        EventType = typeof(TEvent),
+        MaxRetries = _settings.MaxRetries,
+        Timeout = _settings.OperationTimeout,
+        Message = new StartSubscriptionMessage<TEvent>(source, stream, settings, userCredentials,
+                                                       eventAppeared, subscriptionDropped,
+                                                       _settings.MaxRetries, _settings.OperationTimeout)
+      });
+      return source.Task;
+    }
+    private Task<EventStoreSubscription> InternalVolatileSubscribeAsync<TEvent>(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+
+      var source = new TaskCompletionSource<EventStoreSubscription>();
+      _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
+      {
+        Source = source,
+        EventType = typeof(TEvent),
+        MaxRetries = _settings.MaxRetries,
+        Timeout = _settings.OperationTimeout,
+        Message = new StartSubscriptionMessage<TEvent>(source, stream, settings, userCredentials,
+                                                       eventAppearedAsync, subscriptionDropped,
+                                                       _settings.MaxRetries, _settings.OperationTimeout)
+      });
+      return source.Task;
+    }
+
     #endregion
+
+    #region -- SubscribeToStreamAsync  --
+
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      Ensure.NotNullOrEmpty(stream, nameof(stream));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+
+      var source = new TaskCompletionSource<EventStoreSubscription>();
+      _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
+                                                              eventAppeared, subscriptionDropped,
+                                                              _settings.MaxRetries, _settings.OperationTimeout));
+      return source.Task;
+    }
+    public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      Ensure.NotNullOrEmpty(stream, nameof(stream));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+
+      var source = new TaskCompletionSource<EventStoreSubscription>();
+      _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
+                                                              eventAppearedAsync, subscriptionDropped,
+                                                              _settings.MaxRetries, _settings.OperationTimeout));
+      return source.Task;
+    }
+
+    #endregion
+
 
     #region -- SubscribeToStreamFrom --
 
@@ -441,7 +559,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
       var source = new TaskCompletionSource<EventStoreSubscription>();
-      _handler.EnqueueMessage(new StartSubscriptionMessage(source, string.Empty, settings, userCredentials,
+      _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
                                                            eventAppeared, subscriptionDropped,
                                                            _settings.MaxRetries, _settings.OperationTimeout));
       return source.Task;
@@ -455,7 +573,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
 
       var source = new TaskCompletionSource<EventStoreSubscription>();
-      _handler.EnqueueMessage(new StartSubscriptionMessage(source, string.Empty, settings, userCredentials,
+      _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
                                                            eventAppearedAsync, subscriptionDropped,
                                                            _settings.MaxRetries, _settings.OperationTimeout));
       return source.Task;

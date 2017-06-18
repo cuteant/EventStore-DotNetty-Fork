@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt.Buffers;
+using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
@@ -58,7 +59,12 @@ namespace EventStore.ClientAPI.Internal
       _queue.RegisterHandler<CloseConnectionMessage>(msg => CloseConnection(msg.Reason, msg.Exception));
 
       _queue.RegisterHandler<StartOperationMessage>(msg => StartOperation(msg.Operation, msg.MaxRetries, msg.Timeout));
+
+      _queue.RegisterHandler<StartSubscriptionRawMessage>(StartSubscription);
       _queue.RegisterHandler<StartSubscriptionMessage>(StartSubscription);
+      _queue.RegisterHandler<StartSubscriptionMessageWrapper>(StartSubscription);
+
+      _queue.RegisterHandler<StartPersistentSubscriptionRawMessage>(StartSubscription);
       _queue.RegisterHandler<StartPersistentSubscriptionMessage>(StartSubscription);
 
       _queue.RegisterHandler<EstablishTcpConnectionMessage>(msg => EstablishTcpConnection(msg.EndPoints));
@@ -404,8 +410,67 @@ namespace EventStore.ClientAPI.Internal
         default: throw new Exception($"Unknown state: {_state}.");
       }
     }
-
+    private void StartSubscription(StartSubscriptionMessageWrapper msg)
+    {
+      switch (_state)
+      {
+        case ConnectionState.Init:
+          msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+          break;
+        case ConnectionState.Connecting:
+        case ConnectionState.Connected:
+          var volatileSubscriptionOperationWrapperType = typeof(SubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
+          var volatileSubscriptionOperationWrapper = volatileSubscriptionOperationWrapperType.CreateInstance<IVolatileSubscriptionOperationWrapper>();
+          var operation = volatileSubscriptionOperationWrapper.Create(msg, _connection);
+          LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+          var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
+          if (_state == ConnectionState.Connecting)
+          {
+            _subscriptions.EnqueueSubscription(subscription);
+          }
+          else
+          {
+            _subscriptions.StartSubscription(subscription, _connection);
+          }
+          break;
+        case ConnectionState.Closed:
+          msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+          break;
+        default: throw new Exception($"Unknown state: {_state}.");
+      }
+    }
     private void StartSubscription(StartSubscriptionMessage msg)
+    {
+      switch (_state)
+      {
+        case ConnectionState.Init:
+          msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+          break;
+        case ConnectionState.Connecting:
+        case ConnectionState.Connected:
+          var operation = msg.EventAppeared != null
+                        ? new SubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                    msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
+                        : new SubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                    msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+          LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+          var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
+          if (_state == ConnectionState.Connecting)
+          {
+            _subscriptions.EnqueueSubscription(subscription);
+          }
+          else
+          {
+            _subscriptions.StartSubscription(subscription, _connection);
+          }
+          break;
+        case ConnectionState.Closed:
+          msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+          break;
+        default: throw new Exception($"Unknown state: {_state}.");
+      }
+    }
+    private void StartSubscription(StartSubscriptionRawMessage msg)
     {
       switch (_state)
       {
@@ -446,8 +511,36 @@ namespace EventStore.ClientAPI.Internal
           break;
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
-          var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings,
-                                                    msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+          var operation = new PersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                              msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+          LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+          var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
+          if (_state == ConnectionState.Connecting)
+          {
+            _subscriptions.EnqueueSubscription(subscription);
+          }
+          else
+          {
+            _subscriptions.StartSubscription(subscription, _connection);
+          }
+          break;
+        case ConnectionState.Closed:
+          msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+          break;
+        default: throw new Exception($"Unknown state: {_state}.");
+      }
+    }
+    private void StartSubscription(StartPersistentSubscriptionRawMessage msg)
+    {
+      switch (_state)
+      {
+        case ConnectionState.Init:
+          msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+          break;
+        case ConnectionState.Connecting:
+        case ConnectionState.Connected:
+          var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
+                                                                       msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
           if (_state == ConnectionState.Connecting)

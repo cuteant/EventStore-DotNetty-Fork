@@ -89,12 +89,12 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
     /// <param name="settings">Settings for this subscription.</param>
     protected EventStoreCatchUpSubscription(IEventStoreConnection connection,
-                                                string streamId,
-                                                UserCredentials userCredentials,
-                                                Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-                                                Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                CatchUpSubscriptionSettings settings)
+                                            string streamId,
+                                            UserCredentials userCredentials,
+                                            Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+                                            Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                            Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                            CatchUpSubscriptionSettings settings)
       : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
     {
       EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
@@ -129,12 +129,12 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
     /// <param name="settings">Settings for this subscription.</param>
     protected EventStoreCatchUpSubscription(IEventStoreConnection connection,
-                                                string streamId,
-                                                UserCredentials userCredentials,
-                                                Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-                                                Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                CatchUpSubscriptionSettings settings)
+                                            string streamId,
+                                            UserCredentials userCredentials,
+                                            Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                            Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                            Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                            CatchUpSubscriptionSettings settings)
       : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
     {
       EventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
@@ -623,12 +623,12 @@ namespace EventStore.ClientAPI
     private Position _lastProcessedPosition;
 
     internal EventStoreAllCatchUpSubscription(IEventStoreConnection connection,
-                                                  Position? fromPositionExclusive, /* if null -- from the very beginning */
-                                                  UserCredentials userCredentials,
-                                                  Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-                                                  Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                  Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                  CatchUpSubscriptionSettings settings)
+                                              Position? fromPositionExclusive, /* if null -- from the very beginning */
+                                              UserCredentials userCredentials,
+                                              Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+                                              Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                              Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              CatchUpSubscriptionSettings settings)
       : base(connection, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
     {
       _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
@@ -636,12 +636,12 @@ namespace EventStore.ClientAPI
     }
 
     internal EventStoreAllCatchUpSubscription(IEventStoreConnection connection,
-                                                  Position? fromPositionExclusive, /* if null -- from the very beginning */
-                                                  UserCredentials userCredentials,
-                                                  Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-                                                  Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                  Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                  CatchUpSubscriptionSettings settings)
+                                              Position? fromPositionExclusive, /* if null -- from the very beginning */
+                                              UserCredentials userCredentials,
+                                              Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                              Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                              Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              CatchUpSubscriptionSettings settings)
       : base(connection, string.Empty, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
     {
       _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
@@ -804,13 +804,13 @@ namespace EventStore.ClientAPI
     private long _lastProcessedEventNumber;
 
     internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
-                                                      string streamId,
-                                                      long? fromEventNumberExclusive, /* if null -- from the very beginning */
-                                                      UserCredentials userCredentials,
-                                                      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-                                                      Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                      CatchUpSubscriptionSettings settings)
+                                                 string streamId,
+                                                 long? fromEventNumberExclusive, /* if null -- from the very beginning */
+                                                 UserCredentials userCredentials,
+                                                 Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
+                                                 Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                 Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                 CatchUpSubscriptionSettings settings)
       : base(connection, streamId, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
     {
       Ensure.NotNullOrEmpty(streamId, nameof(streamId));
@@ -820,13 +820,13 @@ namespace EventStore.ClientAPI
     }
 
     internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
-                                                      string streamId,
-                                                      long? fromEventNumberExclusive, /* if null -- from the very beginning */
-                                                      UserCredentials userCredentials,
-                                                      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-                                                      Action<EventStoreCatchUpSubscription> liveProcessingStarted,
-                                                      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                                      CatchUpSubscriptionSettings settings)
+                                                 string streamId,
+                                                 long? fromEventNumberExclusive, /* if null -- from the very beginning */
+                                                 UserCredentials userCredentials,
+                                                 Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+                                                 Action<EventStoreCatchUpSubscription> liveProcessingStarted,
+                                                 Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                 CatchUpSubscriptionSettings settings)
       : base(connection, streamId, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
     {
       Ensure.NotNullOrEmpty(streamId, nameof(streamId));

@@ -710,35 +710,5 @@ namespace EventStore.ClientAPI.Embedded
     {
       return givenCredentials ?? settings.DefaultUserCredentials;
     }
-
-    public Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      throw new NotImplementedException();
-    }
-
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      throw new NotImplementedException();
-    }
   }
 }

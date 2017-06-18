@@ -66,47 +66,12 @@ namespace Es.Consumer
 
         #region VolatileSubscription
 
-        ////var settings = new SubscriptionSettings() { };
-        ////var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
-        //var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
-        //var sub = conn.SubscribeToStreamAsync(STREAM, settings,
-        //    eventAppearedAsync: async (_, x) =>
-        //    {
-        //      var data = Encoding.ASCII.GetString(x.Event.Data);
-        //      //if (x.Event.EventNumber % 3 == 0)
-        //      //{
-        //      //  var errorMsg = $"error event number: {x.Event.EventNumber}";
-        //      //  Console.WriteLine(errorMsg);
-        //      //  throw new InvalidOperationException(errorMsg);
-        //      //}
-        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
-        //      Console.WriteLine(data);
-        //      await Task.Delay(500);
-        //    },
-        //    subscriptionDropped: (subscription, reason, exc) =>
-        //    {
-        //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        //    });
-
-        #endregion
-
-        #region CatchupSubscription
-        //Note the subscription is subscribing from the beginning every time. You could also save
-        //your checkpoint of the last seen event and subscribe to that checkpoint at the beginning.
-        //If stored atomically with the processing of the event this will also provide simulated
-        //transactional messaging.
-
-        var settings = CatchUpSubscriptionSettings.Create(20, true);
-
-        //settings.MaxDegreeOfParallelismPerBlock = 5;
-
-        //settings.BoundedCapacityPerBlock = 2;
-        //settings.NumActionBlocks = 5;
-
-        var sub = conn.SubscribeToStreamFrom(STREAM, null, settings,
+        //var settings = new SubscriptionSettings() { };
+        //var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+        var sub = conn.SubscribeToStreamAsync(STREAM, settings,
             eventAppearedAsync: async (_, x) =>
             {
-              await TaskConstants.Completed;
               var data = Encoding.ASCII.GetString(x.Event.Data);
               //if (x.Event.EventNumber % 3 == 0)
               //{
@@ -122,6 +87,41 @@ namespace Es.Consumer
             {
               Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
             });
+
+        #endregion
+
+        #region CatchupSubscription
+        //Note the subscription is subscribing from the beginning every time. You could also save
+        //your checkpoint of the last seen event and subscribe to that checkpoint at the beginning.
+        //If stored atomically with the processing of the event this will also provide simulated
+        //transactional messaging.
+
+        //var settings = CatchUpSubscriptionSettings.Create(20, true);
+
+        ////settings.MaxDegreeOfParallelismPerBlock = 5;
+
+        ////settings.BoundedCapacityPerBlock = 2;
+        ////settings.NumActionBlocks = 5;
+
+        //var sub = conn.SubscribeToStreamFrom(STREAM, null, settings,
+        //    eventAppearedAsync: async (_, x) =>
+        //    {
+        //      await TaskConstants.Completed;
+        //      var data = Encoding.ASCII.GetString(x.Event.Data);
+        //      //if (x.Event.EventNumber % 3 == 0)
+        //      //{
+        //      //  var errorMsg = $"error event number: {x.Event.EventNumber}";
+        //      //  Console.WriteLine(errorMsg);
+        //      //  throw new InvalidOperationException(errorMsg);
+        //      //}
+        //      Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber);
+        //      Console.WriteLine(data);
+        //      await Task.Delay(500);
+        //    },
+        //    subscriptionDropped: (subscription, reason, exc) =>
+        //    {
+        //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+        //    });
 
         #endregion
 

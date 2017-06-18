@@ -4,9 +4,9 @@ namespace EventStore.ClientAPI.Internal
 {
     internal class VolatileEventStoreSubscription : EventStoreSubscription
     {
-        private readonly VolatileSubscriptionOperation _subscriptionOperation;
+        private readonly IVolatileSubscriptionOperation _subscriptionOperation;
 
-        internal VolatileEventStoreSubscription(VolatileSubscriptionOperation subscriptionOperation, string streamId, long lastCommitPosition, long? lastEventNumber)
+        internal VolatileEventStoreSubscription(IVolatileSubscriptionOperation subscriptionOperation, string streamId, long lastCommitPosition, long? lastEventNumber)
             : base(streamId, lastCommitPosition, lastEventNumber)
         {
             _subscriptionOperation = subscriptionOperation;
