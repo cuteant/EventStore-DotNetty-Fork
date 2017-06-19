@@ -11,7 +11,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -31,9 +31,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -62,9 +62,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -77,7 +77,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -85,7 +85,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -97,9 +97,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -111,7 +111,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -119,7 +119,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -131,9 +131,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -149,7 +149,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -157,7 +157,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -169,9 +169,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -189,7 +189,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -197,7 +197,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -209,9 +209,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -233,7 +233,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -241,7 +241,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -266,9 +266,9 @@ namespace EventStore.ClientAPI
     //[Obsolete("This method will be obsoleted in the next major version please switch to the overload with a settings object")]
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -279,7 +279,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
-    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// and presented to the user of <see cref="EventStoreStreamCatchUpSubscription"/>
     /// as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -287,7 +287,7 @@ namespace EventStore.ClientAPI
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
@@ -311,9 +311,9 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -328,14 +328,14 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
-    /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
+    /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
     /// transparently (to the user) switched to push new events as
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreAllCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The position from which to start.
@@ -359,9 +359,9 @@ namespace EventStore.ClientAPI
     //[Obsolete("This overload will be removed in the next major release please use the overload with a settings object")]
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
       Position? lastCheckpoint, bool resolveLinkTos,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -371,14 +371,14 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
-    /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
+    /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
     /// transparently (to the user) switched to push new events as
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreAllCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The position from which to start.
@@ -401,14 +401,184 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
       Position? lastCheckpoint, bool resolveLinkTos,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
       return connection.SubscribeToAllFrom(lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- CatchUpSubscribe(NonGeneric-Topic) --
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="lastCheckpoint">The event number from which to start.
+    ///
+    /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
+    /// If events have already been received and resubscription from the same point
+    /// is desired, use the event number of the last event processed which
+    /// appeared on the subscription.
+    ///
+    /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
+    /// the first event in the stream.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="lastCheckpoint">The event number from which to start.
+    ///
+    /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
+    /// If events have already been received and resubscription from the same point
+    /// is desired, use the event number of the last event processed which
+    /// appeared on the subscription.
+    ///
+    /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
+    /// the first event in the stream.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- CatchUpSubscribe(Generic) --
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="lastCheckpoint">The event number from which to start.
+    ///
+    /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
+    /// If events have already been received and resubscription from the same point
+    /// is desired, use the event number of the last event processed which
+    /// appeared on the subscription.
+    ///
+    /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
+    /// the first event in the stream.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="lastCheckpoint">The event number from which to start.
+    ///
+    /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
+    /// If events have already been received and resubscription from the same point
+    /// is desired, use the event number of the last event processed which
+    /// appeared on the subscription.
+    ///
+    /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
+    /// the first event in the stream.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion

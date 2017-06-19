@@ -375,9 +375,9 @@ namespace EventStore.ClientAPI.Embedded
     }
 
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       Ensure.NotNullOrEmpty(stream, nameof(stream));
@@ -391,9 +391,9 @@ namespace EventStore.ClientAPI.Embedded
       return catchUpSubscription;
     }
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       Ensure.NotNullOrEmpty(stream, nameof(stream));
@@ -464,9 +464,9 @@ namespace EventStore.ClientAPI.Embedded
     }
 
     public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
@@ -479,9 +479,9 @@ namespace EventStore.ClientAPI.Embedded
       return catchUpSubscription;
     }
     public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));

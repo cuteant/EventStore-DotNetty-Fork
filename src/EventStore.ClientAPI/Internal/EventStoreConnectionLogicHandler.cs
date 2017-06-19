@@ -81,7 +81,7 @@ namespace EventStore.ClientAPI.Internal
 
     public void EnqueueMessage(Message message)
     {
-      if (_settings.VerboseLogging && message != TimerTickMessage) LogDebug("enqueueing message {0}.", message);
+      if (_settings.VerboseLogging && message != TimerTickMessage) { LogDebug("enqueueing message {0}.", message); }
       _queue.EnqueueMessage(message);
     }
 

@@ -3,31 +3,31 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
-  public class StreamEventsSlice
+  public class StreamEventsSlice : IStreamEventsSlice<ResolvedEvent>
   {
     /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt</summary>
-    public readonly SliceReadStatus Status;
+    public SliceReadStatus Status { get; }
 
     /// <summary>The name of the stream read</summary>
-    public readonly string Stream;
+    public string Stream { get; }
 
     /// <summary>The starting point (represented as a sequence number) of the read operation.</summary>
-    public readonly long FromEventNumber;
+    public long FromEventNumber { get; }
 
     /// <summary>The direction of read request.</summary>
-    public readonly ReadDirection ReadDirection;
+    public ReadDirection ReadDirection { get; }
 
     /// <summary>The events read represented as <see cref="ResolvedEvent"/></summary>
-    public readonly ResolvedEvent[] Events;
+    public ResolvedEvent[] Events { get; }
 
     /// <summary>The next event number that can be read.</summary>
-    public readonly long NextEventNumber;
+    public long NextEventNumber { get; }
 
     /// <summary>The last event number in the stream.</summary>
-    public readonly long LastEventNumber;
+    public long LastEventNumber { get; }
 
     /// <summary>A boolean representing whether or not this is the end of the stream.</summary>
-    public readonly bool IsEndOfStream;
+    public bool IsEndOfStream { get; }
 
     internal StreamEventsSlice(SliceReadStatus status,
                                  string stream,

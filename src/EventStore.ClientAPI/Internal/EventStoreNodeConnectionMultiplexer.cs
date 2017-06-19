@@ -103,23 +103,24 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].GetEventAsync(stream, eventNumber, resolveLinkTos, userCredentials);
     }
 
-    public Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
-    {
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].GetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
-    public Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
-    {
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].GetStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
     public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       var stream = SerializationManager.GetStreamId(typeof(TEvent));
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].GetEventAsync<TEvent>(eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetEventAsync<TEvent>(topic, eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
     }
 
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
@@ -129,6 +130,19 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].GetStreamEventsForwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
     }
 
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsForwardAsync<TEvent>(topic, start, count, resolveLinkTos, userCredentials);
+    }
+
+    public Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
+    }
+
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       var stream = SerializationManager.GetStreamId(typeof(TEvent));
@@ -136,6 +150,12 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].GetStreamEventsBackwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
     }
 
+    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].GetStreamEventsBackwardAsync<TEvent>(topic, start, count, resolveLinkTos, userCredentials);
+    }
 
     public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent<object>> eventAppeared,
@@ -207,11 +227,47 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].SubscribeToStreamAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
+    public EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+    public EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+
+    public EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
+    public EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+    }
+
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(
       string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
@@ -220,9 +276,9 @@ namespace EventStore.ClientAPI.Internal
 
     public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(
       string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
@@ -305,7 +361,7 @@ namespace EventStore.ClientAPI.Internal
 
     private static int CalculateConnectionIndex(string streamId, int count)
     {
-      if (string.IsNullOrEmpty(streamId)) { throw new ArgumentNullException(nameof(streamId)); }
+      if (string.IsNullOrWhiteSpace(streamId)) { throw new ArgumentNullException(nameof(streamId)); }
 
       return Math.Abs(streamId.GetHashCode() % count);
     }

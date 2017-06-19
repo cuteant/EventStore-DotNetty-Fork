@@ -83,14 +83,14 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
-    /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
+    /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
     /// transparently (to the user) switched to push new events as
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreAllCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="lastCheckpoint">The position from which to start.
     ///
@@ -108,21 +108,21 @@ namespace EventStore.ClientAPI
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<EventStoreCatchUpSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 
     /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
     /// onwards are read from the Event Store and presented to the user of
-    /// <see cref="EventStoreCatchUpSubscription"/> as if they had been pushed.
+    /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
     /// transparently (to the user) switched to push new events as
     /// they are written.
     ///
     /// The action liveProcessingStarted is called when the
-    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// <see cref="EventStoreAllCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="lastCheckpoint">The position from which to start.
     ///
@@ -140,9 +140,9 @@ namespace EventStore.ClientAPI
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 
     #endregion

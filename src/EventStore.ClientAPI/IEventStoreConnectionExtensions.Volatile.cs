@@ -383,6 +383,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
@@ -409,6 +410,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
@@ -434,6 +436,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -458,6 +461,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -750,6 +754,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppeared, subscriptionDropped, userCredentials);
@@ -772,6 +777,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppearedAsync, subscriptionDropped, userCredentials);
@@ -794,6 +800,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -815,6 +822,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
