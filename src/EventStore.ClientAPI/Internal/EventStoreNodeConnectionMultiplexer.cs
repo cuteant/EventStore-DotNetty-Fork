@@ -361,7 +361,7 @@ namespace EventStore.ClientAPI.Internal
 
     private static int CalculateConnectionIndex(string streamId, int count)
     {
-      if (string.IsNullOrWhiteSpace(streamId)) { throw new ArgumentNullException(nameof(streamId)); }
+      if (string.IsNullOrEmpty(streamId)) { throw new ArgumentNullException(nameof(streamId)); }
 
       return Math.Abs(streamId.GetHashCode() % count);
     }

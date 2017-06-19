@@ -451,8 +451,8 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
 
       return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
@@ -493,8 +493,8 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
 
       return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }

@@ -58,8 +58,8 @@ namespace EventStore.ClientAPI
       string stream, string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return AsyncContext.Run(
                 async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -139,8 +139,8 @@ namespace EventStore.ClientAPI
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -221,8 +221,8 @@ namespace EventStore.ClientAPI
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -263,8 +263,8 @@ namespace EventStore.ClientAPI
       string stream, string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.GetEventAsync(CombineStreamId(stream, topic), eventNumber, resolveLinkTos, userCredentials);
     }
 
@@ -285,8 +285,8 @@ namespace EventStore.ClientAPI
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.GetStreamEventsForwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
     }
 
@@ -307,13 +307,12 @@ namespace EventStore.ClientAPI
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.GetStreamEventsBackwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
     }
 
     #endregion
-
 
     #region -- GetFirstEvent --
 
@@ -336,6 +335,26 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the frist event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A result of the read operation</returns>
+    public static EventReadResult<object> GetFirstEvent(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return AsyncContext.Run(
+        async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
+          => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
+        connection, CombineStreamId(stream, topic), StreamPosition.Start, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Reads the frist event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A result of the read operation</returns>
@@ -349,6 +368,24 @@ namespace EventStore.ClientAPI
         async (conn, eventNum, resolveLinkToEvents, credentials)
           => await conn.GetEventAsync<TEvent>(eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
         connection, StreamPosition.Start, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Reads the frist event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A result of the read operation</returns>
+    public static EventReadResult<TEvent> GetFirstEvent<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      return AsyncContext.Run(
+        async (conn, innerTopic, eventNum, resolveLinkToEvents, credentials)
+          => await conn.GetEventAsync<TEvent>(innerTopic, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
+        connection, topic, StreamPosition.Start, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -371,6 +408,23 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the frist event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static Task<EventReadResult<object>> GetFirstEventAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return connection.GetEventAsync(CombineStreamId(stream, topic), StreamPosition.Start, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Asynchronously reads the frist event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
@@ -381,6 +435,22 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
 
       return connection.GetEventAsync<TEvent>(StreamPosition.Start, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Asynchronously reads the frist event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static Task<EventReadResult<TEvent>> GetFirstEventAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return connection.GetEventAsync<TEvent>(topic, StreamPosition.Start, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -405,6 +475,23 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the last event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static EventReadResult<object> GetLastEvent(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, streamId, innerTopic, resolveLinkToEvents, credentials)
+          => await conn.GetLastEventAsync(streamId, innerTopic, resolveLinkToEvents, credentials).ConfigureAwait(false),
+        connection, stream, topic, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Reads the last event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
@@ -415,13 +502,46 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
         async (conn, resolveLinkToEvents, credentials)
-          => await conn.GetLastEventAsync<TEvent>(resolveLinkToEvents, credentials).ConfigureAwait(false),
+          => await conn.GetLastEventAsync<TEvent>(null, resolveLinkToEvents, credentials).ConfigureAwait(false),
         connection, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Reads the last event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static EventReadResult<TEvent> GetLastEvent<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, innerTopic, resolveLinkToEvents, credentials)
+          => await conn.GetLastEventAsync<TEvent>(innerTopic, resolveLinkToEvents, credentials).ConfigureAwait(false),
+        connection, topic, resolveLinkTos, userCredentials);
     }
 
     #endregion
 
     #region -- GetLastEventAsync --
+
+    /// <summary>Asynchronously reads the last event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static Task<EventReadResult<object>> GetLastEventAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return GetLastEventAsync(connection, CombineStreamId(stream, topic), resolveLinkTos, userCredentials);
+    }
 
     /// <summary>Asynchronously reads the last event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
@@ -467,14 +587,28 @@ namespace EventStore.ClientAPI
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
-    public static async Task<EventReadResult<TEvent>> GetLastEventAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static Task<EventReadResult<TEvent>> GetLastEventAsync<TEvent>(this IEventStoreConnectionBase2 connection,
       bool resolveLinkTos, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      return GetLastEventAsync<TEvent>(connection, null, resolveLinkTos, userCredentials);
+    }
+
+    /// <summary>Asynchronously reads the last event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    public static async Task<EventReadResult<TEvent>> GetLastEventAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
 
-      var slice = await connection.GetStreamEventsBackwardAsync<TEvent>(StreamPosition.End, 1, resolveLinkTos, userCredentials)
-                                  .ConfigureAwait(false);
+      var slice = string.IsNullOrEmpty(topic)
+                ? await connection.GetStreamEventsBackwardAsync<TEvent>(StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false)
+                : await connection.GetStreamEventsBackwardAsync<TEvent>(topic, StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false);
       var readStatus = EventReadStatus.Success;
       var sliceEvents = slice.Events;
       switch (slice.Status)

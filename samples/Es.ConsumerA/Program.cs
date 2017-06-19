@@ -27,7 +27,7 @@ namespace Es.Consumer
 
 
       var connStr = "ConnectTo=tcp://admin:changeit@localhost:1113";
-      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();
+      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying().EnableVerboseLogging();
       using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -116,6 +116,7 @@ namespace Es.Consumer
         //transactional messaging.
 
         var settings = CatchUpSubscriptionSettings.Create(20, true);
+        settings.VerboseLogging = true;
 
         ////settings.MaxDegreeOfParallelismPerBlock = 5;
         ////settings.BoundedCapacityPerBlock = 2;
@@ -140,7 +141,7 @@ namespace Es.Consumer
         //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
         //    });
 
-        var sub = conn.CatchUpSubscribe<IAnimal>(null, settings,
+        var sub = conn.CatchUpSubscribe<IAnimal>(80, settings,
             eventAppearedAsync: async (_, x) =>
             {
               var msg = x.OriginalEvent.FullEvent.Value;

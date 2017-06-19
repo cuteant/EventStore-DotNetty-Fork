@@ -28,8 +28,7 @@ namespace EventStore.ClientAPI.ClientOperations
     protected abstract TResult TransformResponse(TResponse response);
 
     protected OperationBase(TaskCompletionSource<TResult> source,
-                              TcpCommand requestCommand, TcpCommand responseCommand,
-                              UserCredentials userCredentials)
+      TcpCommand requestCommand, TcpCommand responseCommand, UserCredentials userCredentials)
     {
       Ensure.NotNull(source, nameof(source));
 
@@ -70,7 +69,7 @@ namespace EventStore.ClientAPI.ClientOperations
       catch (Exception e)
       {
         Fail(e);
-        return new InspectionResult(InspectionDecision.EndOperation, string.Format("Exception - {0}", e.Message));
+        return new InspectionResult(InspectionDecision.EndOperation, $"Exception - {e.Message}");
       }
     }
 
@@ -104,7 +103,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
       string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
       Fail(new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
-      return new InspectionResult(InspectionDecision.EndOperation, string.Format("BadRequest - {0}", message));
+      return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest - {message}");
     }
 
     public InspectionResult InspectNotHandled(TcpPackage package)
@@ -132,7 +131,7 @@ namespace EventStore.ClientAPI.ClientOperations
     public InspectionResult InspectUnexpectedCommand(TcpPackage package, TcpCommand expectedCommand)
     {
       if (package.Command == expectedCommand)
-        throw new ArgumentException(string.Format("Command should not be {0}.", package.Command));
+        throw new ArgumentException($"Command should not be {package.Command}.");
 
       Log.LogError("Unexpected TcpCommand received.");
       Log.LogError("Expected: {0}, Actual: {1}, Flags: {2}, CorrelationId: {3}", expectedCommand, package.Command, package.Flags, package.CorrelationId);
@@ -141,7 +140,7 @@ namespace EventStore.ClientAPI.ClientOperations
       Log.LogError(Helper.FormatBinaryDump(package.Data));
 
       Fail(new CommandNotExpectedException(expectedCommand.ToString(), package.Command.ToString()));
-      return new InspectionResult(InspectionDecision.EndOperation, string.Format("Unexpected command - {0}", package.Command.ToString()));
+      return new InspectionResult(InspectionDecision.EndOperation, $"Unexpected command - {package.Command.ToString()}");
     }
   }
 }

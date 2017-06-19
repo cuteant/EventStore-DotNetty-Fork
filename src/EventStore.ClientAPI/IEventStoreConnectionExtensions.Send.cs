@@ -29,7 +29,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
 
@@ -52,7 +52,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
         //var eventDatas = SerializationManager.SerializeEvents(events, eventContext, expectedType);
         var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
@@ -65,7 +65,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
         var eventDatas = SerializationManager.SerializeEvents(events, eventContexts, expectedType);
@@ -100,7 +100,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -123,7 +123,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -153,7 +153,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
@@ -173,7 +173,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -202,7 +202,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);

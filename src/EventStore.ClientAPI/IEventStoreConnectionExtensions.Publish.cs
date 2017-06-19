@@ -65,7 +65,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
 
@@ -179,7 +179,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+        if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
         WriteResult result = default(WriteResult);
@@ -197,7 +197,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -223,7 +223,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+        if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
         if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
         if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
@@ -243,7 +243,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -375,7 +375,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+        if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
         // 无法确定所发布事件是否在同一 stream 中，不能采用事物
@@ -402,7 +402,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
@@ -428,7 +428,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+        if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
         if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
         if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
@@ -457,7 +457,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrWhiteSpace(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);

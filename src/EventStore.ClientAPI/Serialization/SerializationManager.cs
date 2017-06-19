@@ -190,7 +190,7 @@ namespace EventStore.ClientAPI.Serialization
     public static void RegisterStreamProvider(Type expectedType, string stream, string eventType = null, string expectedVersion = null)
     {
       if (null == expectedType) { throw new ArgumentNullException(nameof(expectedType)); }
-      if (string.IsNullOrWhiteSpace(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
 
       if (string.IsNullOrWhiteSpace(eventType)) { eventType = JsonConvertX.SerializeTypeName(expectedType); }
       _typeToStreamProviderDictionary.TryAdd(expectedType, new StreamAttribute(stream, eventType, expectedVersion));
