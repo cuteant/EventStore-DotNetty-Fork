@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using CuteAnt.AsyncEx;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
@@ -223,7 +224,7 @@ namespace EventStore.ClientAPI
       var dropData = new DropData(reason, error);
       if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
       {
-        _targetBlock.SendAsync(DropSubscriptionEvent).ConfigureAwait(false).GetAwaiter().GetResult();
+        AsyncContext.Run(async (targetBlock, item) => await targetBlock.SendAsync(item).ConfigureAwait(false), _targetBlock, DropSubscriptionEvent);
       }
     }
 

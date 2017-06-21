@@ -4,6 +4,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using CuteAnt.AsyncEx;
 using CuteAnt.Buffers;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
@@ -55,25 +56,25 @@ namespace EventStore.ClientAPI.Internal
       _operations = new OperationsManager(_esConnection.ConnectionName, settings);
       _subscriptions = new SubscriptionsManager(_esConnection.ConnectionName, settings);
 
-      _queue.RegisterHandler<StartConnectionMessage>(msg => StartConnection(msg.Task, msg.EndPointDiscoverer));
-      _queue.RegisterHandler<CloseConnectionMessage>(msg => CloseConnection(msg.Reason, msg.Exception));
+      _queue.RegisterHandler<StartConnectionMessage>(msg => StartConnectionAsync(msg.Task, msg.EndPointDiscoverer));
+      _queue.RegisterHandler<CloseConnectionMessage>(msg => CloseConnectionAsync(msg.Reason, msg.Exception));
 
-      _queue.RegisterHandler<StartOperationMessage>(msg => StartOperation(msg.Operation, msg.MaxRetries, msg.Timeout));
+      _queue.RegisterHandler<StartOperationMessage>(msg => StartOperationAsync(msg.Operation, msg.MaxRetries, msg.Timeout));
 
-      _queue.RegisterHandler<StartSubscriptionRawMessage>(StartSubscription);
-      _queue.RegisterHandler<StartSubscriptionMessage>(StartSubscription);
-      _queue.RegisterHandler<StartSubscriptionMessageWrapper>(StartSubscription);
+      _queue.RegisterHandler<StartSubscriptionRawMessage>(StartSubscriptionAsync);
+      _queue.RegisterHandler<StartSubscriptionMessage>(StartSubscriptionAsync);
+      _queue.RegisterHandler<StartSubscriptionMessageWrapper>(StartSubscriptionAsync);
 
-      _queue.RegisterHandler<StartPersistentSubscriptionRawMessage>(StartSubscription);
-      _queue.RegisterHandler<StartPersistentSubscriptionMessage>(StartSubscription);
+      _queue.RegisterHandler<StartPersistentSubscriptionRawMessage>(StartSubscriptionAsync);
+      _queue.RegisterHandler<StartPersistentSubscriptionMessage>(StartSubscriptionAsync);
 
-      _queue.RegisterHandler<EstablishTcpConnectionMessage>(msg => EstablishTcpConnection(msg.EndPoints));
-      _queue.RegisterHandler<TcpConnectionEstablishedMessage>(msg => TcpConnectionEstablished(msg.Connection));
-      _queue.RegisterHandler<TcpConnectionErrorMessage>(msg => TcpConnectionError(msg.Connection, msg.Exception));
-      _queue.RegisterHandler<TcpConnectionClosedMessage>(msg => TcpConnectionClosed(msg.Connection));
-      _queue.RegisterHandler<HandleTcpPackageMessage>(msg => HandleTcpPackage(msg.Connection, msg.Package));
+      _queue.RegisterHandler<EstablishTcpConnectionMessage>(msg => EstablishTcpConnectionAsync(msg.EndPoints));
+      _queue.RegisterHandler<TcpConnectionEstablishedMessage>(msg => TcpConnectionEstablishedAsync(msg.Connection));
+      _queue.RegisterHandler<TcpConnectionErrorMessage>(msg => TcpConnectionErrorAsync(msg.Connection, msg.Exception));
+      _queue.RegisterHandler<TcpConnectionClosedMessage>(msg => TcpConnectionClosedAsync(msg.Connection));
+      _queue.RegisterHandler<HandleTcpPackageMessage>(msg => HandleTcpPackageAsync(msg.Connection, msg.Package));
 
-      _queue.RegisterHandler<TimerTickMessage>(msg => TimerTick());
+      _queue.RegisterHandler<TimerTickMessage>(msg => TimerTickAsync());
 
       _timer = new Timer(_ => EnqueueMessage(TimerTickMessage), null, Consts.TimerPeriod, Consts.TimerPeriod);
     }
@@ -84,7 +85,13 @@ namespace EventStore.ClientAPI.Internal
       _queue.EnqueueMessage(message);
     }
 
-    private void StartConnection(TaskCompletionSource<object> task, IEndPointDiscoverer endPointDiscoverer)
+    public Task EnqueueMessageAsync(Message message)
+    {
+      if (_settings.VerboseLogging && message != TimerTickMessage) { LogDebug("enqueueing message {0}.", message); }
+      return _queue.EnqueueMessageAsync(message);
+    }
+
+    private async Task StartConnectionAsync(TaskCompletionSource<object> task, IEndPointDiscoverer endPointDiscoverer)
     {
       Ensure.NotNull(task, nameof(task));
       Ensure.NotNull(endPointDiscoverer, nameof(endPointDiscoverer));
@@ -110,7 +117,9 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           task.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}");
       }
     }
 
@@ -138,12 +147,12 @@ namespace EventStore.ClientAPI.Internal
       });
     }
 
-    private void EstablishTcpConnection(NodeEndPoints endPoints)
+    private async Task EstablishTcpConnectionAsync(NodeEndPoints endPoints)
     {
       var endPoint = _settings.UseSslConnection ? endPoints.SecureTcpEndPoint ?? endPoints.TcpEndPoint : endPoints.TcpEndPoint;
       if (endPoint == null)
       {
-        CloseConnection("No end point to node specified.");
+        await CloseConnectionAsync("No end point to node specified.").ConfigureAwait(false);
         return;
       }
 
@@ -167,19 +176,20 @@ namespace EventStore.ClientAPI.Internal
       _connection.StartReceiving();
     }
 
-    private void TcpConnectionError(TcpPackageConnection connection, Exception exception)
+    private async Task TcpConnectionErrorAsync(TcpPackageConnection connection, Exception exception)
     {
       if (_connection != connection) return;
       if (_state == ConnectionState.Closed) return;
 
       LogDebug("TcpConnectionError connId {0:B}, exc {1}.", connection.ConnectionId, exception);
-      CloseConnection("TCP connection error occurred.", exception);
+      await CloseConnectionAsync("TCP connection error occurred.", exception).ConfigureAwait(false);
     }
 
-    private void CloseConnection(string reason, Exception exception = null)
+    private async Task CloseConnectionAsync(string reason, Exception exception = null)
     {
       if (_state == ConnectionState.Closed)
       {
+        await TaskConstants.Completed;
         LogDebug("CloseConnection IGNORED because is ESConnection is CLOSED, reason {0}, exception {1}.", reason, exception);
         return;
       }
@@ -191,17 +201,16 @@ namespace EventStore.ClientAPI.Internal
       _timer.Dispose();
       _operations.CleanUp();
       _subscriptions.CleanUp();
-      CloseTcpConnection(reason);
+      await CloseTcpConnection(reason).ConfigureAwait(false);
 
       LogInfo("Closed. Reason: {0}.", reason);
 
-      if (exception != null)
-        RaiseErrorOccurred(exception);
+      if (exception != null) { RaiseErrorOccurred(exception); }
 
       RaiseClosed(reason);
     }
 
-    private void CloseTcpConnection(string reason)
+    private async Task CloseTcpConnection(string reason)
     {
       if (_connection == null)
       {
@@ -211,13 +220,17 @@ namespace EventStore.ClientAPI.Internal
 
       LogDebug("CloseTcpConnection");
       _connection.Close(reason);
-      TcpConnectionClosed(_connection);
+      await TcpConnectionClosedAsync(_connection).ConfigureAwait(false);
       _connection = null;
     }
 
-    private void TcpConnectionClosed(TcpPackageConnection connection)
+    private async Task TcpConnectionClosedAsync(TcpPackageConnection connection)
     {
-      if (_state == ConnectionState.Init) throw new Exception();
+      if (_state == ConnectionState.Init)
+      {
+        await TaskConstants.Completed;
+        throw new Exception();
+      }
       if (_state == ConnectionState.Closed || _connection != connection)
       {
         LogDebug("IGNORED (_state: {0}, _conn.ID: {1:B}, conn.ID: {2:B}): TCP connection to [{3}, L{4}] closed.",
@@ -240,10 +253,11 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private void TcpConnectionEstablished(TcpPackageConnection connection)
+    private async Task TcpConnectionEstablishedAsync(TcpPackageConnection connection)
     {
       if (_state != ConnectionState.Connecting || _connection != connection || connection.IsClosed)
       {
+        await TaskConstants.Completed;
         LogDebug("IGNORED (_state {0}, _conn.Id {1:B}, conn.Id {2:B}, conn.closed {3}): TCP connection to [{4}, L{5}] established.",
                  _state, _connection == null ? Guid.Empty : _connection.ConnectionId, connection.ConnectionId,
                  connection.IsClosed, connection.RemoteEndPoint, connection.LocalEndPoint);
@@ -300,7 +314,7 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private void TimerTick()
+    private async Task TimerTickAsync()
     {
       switch (_state)
       {
@@ -313,7 +327,9 @@ namespace EventStore.ClientAPI.Internal
 
               _reconnInfo = new ReconnectionInfo(_reconnInfo.ReconnectionAttempt + 1, _stopwatch.Elapsed);
               if (_settings.MaxReconnections >= 0 && _reconnInfo.ReconnectionAttempt > _settings.MaxReconnections)
-                CloseConnection("Reconnection limit reached.");
+              {
+                await CloseConnectionAsync("Reconnection limit reached.").ConfigureAwait(false);
+              }
               else
               {
                 RaiseReconnecting();
@@ -329,10 +345,12 @@ namespace EventStore.ClientAPI.Internal
             {
               const string msg = "Timed out waiting for client to be identified";
               LogDebug(msg);
-              CloseTcpConnection(msg);
+              await CloseTcpConnection(msg).ConfigureAwait(false);
             }
             if (_connectingPhase > ConnectingPhase.ConnectionEstablishing)
-              ManageHeartbeats();
+            {
+              await ManageHeartbeatsAsync().ConfigureAwait(false);
+            }
             break;
           }
         case ConnectionState.Connected:
@@ -348,7 +366,7 @@ namespace EventStore.ClientAPI.Internal
               _subscriptions.CheckTimeoutsAndRetry(_connection);
               _lastTimeoutsTimeStamp = _stopwatch.Elapsed;
             }
-            ManageHeartbeats();
+            await ManageHeartbeatsAsync().ConfigureAwait(false);
             break;
           }
         case ConnectionState.Closed: break;
@@ -356,7 +374,7 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private void ManageHeartbeats()
+    private async Task ManageHeartbeatsAsync()
     {
       if (_connection == null) throw new Exception();
 
@@ -384,11 +402,11 @@ namespace EventStore.ClientAPI.Internal
                                 _esConnection.ConnectionName, _connection.RemoteEndPoint, _connection.LocalEndPoint,
                                 _connection.ConnectionId, packageNumber);
         if (s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
-        CloseTcpConnection(msg);
+        await CloseTcpConnection(msg).ConfigureAwait(false);
       }
     }
 
-    private void StartOperation(IClientOperation operation, int maxRetries, TimeSpan timeout)
+    private async Task StartOperationAsync(IClientOperation operation, int maxRetries, TimeSpan timeout)
     {
       switch (_state)
       {
@@ -406,10 +424,12 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           operation.Fail(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
-    private void StartSubscription(StartSubscriptionMessageWrapper msg)
+    private async Task StartSubscriptionAsync(StartSubscriptionMessageWrapper msg)
     {
       switch (_state)
       {
@@ -435,10 +455,12 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
-    private void StartSubscription(StartSubscriptionMessage msg)
+    private async Task StartSubscriptionAsync(StartSubscriptionMessage msg)
     {
       switch (_state)
       {
@@ -466,10 +488,12 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
-    private void StartSubscription(StartSubscriptionRawMessage msg)
+    private async Task StartSubscriptionAsync(StartSubscriptionRawMessage msg)
     {
       switch (_state)
       {
@@ -497,11 +521,13 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
 
-    private void StartSubscription(StartPersistentSubscriptionMessage msg)
+    private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessage msg)
     {
       switch (_state)
       {
@@ -526,10 +552,12 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
-    private void StartSubscription(StartPersistentSubscriptionRawMessage msg)
+    private async Task StartSubscriptionAsync(StartPersistentSubscriptionRawMessage msg)
     {
       switch (_state)
       {
@@ -554,11 +582,13 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Closed:
           msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
           break;
-        default: throw new Exception($"Unknown state: {_state}.");
+        default:
+          await TaskConstants.Completed;
+          throw new Exception($"Unknown state: {_state}.");
       }
     }
 
-    private void HandleTcpPackage(TcpPackageConnection connection, TcpPackage package)
+    private async Task HandleTcpPackageAsync(TcpPackageConnection connection, TcpPackage package)
     {
       if (_connection != connection || _state == ConnectionState.Closed || _state == ConnectionState.Init)
       {
@@ -605,7 +635,7 @@ namespace EventStore.ClientAPI.Internal
       {
         string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
         var exc = new EventStoreConnectionException($"Bad request received from server. Error: {(string.IsNullOrEmpty(message) ? "<no message>" : message)}");
-        CloseConnection("Connection-wide BadRequest received. Too dangerous to continue.", exc);
+        await CloseConnectionAsync("Connection-wide BadRequest received. Too dangerous to continue.", exc).ConfigureAwait(false);
         return;
       }
 
@@ -623,7 +653,7 @@ namespace EventStore.ClientAPI.Internal
             _operations.ScheduleOperationRetry(operation);
             break;
           case InspectionDecision.Reconnect:
-            ReconnectTo(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint));
+            await ReconnectToAsync(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint)).ConfigureAwait(false);
             _operations.ScheduleOperationRetry(operation);
             break;
           default: throw new Exception($"Unknown InspectionDecision: {result.Decision}");
@@ -635,7 +665,7 @@ namespace EventStore.ClientAPI.Internal
       }
       else if (_subscriptions.TryGetActiveSubscription(package.CorrelationId, out SubscriptionItem subscription))
       {
-        var result = subscription.Operation.InspectPackage(package);
+        var result = await subscription.Operation.InspectPackageAsync(package);
         LogDebug("HandleTcpPackage SUBSCRIPTION DECISION {0} ({1}), {2}", result.Decision, result.Description, subscription);
         switch (result.Decision)
         {
@@ -647,7 +677,7 @@ namespace EventStore.ClientAPI.Internal
             _subscriptions.ScheduleSubscriptionRetry(subscription);
             break;
           case InspectionDecision.Reconnect:
-            ReconnectTo(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint));
+            await ReconnectToAsync(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint)).ConfigureAwait(false);
             _subscriptions.ScheduleSubscriptionRetry(subscription);
             break;
           case InspectionDecision.Subscribed:
@@ -662,14 +692,14 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private void ReconnectTo(NodeEndPoints endPoints)
+    private async Task ReconnectToAsync(NodeEndPoints endPoints)
     {
       var endPoint = _settings.UseSslConnection
                     ? endPoints.SecureTcpEndPoint ?? endPoints.TcpEndPoint
                     : endPoints.TcpEndPoint;
       if (endPoint == null)
       {
-        CloseConnection("No end point is specified while trying to reconnect.");
+        await CloseConnectionAsync("No end point is specified while trying to reconnect.").ConfigureAwait(false);
         return;
       }
 
@@ -677,11 +707,11 @@ namespace EventStore.ClientAPI.Internal
 
       var msg = $"EventStoreConnection '{_esConnection.ConnectionName}': going to reconnect to [{endPoint}]. Current endpoint: [{_connection.RemoteEndPoint}, L{_connection.LocalEndPoint}].";
       if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
-      CloseTcpConnection(msg);
+      await CloseTcpConnection(msg).ConfigureAwait(false);
 
       _state = ConnectionState.Connecting;
       _connectingPhase = ConnectingPhase.EndPointDiscovery;
-      EstablishTcpConnection(endPoints);
+      await EstablishTcpConnectionAsync(endPoints).ConfigureAwait(false);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

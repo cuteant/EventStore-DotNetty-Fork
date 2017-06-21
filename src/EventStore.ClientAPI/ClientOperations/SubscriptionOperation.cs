@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using CuteAnt.AsyncEx;
 using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
@@ -179,7 +180,7 @@ namespace EventStore.ClientAPI.ClientOperations
     protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent);
     protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent);
 
-    public InspectionResult InspectPackage(TcpPackage package)
+    public async Task<InspectionResult> InspectPackageAsync(TcpPackage package)
     {
       try
       {
@@ -193,7 +194,7 @@ namespace EventStore.ClientAPI.ClientOperations
           case TcpCommand.StreamEventAppeared:
             {
               var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-              EventAppeared(TransformEvent(dto.Event));
+              await EventAppearedAsync(TransformEvent(dto.Event));
               return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
             }
 
@@ -353,9 +354,34 @@ namespace EventStore.ClientAPI.ClientOperations
       EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
     }
 
+    protected async Task EventAppearedAsync(TResolvedEvent e)
+    {
+      if (_unsubscribed != 0) { return; }
+
+      if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
+
+      if (_verboseLogging)
+      {
+        _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
+                      _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
+                      e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
+      }
+      await EnqueueMessageAsync((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
+    }
+
     private void EnqueueMessage((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
-      _targetBlock.SendAsync(item).ConfigureAwait(false).GetAwaiter().GetResult();
+      //_targetBlock.Post(item);
+      AsyncContext.Run(async (targetBlock, i) => await targetBlock.SendAsync(i).ConfigureAwait(false), _targetBlock, item);
+      if (InputCount > _maxQueueSize)
+      {
+        DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
+      }
+    }
+
+    private async Task EnqueueMessageAsync((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+    {
+      await _targetBlock.SendAsync(item).ConfigureAwait(false);
       if (InputCount > _maxQueueSize)
       {
         DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
