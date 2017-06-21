@@ -27,7 +27,7 @@ namespace Es.Consumer
 
 
       var connStr = "ConnectTo=tcp://admin:changeit@localhost:1113";
-      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying().EnableVerboseLogging();
+      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();//.EnableVerboseLogging();
       using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -64,8 +64,8 @@ namespace Es.Consumer
 
         #region VolatileSubscription
 
-        ////var settings = new SubscriptionSettings();
-        //var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        //var settings = new SubscriptionSettings();
+        ////var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
         ////var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
 
         //var sub = conn.VolatileSubscribeAsync(STREAM, settings,
@@ -116,32 +116,13 @@ namespace Es.Consumer
         //transactional messaging.
 
         var settings = CatchUpSubscriptionSettings.Create(20, true);
-        settings.VerboseLogging = true;
+        //settings.VerboseLogging = true;
 
-        ////settings.MaxDegreeOfParallelismPerBlock = 5;
-        ////settings.BoundedCapacityPerBlock = 2;
-        ////settings.NumActionBlocks = 5;
+        //settings.MaxDegreeOfParallelismPerBlock = 5;
+        //settings.BoundedCapacityPerBlock = 2;
+        //settings.NumActionBlocks = 5;
 
-        //var sub = conn.CatchUpSubscribe(STREAM, null, settings,
-        //    eventAppearedAsync: async (_, x) =>
-        //    {
-        //      var msg = x.OriginalEvent.FullEvent.Value;
-        //      if (msg is Cat cat)
-        //      {
-        //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-        //      }
-        //      if (msg is Dog dog)
-        //      {
-        //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-        //      }
-        //      await Task.Delay(500);
-        //    },
-        //    subscriptionDropped: (subscription, reason, exc) =>
-        //    {
-        //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        //    });
-
-        var sub = conn.CatchUpSubscribe<IAnimal>(80, settings,
+        var sub = conn.CatchUpSubscribe(STREAM, 1000, settings,
             eventAppearedAsync: async (_, x) =>
             {
               var msg = x.OriginalEvent.FullEvent.Value;
@@ -159,6 +140,25 @@ namespace Es.Consumer
             {
               Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
             });
+
+        //var sub = conn.CatchUpSubscribe<IAnimal>(90, settings,
+        //    eventAppearedAsync: async (_, x) =>
+        //    {
+        //      var msg = x.OriginalEvent.FullEvent.Value;
+        //      if (msg is Cat cat)
+        //      {
+        //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+        //      }
+        //      if (msg is Dog dog)
+        //      {
+        //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+        //      }
+        //      await Task.Delay(500);
+        //    },
+        //    subscriptionDropped: (subscription, reason, exc) =>
+        //    {
+        //      Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+        //    });
 
         #endregion
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks.Dataflow;
+using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI
 {
@@ -14,7 +15,8 @@ namespace EventStore.ClientAPI
 
       return new DataflowBlockOptions
       {
-        TaskScheduler = settings.TaskScheduler,
+        TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+
         CancellationToken = settings.CancellationToken,
       };
     }
@@ -28,7 +30,8 @@ namespace EventStore.ClientAPI
 
       return new DataflowBlockOptions
       {
-        TaskScheduler = settings.TaskScheduler,
+        TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+
         CancellationToken = settings.CancellationToken,
         MaxMessagesPerTask = settings.MaxMessagesPerTask,
         BoundedCapacity = settings.BoundedCapacityPerBlock
@@ -45,13 +48,14 @@ namespace EventStore.ClientAPI
 
       return new ExecutionDataflowBlockOptions
       {
-        TaskScheduler = settings.TaskScheduler,
+        TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+
         CancellationToken = settings.CancellationToken,
         MaxMessagesPerTask = settings.MaxMessagesPerTask,
         BoundedCapacity = settings.BoundedCapacityPerBlock,
 
         MaxDegreeOfParallelism = settings.MaxDegreeOfParallelismPerBlock,
-        SingleProducerConstrained = singleProducerConstrained
+        SingleProducerConstrained = singleProducerConstrained,
       };
     }
   }

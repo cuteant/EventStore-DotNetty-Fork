@@ -74,7 +74,6 @@ namespace EventStore.ClientAPI.Internal
       _queue.RegisterHandler<HandleTcpPackageMessage>(msg => HandleTcpPackage(msg.Connection, msg.Package));
 
       _queue.RegisterHandler<TimerTickMessage>(msg => TimerTick());
-      _queue.Start();
 
       _timer = new Timer(_ => EnqueueMessage(TimerTickMessage), null, Consts.TimerPeriod, Consts.TimerPeriod);
     }

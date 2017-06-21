@@ -14,7 +14,7 @@ namespace Es.Consumer
 
 
       var connStr = "ConnectTo=tcp://admin:changeit@localhost:1113";
-      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying();
+      var connSettings = ConnectionSettings.Create().KeepReconnecting().KeepRetrying().EnableVerboseLogging().UseFileLogger("my.log");
       using (var conn = EventStoreConnection.Create(connStr, connSettings))
       {
         conn.ConnectAsync().Wait();
@@ -25,14 +25,14 @@ namespace Es.Consumer
         //If stored atomically with the processing of the event this will also provide simulated
         //transactional messaging.
 
-        var settings = new CatchUpSubscriptionSettings(10000,20,false,true);
+        var settings = new CatchUpSubscriptionSettings(10000, 20, true, true);
 
         //settings.MaxDegreeOfParallelismPerBlock = 5;
 
         //settings.BoundedCapacityPerBlock = 2;
         //settings.NumActionBlocks = 5;
 
-        var sub = conn.SubscribeToStreamFrom(STREAM, null, settings,
+        var sub = conn.SubscribeToStreamFrom(STREAM, 90, settings,
             eventAppeared: async (_, x) =>
             {
               var data = Encoding.ASCII.GetString(x.Event.Data);
