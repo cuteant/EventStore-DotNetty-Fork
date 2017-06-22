@@ -441,45 +441,7 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
-      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      return InternalVolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
-    }
-    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(SubscriptionSettings settings,
-      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      return InternalVolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
-    }
-
     public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
-      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-
-      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
-      return InternalVolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
-    }
-    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
-      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-
-      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
-      return InternalVolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
-    }
-
-    private Task<EventStoreSubscription> InternalVolatileSubscribeAsync<TEvent>(string stream, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
@@ -487,6 +449,9 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
+      var stream = string.IsNullOrEmpty(topic)
+                ? SerializationManager.GetStreamId(typeof(TEvent))
+                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
       var source = new TaskCompletionSource<EventStoreSubscription>();
       _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
       {
@@ -500,7 +465,7 @@ namespace EventStore.ClientAPI.Internal
       });
       return source.Task;
     }
-    private Task<EventStoreSubscription> InternalVolatileSubscribeAsync<TEvent>(string stream, SubscriptionSettings settings,
+    public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
@@ -508,6 +473,9 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
 
+      var stream = string.IsNullOrEmpty(topic)
+                ? SerializationManager.GetStreamId(typeof(TEvent))
+                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
       var source = new TaskCompletionSource<EventStoreSubscription>();
       _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
       {
@@ -729,6 +697,80 @@ namespace EventStore.ClientAPI.Internal
     #endregion
 
 
+    #region -- PersistentSubscribeAsync --
+
+    public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+
+      var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
+          eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
+
+      return subscription.StartAsync();
+    }
+    public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+
+      var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
+          eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
+
+      return subscription.StartAsync();
+    }
+
+    public Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(string topic, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+
+      var stream = string.IsNullOrEmpty(topic)
+                ? SerializationManager.GetStreamId(typeof(TEvent))
+                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
+          eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
+
+      return subscription.StartAsync();
+    }
+    public Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(string topic, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+
+      var stream = string.IsNullOrEmpty(topic)
+                ? SerializationManager.GetStreamId(typeof(TEvent))
+                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
+          eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
+
+      return subscription.StartAsync();
+    }
+
+    #endregion
+
     #region -- ConnectToPersistentSubscriptionAsync --
 
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
@@ -737,12 +779,13 @@ namespace EventStore.ClientAPI.Internal
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
+      Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
-      var subscription = new EventStorePersistentSubscription(groupName, stream, settings,
-        eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
+      var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
+          eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
 
       return subscription.StartAsync();
     }
@@ -752,12 +795,13 @@ namespace EventStore.ClientAPI.Internal
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNullOrEmpty(groupName, nameof(groupName));
+      Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
 
-      var subscription = new EventStorePersistentSubscription(groupName, stream, settings,
-        eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
+      var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
+          eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
 
       return subscription.StartAsync();
     }
@@ -796,6 +840,7 @@ namespace EventStore.ClientAPI.Internal
     }
 
     #endregion
+
 
     #region -- StreamMetadata --
 

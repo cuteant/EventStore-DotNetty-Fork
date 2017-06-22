@@ -269,6 +269,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+
     #region -- VolatileSubscribe(NonGeneric) --
 
     /// <summary>Subscribes to a single event stream. New events
@@ -491,7 +492,7 @@ namespace EventStore.ClientAPI
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
-          => await conn.VolatileSubscribeAsync<TEnent>(settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+          => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
         connection, subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -513,7 +514,7 @@ namespace EventStore.ClientAPI
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
-          => await conn.VolatileSubscribeAsync<TEnent>(settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+          => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
         connection, subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -533,7 +534,7 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
-          => await conn.VolatileSubscribeAsync<TEnent>(settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+          => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
         connection, subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -553,7 +554,7 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
-          => await conn.VolatileSubscribeAsync<TEnent>(settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+          => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
         connection, subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -712,7 +713,7 @@ namespace EventStore.ClientAPI
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
-      return connection.VolatileSubscribeAsync<TEvent>(settings, eventAppeared, subscriptionDropped, userCredentials);
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Asynchronously subscribes to a single event stream. New events
@@ -730,7 +731,41 @@ namespace EventStore.ClientAPI
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
-      return connection.VolatileSubscribeAsync<TEvent>(settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
     #endregion

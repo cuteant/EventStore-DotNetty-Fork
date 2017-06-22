@@ -1,4 +1,6 @@
-﻿namespace EventStore.ClientAPI
+﻿using System;
+
+namespace EventStore.ClientAPI
 {
   /// <summary>A structure representing a single event or an resolved link event.</summary>
   public struct ResolvedEvent : IResolvedEvent
@@ -29,6 +31,7 @@
 
     Position? IResolvedEvent.OriginalPosition => OriginalPosition;
     string IResolvedEvent.OriginalEventType => OriginalEvent.EventType;
+    Guid IResolvedEvent.OriginalEventId => OriginalEvent.EventId;
 
     internal ResolvedEvent(RecordedEvent evnt, RecordedEvent link, Position? position)
     {

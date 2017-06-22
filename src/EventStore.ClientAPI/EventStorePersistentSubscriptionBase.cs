@@ -11,10 +11,33 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Represents a persistent subscription connection.</summary>
-  public abstract class EventStorePersistentSubscriptionBase
+  public abstract class EventStorePersistentSubscriptionBase : EventStorePersistentSubscriptionBase<EventStorePersistentSubscriptionBase, ResolvedEvent>
   {
-    private static readonly ResolvedEvent DropSubscriptionEvent = new ResolvedEvent();
+    internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+                                                  ConnectToPersistentSubscriptionSettings settings,
+                                                  Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  UserCredentials userCredentials, ConnectionSettings connSettings)
+      : base(subscriptionId, streamId, settings, eventAppeared, subscriptionDropped, userCredentials, connSettings)
+    {
+    }
+
+    internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
+                                                  ConnectToPersistentSubscriptionSettings settings,
+                                                  Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  UserCredentials userCredentials, ConnectionSettings connSettings)
+      : base(subscriptionId, streamId, settings, eventAppearedAsync, subscriptionDropped, userCredentials, connSettings)
+    {
+    }
+  }
+
+  /// <summary>Represents a persistent subscription connection.</summary>
+  public abstract class EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
+    where TSubscription : EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
+    where TResolvedEvent : IResolvedEvent, new()
+  {
+    private static readonly TResolvedEvent DropSubscriptionEvent = new TResolvedEvent();
     private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.PersistentSubscription");
 
     ///<summary>The default buffer size for the persistent subscription</summary>
@@ -22,18 +45,18 @@ namespace EventStore.ClientAPI
 
     private readonly string _subscriptionId;
     private readonly string _streamId;
-    private readonly Action<EventStorePersistentSubscriptionBase, ResolvedEvent> _eventAppeared;
-    private readonly Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> _eventAppearedAsync;
-    private readonly Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> _subscriptionDropped;
+    private readonly Action<TSubscription, TResolvedEvent> _eventAppeared;
+    private readonly Func<TSubscription, TResolvedEvent, Task> _eventAppearedAsync;
+    private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
     private readonly UserCredentials _userCredentials;
     private readonly bool _verbose;
     private readonly ConnectionSettings _connSettings;
     private readonly bool _autoAck;
 
     private PersistentEventStoreSubscription _subscription;
-    private BufferBlock<ResolvedEvent> _bufferBlock;
-    private List<ActionBlock<ResolvedEvent>> _actionBlocks;
-    private ITargetBlock<ResolvedEvent> _targetBlock;
+    private BufferBlock<TResolvedEvent> _bufferBlock;
+    private List<ActionBlock<TResolvedEvent>> _actionBlocks;
+    private ITargetBlock<TResolvedEvent> _targetBlock;
     private ConnectToPersistentSubscriptionSettings _settings;
     private IDisposable _links;
     private DropData _dropData;
@@ -47,8 +70,8 @@ namespace EventStore.ClientAPI
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
                                                   ConnectToPersistentSubscriptionSettings settings,
-                                                  Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
-                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  Action<TSubscription, TResolvedEvent> eventAppeared,
+                                                  Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                   UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
@@ -57,8 +80,8 @@ namespace EventStore.ClientAPI
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
                                                   ConnectToPersistentSubscriptionSettings settings,
-                                                  Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
-                                                  Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                  Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
+                                                  Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                   UserCredentials userCredentials, ConnectionSettings connSettings)
       : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
     {
@@ -67,7 +90,7 @@ namespace EventStore.ClientAPI
 
     private EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
                                                  ConnectToPersistentSubscriptionSettings settings,
-                                                 Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
+                                                 Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                  UserCredentials userCredentials, ConnectionSettings connSettings)
     {
       _subscriptionId = subscriptionId;
@@ -81,7 +104,7 @@ namespace EventStore.ClientAPI
       _autoAck = settings.AutoAck;
     }
 
-    internal async Task<EventStorePersistentSubscriptionBase> StartAsync()
+    internal async Task<TSubscription> StartAsync()
     {
       _stopped.Reset();
 
@@ -94,25 +117,25 @@ namespace EventStore.ClientAPI
         // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
         numActionBlocks = 1;
       }
-      _actionBlocks = new List<ActionBlock<ResolvedEvent>>(numActionBlocks);
+      _actionBlocks = new List<ActionBlock<TResolvedEvent>>(numActionBlocks);
       if (_eventAppeared != null)
       {
         for (var idx = 0; idx < numActionBlocks; idx++)
         {
-          _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
+          _actionBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
         }
       }
       else
       {
         for (var idx = 0; idx < numActionBlocks; idx++)
         {
-          _actionBlocks.Add(new ActionBlock<ResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
+          _actionBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
         }
       }
       if (numActionBlocks > 1)
       {
         var links = new CompositeDisposable();
-        _bufferBlock = new BufferBlock<ResolvedEvent>(_settings.ToBufferBlockOptions());
+        _bufferBlock = new BufferBlock<TResolvedEvent>(_settings.ToBufferBlockOptions());
         for (var idx = 0; idx < numActionBlocks; idx++)
         {
           var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -126,29 +149,29 @@ namespace EventStore.ClientAPI
         _targetBlock = _actionBlocks[0];
       }
 
-      return this;
+      return this as TSubscription;
     }
 
     internal abstract Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
       ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<EventStoreSubscription, ResolvedEvent, Task> onEventAppearedAsync,
+      Func<EventStoreSubscription, TResolvedEvent, Task> onEventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings connSettings);
 
     /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
     /// <remarks>There is no need to ack a message if you have Auto Ack enabled</remarks>
     /// <param name="event">The <see cref="ResolvedEvent"></see> to acknowledge</param>
-    public void Acknowledge(ResolvedEvent @event)
+    public void Acknowledge(TResolvedEvent @event)
     {
-      _subscription.NotifyEventsProcessed(new[] { @event.OriginalEvent.EventId });
+      _subscription.NotifyEventsProcessed(new[] { @event.OriginalEventId });
     }
 
     /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
     /// <remarks>There is no need to ack a message if you have Auto Ack enabled</remarks>
     /// <param name="events">The <see cref="ResolvedEvent"></see>s to acknowledge there should be less than 2000 to ack at a time.</param>
-    public void Acknowledge(IEnumerable<ResolvedEvent> events)
+    public void Acknowledge(IEnumerable<TResolvedEvent> events)
     {
-      var ids = events.Select(x => x.OriginalEvent.EventId).ToArray();
+      var ids = events.Select(x => x.OriginalEventId).ToArray();
       if (ids.Length > 2000) throw new ArgumentOutOfRangeException(nameof(events), "events is limited to 2000 to ack at a time");
       _subscription.NotifyEventsProcessed(ids);
     }
@@ -174,18 +197,18 @@ namespace EventStore.ClientAPI
     /// <param name="event">The event to mark as failed</param>
     /// <param name="action">The <see cref="PersistentSubscriptionNakEventAction"></see> action to take</param>
     /// <param name="reason">A string with a message as to why the failure is occurring</param>
-    public void Fail(ResolvedEvent @event, PersistentSubscriptionNakEventAction action, string reason)
+    public void Fail(TResolvedEvent @event, PersistentSubscriptionNakEventAction action, string reason)
     {
-      _subscription.NotifyEventsFailed(new[] { @event.OriginalEvent.EventId }, action, reason);
+      _subscription.NotifyEventsFailed(new[] { @event.OriginalEventId }, action, reason);
     }
 
     /// <summary>Mark nmessages that have failed processing. The server will take action based upon the action parameter.</summary>
     /// <param name="events">The events to mark as failed</param>
     /// <param name="action">The <see cref="PersistentSubscriptionNakEventAction"></see> action to take</param>
     /// <param name="reason">A string with a message as to why the failure is occurring</param>
-    public void Fail(IEnumerable<ResolvedEvent> events, PersistentSubscriptionNakEventAction action, string reason)
+    public void Fail(IEnumerable<TResolvedEvent> events, PersistentSubscriptionNakEventAction action, string reason)
     {
-      var ids = events.Select(x => x.OriginalEvent.EventId).ToArray();
+      var ids = events.Select(x => x.OriginalEventId).ToArray();
       if (ids.Length > 2000) throw new ArgumentOutOfRangeException(nameof(events), "events is limited to 2000 to ack at a time");
       _subscription.NotifyEventsFailed(ids, action, reason);
     }
@@ -233,12 +256,12 @@ namespace EventStore.ClientAPI
       EnqueueSubscriptionDropNotification(reason, exception);
     }
 
-    private async Task OnEventAppearedAsync(EventStoreSubscription subscription, ResolvedEvent resolvedEvent)
+    private async Task OnEventAppearedAsync(EventStoreSubscription subscription, TResolvedEvent resolvedEvent)
     {
       await _targetBlock.SendAsync(resolvedEvent).ConfigureAwait(false);
     }
 
-    private void ProcessResolvedEvent(ResolvedEvent resolvedEvent)
+    private void ProcessResolvedEvent(TResolvedEvent resolvedEvent)
     {
       if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
@@ -253,16 +276,16 @@ namespace EventStore.ClientAPI
       }
       try
       {
-        _eventAppeared(this, resolvedEvent);
+        _eventAppeared(this as TSubscription, resolvedEvent);
         if (_autoAck)
         {
-          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
+          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
         }
         if (_verbose)
         {
           _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
                     _streamId,
-                    resolvedEvent.OriginalEvent.EventStreamId, resolvedEvent.OriginalEvent.EventNumber, resolvedEvent.OriginalEvent.EventType, resolvedEvent.OriginalEventNumber);
+                    resolvedEvent.OriginalStreamId, resolvedEvent.OriginalEventNumber, resolvedEvent.OriginalEventType, resolvedEvent.OriginalEventNumber);
         }
       }
       catch (Exception exc)
@@ -273,7 +296,7 @@ namespace EventStore.ClientAPI
       }
     }
 
-    private async Task ProcessResolvedEventAsync(ResolvedEvent resolvedEvent)
+    private async Task ProcessResolvedEventAsync(TResolvedEvent resolvedEvent)
     {
       if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
@@ -288,16 +311,16 @@ namespace EventStore.ClientAPI
       }
       try
       {
-        await _eventAppearedAsync(this, resolvedEvent).ConfigureAwait(false);
+        await _eventAppearedAsync(this as TSubscription, resolvedEvent).ConfigureAwait(false);
         if (_autoAck)
         {
-          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEvent.EventId });
+          _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
         }
         if (_verbose)
         {
           _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
                     _streamId,
-                    resolvedEvent.OriginalEvent.EventStreamId, resolvedEvent.OriginalEvent.EventNumber, resolvedEvent.OriginalEvent.EventType, resolvedEvent.OriginalEventNumber);
+                    resolvedEvent.OriginalStreamId, resolvedEvent.OriginalEventNumber, resolvedEvent.OriginalEventType, resolvedEvent.OriginalEventNumber);
         }
       }
       catch (Exception exc)
@@ -319,7 +342,7 @@ namespace EventStore.ClientAPI
         }
 
         _subscription?.Unsubscribe();
-        _subscriptionDropped?.Invoke(this, reason, error);
+        _subscriptionDropped?.Invoke(this as TSubscription, reason, error);
         _stopped.Set();
       }
     }

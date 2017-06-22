@@ -1,4 +1,6 @@
-﻿namespace EventStore.ClientAPI
+﻿using System;
+
+namespace EventStore.ClientAPI
 {
   public interface IResolvedEvent
   {
@@ -7,6 +9,8 @@
     Position? OriginalPosition { get; }
 
     string OriginalStreamId { get; }
+
+    Guid OriginalEventId { get; }
 
     long OriginalEventNumber { get; }
 

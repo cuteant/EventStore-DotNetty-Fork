@@ -28,19 +28,19 @@ namespace EventStore.ClientAPI
     {
     }
 
-    /// <summary>The scheduler to use for scheduling tasks to process messages.</summary>
-    private TaskScheduler _taskScheduler = TaskScheduler.Default;
+    ///// <summary>The scheduler to use for scheduling tasks to process messages.</summary>
+    //private TaskScheduler _taskScheduler = TaskScheduler.Default;
 
-    /// <summary>Gets or sets the <see cref="System.Threading.Tasks.TaskScheduler"/> to use for scheduling tasks.</summary>
-    public TaskScheduler TaskScheduler
-    {
-      get { return _taskScheduler; }
-      set
-      {
-        Debug.Assert(this != Default, "Default instance is supposed to be immutable.");
-        _taskScheduler = value ?? throw new ArgumentNullException(nameof(value));
-      }
-    }
+    ///// <summary>Gets or sets the <see cref="System.Threading.Tasks.TaskScheduler"/> to use for scheduling tasks.</summary>
+    //public TaskScheduler TaskScheduler
+    //{
+    //  get { return _taskScheduler; }
+    //  set
+    //  {
+    //    Debug.Assert(this != Default, "Default instance is supposed to be immutable.");
+    //    _taskScheduler = value ?? throw new ArgumentNullException(nameof(value));
+    //  }
+    //}
 
     /// <summary>The cancellation token to monitor for cancellation requests.</summary>
     private CancellationToken _cancellationToken = CancellationToken.None;

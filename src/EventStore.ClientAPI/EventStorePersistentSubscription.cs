@@ -5,12 +5,105 @@ using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
 {
+  #region -- class EventStorePersistentSubscription --
+
   /// <summary>Represents a persistent subscription connection.</summary>
-  public class EventStorePersistentSubscription : EventStorePersistentSubscriptionBase
+  public class EventStorePersistentSubscription : EventStorePersistentSubscriptionBase<EventStorePersistentSubscription, ResolvedEvent<object>>
   {
     private readonly EventStoreConnectionLogicHandler _handler;
 
     internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+                                              ConnectToPersistentSubscriptionSettings settings,
+                                              Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+                                              Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              UserCredentials userCredentials, ConnectionSettings connSettings,
+                                              EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppeared, subscriptionDropped, userCredentials, connSettings)
+    {
+      _handler = handler;
+    }
+
+    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+                                              ConnectToPersistentSubscriptionSettings settings,
+                                              Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+                                              Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              UserCredentials userCredentials, ConnectionSettings connSettings,
+                                              EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppearedAsync, subscriptionDropped, userCredentials, connSettings)
+    {
+      _handler = handler;
+    }
+
+    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, ResolvedEvent<object>, Task> onEventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
+      ConnectionSettings connSettings)
+    {
+      var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
+      _handler.EnqueueMessage(new StartPersistentSubscriptionMessage(source, subscriptionId, streamId, settings, userCredentials,
+          onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
+
+      return source.Task;
+    }
+  }
+
+  #endregion
+
+  #region -- class EventStorePersistentSubscription<TEvent> --
+
+  /// <summary>Represents a persistent subscription connection.</summary>
+  public class EventStorePersistentSubscription<TEvent> : EventStorePersistentSubscriptionBase<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>>
+    where TEvent : class
+  {
+    private readonly EventStoreConnectionLogicHandler _handler;
+
+    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+                                              ConnectToPersistentSubscriptionSettings settings,
+                                              Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+                                              Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              UserCredentials userCredentials, ConnectionSettings connSettings,
+                                              EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppeared, subscriptionDropped, userCredentials, connSettings)
+    {
+      _handler = handler;
+    }
+
+    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+                                              ConnectToPersistentSubscriptionSettings settings,
+                                              Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+                                              Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
+                                              UserCredentials userCredentials, ConnectionSettings connSettings,
+                                              EventStoreConnectionLogicHandler handler)
+      : base(subscriptionId, streamId, settings, eventAppearedAsync, subscriptionDropped, userCredentials, connSettings)
+    {
+      _handler = handler;
+    }
+
+    internal override Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
+      ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> onEventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
+      ConnectionSettings connSettings)
+    {
+      var source = new TaskCompletionSource<PersistentEventStoreSubscription>();
+      _handler.EnqueueMessage(new StartPersistentSubscriptionMessage<TEvent>(source, subscriptionId, streamId, settings, userCredentials,
+          onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
+
+      return source.Task;
+    }
+  }
+
+  #endregion
+
+  #region -- class EventStorePersistentRawSubscription --
+
+  /// <summary>Represents a persistent subscription connection.</summary>
+  internal class EventStorePersistentRawSubscription : EventStorePersistentSubscriptionBase
+  {
+    private readonly EventStoreConnectionLogicHandler _handler;
+
+    internal EventStorePersistentRawSubscription(string subscriptionId, string streamId,
                                               ConnectToPersistentSubscriptionSettings settings,
                                               Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
                                               Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
@@ -21,7 +114,7 @@ namespace EventStore.ClientAPI
       _handler = handler;
     }
 
-    internal EventStorePersistentSubscription(string subscriptionId, string streamId,
+    internal EventStorePersistentRawSubscription(string subscriptionId, string streamId,
                                               ConnectToPersistentSubscriptionSettings settings,
                                               Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
                                               Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped,
@@ -45,4 +138,6 @@ namespace EventStore.ClientAPI
       return source.Task;
     }
   }
+
+  #endregion
 }
