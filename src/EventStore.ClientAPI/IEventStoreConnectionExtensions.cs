@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
 using EventStore.ClientAPI.SystemData;
 
@@ -16,78 +15,6 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
 
       AsyncContext.Run(conn => conn.ConnectAsync(), connection);
-    }
-
-    #endregion
-
-    #region -- StreamMetadata --
-
-    /// <summary>Synchronously sets the metadata for a stream.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream for which to set metadata.</param>
-    /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
-    /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
-    public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
-      string stream, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-
-      return AsyncContext.Run(
-                async (conn, streamId, expectedVersion, meta, credentials)
-                  => await conn.SetStreamMetadataAsync(streamId, expectedVersion, meta, credentials).ConfigureAwait(false),
-                connection, stream, expectedMetastreamVersion, metadata, userCredentials);
-    }
-
-    /// <summary>Synchronously sets the metadata for a stream.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream for which to set metadata.</param>
-    /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
-    /// <param name="metadata">A byte array representing the new metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation.</param>
-    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
-    public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
-      string stream, long expectedMetastreamVersion, byte[] metadata, UserCredentials userCredentials = null)
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-
-      return AsyncContext.Run(
-                async (conn, streamId, expectedVersion, meta, credentials)
-                  => await conn.SetStreamMetadataAsync(streamId, expectedVersion, meta, credentials).ConfigureAwait(false),
-                connection, stream, expectedMetastreamVersion, metadata, userCredentials);
-    }
-
-    /// <summary>Synchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream for which to read metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation.</param>
-    /// <returns>A <see cref="StreamMetadataResult"/> representing system and user-specified metadata as properties.</returns>
-    public static StreamMetadataResult GetStreamMetadata(this IEventStoreConnectionBase connection,
-      string stream, UserCredentials userCredentials = null)
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-
-      return AsyncContext.Run(
-                async (conn, streamId, credentials)
-                  => await conn.GetStreamMetadataAsync(streamId, credentials).ConfigureAwait(false),
-                connection, stream, userCredentials);
-    }
-
-    /// <summary>Synchronously reads the metadata for a stream as a byte array.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream for which to read metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation.</param>
-    /// <returns>A <see cref="RawStreamMetadataResult"/> representing system metadata as properties and user-specified metadata as bytes.</returns>
-    public static RawStreamMetadataResult GetStreamMetadataAsRawBytes(this IEventStoreConnectionBase connection,
-      string stream, UserCredentials userCredentials = null)
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-
-      return AsyncContext.Run(
-                async (conn, streamId, credentials)
-                  => await conn.GetStreamMetadataAsRawBytesAsync(streamId, credentials).ConfigureAwait(false),
-                connection, stream, userCredentials);
     }
 
     #endregion
