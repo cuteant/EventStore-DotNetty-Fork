@@ -536,8 +536,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
       using (var memoryStream = MemoryStreamManager.GetStream())
       {
-        using (var textWriter = new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true))
-        using (var jsonWriter = new JsonTextWriter(textWriter))
+        using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
         {
           jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
           WriteTo(projectionVersion, extraMetaData, jsonWriter);

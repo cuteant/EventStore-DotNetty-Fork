@@ -109,7 +109,7 @@ namespace EventStore.ClientAPI
     {
       using (var memoryStream = MemoryStreamManager.GetStream())
       {
-        using (var jsonWriter = new JsonTextWriter(new StreamWriter(memoryStream, Helper.UTF8NoBom, 4096, true)))
+        using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
         {
           jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
           WriteAsJson(jsonWriter);

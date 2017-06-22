@@ -281,7 +281,7 @@ namespace EventStore.Core.Index
 
       using (var memStream = MemoryStreamManager.GetStream())
       {
-        using (var memWriter = new StreamWriter(memStream, Helper.UTF8NoBom, 4096, true))
+        using (var memWriter = new StreamWriterX(memStream))
         {
           memWriter.WriteLine(new string('0', 32)); // pre-allocate space for MD5 hash
           memWriter.WriteLine(Version);
