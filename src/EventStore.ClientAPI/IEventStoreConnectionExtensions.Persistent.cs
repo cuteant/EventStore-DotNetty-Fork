@@ -289,6 +289,568 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+    #region -- PersistentSubscribe(NonGeneric) --
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string subscriptionId,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(stream, subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string subscriptionId,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(stream, subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(stream, subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(stream, subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- PersistentSubscribe(NonGeneric-Topic) --
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, string subscriptionId,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(CombineStreamId(stream, topic), subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, string subscriptionId,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(CombineStreamId(stream, topic), subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(CombineStreamId(stream, topic), subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(CombineStreamId(stream, topic), subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- PersistentSubscribe(Generic) --
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection, string subscriptionId,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, subId, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, subscriptionId, subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection, string subscriptionId,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, subId, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, subscriptionId, subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, subId, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, subscriptionId, subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, subId, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, subscriptionId, subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- PersistentSubscribe(Generic-Topic) --
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, string subscriptionId,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(topic, subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, string subscriptionId,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(topic, subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(topic, subscriptionId), subscriptionSettings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return AsyncContext.Run(
+        async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
+          => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
+        connection, Tuple.Create(topic, subscriptionId), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
 
     #region -- PersistentSubscribeAsync(NonGeneric) --
 
