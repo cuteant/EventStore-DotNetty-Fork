@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>Represents a previously written event</summary>
-  public class RecordedEvent<T> where T : class
+  public class RecordedEvent<T> : IRecordedEvent<T> where T : class
   {
     /// <summary>The Event Stream that this event belongs to</summary>
     public readonly string EventStreamId;
@@ -49,5 +49,14 @@ namespace EventStore.ClientAPI
       FullEvent = fullEvent;
       IsJson = isJson;
     }
+
+    string IRecordedEvent.EventStreamId => EventStreamId;
+    Guid IRecordedEvent.EventId => EventId;
+    long IRecordedEvent.EventNumber => EventNumber;
+    string IRecordedEvent.EventType => EventType;
+    bool IRecordedEvent.IsJson => IsJson;
+    DateTime IRecordedEvent.Created => Created;
+    long IRecordedEvent.CreatedEpoch => CreatedEpoch;
+    IFullEvent<T> IRecordedEvent<T>.FullEvent => FullEvent;
   }
 }

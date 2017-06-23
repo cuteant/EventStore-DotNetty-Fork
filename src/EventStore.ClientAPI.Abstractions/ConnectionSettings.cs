@@ -93,6 +93,9 @@ namespace EventStore.ClientAPI
     /// <summary>The interval after which a client will time out during connection.</summary>
     public readonly TimeSpan ClientConnectionTimeout;
 
+    /// <summary>ThrowOnNoMatchingHandler</summary>
+    public readonly bool ThrowOnNoMatchingHandler;
+
     internal ConnectionSettings(bool verboseLogging,
                                   int maxQueueSize,
                                   int maxConcurrentItems,
@@ -115,7 +118,8 @@ namespace EventStore.ClientAPI
                                   int maxDiscoverAttempts,
                                   int externalGossipPort,
                                   TimeSpan gossipTimeout,
-                                  bool preferRandomNode)
+                                  bool preferRandomNode,
+                                  bool throwOnNoMatchingHandler)
     {
       Ensure.Positive(maxQueueSize, nameof(maxQueueSize));
       Ensure.Positive(maxConcurrentItems, nameof(maxConcurrentItems));
@@ -155,6 +159,8 @@ namespace EventStore.ClientAPI
       ExternalGossipPort = externalGossipPort;
       GossipTimeout = gossipTimeout;
       PreferRandomNode = preferRandomNode;
+
+      ThrowOnNoMatchingHandler = throwOnNoMatchingHandler;
     }
   }
 }

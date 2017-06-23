@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>A structure representing a single event or an resolved link event.</summary>
-  public struct ResolvedEvent<T> : IResolvedEvent where T : class
+  public struct ResolvedEvent<T> : IResolvedEvent<T> where T : class
   {
     /// <summary>The event, or the resolved link event if this <see cref="ResolvedEvent"/> is a link event.</summary>
     public readonly RecordedEvent<T> Event;
@@ -32,6 +32,10 @@ namespace EventStore.ClientAPI
     Position? IResolvedEvent.OriginalPosition => OriginalPosition;
     string IResolvedEvent.OriginalEventType => OriginalEvent.EventType;
     Guid IResolvedEvent.OriginalEventId => OriginalEvent.EventId;
+    IRecordedEvent<T> IResolvedEvent<T>.OriginalEvent => OriginalEvent;
+    IRecordedEvent IResolvedEvent2.GetOriginalEvent() => OriginalEvent;
+    IEventDescriptor IResolvedEvent2.GetDescriptor() => OriginalEvent.FullEvent.Descriptor;
+    object IResolvedEvent2.GetBody() => OriginalEvent.FullEvent.Value;
 
     internal ResolvedEvent(RecordedEvent<T> evnt, RecordedEvent<T> link, Position? position)
     {

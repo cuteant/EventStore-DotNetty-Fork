@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace EventStore.ClientAPI.Internal
+﻿namespace EventStore.ClientAPI.Internal
 {
   internal sealed class DefaultFullEvent : DefaultFullEvent<object>, IFullEvent
   {

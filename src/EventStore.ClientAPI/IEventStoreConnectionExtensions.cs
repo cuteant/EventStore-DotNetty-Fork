@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
 using EventStore.ClientAPI.SystemData;
 
@@ -95,6 +96,32 @@ namespace EventStore.ClientAPI
                 async (conn, streamId, version, credentials)
                   => await conn.StartTransactionAsync(streamId, version, credentials).ConfigureAwait(false),
                 connection, stream, expectedVersion, userCredentials);
+    }
+
+    #endregion
+
+    #region ** class HandlerAdder **
+
+    private sealed class HandlerAdder : ISubscriberRegistration
+    {
+      private readonly IHandlerRegistration _handlerRegistration;
+
+      public HandlerAdder(IHandlerRegistration handlerRegistration)
+      {
+        _handlerRegistration = handlerRegistration;
+      }
+
+      public ISubscriberRegistration Add<T>(Func<T, Task> eventAppearedAsync) where T : class
+      {
+        _handlerRegistration.Add<T>(iResolvedEvent => eventAppearedAsync(iResolvedEvent.OriginalEvent.FullEvent.Value));
+        return this;
+      }
+
+      public ISubscriberRegistration Add<T>(Action<T> eventAppeared) where T : class
+      {
+        _handlerRegistration.Add<T>(iResolvedEvent => eventAppeared(iResolvedEvent.OriginalEvent.FullEvent.Value));
+        return this;
+      }
     }
 
     #endregion

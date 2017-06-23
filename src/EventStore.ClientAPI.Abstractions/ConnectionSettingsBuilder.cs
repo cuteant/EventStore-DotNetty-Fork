@@ -37,9 +37,18 @@ namespace EventStore.ClientAPI
     private TimeSpan _gossipTimeout = TimeSpan.FromSeconds(1);
     private GossipSeed[] _gossipSeeds;
     private bool _preferRandomNode;
+    private bool _throwOnNoMatchingHandler;
 
     internal ConnectionSettingsBuilder()
     {
+    }
+
+    /// <summary>ThrowOnNoMatchingHandler</summary>
+    /// <returns></returns>
+    public ConnectionSettingsBuilder ThrowOnNoMatchingHandler()
+    {
+      _throwOnNoMatchingHandler = true;
+      return this;
     }
 
     /// <summary>Turns on verbose <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic logging.</summary>
@@ -355,7 +364,8 @@ namespace EventStore.ClientAPI
                                     _maxDiscoverAttempts,
                                     _gossipExternalHttpPort,
                                     _gossipTimeout,
-                                    _preferRandomNode);
+                                    _preferRandomNode,
+                                    _throwOnNoMatchingHandler);
     }
   }
 }

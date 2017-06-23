@@ -76,4 +76,14 @@ namespace EventStore.ClientAPI.Tests
     [ProtoMember(2)]
     public string Text { get; set; }
   }
+
+  public class MyMessage
+  {
+    public string Text { get; set; }
+  }
+
+  public class MyOtherMessage
+  {
+    public string Text { get; set; }
+  }
 }
