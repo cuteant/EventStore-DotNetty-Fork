@@ -440,6 +440,32 @@ namespace EventStore.ClientAPI.Internal
                                                            _settings.MaxRetries, _settings.OperationTimeout));
       return source.Task;
     }
+    public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Action<IHandlerRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(addHandlers, nameof(addHandlers));
+
+      var handlerCollection = new DefaultHandlerCollection();
+      addHandlers(handlerCollection);
+      Task LocalEventAppearedAsync(EventStoreSubscription sub, ResolvedEvent<object> @event)
+      {
+        var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
+        return handler(@event);
+      }
+      var source = new TaskCompletionSource<EventStoreSubscription>();
+      _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
+                                                           LocalEventAppearedAsync, subscriptionDropped,
+                                                           _settings.MaxRetries, _settings.OperationTimeout));
+      return source.Task;
+    }
+
+    #endregion
+
+    #region -- VolatileSubscribeAsync<TEvent> --
 
     public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
@@ -558,7 +584,32 @@ namespace EventStore.ClientAPI.Internal
       catchUpSubscription.StartAsync();
       return catchUpSubscription;
     }
+    public EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(addHandlers, nameof(addHandlers));
 
+      var handlerCollection = new DefaultHandlerCollection();
+      addHandlers(handlerCollection);
+      Task LocalEventAppearedAsync(EventStoreCatchUpSubscription sub, ResolvedEvent<object> @event)
+      {
+        var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
+        return handler(@event);
+      }
+      var catchUpSubscription =
+              new EventStoreCatchUpSubscription(this, stream, lastCheckpoint,
+                                                userCredentials, LocalEventAppearedAsync, liveProcessingStarted,
+                                                subscriptionDropped, settings);
+      catchUpSubscription.StartAsync();
+      return catchUpSubscription;
+    }
+
+    #endregion
+
+    #region -- CatchUpSubscribe<TEvent> --
 
     public EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
@@ -731,6 +782,32 @@ namespace EventStore.ClientAPI.Internal
 
       return subscription.StartAsync();
     }
+    public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
+      Ensure.NotNull(settings, nameof(settings));
+      Ensure.NotNull(addHandlers, nameof(addHandlers));
+
+      var handlerCollection = new DefaultHandlerCollection();
+      addHandlers(handlerCollection);
+      Task LocalEventAppearedAsync(EventStorePersistentSubscription sub, ResolvedEvent<object> @event)
+      {
+        var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
+        return handler(@event);
+      }
+      var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
+          LocalEventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
+
+      return subscription.StartAsync();
+    }
+
+    #endregion
+
+    #region -- PersistentSubscribeAsync<TEvent> --
 
     public Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(string topic, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,

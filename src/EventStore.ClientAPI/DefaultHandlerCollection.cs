@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {
-  public class DefaultHandlerCollection : IHandlerCollection
+  internal class DefaultHandlerCollection : IHandlerCollection
   {
     private static readonly Func<IResolvedEvent2, Task> s_emptyHandler = iEvent => TaskConstants.Completed;
 

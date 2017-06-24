@@ -50,6 +50,8 @@ namespace EventStore.ClientAPI
       IsJson = isJson;
     }
 
+    #region -- IRecordedEvent Members --
+
     string IRecordedEvent.EventStreamId => EventStreamId;
     Guid IRecordedEvent.EventId => EventId;
     long IRecordedEvent.EventNumber => EventNumber;
@@ -58,5 +60,7 @@ namespace EventStore.ClientAPI
     DateTime IRecordedEvent.Created => Created;
     long IRecordedEvent.CreatedEpoch => CreatedEpoch;
     IFullEvent<T> IRecordedEvent<T>.FullEvent => FullEvent;
+
+    #endregion
   }
 }

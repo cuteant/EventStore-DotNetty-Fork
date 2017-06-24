@@ -117,6 +117,17 @@ namespace EventStore.ClientAPI
     Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings, Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
+
     #endregion
 
     #region -- VolatileSubscribeAsync(Generic-Topic) --
@@ -209,6 +220,38 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
+
+    /// <summary>Subscribes to a single event stream. Existing events from
+    /// lastCheckpoint onwards are read from the stream
+    /// and presented to the user of <see cref="EventStoreCatchUpSubscription"/>
+    /// as if they had been pushed.
+    ///
+    /// Once the end of the stream is read the subscription is
+    /// transparently (to the user) switched to push new events as
+    /// they are written.
+    ///
+    /// The action liveProcessingStarted is called when the
+    /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
+    /// phase to the live subscription phase.</summary>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="lastCheckpoint">The event number from which to start.
+    ///
+    /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
+    /// If events have already been received and resubscription from the same point
+    /// is desired, use the event number of the last event processed which
+    /// appeared on the subscription.
+    ///
+    /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
+    /// the first event in the stream.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
+    EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
     #endregion
@@ -324,6 +367,26 @@ namespace EventStore.ClientAPI
     Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null);
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
+    /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
+    /// to load balance a subscription in a round-robin fashion.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
+    Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
+      ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 

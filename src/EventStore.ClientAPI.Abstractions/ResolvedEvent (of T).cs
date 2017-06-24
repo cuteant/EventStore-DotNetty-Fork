@@ -29,13 +29,27 @@ namespace EventStore.ClientAPI
     /// <summary>The event number in the stream of the <see cref="OriginalEvent"/>.</summary>
     public long OriginalEventNumber => OriginalEvent.EventNumber;
 
+    #region -- IResolvedEvent Members --
+
     Position? IResolvedEvent.OriginalPosition => OriginalPosition;
     string IResolvedEvent.OriginalEventType => OriginalEvent.EventType;
     Guid IResolvedEvent.OriginalEventId => OriginalEvent.EventId;
+
+    #endregion
+
+    #region -- IResolvedEvent<T> Members --
+
     IRecordedEvent<T> IResolvedEvent<T>.OriginalEvent => OriginalEvent;
-    IRecordedEvent IResolvedEvent2.GetOriginalEvent() => OriginalEvent;
-    IEventDescriptor IResolvedEvent2.GetDescriptor() => OriginalEvent.FullEvent.Descriptor;
-    object IResolvedEvent2.GetBody() => OriginalEvent.FullEvent.Value;
+
+    #endregion
+
+    #region -- IResolvedEvent2 Members --
+
+    public IRecordedEvent GetOriginalEvent() => OriginalEvent;
+    public IEventDescriptor GetDescriptor() => OriginalEvent.FullEvent.Descriptor;
+    public object GetBody() => OriginalEvent.FullEvent.Value;
+
+    #endregion
 
     internal ResolvedEvent(RecordedEvent<T> evnt, RecordedEvent<T> link, Position? position)
     {

@@ -293,5 +293,30 @@ namespace EventStore.ClientAPI.Messages
     }
 
     #endregion
+
+    #region == interface IResolvedEventDeserializer ==
+
+    internal interface IResolvedEventDeserializer
+    {
+      IResolvedEvent2 ToResolvedEvent(ClientMessage.ResolvedEvent evnt);
+      IResolvedEvent2 ToResolvedEvent(ClientMessage.ResolvedIndexedEvent evnt);
+    }
+    internal class ResolvedEventDeserializer<T> : IResolvedEventDeserializer where T : class
+    {
+      public IResolvedEvent2 ToResolvedEvent(ClientMessage.ResolvedEvent evnt)
+      {
+        return new ClientAPI.ResolvedEvent<T>(
+                   evnt.Event?.ToRecordedEvent<T>(),
+                   evnt.Link?.ToRecordedEvent<T>(),
+                   new Position(evnt.CommitPosition, evnt.PreparePosition));
+      }
+
+      public IResolvedEvent2 ToResolvedEvent(ClientMessage.ResolvedIndexedEvent evnt)
+      {
+        return new ClientAPI.ResolvedEvent<T>(evnt.Event?.ToRecordedEvent<T>(), evnt.Link?.ToRecordedEvent<T>(), null);
+      }
+    }
+
+    #endregion
   }
 }
