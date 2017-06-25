@@ -84,6 +84,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.ConsumerX", "samples\Es.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.StreamReaderAndWriter.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.shproj", "{1AB88764-60ED-44F3-9E98-08391B5F5CDB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Consumer", "src\EventStore.ClientAPI.Consumer\EventStore.ClientAPI.Consumer.csproj", "{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
@@ -143,6 +145,10 @@ Global
 		{3BC73C7D-9AC0-43BB-B0E5-30C16531CB33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BC73C7D-9AC0-43BB-B0E5-30C16531CB33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BC73C7D-9AC0-43BB-B0E5-30C16531CB33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,6 +175,7 @@ Global
 		{7F1DFA27-AAF8-4106-89D1-08A916D65DDA} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{3BC73C7D-9AC0-43BB-B0E5-30C16531CB33} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{1AB88764-60ED-44F3-9E98-08391B5F5CDB} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj

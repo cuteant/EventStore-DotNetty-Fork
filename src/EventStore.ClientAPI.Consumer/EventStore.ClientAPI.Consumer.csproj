@@ -3,8 +3,8 @@
   
   <PropertyGroup>
     <TargetFrameworks>net461;net451</TargetFrameworks>
-    <RootNamespace>EventStore.ClientAPI</RootNamespace>
-    <AssemblyName>EventStore.ClientAPI.Abstractions</AssemblyName>
+    <RootNamespace>EventStore.ClientAPI.Consumer</RootNamespace>
+    <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -14,9 +14,9 @@
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.ClientAPI.Abstractions</PackageId>
-    <Title>EventStore.ClientAPI.Abstractions</Title>
-    <Description>EventStore.ClientAPI.Abstractions</Description>
+    <PackageId>EventStore.ClientAPI.Consumer</PackageId>
+    <Title>EventStore.ClientAPI.Consumer</Title>
+    <Description>EventStore.ClientAPI.Consumer</Description>
     <PackageTags>eventstore client queue</PackageTags>
     <IsPackable>true</IsPackable>
     <Authors>Seabiscuit</Authors>
@@ -38,8 +38,9 @@
   <ItemGroup>
     <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="CuteAnt" Version="2.0.0-rtm-170601" />
+    <ProjectReference Include="..\..\etc\Polly\Polly.csproj" />
+    <ProjectReference Include="..\EventStore.ClientAPI\EventStore.ClientAPI.csproj" />
   </ItemGroup>
 </Project>

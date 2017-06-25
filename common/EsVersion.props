@@ -5,7 +5,7 @@
   <Import Project="nuget.props" />
 
   <PropertyGroup>
-    <VersionPrefix>4.0.0-rtm-170502</VersionPrefix>
+    <VersionPrefix>4.0.0-rtm-170601</VersionPrefix>
     <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 </Project>
