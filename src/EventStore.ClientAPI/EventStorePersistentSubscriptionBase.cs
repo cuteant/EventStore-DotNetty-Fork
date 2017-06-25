@@ -35,9 +35,9 @@ namespace EventStore.ClientAPI
   /// <summary>Represents a persistent subscription connection.</summary>
   public abstract class EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
     where TSubscription : EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
-    where TResolvedEvent : IResolvedEvent, new()
+    where TResolvedEvent : IResolvedEvent//, new()
   {
-    private static readonly TResolvedEvent DropSubscriptionEvent = new TResolvedEvent();
+    internal static /*readonly*/ TResolvedEvent DropSubscriptionEvent;// = new TResolvedEvent();
     private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.PersistentSubscription");
 
     ///<summary>The default buffer size for the persistent subscription</summary>

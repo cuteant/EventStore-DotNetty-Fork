@@ -547,7 +547,17 @@ namespace EventStore.ClientAPI.Serialization
 
     internal static EventMetadata DeserializeMetadata(byte[] metadata)
     {
-      return _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
+      const string _metadataEmpty = "The meta-data of EventRecord is not available.";
+      if (null == metadata || metadata.Length == 0)
+      {
+        throw new EventMetadataDeserializationException(_metadataEmpty);
+      }
+      var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
+      if (null == meta)
+      {
+        throw new EventMetadataDeserializationException(_metadataEmpty);
+      }
+      return meta;
     }
 
     internal static IFullEvent DeserializeEvent(EventData eventData)
@@ -561,29 +571,26 @@ namespace EventStore.ClientAPI.Serialization
 
     internal static IFullEvent DeserializeEvent(byte[] metadata, byte[] data)
     {
-      DeserializeEvent(metadata, data, out IEventDescriptor eventDescriptor, out object obj);
+      var meta = DeserializeMetadata(metadata);
+      DeserializeEvent(meta, null, data, out IEventDescriptor eventDescriptor, out object obj);
       return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
     }
 
     internal static IFullEvent<T> DeserializeEvent<T>(byte[] metadata, byte[] data) where T : class
     {
-      DeserializeEvent(metadata, data, out IEventDescriptor eventDescriptor, out object obj);
+      var meta = DeserializeMetadata(metadata);
+      DeserializeEvent(meta, null, data, out IEventDescriptor eventDescriptor, out object obj);
       return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
     }
 
-    private static void DeserializeEvent(byte[] metadata, byte[] data, out IEventDescriptor eventDescriptor, out object obj)
+    internal static IFullEvent<T> DeserializeEvent<T>(EventMetadata metadata, Type eventType, byte[] data) where T : class
     {
-      const string _metadataEmpty = "The meta-data of EventRecord is not available.";
-      if (null == metadata || metadata.Length == 0)
-      {
-        throw new EventMetadataDeserializationException(_metadataEmpty);
-      }
-      var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
-      if (null == meta)
-      {
-        throw new EventMetadataDeserializationException(_metadataEmpty);
-      }
+      DeserializeEvent(metadata, eventType, data, out IEventDescriptor eventDescriptor, out object obj);
+      return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
+    }
 
+    private static void DeserializeEvent(EventMetadata meta, Type eventType, byte[] data, out IEventDescriptor eventDescriptor, out object obj)
+    {
       eventDescriptor = meta.Context != null ? new DefaultEventDescriptor(meta.Context) : NullEventDescriptor.Instance;
 
       if (null == data || data.Length == 0)
@@ -593,7 +600,7 @@ namespace EventStore.ClientAPI.Serialization
       }
       try
       {
-        var type = JsonConvertX.ResolveType(meta.EventType);
+        var type = eventType ?? JsonConvertX.ResolveType(meta.EventType);
         switch (meta.Token)
         {
           case SerializationToken.GzJson:

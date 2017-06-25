@@ -122,6 +122,11 @@ namespace EventStore.ClientAPI.Internal
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].GetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
     }
+    public Task<StreamEventsSlice2> InternalGetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].InternalGetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
+    }
 
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
@@ -166,12 +171,20 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].VolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
     public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
-      Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppeared,
+      Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].VolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
+      return _innerConnections[index].VolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+    public Task<EventStoreSubscription> InternalVolatileSubscribeAsync(string stream, SubscriptionSettings settings,
+      Func<EventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].InternalVolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
     public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
       Action<IHandlerRegistration> addHandlers,
@@ -232,9 +245,9 @@ namespace EventStore.ClientAPI.Internal
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
-    public EventStoreCatchUpSubscription CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+    public EventStoreCatchUpSubscription2 CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
+      Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
+      Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].CatchUpSubscribe(stream, lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
@@ -300,9 +313,9 @@ namespace EventStore.ClientAPI.Internal
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].PersistentSubscribeAsync(stream, subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
-    public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
+    public Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(string stream, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
-      Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);

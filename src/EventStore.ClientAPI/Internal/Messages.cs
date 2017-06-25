@@ -149,6 +149,30 @@ namespace EventStore.ClientAPI.Internal
 
   #endregion
 
+  #region == class StartSubscriptionMessage2 ==
+
+  internal sealed class StartSubscriptionMessage2 : StartSubscriptionMessageBase<IResolvedEvent2>
+  {
+    public StartSubscriptionMessage2(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Action<EventStoreSubscription, IResolvedEvent2> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      int maxRetries, TimeSpan timeout)
+      : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, maxRetries, timeout)
+    {
+    }
+    public StartSubscriptionMessage2(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      int maxRetries, TimeSpan timeout)
+      : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, maxRetries, timeout)
+    {
+    }
+  }
+
+  #endregion
+
   #region == class StartSubscriptionMessage<TEvent> ==
 
   internal sealed class StartSubscriptionMessageWrapper : Message
@@ -287,7 +311,35 @@ namespace EventStore.ClientAPI.Internal
 
   #endregion
 
+  #region == class StartPersistentSubscriptionMessage2 ==
+
+  internal sealed class StartPersistentSubscriptionMessage2 : StartPersistentSubscriptionMessageBase<IResolvedEvent2>
+  {
+    public StartPersistentSubscriptionMessage2(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string subscriptionId, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      int maxRetries, TimeSpan timeout)
+      : base(source, subscriptionId, streamId, settings, userCredentials,
+             eventAppearedAsync, subscriptionDropped, maxRetries, timeout)
+    {
+    }
+  }
+
+  #endregion
+
   #region == class StartPersistentSubscriptionMessage<TEvent> ==
+
+  internal sealed class StartPersistentSubscriptionMessageWrapper : Message
+  {
+    public TaskCompletionSource<PersistentEventStoreSubscription> Source { get; set; }
+
+    public Type EventType { get; set; }
+    public Object Message { get; set; }
+
+    public int MaxRetries { get; set; }
+    public TimeSpan Timeout { get; set; }
+  }
 
   internal sealed class StartPersistentSubscriptionMessage<TEvent> : StartPersistentSubscriptionMessageBase<ResolvedEvent<TEvent>>
     where TEvent : class

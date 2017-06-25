@@ -3,7 +3,47 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
-  public class StreamEventsSlice<T>: IStreamEventsSlice<ResolvedEvent<T>> where T : class
+  public class StreamEventsSlice<T> : StreamEventsSliceBase, IStreamEventsSlice<ResolvedEvent<T>> where T : class
+  {
+    /// <summary>The events read represented as <see cref="ResolvedEvent&lt;T&gt;"/></summary>
+    public ResolvedEvent<T>[] Events { get; }
+
+    internal StreamEventsSlice(SliceReadStatus status,
+                               string stream,
+                               long fromEventNumber,
+                               ReadDirection readDirection,
+                               ResolvedEvent<T>[] events,
+                               long nextEventNumber,
+                               long lastEventNumber,
+                               bool isEndOfStream)
+      : base(status, stream, fromEventNumber, readDirection, nextEventNumber, lastEventNumber, isEndOfStream)
+    {
+      Events = events;
+    }
+  }
+
+  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  public class StreamEventsSlice2 : StreamEventsSliceBase, IStreamEventsSlice<IResolvedEvent2>
+  {
+    /// <summary>The events read represented as <see cref="IResolvedEvent2"/></summary>
+    public IResolvedEvent2[] Events { get; }
+
+    internal StreamEventsSlice2(SliceReadStatus status,
+                                string stream,
+                                long fromEventNumber,
+                                ReadDirection readDirection,
+                                IResolvedEvent2[] events,
+                                long nextEventNumber,
+                                long lastEventNumber,
+                                bool isEndOfStream)
+      : base(status, stream, fromEventNumber, readDirection, nextEventNumber, lastEventNumber, isEndOfStream)
+    {
+      Events = events;
+    }
+  }
+
+  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  public class StreamEventsSliceBase
   {
     /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt</summary>
     public SliceReadStatus Status { get; }
@@ -17,9 +57,6 @@ namespace EventStore.ClientAPI
     /// <summary>The direction of read request.</summary>
     public ReadDirection ReadDirection { get; }
 
-    /// <summary>The events read represented as <see cref="ResolvedEvent&lt;T&gt;"/></summary>
-    public ResolvedEvent<T>[] Events { get; }
-
     /// <summary>The next event number that can be read.</summary>
     public long NextEventNumber { get; }
 
@@ -29,14 +66,13 @@ namespace EventStore.ClientAPI
     /// <summary>A boolean representing whether or not this is the end of the stream.</summary>
     public bool IsEndOfStream { get; }
 
-    internal StreamEventsSlice(SliceReadStatus status,
-                                 string stream,
-                                 long fromEventNumber,
-                                 ReadDirection readDirection,
-                                 ResolvedEvent<T>[] events,
-                                 long nextEventNumber,
-                                 long lastEventNumber,
-                                 bool isEndOfStream)
+    internal StreamEventsSliceBase(SliceReadStatus status,
+                                   string stream,
+                                   long fromEventNumber,
+                                   ReadDirection readDirection,
+                                   long nextEventNumber,
+                                   long lastEventNumber,
+                                   bool isEndOfStream)
     {
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
 
@@ -44,7 +80,6 @@ namespace EventStore.ClientAPI
       Stream = stream;
       FromEventNumber = fromEventNumber;
       ReadDirection = readDirection;
-      Events = events;
       NextEventNumber = nextEventNumber;
       LastEventNumber = lastEventNumber;
       IsEndOfStream = isEndOfStream;

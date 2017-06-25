@@ -39,14 +39,16 @@ namespace EventStore.ClientAPI
 
     #region -- IResolvedEvent<T> Members --
 
+    public T Body => OriginalEvent.FullEvent.Value;
+
     IRecordedEvent<T> IResolvedEvent<T>.OriginalEvent => OriginalEvent;
 
     #endregion
 
     #region -- IResolvedEvent2 Members --
+    public IEventDescriptor OriginalEventDescriptor => OriginalEvent.FullEvent.Descriptor;
 
     public IRecordedEvent GetOriginalEvent() => OriginalEvent;
-    public IEventDescriptor GetDescriptor() => OriginalEvent.FullEvent.Descriptor;
     public object GetBody() => OriginalEvent.FullEvent.Value;
 
     #endregion

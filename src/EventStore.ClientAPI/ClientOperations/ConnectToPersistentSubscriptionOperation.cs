@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
+using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 
@@ -35,7 +36,51 @@ namespace EventStore.ClientAPI.ClientOperations
 
   #endregion
 
+  #region == class PersistentSubscriptionOperation ==
+
+  internal sealed class PersistentSubscriptionOperation2 : ConnectToPersistentSubscriptionOperationBase<IResolvedEvent2>
+  {
+    public PersistentSubscriptionOperation2(TaskCompletionSource<PersistentEventStoreSubscription> source,
+      string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+      Func<PersistentEventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
+    {
+    }
+
+    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent2();
+    }
+
+    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent2();
+    }
+  }
+
+  #endregion
+
   #region == class PersistentSubscriptionOperation<TEvent> ==
+
+  internal interface IPersistentSubscriptionOperationWrapper
+  {
+    ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection);
+  }
+  internal sealed class PersistentSubscriptionOperationWrapper<TEvent> : IPersistentSubscriptionOperationWrapper
+    where TEvent : class
+  {
+    public PersistentSubscriptionOperationWrapper() { }
+
+    public ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection)
+    {
+      var msg = (StartPersistentSubscriptionMessage<TEvent>)msgWrapper.Message;
+
+      return new PersistentSubscriptionOperation<TEvent>(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings,
+          msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped, () => connection);
+    }
+  }
 
   internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent<TEvent>>
     where TEvent : class

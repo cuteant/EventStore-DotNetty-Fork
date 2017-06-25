@@ -5,13 +5,15 @@ namespace EventStore.ClientAPI
   public interface IResolvedEvent<out T> : IResolvedEvent2 where T : class
   {
     IRecordedEvent<T> OriginalEvent { get; }
+
+    T Body { get; }
   }
 
   public interface IResolvedEvent2 : IResolvedEvent
   {
-    IRecordedEvent GetOriginalEvent();
+    IEventDescriptor OriginalEventDescriptor { get; }
 
-    IEventDescriptor GetDescriptor();
+    IRecordedEvent GetOriginalEvent();
 
     object GetBody();
   }

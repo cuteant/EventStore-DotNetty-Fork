@@ -9,8 +9,8 @@ namespace EventStore.ClientAPI.ClientOperations
   internal class ReadStreamEventsForwardOperation : ReadStreamEventsForwardOperationBase<StreamEventsSlice<object>>
   {
     public ReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice<object>> source,
-                                                 string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                 bool requireMaster, UserCredentials userCredentials)
+                                            string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
+                                            bool requireMaster, UserCredentials userCredentials)
       : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
     {
     }
@@ -27,11 +27,32 @@ namespace EventStore.ClientAPI.ClientOperations
                                            response.IsEndOfStream);
     }
   }
+  internal class ReadStreamEventsForwardOperation2 : ReadStreamEventsForwardOperationBase<StreamEventsSlice2>
+  {
+    public ReadStreamEventsForwardOperation2(TaskCompletionSource<StreamEventsSlice2> source,
+                                             string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
+                                             bool requireMaster, UserCredentials userCredentials)
+      : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
+    {
+    }
+
+    protected override StreamEventsSlice2 TransformResponse(ClientMessage.ReadStreamEventsCompleted response)
+    {
+      return new StreamEventsSlice2(StatusCode.Convert(response.Result),
+                                           _stream,
+                                           _fromEventNumber,
+                                           ReadDirection.Forward,
+                                           response.Events.ToResolvedEvents2(),
+                                           response.NextEventNumber,
+                                           response.LastEventNumber,
+                                           response.IsEndOfStream);
+    }
+  }
   internal class ReadStreamEventsForwardOperation<T> : ReadStreamEventsForwardOperationBase<StreamEventsSlice<T>> where T : class
   {
     public ReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice<T>> source,
-                                                 string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                 bool requireMaster, UserCredentials userCredentials)
+                                            string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
+                                            bool requireMaster, UserCredentials userCredentials)
       : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
     {
     }
@@ -52,8 +73,8 @@ namespace EventStore.ClientAPI.ClientOperations
   internal class ReadRawStreamEventsForwardOperation : ReadStreamEventsForwardOperationBase<StreamEventsSlice>
   {
     public ReadRawStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice> source,
-                                                    string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                    bool requireMaster, UserCredentials userCredentials)
+                                               string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
+                                               bool requireMaster, UserCredentials userCredentials)
       : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
     {
     }
@@ -80,8 +101,8 @@ namespace EventStore.ClientAPI.ClientOperations
     private readonly bool _requireMaster;
 
     public ReadStreamEventsForwardOperationBase(TaskCompletionSource<TResult> source,
-                                                     string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                     bool requireMaster, UserCredentials userCredentials)
+                                                string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
+                                                bool requireMaster, UserCredentials userCredentials)
       : base(source, TcpCommand.ReadStreamEventsForward, TcpCommand.ReadStreamEventsForwardCompleted, userCredentials)
     {
       _stream = stream;

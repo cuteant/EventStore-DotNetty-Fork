@@ -40,6 +40,39 @@ namespace EventStore.ClientAPI.ClientOperations
 
   #endregion
 
+  #region == class SubscriptionOperation2 ==
+
+  internal sealed class SubscriptionOperation2 : VolatileSubscriptionOperationBase<IResolvedEvent2>
+  {
+    public SubscriptionOperation2(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Action<EventStoreSubscription, IResolvedEvent2> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, getConnection)
+    {
+    }
+    public SubscriptionOperation2(TaskCompletionSource<EventStoreSubscription> source,
+      string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
+      Func<EventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+      Func<TcpPackageConnection> getConnection)
+      : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
+    {
+    }
+
+    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent2();
+    }
+    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
+    {
+      return rawEvent.ToResolvedEvent2();
+    }
+  }
+
+  #endregion
+
   #region == class SubscriptionOperation<TEvent> ==
 
   internal interface IVolatileSubscriptionOperationWrapper
