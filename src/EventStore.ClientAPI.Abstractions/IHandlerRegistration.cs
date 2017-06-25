@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace EventStore.ClientAPI
 {
+  // The idea of IHandlerRegistration is from EasyNetQ
+  // https://github.com/EasyNetQ/EasyNetQ/blob/master/Source/EasyNetQ/Consumer/IHandlerRegistration.cs
   public interface IHandlerRegistration
   {
     /// <summary>Add an asynchronous handler</summary>

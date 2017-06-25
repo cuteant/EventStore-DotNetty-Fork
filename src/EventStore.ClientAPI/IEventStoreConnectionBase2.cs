@@ -94,6 +94,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+
     #region -- VolatileSubscribeAsync(NonGeneric) --
 
     /// <summary>Asynchronously subscribes to a single event stream. New events
@@ -160,6 +161,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null) where TEvent : class;
 
     #endregion
+
 
     #region -- CatchUpSubscribe(NonGeneric) --
 
@@ -335,6 +337,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+
     #region -- PersistentSubscribeAsync(NonGeneric) --
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
@@ -397,7 +400,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
     Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(string stream, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -450,6 +453,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null) where TEvent : class;
 
     #endregion
+
 
     #region -- Internal --
 

@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace EventStore.ClientAPI
 {
+  // The idea of ISubscriberRegistration is from EasyNetQ
+  // https://github.com/EasyNetQ/EasyNetQ/blob/master/Source/EasyNetQ/Consumer/IReceiveRegistration.cs
   public interface ISubscriberRegistration
   {
     /// <summary>Add an asychronous message handler to this receiver</summary>

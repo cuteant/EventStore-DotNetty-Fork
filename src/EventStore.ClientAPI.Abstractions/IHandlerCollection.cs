@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 
 namespace EventStore.ClientAPI
 {
+  // The idea of IHandlerCollection is from EasyNetQ
+  // https://github.com/EasyNetQ/EasyNetQ/blob/master/Source/EasyNetQ/Consumer/IHandlerRegistration.cs
   public interface IHandlerCollection : IHandlerRegistration
   {
     /// <summary>Retrieve a handler from the collection.

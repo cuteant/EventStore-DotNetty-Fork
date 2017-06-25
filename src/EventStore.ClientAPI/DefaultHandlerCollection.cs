@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
 {
+  // The idea of DefaultHandlerCollection is from EasyNetQ
+  // https://github.com/EasyNetQ/EasyNetQ/blob/master/Source/EasyNetQ/Consumer/HandlerCollection.cs
   internal sealed class DefaultHandlerCollection : IHandlerCollection
   {
     private static readonly Func<IResolvedEvent2, Task> s_emptyHandler = iEvent => TaskConstants.Completed;

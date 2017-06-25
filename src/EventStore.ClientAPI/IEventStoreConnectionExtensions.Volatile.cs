@@ -654,6 +654,7 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+
     #region -- VolatileSubscribeAsync(NonGeneric) --
 
     /// <summary>Asynchronously subscribes to a single event stream. New events
@@ -692,80 +693,6 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.VolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
-    }
-
-    #endregion
-
-    #region -- VolatileSubscribeAsync(Generic) --
-
-    /// <summary>Asynchronously subscribes to a single event stream. New events
-    /// written to the stream while the subscription is active will be pushed to the client.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
-    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, bool resolveLinkTos,
-      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
-      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
-    }
-
-    /// <summary>Asynchronously subscribes to a single event stream. New events
-    /// written to the stream while the subscription is active will be pushed to the client.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
-    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, bool resolveLinkTos,
-      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
-      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
-    }
-
-    /// <summary>Asynchronously subscribes to a single event stream. New events
-    /// written to the stream while the subscription is active will be pushed to the client.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
-    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
-      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
-    }
-
-    /// <summary>Asynchronously subscribes to a single event stream. New events
-    /// written to the stream while the subscription is active will be pushed to the client.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
-    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
-      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -864,6 +791,80 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+    #region -- VolatileSubscribeAsync(Generic) --
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, bool resolveLinkTos,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, bool resolveLinkTos,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
+      Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreConnectionBase2 connection, SubscriptionSettings settings,
+      Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
     #region -- VolatileSubscribeAsync(Generic-Topic) --
 
     /// <summary>Asynchronously subscribes to a single event stream. New events
@@ -902,6 +903,157 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.VolatileSubscribeAsync<TEvent>(topic, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+
+    #region -- VolatileSubscribeAsync(Multi-Handler) --
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync(stream, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, SubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.VolatileSubscribeAsync(stream, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync(stream, settings, addHandlers, subscriptionDropped, userCredentials);
+    }
+
+    #endregion
+
+    #region -- VolatileSubscribeAsync(Multi-Handler-Topic) --
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, SubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
+      return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, addHandlers, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a single event stream. New events
+    /// written to the stream while the subscription is active will be pushed to the client.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
+    public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
+      string stream, string topic, SubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, addHandlers, subscriptionDropped, userCredentials);
     }
 
     #endregion
