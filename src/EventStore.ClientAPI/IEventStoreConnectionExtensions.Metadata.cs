@@ -13,6 +13,27 @@ namespace EventStore.ClientAPI
     /// <summary>Sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream for which to set metadata.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
+    /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
+    public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
+      string stream, string topic, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+
+      return AsyncContext.Run(
+                async (conn, streamId, expectedVersion, meta, credentials)
+                  => await conn.SetStreamMetadataAsync(streamId, expectedVersion, meta, credentials).ConfigureAwait(false),
+                connection, CombineStreamId(stream, topic), expectedMetastreamVersion, metadata, userCredentials);
+    }
+
+    /// <summary>Sets the metadata for a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream for which to set metadata.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
     /// <param name="userCredentials">User credentials to use for the operation</param>
@@ -302,6 +323,21 @@ namespace EventStore.ClientAPI
     #endregion
 
     #region -- GetStreamMetadataAsync --
+
+    /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream for which to read metadata.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
+    public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
+      string stream, string topic, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.GetStreamMetadataAsync(CombineStreamId(stream, topic), userCredentials);
+    }
 
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
