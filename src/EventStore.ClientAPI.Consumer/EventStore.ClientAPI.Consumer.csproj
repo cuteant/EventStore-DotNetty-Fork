@@ -3,7 +3,7 @@
   
   <PropertyGroup>
     <TargetFrameworks>net461;net451</TargetFrameworks>
-    <RootNamespace>EventStore.ClientAPI.Consumer</RootNamespace>
+    <RootNamespace>EventStore.ClientAPI</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>

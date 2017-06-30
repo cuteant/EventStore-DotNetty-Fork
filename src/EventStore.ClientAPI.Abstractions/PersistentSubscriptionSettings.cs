@@ -67,9 +67,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Constructs a new <see cref="PersistentSubscriptionSettings"/>.</summary>
     internal PersistentSubscriptionSettings(bool resolveLinkTos, long startFrom, bool extraStatistics, TimeSpan messageTimeout,
-                                                int maxRetryCount, int liveBufferSize, int readBatchSize, int historyBufferSize,
-                                                TimeSpan checkPointAfter, int minCheckPointCount, int maxCheckPointCount,
-                                                int maxSubscriberCount, string namedConsumerStrategy)
+                                            int maxRetryCount, int liveBufferSize, int readBatchSize, int historyBufferSize,
+                                            TimeSpan checkPointAfter, int minCheckPointCount, int maxCheckPointCount,
+                                            int maxSubscriberCount, string namedConsumerStrategy)
     {
       if (messageTimeout.TotalMilliseconds > Int32.MaxValue)
       {
@@ -93,6 +93,23 @@ namespace EventStore.ClientAPI
       MaxCheckPointCount = maxCheckPointCount;
       MaxSubscriberCount = maxSubscriberCount;
       NamedConsumerStrategy = namedConsumerStrategy;
+    }
+
+    internal PersistentSubscriptionSettings Clone(long startFrom)
+    {
+      return new PersistentSubscriptionSettings(resolveLinkTos: ResolveLinkTos,
+                                                startFrom: startFrom,
+                                                extraStatistics: ExtraStatistics,
+                                                messageTimeout: MessageTimeout,
+                                                maxRetryCount: MaxRetryCount,
+                                                liveBufferSize: LiveBufferSize,
+                                                readBatchSize: ReadBatchSize,
+                                                historyBufferSize: HistoryBufferSize,
+                                                checkPointAfter: CheckPointAfter,
+                                                minCheckPointCount: MinCheckPointCount,
+                                                maxCheckPointCount: MaxCheckPointCount,
+                                                maxSubscriberCount: MaxSubscriberCount,
+                                                namedConsumerStrategy: NamedConsumerStrategy);
     }
   }
 }

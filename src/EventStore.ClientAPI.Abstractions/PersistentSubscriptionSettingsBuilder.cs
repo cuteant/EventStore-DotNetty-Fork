@@ -22,9 +22,9 @@ namespace EventStore.ClientAPI
     private string _namedConsumerStrategies;
 
     internal PersistentSubscriptionSettingsBuilder(bool resolveLinkTos, long startFrom, bool timingStatistics, TimeSpan timeout,
-                                                        int bufferSize, int liveBufferSize, int maxRetryCount, int readBatchSize,
-                                                        TimeSpan checkPointAfter, int minCheckPointCount,
-                                                        int maxCheckPointCount, int maxSubscriberCount, string namedConsumerStrategies)
+                                                   int bufferSize, int liveBufferSize, int maxRetryCount, int readBatchSize,
+                                                   TimeSpan checkPointAfter, int minCheckPointCount,
+                                                   int maxCheckPointCount, int maxSubscriberCount, string namedConsumerStrategies)
     {
       _resolveLinkTos = resolveLinkTos;
       _startFrom = startFrom;
