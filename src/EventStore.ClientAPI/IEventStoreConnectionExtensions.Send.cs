@@ -24,12 +24,13 @@ namespace EventStore.ClientAPI
       }
       return SendEventAsync(connection, stream, actualType, @event, eventContext, expectedType, userCredentials);
     }
+
     public static Task<WriteResult> SendEventAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, Type actualType, TEvent @event,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
 
@@ -42,6 +43,27 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+    #region -- SendEventAsync(Topic) --
+
+    public static Task<WriteResult> SendEventAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, TEvent @event,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventAsync(connection, CombineStreamId(stream, topic), @event, eventContext, expectedType, userCredentials);
+    }
+
+    public static Task<WriteResult> SendEventAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, TEvent @event,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventAsync(connection, CombineStreamId(stream, topic), actualType, @event, eventContext, expectedType, userCredentials);
+    }
+    #endregion
+
     #region -- SendEventsAsync --
 
     public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, IEnumerable<TEvent> events,
@@ -52,7 +74,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
         //var eventDatas = SerializationManager.SerializeEvents(events, eventContext, expectedType);
         var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
@@ -65,7 +87,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -87,7 +109,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
         var eventDatas = SerializationManager.SerializeEvents(events, eventContexts, expectedType);
@@ -100,7 +122,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       //if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -113,7 +135,48 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region -- SendEventsAsync Using Transaction --
+    #region -- SendEventsAsync(Topic) --
+
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, IEnumerable<TEvent> events,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventsAsync(connection, CombineStreamId(stream, topic), events, eventContext, expectedType, userCredentials);
+    }
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, IEnumerable<TEvent> events,
+      Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, events, eventContext, expectedType, userCredentials);
+    }
+
+
+
+
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, IList<TEvent> events,
+      IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventsAsync(connection, CombineStreamId(stream, topic), events, eventContexts, expectedType, userCredentials);
+    }
+    public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, IList<TEvent> events,
+      IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, events, eventContexts, expectedType, userCredentials);
+    }
+
+    #endregion
+
+    #region -- SendEventsAsync(Transaction) --
 
     public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, int batchSize,
       ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
@@ -123,7 +186,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -153,7 +216,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
@@ -173,7 +236,7 @@ namespace EventStore.ClientAPI
       if (actualType == TypeHelper.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
         if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
@@ -202,7 +265,7 @@ namespace EventStore.ClientAPI
       }
 
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
@@ -213,22 +276,43 @@ namespace EventStore.ClientAPI
 
     #endregion
 
-    #region ** DoWriteAsync **
+    #region -- SendEventsAsync(Transaction & Topic) --
 
-    private static async Task<WriteResult> DoWriteAsync(IEventStoreConnectionBase connection, string stream, long expectedVersion,
-      EventData[] eventDatas, int batchSize, UserCredentials userCredentials)
+    public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, int batchSize,
+      ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
     {
-      using (var trans = await connection.StartTransactionAsync(stream, expectedVersion, userCredentials))
-      {
-        var page = 0;
-        while (page < eventDatas.Length)
-        {
-          await trans.WriteAsync(eventDatas.Skip(page).Take(batchSize)).ConfigureAwait(false);
-          page += batchSize;
-        }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return await SendEventsAsync(connection, CombineStreamId(stream, topic), batchSize, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+    }
+    public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, int batchSize,
+      ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return await SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, batchSize, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
+    }
 
-        return await trans.CommitAsync().ConfigureAwait(false);
-      }
+
+
+
+    public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, int batchSize,
+      IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return await SendEventsAsync(connection, CombineStreamId(stream, topic), batchSize, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
+    }
+    public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, int batchSize,
+      IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return await SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, batchSize, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
     }
 
     #endregion

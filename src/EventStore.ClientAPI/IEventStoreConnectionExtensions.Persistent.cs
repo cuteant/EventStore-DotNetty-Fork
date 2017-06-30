@@ -10,7 +10,7 @@ namespace EventStore.ClientAPI
   {
     #region -- CreatePersistentSubscription --
 
-    /// <summary>Synchronous create a persistent subscription group on a stream.</summary>
+    /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream to create the persistent subscription on</param>
     /// <param name="groupName">The name of the group to create</param>
@@ -39,43 +39,51 @@ namespace EventStore.ClientAPI
       }
     }
 
-    #endregion
-
-    #region -- DeletePersistentSubscription --
-
-    /// <summary>Synchronous delete a persistent subscription group on a stream.</summary>
+    /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
-    /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
-      string stream, string groupName, UserCredentials userCredentials = null)
+    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void CreatePersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      CreatePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, subscriptionSettings, userCredentials);
+    }
 
-      try
-      {
-        AsyncContext.Run(
-          async (conn, streamId, group, credentials)
-            => await conn.DeletePersistentSubscriptionAsync(streamId, group, credentials).ConfigureAwait(false),
-          connection, stream, groupName, userCredentials);
-      }
-      catch (InvalidOperationException ex)
-      {
-        if (!string.Equals(ex.Message,
-                           string.Format(CultureInfo.InvariantCulture, Consts.PersistentSubscriptionDoesNotExist, groupName, stream),
-                           StringComparison.Ordinal))
-        {
-          throw ex;
-        }
-      }
+    /// <summary>Create a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void CreatePersistentSubscription<TEvent>(this IEventStoreConnectionBase2 connection,
+      string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      CreatePersistentSubscription(connection, CombineStreamId<TEvent>(null), groupName, subscriptionSettings, userCredentials);
+    }
+
+    /// <summary>Create a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void CreatePersistentSubscription<TEvent>(this IEventStoreConnectionBase2 connection,
+      string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      CreatePersistentSubscription(connection, CombineStreamId<TEvent>(topic), groupName, subscriptionSettings, userCredentials);
     }
 
     #endregion
 
     #region -- UpdatePersistentSubscription --
 
-    /// <summary>Synchronous update a persistent subscription group on a stream.</summary>
+    /// <summary>Update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream to create the persistent subscription on</param>
     /// <param name="groupName">The name of the group to create</param>
@@ -104,7 +112,218 @@ namespace EventStore.ClientAPI
       }
     }
 
+    /// <summary>Update a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void UpdatePersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      UpdatePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, subscriptionSettings, userCredentials);
+    }
+
+    /// <summary>Update a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void UpdatePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
+      string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      UpdatePersistentSubscription(connection, CombineStreamId<TEvent>(null), groupName, subscriptionSettings, userCredentials);
+    }
+
+    /// <summary>Update a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="userCredentials">The credentials to be used for this operation.</param>
+    public static void UpdatePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
+      string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      UpdatePersistentSubscription(connection, CombineStreamId<TEvent>(topic), groupName, subscriptionSettings, userCredentials);
+    }
+
     #endregion
+
+    #region -- DeletePersistentSubscription --
+
+    /// <summary>Delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string groupName, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      try
+      {
+        AsyncContext.Run(
+          async (conn, streamId, group, credentials)
+            => await conn.DeletePersistentSubscriptionAsync(streamId, group, credentials).ConfigureAwait(false),
+          connection, stream, groupName, userCredentials);
+      }
+      catch (InvalidOperationException ex)
+      {
+        if (!string.Equals(ex.Message,
+                           string.Format(CultureInfo.InvariantCulture, Consts.PersistentSubscriptionDoesNotExist, groupName, stream),
+                           StringComparison.Ordinal))
+        {
+          throw ex;
+        }
+      }
+    }
+
+    /// <summary>Delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, UserCredentials userCredentials = null)
+    {
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      DeletePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, userCredentials);
+    }
+
+    /// <summary>Delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    public static void DeletePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
+      string groupName, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      DeletePersistentSubscription(connection, CombineStreamId<TEvent>(null), groupName, userCredentials);
+    }
+
+    /// <summary>Delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    public static void DeletePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
+      string topic, string groupName, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      DeletePersistentSubscription(connection, CombineStreamId<TEvent>(topic), groupName, userCredentials);
+    }
+
+    #endregion
+
+    #region -- CreatePersistentSubscriptionAsync --
+
+    /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task CreatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.CreatePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, settings, credentials);
+    }
+
+    /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task CreatePersistentSubscriptionAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.CreatePersistentSubscriptionAsync<TEvent>(null, groupName, settings, credentials);
+    }
+
+    #endregion
+
+    #region -- UpdatePersistentSubscriptionAsync --
+
+    /// <summary>Asynchronously update a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task UpdatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.UpdatePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, settings, credentials);
+    }
+
+    /// <summary>Asynchronously update a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task UpdatePersistentSubscriptionAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.UpdatePersistentSubscriptionAsync<TEvent>(null, groupName, settings, credentials);
+    }
+
+
+    #endregion
+
+    #region -- DeletePersistentSubscriptionAsync --
+
+    /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task DeletePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string topic, string groupName, UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      return connection.DeletePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, userCredentials);
+    }
+
+    /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    public static Task DeletePersistentSubscriptionAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      string groupName, UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.DeletePersistentSubscriptionAsync<TEvent>(null, groupName, userCredentials);
+    }
+
+    #endregion
+
 
     #region -- ConnectToPersistentSubscription --
 

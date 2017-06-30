@@ -103,13 +103,6 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].GetEventAsync(stream, eventNumber, resolveLinkTos, userCredentials);
     }
 
-    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].GetEventAsync<TEvent>(eventNumber, resolveLinkTos, userCredentials);
-    }
-
     public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       var stream = SerializationManager.GetStreamId(typeof(TEvent));
@@ -128,13 +121,6 @@ namespace EventStore.ClientAPI.Internal
       return _innerConnections[index].InternalGetStreamEventsForwardAsync(stream, start, count, resolveLinkTos, userCredentials);
     }
 
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].GetStreamEventsForwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
-    }
-
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       var stream = SerializationManager.GetStreamId(typeof(TEvent));
@@ -146,13 +132,6 @@ namespace EventStore.ClientAPI.Internal
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].GetStreamEventsBackwardAsync(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      var index = CalculateConnectionIndex(stream, _connectionCount);
-      return _innerConnections[index].GetStreamEventsBackwardAsync<TEvent>(start, count, resolveLinkTos, userCredentials);
     }
 
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
@@ -380,6 +359,32 @@ namespace EventStore.ClientAPI.Internal
     {
       var index = CalculateConnectionIndex(stream, _connectionCount);
       return _innerConnections[index].DeletePersistentSubscriptionAsync(stream, groupName, userCredentials);
+    }
+
+    public Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+      where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+
+      return _innerConnections[index].CreatePersistentSubscriptionAsync<TEvent>(topic, groupName, settings, credentials);
+    }
+
+    public Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+      where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].UpdatePersistentSubscriptionAsync<TEvent>(topic, groupName, settings, credentials);
+
+    }
+
+    public Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      var stream = SerializationManager.GetStreamId(typeof(TEvent));
+      var index = CalculateConnectionIndex(stream, _connectionCount);
+      return _innerConnections[index].DeletePersistentSubscriptionAsync<TEvent>(topic, groupName, userCredentials);
     }
 
     public Task<WriteResult> SetStreamMetadataAsync(string stream, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)

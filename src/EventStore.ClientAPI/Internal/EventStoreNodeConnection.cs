@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Internal
@@ -279,23 +278,10 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      return InternalGetEventAsync<TEvent>(stream, eventNumber, resolveLinkTos, userCredentials);
-    }
-
     public Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
-      return InternalGetEventAsync<TEvent>(stream, eventNumber, resolveLinkTos, userCredentials);
-    }
-
-    private Task<EventReadResult<TEvent>> InternalGetEventAsync<TEvent>(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials) where TEvent : class
-    {
       if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
-
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = new TaskCompletionSource<EventReadResult<TEvent>>();
       var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
                                                      _settings.RequireMaster, userCredentials);
@@ -332,25 +318,13 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      return InternalGetStreamEventsForwardAsync<TEvent>(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
-      return InternalGetStreamEventsForwardAsync<TEvent>(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
-    private Task<StreamEventsSlice<TEvent>> InternalGetStreamEventsForwardAsync<TEvent>(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       Ensure.Nonnegative(start, nameof(start));
       Ensure.Positive(count, nameof(count));
       if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
 
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = new TaskCompletionSource<StreamEventsSlice<TEvent>>();
       var operation = new ReadStreamEventsForwardOperation<TEvent>(source, stream, start, count,
                                                                    resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -374,24 +348,12 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      var stream = SerializationManager.GetStreamId(typeof(TEvent));
-      return InternalGetStreamEventsBackwardAsync<TEvent>(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
-    {
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-      var stream = IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
-      return InternalGetStreamEventsBackwardAsync<TEvent>(stream, start, count, resolveLinkTos, userCredentials);
-    }
-
-    private Task<StreamEventsSlice<TEvent>> InternalGetStreamEventsBackwardAsync<TEvent>(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials) where TEvent : class
     {
       Ensure.Positive(count, nameof(count));
       if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
 
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = new TaskCompletionSource<StreamEventsSlice<TEvent>>();
       var operation = new ReadStreamEventsBackwardOperation<TEvent>(source, stream, start, count,
                                                                     resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -502,9 +464,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
-      var stream = string.IsNullOrEmpty(topic)
-                ? SerializationManager.GetStreamId(typeof(TEvent))
-                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = new TaskCompletionSource<EventStoreSubscription>();
       _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
       {
@@ -526,9 +486,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
 
-      var stream = string.IsNullOrEmpty(topic)
-                ? SerializationManager.GetStreamId(typeof(TEvent))
-                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = new TaskCompletionSource<EventStoreSubscription>();
       _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
       {
@@ -846,9 +804,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppeared, nameof(eventAppeared));
 
-      var stream = string.IsNullOrEmpty(topic)
-                ? SerializationManager.GetStreamId(typeof(TEvent))
-                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
           eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
 
@@ -864,9 +820,7 @@ namespace EventStore.ClientAPI.Internal
       Ensure.NotNull(settings, nameof(settings));
       Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
 
-      var stream = string.IsNullOrEmpty(topic)
-                ? SerializationManager.GetStreamId(typeof(TEvent))
-                : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic);
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
           eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
 
@@ -941,6 +895,28 @@ namespace EventStore.ClientAPI.Internal
       var source = new TaskCompletionSource<PersistentSubscriptionDeleteResult>();
       EnqueueOperation(new DeletePersistentSubscriptionOperation(source, stream, groupName, userCredentials));
       return source.Task;
+    }
+
+    public Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+      where TEvent : class
+    {
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+      return CreatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
+    }
+
+    public Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
+      where TEvent : class
+    {
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+      return UpdatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
+
+    }
+
+    public Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null)
+      where TEvent : class
+    {
+      var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+      return DeletePersistentSubscriptionAsync(stream, groupName, userCredentials);
     }
 
     #endregion

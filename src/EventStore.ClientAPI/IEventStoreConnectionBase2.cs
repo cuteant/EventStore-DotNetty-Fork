@@ -18,13 +18,6 @@ namespace EventStore.ClientAPI
     Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     /// <summary>Asynchronously reads a single event from a stream.</summary>
-    /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
-    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
-    Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
-
-    /// <summary>Asynchronously reads a single event from a stream.</summary>
     /// <param name="topic">The topic</param>
     /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
@@ -44,14 +37,6 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
     Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
-
-    /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
-    /// <param name="start">The starting point to read from</param>
-    /// <param name="count">The count of items to read</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
-    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
-    Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
 
     /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
     /// <param name="topic">The topic</param>
@@ -74,14 +59,6 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
     Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
-
-    /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
-    /// <param name="start">The position to start reading from</param>
-    /// <param name="count">The count to read from the position</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
-    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
-    Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
 
     /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
     /// <param name="topic">The topic</param>
@@ -337,6 +314,33 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+
+    #region -- Create/Update/Delete PersistentSubscription --
+
+    /// <summary>Asynchronously update a persistent subscription group on a stream.</summary>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class;
+
+    /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to create</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="credentials">The credentials to be used for this operation.</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class;
+
+    /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
+    /// <param name="topic">The topic</param>
+    /// <param name="groupName">The name of the group to delete</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
+    Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null) where TEvent : class;
+
+    #endregion
 
     #region -- PersistentSubscribeAsync(NonGeneric) --
 

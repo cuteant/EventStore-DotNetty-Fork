@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
+using CuteAnt.Text;
+using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -96,6 +99,48 @@ namespace EventStore.ClientAPI
                 async (conn, streamId, version, credentials)
                   => await conn.StartTransactionAsync(streamId, version, credentials).ConfigureAwait(false),
                 connection, stream, expectedVersion, userCredentials);
+    }
+
+    #endregion
+
+    #region == CombineStreamId ==
+
+    internal static string CombineStreamId(string stream, string topic)
+    {
+      const char _separator = '-';
+
+      var sb = StringBuilderCache.Acquire();
+      sb.Append(stream);
+      sb.Append(_separator);
+      sb.Append(topic);
+      return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    internal static string CombineStreamId<TEvent>(string topic, Type expectedType = null) where TEvent : class
+    {
+      return string.IsNullOrEmpty(topic)
+           ? SerializationManager.GetStreamId(typeof(TEvent), expectedType)
+           : CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent), expectedType), topic);
+    }
+
+    #endregion
+
+    #region ** DoWriteAsync **
+
+    private static async Task<WriteResult> DoWriteAsync(IEventStoreConnectionBase connection, string stream, long expectedVersion,
+      EventData[] eventDatas, int batchSize, UserCredentials userCredentials)
+    {
+      using (var trans = await connection.StartTransactionAsync(stream, expectedVersion, userCredentials))
+      {
+        var page = 0;
+        while (page < eventDatas.Length)
+        {
+          await trans.WriteAsync(eventDatas.Skip(page).Take(batchSize)).ConfigureAwait(false);
+          page += batchSize;
+        }
+
+        return await trans.CommitAsync().ConfigureAwait(false);
+      }
     }
 
     #endregion

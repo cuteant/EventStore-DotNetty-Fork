@@ -38,7 +38,7 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
                 async (conn, eventNum, resolveLinkToEvents, credentials)
-                  => await conn.GetEventAsync<TEvent>(eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
+                  => await conn.GetEventAsync<TEvent>(null, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
                 connection, eventNumber, resolveLinkTos, userCredentials);
     }
 
@@ -118,7 +118,7 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
                 async (conn, pointer, eventCount, resolveLinkToEvents, credentials)
-                  => await conn.GetStreamEventsForwardAsync<TEvent>(pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
+                  => await conn.GetStreamEventsForwardAsync<TEvent>(null, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
                 connection, start, count, resolveLinkTos, userCredentials);
     }
 
@@ -200,7 +200,7 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       return AsyncContext.Run(
                 async (conn, pointer, eventCount, resolveLinkToEvents, credentials)
-                  => await conn.GetStreamEventsBackwardAsync<TEvent>(pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
+                  => await conn.GetStreamEventsBackwardAsync<TEvent>(null, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
                 connection, start, count, resolveLinkTos, userCredentials);
     }
 
@@ -249,6 +249,23 @@ namespace EventStore.ClientAPI
 
     #endregion
 
+    #region -- GetEventAsync<TEvent> --
+
+    /// <summary>Asynchronously reads a single event from a stream.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
+    public static Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.GetEventAsync<TEvent>(null, eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    #endregion
+
     #region -- GetEventAsync(Topic) --
 
     /// <summary>Asynchronously reads a single event from a stream.</summary>
@@ -266,6 +283,24 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.GetEventAsync(CombineStreamId(stream, topic), eventNumber, resolveLinkTos, userCredentials);
+    }
+
+    #endregion
+
+    #region -- GetStreamEventsForwardAsync<TEvent> --
+
+    /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="start">The starting point to read from</param>
+    /// <param name="count">The count of items to read</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    public static Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.GetStreamEventsForwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -288,6 +323,24 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       return connection.GetStreamEventsForwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
+    }
+
+    #endregion
+
+    #region -- GetStreamEventsBackwardAsync<TEvent> --
+
+    /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="start">The position to start reading from</param>
+    /// <param name="count">The count to read from the position</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
+    /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
+    public static Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(this IEventStoreConnectionBase2 connection,
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      return connection.GetStreamEventsBackwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
     }
 
     #endregion

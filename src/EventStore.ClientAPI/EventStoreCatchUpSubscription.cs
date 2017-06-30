@@ -1222,7 +1222,7 @@ namespace EventStore.ClientAPI
                                            Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted,
                                            Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
                                            CatchUpSubscriptionSettings settings)
-      : base(connection, string.IsNullOrEmpty(topic) ? SerializationManager.GetStreamId(typeof(TEvent)) : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic),
+      : base(connection, IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic),
           fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
     {
       _topic = topic;
@@ -1237,7 +1237,7 @@ namespace EventStore.ClientAPI
                                            Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted,
                                            Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
                                            CatchUpSubscriptionSettings settings)
-      : base(connection, string.IsNullOrEmpty(topic) ? SerializationManager.GetStreamId(typeof(TEvent)) : IEventStoreConnectionExtensions.CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent)), topic),
+      : base(connection, IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic),
           fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
     {
       _topic = topic;

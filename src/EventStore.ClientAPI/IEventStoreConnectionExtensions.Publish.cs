@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CuteAnt.Reflection;
-using CuteAnt.Text;
 using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
 using Newtonsoft.Json;
@@ -470,21 +469,6 @@ namespace EventStore.ClientAPI
       {
         return await DoWriteAsync(connection, CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
       }
-    }
-
-    #endregion
-
-    #region == CombineStreamId ==
-
-    internal static string CombineStreamId(string stream, string topic)
-    {
-      const char _separator = '-';
-
-      var sb = StringBuilderCache.Acquire();
-      sb.Append(stream);
-      sb.Append(_separator);
-      sb.Append(topic);
-      return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     #endregion
