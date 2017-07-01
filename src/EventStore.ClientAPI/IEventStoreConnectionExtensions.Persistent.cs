@@ -1422,7 +1422,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, string subscriptionId, Action<ISubscriberRegistration> addHandlers,
+      string stream, string subscriptionId, Action<IConsumerRegistration> addHandlers,
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1449,7 +1449,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreConnectionBase2 connection,
       string stream, string subscriptionId,
-      ConnectToPersistentSubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      ConnectToPersistentSubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -1511,7 +1511,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, string topic, string subscriptionId, Action<ISubscriberRegistration> addHandlers,
+      string stream, string topic, string subscriptionId, Action<IConsumerRegistration> addHandlers,
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1541,7 +1541,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreConnectionBase2 connection,
       string stream, string topic, string subscriptionId,
-      ConnectToPersistentSubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      ConnectToPersistentSubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {

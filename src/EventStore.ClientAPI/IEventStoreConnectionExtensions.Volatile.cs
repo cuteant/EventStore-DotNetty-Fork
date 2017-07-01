@@ -920,7 +920,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      string stream, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -939,7 +939,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, SubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      string stream, SubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -981,7 +981,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, string topic, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      string stream, string topic, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -1003,7 +1003,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreConnectionBase2 connection,
-      string stream, string topic, SubscriptionSettings settings, Action<ISubscriberRegistration> addHandlers,
+      string stream, string topic, SubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {

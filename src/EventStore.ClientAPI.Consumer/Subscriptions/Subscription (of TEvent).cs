@@ -1,7 +1,6 @@
 ﻿using System;
 using EventStore.ClientAPI.Resilience;
 using EventStore.ClientAPI.SystemData;
-using EventStore.ClientAPI.Serialization;
 
 namespace EventStore.ClientAPI.Subscriptions
 {
@@ -16,7 +15,7 @@ namespace EventStore.ClientAPI.Subscriptions
       SubscriptionId = subscriptionId;
     }
 
-    public string StreamId => SerializationManager.GetStreamId(typeof(TEvent));
+    public string StreamId => typeof(TEvent).ToStreamId(Topic);
     public string SubscriptionId { get; }
     public string Topic { get; set; }
 

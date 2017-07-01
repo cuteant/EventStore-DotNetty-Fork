@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace EventStore.ClientAPI.AutoSubscribe
+namespace EventStore.ClientAPI.AutoSubscribing
 {
   /// <summary>ForTopicAttribute</summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = true)]
   public class ForTopicAttribute : Attribute
   {
     /// <summary>Constructor</summary>
@@ -18,7 +18,7 @@ namespace EventStore.ClientAPI.AutoSubscribe
   }
 
   /// <summary>ForTopicsAttribute</summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = false)]
   public class ForTopicsAttribute : Attribute
   {
     /// <summary>Constructor</summary>

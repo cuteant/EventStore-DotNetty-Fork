@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = false)]
   public class StreamMetadataAttribute : Attribute
   {
     /// <summary>The maximum number of events allowed in the stream.</summary>

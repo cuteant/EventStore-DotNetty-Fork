@@ -147,7 +147,7 @@ namespace EventStore.ClientAPI
 
     #region ** class HandlerAdder **
 
-    private sealed class HandlerAdder : ISubscriberRegistration
+    private sealed class HandlerAdder : IConsumerRegistration
     {
       private readonly IHandlerRegistration _handlerRegistration;
 
@@ -156,13 +156,13 @@ namespace EventStore.ClientAPI
         _handlerRegistration = handlerRegistration;
       }
 
-      public ISubscriberRegistration Add<T>(Func<T, Task> eventAppearedAsync) where T : class
+      public IConsumerRegistration Add<T>(Func<T, Task> eventAppearedAsync) where T : class
       {
         _handlerRegistration.Add<T>(iResolvedEvent => eventAppearedAsync(iResolvedEvent.OriginalEvent.FullEvent.Value));
         return this;
       }
 
-      public ISubscriberRegistration Add<T>(Action<T> eventAppeared) where T : class
+      public IConsumerRegistration Add<T>(Action<T> eventAppeared) where T : class
       {
         _handlerRegistration.Add<T>(iResolvedEvent => eventAppeared(iResolvedEvent.OriginalEvent.FullEvent.Value));
         return this;

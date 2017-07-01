@@ -987,7 +987,7 @@ namespace EventStore.ClientAPI
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
-      string stream, long? lastCheckpoint, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
@@ -1028,7 +1028,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
       string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<ISubscriberRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
+      Action<IConsumerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
@@ -1116,7 +1116,7 @@ namespace EventStore.ClientAPI
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
-      string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<ISubscriberRegistration> addHandlers,
+      string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
@@ -1160,7 +1160,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-      Action<ISubscriberRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
+      Action<IConsumerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }

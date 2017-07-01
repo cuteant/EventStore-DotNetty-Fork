@@ -14,7 +14,7 @@ namespace EventStore.ClientAPI.Consumers
     public TSubscription Subscription { get; private set; }
 
     protected Action<IHandlerRegistration> RegisterEventHandlers { get; private set; }
-    protected Action<ISubscriberRegistration> RegisterHandlers { get; private set; }
+    protected Action<IConsumerRegistration> RegisterHandlers { get; private set; }
     protected bool UsingEventHandlers { get; private set; }
 
     /// <summary>Initializes the external serializer. Called once when the serialization manager creates 
@@ -47,7 +47,7 @@ namespace EventStore.ClientAPI.Consumers
       UsingEventHandlers = true;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, TSubscription subscription, Action<ISubscriberRegistration> registerHandlers)
+    public void Initialize(IEventStoreConnectionBase2 connection, TSubscription subscription, Action<IConsumerRegistration> registerHandlers)
     {
       Initialize(connection, subscription);
       RegisterHandlers = registerHandlers ?? throw new ArgumentNullException(nameof(registerHandlers));
