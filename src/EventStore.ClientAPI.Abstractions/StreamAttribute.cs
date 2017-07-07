@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace EventStore.ClientAPI
 {
   /// <summary>ExpectedVersion: any, noStream, emptyStream, streamExists</summary>
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = false)]
   public class StreamAttribute : Attribute
   {
     public readonly string StreamId;

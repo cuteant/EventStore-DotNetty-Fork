@@ -4,11 +4,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
 {
   public interface IAutoSubscriberPersistentConsumeAsync
   {
-    Task Consume(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent);
+    Task ConsumeAsync(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent);
   }
 
   public interface IAutoSubscriberPersistentConsumeAsync<T> where T : class
   {
-    Task Consume(EventStorePersistentSubscription<T> subscription, ResolvedEvent<T> resolvedEvent);
+    Task ConsumeAsync(EventStorePersistentSubscription<T> subscription, ResolvedEvent<T> resolvedEvent);
   }
 }

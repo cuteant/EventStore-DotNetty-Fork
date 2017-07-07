@@ -11,7 +11,7 @@ namespace EventStore.ClientAPI
     /// <summary>ToStreamMetadata</summary>
     public static StreamMetadata ToStreamMetadata(this StreamMetadataAttribute metadata)
     {
-      if (null == metadata) { throw new ArgumentNullException(nameof(metadata)); }
+      if (null == metadata) { return null; }
 
       var builder = new StreamMetadataBuilder(metadata.MaxCount, metadata.MaxAge, metadata.TruncateBefore, metadata.CacheControl,
           metadata.AclRead, metadata.AclWrite, metadata.AclDelete, metadata.AclMetaRead, metadata.AclMetaWrite);

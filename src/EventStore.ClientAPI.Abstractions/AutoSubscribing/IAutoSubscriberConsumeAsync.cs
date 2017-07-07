@@ -4,6 +4,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
 {
   public interface IAutoSubscriberConsumeAsync<in T> where T : class
   {
-    Task Consume(T message);
+    Task ConsumeAsync(T message);
   }
 }

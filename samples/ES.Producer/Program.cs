@@ -34,7 +34,7 @@ namespace ES.Producer
             //conn.PublishEventAsync("00", new Dog { Name = "Dog-" + x, Bark = $"barking......" }, expectedType: typeof(IAnimal));
           }
           Console.WriteLine("event " + x + " written.");
-          Thread.Sleep(100);
+          Thread.Sleep(1000);
         }
       }
 

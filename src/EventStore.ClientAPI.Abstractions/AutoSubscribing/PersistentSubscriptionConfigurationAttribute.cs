@@ -42,6 +42,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
     public int? MaxSubscriberCount { get; set; }
 
     /// <summary>The strategy to use for distributing events to client consumers. See <see cref="EventStore.ClientAPI.Common.SystemConsumerStrategies"/> for system supported strategies.</summary>
-    public string NamedConsumerStrategy { get; set; } = EventStore.ClientAPI.Common.SystemConsumerStrategies.RoundRobin;
+    public string NamedConsumerStrategy { get; set; }
   }
 }

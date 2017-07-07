@@ -7,9 +7,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
   {
     public static PersistentSubscriptionSettings ToSettings(this PersistentSubscriptionConfigurationAttribute attr)
     {
-      if (null == attr) { throw new ArgumentNullException(nameof(attr)); }
-
       var builder = PersistentSubscriptionSettings.Create();
+      if (null == attr) { return builder.Build(); }
 
       if (attr.ResolveLinkTos.HasValue)
       {
@@ -45,9 +44,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     public static SubscriptionSettings ToSettings(this ConnectToVolatileSubscriptionConfigurationAttribute attr)
     {
-      if (null == attr) { throw new ArgumentNullException(nameof(attr)); }
-
       var settings = new SubscriptionSettings();
+      if (null == attr) { return settings; }
 
       if (attr.MaxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = attr.MaxMessagesPerTask.Value; }
 
@@ -66,14 +64,13 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     public static CatchUpSubscriptionSettings ToSettings(this ConnectToCatchUpSubscriptionConfigurationAttribute attr)
     {
-      if (null == attr) { throw new ArgumentNullException(nameof(attr)); }
-
       var settings = CatchUpSubscriptionSettings.Create(
-          maxLiveQueueSize: attr.MaxLiveQueueSize ?? Consts.CatchUpDefaultMaxPushQueueSize,
-          readBatchSize: attr.ReadBatchSize ?? Consts.CatchUpDefaultReadBatchSize,
-          resolveLinkTos: attr.ResolveLinkTos.GetValueOrDefault(),
-          subscriptionName: attr.SubscriptionName ?? string.Empty,
-          verboseLogging: attr.VerboseLogging.GetValueOrDefault());
+          maxLiveQueueSize: attr?.MaxLiveQueueSize ?? Consts.CatchUpDefaultMaxPushQueueSize,
+          readBatchSize: attr?.ReadBatchSize ?? Consts.CatchUpDefaultReadBatchSize,
+          resolveLinkTos: attr?.ResolveLinkTos ?? true,
+          subscriptionName: attr?.SubscriptionName ?? string.Empty,
+          verboseLogging: attr?.VerboseLogging ?? false);
+      if (null == attr) { return settings; }
 
       if (attr.MaxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = attr.MaxMessagesPerTask.Value; }
 
@@ -86,11 +83,10 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     public static ConnectToPersistentSubscriptionSettings ToSettings(this ConnectToPersistentSubscriptionConfigurationAttribute attr)
     {
-      if (null == attr) { throw new ArgumentNullException(nameof(attr)); }
-
       var settings = new ConnectToPersistentSubscriptionSettings(
-          bufferSize: attr.BufferSize ?? 10,
-          autoAck: attr.AutoAck ?? true);
+          bufferSize: attr?.BufferSize ?? 10,
+          autoAck: attr?.AutoAck ?? true);
+      if (null == attr) { return settings; }
 
       if (attr.MaxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = attr.MaxMessagesPerTask.Value; }
 
@@ -103,6 +99,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     public static UserCredentials ToCredentials(this AutoSubscriberUserCredentialAttribute attr)
     {
+      if (null == attr) { return null; }
       return new UserCredentials(attr.Username, attr.Password);
     }
   }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Subscriptions;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,15 @@ namespace EventStore.ClientAPI.Consumers
 
     private Func<EventStoreSubscription, ResolvedEvent<object>, Task> _eventAppearedAsync;
     private Action<EventStoreSubscription, ResolvedEvent<object>> _eventAppeared;
+
+    private EventStoreSubscription _esSubscription;
+
+    protected override void OnDispose(bool disposing)
+    {
+      base.OnDispose(disposing);
+      var subscription = Interlocked.Exchange(ref _esSubscription, null);
+      subscription?.Dispose();
+    }
 
     public void Initialize(IEventStoreConnectionBase2 connection, VolatileSubscription subscription, Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync)
     {
@@ -27,6 +37,8 @@ namespace EventStore.ClientAPI.Consumers
 
     public override async Task ConnectToSubscriptionAsync()
     {
+      if (Interlocked.CompareExchange(ref _subscribed, ON, OFF) == ON) { return; }
+
       try
       {
         if (UsingEventHandlers)
@@ -35,13 +47,13 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (RegisterEventHandlers != null)
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, RegisterEventHandlers,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, RegisterEventHandlers,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
             else
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, RegisterHandlers,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, RegisterHandlers,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
@@ -50,13 +62,13 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (RegisterEventHandlers != null)
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, RegisterEventHandlers,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, RegisterEventHandlers,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
             else
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, RegisterHandlers,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, RegisterHandlers,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
@@ -68,13 +80,13 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (_eventAppearedAsync != null)
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, _eventAppearedAsync,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, _eventAppearedAsync,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
             else
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, _eventAppeared,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Settings, _eventAppeared,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
@@ -83,13 +95,13 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (_eventAppearedAsync != null)
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, _eventAppearedAsync,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, _eventAppearedAsync,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }
             else
             {
-              await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, _eventAppeared,
+              _esSubscription = await Connection.VolatileSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.Settings, _eventAppeared,
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials).ConfigureAwait(false);
             }

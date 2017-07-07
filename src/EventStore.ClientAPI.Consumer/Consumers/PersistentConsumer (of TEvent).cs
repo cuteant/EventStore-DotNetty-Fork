@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Subscriptions;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,15 @@ namespace EventStore.ClientAPI.Consumers
     private Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> _resolvedEventAppeared;
     private Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> _eventAppearedAsync;
     private Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> _eventAppeared;
+
+    private EventStorePersistentSubscription<TEvent> esSubscription;
+
+    protected override void OnDispose(bool disposing)
+    {
+      base.OnDispose(disposing);
+      var subscription = Interlocked.Exchange(ref esSubscription, null);
+      subscription?.Stop(TimeSpan.FromMinutes(1));
+    }
 
     protected override void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription)
     {
@@ -60,6 +70,7 @@ namespace EventStore.ClientAPI.Consumers
 
     public override async Task ConnectToSubscriptionAsync()
     {
+      if (Interlocked.CompareExchange(ref _subscribed, ON, OFF) == ON) { return; }
 
       if (string.IsNullOrEmpty(Subscription.Topic))
       {
@@ -75,6 +86,8 @@ namespace EventStore.ClientAPI.Consumers
 
     public override async Task ConnectToSubscriptionAsync(long? lastCheckpoint)
     {
+      if (Interlocked.CompareExchange(ref _subscribed, ON, OFF) == ON) { return; }
+
       if (string.IsNullOrEmpty(Subscription.Topic))
       {
         Connection.DeletePersistentSubscription<TEvent>(Subscription.SubscriptionId, Subscription.Credentials);
@@ -105,13 +118,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_resolvedEventAppearedAsync != null)
           {
-            await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
+            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
+            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
@@ -120,13 +133,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_eventAppearedAsync != null)
           {
-            await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
+            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppeared,
+            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }

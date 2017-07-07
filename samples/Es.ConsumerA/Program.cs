@@ -38,9 +38,9 @@ namespace Es.Consumer
 
         #region PersistentSubscription
 
-        //var settings = new ConnectToPersistentSubscriptionSettings();
-        ////var settings = new ConnectToPersistentSubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
-        ////var settings = new ConnectToPersistentSubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+        var settings = new ConnectToPersistentSubscriptionSettings();
+        //var settings = new ConnectToPersistentSubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
+        //var settings = new ConnectToPersistentSubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
 
         //var sub = conn.PersistentSubscribeAsync(STREAM, GROUP, settings,
         //    addHandlers: _ =>
@@ -93,23 +93,23 @@ namespace Es.Consumer
         //{
         //  Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
         //});
-        //conn.PersistentSubscribeAsync<IAnimal>(GROUP, settings, async (_, x) =>
-        //{
-        //  var msg = x.OriginalEvent.FullEvent.Value;
-        //  if (msg is Cat cat)
-        //  {
-        //    Console.WriteLine("Received1: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-        //  }
-        //  if (msg is Dog dog)
-        //  {
-        //    Console.WriteLine("Received1: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-        //  }
-        //  await Task.Delay(500);
-        //},
-        //(subscription, reason, exc) =>
-        //{
-        //  Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-        //});
+        conn.PersistentSubscribeAsync<IAnimal>(GROUP, settings, async (_, x) =>
+        {
+          var msg = x.OriginalEvent.FullEvent.Value;
+          if (msg is Cat cat)
+          {
+            Console.WriteLine("Received1: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+          }
+          if (msg is Dog dog)
+          {
+            Console.WriteLine("Received1: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+          }
+          await Task.Delay(500);
+        },
+        (subscription, reason, exc) =>
+        {
+          Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+        });
 
         #endregion
 

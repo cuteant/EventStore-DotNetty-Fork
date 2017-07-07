@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CuteAnt;
 using EventStore.ClientAPI.Resilience;
 using EventStore.ClientAPI.Subscriptions;
 
 namespace EventStore.ClientAPI.Consumers
 {
   /// <summary>The abstract base class which supports the different consumer types.</summary>
-  public abstract class StreamConsumer<TSubscription, TSettings, TEvent> : IStreamConsumer
+  public abstract class StreamConsumer<TSubscription, TSettings, TEvent> : DisposeBase, IStreamConsumer
     where TSubscription : class, ISubscription<TSettings>
     where TSettings : SubscriptionSettings
     where TEvent : class
   {
+    internal const int ON = 1;
+    internal const int OFF = 0;
+    internal int _subscribed;
+
     public IEventStoreConnectionBase2 Connection { get; private set; }
     public TSubscription Subscription { get; private set; }
 
@@ -43,6 +48,9 @@ namespace EventStore.ClientAPI.Consumers
     public virtual Task ConnectToSubscriptionAsync(long? lastCheckpoint) => ConnectToSubscriptionAsync();
 
     protected async Task HandleDroppedSubscriptionAsync(DroppedSubscription subscriptionDropped)
-        => await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscriptionAsync());
+    {
+      if (this.Disposed) { return; }
+      await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscriptionAsync());
+    }
   }
 }
