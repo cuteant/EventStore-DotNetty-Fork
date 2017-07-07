@@ -51,7 +51,7 @@ namespace EventStore.Core.Services.Transport.Tcp
     private readonly SendToWeakThisEnvelope _weakThisEnvelope;
     private readonly TimeSpan _heartbeatInterval;
     private readonly TimeSpan _heartbeatTimeout;
-        private readonly int _connectionPendingSendBytesThreshold;
+    private readonly int _connectionPendingSendBytesThreshold;
 
     private readonly IAuthenticationProvider _authProvider;
     private UserCredentials _defaultUser;
@@ -410,20 +410,20 @@ namespace EventStore.Core.Services.Transport.Tcp
       if (IsClosed) return;
 
       int queueSize;
-            int queueSendBytes;
-            if (checkQueueSize)
-            {
-                if ((queueSize = _connection.SendQueueSize) > ConnectionQueueSizeThreshold)
-                {
-                    SendBadRequestAndClose(Guid.Empty, string.Format("Connection queue size is too large: {0}.", queueSize));
-                    return;
-                }
-                if ((queueSendBytes = _connection.PendingSendBytes) > _connectionPendingSendBytesThreshold)
-                {
-                    SendBadRequestAndClose(Guid.Empty, string.Format("Connection pending send bytes is too large: {0}. The current threshold is {1} bytes", queueSendBytes, _connectionPendingSendBytesThreshold));
-                    return;
-                }
-            }
+      int queueSendBytes;
+      if (checkQueueSize)
+      {
+        if ((queueSize = _connection.SendQueueSize) > ConnectionQueueSizeThreshold)
+        {
+          SendBadRequestAndClose(Guid.Empty, string.Format("Connection queue size is too large: {0}.", queueSize));
+          return;
+        }
+        if ((queueSendBytes = _connection.PendingSendBytes) > _connectionPendingSendBytesThreshold)
+        {
+          SendBadRequestAndClose(Guid.Empty, string.Format("Connection pending send bytes is too large: {0}. The current threshold is {1} bytes", queueSendBytes, _connectionPendingSendBytesThreshold));
+          return;
+        }
+      }
 
       var data = package.AsArraySegment();
       var framed = _framer.FrameData(data);

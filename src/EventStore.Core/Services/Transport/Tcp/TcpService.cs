@@ -137,7 +137,7 @@ namespace EventStore.Core.Services.Transport.Tcp
               _heartbeatInterval,
               _heartbeatTimeout,
               (m, e) => _publisher.Publish(new TcpMessage.ConnectionClosed(m, e)), // TODO AN: race condition
-              connectionPendingSendBytesThreshold);
+              _connectionPendingSendBytesThreshold);
       _publisher.Publish(new TcpMessage.ConnectionEstablished(manager));
       manager.StartReceiving();
     }

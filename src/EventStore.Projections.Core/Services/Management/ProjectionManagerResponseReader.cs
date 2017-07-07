@@ -105,78 +105,83 @@ namespace EventStore.Projections.Core.Services.Management
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished Starting Projection Manager Response Reader (reads from $projections-$master)");
 
 
-            ReadForward();
+      ReadForward();
+    }
+
+    private void ReadForward()
+    {
+      _correlationId = Guid.NewGuid();
+      _cancellationScope.Register(
+          _ioDispatcher.ReadForward(
+              ProjectionNamesBuilder._projectionsMasterStream,
+              _readFrom,
+              10,
+              false,
+              SystemAccount.Principal,
+              ReadForwardCompleted,
+              _correlationId)
+      );
+      _publisher.Publish(TimerMessage.Schedule.Create(
+          TimeSpan.FromMilliseconds(ESConsts.ReadRequestTimeout),
+          new SendToThisEnvelope(this),
+          new ProjectionManagementMessage.Internal.ReadTimeout(_correlationId, ProjectionNamesBuilder._projectionsMasterStream)));
+    }
+
+    private void ReadForwardCompleted(ClientMessage.ReadStreamEventsForwardCompleted completed)
+    {
+      if (_cancellationScope.Cancelled(completed.CorrelationId)) return;
+      if (completed.CorrelationId != _correlationId) return;
+      _correlationId = Guid.Empty;
+      if (completed.Result == ReadStreamResult.Success || completed.Result == ReadStreamResult.NoStream)
+      {
+        _readFrom = completed.NextEventNumber == -1 ? 0 : completed.NextEventNumber;
+
+        if (completed.Result == ReadStreamResult.Success)
+        {
+          foreach (var e in completed.Events)
+          {
+            PublishCommand(e);
+          }
         }
 
-        private void ReadForward()
+        if (completed.IsEndOfStream)
         {
-            _correlationId = Guid.NewGuid();
-            _cancellationScope.Register(
-                _ioDispatcher.ReadForward(
-                    ProjectionNamesBuilder._projectionsMasterStream,
-                    _readFrom,
-                    10,
-                    false,
-                    SystemAccount.Principal,
-                    ReadForwardCompleted,
-                    _correlationId)
-            );
-            _publisher.Publish(TimerMessage.Schedule.Create(
-                TimeSpan.FromMilliseconds(ESConsts.ReadRequestTimeout),
-                new SendToThisEnvelope(this),
-                new ProjectionManagementMessage.Internal.ReadTimeout(_correlationId, ProjectionNamesBuilder._projectionsMasterStream)));
+          var subscribeFrom = new TFPos(
+              completed.TfLastCommitPosition,
+              completed.TfLastCommitPosition);
+          SubscribeAwake(subscribeFrom);
         }
-
-        private void ReadForwardCompleted(ClientMessage.ReadStreamEventsForwardCompleted completed)
+        else
         {
+          ReadForward();
+        }
+      }
+      else
+      {
+        Log.LogError("Failed reading stream {0}. Read result: {1}, Error: '{2}'", ProjectionNamesBuilder._projectionsMasterStream, completed.Result, completed.Error);
+        ReadForward();
+      }
+    }
+
+    public void Handle(ProjectionManagementMessage.Internal.ReadTimeout timeout)
+    {
+      if (timeout.CorrelationId != _correlationId) return;
+      if (Log.IsDebugLevelEnabled()) Log.LogDebug("Read forward of stream {0} timed out. Retrying", ProjectionNamesBuilder._projectionsMasterStream);
+      ReadForward();
+    }
+
+    private void SubscribeAwake(TFPos subscribeFrom)
+    {
+      _ioDispatcher.SubscribeAwake(
+          ProjectionNamesBuilder._projectionsMasterStream,
+          subscribeFrom,
+          completed =>
+          {
             if (_cancellationScope.Cancelled(completed.CorrelationId)) return;
-            if(completed.CorrelationId != _correlationId) return;
-            _correlationId = Guid.Empty;
-            if (completed.Result == ReadStreamResult.Success
-                        || completed.Result == ReadStreamResult.NoStream)
-            {
-                _readFrom = completed.NextEventNumber == -1 ? 0 : completed.NextEventNumber;
-
-                if (completed.Result == ReadStreamResult.Success)
-                {
-                    foreach (var e in completed.Events)
-                        PublishCommand(e);
-                }
-
-                if (completed.IsEndOfStream) {
-                    var subscribeFrom = new TFPos(
-                        completed.TfLastCommitPosition,
-                        completed.TfLastCommitPosition);
-                    SubscribeAwake(subscribeFrom);
-                } else {
-                    ReadForward();
-                }
-            }
-            else
-            {
-                Log.Error("Failed reading stream {0}. Read result: {1}, Error: '{2}'", ProjectionNamesBuilder._projectionsMasterStream, completed.Result, completed.Error);
-                ReadForward();
-            }
-        }
-
-        public void Handle(ProjectionManagementMessage.Internal.ReadTimeout timeout)
-        {
-            if (timeout.CorrelationId != _correlationId) return;
-            Log.Debug("Read forward of stream {0} timed out. Retrying", ProjectionNamesBuilder._projectionsMasterStream);
             ReadForward();
-        }
-
-        private void SubscribeAwake(TFPos subscribeFrom)
-        {
-            _ioDispatcher.SubscribeAwake(
-                ProjectionNamesBuilder._projectionsMasterStream,
-                subscribeFrom,
-                completed =>  {
-                    if (_cancellationScope.Cancelled(completed.CorrelationId)) return;
-                    ReadForward();
-                },
-                null);
-        }
+          },
+          null);
+    }
 
     private void PublishCommand(ResolvedEvent resolvedEvent)
     {
