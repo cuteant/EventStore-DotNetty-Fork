@@ -89,17 +89,42 @@ namespace EventStore.ClientAPI.Resilience
 
     private static Task RetrySubscriptionAsync(Func<Task> compensatingAction, RetryPolicy retryPolicy)
     {
-      if (retryPolicy.RetryType == RetryType.Provider)
+      if (retryPolicy.MaxNoOfRetries == RetryPolicy.Unbounded)
       {
-        return Policy
-            .Handle<Exception>()
-            .WaitAndRetryAsync((int)retryPolicy.MaxNoOfRetries, retryPolicy.SleepDurationProvider)
-            .ExecuteAsync(compensatingAction);
+        switch (retryPolicy.ProviderType)
+        {
+          case SleepDurationProviderType.FixedDuration:
+          case SleepDurationProviderType.ExponentialDuration:
+            return Policy
+                .Handle<Exception>()
+                .WaitAndRetryForeverAsync(retryPolicy.SleepDurationProvider)
+                .ExecuteAsync(compensatingAction);
+          case SleepDurationProviderType.Immediately:
+          default:
+            return Policy
+                .Handle<Exception>()
+                .RetryForeverAsync()
+                .ExecuteAsync(compensatingAction);
+        }
       }
-      return Policy
-          .Handle<Exception>()
-          .WaitAndRetryAsync(retryPolicy.SleepDurations)
-          .ExecuteAsync(compensatingAction);
+      else
+      {
+        switch (retryPolicy.ProviderType)
+        {
+          case SleepDurationProviderType.FixedDuration:
+          case SleepDurationProviderType.ExponentialDuration:
+            return Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(retryPolicy.MaxNoOfRetries, retryPolicy.SleepDurationProvider)
+                .ExecuteAsync(compensatingAction);
+          case SleepDurationProviderType.Immediately:
+          default:
+            return Policy
+                .Handle<Exception>()
+                .RetryAsync(retryPolicy.MaxNoOfRetries)
+                .ExecuteAsync(compensatingAction);
+        }
+      }
     }
   }
 }

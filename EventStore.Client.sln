@@ -86,6 +86,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.StreamRe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Consumer", "src\EventStore.ClientAPI.Consumer\EventStore.ClientAPI.Consumer.csproj", "{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.DateTimeUtilities.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.shproj", "{F0DCBA0C-1EE9-403C-931C-555776F6C680}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
@@ -95,6 +97,7 @@ Global
 		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems*{f0dcba0c-1ee9-403c-931c-555776f6c680}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +179,7 @@ Global
 		{3BC73C7D-9AC0-43BB-B0E5-30C16531CB33} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{1AB88764-60ED-44F3-9E98-08391B5F5CDB} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{6A3F38EB-7FE0-46F1-A7A1-B1992CB1D38F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{F0DCBA0C-1EE9-403C-931C-555776F6C680} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj

@@ -26,13 +26,19 @@ namespace EventStore.ClientAPI.Subscriptions
     public RetryPolicy RetryPolicy { get; set; }
     public UserCredentials Credentials { get; set; }
 
-    public TSubscription SetRetryPolicy(params TimeSpan[] durations)
+    public TSubscription SetRetryPolicy(int maxNoOfRetries, TimeSpan duration)
     {
-      RetryPolicy = new RetryPolicy(durations);
+      RetryPolicy = new RetryPolicy(maxNoOfRetries, duration);
       return this as TSubscription;
     }
 
-    public TSubscription SetRetryPolicy(Retries maxNoOfRetries, Func<int, TimeSpan> provider)
+    public TSubscription SetRetryPolicy(int maxNoOfRetries, TimeSpan minDelay, TimeSpan maxDelay, TimeSpan step, double powerFactor)
+    {
+      RetryPolicy = new RetryPolicy(maxNoOfRetries, minDelay, maxDelay, step, powerFactor);
+      return this as TSubscription;
+    }
+
+    public TSubscription SetRetryPolicy(int maxNoOfRetries, Func<int, TimeSpan> provider)
     {
       RetryPolicy = new RetryPolicy(maxNoOfRetries, provider);
       return this as TSubscription;

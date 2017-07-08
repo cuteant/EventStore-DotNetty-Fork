@@ -15,6 +15,8 @@ namespace EventStore.ClientAPI.Consumers
     internal const int OFF = 0;
     internal int _subscribed;
 
+    protected static readonly RetryPolicy DefaultRetryPolicy = new RetryPolicy(RetryPolicy.Unbounded, TimeSpan.FromMilliseconds(1000), TimeSpan.FromHours(2), TimeSpan.FromMilliseconds(1000), 1.2D);
+
     public IEventStoreConnectionBase2 Connection { get; private set; }
     public TSubscription Subscription { get; private set; }
 
@@ -58,9 +60,6 @@ namespace EventStore.ClientAPI.Consumers
       RegisterHandlers = registerHandlers ?? throw new ArgumentNullException(nameof(registerHandlers));
       UsingEventHandlers = true;
     }
-
-    //set the default RetryPolicy for each subscription - max 5 retries with exponential backoff
-    protected static readonly RetryPolicy DefaultRetryPolicy = new RetryPolicy(5.Retries(), retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
     public abstract Task ConnectToSubscriptionAsync();
     public virtual Task ConnectToSubscriptionAsync(long? lastCheckpoint) => ConnectToSubscriptionAsync();

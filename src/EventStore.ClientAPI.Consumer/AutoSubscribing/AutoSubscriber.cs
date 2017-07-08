@@ -480,6 +480,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         Settings = GetCustomAttribute<ConnectToVolatileSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
         StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
+        RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
         Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
       };
     }
@@ -500,6 +501,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         Settings = GetCustomAttribute<ConnectToCatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
         StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
+        RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
         Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
       };
     }
@@ -525,6 +527,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
         PersistentSettings = GetCustomAttribute<PersistentSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
 
+        RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
         Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
       };
     }
@@ -867,6 +870,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           Settings = GetCustomAttribute<ConnectToVolatileSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
           StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
+          RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
           Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
         };
       }
@@ -884,6 +888,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           Settings = GetCustomAttribute<ConnectToCatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
           StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
+          RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
           Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
         };
       }
@@ -906,6 +911,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
           PersistentSettings = GetCustomAttribute<PersistentSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
 
+          RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
           Credentials = GetCustomAttribute<AutoSubscriberUserCredentialAttribute>(consumerInfo, consumeMethod).ToCredentials()
         };
       }

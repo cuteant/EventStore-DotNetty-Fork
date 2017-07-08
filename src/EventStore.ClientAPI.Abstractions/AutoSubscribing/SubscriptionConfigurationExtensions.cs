@@ -1,4 +1,5 @@
 ﻿using System;
+using EventStore.ClientAPI.Resilience;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.AutoSubscribing
@@ -101,6 +102,21 @@ namespace EventStore.ClientAPI.AutoSubscribing
     {
       if (null == attr) { return null; }
       return new UserCredentials(attr.Username, attr.Password);
+    }
+
+    public static RetryPolicy ToRetryPolicy(this AutoSubscriberRetryPolicyAttribute attr)
+    {
+      if (null == attr) { return null; }
+      switch (attr.ProviderType)
+      {
+        case SleepDurationProviderType.FixedDuration:
+          return new RetryPolicy(attr.MaxNoOfRetries, attr.FixedSleepDuration);
+        case SleepDurationProviderType.ExponentialDuration:
+          return new RetryPolicy(attr.MaxNoOfRetries, attr.MinDelay, attr.MaxDelay, attr.Step, attr.PowerFactor);
+        case SleepDurationProviderType.Immediately:
+        default:
+          return new RetryPolicy(attr.MaxNoOfRetries);
+      }
     }
   }
 }
