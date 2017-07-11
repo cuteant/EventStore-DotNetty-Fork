@@ -36,7 +36,7 @@ namespace EventStore.ClientAPI.ClientOperations
     private readonly List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>> _actionBlocks;
     private readonly ITargetBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _targetBlock;
     private readonly IDisposable _links;
-    private TSubscription _subscription;
+    protected TSubscription _subscription;
     private int _unsubscribed;
     protected Guid _correlationId;
 
@@ -388,13 +388,18 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
+    protected virtual void ProcessResolvedEvent(TResolvedEvent resolvedEvent)
+    {
+      _eventAppeared(_subscription, resolvedEvent);
+    }
+
     private void ProcessItem((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
       try
       {
         if (item.isResolvedEvent)
         {
-          _eventAppeared(_subscription, item.resolvedEvent);
+          ProcessResolvedEvent(item.resolvedEvent);
         }
         else
         {
@@ -416,13 +421,18 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
+    protected virtual Task ProcessResolvedEventAsync(TResolvedEvent resolvedEvent)
+    {
+      return _eventAppearedAsync(_subscription, resolvedEvent);
+    }
+
     private async Task ProcessItemAsync((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
     {
       try
       {
         if (item.isResolvedEvent)
         {
-          await _eventAppearedAsync(_subscription, item.resolvedEvent).ConfigureAwait(false);
+          await ProcessResolvedEventAsync(item.resolvedEvent).ConfigureAwait(false);
         }
         else
         {

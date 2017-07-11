@@ -6,7 +6,7 @@ namespace EventStore.ClientAPI
     /// Represents a subscription to a single stream or to the stream
     /// of all events in the Event Store.
     /// </summary>
-    public abstract class EventStoreSubscription : IDisposable
+    public abstract class EventStoreSubscription : IDisposable, IStreamCheckpointer
     {
         /// <summary>
         /// True if this subscription is to all streams.
@@ -54,5 +54,7 @@ namespace EventStore.ClientAPI
         ///Unsubscribes from the stream
         ///</summary>
         public abstract void Unsubscribe();
+
+        public virtual long ProcessingEventNumber => StreamPosition.End;
     }
 }

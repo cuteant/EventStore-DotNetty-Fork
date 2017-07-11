@@ -776,16 +776,18 @@ namespace EventStore.ClientAPI
   #region --- class EventStoreStreamCatchUpSubscriptionBase ---
 
   /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
-  public abstract class EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent> : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>
+  public abstract class EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent> : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>, IStreamCheckpointer
     where TSubscription : EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent>
     where TStreamEventsSlice : IStreamEventsSlice<TResolvedEvent>
     where TResolvedEvent : IResolvedEvent//, new()
   {
-    /// <summary>The last event number processed on the subscription.</summary>
-    public long LastProcessedEventNumber => _lastProcessedEventNumber;
-
     protected long _nextReadEventNumber;
     protected long _lastProcessedEventNumber;
+    private long _processingEventNumber;
+
+    /// <summary>The last event number processed on the subscription.</summary>
+    public long LastProcessedEventNumber => _lastProcessedEventNumber;
+    public long ProcessingEventNumber => _processingEventNumber;
 
     internal EventStoreStreamCatchUpSubscriptionBase(IEventStoreConnection connection,
                                                      string streamId,
@@ -885,6 +887,7 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalEventNumber > _lastProcessedEventNumber)
       {
+        Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
         try
         {
           EventAppeared(this as TSubscription, e);
@@ -912,6 +915,7 @@ namespace EventStore.ClientAPI
       bool processed = false;
       if (e.OriginalEventNumber > _lastProcessedEventNumber)
       {
+        Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
         try
         {
           await EventAppearedAsync(this as TSubscription, e).ConfigureAwait(false);

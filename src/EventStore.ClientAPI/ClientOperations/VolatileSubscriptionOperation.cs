@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Messages;
@@ -165,6 +166,9 @@ namespace EventStore.ClientAPI.ClientOperations
   internal abstract class VolatileSubscriptionOperationBase<TResolvedEvent> : SubscriptionOperation<EventStoreSubscription, TResolvedEvent>, IVolatileSubscriptionOperation
     where TResolvedEvent : IResolvedEvent
   {
+    private long _processingEventNumber;
+    public long ProcessingEventNumber => _processingEventNumber;
+
     public VolatileSubscriptionOperationBase(TaskCompletionSource<EventStoreSubscription> source,
       string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
       Action<EventStoreSubscription, TResolvedEvent> eventAppeared,
@@ -214,6 +218,18 @@ namespace EventStore.ClientAPI.ClientOperations
     {
       return new VolatileEventStoreSubscription(this, _streamId, lastCommitPosition, lastEventNumber);
     }
+
+    protected override void ProcessResolvedEvent(TResolvedEvent resolvedEvent)
+    {
+      Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
+      _eventAppeared(_subscription, resolvedEvent);
+    }
+
+    protected override Task ProcessResolvedEventAsync(TResolvedEvent resolvedEvent)
+    {
+      Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
+      return _eventAppearedAsync(_subscription, resolvedEvent);
+    }
   }
 
   #endregion
@@ -222,6 +238,8 @@ namespace EventStore.ClientAPI.ClientOperations
 
   internal interface IVolatileSubscriptionOperation
   {
+    long ProcessingEventNumber { get; }
+
     void Unsubscribe();
   }
 

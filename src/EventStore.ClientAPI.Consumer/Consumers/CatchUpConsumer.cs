@@ -147,8 +147,11 @@ namespace EventStore.ClientAPI.Consumers
 
     private async Task SubscriptionDroppedAsync(EventStoreCatchUpSubscription2 subscription, SubscriptionDropReason dropReason, Exception exception)
     {
-      var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
-      await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+      if (await CanRetryAsync(subscription.ProcessingEventNumber, dropReason).ConfigureAwait(false))
+      {
+        var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
+        await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+      }
     }
   }
 }

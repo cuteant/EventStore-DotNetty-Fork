@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI
   }
 
   /// <summary>Represents a persistent subscription connection.</summary>
-  public abstract class EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
+  public abstract class EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent> : IStreamCheckpointer
     where TSubscription : EventStorePersistentSubscriptionBase<TSubscription, TResolvedEvent>
     where TResolvedEvent : IResolvedEvent//, new()
   {
@@ -64,9 +64,12 @@ namespace EventStore.ClientAPI
     private int _isDropped;
     private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
     private readonly int _bufferSize;
+    private long _processingEventNumber;
 
     /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
     internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
+
+    public long ProcessingEventNumber => _processingEventNumber;
 
     internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
                                                   ConnectToPersistentSubscriptionSettings settings,
@@ -269,6 +272,9 @@ namespace EventStore.ClientAPI
         DropSubscription(_dropData.Reason, _dropData.Error);
         return;
       }
+
+      Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
+
       if (_dropData != null)
       {
         DropSubscription(_dropData.Reason, _dropData.Error);
@@ -304,6 +310,9 @@ namespace EventStore.ClientAPI
         DropSubscription(_dropData.Reason, _dropData.Error);
         return;
       }
+
+      Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
+
       if (_dropData != null)
       {
         DropSubscription(_dropData.Reason, _dropData.Error);

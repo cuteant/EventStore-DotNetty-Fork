@@ -14,11 +14,11 @@ namespace EventStore.ClientAPI.Resilience
     /// <summary>Handles a dropped subscription according to a specified policy.</summary>
     /// <param name="subscription">The stream to which the subscription was dropped.</param>
     /// <param name="compensatingAction">The action to take in order to handle the subscription being dropped.</param>
+    /// <param name="retryPolicy"></param>
     /// <returns>An asynchronous Task.</returns>
-    public static async Task Handle(DroppedSubscription subscription, Func<Task> compensatingAction)
+    public static async Task Handle(DroppedSubscription subscription, Func<Task> compensatingAction, RetryPolicy retryPolicy)
     {
       var message = subscription.ExceptionMessage;
-      var retryPolicy = subscription.RetryPolicy;
 
       switch (subscription.DropReason)
       {

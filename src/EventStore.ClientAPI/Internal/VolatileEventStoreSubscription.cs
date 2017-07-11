@@ -16,5 +16,7 @@ namespace EventStore.ClientAPI.Internal
         {
             _subscriptionOperation.Unsubscribe();
         }
-    }
+
+        public override long ProcessingEventNumber => _subscriptionOperation.ProcessingEventNumber;
+  }
 }

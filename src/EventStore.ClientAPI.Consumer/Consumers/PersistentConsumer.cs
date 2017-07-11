@@ -172,14 +172,18 @@ namespace EventStore.ClientAPI.Consumers
     {
       var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
 
+      var eventNumber = subscription.ProcessingEventNumber;
+
       await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
     }
 
     private async Task SubscriptionDroppedAsync(EventStorePersistentSubscription2 subscription, SubscriptionDropReason dropReason, Exception exception)
     {
-      var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
-
-      await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+      if (await CanRetryAsync(subscription.ProcessingEventNumber, dropReason).ConfigureAwait(false))
+      {
+        var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
+        await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+      }
     }
   }
 }
