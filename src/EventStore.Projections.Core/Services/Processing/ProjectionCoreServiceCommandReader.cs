@@ -77,54 +77,65 @@ namespace EventStore.Projections.Core.Services.Processing
 
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting read control from {0}", fromEventNumber);
 
-      long subscribeFrom = 0;
-      while (!_stopped)
-      {
-        ClientMessage.ReadStreamEventsForwardCompleted readResultForward = null;
-        yield return
-            _ioDispatcher.BeginReadForward(
-            _cancellationScope,
-                ProjectionNamesBuilder._projectionsControlStream,
-                fromEventNumber,
-                1,
-                false,
-                SystemAccount.Principal,
-                completed => readResultForward = completed);
-
-        if (readResultForward.Result != ReadStreamResult.Success
-            && readResultForward.Result != ReadStreamResult.NoStream)
-          throw new Exception("Control reader failed. Read result: " + readResultForward.Result);
-        if (readResultForward.Events != null && readResultForward.Events.Length > 0)
-        {
-          var doWriteRegistration = readResultForward.Events.Any(v => string.Equals(v.Event.EventType, "$response-reader-started", StringComparison.Ordinal));
-          fromEventNumber = readResultForward.NextEventNumber;
-          subscribeFrom = readResultForward.TfLastCommitPosition;
-          if (doWriteRegistration)
-          {
-            var events = new[]
+            //TODO: handle shutdown here and in other readers
+            long subscribeFrom = 0;
+            var doWriteRegistration = true;
+            while (!_stopped)
             {
-              new Event(Guid.NewGuid(), "$projection-worker-started", true, "{\"id\":\"" + _coreServiceId + "\"}", null)
-            };
-            yield return
-                _ioDispatcher.BeginWriteEvents(
-                _cancellationScope,
-                    ProjectionNamesBuilder._projectionsMasterStream,
-                    ExpectedVersion.Any,
-                    SystemAccount.Principal,
-                    events,
-                    r => { });
-          }
-          break;
-        }
-        if (readResultForward.Result == ReadStreamResult.Success)
-          subscribeFrom = readResultForward.TfLastCommitPosition;
+                if (doWriteRegistration)
+                {
+                    var events = new[]
+                    {
+                        new Event(
+                            Guid.NewGuid(),
+                            "$projection-worker-started",
+                            true,
+                            "{\"id\":\"" + _coreServiceId + "\"}",
+                            null)
+                    };
+                    yield return
+                        _ioDispatcher.BeginWriteEvents(
+                        _cancellationScope,
+                            ProjectionNamesBuilder._projectionsMasterStream,
+                            ExpectedVersion.Any,
+                            SystemAccount.Principal,
+                            events,
+                            r => { });
+                }
+                do
+                {
+                    ClientMessage.ReadStreamEventsForwardCompleted readResultForward = null;
+                    yield return
+                        _ioDispatcher.BeginReadForward(
+                        _cancellationScope,
+                            ProjectionNamesBuilder._projectionsControlStream,
+                            fromEventNumber,
+                            1,
+                            false,
+                            SystemAccount.Principal,
+                            completed => readResultForward = completed);
 
-        yield return
-            _ioDispatcher.BeginSubscribeAwake(
-            _cancellationScope,
-                ProjectionNamesBuilder._projectionsControlStream,
-                new TFPos(subscribeFrom, subscribeFrom),
-                message => { });
+                    if (readResultForward.Result != ReadStreamResult.Success
+                        && readResultForward.Result != ReadStreamResult.NoStream)
+                        throw new Exception("Control reader failed. Read result: " + readResultForward.Result);
+                    if (readResultForward.Events != null && readResultForward.Events.Length > 0)
+                    {
+                        doWriteRegistration =
+                            readResultForward.Events.Any(v => v.Event.EventType == "$response-reader-started");
+                        fromEventNumber = readResultForward.NextEventNumber;
+                        subscribeFrom = readResultForward.TfLastCommitPosition;
+                        break;
+                    }
+                    if (readResultForward.Result == ReadStreamResult.Success)
+                        subscribeFrom = readResultForward.TfLastCommitPosition;
+
+                    yield return
+                        _ioDispatcher.BeginSubscribeAwake(
+                        _cancellationScope,
+                            ProjectionNamesBuilder._projectionsControlStream,
+                            new TFPos(subscribeFrom, subscribeFrom),
+                            message => { });
+                } while (!_stopped);
       }
     }
 
