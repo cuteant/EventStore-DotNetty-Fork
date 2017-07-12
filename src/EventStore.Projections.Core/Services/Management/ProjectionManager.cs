@@ -831,8 +831,10 @@ namespace EventStore.Projections.Core.Services.Management
       }
       if (message.Mode >= ProjectionMode.OneTime)
       {
+        var eventId = Guid.NewGuid();
         BeginWriteProjectionRegistration(
             message.Name,
+            eventId,
             projectionId =>
             {
               InitializeNewProjection(projectionId, message, version, replyEnvelope);
@@ -1016,7 +1018,7 @@ namespace EventStore.Projections.Core.Services.Management
       return queueIndex;
     }
 
-    private void BeginWriteProjectionRegistration(string name, Action<long> completed, IEnvelope envelope, int retryCount)
+    private void BeginWriteProjectionRegistration(string name, Guid eventId, Action<long> completed, IEnvelope envelope, int retryCount)
     {
       var corrId = Guid.NewGuid();
       _writeDispatcher.Publish(
@@ -1028,17 +1030,17 @@ namespace EventStore.Projections.Core.Services.Management
               ProjectionNamesBuilder.ProjectionsRegistrationStream,
               ExpectedVersion.Any,
               new Event(
-                  Guid.NewGuid(),
+                  eventId,
                   EventTypes.ProjectionCreated,
                   false,
                   Helper.UTF8NoBom.GetBytes(name),
                   Empty.ByteArray),
               SystemAccount.Principal),
-          m => WriteProjectionRegistrationCompleted(m, completed, name, ProjectionNamesBuilder.ProjectionsRegistrationStream, envelope, retryCount));
+          m => WriteProjectionRegistrationCompleted(m, eventId, completed, name, ProjectionNamesBuilder.ProjectionsRegistrationStream, envelope, retryCount));
     }
 
     private void WriteProjectionRegistrationCompleted(ClientMessage.WriteEventsCompleted message,
-      Action<long> completed, string name, string eventStreamId, IEnvelope replyEnvelope, int retryCount)
+      Guid eventId, Action<long> completed, string name, string eventStreamId, IEnvelope replyEnvelope, int retryCount)
     {
       if (message.Result == OperationResult.Success)
       {
@@ -1058,7 +1060,7 @@ namespace EventStore.Projections.Core.Services.Management
         if (retryCount > 0)
         {
           if (infoEnabled) { _logger.LogInformation("Retrying write projection registration for {0}", name); }
-          BeginWriteProjectionRegistration(name, completed, replyEnvelope, --retryCount);
+          BeginWriteProjectionRegistration(name, eventId, completed, replyEnvelope, --retryCount);
           return;
         }
       }
