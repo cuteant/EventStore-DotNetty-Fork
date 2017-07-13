@@ -4,7 +4,7 @@
   <Import Project="define.props" />
 
   <PropertyGroup>
-    <VersionPrefix>4.0.0-rtm-170601</VersionPrefix>
+    <VersionPrefix>4.0.0-rtm-170701</VersionPrefix>
     <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 </Project>
