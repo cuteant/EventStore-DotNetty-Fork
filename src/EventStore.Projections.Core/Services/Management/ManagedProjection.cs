@@ -10,7 +10,6 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Core.Services.UserManagement;
-using EventStore.Projections.Core.Common;
 using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Services.Management.ManagedProjectionStates;
 using EventStore.Projections.Core.Services.Processing;
@@ -679,7 +678,7 @@ namespace EventStore.Projections.Core.Services.Management
     {
       return new ClientMessage.WriteEvents(
           correlationId, correlationId, _writeDispatcher.Envelope, true, eventStreamId, ExpectedVersion.Any,
-          new Event(Guid.NewGuid(), EventTypes.ProjectionUpdated, true, persistedState.ToJsonBytes(), Empty.ByteArray),
+          new Event(Guid.NewGuid(), ProjectionEventTypes.ProjectionUpdated, true, persistedState.ToJsonBytes(), Empty.ByteArray),
           SystemAccount.Principal);
     }
 
