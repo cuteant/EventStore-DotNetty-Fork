@@ -155,7 +155,7 @@ namespace EventStore.Projections.Core.Services.Processing
     protected override ProjectionCheckpoint CreateProjectionCheckpoint(CheckpointTag checkpointPosition)
     {
       return new ProjectionCheckpoint(
-          _ioDispatcher, _projectionVersion, _runAs, this, checkpointPosition, _positionTagger,
+          _publisher, _ioDispatcher, _projectionVersion, _runAs, this, checkpointPosition, _positionTagger,
           _projectionConfig.MaxWriteBatchLength, _logger);
     }
 
