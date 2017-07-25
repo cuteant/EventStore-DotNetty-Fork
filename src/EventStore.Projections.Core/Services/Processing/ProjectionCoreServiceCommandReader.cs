@@ -77,33 +77,9 @@ namespace EventStore.Projections.Core.Services.Processing
 
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting read control from {0}", fromEventNumber);
 
-      //TODO: handle shutdown here and in other readers
       long subscribeFrom = 0;
-      var doWriteRegistration = true;
       while (!_stopped)
       {
-        if (doWriteRegistration)
-        {
-          var events = new[]
-          {
-            new Event(
-                Guid.NewGuid(),
-                "$projection-worker-started",
-                true,
-                "{\"id\":\"" + _coreServiceId + "\"}",
-                null)
-          };
-          yield return
-              _ioDispatcher.BeginWriteEvents(
-              _cancellationScope,
-                  ProjectionNamesBuilder._projectionsMasterStream,
-                  ExpectedVersion.Any,
-                  SystemAccount.Principal,
-                  events,
-                  r => { });
-        }
-        do
-        {
           ClientMessage.ReadStreamEventsForwardCompleted readResultForward = null;
           yield return
               _ioDispatcher.BeginReadForward(
@@ -122,9 +98,25 @@ namespace EventStore.Projections.Core.Services.Processing
 
           if (readResultForward.Events != null && readResultForward.Events.Length > 0)
           {
-            doWriteRegistration = readResultForward.Events.Any(v => string.Equals(v.Event.EventType, "$response-reader-started", StringComparison.Ordinal));
+            var doWriteRegistration = readResultForward.Events.Any(v => string.Equals(v.Event.EventType, "$response-reader-started", StringComparison.Ordinal));
             fromEventNumber = readResultForward.NextEventNumber;
             subscribeFrom = readResultForward.TfLastCommitPosition;
+                    if (doWriteRegistration)
+                    {
+                        var events = new[]
+                        {
+                            new Event(
+                                Guid.NewGuid(), "$projection-worker-started", true, "{\"id\":\"" + _coreServiceId + "\"}", null)
+                        };
+                        yield return
+                            _ioDispatcher.BeginWriteEvents(
+                            _cancellationScope,
+                                ProjectionNamesBuilder._projectionsMasterStream,
+                                ExpectedVersion.Any,
+                                SystemAccount.Principal,
+                                events,
+                                r => { });
+                    }
             break;
           }
           if (readResultForward.Result == ReadStreamResult.Success)
@@ -138,7 +130,6 @@ namespace EventStore.Projections.Core.Services.Processing
                   ProjectionNamesBuilder._projectionsControlStream,
                   new TFPos(subscribeFrom, subscribeFrom),
                   message => { });
-        } while (!_stopped);
       }
     }
 
