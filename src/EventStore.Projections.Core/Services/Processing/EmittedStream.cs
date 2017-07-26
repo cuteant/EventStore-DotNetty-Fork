@@ -446,7 +446,7 @@ namespace EventStore.Projections.Core.Services.Processing
       {
         throw new Exception();
       }
-      var streamAcl = _streamId.StartsWith("$")
+      var streamAcl = _streamId.StartsWith("$", StringComparison.Ordinal)
           ? new StreamAcl(SystemRoles.All, null, null, SystemRoles.All, null)
           : new StreamAcl((string)null, null, null, null, null);
 
