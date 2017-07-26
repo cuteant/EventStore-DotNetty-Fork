@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EventStore.Projections.Core.Services.Processing;
 using EventStore.Projections.Core.Tests.Services.core_projection;
 using NUnit.Framework;

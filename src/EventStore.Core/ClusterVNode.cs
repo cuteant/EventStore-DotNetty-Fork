@@ -81,10 +81,10 @@ namespace EventStore.Core
 
 
     public ClusterVNode(TFChunkDb db,
-                          ClusterVNodeSettings vNodeSettings,
-                          IGossipSeedSource gossipSeedSource,
-                          InfoController infoController,
-                          params ISubsystem[] subsystems)
+                        ClusterVNodeSettings vNodeSettings,
+                        IGossipSeedSource gossipSeedSource,
+                        InfoController infoController,
+                        params ISubsystem[] subsystems)
     {
       Ensure.NotNull(db, nameof(db));
       Ensure.NotNull(vNodeSettings, nameof(vNodeSettings));

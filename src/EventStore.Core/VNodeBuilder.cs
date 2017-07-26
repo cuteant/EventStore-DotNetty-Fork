@@ -741,7 +741,7 @@ namespace EventStore.Core
     /// <summary>
     /// Sets the maximum number of pending send bytes allowed before a connection is closed.
     /// </summary>
-    /// <param name="WithConnectionPendingSendBytesThreshold">The number of pending send bytes allowed</param>
+    /// <param name="connectionPendingSendBytesThreshold">The number of pending send bytes allowed</param>
     /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
     public VNodeBuilder WithConnectionPendingSendBytesThreshold(int connectionPendingSendBytesThreshold)
     {

@@ -420,12 +420,12 @@ namespace EventStore.Core.Services.Transport.Tcp
       {
         if((queueSize = _connection.SendQueueSize) > ConnectionQueueSizeThreshold)
         {
-          SendBadRequestAndClose(Guid.Empty, string.Format("Connection queue size is too large: {0}.", queueSize));
+          SendBadRequestAndClose(Guid.Empty, $"Connection queue size is too large: {queueSize}.");
           return;
         }
         if(_limitPendingSendBytes && (queueSendBytes = _connection.PendingSendBytes) > _connectionPendingSendBytesThreshold)
         {
-          SendBadRequestAndClose(Guid.Empty, string.Format("Connection pending send bytes is too large: {0}.", queueSendBytes));
+          SendBadRequestAndClose(Guid.Empty, $"Connection pending send bytes is too large: {queueSendBytes}.");
           return;
         }
       }
