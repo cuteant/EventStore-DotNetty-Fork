@@ -444,39 +444,43 @@ namespace EventStore.Projections.Core.Services.Management
       }
     }
 
-        public void Handle(ProjectionManagementMessage.Command.GetConfig message)
-        {
-            if (!_started)
-                return;
-            var projection = GetProjection(message.Name);
-            if (projection == null)
-                message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
-            else
-            {
-                if (!ProjectionManagementMessage.RunAs.ValidateRunAs(projection.Mode, ReadWrite.Read, projection.RunAs, message)) return;
-                projection.Handle(message);
-            }
-        }
+    public void Handle(ProjectionManagementMessage.Command.GetConfig message)
+    {
+      if (!_started) { return; }
+      var projection = GetProjection(message.Name);
+      if (projection == null)
+      {
+        message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
+      }
+      else
+      {
+        if (!ProjectionManagementMessage.RunAs.ValidateRunAs(projection.Mode, ReadWrite.Read, projection.RunAs, message)) return;
+        projection.Handle(message);
+      }
+    }
 
-        public void Handle(ProjectionManagementMessage.Command.UpdateConfig message)
+    public void Handle(ProjectionManagementMessage.Command.UpdateConfig message)
+    {
+      if (!_started) { return; }
+      var projection = GetProjection(message.Name);
+      if (projection == null)
+      {
+        message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
+      }
+      else
+      {
+        if (!ProjectionManagementMessage.RunAs.ValidateRunAs(projection.Mode, ReadWrite.Read, projection.RunAs, message)) return;
+        try
         {
-            if (!_started)
-                return;
-            var projection = GetProjection(message.Name);
-            if (projection == null)
-                message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
-            else
-            {
-                if (!ProjectionManagementMessage.RunAs.ValidateRunAs(projection.Mode, ReadWrite.Read, projection.RunAs, message)) return;
-                try {
-                    projection.Handle(message);
-                }
-                catch (InvalidOperationException ex){
-                    message.Envelope.ReplyWith(new ProjectionManagementMessage.OperationFailed(ex.Message));
-                    return;
-                }
-            }
+          projection.Handle(message);
         }
+        catch (InvalidOperationException ex)
+        {
+          message.Envelope.ReplyWith(new ProjectionManagementMessage.OperationFailed(ex.Message));
+          return;
+        }
+      }
+    }
 
     public void Handle(ProjectionManagementMessage.Internal.CleanupExpired message)
     {

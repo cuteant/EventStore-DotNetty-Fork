@@ -442,40 +442,43 @@ namespace EventStore.Projections.Core.Services.Management
       StopUnlessPreparedOrLoaded();
     }
 
-        public void Handle(ProjectionManagementMessage.Command.GetConfig message)
-        {
-            _lastAccessed = _timeProvider.Now;
+    public void Handle(ProjectionManagementMessage.Command.GetConfig message)
+    {
+      _lastAccessed = _timeProvider.Now;
 
-            var emitEnabled = PersistedProjectionState.EmitEnabled ?? false;
-            var trackEmittedStreams = PersistedProjectionState.TrackEmittedStreams ?? false;
+      var emitEnabled = PersistedProjectionState.EmitEnabled ?? false;
+      var trackEmittedStreams = PersistedProjectionState.TrackEmittedStreams ?? false;
 
-            message.Envelope.ReplyWith(
-                new ProjectionManagementMessage.ProjectionConfig(emitEnabled, trackEmittedStreams, PersistedProjectionState.CheckpointAfterMs,
-                    PersistedProjectionState.CheckpointHandledThreshold, PersistedProjectionState.CheckpointUnhandledBytesThreshold,
-                    PersistedProjectionState.PendingEventsThreshold, PersistedProjectionState.MaxWriteBatchLength, PersistedProjectionState.MaxAllowedWritesInFlight));
-        }
+      message.Envelope.ReplyWith(
+          new ProjectionManagementMessage.ProjectionConfig(emitEnabled, trackEmittedStreams, PersistedProjectionState.CheckpointAfterMs,
+              PersistedProjectionState.CheckpointHandledThreshold, PersistedProjectionState.CheckpointUnhandledBytesThreshold,
+              PersistedProjectionState.PendingEventsThreshold, PersistedProjectionState.MaxWriteBatchLength, PersistedProjectionState.MaxAllowedWritesInFlight));
+    }
 
-        public void Handle(ProjectionManagementMessage.Command.UpdateConfig message)
-        {
-            if ((_state != ManagedProjectionState.Stopped && _state != ManagedProjectionState.Faulted) && Mode != ProjectionMode.Transient)
-                throw new InvalidOperationException("Cannot update the config of a projection that hasn't been stopped or faulted.");
-            _lastAccessed = _timeProvider.Now;
+    public void Handle(ProjectionManagementMessage.Command.UpdateConfig message)
+    {
+      if ((_state != ManagedProjectionState.Stopped && _state != ManagedProjectionState.Faulted) && Mode != ProjectionMode.Transient)
+      {
+        throw new InvalidOperationException("Cannot update the config of a projection that hasn't been stopped or faulted.");
+      }
 
-            PersistedProjectionState.EmitEnabled = message.EmitEnabled;
-            PersistedProjectionState.TrackEmittedStreams = message.TrackEmittedStreams;
-            PersistedProjectionState.CheckpointAfterMs = message.CheckpointAfterMs;
-            PersistedProjectionState.CheckpointHandledThreshold = message.CheckpointHandledThreshold;
-            PersistedProjectionState.CheckpointUnhandledBytesThreshold = message.CheckpointUnhandledBytesThreshold;
-            PersistedProjectionState.PendingEventsThreshold = message.PendingEventsThreshold;
-            PersistedProjectionState.MaxWriteBatchLength = message.MaxWriteBatchLength;
-            PersistedProjectionState.MaxAllowedWritesInFlight = message.MaxAllowedWritesInFlight;
+      _lastAccessed = _timeProvider.Now;
 
-            UpdateProjectionVersion();
-            _pendingWritePersistedState = true;
-            WritePersistedState(CreatePersistedStateEvent(Guid.NewGuid(), PersistedProjectionState, ProjectionNamesBuilder.ProjectionsStreamPrefix + _name));
+      PersistedProjectionState.EmitEnabled = message.EmitEnabled;
+      PersistedProjectionState.TrackEmittedStreams = message.TrackEmittedStreams;
+      PersistedProjectionState.CheckpointAfterMs = message.CheckpointAfterMs;
+      PersistedProjectionState.CheckpointHandledThreshold = message.CheckpointHandledThreshold;
+      PersistedProjectionState.CheckpointUnhandledBytesThreshold = message.CheckpointUnhandledBytesThreshold;
+      PersistedProjectionState.PendingEventsThreshold = message.PendingEventsThreshold;
+      PersistedProjectionState.MaxWriteBatchLength = message.MaxWriteBatchLength;
+      PersistedProjectionState.MaxAllowedWritesInFlight = message.MaxAllowedWritesInFlight;
 
-            message.Envelope.ReplyWith(new ProjectionManagementMessage.Updated(message.Name));
-        }
+      UpdateProjectionVersion();
+      _pendingWritePersistedState = true;
+      WritePersistedState(CreatePersistedStateEvent(Guid.NewGuid(), PersistedProjectionState, ProjectionNamesBuilder.ProjectionsStreamPrefix + _name));
+
+      message.Envelope.ReplyWith(new ProjectionManagementMessage.Updated(message.Name));
+    }
 
     public void DeleteProjectionStreams()
     {
@@ -984,33 +987,33 @@ namespace EventStore.Projections.Core.Services.Management
 
     private ProjectionConfig CreateDefaultProjectionConfiguration()
     {
-            var checkpointsEnabled = PersistedProjectionState.CheckpointsDisabled != true;
-            var trackEmittedStreams = PersistedProjectionState.TrackEmittedStreams == true;
-            var maximumCheckpointCount = checkpointsEnabled ? PersistedProjectionState.CheckpointHandledThreshold : 0;
-            var checkpointAfterMs = checkpointsEnabled ? PersistedProjectionState.CheckpointAfterMs : 0;
-            var checkpointUnhandledBytesThreshold = checkpointsEnabled ? PersistedProjectionState.CheckpointUnhandledBytesThreshold : 0;
-            var pendingEventsThreshold = PersistedProjectionState.PendingEventsThreshold;
-            var maxWriteBatchLength = PersistedProjectionState.MaxWriteBatchLength;
-            var maximumAllowedWritesInFlight = PersistedProjectionState.MaxAllowedWritesInFlight;
-            var emitEventEnabled = PersistedProjectionState.EmitEnabled == true;
-            var createTempStreams = PersistedProjectionState.CreateTempStreams == true;
-            var stopOnEof = PersistedProjectionState.Mode <= ProjectionMode.OneTime;
+      var checkpointsEnabled = PersistedProjectionState.CheckpointsDisabled != true;
+      var trackEmittedStreams = PersistedProjectionState.TrackEmittedStreams == true;
+      var maximumCheckpointCount = checkpointsEnabled ? PersistedProjectionState.CheckpointHandledThreshold : 0;
+      var checkpointAfterMs = checkpointsEnabled ? PersistedProjectionState.CheckpointAfterMs : 0;
+      var checkpointUnhandledBytesThreshold = checkpointsEnabled ? PersistedProjectionState.CheckpointUnhandledBytesThreshold : 0;
+      var pendingEventsThreshold = PersistedProjectionState.PendingEventsThreshold;
+      var maxWriteBatchLength = PersistedProjectionState.MaxWriteBatchLength;
+      var maximumAllowedWritesInFlight = PersistedProjectionState.MaxAllowedWritesInFlight;
+      var emitEventEnabled = PersistedProjectionState.EmitEnabled == true;
+      var createTempStreams = PersistedProjectionState.CreateTempStreams == true;
+      var stopOnEof = PersistedProjectionState.Mode <= ProjectionMode.OneTime;
 
-            var projectionConfig = new ProjectionConfig(
-                _runAs,
-                maximumCheckpointCount,
-                checkpointUnhandledBytesThreshold,
-                pendingEventsThreshold,
-                maxWriteBatchLength,
-                emitEventEnabled,
-                checkpointsEnabled,
-                createTempStreams,
-                stopOnEof,
-                false,
-                trackEmittedStreams,
-                checkpointAfterMs,
-                maximumAllowedWritesInFlight);
-            return projectionConfig;
+      var projectionConfig = new ProjectionConfig(
+          _runAs,
+          maximumCheckpointCount,
+          checkpointUnhandledBytesThreshold,
+          pendingEventsThreshold,
+          maxWriteBatchLength,
+          emitEventEnabled,
+          checkpointsEnabled,
+          createTempStreams,
+          stopOnEof,
+          false,
+          trackEmittedStreams,
+          checkpointAfterMs,
+          maximumAllowedWritesInFlight);
+      return projectionConfig;
     }
 
     private void StartOrLoadStopped()
@@ -1018,18 +1021,24 @@ namespace EventStore.Projections.Core.Services.Management
       if (_state == ManagedProjectionState.Prepared)
       {
         if (Enabled && _enabledToRun)
+        {
           Start();
+        }
         else
         {
           LoadStopped();
         }
       }
       else if (_state == ManagedProjectionState.Aborted || _state == ManagedProjectionState.Completed
-               || _state == ManagedProjectionState.Faulted || _state == ManagedProjectionState.Stopped
-               || _state == ManagedProjectionState.Deleting)
+            || _state == ManagedProjectionState.Faulted || _state == ManagedProjectionState.Stopped
+            || _state == ManagedProjectionState.Deleting)
+      {
         Reply();
+      }
       else
+      {
         throw new Exception();
+      }
     }
 
     private void UpdateQuery(ProjectionManagementMessage.Command.UpdateQuery message)

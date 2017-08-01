@@ -64,7 +64,6 @@ namespace EventStore.Projections.Core.Services.Processing
       _from = _last = from;
       _maxWriteBatchLength = maxWriteBatchLength;
       _logger = logger;
-      _instanceId = Guid.NewGuid();
       _writeKeys = Enumerable.Range(0, _maximumAllowedWritesInFlight).Select(x => Guid.NewGuid()).ToArray();
     }
 
@@ -147,7 +146,7 @@ namespace EventStore.Projections.Core.Services.Processing
             streamMetadata, _runAs, maxWriteBatchLength: _maxWriteBatchLength, logger: _logger);
 
         stream = new EmittedStream(
-            writeKeys[_emittedStreams.Count % _maximumAllowedWritesInFlight], streamId, writerConfiguration, _projectionVersion, _positionTagger, _from, _publisher, _ioDispatcher, this);
+            _writeKeys[_emittedStreams.Count % _maximumAllowedWritesInFlight], streamId, writerConfiguration, _projectionVersion, _positionTagger, _from, _publisher, _ioDispatcher, this);
 
         if (_started)
           stream.Start();
