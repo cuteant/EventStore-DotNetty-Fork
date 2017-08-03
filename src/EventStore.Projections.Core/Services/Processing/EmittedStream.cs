@@ -64,7 +64,6 @@ namespace EventStore.Projections.Core.Services.Processing
     private Event _submittedWriteMetaStreamEvent;
     private const int MaxRetryCount = 5;
     private Guid _pendingRequestCorrelationId;
-    private Guid _instanceId;
 
     public class WriterConfiguration
     {
@@ -74,6 +73,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
       private readonly int? maxCount;
       private readonly TimeSpan? maxAge;
+
+      private readonly IEmittedStreamsWriter _writer;
 
       public class StreamMetadata
       {
@@ -98,8 +99,9 @@ namespace EventStore.Projections.Core.Services.Processing
       }
 
       public WriterConfiguration(
-          StreamMetadata streamMetadata, IPrincipal writeAs, int maxWriteBatchLength, ILogger logger = null)
+          IEmittedStreamsWriter writer, StreamMetadata streamMetadata, IPrincipal writeAs, int maxWriteBatchLength, ILogger logger = null)
       {
+        _writer = writer;
         _writeAs = writeAs;
         _maxWriteBatchLength = maxWriteBatchLength;
         _logger = logger;
@@ -134,19 +136,15 @@ namespace EventStore.Projections.Core.Services.Processing
       {
         get { return maxAge; }
       }
+
+      public IEmittedStreamsWriter Writer
+      {
+        get { return _writer; }
+      }
     }
 
     public EmittedStream(
         string streamId, WriterConfiguration writerConfiguration, ProjectionVersion projectionVersion,
-        PositionTagger positionTagger, CheckpointTag fromCheckpointPosition, IPublisher publisher, IODispatcher ioDispatcher,
-        IEmittedStreamContainer readyHandler, bool noCheckpoints = false) : 
-        this(Guid.NewGuid(), streamId, writerConfiguration, projectionVersion,
-             positionTagger, fromCheckpointPosition, publisher, ioDispatcher, readyHandler, noCheckpoints)
-    {
-    }
-
-    public EmittedStream(
-        Guid instanceId, string streamId, WriterConfiguration writerConfiguration, ProjectionVersion projectionVersion,
         PositionTagger positionTagger, CheckpointTag fromCheckpointPosition, IPublisher publisher, IODispatcher ioDispatcher,
         IEmittedStreamContainer readyHandler, bool noCheckpoints = false)
     {
@@ -158,7 +156,6 @@ namespace EventStore.Projections.Core.Services.Processing
       if (ioDispatcher == null) throw new ArgumentNullException(nameof(ioDispatcher));
       if (readyHandler == null) throw new ArgumentNullException(nameof(readyHandler));
 
-      _instanceId = instanceId;
       _streamId = streamId;
       _metadataStreamId = SystemStreams.MetastreamOf(streamId);
       _writerConfiguration = writerConfiguration;
@@ -478,15 +475,15 @@ namespace EventStore.Projections.Core.Services.Processing
       var delayInSeconds = MaxRetryCount - retryCount;
       if (delayInSeconds == 0)
       {
-        _ioDispatcher.WriteEvent(
-            _metadataStreamId, ExpectedVersion.Any, _submittedWriteMetaStreamEvent, _writeAs,
+        _writerConfiguration.Writer.WriteEvents(
+            _metadataStreamId, ExpectedVersion.Any, new Event[] { _submittedWriteMetaStreamEvent }, _writeAs,
             m => HandleMetadataWriteCompleted(m, retryCount));
       }
       else
       {
         _ioDispatcher.Delay(TimeSpan.FromSeconds(delayInSeconds),
-            () => _ioDispatcher.WriteEvent(
-                    _metadataStreamId, ExpectedVersion.Any, _submittedWriteMetaStreamEvent, _writeAs,
+            () => _writerConfiguration.Writer.WriteEvents(
+                    _metadataStreamId, ExpectedVersion.Any, new Event[] { _submittedWriteMetaStreamEvent }, _writeAs,
                     m => HandleMetadataWriteCompleted(m, retryCount)));
       }
     }
@@ -651,14 +648,14 @@ namespace EventStore.Projections.Core.Services.Processing
       var delayInSeconds = MaxRetryCount - retryCount;
       if (delayInSeconds == 0)
       {
-        _ioDispatcher.QueueWriteEvents(_instanceId,
+        _writerConfiguration.Writer.WriteEvents(
             _streamId, _lastKnownEventNumber, _submittedToWriteEvents, _writeAs,
             m => HandleWriteEventsCompleted(m, retryCount));
       }
       else
       {
         _ioDispatcher.Delay(TimeSpan.FromSeconds(delayInSeconds),
-            () => _ioDispatcher.QueueWriteEvents(_instanceId,
+            () => _writerConfiguration.Writer.WriteEvents(
                 _streamId, _lastKnownEventNumber, _submittedToWriteEvents, _writeAs,
                 m => HandleWriteEventsCompleted(m, retryCount)));
       }
