@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Internal
 {
-  internal sealed class EventMetadata
+  public sealed class EventMetadata
   {
     [JsonProperty("type")]
     public string EventType { get; set; }

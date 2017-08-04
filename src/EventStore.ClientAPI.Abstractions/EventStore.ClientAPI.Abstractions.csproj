@@ -15,9 +15,9 @@
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.ClientAPI.Abstractions</PackageId>
-    <Title>EventStore.ClientAPI.Abstractions</Title>
-    <Description>EventStore.ClientAPI.Abstractions</Description>
+    <PackageId>EventStore.Client.Abstractions</PackageId>
+    <Title>EventStore.Client.Abstractions</Title>
+    <Description>EventStore.Client.Abstractions</Description>
     <PackageTags>eventstore client queue</PackageTags>
     <IsPackable>true</IsPackable>
     <Authors>Seabiscuit</Authors>

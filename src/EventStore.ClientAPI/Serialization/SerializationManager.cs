@@ -545,7 +545,7 @@ namespace EventStore.ClientAPI.Serialization
 
     #region -- DeserializeEvent --
 
-    internal static EventMetadata DeserializeMetadata(byte[] metadata)
+    public static EventMetadata DeserializeMetadata(byte[] metadata)
     {
       const string _metadataEmpty = "The meta-data of EventRecord is not available.";
       if (null == metadata || metadata.Length == 0)
@@ -560,31 +560,50 @@ namespace EventStore.ClientAPI.Serialization
       return meta;
     }
 
-    internal static IFullEvent DeserializeEvent(EventData eventData)
+    public static IFullEvent DeserializeEvent(EventData eventData)
     {
       return DeserializeEvent(eventData.Metadata, eventData.Data);
     }
-    internal static IFullEvent<T> DeserializeEvent<T>(EventData eventData) where T : class
+    public static IFullEvent<T> DeserializeEvent<T>(EventData eventData) where T : class
     {
       return DeserializeEvent<T>(eventData.Metadata, eventData.Data);
     }
 
-    internal static IFullEvent DeserializeEvent(byte[] metadata, byte[] data)
+    public static IFullEvent DeserializeEvent(byte[] metadata, byte[] data)
     {
       var meta = DeserializeMetadata(metadata);
       DeserializeEvent(meta, null, data, out IEventDescriptor eventDescriptor, out object obj);
       return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
     }
 
-    internal static IFullEvent<T> DeserializeEvent<T>(byte[] metadata, byte[] data) where T : class
+    public static IFullEvent<T> DeserializeEvent<T>(byte[] metadata, byte[] data) where T : class
     {
       var meta = DeserializeMetadata(metadata);
       DeserializeEvent(meta, null, data, out IEventDescriptor eventDescriptor, out object obj);
       return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
     }
 
-    internal static IFullEvent<T> DeserializeEvent<T>(EventMetadata metadata, Type eventType, byte[] data) where T : class
+
+    public static IFullEvent DeserializeEvent(EventMetadata metadata, byte[] data)
     {
+      return DeserializeEvent(metadata, null, data);
+    }
+    public static IFullEvent DeserializeEvent(EventMetadata metadata, Type eventType, byte[] data)
+    {
+      if (null == metadata) { throw new ArgumentNullException(nameof(metadata)); }
+
+      DeserializeEvent(metadata, eventType, data, out IEventDescriptor eventDescriptor, out object obj);
+      return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
+    }
+
+    public static IFullEvent<T> DeserializeEvent<T>(EventMetadata metadata, byte[] data) where T : class
+    {
+      return DeserializeEvent<T>(metadata, null, data);
+    }
+    public static IFullEvent<T> DeserializeEvent<T>(EventMetadata metadata, Type eventType, byte[] data) where T : class
+    {
+      if (null == metadata) { throw new ArgumentNullException(nameof(metadata)); }
+
       DeserializeEvent(metadata, eventType, data, out IEventDescriptor eventDescriptor, out object obj);
       return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
     }

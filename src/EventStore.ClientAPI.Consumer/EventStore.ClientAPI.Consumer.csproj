@@ -15,9 +15,9 @@
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.ClientAPI.Consumer</PackageId>
-    <Title>EventStore.ClientAPI.Consumer</Title>
-    <Description>EventStore.ClientAPI.Consumer</Description>
+    <PackageId>EventStore.Client.Consumer</PackageId>
+    <Title>EventStore.Client.Consumer</Title>
+    <Description>EventStore.Client.Consumer</Description>
     <PackageTags>eventstore client queue</PackageTags>
     <IsPackable>true</IsPackable>
     <Authors>Seabiscuit</Authors>
