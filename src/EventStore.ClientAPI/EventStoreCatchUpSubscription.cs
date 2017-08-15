@@ -620,29 +620,27 @@ namespace EventStore.ClientAPI
 
     /// <inheritdoc />
     protected override Task ReadEventsTillAsync(bool resolveLinkTos, UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
-        => ReadEventsInternalAsync(resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber);
+        => ReadEventsInternalAsync(resolveLinkTos, userCredentials, lastCommitPosition);
 
-    private async Task ReadEventsInternalAsync(bool resolveLinkTos, UserCredentials userCredentials, long? lastCommitPosition, long? lastEventNumber)
+    private async Task ReadEventsInternalAsync(bool resolveLinkTos, UserCredentials userCredentials, long? lastCommitPosition)
     {
-      var slice = await _innerConnection.ReadAllEventsForwardAsync(_nextReadPosition, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
-      await ReadEventsCallbackAsync(slice, resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber).ConfigureAwait(false);
+      bool shouldStopOrDone;
+      do
+      {
+        var slice = await _innerConnection.ReadAllEventsForwardAsync(_nextReadPosition, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+        shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastCommitPosition).ConfigureAwait(false);
+      } while (!shouldStopOrDone);
     }
 
-    private async Task ReadEventsCallbackAsync(AllEventsSlice slice, bool resolveLinkTos, UserCredentials userCredentials,
-      long? lastCommitPosition, long? lastEventNumber)
+    private async Task<bool> ReadEventsCallbackAsync(AllEventsSlice slice, long? lastCommitPosition)
     {
-      if (!(await ProcessEventsAsync(lastCommitPosition, slice).ConfigureAwait(false)) && !ShouldStop)
+      bool shouldStopOrDone = ShouldStop || await ProcessEventsAsync(lastCommitPosition, slice).ConfigureAwait(false);
+      if (shouldStopOrDone && Verbose)
       {
-        await ReadEventsInternalAsync(resolveLinkTos, userCredentials, lastCommitPosition, lastEventNumber).ConfigureAwait(false);
+        Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadPosition = {2}.",
+            SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadPosition);
       }
-      else
-      {
-        if (Verbose)
-        {
-          Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadPosition = {2}.",
-              SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadPosition);
-        }
-      }
+      return shouldStopOrDone;
     }
 
     protected override async Task SubscribeToStreamAsync()
