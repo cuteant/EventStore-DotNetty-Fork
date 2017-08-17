@@ -463,7 +463,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
     private Task WriteSingleEventAtTime(string stream, int events, Func<int, EventData> createEvent)
     {
-      var resSource = new TaskCompletionSource<object>();
+      var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
       Log.LogInformation("Starting to write {0} events to [{1}]", events, stream);
       var store = GetConnection();
@@ -505,7 +505,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
       const int bucketSize = 25;
       Log.LogInformation("Starting to write {0} events to [{1}] ({2} events at once)", eventCount, stream, bucketSize);
 
-      var resSource = new TaskCompletionSource<object>();
+      var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
       var store = GetConnection();
       int writtenCount = 0;
 
@@ -547,7 +547,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
     {
       Log.LogInformation("Starting to write {0} events to [{1}] (in single transaction)", eventCount, stream);
 
-      var resSource = new TaskCompletionSource<object>();
+      var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
       var store = GetConnection();
 
       Action<Task> fail = prevTask =>
@@ -596,7 +596,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
     private Task ReadStream(string stream, int from, int count)
     {
       Log.LogInformation("Reading [{0}] from {1,-10} count {2,-10}", stream, from, count);
-      var resSource = new TaskCompletionSource<object>();
+      var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
       var store = GetConnection();
 
       Action<Task> fail = prevTask =>

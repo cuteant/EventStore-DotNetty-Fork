@@ -179,7 +179,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
         {
             Log.LogInformation("Starting to write {0} events in tran {1}", eventCount, transaction.TransactionId);
 
-            var resSource = new TaskCompletionSource<object>();
+            var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             Action<Task> fail = prevTask =>
             {
@@ -212,7 +212,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
         private Task<object> CommitTransaction(EventStoreTransaction transaction)
         {
-            var resSource = new TaskCompletionSource<object>();
+            var resSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             Action<Task> fail = prevTask =>
             {
