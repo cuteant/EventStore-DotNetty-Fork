@@ -37,7 +37,7 @@ namespace EventStore.Projections.Core.Services.Processing
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting Projection Core Reader (reads from $projections-${0})", _coreServiceId);
       _stopped = false;
       StartCoreSteps().Run();
-      ControlSteps().Run();
+      ControlSteps(message.EpochId).Run();
     }
 
     public void Handle(ProjectionCoreServiceMessage.StopCore message)
@@ -47,35 +47,11 @@ namespace EventStore.Projections.Core.Services.Processing
       _stopped = true;
     }
 
-    private IEnumerable<IODispatcherAsync.Step> ControlSteps()
+    private IEnumerable<IODispatcherAsync.Step> ControlSteps(Guid epochId)
     {
-      ClientMessage.ReadStreamEventsBackwardCompleted readResult = null;
-      yield return
-          _ioDispatcher.BeginReadBackward(
-          _cancellationScope,
-              ProjectionNamesBuilder._projectionsControlStream,
-              -1,
-              1,
-              false,
-              SystemAccount.Principal,
-              completed => readResult = completed);
+      long fromEventNumber = 0;
 
-
-      long fromEventNumber;
-
-      if (readResult.Result == ReadStreamResult.NoStream)
-      {
-        fromEventNumber = 0;
-      }
-      else
-      {
-        if (readResult.Result != ReadStreamResult.Success)
-          throw new Exception("Cannot start control reader. Read result: " + readResult.Result);
-
-        fromEventNumber = readResult.LastEventNumber + 1;
-      }
-
-      if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting read control from {0}", fromEventNumber);
+      if (Log.IsDebugLevelEnabled()) Log.LogDebug($"PROJECTIONS: Starting read {ProjectionNamesBuilder.BuildControlStreamName(epochId)}");
 
       long subscribeFrom = 0;
       while (!_stopped)
@@ -84,7 +60,7 @@ namespace EventStore.Projections.Core.Services.Processing
         yield return
             _ioDispatcher.BeginReadForward(
             _cancellationScope,
-                ProjectionNamesBuilder._projectionsControlStream,
+                ProjectionNamesBuilder.BuildControlStreamName(epochId),
                 fromEventNumber,
                 1,
                 false,
@@ -126,7 +102,7 @@ namespace EventStore.Projections.Core.Services.Processing
         yield return
             _ioDispatcher.BeginSubscribeAwake(
             _cancellationScope,
-                ProjectionNamesBuilder._projectionsControlStream,
+                ProjectionNamesBuilder.BuildControlStreamName(epochId),
                 new TFPos(subscribeFrom, subscribeFrom),
                 message => { });
       }

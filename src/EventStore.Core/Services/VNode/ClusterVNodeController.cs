@@ -32,6 +32,7 @@ namespace EventStore.Core.Services.VNode
     private VNodeInfo _master;
     private Guid _stateCorrelationId = Guid.NewGuid();
     private Guid _subscriptionId = Guid.Empty;
+    private Guid _lastEpochId = Guid.Empty;
 
     private IQueuedHandler _mainQueue;
     private IEnvelope _publishEnvelope;
@@ -427,6 +428,7 @@ namespace EventStore.Core.Services.VNode
       }
 
       _master = VNodeInfoHelper.FromMemberInfo(message.Master);
+      _lastEpochId = message.Master.EpochId;
       _subscriptionId = Guid.NewGuid();
       _stateCorrelationId = Guid.NewGuid();
       _outputBus.Publish(message);
@@ -728,7 +730,7 @@ namespace EventStore.Core.Services.VNode
       if (_stateCorrelationId != message.CorrelationId) return;
 
       _outputBus.Publish(message);
-      _fsm.Handle(new SystemMessage.BecomeMaster(_stateCorrelationId));
+      _fsm.Handle(new SystemMessage.BecomeMaster(_stateCorrelationId, _lastEpochId));
     }
 
     private void HandleAsPreReplica(SystemMessage.ChaserCaughtUp message)
@@ -798,7 +800,7 @@ namespace EventStore.Core.Services.VNode
                  message.MasterId);
         }
         _outputBus.Publish(message);
-        _fsm.Handle(new SystemMessage.BecomeSlave(_stateCorrelationId, _master));
+        _fsm.Handle(new SystemMessage.BecomeSlave(_stateCorrelationId, _lastEpochId, _master));
       }
     }
 

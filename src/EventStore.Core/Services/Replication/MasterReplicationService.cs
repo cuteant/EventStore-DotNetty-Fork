@@ -704,6 +704,7 @@ namespace EventStore.Core.Services.Replication
 
       public void Dispose()
       {
+        _connection?.Stop("Closing replication subscription connection.");
         var bulkReader = Interlocked.Exchange(ref BulkReader, null);
         bulkReader?.Release();
       }
