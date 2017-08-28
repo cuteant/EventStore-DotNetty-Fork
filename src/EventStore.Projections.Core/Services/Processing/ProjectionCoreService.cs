@@ -97,8 +97,9 @@ namespace EventStore.Projections.Core.Services.Processing
       _ioDispatcher.Writer.CancelAll();
 
       var allProjections = _projections.Values;
-      //foreach (var projection in allProjections)
-      //projection.Kill();
+      foreach (var projection in allProjections)
+        projection.Kill();
+
       if (_projections.Count > 0)
       {
         if (_logger.IsInformationLevelEnabled()) _logger.LogInformation("_projections is not empty after all the projections have been killed");
