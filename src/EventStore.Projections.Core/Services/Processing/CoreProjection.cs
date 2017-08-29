@@ -207,7 +207,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
     public void Kill()
     {
-      SetFaulted("Killed");
+      if(_state != State.Stopped)
+        GoToState(State.Stopped);
     }
 
     private void GetStatistics(ProjectionStatistics info)
