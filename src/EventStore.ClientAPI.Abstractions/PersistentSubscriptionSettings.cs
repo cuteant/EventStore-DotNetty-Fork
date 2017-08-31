@@ -73,11 +73,11 @@ namespace EventStore.ClientAPI
     {
       if (messageTimeout.TotalMilliseconds > Int32.MaxValue)
       {
-        throw new ArgumentException(nameof(messageTimeout), "milliseconds must be less or equal to than int32.MaxValue");
+        throw new ArgumentException("milliseconds must be less or equal to than int32.MaxValue", nameof(messageTimeout));
       }
       if (checkPointAfter.TotalMilliseconds > Int32.MaxValue)
       {
-        throw new ArgumentException(nameof(checkPointAfter), "milliseconds must be less or equal to than int32.MaxValue");
+        throw new ArgumentException("milliseconds must be less or equal to than int32.MaxValue", nameof(checkPointAfter));
       }
 
       MessageTimeout = messageTimeout;
