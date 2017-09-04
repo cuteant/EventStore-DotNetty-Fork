@@ -36,8 +36,7 @@ namespace EventStore.Projections.Core.Services.Processing
       _cancellationScope = new IODispatcherAsync.CancellationScope();
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting Projection Core Reader (reads from $projections-${0})", _coreServiceId);
       _stopped = false;
-      StartCoreSteps().Run();
-      ControlSteps(message.EpochId).Run();
+      StartCoreSteps(message).Run();
     }
 
     public void Handle(ProjectionCoreServiceMessage.StopCore message)
@@ -108,7 +107,7 @@ namespace EventStore.Projections.Core.Services.Processing
       }
     }
 
-    private IEnumerable<IODispatcherAsync.Step> StartCoreSteps()
+    private IEnumerable<IODispatcherAsync.Step> StartCoreSteps(ProjectionCoreServiceMessage.StartCore startCoreMessage)
     {
       var coreControlStreamID = "$projections-$" + _coreServiceId;
       yield return
@@ -149,6 +148,9 @@ namespace EventStore.Projections.Core.Services.Processing
       }
 
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished Starting Projection Core Reader (reads from $projections-${0})", _coreServiceId);
+
+      ControlSteps(startCoreMessage.EpochId).Run();
+
       while (!_stopped)
       {
         var eof = false;
