@@ -55,7 +55,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, nameof(message));
       Ensure.NotNull(endPoint, nameof(endPoint));
 
-      var url = endPoint.ToHttpUrl("/gossip");
+      var url = endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/gossip");
       _client.Post(
           url,
           Codec.Json.To(new ClusterInfoDto(message.ClusterInfo, message.ServerEndPoint)),

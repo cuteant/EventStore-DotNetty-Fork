@@ -58,7 +58,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/viewchange"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/viewchange"),
                   Codec.Json.To(new ElectionMessageDto.ViewChangeDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
@@ -70,7 +70,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/viewchangeproof"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/viewchangeproof"),
                   Codec.Json.To(new ElectionMessageDto.ViewChangeProofDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
@@ -82,7 +82,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/prepare"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/prepare"),
                   Codec.Json.To(new ElectionMessageDto.PrepareDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
@@ -94,7 +94,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/prepareok"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/prepareok"),
                   Codec.Json.To(new ElectionMessageDto.PrepareOkDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
@@ -106,7 +106,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/proposal"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/proposal"),
                   Codec.Json.To(new ElectionMessageDto.ProposalDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
@@ -118,7 +118,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
       Ensure.NotNull(message, "message");
       Ensure.NotNull(endPoint, "endPoint");
 
-      _client.Post(endPoint.ToHttpUrl("/elections/accept"),
+      _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/accept"),
                   Codec.Json.To(new ElectionMessageDto.AcceptDto(message)),
                   Codec.Json.ContentType,
                   r => {/*ignore*/},
