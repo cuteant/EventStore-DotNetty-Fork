@@ -54,59 +54,75 @@ namespace EventStore.ClientAPI
       return Create(settings, uri, connectionName);
     }
 
-    /// <summary>Creates a new <see cref="IEventStoreConnection2"/> to single node using <see cref="ConnectionSettings"/> passed.</summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection2"/> using the gossip seeds specified in the <paramref name="connectionSettings"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
     public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, string connectionName = null)
     {
+      if (connectionSettings.GossipSeeds == null || connectionSettings.GossipSeeds.Length == 0)
+      {
+        throw new ArgumentException("No gossip seeds specified", nameof(connectionSettings));
+      }
+
       return Create(connectionSettings, uri: null, connectionName: connectionName);
     }
 
-    /// <summary>Creates a new <see cref="IEventStoreConnection2"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnection2"/>.</summary>
     /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
-    /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
-    /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes via dns</param>
+    /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection. If null the default settings will be used and the <paramref name="uri"/> must not be null</param>
+    /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes via dns or null to connect using the gossip seeds from the <paramref name="connectionSettings"/></param>
     /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
+    /// <remarks>You must pass a uri or set gossip seeds in the connection settings.</remarks>
     public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, Uri uri, string connectionName = null)
     {
-      var scheme = uri == null ? "" : uri.Scheme.ToLowerInvariant();
-
       connectionSettings = connectionSettings ?? ConnectionSettings.Default;
-      var credential = GetCredentialFromUri(uri);
-      if (credential != null)
+      if (uri != null)
       {
-        connectionSettings = new ConnectionSettings(connectionSettings.VerboseLogging, connectionSettings.MaxQueueSize, connectionSettings.MaxConcurrentItems,
-        connectionSettings.MaxRetries, connectionSettings.MaxReconnections, connectionSettings.RequireMaster, connectionSettings.ReconnectionDelay, connectionSettings.OperationTimeout,
-        connectionSettings.OperationTimeoutCheckPeriod, credential, connectionSettings.UseSslConnection, connectionSettings.TargetHost,
-        connectionSettings.ValidateServer, connectionSettings.FailOnNoServerResponse, connectionSettings.HeartbeatInterval, connectionSettings.HeartbeatTimeout,
-        connectionSettings.ClientConnectionTimeout, connectionSettings.ClusterDns, connectionSettings.GossipSeeds, connectionSettings.MaxDiscoverAttempts,
-        connectionSettings.ExternalGossipPort, connectionSettings.GossipTimeout, connectionSettings.PreferRandomNode, connectionSettings.ThrowOnNoMatchingHandler);
-      }
-      if (scheme == "discover")
-      {
-        var clusterSettings = new ClusterSettings(uri.Host, connectionSettings.MaxDiscoverAttempts, uri.Port, connectionSettings.GossipTimeout, connectionSettings.PreferRandomNode);
-        Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-        Ensure.NotNull(clusterSettings, nameof(clusterSettings));
+        var scheme = uri.Scheme.ToLowerInvariant();
+        var credential = GetCredentialFromUri(uri);
+        if (credential != null)
+        {
+          connectionSettings = new ConnectionSettings(connectionSettings.VerboseLogging,
+              connectionSettings.MaxQueueSize, connectionSettings.MaxConcurrentItems,
+              connectionSettings.MaxRetries, connectionSettings.MaxReconnections,
+              connectionSettings.RequireMaster, connectionSettings.ReconnectionDelay,
+              connectionSettings.OperationTimeout,
+              connectionSettings.OperationTimeoutCheckPeriod, credential, connectionSettings.UseSslConnection,
+              connectionSettings.TargetHost,
+              connectionSettings.ValidateServer, connectionSettings.FailOnNoServerResponse,
+              connectionSettings.HeartbeatInterval, connectionSettings.HeartbeatTimeout,
+              connectionSettings.ClientConnectionTimeout, connectionSettings.ClusterDns,
+              connectionSettings.GossipSeeds, connectionSettings.MaxDiscoverAttempts,
+              connectionSettings.ExternalGossipPort, connectionSettings.GossipTimeout,
+              connectionSettings.PreferRandomNode, connectionSettings.ThrowOnNoMatchingHandler);
+        }
+        if (scheme == "discover")
+        {
+          var clusterSettings = new ClusterSettings(uri.Host, connectionSettings.MaxDiscoverAttempts, uri.Port, connectionSettings.GossipTimeout, connectionSettings.PreferRandomNode);
+          Ensure.NotNull(connectionSettings, nameof(connectionSettings));
+          Ensure.NotNull(clusterSettings, nameof(clusterSettings));
 
-        var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
-                                                                  clusterSettings.MaxDiscoverAttempts,
-                                                                  clusterSettings.ExternalGossipPort,
-                                                                  clusterSettings.GossipSeeds,
-                                                                  clusterSettings.GossipTimeout,
-                                                                  clusterSettings.PreferRandomNode);
+          var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
+              clusterSettings.MaxDiscoverAttempts,
+              clusterSettings.ExternalGossipPort,
+              clusterSettings.GossipSeeds,
+              clusterSettings.GossipTimeout,
+              clusterSettings.PreferRandomNode);
 
-        return new EventStoreNodeConnection(connectionSettings, clusterSettings, endPointDiscoverer, connectionName);
-      }
+          return new EventStoreNodeConnection(connectionSettings, clusterSettings, endPointDiscoverer, connectionName);
+        }
 
-      if (scheme == "tcp")
-      {
+        if (scheme == "tcp")
+        {
 #if DESKTOPCLR
-        var tcpEndPoint = GetSingleNodeIPEndPointFrom(uri);
-        return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
+          var tcpEndPoint = GetSingleNodeIPEndPointFrom(uri);
+          return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
 #else
-        return new EventStoreNodeConnection(connectionSettings, null, new SingleEndpointDiscoverer(uri, connectionSettings.UseSslConnection), connectionName);
+          return new EventStoreNodeConnection(connectionSettings, null, new SingleEndpointDiscoverer(uri, connectionSettings.UseSslConnection), connectionName);
 #endif
+        }
+        throw new Exception($"Unknown scheme for connection '{scheme}'");
       }
       if (connectionSettings.GossipSeeds != null && connectionSettings.GossipSeeds.Length > 0)
       {
@@ -125,10 +141,9 @@ namespace EventStore.ClientAPI
             clusterSettings.GossipTimeout,
             clusterSettings.PreferRandomNode);
 
-        return new EventStoreNodeConnection(connectionSettings, clusterSettings, endPointDiscoverer,
-            connectionName);
+        return new EventStoreNodeConnection(connectionSettings, clusterSettings, endPointDiscoverer, connectionName);
       }
-      throw new Exception($"Unknown scheme for connection '{scheme}'");
+      throw new Exception("Must specify uri or gossip seeds");
     }
 
 #if DESKTOPCLR
