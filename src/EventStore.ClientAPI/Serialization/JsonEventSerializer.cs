@@ -16,8 +16,8 @@ namespace EventStore.ClientAPI.Serialization
     {
       _jsonFormatter = new JsonMessageFormatter()
       {
-        DefaultSerializerSettings = JsonConvertX.IndentedStringEnumSettings,
-        DefaultDeserializerSettings = JsonConvertX.IndentedStringEnumSettings
+        DefaultSerializerSettings = JsonConvertX.IndentedIncludeTypeNameStringEnumSettings,
+        DefaultDeserializerSettings = JsonConvertX.IndentedIncludeTypeNameStringEnumSettings
       };
     }
 
