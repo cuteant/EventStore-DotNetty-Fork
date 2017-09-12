@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
@@ -107,6 +106,8 @@ namespace EventStore.Core.Services.Monitoring
       var process = Process.GetCurrentProcess();
       try
       {
+        _perfCounter.RefreshInstanceName();
+
         var procCpuUsage = _perfCounter.GetProcCpuUsage();
 
         stats["proc-startTime"] = process.StartTime.ToUniversalTime().ToString("O");
