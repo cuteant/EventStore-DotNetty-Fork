@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EventStore.ClientAPI
 {
-  public interface IEventStoreConnection2 : IEventStoreConnection, IEventStoreConnectionBase2
+  public interface IEventStoreConnection2 : IEventStoreConnection, IEventStoreBus
   {
   }
 }

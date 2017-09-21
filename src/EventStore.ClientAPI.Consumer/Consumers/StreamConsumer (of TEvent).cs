@@ -11,9 +11,9 @@ namespace EventStore.ClientAPI.Consumers
   {
     /// <summary>Initializes the external serializer. Called once when the serialization manager creates 
     /// an instance of this type</summary>
-    protected virtual void Initialize(IEventStoreConnectionBase2 connection, TSubscription subscription)
+    protected virtual void Initialize(IEventStoreBus bus, TSubscription subscription)
     {
-      Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+      Bus = bus ?? throw new ArgumentNullException(nameof(bus));
       Subscription = subscription ?? throw new ArgumentNullException(nameof(subscription));
       if (null == Subscription.Settings) { throw new ArgumentNullException(nameof(Subscription.Settings)); }
 
@@ -22,11 +22,11 @@ namespace EventStore.ClientAPI.Consumers
       {
         if (string.IsNullOrEmpty(Subscription.Topic))
         {
-          connection.SetStreamMetadata<TEvent>(ExpectedVersion.Any, Subscription.StreamMeta, userCredentials: Subscription.Credentials);
+          bus.SetStreamMetadata<TEvent>(ExpectedVersion.Any, Subscription.StreamMeta, userCredentials: Subscription.Credentials);
         }
         else
         {
-          connection.SetStreamMetadata<TEvent>(Subscription.Topic, ExpectedVersion.Any, Subscription.StreamMeta, userCredentials: Subscription.Credentials);
+          bus.SetStreamMetadata<TEvent>(Subscription.Topic, ExpectedVersion.Any, Subscription.StreamMeta, userCredentials: Subscription.Credentials);
         }
       }
     }

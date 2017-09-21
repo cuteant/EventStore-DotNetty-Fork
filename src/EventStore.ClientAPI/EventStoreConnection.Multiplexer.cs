@@ -48,20 +48,26 @@ namespace EventStore.ClientAPI
       return Create(settings, uri, numConnections);
     }
 
-    /// <summary>Creates a new <see cref="IEventStoreConnectionMultiplexer"/> to single node using <see cref="ConnectionSettings"/> passed.</summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnectionMultiplexer"/> using the gossip seeds specified in the <paramref name="connectionSettings"/>.</summary>
     /// <param name="numConnections">The number of eventstore connection.</param>
     /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
     /// <returns>a new <see cref="IEventStoreConnectionMultiplexer"/></returns>
     public static IEventStoreConnectionMultiplexer Create(ConnectionSettings connectionSettings, int numConnections)
     {
+      if (connectionSettings.GossipSeeds == null || connectionSettings.GossipSeeds.Length == 0)
+      {
+        throw new ArgumentException("No gossip seeds specified", nameof(connectionSettings));
+      }
+
       return Create(connectionSettings, (Uri)null, numConnections);
     }
 
-    /// <summary>Creates a new <see cref="IEventStoreConnectionMultiplexer"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
+    /// <summary>Creates a new <see cref="IEventStoreConnectionMultiplexer"/>.</summary>
     /// <param name="numConnections">The number of eventstore connection.</param>
-    /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection</param>
-    /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes via dns</param>
+    /// <param name="connectionSettings">The <see cref="ConnectionSettings"/> to apply to the new connection. If null the default settings will be used and the <paramref name="uri"/> must not be null</param>
+    /// <param name="uri">The Uri to connect to. It can be tcp:// to point to a single node or discover:// to discover nodes via dns or null to connect using the gossip seeds from the <paramref name="connectionSettings"/></param>
     /// <returns>a new <see cref="IEventStoreConnectionMultiplexer"/></returns>
+    /// <remarks>You must pass a uri or set gossip seeds in the connection settings.</remarks>
     public static IEventStoreConnectionMultiplexer Create(ConnectionSettings connectionSettings, Uri uri, int numConnections)
     {
       if (numConnections <= 1) { throw new ArgumentOutOfRangeException(nameof(numConnections), $"The {nameof(numConnections)} must be at least two connections."); }

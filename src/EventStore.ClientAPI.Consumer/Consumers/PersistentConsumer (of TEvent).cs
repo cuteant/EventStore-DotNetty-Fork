@@ -28,42 +28,42 @@ namespace EventStore.ClientAPI.Consumers
       subscription?.Stop(TimeSpan.FromMinutes(1));
     }
 
-    protected override void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription)
+    protected override void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription)
     {
       if (string.IsNullOrEmpty(subscription.SubscriptionId)) { throw new ArgumentNullException(nameof(subscription.SubscriptionId)); }
       if (null == subscription.PersistentSettings) { throw new ArgumentNullException(nameof(subscription.PersistentSettings)); }
 
-      base.Initialize(connection, subscription);
+      base.Initialize(bus, subscription);
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription,
+    public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
       Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> resolvedEventAppearedAsync)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _resolvedEventAppearedAsync = resolvedEventAppearedAsync ?? throw new ArgumentNullException(nameof(resolvedEventAppearedAsync));
       processingResolvedEvent = true;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription,
+    public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
       Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> resolvedEventAppeared)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _resolvedEventAppeared = resolvedEventAppeared ?? throw new ArgumentNullException(nameof(resolvedEventAppeared));
       processingResolvedEvent = true;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
+    public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
     {
       if (null == eventAppearedAsync) { throw new ArgumentNullException(nameof(eventAppearedAsync)); }
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
       processingResolvedEvent = false;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, PersistentSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
+    public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
     {
       if (null == eventAppeared) { throw new ArgumentNullException(nameof(eventAppeared)); }
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
       processingResolvedEvent = false;
     }
@@ -74,11 +74,11 @@ namespace EventStore.ClientAPI.Consumers
 
       if (string.IsNullOrEmpty(Subscription.Topic))
       {
-        Connection.UpdatePersistentSubscription<TEvent>(Subscription.SubscriptionId, Subscription.PersistentSettings, Subscription.Credentials);
+        Bus.UpdatePersistentSubscription<TEvent>(Subscription.SubscriptionId, Subscription.PersistentSettings, Subscription.Credentials);
       }
       else
       {
-        Connection.UpdatePersistentSubscription<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.PersistentSettings, Subscription.Credentials);
+        Bus.UpdatePersistentSubscription<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.PersistentSettings, Subscription.Credentials);
       }
 
       await InternalConnectToSubscriptionAsync().ConfigureAwait(false);
@@ -90,18 +90,18 @@ namespace EventStore.ClientAPI.Consumers
 
       if (string.IsNullOrEmpty(Subscription.Topic))
       {
-        Connection.DeletePersistentSubscription<TEvent>(Subscription.SubscriptionId, Subscription.Credentials);
+        Bus.DeletePersistentSubscription<TEvent>(Subscription.SubscriptionId, Subscription.Credentials);
 
-        await Connection
+        await Bus
             .CreatePersistentSubscriptionAsync<TEvent>(Subscription.SubscriptionId,
                 Subscription.PersistentSettings.Clone(lastCheckpoint ?? -1), Subscription.Credentials)
             .ConfigureAwait(false);
       }
       else
       {
-        Connection.DeletePersistentSubscription<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Credentials);
+        Bus.DeletePersistentSubscription<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Credentials);
 
-        await Connection
+        await Bus
             .CreatePersistentSubscriptionAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId,
                 Subscription.PersistentSettings.Clone(lastCheckpoint ?? -1), Subscription.Credentials)
             .ConfigureAwait(false);
@@ -118,13 +118,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_resolvedEventAppearedAsync != null)
           {
-            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
+            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
+            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
@@ -133,13 +133,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_eventAppearedAsync != null)
           {
-            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
+            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            esSubscription = await Connection.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppeared,
+            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }

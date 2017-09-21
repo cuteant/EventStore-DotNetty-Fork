@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI.Consumers
     private long _processingEventNumber = StreamPosition.End;
     private int _retryAttempts = 0;
 
-    public IEventStoreConnectionBase2 Connection { get; protected set; }
+    public IEventStoreBus Bus { get; protected set; }
     public TSubscription Subscription { get; protected set; }
 
     public abstract Task ConnectToSubscriptionAsync();

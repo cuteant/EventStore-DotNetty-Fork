@@ -5,7 +5,7 @@ using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
 {
-  public interface IEventStoreConnectionBase2 : IEventStoreConnectionBase
+  public interface IEventStoreBus : IEventStoreConnectionBase
   {
     #region -- GetEventAsync --
 

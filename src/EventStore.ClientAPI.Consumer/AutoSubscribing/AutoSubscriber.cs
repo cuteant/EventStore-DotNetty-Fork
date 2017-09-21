@@ -72,11 +72,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
     }
 
     /// <summary>Responsible for setting subscription configuration for all auto subscribed consumers.</summary>
-    public AutoSubscriber(IEventStoreConnectionBase2 connection, string subscriptionIdPrefix, bool subscribingAllTopics = true)
+    public AutoSubscriber(IEventStoreBus bus, string subscriptionIdPrefix, bool subscribingAllTopics = true)
     {
       if (string.IsNullOrWhiteSpace(subscriptionIdPrefix)) { throw new ArgumentNullException("You need to specify a SubscriptionId prefix, which will be used as part of the checksum of all generated subscription ids."); }
 
-      this.Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+      this.Bus = bus ?? throw new ArgumentNullException(nameof(bus));
       SubscriptionIdPrefix = subscriptionIdPrefix;
       SubscribingAllTopics = subscribingAllTopics;
       _onlySubscribingTopics = s_emptySubscribingTopics;
@@ -88,7 +88,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     #region @@ Properties @@
 
-    protected readonly IEventStoreConnectionBase2 Connection;
+    protected readonly IEventStoreBus Bus;
 
     // 如果 SubscribingAllTopics 值 false，OnlySubscribingTopics 也没有设置任何 topics，也不做订阅，防止重复订阅
     private ISet<string> _onlySubscribingTopics;
@@ -261,18 +261,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
         {
           case SubscriptionType.Volatile:
             var volatileConsumer = new VolatileConsumer();
-            volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
+            volatileConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
             return volatileConsumer;
           case SubscriptionType.CatchUp:
             var catchUpConsumer = new CatchUpConsumer();
-            catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
+            catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
             return catchUpConsumer;
           case SubscriptionType.Persistent:
           default:
             var persistentConsumer = new PersistentConsumer();
-            persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
+            persistentConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
             return persistentConsumer;
         }
@@ -288,18 +288,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
         {
           case SubscriptionType.Volatile:
             var volatileConsumer = new VolatileConsumer();
-            volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
+            volatileConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
             return volatileConsumer;
           case SubscriptionType.CatchUp:
             var catchUpConsumer = new CatchUpConsumer();
-            catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
+            catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
             return catchUpConsumer;
           case SubscriptionType.Persistent:
           default:
             var persistentConsumer = new PersistentConsumer();
-            persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
+            persistentConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
                 consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
             return persistentConsumer;
         }
@@ -313,7 +313,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberCatchUpConsume))
       {
         var catchUpConsumer = new CatchUpConsumer();
-        catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Action<EventStoreCatchUpSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStoreCatchUpSubscription, ResolvedEvent<object>>);
         return catchUpConsumer;
       }
@@ -325,7 +325,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberCatchUpConsumeAsync))
       {
         var catchUpConsumer = new CatchUpConsumer();
-        catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task>);
         return catchUpConsumer;
       }
@@ -359,7 +359,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberPersistentConsume))
       {
         var catchUpConsumer = new PersistentConsumer();
-        catchUpConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStorePersistentSubscription, ResolvedEvent<object>>);
         return catchUpConsumer;
       }
@@ -371,7 +371,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberPersistentConsumeAsync))
       {
         var catchUpConsumer = new PersistentConsumer();
-        catchUpConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task>);
         return catchUpConsumer;
       }
@@ -405,7 +405,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberVolatileConsume))
       {
         var catchUpConsumer = new VolatileConsumer();
-        catchUpConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Action<EventStoreSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStoreSubscription, ResolvedEvent<object>>);
         return catchUpConsumer;
       }
@@ -417,7 +417,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       else if (interfaceType == typeof(IAutoSubscriberVolatileConsumeAsync))
       {
         var catchUpConsumer = new VolatileConsumer();
-        catchUpConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
+        catchUpConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
             consumeMethod.CreateDelegate(typeof(Func<EventStoreSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStoreSubscription, ResolvedEvent<object>, Task>);
         return catchUpConsumer;
       }
@@ -457,7 +457,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       return _streamConsumerGenerators.GetItem(eventType, type =>
       {
         var generator = typeof(StreamConsumerGenerator<>).GetCachedGenericType(type).CreateInstance<IStreamConsumerGenerator>();
-        generator.Connection = this.Connection;
+        generator.Connection = this.Bus;
         generator.GenerateSubscriptionId = this.GenerateSubscriptionId;
         generator.CombineSubscriptionId = this.CombineSubscriptionId;
         return generator;
@@ -744,7 +744,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
     {
       #region @ Properties @
 
-      public IEventStoreConnectionBase2 Connection { get; set; }
+      public IEventStoreBus Connection { get; set; }
       public Func<AutoSubscriberConsumerInfo, string> GenerateSubscriptionId { get; set; }
       public Func<string, string> CombineSubscriptionId { get; set; }
 

@@ -12,7 +12,7 @@ namespace EventStore.ClientAPI
   /// (even if you call the synchronous behaviors). Many threads can use an <see cref="IEventStoreConnectionMultiplexer"/> at the same
   /// time or a single thread can make many asynchronous requests. To get the most performance out of the connection
   /// it is generally recommended to use it in this way.</remarks>
-  public interface IEventStoreConnectionMultiplexer : IEventStoreConnectionBase2
+  public interface IEventStoreConnectionMultiplexer : IEventStoreBus
   {
     /// <summary>Continues transaction by provided transaction ID.</summary>
     /// <remarks>A <see cref="EventStoreTransaction"/> allows the calling of multiple writes with multiple

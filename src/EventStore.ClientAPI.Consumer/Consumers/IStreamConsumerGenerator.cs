@@ -6,7 +6,7 @@ namespace EventStore.ClientAPI.Consumers
 {
   public interface IStreamConsumerGenerator
   {
-    IEventStoreConnectionBase2 Connection { get; set; }
+    IEventStoreBus Connection { get; set; }
     Func<AutoSubscriberConsumerInfo, string> GenerateSubscriptionId { get; set; }
     Func<string, string> CombineSubscriptionId { get; set; }
 

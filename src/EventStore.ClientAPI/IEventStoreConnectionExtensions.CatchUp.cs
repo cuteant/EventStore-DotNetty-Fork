@@ -427,7 +427,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -447,16 +447,16 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
       Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -471,7 +471,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -491,16 +491,16 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -519,7 +519,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -540,18 +540,18 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos,
       Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -566,7 +566,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -587,18 +587,18 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -613,7 +613,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -631,16 +631,16 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
 
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -655,7 +655,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -673,16 +673,16 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
 
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -701,7 +701,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -720,7 +720,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, bool resolveLinkTos,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
@@ -728,9 +728,9 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -745,7 +745,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -764,7 +764,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
@@ -772,9 +772,9 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -789,7 +789,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -805,15 +805,15 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
 
-      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -828,7 +828,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -844,15 +844,15 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
 
-      return connection.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(null, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -871,7 +871,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -891,7 +891,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, long? lastCheckpoint, bool resolveLinkTos,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
@@ -899,9 +899,9 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -916,7 +916,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -936,7 +936,7 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, long? lastCheckpoint, bool resolveLinkTos,
       Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
@@ -944,9 +944,9 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe<TEvent>(topic, lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -966,7 +966,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -986,15 +986,15 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(stream, lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1009,7 +1009,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -1026,13 +1026,13 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<IConsumerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      return connection.CatchUpSubscribe(stream, lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1047,7 +1047,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
@@ -1067,15 +1067,15 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(stream, lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -1094,7 +1094,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -1115,17 +1115,17 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1140,7 +1140,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -1158,15 +1158,15 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<IConsumerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1181,7 +1181,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -1202,17 +1202,17 @@ namespace EventStore.ClientAPI
     /// <param name="subscriptionName">The name of subscription</param>
     /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
       Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1227,7 +1227,7 @@ namespace EventStore.ClientAPI
     /// The action liveProcessingStarted is called when the
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
-    /// <param name="connection">The <see cref="IEventStoreConnectionBase2"/> responsible for raising the event.</param>
+    /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="stream">The stream to subscribe to</param>
     /// <param name="topic">The topic</param>
     /// <param name="lastCheckpoint">The event number from which to start.
@@ -1245,15 +1245,15 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
-    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreConnectionBase2 connection,
+    public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
-      return connection.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion

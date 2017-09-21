@@ -28,15 +28,15 @@ namespace EventStore.ClientAPI.Consumers
       subscription2?.Stop(TimeSpan.FromMinutes(1));
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, CatchUpSubscription subscription, Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync)
+    public void Initialize(IEventStoreBus bus, CatchUpSubscription subscription, Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, CatchUpSubscription subscription, Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared)
+    public void Initialize(IEventStoreBus bus, CatchUpSubscription subscription, Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
     }
 
@@ -48,7 +48,7 @@ namespace EventStore.ClientAPI.Consumers
       if (lastCheckpoint == null)
       {
         lastCheckpoint = StreamPosition.Start;
-        var readResult = await Connection.ReadLastEventAsync(Subscription.StreamId, Subscription.Settings.ResolveLinkTos, Subscription.Credentials);
+        var readResult = await Bus.ReadLastEventAsync(Subscription.StreamId, Subscription.Settings.ResolveLinkTos, Subscription.Credentials);
         if (EventReadStatus.Success == readResult.Status)
         {
           lastCheckpoint = readResult.EventNumber;
@@ -63,14 +63,14 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (RegisterEventHandlers != null)
             {
-              esSubscription2 = Connection.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
+              esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
             }
             else
             {
-              esSubscription2 = Connection.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterHandlers,
+              esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterHandlers,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
@@ -80,14 +80,14 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (RegisterEventHandlers != null)
             {
-              esSubscription2 = Connection.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
+              esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
             }
             else
             {
-              esSubscription2 = Connection.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterHandlers,
+              esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterHandlers,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
@@ -100,14 +100,14 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (_eventAppearedAsync != null)
             {
-              esSubscription = Connection.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
+              esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
             }
             else
             {
-              esSubscription = Connection.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppeared,
+              esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppeared,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
@@ -117,14 +117,14 @@ namespace EventStore.ClientAPI.Consumers
           {
             if (_eventAppearedAsync != null)
             {
-              esSubscription = Connection.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
+              esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);
             }
             else
             {
-              esSubscription = Connection.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppeared,
+              esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppeared,
                       _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
                       async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                       Subscription.Credentials);

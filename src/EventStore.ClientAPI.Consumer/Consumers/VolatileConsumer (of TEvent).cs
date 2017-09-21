@@ -27,34 +27,34 @@ namespace EventStore.ClientAPI.Consumers
       subscription?.Dispose();
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, VolatileSubscription<TEvent> subscription,
+    public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription,
       Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> resolvedEventAppearedAsync)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _resolvedEventAppearedAsync = resolvedEventAppearedAsync ?? throw new ArgumentNullException(nameof(resolvedEventAppearedAsync));
       processingResolvedEvent = true;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, VolatileSubscription<TEvent> subscription,
+    public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> resolvedEventAppeared)
     {
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _resolvedEventAppeared = resolvedEventAppeared ?? throw new ArgumentNullException(nameof(resolvedEventAppeared));
       processingResolvedEvent = true;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, VolatileSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
+    public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
     {
       if (null == eventAppearedAsync) { throw new ArgumentNullException(nameof(eventAppearedAsync)); }
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
       processingResolvedEvent = false;
     }
 
-    public void Initialize(IEventStoreConnectionBase2 connection, VolatileSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
+    public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
     {
       if (null == eventAppeared) { throw new ArgumentNullException(nameof(eventAppeared)); }
-      Initialize(connection, subscription);
+      Initialize(bus, subscription);
       _eventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
       processingResolvedEvent = false;
     }
@@ -69,13 +69,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_resolvedEventAppearedAsync != null)
           {
-            _esSubscription = await Connection.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppearedAsync,
+            _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            _esSubscription = await Connection.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppeared,
+            _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
@@ -84,13 +84,13 @@ namespace EventStore.ClientAPI.Consumers
         {
           if (_eventAppearedAsync != null)
           {
-            _esSubscription = await Connection.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _eventAppearedAsync,
+            _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _eventAppearedAsync,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
           else
           {
-            _esSubscription = await Connection.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _eventAppeared,
+            _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _eventAppeared,
                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                     Subscription.Credentials).ConfigureAwait(false);
           }
