@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
@@ -154,7 +155,7 @@ namespace EventStore.ClientAPI.Projections
 
         private Task<string> SendGet(string url, UserCredentials userCredentials, int expectedCode)
         {
-            var source = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var source = TaskUtility.CreateTaskCompletionSource<string>();
             _client.Get(url,
                         userCredentials,
                         response =>
@@ -176,7 +177,7 @@ namespace EventStore.ClientAPI.Projections
 
         private Task<string> SendDelete(string url, UserCredentials userCredentials, int expectedCode)
         {
-            var source = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var source = TaskUtility.CreateTaskCompletionSource<string>();
             _client.Delete(url,
                            userCredentials,
                            response =>
@@ -198,7 +199,7 @@ namespace EventStore.ClientAPI.Projections
 
         private Task SendPut(string url, string content, UserCredentials userCredentials, int expectedCode)
         {
-            var source = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var source = TaskUtility.CreateTaskCompletionSource<object>();
             _client.Put(url,
                         content,
                         "application/json",
@@ -222,7 +223,7 @@ namespace EventStore.ClientAPI.Projections
 
         private Task SendPost(string url, string content, UserCredentials userCredentials, int expectedCode)
         {
-            var source = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var source = TaskUtility.CreateTaskCompletionSource<object>();
             _client.Post(url,
                          content,
                          "application/json",

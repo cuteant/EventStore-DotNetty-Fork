@@ -101,7 +101,7 @@ namespace EventStore.ClientAPI.Projections
     /// <param name="userCredentials">Credentials for a user with permission to create a query.</param>
     public Task CreateContinuousAsync(string name, string query, UserCredentials userCredentials = null)
     {
-      return CreateContinuousAsync(name, query, false, userCredentials, _httpSchema);
+      return CreateContinuousAsync(name, query, false, userCredentials);
     }
 
     /// <summary>

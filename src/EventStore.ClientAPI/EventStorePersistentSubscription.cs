@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 
@@ -44,7 +45,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings connSettings)
     {
-      var source = new TaskCompletionSource<PersistentEventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+      var source = TaskUtility.CreateTaskCompletionSource<PersistentEventStoreSubscription>();
       _handler.EnqueueMessage(new StartPersistentSubscriptionMessage(source, subscriptionId, streamId, settings, userCredentials,
           onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
 
@@ -93,7 +94,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings connSettings)
     {
-      var source = new TaskCompletionSource<PersistentEventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+      var source = TaskUtility.CreateTaskCompletionSource<PersistentEventStoreSubscription>();
       _handler.EnqueueMessage(new StartPersistentSubscriptionMessage2(source, subscriptionId, streamId, settings, userCredentials,
           onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
 
@@ -143,7 +144,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings connSettings)
     {
-      var source = new TaskCompletionSource<PersistentEventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+      var source = TaskUtility.CreateTaskCompletionSource<PersistentEventStoreSubscription>();
 
       _handler.EnqueueMessage(new StartPersistentSubscriptionMessageWrapper
       {
@@ -200,7 +201,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
       ConnectionSettings connSettings)
     {
-      var source = new TaskCompletionSource<PersistentEventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+      var source = TaskUtility.CreateTaskCompletionSource<PersistentEventStoreSubscription>();
       _handler.EnqueueMessage(new StartPersistentSubscriptionRawMessage(source, subscriptionId, streamId, settings, userCredentials,
           onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout));
 

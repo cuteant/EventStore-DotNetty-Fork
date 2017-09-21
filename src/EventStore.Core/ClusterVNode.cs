@@ -621,7 +621,11 @@ namespace EventStore.Core
 
     public Task<ClusterVNode> StartAndWaitUntilReady()
     {
+#if NET_4_5_GREATER
       var tcs = new TaskCompletionSource<ClusterVNode>(TaskCreationOptions.RunContinuationsAsynchronously);
+#else
+      var tcs = new TaskCompletionSource<ClusterVNode>();
+#endif
 
       _mainBus.Subscribe(new AdHocHandler<SystemMessage.SystemReady>(
               _ => tcs.TrySetResult(this)));

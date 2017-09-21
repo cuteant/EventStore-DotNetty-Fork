@@ -272,6 +272,7 @@ namespace EventStore.ClusterNode
       if (options.AlwaysKeepScavenged) { builder.AlwaysKeepScavenged(); }
       if (options.Unbuffered) { builder.EnableUnbuffered(); }
       if (options.WriteThrough) { builder.EnableWriteThrough(); }
+      if (options.SkipIndexScanOnReads) { builder.SkipIndexScanOnReads(); }
 
       if (options.IntSecureTcpPort > 0 || options.ExtSecureTcpPort > 0)
       {

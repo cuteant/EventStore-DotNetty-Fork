@@ -33,6 +33,8 @@ EnableHistograms: false
 # Log Http Requests and Responses before processing them.
 LogHttpRequests: false
 
+# Skip Index Scan on Reads. This skips the index scan which was used to stop reading duplicates.
+SkipIndexScanOnReads: false
 
 
 
