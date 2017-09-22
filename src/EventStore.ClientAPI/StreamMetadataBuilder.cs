@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using EventStore.ClientAPI.Common.Utils;
@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI
             _aclDelete = aclDelete;
             _aclMetaRead = aclMetaRead;
             _aclMetaWrite = aclMetaWrite;
-            _customMetadata = customMetadata == null ? new Dictionary<string, JToken>() : new Dictionary<string, JToken>(customMetadata);
+            _customMetadata = customMetadata == null ? new Dictionary<string, JToken>(StringComparer.Ordinal) : new Dictionary<string, JToken>(customMetadata, StringComparer.Ordinal);
         }
         /// <summary>
         /// Builds a <see cref="StreamMetadata"/> from a <see cref="StreamMetadataBuilder"/>.
