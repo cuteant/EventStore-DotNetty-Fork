@@ -37,10 +37,10 @@
     <DefineConstants>$(DefineConstants);</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'net461'">
-    <DefineConstants>$(DefineConstants);SUPPORTS_READONLY_COLLECTION</DefineConstants>
+    <DefineConstants>$(DefineConstants);</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
-    <DefineConstants>$(DefineConstants);PORTABLE;SUPPORTS_READONLY_COLLECTION</DefineConstants>
+    <DefineConstants>$(DefineConstants);PORTABLE;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'net40'">
