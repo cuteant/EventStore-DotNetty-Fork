@@ -782,8 +782,6 @@ namespace EventStore.Core.Tests.ClientAPI
 
         protected override void Given()
         {
-
-
             _conn.CreatePersistentSubscriptionAsync(_stream, _group, _settings,
                 DefaultData.AdminCredentials).Wait();
             _conn.ConnectToPersistentSubscription(
@@ -805,9 +803,9 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             if (retryCount > 4)
             {
-                _resetEvent.Set();
                 _retryCount = retryCount;
                 sub.Acknowledge(resolvedEvent);
+                _resetEvent.Set();
             }
             else
             {

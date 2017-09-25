@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Storage.ReaderIndex;
@@ -6,17 +6,16 @@ using EventStore.Core.Services.Storage.ReaderIndex;
 namespace EventStore.Core.Services.RequestManager.Managers
 {
     public class WriteStreamTwoPhaseRequestManager : TwoPhaseRequestManagerBase,
-                                                              IHandle<ClientMessage.WriteEvents>
+                                                     IHandle<ClientMessage.WriteEvents>
     {
         private ClientMessage.WriteEvents _request;
 
         public WriteStreamTwoPhaseRequestManager(IPublisher publisher,
-                                                      int prepareCount,
-                                                      int commitCount,
-                                                      TimeSpan prepareTimeout,
-                                                      TimeSpan commitTimeout,
-                                                      bool betterOrdering)
-                : base(publisher, prepareCount, commitCount, prepareTimeout, commitTimeout, betterOrdering)
+                                                 int prepareCount,
+                                                 TimeSpan prepareTimeout,
+                                                 TimeSpan commitTimeout,
+                                                 bool betterOrdering)
+                : base(publisher, prepareCount, prepareTimeout, commitTimeout, betterOrdering)
         {
         }
 

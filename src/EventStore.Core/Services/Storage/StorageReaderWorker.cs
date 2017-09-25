@@ -208,7 +208,7 @@ namespace EventStore.Core.Services.Storage
         {
             using (HistogramService.Measure(_readerStreamRangeHistogram))
             {
-                var lastCommitPosition = _readIndex.LastCommitPosition;
+                var lastCommitPosition = _readIndex.LastReplicatedPosition;
                 try
                 {
                     if (msg.MaxCount > MaxPageSize)
@@ -253,7 +253,7 @@ namespace EventStore.Core.Services.Storage
         {
             using (HistogramService.Measure(_readerStreamRangeHistogram))
             {
-                var lastCommitPosition = _readIndex.LastCommitPosition;
+                var lastCommitPosition = _readIndex.LastReplicatedPosition;
                 try
                 {
                     if (msg.MaxCount > MaxPageSize)
@@ -300,7 +300,7 @@ namespace EventStore.Core.Services.Storage
             using (HistogramService.Measure(_readerAllRangeHistogram))
             {
                 var pos = new TFPos(msg.CommitPosition, msg.PreparePosition);
-                var lastCommitPosition = _readIndex.LastCommitPosition;
+                var lastCommitPosition = _readIndex.LastReplicatedPosition;
                 try
                 {
                     if (msg.MaxCount > MaxPageSize)
@@ -352,7 +352,7 @@ namespace EventStore.Core.Services.Storage
             using (HistogramService.Measure(_readerAllRangeHistogram))
             {
                 var pos = new TFPos(msg.CommitPosition, msg.PreparePosition);
-                var lastCommitPosition = _readIndex.LastCommitPosition;
+                var lastCommitPosition = _readIndex.LastReplicatedPosition;
                 try
                 {
                     if (msg.MaxCount > MaxPageSize)
