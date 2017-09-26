@@ -361,10 +361,21 @@ namespace EventStore.Projections.Core.Services.Processing
       var positionEvent = pair.OriginalEvent;
       string streamId = positionEvent.EventStreamId;
       long fromPosition = _fromPositions.Streams[streamId];
+
+      //if events have been deleted from the beginning of the stream, start from the first event we find
+      if(fromPosition == 0 && positionEvent.EventNumber > 0)
+      {
+        fromPosition = positionEvent.EventNumber;
+      }
+
       if (positionEvent.EventNumber != fromPosition)
       {
-        throw new InvalidOperationException(
-            $"Event number {fromPosition} was expected in the stream {streamId}, but event number {positionEvent.EventNumber} was received");
+        string reason = string.Format(
+                "Event number {0} was expected in the stream {1}, but event number {2} was received. This may happen if events have been deleted from the beginning of your stream, please reset your projection.",
+                fromPosition, streamId, positionEvent.EventNumber);
+
+        _publisher.Publish(new ReaderSubscriptionMessage.Faulted(EventReaderCorrelationId,reason,this.GetType()));
+        throw new InvalidOperationException(reason);
       }
 
       _fromPositions = _fromPositions.UpdateStreamPosition(streamId, positionEvent.EventNumber + 1);
