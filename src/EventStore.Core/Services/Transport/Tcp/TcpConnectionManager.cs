@@ -11,6 +11,7 @@ using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
+using EventStore.Core.Settings;
 using EventStore.Transport.Tcp;
 using EventStore.Transport.Tcp.Framing;
 using Microsoft.Extensions.Logging;
@@ -52,7 +53,6 @@ namespace EventStore.Core.Services.Transport.Tcp
     private readonly TimeSpan _heartbeatInterval;
     private readonly TimeSpan _heartbeatTimeout;
     private readonly int _connectionPendingSendBytesThreshold;
-    private readonly bool _limitPendingSendBytes;
 
     private readonly IAuthenticationProvider _authProvider;
     private UserCredentials _defaultUser;
@@ -68,8 +68,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                 TimeSpan heartbeatInterval,
                                 TimeSpan heartbeatTimeout,
                                 Action<TcpConnectionManager, SocketError> onConnectionClosed,
-                                int connectionPendingSendBytesThreshold,
-                                bool limitPendingSendBytes)
+                                int connectionPendingSendBytesThreshold)
     {
       Ensure.NotNull(dispatcher, "dispatcher");
       Ensure.NotNull(publisher, "publisher");
@@ -93,7 +92,6 @@ namespace EventStore.Core.Services.Transport.Tcp
       _heartbeatInterval = heartbeatInterval;
       _heartbeatTimeout = heartbeatTimeout;
       _connectionPendingSendBytesThreshold = connectionPendingSendBytesThreshold;
-      _limitPendingSendBytes = limitPendingSendBytes;
 
       _connectionClosed = onConnectionClosed;
 
@@ -147,8 +145,7 @@ namespace EventStore.Core.Services.Transport.Tcp
       _weakThisEnvelope = new SendToWeakThisEnvelope(this);
       _heartbeatInterval = heartbeatInterval;
       _heartbeatTimeout = heartbeatTimeout;
-      _connectionPendingSendBytesThreshold = 0;
-      _limitPendingSendBytes = false;
+      _connectionPendingSendBytesThreshold = ESConsts.UnrestrictedPendingSendBytes;
 
       _connectionEstablished = onConnectionEstablished;
       _connectionClosed = onConnectionClosed;
@@ -423,7 +420,7 @@ namespace EventStore.Core.Services.Transport.Tcp
           SendBadRequestAndClose(Guid.Empty, $"Connection queue size is too large: {queueSize}.");
           return;
         }
-        if(_limitPendingSendBytes && (queueSendBytes = _connection.PendingSendBytes) > _connectionPendingSendBytesThreshold)
+        if(_connectionPendingSendBytesThreshold > ESConsts.UnrestrictedPendingSendBytes && (queueSendBytes = _connection.PendingSendBytes) > _connectionPendingSendBytesThreshold)
         {
           SendBadRequestAndClose(Guid.Empty, $"Connection pending send bytes is too large: {queueSendBytes}.");
           return;
