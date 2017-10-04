@@ -217,8 +217,8 @@ namespace EventStore.ClientAPI
 
     #region -- Stop --
 
-    /// <summary>Attempts to stop the subscription.</summary>
-    /// <param name="timeout">The amount of time within which the subscription should stop.</param>
+    /// <summary>Attempts to stop the subscription blocking for completion of stop.</summary>
+    /// <param name="timeout">The maximum amount of time which the current thread will block waiting for the subscription to stop before throwing a TimeoutException.</param>
     /// <exception cref="TimeoutException">Thrown if the subscription fails to stop within it's timeout period.</exception>
     public void Stop(TimeSpan timeout)
     {
