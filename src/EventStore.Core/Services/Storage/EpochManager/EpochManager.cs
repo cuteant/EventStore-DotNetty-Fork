@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
+using EventStore.Core.Bus;
+using EventStore.Core.Messages;
 using EventStore.Core.DataStructures;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
@@ -12,6 +14,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
   public class EpochManager : IEpochManager
   {
     private static readonly ILogger Log = TraceLogger.GetLogger<EpochManager>();
+    private readonly IPublisher _bus;
 
     public readonly int CachedEpochCount;
     public int LastEpochNumber { get { return _lastEpochNumber; } }
@@ -26,13 +29,15 @@ namespace EventStore.Core.Services.Storage.EpochManager
     private long _lastEpochPosition = -1;
     private int _minCachedEpochNumber = -1;
 
-    public EpochManager(int cachedEpochCount,
+    public EpochManager(IPublisher bus,
+	                    int cachedEpochCount,
                         ICheckpoint checkpoint,
                         ITransactionFileWriter writer,
                         int initialReaderCount,
                         int maxReaderCount,
                         Func<ITransactionFileReader> readerFactory)
     {
+      Ensure.NotNull(bus, "bus");
       Ensure.Nonnegative(cachedEpochCount, nameof(cachedEpochCount));
       Ensure.NotNull(checkpoint, nameof(checkpoint));
       Ensure.NotNull(writer, nameof(writer));
@@ -44,6 +49,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
       }
       Ensure.NotNull(readerFactory, nameof(readerFactory));
 
+      _bus = bus;
       CachedEpochCount = cachedEpochCount;
       _checkpoint = checkpoint;
       _readers = new ObjectPool<ITransactionFileReader>("EpochManager readers pool", initialReaderCount, maxReaderCount, readerFactory);
@@ -233,6 +239,8 @@ namespace EventStore.Core.Services.Storage.EpochManager
         }
       }
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("=== Writing E{0}@{1}:{2:B} (previous epoch at {3}).", epochNumber, epoch.EpochPosition, epochId, lastEpochPosition);
+
+      _bus.Publish(new SystemMessage.EpochWritten(epoch));
       return epoch;
     }
 
