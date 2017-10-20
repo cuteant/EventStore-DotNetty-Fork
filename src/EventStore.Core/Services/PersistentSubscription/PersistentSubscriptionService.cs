@@ -172,8 +172,6 @@ namespace EventStore.Core.Services.PersistentSubscription
         return;
       }
 
-      var msgTimeout = message.MessageTimeoutMilliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(message.MessageTimeoutMilliseconds);
-      var checkPointAfter = message.CheckPointAfterMilliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(message.CheckPointAfterMilliseconds);
       CreateSubscriptionGroup(message.EventStreamId,
                               message.GroupName,
                               message.ResolveLinkTos,
@@ -183,12 +181,12 @@ namespace EventStore.Core.Services.PersistentSubscription
                               message.LiveBufferSize,
                               message.BufferSize,
                               message.ReadBatchSize,
-                              checkPointAfter,
+                              ToTimeout(message.CheckPointAfterMilliseconds),
                               message.MinCheckPointCount,
                               message.MaxCheckPointCount,
                               message.MaxSubscriberCount,
                               message.NamedConsumerStrategy,
-                              msgTimeout
+                              ToTimeout(message.MessageTimeoutMilliseconds)
                               );
       if (Log.IsDebugLevelEnabled()) Log.LogDebug("New persistent subscription {0}.", message.GroupName);
       _config.Updated = DateTime.Now;
@@ -248,8 +246,6 @@ namespace EventStore.Core.Services.PersistentSubscription
 
       RemoveSubscription(message.EventStreamId, message.GroupName);
       RemoveSubscriptionConfig(message.User.Identity.Name, message.EventStreamId, message.GroupName);
-      var msgTimeout = message.MessageTimeoutMilliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(message.MessageTimeoutMilliseconds);
-      var checkPointAfter = message.CheckPointAfterMilliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(message.CheckPointAfterMilliseconds);
       CreateSubscriptionGroup(message.EventStreamId,
                               message.GroupName,
                               message.ResolveLinkTos,
@@ -259,12 +255,12 @@ namespace EventStore.Core.Services.PersistentSubscription
                               message.LiveBufferSize,
                               message.BufferSize,
                               message.ReadBatchSize,
-                              checkPointAfter,
+                              ToTimeout(message.CheckPointAfterMilliseconds),
                               message.MinCheckPointCount,
                               message.MaxCheckPointCount,
                               message.MaxSubscriberCount,
                               message.NamedConsumerStrategy,
-                              msgTimeout
+                              ToTimeout(message.MessageTimeoutMilliseconds)
                               );
       _config.Updated = DateTime.Now;
       _config.UpdatedBy = message.User.Identity.Name;
@@ -659,12 +655,12 @@ namespace EventStore.Core.Services.PersistentSubscription
                                       entry.LiveBufferSize,
                                       entry.HistoryBufferSize,
                                       entry.ReadBatchSize,
-                                      TimeSpan.FromMilliseconds(entry.CheckPointAfter),
+                                      ToTimeout(entry.CheckPointAfter),
                                       entry.MinCheckPointCount,
                                       entry.MaxCheckPointCount,
                                       entry.MaxSubscriberCount,
                                       entry.NamedConsumerStrategy,
-                                      TimeSpan.FromMilliseconds(entry.MessageTimeout));
+                                      ToTimeout(entry.MessageTimeout));
             }
             continueWith();
           }
@@ -704,31 +700,6 @@ namespace EventStore.Core.Services.PersistentSubscription
           break;
         default:
           throw new Exception(obj.Result + " is an unexpected result writing subscription configuration.");
-      }
-    }
-
-    public void LoadSubscriptionsFromConfig()
-    {
-      if (Log.IsDebugLevelEnabled()) Log.LogDebug("Loading subscriptions from persisted config.");
-      InitToEmpty();
-      if (_config.Entries == null) throw new Exception("Subscription Entries should never be null.");
-      foreach (var sub in _config.Entries)
-      {
-        CreateSubscriptionGroup(sub.Stream,
-                                sub.Group,
-                                sub.ResolveLinkTos,
-                                sub.StartFrom,
-                                sub.ExtraStatistics,
-                                sub.MaxRetryCount,
-                                sub.LiveBufferSize,
-                                sub.HistoryBufferSize,
-                                sub.ReadBatchSize,
-                                TimeSpan.FromMilliseconds(sub.CheckPointAfter),
-                                sub.MinCheckPointCount,
-                                sub.MaxCheckPointCount,
-                                sub.MaxSubscriberCount,
-                                sub.NamedConsumerStrategy,
-                                TimeSpan.FromMilliseconds(sub.MessageTimeout));
       }
     }
 
@@ -823,6 +794,11 @@ namespace EventStore.Core.Services.PersistentSubscription
       {
         subscription.NotifyClockTick(now);
       }
+    }
+
+    private TimeSpan ToTimeout(int milliseconds)
+    {
+      return milliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(milliseconds);
     }
   }
 }
