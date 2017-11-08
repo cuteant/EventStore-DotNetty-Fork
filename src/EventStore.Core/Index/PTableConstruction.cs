@@ -7,15 +7,16 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using EventStore.Common.Utils;
+using EventStore.Common.Options;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Index
 {
   public unsafe partial class PTable
   {
-    public static PTable FromFile(string filename, int cacheDepth)
+    public static PTable FromFile(string filename, int cacheDepth, bool skipIndexVerify)
     {
-      return new PTable(filename, Guid.NewGuid(), depth: cacheDepth);
+      return new PTable(filename, Guid.NewGuid(), depth: cacheDepth, skipIndexVerify: skipIndexVerify);
     }
 
     public static PTable FromMemtable(IMemTable table, string filename, int cacheDepth = 16)

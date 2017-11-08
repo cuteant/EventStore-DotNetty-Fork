@@ -327,7 +327,9 @@ namespace EventStore.Core.Util
     public const string HistogramDescr =
         "Enables the tracking of various histograms in the backend, typically only used for debugging etc";
     public static readonly bool HistogramEnabledDefault = false;
-
+    public const string SkipIndexVerifyDescr =
+        "Bypasses the checking of file hashes of indexes during startup (allows for faster startup).";
+    public static readonly bool SkipIndexVerifyDefault = false;
     public const string IndexCacheDepthDescr = "Sets the depth to cache for the mid point cache in index.";
     public static int IndexCacheDepthDefault = 16;
 
