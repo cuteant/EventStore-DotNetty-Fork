@@ -55,7 +55,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
       _state.DisconnectNode(nodeId);
     }
 
-    public ConsumerPushResult PushMessageToClient(ResolvedEvent ev)
+    public ConsumerPushResult PushMessageToClient(ResolvedEvent ev, int retryCount)
     {
       if (_state == null)
       {
@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
         _state.AssignBucket(bucket);
       }
 
-      if (!_state.Assignments[bucket].Node.Client.Push(ev))
+      if (!_state.Assignments[bucket].Node.Client.Push(ev, retryCount))
       {
         return ConsumerPushResult.Skipped;
       }
