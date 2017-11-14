@@ -65,6 +65,7 @@ namespace EventStore.Projections.Core.Services.Management
         private readonly IPublisher _publisher;
         private readonly Tuple<Guid, IPublisher>[] _queues;
         private readonly Guid[] _workers;
+        private readonly TimeSpan _projectionsQueryExpiry;
 
         private readonly ITimeProvider _timeProvider;
         private readonly ProjectionType _runProjections;
@@ -94,7 +95,7 @@ namespace EventStore.Projections.Core.Services.Management
         private readonly IODispatcher _ioDispatcher;
 
         public ProjectionManager(IPublisher inputQueue, IPublisher publisher, IDictionary<Guid, IPublisher> queueMap,
-          ITimeProvider timeProvider, ProjectionType runProjections, IODispatcher ioDispatcher, bool initializeSystemProjections = true)
+          ITimeProvider timeProvider, ProjectionType runProjections, IODispatcher ioDispatcher, TimeSpan projectionQueryExpiry, bool initializeSystemProjections = true)
         {
             if (queueMap == null) throw new ArgumentNullException(nameof(queueMap));
             if (queueMap.Count == 0) throw new ArgumentException("At least one queue is required", nameof(queueMap));
@@ -108,6 +109,7 @@ namespace EventStore.Projections.Core.Services.Management
             _runProjections = runProjections;
             _initializeSystemProjections = initializeSystemProjections;
             _ioDispatcher = ioDispatcher;
+            _projectionsQueryExpiry = projectionQueryExpiry;
 
             _writeDispatcher =
                 new RequestResponseDispatcher<ClientMessage.WriteEvents, ClientMessage.WriteEventsCompleted>(
@@ -1072,6 +1074,7 @@ namespace EventStore.Projections.Core.Services.Management
                 _getStateDispatcher,
                 _getResultDispatcher,
                 _ioDispatcher,
+                _projectionsQueryExpiry,
                 isSlave,
                 slaveMasterWorkerId,
                 slaveMasterCorrelationId);

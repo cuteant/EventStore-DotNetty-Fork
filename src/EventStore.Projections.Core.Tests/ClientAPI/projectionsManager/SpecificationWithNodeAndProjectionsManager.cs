@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Text;
 using NUnit.Framework;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Projections;
+using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Common.Options;
 using EventStore.Core;
@@ -10,7 +11,7 @@ using EventStore.Core.Tests;
 using EventStore.Core.Tests.Helpers;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Services;
-using Microsoft.Extensions.Logging;
+using EventStore.Core.Util;
 
 namespace EventStore.Projections.Core.Tests.ClientAPI.projectionsManager
 {
@@ -51,7 +52,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.projectionsManager
 
             try
             {
-                _projManager = new ProjectionsManager(_node.ExtHttpEndPoint, _timeout);
+                _projManager = new ProjectionsManager(new ConsoleLogger(), _node.ExtHttpEndPoint, _timeout);
                 Given();
                 When();
             }
@@ -94,7 +95,8 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.projectionsManager
 
         protected MiniNode CreateNode()
         {
-            var projections = new ProjectionsSubsystem(1, runProjections: ProjectionType.All, startStandardProjections: false);
+            var projections = new ProjectionsSubsystem(1, runProjections: ProjectionType.All,
+                                startStandardProjections: false, projectionQueryExpiry: TimeSpan.FromMinutes(Opts.ProjectionsQueryExpiryDefault));
             return new MiniNode(
             PathName, inMemDb: true, skipInitializeStandardUsersCheck: false, subsystems: new ISubsystem[] { projections });
         }
