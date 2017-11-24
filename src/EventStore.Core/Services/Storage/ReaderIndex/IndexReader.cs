@@ -171,7 +171,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     if (rec != null && rec.EventStreamId == streamId) { return rec; }
                 }
             }
-            return null; ;
+            return null;
         }
 
         protected static PrepareLogRecord ReadPrepareInternal(TFReaderLease reader, long logPosition)

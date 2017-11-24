@@ -7,6 +7,7 @@ using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Cluster.Settings;
+using EventStore.Core.Index;
 using EventStore.Core.Services.Gossip;
 using EventStore.Core.Services.Monitoring;
 using EventStore.Core.TransactionLog.Checkpoint;
