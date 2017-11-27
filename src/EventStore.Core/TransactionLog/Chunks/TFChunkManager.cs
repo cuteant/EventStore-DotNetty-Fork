@@ -103,7 +103,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                                                     fileSize,
                                                     _config.InMemDb,
                                                     _config.Unbuffered,
-                                                    _config.WriteThrough);
+                                                    _config.WriteThrough,
+                                                    _config.InitialReaderCount);
         }
 
         public TFChunk.TFChunk AddNewChunk()
@@ -119,7 +120,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                                                       isScavenged: false,
                                                       inMem: _config.InMemDb,
                                                       unbuffered: _config.Unbuffered,
-                                                      writethrough: _config.WriteThrough);
+                                                      writethrough: _config.WriteThrough,
+                                                      initialReaderCount: _config.InitialReaderCount);
                 AddChunk(chunk);
                 return chunk;
             }
@@ -144,7 +146,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                                                              fileSize,
                                                              _config.InMemDb,
                                                              unbuffered: _config.Unbuffered,
-                                                             writethrough: _config.WriteThrough);
+                                                             writethrough: _config.WriteThrough,
+                                                             initialReaderCount: _config.InitialReaderCount);
                 AddChunk(chunk);
                 return chunk;
             }
@@ -202,7 +205,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 var newFileName = _config.FileNamingStrategy.DetermineBestVersionFilenameFor(chunkHeader.ChunkStartNumber);
                 if (infoEnabled) Log.LogInformation("File {0} will be moved to file {1}", Path.GetFileName(oldFileName), Path.GetFileName(newFileName));
                 File.Move(oldFileName, newFileName);
-                newChunk = TFChunk.TFChunk.FromCompletedFile(newFileName, verifyHash, _config.Unbuffered);
+                newChunk = TFChunk.TFChunk.FromCompletedFile(newFileName, verifyHash, _config.Unbuffered, _config.InitialReaderCount);
             }
 
             lock (_chunksLocker)
