@@ -343,7 +343,8 @@ namespace EventStore.Core.Index
                                      Func<IndexEntry, Tuple<string, bool>> recordExistsAt,
                                      IIndexFilenameProvider filenameProvider,
                                      byte version,
-                                     int indexCacheDepth = 16)
+                                     int indexCacheDepth = 16,
+                                     bool skipIndexVerify = false)
         {
             Ensure.Nonnegative(prepareCheckpoint, nameof(prepareCheckpoint));
             Ensure.Nonnegative(commitCheckpoint, nameof(commitCheckpoint));
@@ -358,7 +359,7 @@ namespace EventStore.Core.Index
                 if (tables[level].Count >= _maxTablesPerLevel)
                 {
                     var filename = filenameProvider.GetFilenameNewTable();
-                    PTable table = PTable.MergeTo(tables[level], filename, upgradeHash, existsAt, recordExistsAt, version, indexCacheDepth);
+                    PTable table = PTable.MergeTo(tables[level], filename, upgradeHash, existsAt, recordExistsAt, version, indexCacheDepth, skipIndexVerify);
                     CreateIfNeeded(level + 1, tables);
                     tables[level + 1].Add(table);
                     toDelete.AddRange(tables[level]);

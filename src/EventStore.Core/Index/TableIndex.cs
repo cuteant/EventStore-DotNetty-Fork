@@ -52,6 +52,7 @@ namespace EventStore.Core.Index
         private IHasher _highHasher;
 
         private bool _initialized;
+        public const string ForceIndexVerifyFilename = ".forceverify";
 
         public TableIndex(string directory,
                           IHasher lowHasher,
@@ -82,7 +83,7 @@ namespace EventStore.Core.Index
             _maxTablesPerLevel = maxTablesPerLevel;
             _additionalReclaim = additionalReclaim;
             _inMem = inMem;
-            _skipIndexVerify = skipIndexVerify;
+            _skipIndexVerify = ShouldForceIndexVerify() ? false: skipIndexVerify;
             _indexCacheDepth = indexCacheDepth;
             _ptableVersion = ptableVersion;
             _awaitingMemTables = new List<TableItem> { new TableItem(_memTableFactory(), -1, -1) };
@@ -107,10 +108,14 @@ namespace EventStore.Core.Index
                 return;
             }
 
+            if(ShouldForceIndexVerify()){
+                Log.Debug("Forcing verification of index files...");
+            }
+
             CreateIfDoesNotExist(_directory);
             var indexmapFile = Path.Combine(_directory, IndexMapFilename);
 
-            // if TableIndex's CommitCheckpoint is >= amount of written TFChunk data, 
+            // if TableIndex's CommitCheckpoint is >= amount of written TFChunk data,
             // we'll have to remove some of PTables as they point to non-existent data
             // this can happen (very unlikely, though) on master crash
             try
@@ -121,6 +126,9 @@ namespace EventStore.Core.Index
                     _indexMap.Dispose(TimeSpan.FromMilliseconds(5000));
                     throw new CorruptIndexException(String.Format("IndexMap's CommitCheckpoint ({0}) is greater than ChaserCheckpoint ({1}).", _indexMap.CommitCheckpoint, chaserCheckpoint));
                 }
+
+                //verification should be completed by now
+                DeleteForceIndexVerifyFile();
             }
             catch (CorruptIndexException exc)
             {
@@ -128,6 +136,7 @@ namespace EventStore.Core.Index
                 LogIndexMapContent(indexmapFile);
                 DumpAndCopyIndex();
                 File.Delete(indexmapFile);
+                DeleteForceIndexVerifyFile();
                 _indexMap = IndexMap.FromFile(indexmapFile, maxTablesPerLevel: _maxTablesPerLevel, cacheDepth: _indexCacheDepth, skipIndexVerify: _skipIndexVerify);
             }
             _prepareCheckpoint = _indexMap.PrepareCheckpoint;
@@ -264,7 +273,7 @@ namespace EventStore.Core.Index
                     if (tableItem.Table is IMemTable memtable)
                     {
                         memtable.MarkForConversion();
-                        ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth);
+                        ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
                     }
                     else
                     {
@@ -279,7 +288,7 @@ namespace EventStore.Core.Index
                         mergeResult = _indexMap.AddPTable(ptable, tableItem.PrepareCheckpoint, tableItem.CommitCheckpoint,
                                                           (streamId, currentHash) => UpgradeHash(streamId, currentHash),
                                                           entry => reader.ExistsAt(entry.Position),
-                                                          entry => ReadEntry(reader, entry.Position), _fileNameProvider, _ptableVersion, _indexCacheDepth);
+                                                          entry => ReadEntry(reader, entry.Position), _fileNameProvider, _ptableVersion, _indexCacheDepth, _skipIndexVerify);
                     }
                     _indexMap = mergeResult.MergedMap;
                     _indexMap.SaveToFile(indexmapFile);
@@ -291,7 +300,7 @@ namespace EventStore.Core.Index
                         var corrTable = memTables.First(x => x.Table.Id == ptable.Id);
                         memTables.Remove(corrTable);
 
-                        // parallel thread could already switch table, 
+                        // parallel thread could already switch table,
                         // so if we have another PTable instance with same ID,
                         // we need to kill that instance as we added ours already
                         if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable ctt)
@@ -343,7 +352,7 @@ namespace EventStore.Core.Index
 
                 if (traceEnabled) Log.LogTrace("Putting awaiting file as PTable instead of MemTable [{0}].", memtable.Id);
 
-                var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth);
+                var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
                 var swapped = false;
                 using (var token = _awaitingTablesLock.CreateToken(false))
                 {
@@ -375,6 +384,10 @@ namespace EventStore.Core.Index
                 catch (FileBeingDeletedException)
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                }
+                catch (MaybeCorruptIndexException e){
+                    ForceIndexVerifyOnNextStartup();
+                    throw e;
                 }
             }
             throw new InvalidOperationException("Files are locked.");
@@ -415,6 +428,10 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
+                catch (MaybeCorruptIndexException e){
+                    ForceIndexVerifyOnNextStartup();
+                    throw e;
+                }
             }
             throw new InvalidOperationException("Files are locked.");
         }
@@ -451,6 +468,10 @@ namespace EventStore.Core.Index
                 catch (FileBeingDeletedException)
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                }
+                catch (MaybeCorruptIndexException e){
+                    ForceIndexVerifyOnNextStartup();
+                    throw e;
                 }
             }
             throw new InvalidOperationException("Files are locked.");
@@ -489,6 +510,10 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
+                catch (MaybeCorruptIndexException e){
+                    ForceIndexVerifyOnNextStartup();
+                    throw e;
+                }
             }
             throw new InvalidOperationException("Files are locked.");
         }
@@ -516,6 +541,8 @@ namespace EventStore.Core.Index
 
             var last = new IndexEntry(0, 0, 0);
             var first = true;
+
+            var sortedCandidates = new List<IndexEntry>();
             while (candidates.Count > 0)
             {
                 var maxIdx = GetMaxOf(candidates);
@@ -525,12 +552,14 @@ namespace EventStore.Core.Index
                 if (first || ((last.Stream != best.Stream) && (last.Version != best.Version)) || last.Position != best.Position)
                 {
                     last = best;
-                    yield return best;
+                    sortedCandidates.Add(best);
                     first = false;
                 }
 
                 if (!winner.MoveNext()) { candidates.RemoveAt(maxIdx); }
             }
+
+            return sortedCandidates;
         }
 
         private static int GetMaxOf(List<IEnumerator<IndexEntry>> enumerators)
@@ -601,6 +630,36 @@ namespace EventStore.Core.Index
                 Table = table;
                 PrepareCheckpoint = prepareCheckpoint;
                 CommitCheckpoint = commitCheckpoint;
+            }
+        }
+
+        private void ForceIndexVerifyOnNextStartup(){
+            Log.Debug("Forcing index verification on next startup");
+            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
+            try{
+                using(FileStream fs = new FileStream(path, FileMode.OpenOrCreate)){
+                };
+            }
+            catch{
+                Log.Error("Could not create force index verification file at: "+path);
+            }
+
+            return;
+        }
+
+        private bool ShouldForceIndexVerify(){
+            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
+            return File.Exists(path);
+        }
+
+        private void DeleteForceIndexVerifyFile(){
+            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
+            try{
+                if(File.Exists(path))
+                    File.Delete(path);
+            }
+            catch{
+                Log.Error("Could not delete force index verification file at: "+path);
             }
         }
     }
