@@ -184,6 +184,7 @@ namespace EventStore.Core.Services
                 Method = new System.Net.Http.HttpMethod(srcReq.HttpMethod)
             };
 
+            var hasContentLength = false;
             // Copy unrestricted headers (including cookies, if any)
             foreach (var headerKey in srcReq.Headers.AllKeys)
             {
@@ -194,7 +195,7 @@ namespace EventStore.Core.Services
                         case "accept": request.Headers.Accept.ParseAdd(srcReq.Headers[headerKey]); break;
                         case "connection": break;
                         case "content-type": break;
-                        case "content-length": break;
+                        case "content-length": hasContentLength = true; break;
                         case "date": request.Headers.Date = DateTime.Parse(srcReq.Headers[headerKey]); break;
                         case "expect": break;
                         case "host": request.Headers.Host = forwardUri.Host; break;
@@ -224,7 +225,7 @@ namespace EventStore.Core.Services
             // Copy content (if content body is allowed)
             if (!string.Equals(srcReq.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(srcReq.HttpMethod, "HEAD", StringComparison.OrdinalIgnoreCase)
-                && srcReq.HasEntityBody)
+                && hasContentLength)
             {
                 var streamContent = new StreamContent(srcReq.InputStream);
                 streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(srcReq.ContentType);
