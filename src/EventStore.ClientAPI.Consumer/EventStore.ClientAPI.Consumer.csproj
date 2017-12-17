@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\version.client.props" />
+  <Import Project="..\nuget.client.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsClientVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
@@ -19,29 +15,13 @@
     <Title>EventStore.Client.Consumer</Title>
     <Description>EventStore.Client.Consumer</Description>
     <PackageTags>eventstore client queue</PackageTags>
-    <IsPackable>true</IsPackable>
-    <Authors>Seabiscuit</Authors>
-    <Copyright>Copyright 2017 Seabiscuit</Copyright>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/cuteant/eventstore</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/cuteant/eventstore</RepositoryUrl>
-    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup>
+    <PackageReference Include="Polly.Unofficial" Version="$(PollyUnofficialPackageVersion)" />
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\etc\Polly\Polly.csproj" />
     <ProjectReference Include="..\EventStore.ClientAPI\EventStore.ClientAPI.csproj" />
   </ItemGroup>
 </Project>

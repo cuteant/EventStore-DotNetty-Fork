@@ -2,16 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using EventStore.ClientAPI.Common.Utils;
 using Microsoft.Extensions.Logging;
-#if DESKTOPCLR
-using Nessos.LinqOptimizer.CSharp;
-#else
-using System.Linq;
-#endif
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
@@ -114,11 +110,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
     public void EnqueueSend(IEnumerable<ArraySegment<byte>> data)
     {
-#if DESKTOPCLR
-      var totalCount = data.AsQueryExpr().Select(x => x.Count).Sum().Run();
-#else
       var totalCount = data.Select(x => x.Count).Sum();
-#endif
 
       using (var memStream = new MemoryStream(totalCount))
       {

@@ -14,7 +14,7 @@ namespace EventStore.ClientAPI.Tests
 
     public HandlerCollectionTests()
     {
-      handlerCollection = new DefaultHandlerCollection();
+      handlerCollection = new DefaultHandlerCollection(true);
 
       handlerCollection.Add<MyMessage>(message => myMessageHandlerExecuted = true);
       handlerCollection.Add<IAnimal>(message => animalHandlerExecuted = true);

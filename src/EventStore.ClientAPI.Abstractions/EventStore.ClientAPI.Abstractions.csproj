@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\version.client.props" />
+  <Import Project="..\nuget.client.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsClientVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Abstractions</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
@@ -19,28 +15,9 @@
     <Title>EventStore.Client.Abstractions</Title>
     <Description>EventStore.Client.Abstractions</Description>
     <PackageTags>eventstore client queue</PackageTags>
-    <IsPackable>true</IsPackable>
-    <Authors>Seabiscuit</Authors>
-    <Copyright>Copyright 2017 Seabiscuit</Copyright>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/cuteant/eventstore</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/cuteant/eventstore</RepositoryUrl>
-    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  
   <ItemGroup>
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CuteAnt" Version="2.0.0-rtm-170601" />
+    <PackageReference Include="CuteAnt.Core.Abstractions" Version="$(CuteAntCoreAbstractionsPackageVersion)" />
   </ItemGroup>
 </Project>

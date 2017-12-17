@@ -11,6 +11,7 @@ using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 using Es.SharedModels;
+using NLog.Extensions.Logging;
 
 namespace Es.Consumer
 {

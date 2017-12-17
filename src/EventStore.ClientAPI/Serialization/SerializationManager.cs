@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CuteAnt;
 using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Exceptions;
@@ -147,7 +148,7 @@ namespace EventStore.ClientAPI.Serialization
       {
         try
         {
-          var serializer = typeInfo.AsType().CreateInstance<IExternalSerializer>();
+          var serializer = ActivatorUtils.FastCreateInstance<IExternalSerializer>(typeInfo.AsType());
           _externalSerializers.Add(serializer);
         }
         catch (Exception exception)
@@ -192,7 +193,7 @@ namespace EventStore.ClientAPI.Serialization
       if (null == expectedType) { throw new ArgumentNullException(nameof(expectedType)); }
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
 
-      if (string.IsNullOrWhiteSpace(eventType)) { eventType = JsonConvertX.SerializeTypeName(expectedType); }
+      if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType); }
       _typeToStreamProviderDictionary.TryAdd(expectedType, new StreamAttribute(stream, eventType, expectedVersion));
     }
 
@@ -290,7 +291,7 @@ namespace EventStore.ClientAPI.Serialization
     internal static string GetStreamId(Type actualType, Type expectedType = null)
     {
       var streamAttr = GetStreamProvider(actualType, expectedType);
-      return streamAttr != null ? streamAttr.StreamId : JsonConvertX.SerializeTypeName(expectedType ?? actualType);
+      return streamAttr != null ? streamAttr.StreamId : RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType);
     }
 
     #endregion
@@ -344,7 +345,7 @@ namespace EventStore.ClientAPI.Serialization
 
     internal static EventData SerializeEvent(SerializationToken token, string eventType, Type actualType, object @event, Dictionary<string, object> eventContext, Type expectedType)
     {
-      if (string.IsNullOrWhiteSpace(eventType)) { eventType = JsonConvertX.SerializeTypeName(expectedType ?? actualType); }
+      if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType); }
       byte[] data;
       switch (token)
       {
@@ -392,7 +393,7 @@ namespace EventStore.ClientAPI.Serialization
           Guid.NewGuid(), eventType, SerializationToken.Json == token, data,
           _jsonFormatter.SerializeToBytes(new EventMetadata
           {
-            EventType = JsonConvertX.SerializeTypeName(actualType),
+            EventType = RuntimeTypeNameFormatter.Serialize(actualType),
             Token = token,
             Context = eventContext
           }));
@@ -407,7 +408,7 @@ namespace EventStore.ClientAPI.Serialization
       if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         return events.Select(_ => SerializeEvent(_, eventContext, expectedType)).ToArray();
       }
@@ -440,7 +441,7 @@ namespace EventStore.ClientAPI.Serialization
       if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         return events.Select(_ => SerializeEvent(eventType, _, eventContext, expectedType)).ToArray();
       }
@@ -469,7 +470,7 @@ namespace EventStore.ClientAPI.Serialization
       if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
 
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         var list = new EventData[events.Count];
         for (var idx = 0; idx < events.Count; idx++)
@@ -509,7 +510,7 @@ namespace EventStore.ClientAPI.Serialization
       if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
 
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         var list = new EventData[events.Count];
         for (var idx = 0; idx < events.Count; idx++)
@@ -619,7 +620,7 @@ namespace EventStore.ClientAPI.Serialization
       }
       try
       {
-        var type = eventType ?? JsonConvertX.ResolveType(meta.EventType);
+        var type = eventType ?? TypeUtils.ResolveType(meta.EventType);
         switch (meta.Token)
         {
           case SerializationToken.GzJson:

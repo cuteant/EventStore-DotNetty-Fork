@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CuteAnt;
+using CuteAnt.Reflection;
 using EventStore.ClientAPI.Serialization;
 using Newtonsoft.Json;
 using Xunit;
@@ -79,7 +80,7 @@ namespace EventStore.ClientAPI.Tests
 
       var metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(token, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(TestMessage)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(TestMessage)), metadata.EventType);
       var fullEvent = SerializationManager.DeserializeEvent<TestMessage>(eventData);
       Assert.Equal(testMessage.Id, fullEvent.Value.Id);
       Assert.Equal(testMessage.Text, fullEvent.Value.Text);
@@ -102,7 +103,7 @@ namespace EventStore.ClientAPI.Tests
       Assert.False(eventData.IsJson);
       var metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(SerializationToken.External, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Cat1)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Cat1)), metadata.EventType);
       Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
       Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
       Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
@@ -136,7 +137,7 @@ namespace EventStore.ClientAPI.Tests
       Assert.False(eventData.IsJson);
       var metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(SerializationToken.Hyperion, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Cat)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Cat)), metadata.EventType);
       Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
       Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
       Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
@@ -155,18 +156,18 @@ namespace EventStore.ClientAPI.Tests
       Assert.True(eventData.IsJson);
       metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(SerializationToken.Json, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Cat)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Cat)), metadata.EventType);
       catEvent = SerializationManager.DeserializeEvent<Cat>(eventData);
       Assert.Equal(cat.Name, catEvent.Value.Name);
       Assert.Equal(cat.Meow, catEvent.Value.Meow);
 
 
       eventData = SerializationManager.SerializeEvent(dog);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Dog)), eventData.Type);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Dog)), eventData.Type);
       Assert.False(eventData.IsJson);
       metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(SerializationToken.Protobuf, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Dog)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Dog)), metadata.EventType);
       var dogEvent = SerializationManager.DeserializeEvent<Dog>(eventData);
       Assert.Equal(dog.Name, dogEvent.Value.Name);
       Assert.Equal(dog.Bark, dogEvent.Value.Bark);
@@ -176,7 +177,7 @@ namespace EventStore.ClientAPI.Tests
       Assert.True(eventData.IsJson);
       metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
       Assert.Equal(SerializationToken.Json, metadata.Token);
-      Assert.Equal(JsonConvertX.SerializeTypeName(typeof(Dog)), metadata.EventType);
+      Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Dog)), metadata.EventType);
       dogEvent = SerializationManager.DeserializeEvent<Dog>(eventData);
       Assert.Equal(dog.Name, dogEvent.Value.Name);
       Assert.Equal(dog.Bark, dogEvent.Value.Bark);

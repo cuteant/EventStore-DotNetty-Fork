@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CuteAnt.Reflection;
+using CuteAnt;
 using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
 
@@ -17,7 +17,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
         actualType = @event?.GetType();
@@ -71,7 +71,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
@@ -106,7 +106,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
@@ -183,7 +183,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
@@ -233,7 +233,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }

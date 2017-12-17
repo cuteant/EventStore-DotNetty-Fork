@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CuteAnt;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Serialization;
 using EventStore.ClientAPI.SystemData;
-using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI
 {
@@ -17,7 +17,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
         actualType = @event.GetType();
@@ -40,7 +40,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(streamAttr.StreamId, streamAttr.ExpectedVersion, userCredentials, eventData);
       }
-      return connection.AppendToStreamAsync(JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, userCredentials, eventData);
+      return connection.AppendToStreamAsync(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), ExpectedVersion.Any, userCredentials, eventData);
     }
 
     #endregion
@@ -52,7 +52,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
         actualType = @event.GetType();
@@ -76,7 +76,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(CombineStreamId(streamAttr.StreamId, topic), streamAttr.ExpectedVersion, userCredentials, eventData);
       }
-      return connection.AppendToStreamAsync(CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, userCredentials, eventData);
+      return connection.AppendToStreamAsync(CombineStreamId(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), topic), ExpectedVersion.Any, userCredentials, eventData);
     }
 
     #endregion
@@ -88,7 +88,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
@@ -119,7 +119,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(streamAttr.StreamId, streamAttr.ExpectedVersion, eventDatas, userCredentials);
       }
-      return connection.AppendToStreamAsync(JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, userCredentials);
+      return connection.AppendToStreamAsync(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, userCredentials);
     }
 
 
@@ -130,7 +130,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
@@ -163,7 +163,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(streamAttr.StreamId, streamAttr.ExpectedVersion, eventDatas, userCredentials);
       }
-      return connection.AppendToStreamAsync(JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, userCredentials);
+      return connection.AppendToStreamAsync(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, userCredentials);
     }
 
     #endregion
@@ -175,7 +175,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
@@ -208,7 +208,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(CombineStreamId(streamAttr.StreamId, topic), streamAttr.ExpectedVersion, eventDatas, userCredentials);
       }
-      return connection.AppendToStreamAsync(CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, userCredentials);
+      return connection.AppendToStreamAsync(CombineStreamId(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, userCredentials);
     }
 
 
@@ -219,7 +219,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
@@ -254,7 +254,7 @@ namespace EventStore.ClientAPI
       {
         return connection.AppendToStreamAsync(CombineStreamId(streamAttr.StreamId, topic), streamAttr.ExpectedVersion, eventDatas, userCredentials);
       }
-      return connection.AppendToStreamAsync(CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, userCredentials);
+      return connection.AppendToStreamAsync(CombineStreamId(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, userCredentials);
     }
 
     #endregion
@@ -266,7 +266,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
@@ -305,7 +305,7 @@ namespace EventStore.ClientAPI
       }
       else
       {
-        return await DoWriteAsync(connection, JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
+        return await DoWriteAsync(connection, RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
       }
     }
 
@@ -317,7 +317,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (null == events) { throw new ArgumentNullException(nameof(events)); }
@@ -358,7 +358,7 @@ namespace EventStore.ClientAPI
       }
       else
       {
-        return await DoWriteAsync(connection, JsonConvertX.SerializeTypeName(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
+        return await DoWriteAsync(connection, RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
       }
     }
 
@@ -371,7 +371,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
@@ -412,7 +412,7 @@ namespace EventStore.ClientAPI
       }
       else
       {
-        return await DoWriteAsync(connection, CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
+        return await DoWriteAsync(connection, CombineStreamId(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
       }
     }
 
@@ -424,7 +424,7 @@ namespace EventStore.ClientAPI
       where TEvent : class
     {
       var actualType = typeof(TEvent);
-      if (actualType == TypeHelper.ObjectType)
+      if (actualType == TypeConstants.ObjectType)
       {
         if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
         if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
@@ -467,7 +467,7 @@ namespace EventStore.ClientAPI
       }
       else
       {
-        return await DoWriteAsync(connection, CombineStreamId(JsonConvertX.SerializeTypeName(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
+        return await DoWriteAsync(connection, CombineStreamId(RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType), topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials).ConfigureAwait(false);
       }
     }
 

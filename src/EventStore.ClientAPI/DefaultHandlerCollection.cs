@@ -69,9 +69,9 @@ namespace EventStore.ClientAPI
           var hander = GetHandlerLocal(eventType);
           if (hander != null) { return hander; }
           _handlers.Add(eventType, s_emptyHandler);
-          if (s_logger.IsInformationLevelEnabled())
+          if (s_logger.IsWarningLevelEnabled())
           {
-            s_logger.LogInformation($"No handler found for event type {eventType.Name}, the default hander has been used.");
+            s_logger.LogWarning($"No handler found for event type {eventType.Name}, the default hander has been used.");
           }
           return s_emptyHandler;
         }

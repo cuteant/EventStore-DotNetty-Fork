@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
 using Es.SharedModels;
+using EventStore.ClientAPI;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace Es.Receiver
 {

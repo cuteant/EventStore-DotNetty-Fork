@@ -442,7 +442,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
           var volatileSubscriptionOperationWrapperType = typeof(SubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
-          var volatileSubscriptionOperationWrapper = volatileSubscriptionOperationWrapperType.CreateInstance<IVolatileSubscriptionOperationWrapper>();
+          var volatileSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IVolatileSubscriptionOperationWrapper>(volatileSubscriptionOperationWrapperType);
           var operation = volatileSubscriptionOperationWrapper.Create(msg, _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
@@ -573,7 +573,7 @@ namespace EventStore.ClientAPI.Internal
         case ConnectionState.Connecting:
         case ConnectionState.Connected:
           var persistentSubscriptionOperationWrapperType = typeof(PersistentSubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
-          var persistentSubscriptionOperationWrapper = persistentSubscriptionOperationWrapperType.CreateInstance<IPersistentSubscriptionOperationWrapper>();
+          var persistentSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IPersistentSubscriptionOperationWrapper>(persistentSubscriptionOperationWrapperType);
           var operation = persistentSubscriptionOperationWrapper.Create(msg, _connection);
           LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
           var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);

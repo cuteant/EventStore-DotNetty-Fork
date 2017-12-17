@@ -2,6 +2,7 @@
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.AutoSubscribing;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace Es.Consumer
 {

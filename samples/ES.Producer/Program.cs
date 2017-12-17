@@ -3,6 +3,7 @@ using System.Threading;
 using Es.SharedModels;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 
 namespace ES.Producer
 {

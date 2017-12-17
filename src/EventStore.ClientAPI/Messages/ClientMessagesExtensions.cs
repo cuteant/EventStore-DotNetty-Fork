@@ -6,7 +6,6 @@ using CuteAnt.Reflection;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Serialization;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Messages
 {
@@ -225,7 +224,7 @@ namespace EventStore.ClientAPI.Messages
     private static IResolvedEventDeserializer CreateEventDeserializer(Type eventType)
     {
       var deserializerType = typeof(ResolvedEventDeserializer<>).GetCachedGenericType(eventType);
-      return deserializerType.CreateInstance<IResolvedEventDeserializer>();
+      return ActivatorUtils.FastCreateInstance<IResolvedEventDeserializer>(deserializerType);
     }
 
     #endregion
@@ -241,7 +240,7 @@ namespace EventStore.ClientAPI.Messages
         systemRecord = evnt.Event;
         var linkMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
 
-        var eventType = JsonConvertX.ResolveType((linkMeta ?? eventMeta).EventType);
+        var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).EventType);
         var deserializer = s_eventDeserializerCache.GetItem(eventType, s_createEventDeserializer);
         return deserializer.ToResolvedEvent(evnt, eventMeta, linkMeta, eventType);
       }
@@ -257,7 +256,7 @@ namespace EventStore.ClientAPI.Messages
         systemRecord = evnt.Event;
         var linkMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
 
-        var eventType = JsonConvertX.ResolveType((linkMeta ?? eventMeta).EventType);
+        var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).EventType);
         var deserializer = s_eventDeserializerCache.GetItem(eventType, s_createEventDeserializer);
         return deserializer.ToResolvedEvent(evnt, eventMeta, linkMeta, eventType);
       }

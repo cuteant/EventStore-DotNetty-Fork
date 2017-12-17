@@ -1,0 +1,17 @@
+<Project>
+  <!-- Set common properties regarding assembly information and nuget packages -->
+  <PropertyGroup>
+    <Company>Event Store LLP</Company>
+    <Product>Event Store</Product>
+    <Authors>Event Store LLP, Seabiscuit</Authors>
+    <Copyright>Copyright 2012-2017 Event Store LLP</Copyright>
+    <PackageIconUrl>http://geteventstore.com/assets/ouro-200.png</PackageIconUrl>
+    <PackageProjectUrl>http://geteventstore.com/</PackageProjectUrl>
+    <PackageLicenseUrl>http://geteventstore.com/terms/licence/bsd/</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/EventStore/EventStore</RepositoryUrl>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
+  </PropertyGroup>
+</Project>
