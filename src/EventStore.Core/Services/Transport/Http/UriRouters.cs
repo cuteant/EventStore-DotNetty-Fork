@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using EventStore.Common.Utils;
 using EventStore.Transport.Http.EntityManagement;
+#if NETSTANDARD
+using UriTemplate.Core;
+using UriTemplateAlias = UriTemplate.Core.UriTemplate;
+#else
+using UriTemplateAlias = System.UriTemplate;
+#endif
 
 namespace EventStore.Core.Services.Transport.Http
 {
@@ -131,13 +137,13 @@ namespace EventStore.Core.Services.Transport.Http
     {
         public readonly ControllerAction Action;
         public readonly Func<HttpEntityManager, UriTemplateMatch, RequestParams> Handler;
-        public readonly UriTemplate UriTemplate;
+        public readonly UriTemplateAlias UriTemplate;
 
         public HttpRoute(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
             Action = action;
             Handler = handler;
-            UriTemplate = new UriTemplate(action.UriTemplate);
+            UriTemplate = new UriTemplateAlias(action.UriTemplate);
         }
     }
 }

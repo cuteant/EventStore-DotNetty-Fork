@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.BufferManagement</RootNamespace>
     <AssemblyName>EventStore.BufferManagement</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -15,16 +16,6 @@
     <Description>EventStore.BufferManagement</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EventStore.Common\EventStore.Common.csproj" />

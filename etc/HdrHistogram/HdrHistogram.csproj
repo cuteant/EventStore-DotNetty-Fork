@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\common\HistogramVersion.props" />
+  <Import Project="..\version.hdr.props" />
+  <Import Project="..\nuget.hdr.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>HdrHistogram</RootNamespace>
     <AssemblyName>HdrHistogram</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
@@ -18,20 +14,6 @@
     <Title>HdrHistogram.Unofficial</Title>
     <Description>HdrHistogram supports low latency recording and analyzing of sampled data value counts across a configurable integer value range with configurable value precision within the range.</Description>
     <PackageTags>HdrHistogram HdrHistogram.NET Histogram Instrumentation</PackageTags>
-    <IsPackable>true</IsPackable>
-    <Authors>Gil Tene, Lee Campbell</Authors>
-    <Copyright>Copyright 2016 Gil Tene, Lee Campbell</Copyright>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageIconUrl>http://hdrhistogram.github.io/HdrHistogram.NET/HdrHistogram-icon-64x64.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/HdrHistogram/HdrHistogram.NET</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/HdrHistogram/HdrHistogram.NET/master/LICENSE.txt</PackageLicenseUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/HdrHistogram/HdrHistogram.NET</RepositoryUrl>
-    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451' or '$(TargetFramework)' == 'net40'">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
 </Project>

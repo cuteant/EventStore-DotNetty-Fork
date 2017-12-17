@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.Core</RootNamespace>
     <AssemblyName>EventStore.Core</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -20,16 +21,24 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <DefineConstants>$(DefineConstants);USE_UNIX_IO</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net451' ">
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
+    <PackageReference Include="Mono.Posix.NETStandard " Version="$(MonoPosixNETStandardPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <ProjectReference Include="..\..\etc\UriTemplate.Core\UriTemplate.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,4 +46,5 @@
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
   </ItemGroup>
+
 </Project>

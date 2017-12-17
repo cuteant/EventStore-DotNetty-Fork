@@ -6,64 +6,67 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Microsoft.Extensions.Logging;
+#if NETSTANDARD
+using UriTemplate.Core;
+#endif
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
-  public class ClusterWebUiController : CommunicationController
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger<ClusterWebUiController>();
-
-    private readonly NodeSubsystems[] _enabledNodeSubsystems;
-
-    //private readonly MiniWeb _commonWeb;
-    private readonly MiniWeb _clusterNodeWeb;
-
-    public ClusterWebUiController(IPublisher publisher, NodeSubsystems[] enabledNodeSubsystems)
-      : base(publisher)
+    public class ClusterWebUiController : CommunicationController
     {
-      _enabledNodeSubsystems = enabledNodeSubsystems;
-      _clusterNodeWeb = new MiniWeb("/web");
-    }
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterWebUiController>();
 
-    protected override void SubscribeCore(IHttpService service)
-    {
-      _clusterNodeWeb.RegisterControllerActions(service);
-      RegisterRedirectAction(service, "", "/web/index.html");
-      RegisterRedirectAction(service, "/web", "/web/index.html");
+        private readonly NodeSubsystems[] _enabledNodeSubsystems;
 
-      service.RegisterAction(
-          new ControllerAction("/sys/subsystems", HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.Json }),
-          OnListNodeSubsystems);
-    }
+        //private readonly MiniWeb _commonWeb;
+        private readonly MiniWeb _clusterNodeWeb;
 
-    private void OnListNodeSubsystems(HttpEntityManager http, UriTemplateMatch match)
-    {
-      http.ReplyTextContent(
-        Codec.Json.To(_enabledNodeSubsystems),
-        200,
-        "OK",
-        "application/json",
-        null,
-        ex =>
+        public ClusterWebUiController(IPublisher publisher, NodeSubsystems[] enabledNodeSubsystems)
+          : base(publisher)
         {
-          if (Log.IsInformationLevelEnabled()) Log.LogInformation(ex, "Failed to prepare main menu");
-        });
-    }
+            _enabledNodeSubsystems = enabledNodeSubsystems;
+            _clusterNodeWeb = new MiniWeb("/web");
+        }
 
-    private static void RegisterRedirectAction(IHttpService service, string fromUrl, string toUrl)
-    {
-      service.RegisterAction(
-          new ControllerAction(
-              fromUrl,
-              HttpMethod.Get,
-              Codec.NoCodecs,
-              new ICodec[] { Codec.ManualEncoding }),
-              (http, match) => http.ReplyTextContent(
-                  "Moved", 302, "Found", "text/plain",
-                  new[]
-                  {
+        protected override void SubscribeCore(IHttpService service)
+        {
+            _clusterNodeWeb.RegisterControllerActions(service);
+            RegisterRedirectAction(service, "", "/web/index.html");
+            RegisterRedirectAction(service, "/web", "/web/index.html");
+
+            service.RegisterAction(
+                new ControllerAction("/sys/subsystems", HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.Json }),
+                OnListNodeSubsystems);
+        }
+
+        private void OnListNodeSubsystems(HttpEntityManager http, UriTemplateMatch match)
+        {
+            http.ReplyTextContent(
+              Codec.Json.To(_enabledNodeSubsystems),
+              200,
+              "OK",
+              "application/json",
+              null,
+              ex =>
+              {
+                  if (Log.IsInformationLevelEnabled()) Log.LogInformation(ex, "Failed to prepare main menu");
+              });
+        }
+
+        private static void RegisterRedirectAction(IHttpService service, string fromUrl, string toUrl)
+        {
+            service.RegisterAction(
+                new ControllerAction(
+                    fromUrl,
+                    HttpMethod.Get,
+                    Codec.NoCodecs,
+                    new ICodec[] { Codec.ManualEncoding }),
+                    (http, match) => http.ReplyTextContent(
+                        "Moved", 302, "Found", "text/plain",
+                        new[]
+                        {
                     new KeyValuePair<string, string>("Location",   new Uri(http.HttpEntity.RequestedUrl, toUrl).AbsoluteUri)
-                  }, ex=> Log.LogError(ex.ToString())));
+                        }, ex => Log.LogError(ex.ToString())));
+        }
     }
-  }
 }

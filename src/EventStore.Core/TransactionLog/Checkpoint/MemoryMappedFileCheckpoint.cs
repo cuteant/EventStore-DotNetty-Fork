@@ -34,6 +34,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
                                          FileAccess.ReadWrite,
                                          FileShare.ReadWrite);
             _fileStream.SetLength(sizeof(long));
+#if DESKTOPCLR
             _file = MemoryMappedFile.CreateFromFile(_fileStream,
                                                     Guid.NewGuid().ToString(),
                                                     sizeof(long),
@@ -41,6 +42,14 @@ namespace EventStore.Core.TransactionLog.Checkpoint
                                                     new MemoryMappedFileSecurity(),
                                                     HandleInheritability.None,
                                                     false);
+#else
+            _file = MemoryMappedFile.CreateFromFile(_fileStream,
+                                                    Guid.NewGuid().ToString(),
+                                                    sizeof(long),
+                                                    MemoryMappedFileAccess.ReadWrite,
+                                                    HandleInheritability.None,
+                                                    false);
+#endif
             _accessor = _file.CreateViewAccessor(0, sizeof(long));
 
             if (old)

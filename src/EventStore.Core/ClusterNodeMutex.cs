@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DESKTOPCLR
+using System;
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Threading;
@@ -6,71 +7,72 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core
 {
-  public class ClusterNodeMutex
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger<ClusterNodeMutex>();
-
-    public readonly string MutexName;
-    public bool IsAcquired { get { return _acquired; } }
-
-    private Mutex _clusterNodeMutex;
-    private bool _acquired;
-
-    public ClusterNodeMutex()
+    public class ClusterNodeMutex
     {
-      MutexName = $"ESCLUSTERNODE:{Process.GetCurrentProcess().Id}";
-    }
+        private static readonly ILogger Log = TraceLogger.GetLogger<ClusterNodeMutex>();
 
-    public bool Acquire()
-    {
-      if (_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' is already acquired.");
+        public readonly string MutexName;
+        public bool IsAcquired { get { return _acquired; } }
 
-      try
-      {
-        _clusterNodeMutex = new Mutex(initiallyOwned: true, name: MutexName, createdNew: out _acquired);
-      }
-      catch (AbandonedMutexException exc)
-      {
-        if (Log.IsInformationLevelEnabled())
+        private Mutex _clusterNodeMutex;
+        private bool _acquired;
+
+        public ClusterNodeMutex()
         {
-          Log.LogInformation(exc,
-                            "Cluster Node mutex '{0}' is said to be abandoned. "
-                            + "Probably previous instance of server was terminated abruptly.",
-                            MutexName);
+            MutexName = $"ESCLUSTERNODE:{Process.GetCurrentProcess().Id}";
         }
-      }
 
-      return _acquired;
-    }
-
-    public void Release()
-    {
-      if (!_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' was not acquired.");
-      _clusterNodeMutex.ReleaseMutex();
-    }
-
-    public static bool IsPresent(int pid)
-    {
-      var mutexName = $"ESCLUSTERNODE:{pid}";
-      try
-      {
-        using (Mutex.OpenExisting(mutexName, MutexRights.ReadPermissions))
+        public bool Acquire()
         {
-          return true;
+            if (_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' is already acquired.");
+
+            try
+            {
+                _clusterNodeMutex = new Mutex(initiallyOwned: true, name: MutexName, createdNew: out _acquired);
+            }
+            catch (AbandonedMutexException exc)
+            {
+                if (Log.IsInformationLevelEnabled())
+                {
+                    Log.LogInformation(exc,
+                                      "Cluster Node mutex '{0}' is said to be abandoned. "
+                                      + "Probably previous instance of server was terminated abruptly.",
+                                      MutexName);
+                }
+            }
+
+            return _acquired;
         }
-      }
-      catch (WaitHandleCannotBeOpenedException)
-      {
-        return false;
-      }
-      catch (Exception exc)
-      {
-        if (Log.IsTraceLevelEnabled())
+
+        public void Release()
         {
-          Log.LogTrace(exc, "Exception while trying to open Cluster Node mutex '{0}': {1}.", mutexName, exc.Message);
+            if (!_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' was not acquired.");
+            _clusterNodeMutex.ReleaseMutex();
         }
-      }
-      return false;
+
+        public static bool IsPresent(int pid)
+        {
+            var mutexName = $"ESCLUSTERNODE:{pid}";
+            try
+            {
+                using (Mutex.OpenExisting(mutexName, MutexRights.ReadPermissions))
+                {
+                    return true;
+                }
+            }
+            catch (WaitHandleCannotBeOpenedException)
+            {
+                return false;
+            }
+            catch (Exception exc)
+            {
+                if (Log.IsTraceLevelEnabled())
+                {
+                    Log.LogTrace(exc, "Exception while trying to open Cluster Node mutex '{0}': {1}.", mutexName, exc.Message);
+                }
+            }
+            return false;
+        }
     }
-  }
 }
+#endif

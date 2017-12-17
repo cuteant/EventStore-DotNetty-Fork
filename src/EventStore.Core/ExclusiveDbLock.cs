@@ -8,57 +8,57 @@ using EventStore.Core.Util;
 
 namespace EventStore.Core
 {
-  public class ExclusiveDbLock
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger<ExclusiveDbLock>();
-
-    public readonly string MutexName;
-    public bool IsAcquired { get { return _acquired; } }
-
-    private Mutex _dbMutex;
-    private bool _acquired;
-
-    public ExclusiveDbLock(string dbPath)
+    public class ExclusiveDbLock
     {
-      Ensure.NotNullOrEmpty(dbPath, nameof(dbPath));
-      MutexName = dbPath.Length <= 250 ? "ESDB:" + dbPath.Replace('\\', '/') : "ESDB-HASHED:" + GetDbPathHash(dbPath);
-      MutexName += new string('-', 260 - MutexName.Length);
-    }
+        private static readonly ILogger Log = TraceLogger.GetLogger<ExclusiveDbLock>();
 
-    public bool Acquire()
-    {
-      if (_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' is already acquired.");
+        public readonly string MutexName;
+        public bool IsAcquired { get { return _acquired; } }
 
-      try
-      {
-        _dbMutex = new Mutex(initiallyOwned: true, name: MutexName, createdNew: out _acquired);
-      }
-      catch (AbandonedMutexException exc)
-      {
-        if (Log.IsInformationLevelEnabled())
+        private Mutex _dbMutex;
+        private bool _acquired;
+
+        public ExclusiveDbLock(string dbPath)
         {
-          Log.LogInformation(exc,
-                            "DB mutex '{0}' is said to be abandoned. "
-                            + "Probably previous instance of server was terminated abruptly.",
-                            MutexName);
+            Ensure.NotNullOrEmpty(dbPath, nameof(dbPath));
+            MutexName = dbPath.Length <= 250 ? "ESDB:" + dbPath.Replace('\\', '/') : "ESDB-HASHED:" + GetDbPathHash(dbPath);
+            MutexName += new string('-', 260 - MutexName.Length);
         }
-      }
 
-      return _acquired;
-    }
+        public bool Acquire()
+        {
+            if (_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' is already acquired.");
 
-    private string GetDbPathHash(string dbPath)
-    {
-      using (var memStream = new MemoryStream(Helper.UTF8NoBom.GetBytes(dbPath)))
-      {
-        return BitConverter.ToString(MD5Hash.GetHashFor(memStream)).Replace("-", "");
-      }
-    }
+            try
+            {
+                _dbMutex = new Mutex(initiallyOwned: true, name: MutexName, createdNew: out _acquired);
+            }
+            catch (AbandonedMutexException exc)
+            {
+                if (Log.IsInformationLevelEnabled())
+                {
+                    Log.LogInformation(exc,
+                                      "DB mutex '{0}' is said to be abandoned. "
+                                      + "Probably previous instance of server was terminated abruptly.",
+                                      MutexName);
+                }
+            }
 
-    public void Release()
-    {
-      if (!_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' was not acquired.");
-      _dbMutex.ReleaseMutex();
+            return _acquired;
+        }
+
+        private string GetDbPathHash(string dbPath)
+        {
+            using (var memStream = new MemoryStream(Helper.UTF8NoBom.GetBytes(dbPath)))
+            {
+                return BitConverter.ToString(MD5Hash.GetHashFor(memStream)).Replace("-", "");
+            }
+        }
+
+        public void Release()
+        {
+            if (!_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' was not acquired.");
+            _dbMutex.ReleaseMutex();
+        }
     }
-  }
 }

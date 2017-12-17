@@ -19,6 +19,9 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Newtonsoft.Json.Linq;
+#if NETSTANDARD
+using UriTemplate.Core;
+#endif
 
 namespace EventStore.Projections.Core.Services.Http
 {

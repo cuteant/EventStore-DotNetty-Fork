@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net.Configuration;
+//using System.Net.Configuration;
 using Microsoft.Extensions.Logging;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Messages;

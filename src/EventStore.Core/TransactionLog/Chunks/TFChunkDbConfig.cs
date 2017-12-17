@@ -4,52 +4,52 @@ using EventStore.Core.TransactionLog.FileNamingStrategy;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
-  public class TFChunkDbConfig
-  {
-    public readonly string Path;
-    public readonly int ChunkSize;
-    public readonly long MaxChunksCacheSize;
-    public readonly ICheckpoint WriterCheckpoint;
-    public readonly ICheckpoint ChaserCheckpoint;
-    public readonly ICheckpoint EpochCheckpoint;
-    public readonly ICheckpoint TruncateCheckpoint;
-    public readonly IFileNamingStrategy FileNamingStrategy;
-    public readonly bool InMemDb;
-    public readonly bool Unbuffered;
-    public readonly bool WriteThrough;
-
-    public TFChunkDbConfig(string path,
-                             IFileNamingStrategy fileNamingStrategy,
-                             int chunkSize,
-                             long maxChunksCacheSize,
-                             ICheckpoint writerCheckpoint,
-                             ICheckpoint chaserCheckpoint,
-                             ICheckpoint epochCheckpoint,
-                             ICheckpoint truncateCheckpoint,
-                             bool inMemDb = false,
-                             bool unbuffered = false,
-                             bool writethrough = false)
+    public class TFChunkDbConfig
     {
-      Ensure.NotNullOrEmpty(path, nameof(path));
-      Ensure.NotNull(fileNamingStrategy, nameof(fileNamingStrategy));
-      Ensure.Positive(chunkSize, nameof(chunkSize));
-      Ensure.Nonnegative(maxChunksCacheSize, nameof(maxChunksCacheSize));
-      Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
-      Ensure.NotNull(chaserCheckpoint, nameof(chaserCheckpoint));
-      Ensure.NotNull(epochCheckpoint, nameof(epochCheckpoint));
-      Ensure.NotNull(truncateCheckpoint, nameof(truncateCheckpoint));
+        public readonly string Path;
+        public readonly int ChunkSize;
+        public readonly long MaxChunksCacheSize;
+        public readonly ICheckpoint WriterCheckpoint;
+        public readonly ICheckpoint ChaserCheckpoint;
+        public readonly ICheckpoint EpochCheckpoint;
+        public readonly ICheckpoint TruncateCheckpoint;
+        public readonly IFileNamingStrategy FileNamingStrategy;
+        public readonly bool InMemDb;
+        public readonly bool Unbuffered;
+        public readonly bool WriteThrough;
 
-      Path = path;
-      ChunkSize = chunkSize;
-      MaxChunksCacheSize = maxChunksCacheSize;
-      WriterCheckpoint = writerCheckpoint;
-      ChaserCheckpoint = chaserCheckpoint;
-      EpochCheckpoint = epochCheckpoint;
-      TruncateCheckpoint = truncateCheckpoint;
-      FileNamingStrategy = fileNamingStrategy;
-      InMemDb = inMemDb;
-      Unbuffered = unbuffered;
-      WriteThrough = writethrough;
+        public TFChunkDbConfig(string path,
+                                IFileNamingStrategy fileNamingStrategy,
+                                int chunkSize,
+                                long maxChunksCacheSize,
+                                ICheckpoint writerCheckpoint,
+                                ICheckpoint chaserCheckpoint,
+                                ICheckpoint epochCheckpoint,
+                                ICheckpoint truncateCheckpoint,
+                                bool inMemDb = false,
+                                bool unbuffered = false,
+                                bool writethrough = false)
+        {
+            Ensure.NotNullOrEmpty(path, nameof(path));
+            Ensure.NotNull(fileNamingStrategy, nameof(fileNamingStrategy));
+            Ensure.Positive(chunkSize, nameof(chunkSize));
+            Ensure.Nonnegative(maxChunksCacheSize, nameof(maxChunksCacheSize));
+            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
+            Ensure.NotNull(chaserCheckpoint, nameof(chaserCheckpoint));
+            Ensure.NotNull(epochCheckpoint, nameof(epochCheckpoint));
+            Ensure.NotNull(truncateCheckpoint, nameof(truncateCheckpoint));
+
+            Path = path;
+            ChunkSize = chunkSize;
+            MaxChunksCacheSize = maxChunksCacheSize;
+            WriterCheckpoint = writerCheckpoint;
+            ChaserCheckpoint = chaserCheckpoint;
+            EpochCheckpoint = epochCheckpoint;
+            TruncateCheckpoint = truncateCheckpoint;
+            FileNamingStrategy = fileNamingStrategy;
+            InMemDb = inMemDb;
+            Unbuffered = unbuffered;
+            WriteThrough = writethrough;
+        }
     }
-  }
 }

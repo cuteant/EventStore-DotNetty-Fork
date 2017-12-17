@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Security.Policy;
+//using System.Security.Policy;
 using EventStore.Projections.Core.Services.Processing;
 
 namespace EventStore.Projections.Core.Services.Http

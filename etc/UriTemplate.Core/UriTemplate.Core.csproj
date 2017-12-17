@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\version.uri.props" />
+  <Import Project="..\nuget.uri.props" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <RootNamespace>UriTemplate.Core</RootNamespace>
+    <AssemblyName>UriTemplate.Core</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="NuGet">
+    <PackageId>UriTemplate.Core.Signed</PackageId>
+    <Title>UriTemplate.Core.Signed</Title>
+    <Description>Uri template library supporting RFC 6570</Description>
+    <PackageTags>UriTemplate UriTemplateMatch</PackageTags>
+  </PropertyGroup>
+
+</Project>

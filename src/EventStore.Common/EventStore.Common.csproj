@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.Common</RootNamespace>
     <AssemblyName>EventStore.Common</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -17,20 +18,8 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
   <ItemGroup>
-    <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="2.0.0-rtm-170701" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="CuteAnt.Runtime" Version="2.0.0-rtm-170601" />
+    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

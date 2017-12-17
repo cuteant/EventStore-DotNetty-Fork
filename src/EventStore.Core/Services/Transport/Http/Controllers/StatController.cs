@@ -6,6 +6,9 @@ using EventStore.Core.Messages;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
+#if NETSTANDARD
+using UriTemplate.Core;
+#endif
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
@@ -50,12 +53,10 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var statPath = match.BoundVariables["statPath"];
             var statSelector = GetStatSelector(statPath);
 
-            bool useMetadata;
-            if (!bool.TryParse(match.QueryParameters["metadata"], out useMetadata))
+            if (!bool.TryParse(match.QueryParameters["metadata"], out bool useMetadata))
                 useMetadata = false;
 
-            bool useGrouping;
-            if (!bool.TryParse(match.QueryParameters["group"], out useGrouping))
+            if (!bool.TryParse(match.QueryParameters["group"], out bool useGrouping))
                 useGrouping = true;
 
             if (!useGrouping && !string.IsNullOrEmpty(statPath))

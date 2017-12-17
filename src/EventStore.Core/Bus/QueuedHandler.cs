@@ -43,7 +43,7 @@ namespace EventStore.Core.Bus
 
         class QueueHandlerUsingMpsc :
 #if MONO
-        QueuedHandlerAutoResetWithMpsc,
+            QueuedHandlerAutoResetWithMpsc,
 #else
             QueuedHandlerMresWithMpsc,
 #endif

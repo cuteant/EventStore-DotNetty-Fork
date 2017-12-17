@@ -1,13 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.BufferManagement", "src\EventStore.BufferManagement\EventStore.BufferManagement.csproj", "{A794D3FB-06AC-471F-AB8D-6E98CBFA0021}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Transport.Tcp", "src\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj", "{A3C1CBE0-4728-451F-B709-480134432880}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core", "src\EventStore.Core\EventStore.Core.csproj", "{D42A5833-4F20-4FCC-B364-6207AE016732}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667} = {33947BC4-EFC5-4598-A6F1-431C5C89C667}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Transport.Http", "src\EventStore.Transport.Http\EventStore.Transport.Http.csproj", "{30AF4820-DC60-4674-9E19-C4518445545A}"
 EndProject
@@ -16,8 +19,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Projections.Core", "src\EventStore.Projections.Core\EventStore.Projections.Core.csproj", "{03E02082-E179-4730-81FF-CE914749D6E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI", "src\EventStore.ClientAPI\EventStore.ClientAPI.csproj", "{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.ClusterNode", "src\EventStore.ClusterNode\EventStore.ClusterNode.csproj", "{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Embedded", "src\EventStore.ClientAPI.Embedded\EventStore.ClientAPI.Embedded.csproj", "{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F}"
 EndProject
@@ -31,35 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{FA36119A-FE3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.TestClient", "src\EventStore.TestClient\EventStore.TestClient.csproj", "{F5D3314D-E4B9-4D82-90C5-F1CEFA527365}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Query", "src\EventStore.Query\EventStore.Query.csproj", "{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HdrHistogram", "etc\HdrHistogram\HdrHistogram.csproj", "{09EE4F0D-5D90-46FC-809B-D788B4278E0E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}"
-	ProjectSection(SolutionItems) = preProject
-		common\common.props = common\common.props
-		common\define.props = common\define.props
-		NuGet.Config = NuGet.Config
-		src\EventStore.Common\Utils\VersionInfo.cs = src\EventStore.Common\Utils\VersionInfo.cs
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{759E1DB9-D74D-4922-B8D1-04EF888CB890}"
-	ProjectSection(SolutionItems) = preProject
-		common\CommonAssemblyInfo.cs = common\CommonAssemblyInfo.cs
-		common\CommonVersionInfo.cs = common\CommonVersionInfo.cs
-		common\EsVersion.props = common\EsVersion.props
-		common\nuget.props = common\nuget.props
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HdrHistogram", "HdrHistogram", "{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C}"
-	ProjectSection(SolutionItems) = preProject
-		etc\HdrHistogram\Properties\AssemblyInfo.g.cs = etc\HdrHistogram\Properties\AssemblyInfo.g.cs
-		common\HistogramVersion.props = common\HistogramVersion.props
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Core.Tests", "src\EventStore.Core.Tests\EventStore.Core.Tests.csproj", "{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}"
 EndProject
@@ -80,31 +53,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.BufferManagement
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Rags.Tests", "etc\EventStore.Rags.Tests\EventStore.Rags.Tests.csproj", "{9749BF52-4157-4032-80A4-F5B2DF04E244}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventStore.Projections.Core.Tests", "src\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{B3792B44-423E-4937-B065-F2D61785017F}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Nito.AsyncEx.Tasks.Sources", "..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.shproj", "{90BCC560-AA2B-4146-858A-9E524B696F75}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly", "etc\Polly\Polly.csproj", "{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Polly.Specs", "test\Polly.Specs\Polly.Specs.csproj", "{D9D564FF-A729-476F-A071-AD9326AD3A6D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{201CB597-F20D-4E30-9B7D-34EDF1B4C660}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Polly", "Polly", "{C704360F-5D59-4D67-8D99-49783F10FF5D}"
-	ProjectSection(SolutionItems) = preProject
-		common\PollyVersion.props = common\PollyVersion.props
-		common\PollyVersionInfo.cs = common\PollyVersionInfo.cs
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ES.Producer", "samples\ES.Producer\ES.Producer.csproj", "{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ES.Producer", "samples\ES.Producer\ES.Producer.csproj", "{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.SharedModels", "samples\Es.SharedModels\Es.SharedModels.csproj", "{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.SharedModels", "samples\Es.SharedModels\Es.SharedModels.csproj", "{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerA", "samples\Es.ConsumerA\Es.ConsumerA.csproj", "{7E349883-CCA0-44B6-85E5-6B0F7997A855}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.ConsumerA", "samples\Es.ConsumerA\Es.ConsumerA.csproj", "{7E349883-CCA0-44B6-85E5-6B0F7997A855}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerB", "samples\Es.ConsumerB\Es.ConsumerB.csproj", "{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.ConsumerB", "samples\Es.ConsumerB\Es.ConsumerB.csproj", "{B7F8242F-708D-4CB2-90FC-B06D9C9D80FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Es.Receiver", "samples\Es.Receiver\Es.Receiver.csproj", "{6A75D699-F88E-411D-8BF9-28C80616C958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.Receiver", "samples\Es.Receiver\Es.Receiver.csproj", "{6A75D699-F88E-411D-8BF9-28C80616C958}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.ReaderWriterLockSlim.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.shproj", "{65E9ED9B-9545-47D8-A39C-DA22C323ABB2}"
 EndProject
@@ -122,9 +83,12 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.DateTime
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Consumer", "src\EventStore.ClientAPI.Consumer\EventStore.ClientAPI.Consumer.csproj", "{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UriTemplate.Core", "etc\UriTemplate.Core\UriTemplate.Core.csproj", "{33947BC4-EFC5-4598-A6F1-431C5C89C667}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UriTemplate.Core.Tests", "test\UriTemplate.Core.Tests\UriTemplate.Core.Tests.csproj", "{EFBD9686-E76F-40B8-B691-9EBD5365BD8C}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{0294fd68-461c-46db-9fcf-b279bbfda5f6}*SharedItemsImports = 4
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
 		src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems*{4f157224-1369-4d82-b673-cc185d24f1f0}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.projitems*{64b440e4-d885-4270-8e12-53fda499b6e4}*SharedItemsImports = 13
@@ -134,8 +98,6 @@ Global
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems*{f0dcba0c-1ee9-403c-931c-555776f6c680}*SharedItemsImports = 13
-		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{f5d3314d-e4b9-4d82-90c5-f1cefa527365}*SharedItemsImports = 4
-		src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems*{f5d3314d-e4b9-4d82-90c5-f1cefa527365}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -170,10 +132,6 @@ Global
 		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0294FD68-461C-46DB-9FCF-B279BBFDA5F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -182,22 +140,10 @@ Global
 		{98724F0D-4FAC-4431-A8FB-7C8787E705CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98724F0D-4FAC-4431-A8FB-7C8787E705CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98724F0D-4FAC-4431-A8FB-7C8787E705CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769}.Release|Any CPU.Build.0 = Release|Any CPU
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -206,18 +152,6 @@ Global
 		{9749BF52-4157-4032-80A4-F5B2DF04E244}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9749BF52-4157-4032-80A4-F5B2DF04E244}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9749BF52-4157-4032-80A4-F5B2DF04E244}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B3792B44-423E-4937-B065-F2D61785017F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B3792B44-423E-4937-B065-F2D61785017F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B3792B44-423E-4937-B065-F2D61785017F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B3792B44-423E-4937-B065-F2D61785017F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9D564FF-A729-476F-A071-AD9326AD3A6D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -250,6 +184,14 @@ Global
 		{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFBD9686-E76F-40B8-B691-9EBD5365BD8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFBD9686-E76F-40B8-B691-9EBD5365BD8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFBD9686-E76F-40B8-B691-9EBD5365BD8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBD9686-E76F-40B8-B691-9EBD5365BD8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -262,25 +204,15 @@ Global
 		{B4C9BE3D-43B1-4049-A23A-5DC53DB3F0B0} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{03E02082-E179-4730-81FF-CE914749D6E3} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
-		{0294FD68-461C-46DB-9FCF-B279BBFDA5F6} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
 		{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{98724F0D-4FAC-4431-A8FB-7C8787E705CF} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
-		{F5D3314D-E4B9-4D82-90C5-F1CEFA527365} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
-		{81D9A25A-2BE8-4620-A0CE-F82FE5A3A769} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
-		{759E1DB9-D74D-4922-B8D1-04EF888CB890} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
-		{29D55B48-8535-4C3E-ADA2-0376EBAB6B5C} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
-		{6BC8929C-FFD0-4EE6-ACF8-BDF4A3855AF4} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{8DBB7DC8-2B90-4A8C-A60D-D41466174BDE} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{C7F8DBE6-77B7-494D-AF00-018F7579548C} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{4F157224-1369-4D82-B673-CC185D24F1F0} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{9749BF52-4157-4032-80A4-F5B2DF04E244} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
-		{B3792B44-423E-4937-B065-F2D61785017F} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{90BCC560-AA2B-4146-858A-9E524B696F75} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
-		{7B846E23-36AA-4A15-A3D3-347A4D4A7F45} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
-		{D9D564FF-A729-476F-A071-AD9326AD3A6D} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
-		{C704360F-5D59-4D67-8D99-49783F10FF5D} = {77F3B1A0-DA40-4B47-99D6-B9AFFDC1683D}
 		{C1DC4BD3-2DB2-496A-ABB0-DB9976941684} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{9C13968C-A9F6-42AE-A857-F3E18F6B0D4A} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{7E349883-CCA0-44B6-85E5-6B0F7997A855} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
@@ -294,6 +226,11 @@ Global
 		{1AB88764-60ED-44F3-9E98-08391B5F5CDB} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{F0DCBA0C-1EE9-403C-931C-555776F6C680} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{33947BC4-EFC5-4598-A6F1-431C5C89C667} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
+		{EFBD9686-E76F-40B8-B691-9EBD5365BD8C} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = EventStore.MultiNode\EventStore.MultiNode.csproj

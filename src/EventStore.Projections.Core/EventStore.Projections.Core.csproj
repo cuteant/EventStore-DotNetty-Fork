@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
-  <Import Project="..\..\common\EsVersion.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>net461;net451</TargetFrameworks>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.Projections.Core</RootNamespace>
     <AssemblyName>EventStore.Projections.Core</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -19,7 +20,7 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' or '$(TargetFramework)' == 'net451'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net451'">
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="Microsoft.CSharp" />
@@ -30,11 +31,6 @@
     <None Remove="Prelude\Modules.js" />
     <None Remove="Prelude\ModulesExecuted.js" />
     <None Remove="Prelude\Projections.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="..\..\common\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
-    <Compile Include="..\..\common\CommonVersionInfo.cs" Link="Properties\CommonVersionInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
