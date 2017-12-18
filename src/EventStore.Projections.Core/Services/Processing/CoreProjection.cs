@@ -1,13 +1,16 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using System.Security.Principal;
+using System.Threading;
+using EventStore.Common.Log;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Projections.Core.Messages;
+using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Utils;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
@@ -15,11 +18,11 @@ namespace EventStore.Projections.Core.Services.Processing
     //TODO: separate check-pointing from projection handling
 
     public class CoreProjection : IDisposable,
-                                      ICoreProjection,
-                                      ICoreProjectionForProcessingPhase,
-                                      IHandle<CoreProjectionManagementMessage.GetState>,
-                                      IHandle<CoreProjectionManagementMessage.GetResult>,
-                                      IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>
+                                  ICoreProjection,
+                                  ICoreProjectionForProcessingPhase,
+                                  IHandle<CoreProjectionManagementMessage.GetState>,
+                                  IHandle<CoreProjectionManagementMessage.GetResult>,
+                                  IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>
     {
         [Flags]
         private enum State : uint
@@ -97,9 +100,9 @@ namespace EventStore.Projections.Core.Services.Processing
             string effectiveProjectionName,
             ITimeProvider timeProvider)
         {
-            if (publisher == null) throw new ArgumentNullException(nameof(publisher));
-            if (ioDispatcher == null) throw new ArgumentNullException(nameof(ioDispatcher));
-            if (subscriptionDispatcher == null) throw new ArgumentNullException(nameof(subscriptionDispatcher));
+            if (publisher == null) throw new ArgumentNullException("publisher");
+            if (ioDispatcher == null) throw new ArgumentNullException("ioDispatcher");
+            if (subscriptionDispatcher == null) throw new ArgumentNullException("subscriptionDispatcher");
 
             _projectionProcessingStrategy = projectionProcessingStrategy;
             _projectionCorrelationId = projectionCorrelationId;
@@ -109,7 +112,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _name = effectiveProjectionName;
             _version = version;
             _stopOnEof = projectionProcessingStrategy.GetStopOnEof();
-            _logger = logger ?? TraceLogger.GetLogger<CoreProjection>();
+            _logger = logger ?? LogManager.GetLoggerFor<CoreProjection>();
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
             _partitionStateCache = partitionStateCache;
@@ -143,14 +146,14 @@ namespace EventStore.Projections.Core.Services.Processing
             GoToState(State.Initial);
         }
 
-        private void BeginPhase(IProjectionProcessingPhase processingPhase, CheckpointTag startFrom)
+        private void BeginPhase(IProjectionProcessingPhase processingPhase, CheckpointTag startFrom, PartitionState rootPartitionState)
         {
             _projectionProcessingPhase = processingPhase;
             _projectionProcessingPhase.SetProjectionState(PhaseState.Starting);
             _checkpointManager = processingPhase.CheckpointManager;
 
-            _projectionProcessingPhase.InitializeFromCheckpoint(startFrom);
-            _checkpointManager.Start(startFrom);
+             _projectionProcessingPhase.InitializeFromCheckpoint(startFrom);
+            _checkpointManager.Start(startFrom,rootPartitionState);
         }
 
         private void UpdateStatistics()
@@ -207,7 +210,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Kill()
         {
-            if (_state != State.Stopped)
+            if(_state != State.Stopped)
                 GoToState(State.Stopped);
         }
 
@@ -298,9 +301,13 @@ namespace EventStore.Projections.Core.Services.Processing
                 //TODO: write test to ensure projection state is correctly loaded from a checkpoint and posted back when enough empty records processed
                 //TODO: handle errors
                 _coreProjectionCheckpointWriter.StartFrom(checkpointTag, message.CheckpointEventNumber);
-                if (_requiresRootPartition)
-                    _partitionStateCache.CacheAndLockPartitionState("", PartitionState.Deserialize(message.CheckpointData, checkpointTag), null);
-                BeginPhase(projectionProcessingPhase, checkpointTag);
+
+                PartitionState rootPartitionState = null;
+                if (_requiresRootPartition){
+                    rootPartitionState = PartitionState.Deserialize(message.CheckpointData, checkpointTag);
+                    _partitionStateCache.CacheAndLockPartitionState("", rootPartitionState, null);
+                }
+                BeginPhase(projectionProcessingPhase, checkpointTag, rootPartitionState);
                 GoToState(State.StateLoaded);
                 if (_startOnLoad)
                 {
@@ -332,14 +339,15 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(CoreProjectionProcessingMessage.RestartRequested message)
         {
-            if (_logger.IsInformationLevelEnabled())
-            {
-                _logger.LogInformation("Projection '{0}'({1}) restart has been requested due to: '{2}'", _name, _projectionCorrelationId, message.Reason);
-            }
+            _logger.Info(
+                "Projection '{0}'({1}) restart has been requested due to: '{2}'", _name, _projectionCorrelationId,
+                message.Reason);
             if (_state != State.Running)
             {
                 SetFaulted(
-                    $"A concurrency violation was detected, but the projection is not running. Current state is: {_state}.  The reason for the restart is: '{message.Reason}' ");
+                    string.Format(
+                        "A concurrency violation was detected, but the projection is not running. Current state is: {0}.  The reason for the restart is: '{1}' ",
+                        _state, message.Reason));
                 return;
             }
 
@@ -390,7 +398,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void GoToState(State state)
         {
-            //_logger.LogTrace("CP: {0} {1} => {2}", _name, _state, state);
+//            _logger.Trace("CP: {0} {1} => {2}", _name, _state, state);
             var wasStopped = _state == State.Stopped || _state == State.Faulted || _state == State.PhaseCompleted;
             var wasStopping = _state == State.Stopping || _state == State.FaultedStopping
                               || _state == State.CompletingPhase;
@@ -601,7 +609,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 var nextPhase = _projectionProcessingPhases[completedPhaseIndex + 1];
                 var nextPhaseZeroPosition = nextPhase.MakeZeroCheckpointTag();
-                BeginPhase(nextPhase, nextPhaseZeroPosition);
+                BeginPhase(nextPhase, nextPhaseZeroPosition,null);
                 if (_slaveProjections != null)
                     _projectionProcessingPhase.AssignSlaves(_slaveProjections);
                 _projectionProcessingPhase.Subscribe(nextPhaseZeroPosition, fromCheckpoint: false);
@@ -657,7 +665,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public void EnsureTickPending()
         {
             // ticks are requested when an async operation is completed or when an item is being processed
-            // thus, the tick message is removed from the queue when it does not process any work item (and 
+            // thus, the tick message is removed from the queue when it does not process any work item (and
             // it is renewed therefore)
             if (_tickPending)
                 return;
@@ -690,7 +698,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private void CheckpointCompleted(CheckpointTag lastCompletedCheckpointPosition)
         {
             CompleteCheckpointSuggestedWorkItem();
-            // all emitted events caused by events before the checkpoint position have been written  
+            // all emitted events caused by events before the checkpoint position have been written
             // unlock states, so the cache can be clean up as they can now be safely reloaded from the ES
             _partitionStateCache.Unlock(lastCompletedCheckpointPosition);
 
