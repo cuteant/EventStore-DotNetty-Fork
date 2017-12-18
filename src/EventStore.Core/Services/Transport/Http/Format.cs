@@ -108,18 +108,18 @@ namespace EventStore.Core.Services.Transport.Http
             return entity.ResponseCodec.To(completed.ConnectionStats);
         }
 
-		public static string SendGossip(HttpResponseFormatterArgs entity, Message message)
-		{
-			if (message.GetType() != typeof(GossipMessage.SendGossip))
-				throw new Exception(string.Format("Unexpected type of response message: {0}, expected: {1}",
-												  message.GetType().Name,
-												  typeof(GossipMessage.SendGossip).Name));
+        public static string SendGossip(HttpResponseFormatterArgs entity, Message message)
+        {
+            if (message.GetType() != typeof(GossipMessage.SendGossip))
+                throw new Exception(string.Format("Unexpected type of response message: {0}, expected: {1}",
+                                                  message.GetType().Name,
+                                                  typeof(GossipMessage.SendGossip).Name));
 
-			var sendGossip = message as GossipMessage.SendGossip;
-			return sendGossip != null
-					   ? entity.ResponseCodec.To(new ClusterInfoDto(sendGossip.ClusterInfo, sendGossip.ServerEndPoint))
-					   : string.Empty;
-		}
+            var sendGossip = message as GossipMessage.SendGossip;
+            return sendGossip != null
+                       ? entity.ResponseCodec.To(new ClusterInfoDto(sendGossip.ClusterInfo, sendGossip.ServerEndPoint))
+                       : string.Empty;
+        }
 
         public static string ReadNextNPersistentMessagesCompleted(HttpResponseFormatterArgs entity, Message message, string streamId, string groupName, int count, EmbedLevel embed)
         {

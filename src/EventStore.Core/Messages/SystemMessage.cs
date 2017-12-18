@@ -284,17 +284,17 @@ namespace EventStore.Core.Messages
             }
         }
 
-	    public class RequestForwardingTimerTick : Message
-	    {
-		    private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
-		    public override int MsgTypeId { get { return TypeId; } }
-	    }
+        public class RequestForwardingTimerTick : Message
+        {
+            private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
+            public override int MsgTypeId { get { return TypeId; } }
+        }
 
-	    public class NoQuorumMessage : Message
-	    {
-		    private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
-		    public override int MsgTypeId { get { return TypeId; } }
-	    }
+        public class NoQuorumMessage : Message
+        {
+            private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
+            public override int MsgTypeId { get { return TypeId; } }
+        }
 
         public class EpochWritten: Message
         {

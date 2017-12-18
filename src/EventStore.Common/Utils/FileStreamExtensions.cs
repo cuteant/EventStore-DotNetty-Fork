@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
+#if DESKTOPCLR
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+#endif
 
 namespace EventStore.Common.Utils
 {
@@ -12,6 +14,7 @@ namespace EventStore.Common.Utils
     {
         private static readonly ILogger Log = TraceLogger.GetLogger(typeof(FileStreamExtensions));
         private static Action<FileStream> FlushSafe;
+#if DESKTOPCLR
         private static Func<FileStream, SafeFileHandle> GetFileHandle;
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -21,6 +24,7 @@ namespace EventStore.Common.Utils
         //[DllImport("kernel32.dll", SetLastError = true)]
         //[return: MarshalAs(UnmanagedType.Bool)]
         //static extern bool FlushViewOfFile(IntPtr lpBaseAddress, UIntPtr dwNumberOfBytesToFlush);
+#endif
 
         static FileStreamExtensions()
         {
@@ -41,28 +45,27 @@ namespace EventStore.Common.Utils
                 return;
             }
 
-            if (Runtime.IsMono)
-                FlushSafe = f => f.Flush(flushToDisk: true);
-            else
+#if NETSTANDARD
+            FlushSafe = f => f.Flush(flushToDisk: true);
+#else
+            try
             {
-                try
+                ParameterExpression arg = Expression.Parameter(typeof(FileStream), "f");
+                Expression expr = Expression.Field(arg, typeof(FileStream).GetField("_handle", BindingFlags.Instance | BindingFlags.NonPublic));
+                GetFileHandle = Expression.Lambda<Func<FileStream, SafeFileHandle>>(expr, arg).Compile();
+                FlushSafe = f =>
                 {
-                    ParameterExpression arg = Expression.Parameter(typeof(FileStream), "f");
-                    Expression expr = Expression.Field(arg, typeof(FileStream).GetField("_handle", BindingFlags.Instance | BindingFlags.NonPublic));
-                    GetFileHandle = Expression.Lambda<Func<FileStream, SafeFileHandle>>(expr, arg).Compile();
-                    FlushSafe = f =>
-                    {
-                        f.Flush(flushToDisk: false);
-                        if (!FlushFileBuffers(GetFileHandle(f)))
-                            throw new Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
-                    };
-                }
-                catch (Exception exc)
-                {
-                    Log.LogError(exc, "Error while compiling sneaky SafeFileHandle getter.");
-                    FlushSafe = f => f.Flush(flushToDisk: true);
-                }
+                    f.Flush(flushToDisk: false);
+                    if (!FlushFileBuffers(GetFileHandle(f)))
+                        throw new Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
+                };
             }
+            catch (Exception exc)
+            {
+                Log.LogError(exc, "Error while compiling sneaky SafeFileHandle getter.");
+                FlushSafe = f => f.Flush(flushToDisk: true);
+            }
+#endif
         }
     }
 }

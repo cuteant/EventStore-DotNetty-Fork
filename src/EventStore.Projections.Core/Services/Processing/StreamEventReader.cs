@@ -168,16 +168,16 @@ namespace EventStore.Projections.Core.Services.Processing
 
             _pendingRequestCorrelationId = Guid.NewGuid();
             var readEventsForward = CreateReadEventsMessage(_pendingRequestCorrelationId);
-			if (_eof) {
-				_publisher.Publish (
-					new AwakeServiceMessage.SubscribeAwake (
-						new PublishEnvelope (_publisher, crossThread: true), Guid.NewGuid(), null,
-						new TFPos (_lastPosition, _lastPosition), CreateReadTimeoutMessage(_pendingRequestCorrelationId, _streamName)));
-				_publisher.Publish (
-					new AwakeServiceMessage.SubscribeAwake (
-						new PublishEnvelope (_publisher, crossThread: true), Guid.NewGuid(), null,
-						new TFPos (_lastPosition, _lastPosition), readEventsForward));
-			}
+            if (_eof) {
+                _publisher.Publish (
+                    new AwakeServiceMessage.SubscribeAwake (
+                        new PublishEnvelope (_publisher, crossThread: true), Guid.NewGuid(), null,
+                        new TFPos (_lastPosition, _lastPosition), CreateReadTimeoutMessage(_pendingRequestCorrelationId, _streamName)));
+                _publisher.Publish (
+                    new AwakeServiceMessage.SubscribeAwake (
+                        new PublishEnvelope (_publisher, crossThread: true), Guid.NewGuid(), null,
+                        new TFPos (_lastPosition, _lastPosition), readEventsForward));
+            }
             else{
                 _publisher.Publish(readEventsForward);
                 ScheduleReadTimeoutMessage(_pendingRequestCorrelationId, _streamName);

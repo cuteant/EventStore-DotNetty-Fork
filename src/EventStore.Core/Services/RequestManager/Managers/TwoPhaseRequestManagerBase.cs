@@ -11,181 +11,181 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.RequestManager.Managers
 {
-  public abstract class TwoPhaseRequestManagerBase :
-      IRequestManager,
-      IHandle<StorageMessage.CheckStreamAccessCompleted>,
-      IHandle<StorageMessage.AlreadyCommitted>,
-      IHandle<StorageMessage.PrepareAck>,
-      IHandle<StorageMessage.CommitAck>,
-      IHandle<StorageMessage.WrongExpectedVersion>,
-      IHandle<StorageMessage.StreamDeleted>,
-      IHandle<StorageMessage.RequestManagerTimerTick>
-  {
-    internal static readonly TimeSpan TimeoutOffset = TimeSpan.FromMilliseconds(30);
-    private static readonly ILogger Log = TraceLogger.GetLogger<TwoPhaseRequestManagerBase>();
-
-    protected readonly IPublisher Publisher;
-    protected readonly IEnvelope PublishEnvelope;
-    protected IEnvelope ResponseEnvelope { get { return _responseEnvelope; } }
-    protected Guid ClientCorrId { get { return _clientCorrId; } }
-    protected DateTime NextTimeoutTime { get { return _nextTimeoutTime; } }
-
-    protected readonly TimeSpan PrepareTimeout;
-    protected readonly TimeSpan CommitTimeout;
-    private bool _hadSelf = false;
-    private IEnvelope _responseEnvelope;
-    private Guid _internalCorrId;
-    private Guid _clientCorrId;
-    private long _transactionId = -1;
-
-    private int _awaitingPrepare;
-    private int _awaitingCommit;
-    private DateTime _nextTimeoutTime;
-
-    private bool _completed;
-    private bool _initialized;
-    private bool _betterOrdering;
-    protected TwoPhaseRequestManagerBase(IPublisher publisher,
-                                            int prepareCount,
-                                            int commitCount,
-                                            TimeSpan prepareTimeout,
-                                            TimeSpan commitTimeout,
-                                            bool betterOrdering)
+    public abstract class TwoPhaseRequestManagerBase :
+        IRequestManager,
+        IHandle<StorageMessage.CheckStreamAccessCompleted>,
+        IHandle<StorageMessage.AlreadyCommitted>,
+        IHandle<StorageMessage.PrepareAck>,
+        IHandle<StorageMessage.CommitAck>,
+        IHandle<StorageMessage.WrongExpectedVersion>,
+        IHandle<StorageMessage.StreamDeleted>,
+        IHandle<StorageMessage.RequestManagerTimerTick>
     {
-      Ensure.NotNull(publisher, nameof(publisher));
-      Ensure.Positive(prepareCount, nameof(prepareCount));
-      Ensure.Positive(commitCount, nameof(commitCount));
+        internal static readonly TimeSpan TimeoutOffset = TimeSpan.FromMilliseconds(30);
+        private static readonly ILogger Log = TraceLogger.GetLogger<TwoPhaseRequestManagerBase>();
 
-      Publisher = publisher;
-      PublishEnvelope = new PublishEnvelope(publisher);
+        protected readonly IPublisher Publisher;
+        protected readonly IEnvelope PublishEnvelope;
+        protected IEnvelope ResponseEnvelope { get { return _responseEnvelope; } }
+        protected Guid ClientCorrId { get { return _clientCorrId; } }
+        protected DateTime NextTimeoutTime { get { return _nextTimeoutTime; } }
 
-      PrepareTimeout = prepareTimeout;
-      CommitTimeout = commitTimeout;
-      _betterOrdering = betterOrdering;
+        protected readonly TimeSpan PrepareTimeout;
+        protected readonly TimeSpan CommitTimeout;
+        private bool _hadSelf = false;
+        private IEnvelope _responseEnvelope;
+        private Guid _internalCorrId;
+        private Guid _clientCorrId;
+        private long _transactionId = -1;
 
-      _awaitingPrepare = prepareCount;
-      _awaitingCommit = commitCount;
-    }
+        private int _awaitingPrepare;
+        private int _awaitingCommit;
+        private DateTime _nextTimeoutTime;
 
-    protected abstract void OnSecurityAccessGranted(Guid internalCorrId);
-
-    protected void InitNoPreparePhase(IEnvelope responseEnvelope, Guid internalCorrId, Guid clientCorrId,
-      string eventStreamId, IPrincipal user, StreamAccessType accessType)
-    {
-      if (_initialized) { throw new InvalidOperationException(); }
-
-      _initialized = true;
-
-      _responseEnvelope = responseEnvelope;
-      _internalCorrId = internalCorrId;
-      _clientCorrId = clientCorrId;
-
-      _nextTimeoutTime = DateTime.UtcNow + CommitTimeout;
-      _awaitingPrepare = 0;
-      Publisher.Publish(new StorageMessage.CheckStreamAccess(
-          PublishEnvelope, internalCorrId, eventStreamId, null, accessType, user, _betterOrdering));
-    }
-
-    protected void InitTwoPhase(IEnvelope responseEnvelope, Guid internalCorrId, Guid clientCorrId,
-      long transactionId, IPrincipal user, StreamAccessType accessType)
-    {
-      if (_initialized) { throw new InvalidOperationException(); }
-
-      _initialized = true;
-
-      _responseEnvelope = responseEnvelope;
-      _internalCorrId = internalCorrId;
-      _clientCorrId = clientCorrId;
-      _transactionId = transactionId;
-
-      _nextTimeoutTime = DateTime.UtcNow + PrepareTimeout;
-
-      Publisher.Publish(new StorageMessage.CheckStreamAccess(
-          PublishEnvelope, internalCorrId, null, transactionId, accessType, user));
-    }
-
-    public void Handle(StorageMessage.CheckStreamAccessCompleted message)
-    {
-      if (message.AccessResult.Granted)
-        OnSecurityAccessGranted(_internalCorrId);
-      else
-        CompleteFailedRequest(OperationResult.AccessDenied, "Access denied.");
-    }
-
-    public void Handle(StorageMessage.WrongExpectedVersion message)
-    {
-      if (_completed) { return; }
-
-      CompleteFailedRequest(OperationResult.WrongExpectedVersion, "Wrong expected version.", message.CurrentVersion);
-    }
-
-    public void Handle(StorageMessage.StreamDeleted message)
-    {
-      if (_completed) { return; }
-
-      CompleteFailedRequest(OperationResult.StreamDeleted, "Stream is deleted.");
-    }
-
-    public void Handle(StorageMessage.RequestManagerTimerTick message)
-    {
-      if (_completed || message.UtcNow < _nextTimeoutTime) { return; }
-
-      if (_awaitingPrepare != 0)
-        CompleteFailedRequest(OperationResult.PrepareTimeout, "Prepare phase timeout.");
-      else
-        CompleteFailedRequest(OperationResult.CommitTimeout, "Commit phase timeout.");
-    }
-
-    public void Handle(StorageMessage.AlreadyCommitted message)
-    {
-      if (Log.IsTraceLevelEnabled()) Log.LogTrace("IDEMPOTENT WRITE TO STREAM ClientCorrelationID {0}, {1}.", _clientCorrId, message);
-      CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, -1, -1);
-      //TODO GFY WE NEED TO GET THE LOG POSITION HERE WHEN ITS AN IDEMPOTENT WRITE
-    }
-
-    public void Handle(StorageMessage.PrepareAck message)
-    {
-      if (_completed) { return; }
-
-      if (_transactionId == -1)
-      {
-        throw new Exception("TransactionId was not set, transactionId = -1.");
-      }
-
-      if (message.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
-      {
-        _awaitingPrepare -= 1;
-        if (_awaitingPrepare == 0)
+        private bool _completed;
+        private bool _initialized;
+        private bool _betterOrdering;
+        protected TwoPhaseRequestManagerBase(IPublisher publisher,
+                                                 int prepareCount,
+                                                 int commitCount,
+                                                 TimeSpan prepareTimeout,
+                                                 TimeSpan commitTimeout,
+                                                 bool betterOrdering)
         {
-          Publisher.Publish(new StorageMessage.WriteCommit(message.CorrelationId, PublishEnvelope, _transactionId));
-          _nextTimeoutTime = DateTime.UtcNow + CommitTimeout;
+            Ensure.NotNull(publisher, nameof(publisher));
+            Ensure.Positive(prepareCount, nameof(prepareCount));
+            Ensure.Positive(commitCount, nameof(commitCount));
+
+            Publisher = publisher;
+            PublishEnvelope = new PublishEnvelope(publisher);
+
+            PrepareTimeout = prepareTimeout;
+            CommitTimeout = commitTimeout;
+            _betterOrdering = betterOrdering;
+
+            _awaitingPrepare = prepareCount;
+            _awaitingCommit = commitCount;
         }
-      }
-    }
 
-    public void Handle(StorageMessage.CommitAck message)
-    {
-      if (_completed) { return; }
+        protected abstract void OnSecurityAccessGranted(Guid internalCorrId);
 
-      _awaitingCommit -= 1;
-      if (message.IsSelf) { _hadSelf = true; }
-      if (_awaitingCommit <= 0 && _hadSelf)
-      {
-        CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, message.LogPosition, message.LogPosition);
-      }
-    }
+        protected void InitNoPreparePhase(IEnvelope responseEnvelope, Guid internalCorrId, Guid clientCorrId,
+          string eventStreamId, IPrincipal user, StreamAccessType accessType)
+        {
+            if (_initialized) { throw new InvalidOperationException(); }
 
-    protected virtual void CompleteSuccessRequest(long firstEventNumber, long lastEventNumber, long preparePosition, long commitPosition)
-    {
-      _completed = true;
-      Publisher.Publish(new StorageMessage.RequestCompleted(_internalCorrId, true));
-    }
+            _initialized = true;
 
-    protected virtual void CompleteFailedRequest(OperationResult result, string error, long currentVersion = -1)
-    {
-      Debug.Assert(result != OperationResult.Success);
-      _completed = true;
-      Publisher.Publish(new StorageMessage.RequestCompleted(_internalCorrId, false, currentVersion));
+            _responseEnvelope = responseEnvelope;
+            _internalCorrId = internalCorrId;
+            _clientCorrId = clientCorrId;
+
+            _nextTimeoutTime = DateTime.UtcNow + CommitTimeout;
+            _awaitingPrepare = 0;
+            Publisher.Publish(new StorageMessage.CheckStreamAccess(
+                PublishEnvelope, internalCorrId, eventStreamId, null, accessType, user, _betterOrdering));
+        }
+
+        protected void InitTwoPhase(IEnvelope responseEnvelope, Guid internalCorrId, Guid clientCorrId,
+          long transactionId, IPrincipal user, StreamAccessType accessType)
+        {
+            if (_initialized) { throw new InvalidOperationException(); }
+
+            _initialized = true;
+
+            _responseEnvelope = responseEnvelope;
+            _internalCorrId = internalCorrId;
+            _clientCorrId = clientCorrId;
+            _transactionId = transactionId;
+
+            _nextTimeoutTime = DateTime.UtcNow + PrepareTimeout;
+
+            Publisher.Publish(new StorageMessage.CheckStreamAccess(
+                PublishEnvelope, internalCorrId, null, transactionId, accessType, user));
+        }
+
+        public void Handle(StorageMessage.CheckStreamAccessCompleted message)
+        {
+            if (message.AccessResult.Granted)
+                OnSecurityAccessGranted(_internalCorrId);
+            else
+                CompleteFailedRequest(OperationResult.AccessDenied, "Access denied.");
+        }
+
+        public void Handle(StorageMessage.WrongExpectedVersion message)
+        {
+            if (_completed) { return; }
+
+            CompleteFailedRequest(OperationResult.WrongExpectedVersion, "Wrong expected version.", message.CurrentVersion);
+        }
+
+        public void Handle(StorageMessage.StreamDeleted message)
+        {
+            if (_completed) { return; }
+
+            CompleteFailedRequest(OperationResult.StreamDeleted, "Stream is deleted.");
+        }
+
+        public void Handle(StorageMessage.RequestManagerTimerTick message)
+        {
+            if (_completed || message.UtcNow < _nextTimeoutTime) { return; }
+
+            if (_awaitingPrepare != 0)
+                CompleteFailedRequest(OperationResult.PrepareTimeout, "Prepare phase timeout.");
+            else
+                CompleteFailedRequest(OperationResult.CommitTimeout, "Commit phase timeout.");
+        }
+
+        public void Handle(StorageMessage.AlreadyCommitted message)
+        {
+            if (Log.IsTraceLevelEnabled()) Log.LogTrace("IDEMPOTENT WRITE TO STREAM ClientCorrelationID {0}, {1}.", _clientCorrId, message);
+            CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, -1, -1);
+            //TODO GFY WE NEED TO GET THE LOG POSITION HERE WHEN ITS AN IDEMPOTENT WRITE
+        }
+
+        public void Handle(StorageMessage.PrepareAck message)
+        {
+            if (_completed) { return; }
+
+            if (_transactionId == -1)
+            {
+                throw new Exception("TransactionId was not set, transactionId = -1.");
+            }
+
+            if (message.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
+            {
+                _awaitingPrepare -= 1;
+                if (_awaitingPrepare == 0)
+                {
+                    Publisher.Publish(new StorageMessage.WriteCommit(message.CorrelationId, PublishEnvelope, _transactionId));
+                    _nextTimeoutTime = DateTime.UtcNow + CommitTimeout;
+                }
+            }
+        }
+
+        public void Handle(StorageMessage.CommitAck message)
+        {
+            if (_completed) { return; }
+
+            _awaitingCommit -= 1;
+            if (message.IsSelf) { _hadSelf = true; }
+            if (_awaitingCommit <= 0 && _hadSelf)
+            {
+                CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, message.LogPosition, message.LogPosition);
+            }
+        }
+
+        protected virtual void CompleteSuccessRequest(long firstEventNumber, long lastEventNumber, long preparePosition, long commitPosition)
+        {
+            _completed = true;
+            Publisher.Publish(new StorageMessage.RequestCompleted(_internalCorrId, true));
+        }
+
+        protected virtual void CompleteFailedRequest(OperationResult result, string error, long currentVersion = -1)
+        {
+            Debug.Assert(result != OperationResult.Success);
+            _completed = true;
+            Publisher.Publish(new StorageMessage.RequestCompleted(_internalCorrId, false, currentVersion));
+        }
     }
-  }
 }

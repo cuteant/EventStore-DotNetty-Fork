@@ -6,16 +6,16 @@ using EventStore.Core.Services.Storage.ReaderIndex;
 namespace EventStore.Core.Services.RequestManager.Managers
 {
     public class WriteStreamTwoPhaseRequestManager : TwoPhaseRequestManagerBase,
-                                                     IHandle<ClientMessage.WriteEvents>
+                                                              IHandle<ClientMessage.WriteEvents>
     {
         private ClientMessage.WriteEvents _request;
 
         public WriteStreamTwoPhaseRequestManager(IPublisher publisher,
-                                                 int prepareCount,
-                                                 int commitCount,
-                                                 TimeSpan prepareTimeout,
-                                                 TimeSpan commitTimeout,
-                                                 bool betterOrdering)
+                                                      int prepareCount,
+                                                      int commitCount,
+                                                      TimeSpan prepareTimeout,
+                                                      TimeSpan commitTimeout,
+                                                      bool betterOrdering)
                 : base(publisher, prepareCount, commitCount, prepareTimeout, commitTimeout, betterOrdering)
         {
         }

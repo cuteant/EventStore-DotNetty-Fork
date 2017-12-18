@@ -11,295 +11,295 @@ using Newtonsoft.Json.Linq;
 
 namespace EventStore.Core.Data
 {
-  public class StreamMetadata
-  {
-    public static readonly StreamMetadata Empty = new StreamMetadata();
-
-    public readonly long? MaxCount;
-    public readonly TimeSpan? MaxAge;
-
-    public readonly long? TruncateBefore;
-    public readonly bool? TempStream;
-
-    public readonly TimeSpan? CacheControl;
-    public readonly StreamAcl Acl;
-
-    public StreamMetadata(long? maxCount = null, TimeSpan? maxAge = null,
-                            long? truncateBefore = null, bool? tempStream = null,
-                            TimeSpan? cacheControl = null, StreamAcl acl = null)
+    public class StreamMetadata
     {
-      if (maxCount <= 0)
-      {
-        throw new ArgumentOutOfRangeException(nameof(maxCount), $"{SystemMetadata.MaxCount} should be positive value.");
-      }
-      if (maxAge <= TimeSpan.Zero)
-      {
-        throw new ArgumentOutOfRangeException(nameof(maxAge), $"{SystemMetadata.MaxAge} should be positive time span.");
-      }
-      if (truncateBefore < 0)
-      {
-        throw new ArgumentOutOfRangeException(nameof(truncateBefore), $"{SystemMetadata.TruncateBefore} should be non-negative value.");
-      }
-      if (cacheControl <= TimeSpan.Zero)
-      {
-        throw new ArgumentOutOfRangeException(nameof(cacheControl), $"{SystemMetadata.CacheControl} should be positive time span.");
-      }
+        public static readonly StreamMetadata Empty = new StreamMetadata();
 
-      MaxCount = maxCount;
-      MaxAge = maxAge;
-      TruncateBefore = truncateBefore;
-      TempStream = tempStream;
-      CacheControl = cacheControl;
-      Acl = acl;
-    }
+        public readonly long? MaxCount;
+        public readonly TimeSpan? MaxAge;
 
-    public override string ToString()
-    {
-      return string.Format("MaxCount: {0}, MaxAge: {1}, TruncateBefore: {2}, TempStream: {3}, CacheControl: {4}, Acl: {5}",
-                           MaxCount, MaxAge, TruncateBefore, TempStream, CacheControl, Acl);
-    }
+        public readonly long? TruncateBefore;
+        public readonly bool? TempStream;
 
-    public static StreamMetadata FromJsonBytes(byte[] json)
-    {
-      using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
-      {
-        reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
-        return FromJsonReader(reader);
-      }
-    }
+        public readonly TimeSpan? CacheControl;
+        public readonly StreamAcl Acl;
 
-    public static StreamMetadata FromJson(string json)
-    {
-      using (var reader = new JsonTextReader(new StringReader(json)))
-      {
-        reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
-        return FromJsonReader(reader);
-      }
-    }
-
-    public static StreamMetadata FromJsonReader(JsonTextReader reader)
-    {
-      Check(reader.Read(), reader);
-      Check(JsonToken.StartObject, reader);
-
-      long? maxCount = null;
-      TimeSpan? maxAge = null;
-      long? truncateBefore = null;
-      bool? tempStream = null;
-      TimeSpan? cacheControl = null;
-      StreamAcl acl = null;
-
-      while (true)
-      {
-        Check(reader.Read(), reader);
-        if (reader.TokenType == JsonToken.EndObject) { break; }
-        Check(JsonToken.PropertyName, reader);
-        var name = (string)reader.Value;
-        switch (name)
+        public StreamMetadata(long? maxCount = null, TimeSpan? maxAge = null,
+                                long? truncateBefore = null, bool? tempStream = null,
+                                TimeSpan? cacheControl = null, StreamAcl acl = null)
         {
-          case SystemMetadata.MaxCount:
+            if (maxCount <= 0)
             {
-              Check(reader.Read(), reader);
-              Check(JsonToken.Integer, reader);
-              maxCount = (long)reader.Value;
-              break;
+                throw new ArgumentOutOfRangeException(nameof(maxCount), $"{SystemMetadata.MaxCount} should be positive value.");
             }
-          case SystemMetadata.MaxAge:
+            if (maxAge <= TimeSpan.Zero)
             {
-              Check(reader.Read(), reader);
-              Check(JsonToken.Integer, reader);
-              maxAge = TimeSpan.FromSeconds((long)reader.Value);
-              break;
+                throw new ArgumentOutOfRangeException(nameof(maxAge), $"{SystemMetadata.MaxAge} should be positive time span.");
             }
-          case SystemMetadata.TruncateBefore:
+            if (truncateBefore < 0)
             {
-              Check(reader.Read(), reader);
-              Check(JsonToken.Integer, reader);
-              truncateBefore = (long)reader.Value;
-              break;
+                throw new ArgumentOutOfRangeException(nameof(truncateBefore), $"{SystemMetadata.TruncateBefore} should be non-negative value.");
             }
-          case SystemMetadata.TempStream:
+            if (cacheControl <= TimeSpan.Zero)
             {
-              Check(reader.Read(), reader);
-              Check(JsonToken.Boolean, reader);
-              tempStream = (bool)reader.Value;
-              break;
+                throw new ArgumentOutOfRangeException(nameof(cacheControl), $"{SystemMetadata.CacheControl} should be positive time span.");
             }
-          case SystemMetadata.CacheControl:
+
+            MaxCount = maxCount;
+            MaxAge = maxAge;
+            TruncateBefore = truncateBefore;
+            TempStream = tempStream;
+            CacheControl = cacheControl;
+            Acl = acl;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("MaxCount: {0}, MaxAge: {1}, TruncateBefore: {2}, TempStream: {3}, CacheControl: {4}, Acl: {5}",
+                                 MaxCount, MaxAge, TruncateBefore, TempStream, CacheControl, Acl);
+        }
+
+        public static StreamMetadata FromJsonBytes(byte[] json)
+        {
+            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
             {
-              Check(reader.Read(), reader);
-              Check(JsonToken.Integer, reader);
-              cacheControl = TimeSpan.FromSeconds((long)reader.Value);
-              break;
-            }
-          case SystemMetadata.Acl:
-            {
-              acl = ReadAcl(reader);
-              break;
-            }
-          default:
-            {
-              Check(reader.Read(), reader);
-              // skip
-              JToken.ReadFrom(reader);
-              break;
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                return FromJsonReader(reader);
             }
         }
-      }
-      return new StreamMetadata(
-          maxCount > 0 ? maxCount : null, maxAge > TimeSpan.Zero ? maxAge : null,
-          truncateBefore >= 0 ? truncateBefore : null, tempStream, cacheControl > TimeSpan.Zero ? cacheControl : null, acl);
-    }
 
-    internal static StreamAcl ReadAcl(JsonTextReader reader)
-    {
-      Check(reader.Read(), reader);
-      Check(JsonToken.StartObject, reader);
-
-      string[] read = null;
-      string[] write = null;
-      string[] delete = null;
-      string[] metaRead = null;
-      string[] metaWrite = null;
-
-      while (true)
-      {
-        Check(reader.Read(), reader);
-        if (reader.TokenType == JsonToken.EndObject) { break; }
-        Check(JsonToken.PropertyName, reader);
-        var name = (string)reader.Value;
-        switch (name)
+        public static StreamMetadata FromJson(string json)
         {
-          case SystemMetadata.AclRead: read = ReadRoles(reader); break;
-          case SystemMetadata.AclWrite: write = ReadRoles(reader); break;
-          case SystemMetadata.AclDelete: delete = ReadRoles(reader); break;
-          case SystemMetadata.AclMetaRead: metaRead = ReadRoles(reader); break;
-          case SystemMetadata.AclMetaWrite: metaWrite = ReadRoles(reader); break;
+            using (var reader = new JsonTextReader(new StringReader(json)))
+            {
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                return FromJsonReader(reader);
+            }
         }
-      }
-      return new StreamAcl(read, write, delete, metaRead, metaWrite);
-    }
 
-    private static string[] ReadRoles(JsonTextReader reader)
-    {
-      Check(reader.Read(), reader);
-      if (reader.TokenType == JsonToken.String)
-      {
-        return new[] { (string)reader.Value };
-      }
-
-      if (reader.TokenType == JsonToken.StartArray)
-      {
-        var roles = new List<string>();
-        while (true)
+        public static StreamMetadata FromJsonReader(JsonTextReader reader)
         {
-          Check(reader.Read(), reader);
-          if (reader.TokenType == JsonToken.EndArray) { break; }
-          Check(JsonToken.String, reader);
-          roles.Add((string)reader.Value);
+            Check(reader.Read(), reader);
+            Check(JsonToken.StartObject, reader);
+
+            long? maxCount = null;
+            TimeSpan? maxAge = null;
+            long? truncateBefore = null;
+            bool? tempStream = null;
+            TimeSpan? cacheControl = null;
+            StreamAcl acl = null;
+
+            while (true)
+            {
+                Check(reader.Read(), reader);
+                if (reader.TokenType == JsonToken.EndObject) { break; }
+                Check(JsonToken.PropertyName, reader);
+                var name = (string)reader.Value;
+                switch (name)
+                {
+                    case SystemMetadata.MaxCount:
+                        {
+                            Check(reader.Read(), reader);
+                            Check(JsonToken.Integer, reader);
+                            maxCount = (long)reader.Value;
+                            break;
+                        }
+                    case SystemMetadata.MaxAge:
+                        {
+                            Check(reader.Read(), reader);
+                            Check(JsonToken.Integer, reader);
+                            maxAge = TimeSpan.FromSeconds((long)reader.Value);
+                            break;
+                        }
+                    case SystemMetadata.TruncateBefore:
+                        {
+                            Check(reader.Read(), reader);
+                            Check(JsonToken.Integer, reader);
+                            truncateBefore = (long)reader.Value;
+                            break;
+                        }
+                    case SystemMetadata.TempStream:
+                        {
+                            Check(reader.Read(), reader);
+                            Check(JsonToken.Boolean, reader);
+                            tempStream = (bool)reader.Value;
+                            break;
+                        }
+                    case SystemMetadata.CacheControl:
+                        {
+                            Check(reader.Read(), reader);
+                            Check(JsonToken.Integer, reader);
+                            cacheControl = TimeSpan.FromSeconds((long)reader.Value);
+                            break;
+                        }
+                    case SystemMetadata.Acl:
+                        {
+                            acl = ReadAcl(reader);
+                            break;
+                        }
+                    default:
+                        {
+                            Check(reader.Read(), reader);
+                            // skip
+                            JToken.ReadFrom(reader);
+                            break;
+                        }
+                }
+            }
+            return new StreamMetadata(
+                maxCount > 0 ? maxCount : null, maxAge > TimeSpan.Zero ? maxAge : null,
+                truncateBefore >= 0 ? truncateBefore : null, tempStream, cacheControl > TimeSpan.Zero ? cacheControl : null, acl);
         }
-        return roles.ToArray();
-      }
 
-      throw new Exception("Invalid JSON");
-    }
-
-    private static void Check(JsonToken type, JsonTextReader reader)
-    {
-      if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
-    }
-
-    private static void Check(bool read, JsonTextReader reader)
-    {
-      if (!read) { throw new Exception("Invalid JSON"); }
-    }
-
-    public byte[] ToJsonBytes()
-    {
-      using (var memoryStream = MemoryStreamManager.GetStream())
-      {
-        using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+        internal static StreamAcl ReadAcl(JsonTextReader reader)
         {
-          jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
-          WriteAsJson(jsonWriter);
+            Check(reader.Read(), reader);
+            Check(JsonToken.StartObject, reader);
+
+            string[] read = null;
+            string[] write = null;
+            string[] delete = null;
+            string[] metaRead = null;
+            string[] metaWrite = null;
+
+            while (true)
+            {
+                Check(reader.Read(), reader);
+                if (reader.TokenType == JsonToken.EndObject) { break; }
+                Check(JsonToken.PropertyName, reader);
+                var name = (string)reader.Value;
+                switch (name)
+                {
+                    case SystemMetadata.AclRead: read = ReadRoles(reader); break;
+                    case SystemMetadata.AclWrite: write = ReadRoles(reader); break;
+                    case SystemMetadata.AclDelete: delete = ReadRoles(reader); break;
+                    case SystemMetadata.AclMetaRead: metaRead = ReadRoles(reader); break;
+                    case SystemMetadata.AclMetaWrite: metaWrite = ReadRoles(reader); break;
+                }
+            }
+            return new StreamAcl(read, write, delete, metaRead, metaWrite);
         }
-        return memoryStream.ToArray();
-      }
-    }
 
-    public string ToJsonString()
-    {
-      var stringWriter = StringWriterManager.Allocate();
-      using (var jsonWriter = new JsonTextWriter(stringWriter))
-      {
-        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
-        jsonWriter.CloseOutput = false;
-        WriteAsJson(jsonWriter);
-      }
-      return StringWriterManager.ReturnAndFree(stringWriter);
-    }
+        private static string[] ReadRoles(JsonTextReader reader)
+        {
+            Check(reader.Read(), reader);
+            if (reader.TokenType == JsonToken.String)
+            {
+                return new[] { (string)reader.Value };
+            }
 
-    private void WriteAsJson(JsonTextWriter jsonWriter)
-    {
-      jsonWriter.WriteStartObject();
-      if (MaxCount.HasValue)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.MaxCount);
-        jsonWriter.WriteValue(MaxCount.Value);
-      }
-      if (MaxAge.HasValue)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.MaxAge);
-        jsonWriter.WriteValue((long)MaxAge.Value.TotalSeconds);
-      }
-      if (TruncateBefore.HasValue)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.TruncateBefore);
-        jsonWriter.WriteValue(TruncateBefore.Value);
-      }
-      if (TempStream.HasValue)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.TempStream);
-        jsonWriter.WriteValue(TempStream.Value);
-      }
-      if (CacheControl.HasValue)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.CacheControl);
-        jsonWriter.WriteValue((long)CacheControl.Value.TotalSeconds);
-      }
-      if (Acl != null)
-      {
-        jsonWriter.WritePropertyName(SystemMetadata.Acl);
-        WriteAcl(jsonWriter, Acl);
-      }
-      jsonWriter.WriteEndObject();
-    }
+            if (reader.TokenType == JsonToken.StartArray)
+            {
+                var roles = new List<string>();
+                while (true)
+                {
+                    Check(reader.Read(), reader);
+                    if (reader.TokenType == JsonToken.EndArray) { break; }
+                    Check(JsonToken.String, reader);
+                    roles.Add((string)reader.Value);
+                }
+                return roles.ToArray();
+            }
 
-    internal static void WriteAcl(JsonTextWriter jsonWriter, StreamAcl acl)
-    {
-      jsonWriter.WriteStartObject();
-      WriteAclRoles(jsonWriter, SystemMetadata.AclRead, acl.ReadRoles);
-      WriteAclRoles(jsonWriter, SystemMetadata.AclWrite, acl.WriteRoles);
-      WriteAclRoles(jsonWriter, SystemMetadata.AclDelete, acl.DeleteRoles);
-      WriteAclRoles(jsonWriter, SystemMetadata.AclMetaRead, acl.MetaReadRoles);
-      WriteAclRoles(jsonWriter, SystemMetadata.AclMetaWrite, acl.MetaWriteRoles);
-      jsonWriter.WriteEndObject();
-    }
+            throw new Exception("Invalid JSON");
+        }
 
-    private static void WriteAclRoles(JsonTextWriter jsonWriter, string propertyName, string[] roles)
-    {
-      if (roles == null) { return; }
-      jsonWriter.WritePropertyName(propertyName);
-      if (roles.Length == 1)
-      {
-        jsonWriter.WriteValue(roles[0]);
-      }
-      else
-      {
-        jsonWriter.WriteStartArray();
-        Array.ForEach(roles, jsonWriter.WriteValue);
-        jsonWriter.WriteEndArray();
-      }
+        private static void Check(JsonToken type, JsonTextReader reader)
+        {
+            if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
+        }
+
+        private static void Check(bool read, JsonTextReader reader)
+        {
+            if (!read) { throw new Exception("Invalid JSON"); }
+        }
+
+        public byte[] ToJsonBytes()
+        {
+            using (var memoryStream = MemoryStreamManager.GetStream())
+            {
+                using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    WriteAsJson(jsonWriter);
+                }
+                return memoryStream.ToArray();
+            }
+        }
+
+        public string ToJsonString()
+        {
+            var stringWriter = StringWriterManager.Allocate();
+            using (var jsonWriter = new JsonTextWriter(stringWriter))
+            {
+                jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                jsonWriter.CloseOutput = false;
+                WriteAsJson(jsonWriter);
+            }
+            return StringWriterManager.ReturnAndFree(stringWriter);
+        }
+
+        private void WriteAsJson(JsonTextWriter jsonWriter)
+        {
+            jsonWriter.WriteStartObject();
+            if (MaxCount.HasValue)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.MaxCount);
+                jsonWriter.WriteValue(MaxCount.Value);
+            }
+            if (MaxAge.HasValue)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.MaxAge);
+                jsonWriter.WriteValue((long)MaxAge.Value.TotalSeconds);
+            }
+            if (TruncateBefore.HasValue)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.TruncateBefore);
+                jsonWriter.WriteValue(TruncateBefore.Value);
+            }
+            if (TempStream.HasValue)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.TempStream);
+                jsonWriter.WriteValue(TempStream.Value);
+            }
+            if (CacheControl.HasValue)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.CacheControl);
+                jsonWriter.WriteValue((long)CacheControl.Value.TotalSeconds);
+            }
+            if (Acl != null)
+            {
+                jsonWriter.WritePropertyName(SystemMetadata.Acl);
+                WriteAcl(jsonWriter, Acl);
+            }
+            jsonWriter.WriteEndObject();
+        }
+
+        internal static void WriteAcl(JsonTextWriter jsonWriter, StreamAcl acl)
+        {
+            jsonWriter.WriteStartObject();
+            WriteAclRoles(jsonWriter, SystemMetadata.AclRead, acl.ReadRoles);
+            WriteAclRoles(jsonWriter, SystemMetadata.AclWrite, acl.WriteRoles);
+            WriteAclRoles(jsonWriter, SystemMetadata.AclDelete, acl.DeleteRoles);
+            WriteAclRoles(jsonWriter, SystemMetadata.AclMetaRead, acl.MetaReadRoles);
+            WriteAclRoles(jsonWriter, SystemMetadata.AclMetaWrite, acl.MetaWriteRoles);
+            jsonWriter.WriteEndObject();
+        }
+
+        private static void WriteAclRoles(JsonTextWriter jsonWriter, string propertyName, string[] roles)
+        {
+            if (roles == null) { return; }
+            jsonWriter.WritePropertyName(propertyName);
+            if (roles.Length == 1)
+            {
+                jsonWriter.WriteValue(roles[0]);
+            }
+            else
+            {
+                jsonWriter.WriteStartArray();
+                Array.ForEach(roles, jsonWriter.WriteValue);
+                jsonWriter.WriteEndArray();
+            }
+        }
     }
-  }
 }

@@ -16,20 +16,20 @@ namespace EventStore.Core.Services.RequestManager
     }
 
     public class RequestManagementService : IHandle<SystemMessage.SystemInit>,
-                                            IHandle<ClientMessage.WriteEvents>,
-                                            IHandle<ClientMessage.DeleteStream>,
-                                            IHandle<ClientMessage.TransactionStart>,
-                                            IHandle<ClientMessage.TransactionWrite>,
-                                            IHandle<ClientMessage.TransactionCommit>,
-                                            IHandle<StorageMessage.RequestCompleted>,
-                                            IHandle<StorageMessage.CheckStreamAccessCompleted>,
-                                            IHandle<StorageMessage.AlreadyCommitted>,
-                                            IHandle<StorageMessage.PrepareAck>,
-                                            IHandle<StorageMessage.CommitAck>,
-                                            IHandle<StorageMessage.WrongExpectedVersion>,
-                                            IHandle<StorageMessage.InvalidTransaction>,
-                                            IHandle<StorageMessage.StreamDeleted>,
-                                            IHandle<StorageMessage.RequestManagerTimerTick>
+                                                   IHandle<ClientMessage.WriteEvents>,
+                                                   IHandle<ClientMessage.DeleteStream>,
+                                                   IHandle<ClientMessage.TransactionStart>,
+                                                   IHandle<ClientMessage.TransactionWrite>,
+                                                   IHandle<ClientMessage.TransactionCommit>,
+                                                   IHandle<StorageMessage.RequestCompleted>,
+                                                   IHandle<StorageMessage.CheckStreamAccessCompleted>,
+                                                   IHandle<StorageMessage.AlreadyCommitted>,
+                                                   IHandle<StorageMessage.PrepareAck>,
+                                                   IHandle<StorageMessage.CommitAck>,
+                                                   IHandle<StorageMessage.WrongExpectedVersion>,
+                                                   IHandle<StorageMessage.InvalidTransaction>,
+                                                   IHandle<StorageMessage.StreamDeleted>,
+                                                   IHandle<StorageMessage.RequestManagerTimerTick>
     {
         private readonly IPublisher _bus;
         private readonly TimerMessage.Schedule _tickRequestMessage;
@@ -43,11 +43,11 @@ namespace EventStore.Core.Services.RequestManager
         private readonly TimeSpan _commitTimeout;
 
         public RequestManagementService(IPublisher bus,
-                                                             int prepareCount,
-                                                             int commitCount,
-                                                             TimeSpan prepareTimeout,
-                                                             TimeSpan commitTimeout,
-                                                             bool betterOrdering)
+                                           int prepareCount,
+                                           int commitCount,
+                                           TimeSpan prepareTimeout,
+                                           TimeSpan commitTimeout,
+                                           bool betterOrdering)
         {
             Ensure.NotNull(bus, "bus");
             Ensure.Nonnegative(prepareCount, "prepareCount");

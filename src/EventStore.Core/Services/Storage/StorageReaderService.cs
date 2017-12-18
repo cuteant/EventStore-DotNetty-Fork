@@ -11,9 +11,9 @@ using EventStore.Core.TransactionLog.Checkpoint;
 namespace EventStore.Core.Services.Storage
 {
     public class StorageReaderService : IHandle<SystemMessage.SystemInit>,
-                                        IHandle<SystemMessage.BecomeShuttingDown>,
-                                        IHandle<SystemMessage.BecomeShutdown>,
-                                        IHandle<MonitoringMessage.InternalStatsRequest>
+                                              IHandle<SystemMessage.BecomeShuttingDown>,
+                                              IHandle<SystemMessage.BecomeShutdown>,
+                                              IHandle<MonitoringMessage.InternalStatsRequest>
     {
         private static readonly ILogger Log = TraceLogger.GetLogger<StorageReaderService>();
 

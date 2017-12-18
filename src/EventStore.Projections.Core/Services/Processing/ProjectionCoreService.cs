@@ -12,339 +12,339 @@ using EventStore.Common.Utils;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
-  public class ProjectionCoreService
-      : IHandle<ProjectionCoreServiceMessage.StartCore>,
-        IHandle<ProjectionCoreServiceMessage.StopCore>,
-        IHandle<ProjectionCoreServiceMessage.CoreTick>,
-        IHandle<CoreProjectionManagementMessage.CreateAndPrepare>,
-        IHandle<CoreProjectionManagementMessage.CreatePrepared>,
-        IHandle<CoreProjectionManagementMessage.CreateAndPrepareSlave>,
-        IHandle<CoreProjectionManagementMessage.Dispose>,
-        IHandle<CoreProjectionManagementMessage.Start>,
-        IHandle<CoreProjectionManagementMessage.LoadStopped>,
-        IHandle<CoreProjectionManagementMessage.Stop>,
-        IHandle<CoreProjectionManagementMessage.Kill>,
-        IHandle<CoreProjectionManagementMessage.GetState>,
-        IHandle<CoreProjectionManagementMessage.GetResult>,
-        IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>,
-        IHandle<CoreProjectionProcessingMessage.CheckpointCompleted>,
-        IHandle<CoreProjectionProcessingMessage.CheckpointLoaded>,
-        IHandle<CoreProjectionProcessingMessage.PrerecordedEventsLoaded>,
-        IHandle<CoreProjectionProcessingMessage.RestartRequested>,
-        IHandle<CoreProjectionProcessingMessage.Failed>
+    public class ProjectionCoreService
+        : IHandle<ProjectionCoreServiceMessage.StartCore>,
+          IHandle<ProjectionCoreServiceMessage.StopCore>,
+          IHandle<ProjectionCoreServiceMessage.CoreTick>,
+          IHandle<CoreProjectionManagementMessage.CreateAndPrepare>,
+          IHandle<CoreProjectionManagementMessage.CreatePrepared>,
+          IHandle<CoreProjectionManagementMessage.CreateAndPrepareSlave>,
+          IHandle<CoreProjectionManagementMessage.Dispose>,
+          IHandle<CoreProjectionManagementMessage.Start>,
+          IHandle<CoreProjectionManagementMessage.LoadStopped>,
+          IHandle<CoreProjectionManagementMessage.Stop>,
+          IHandle<CoreProjectionManagementMessage.Kill>,
+          IHandle<CoreProjectionManagementMessage.GetState>,
+          IHandle<CoreProjectionManagementMessage.GetResult>,
+          IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>,
+          IHandle<CoreProjectionProcessingMessage.CheckpointCompleted>,
+          IHandle<CoreProjectionProcessingMessage.CheckpointLoaded>,
+          IHandle<CoreProjectionProcessingMessage.PrerecordedEventsLoaded>,
+          IHandle<CoreProjectionProcessingMessage.RestartRequested>,
+          IHandle<CoreProjectionProcessingMessage.Failed>
 
 
-  {
-    private readonly Guid _workerId;
-    private readonly IPublisher _publisher;
-    private readonly IPublisher _inputQueue;
-    private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionCoreService>();
-
-    private readonly Dictionary<Guid, CoreProjection> _projections = new Dictionary<Guid, CoreProjection>();
-
-    private readonly IODispatcher _ioDispatcher;
-
-    private readonly ReaderSubscriptionDispatcher _subscriptionDispatcher;
-
-    private readonly ITimeProvider _timeProvider;
-    private readonly ProcessingStrategySelector _processingStrategySelector;
-
-    private readonly SpooledStreamReadingDispatcher _spoolProcessingResponseDispatcher;
-    private readonly ISingletonTimeoutScheduler _timeoutScheduler;
-
-
-    public ProjectionCoreService(
-        Guid workerId,
-        IPublisher inputQueue,
-        IPublisher publisher,
-        ReaderSubscriptionDispatcher subscriptionDispatcher,
-        ITimeProvider timeProvider,
-        IODispatcher ioDispatcher,
-        SpooledStreamReadingDispatcher spoolProcessingResponseDispatcher,
-        ISingletonTimeoutScheduler timeoutScheduler)
     {
-      _workerId = workerId;
-      _inputQueue = inputQueue;
-      _publisher = publisher;
-      _ioDispatcher = ioDispatcher;
-      _spoolProcessingResponseDispatcher = spoolProcessingResponseDispatcher;
-      _timeoutScheduler = timeoutScheduler;
-      _subscriptionDispatcher = subscriptionDispatcher;
-      _timeProvider = timeProvider;
-      _processingStrategySelector = new ProcessingStrategySelector(
-          _subscriptionDispatcher,
-          _spoolProcessingResponseDispatcher);
-    }
+        private readonly Guid _workerId;
+        private readonly IPublisher _publisher;
+        private readonly IPublisher _inputQueue;
+        private readonly ILogger _logger = TraceLogger.GetLogger<ProjectionCoreService>();
 
-    public ILogger Logger
-    {
-      get { return _logger; }
-    }
+        private readonly Dictionary<Guid, CoreProjection> _projections = new Dictionary<Guid, CoreProjection>();
 
-    public void Handle(ProjectionCoreServiceMessage.StartCore message)
-    {
-      _publisher.Publish(new ProjectionCoreServiceMessage.SubComponentStarted("ProjectionCoreService"));
-    }
+        private readonly IODispatcher _ioDispatcher;
 
-    public void Handle(ProjectionCoreServiceMessage.StopCore message)
-    {
-      StopProjections();
-      _publisher.Publish(new ProjectionCoreServiceMessage.SubComponentStopped("ProjectionCoreService"));
-    }
+        private readonly ReaderSubscriptionDispatcher _subscriptionDispatcher;
 
-    private void StopProjections()
-    {
-      _ioDispatcher.BackwardReader.CancelAll();
-      _ioDispatcher.ForwardReader.CancelAll();
-      _ioDispatcher.Writer.CancelAll();
+        private readonly ITimeProvider _timeProvider;
+        private readonly ProcessingStrategySelector _processingStrategySelector;
 
-      var allProjections = _projections.Values;
-      foreach (var projection in allProjections)
-        projection.Kill();
+        private readonly SpooledStreamReadingDispatcher _spoolProcessingResponseDispatcher;
+        private readonly ISingletonTimeoutScheduler _timeoutScheduler;
 
-      if (_projections.Count > 0)
-      {
-        if (_logger.IsInformationLevelEnabled()) _logger.LogInformation("_projections is not empty after all the projections have been killed");
-        _projections.Clear();
-      }
-    }
 
-    public void Handle(ProjectionCoreServiceMessage.CoreTick message)
-    {
-      message.Action();
-    }
+        public ProjectionCoreService(
+            Guid workerId,
+            IPublisher inputQueue,
+            IPublisher publisher,
+            ReaderSubscriptionDispatcher subscriptionDispatcher,
+            ITimeProvider timeProvider,
+            IODispatcher ioDispatcher,
+            SpooledStreamReadingDispatcher spoolProcessingResponseDispatcher,
+            ISingletonTimeoutScheduler timeoutScheduler)
+        {
+            _workerId = workerId;
+            _inputQueue = inputQueue;
+            _publisher = publisher;
+            _ioDispatcher = ioDispatcher;
+            _spoolProcessingResponseDispatcher = spoolProcessingResponseDispatcher;
+            _timeoutScheduler = timeoutScheduler;
+            _subscriptionDispatcher = subscriptionDispatcher;
+            _timeProvider = timeProvider;
+            _processingStrategySelector = new ProcessingStrategySelector(
+                _subscriptionDispatcher,
+                _spoolProcessingResponseDispatcher);
+        }
 
-    public void Handle(CoreProjectionManagementMessage.CreateAndPrepare message)
-    {
-      try
-      {
-        //TODO: factory method can throw
-        var stateHandler = CreateStateHandler(
-            _timeoutScheduler,
-            _logger,
-            message.HandlerType,
-            message.Query);
+        public ILogger Logger
+        {
+            get { return _logger; }
+        }
 
-        string name = message.Name;
-        var sourceDefinition = ProjectionSourceDefinition.From(stateHandler.GetSourceDefinition());
+        public void Handle(ProjectionCoreServiceMessage.StartCore message)
+        {
+            _publisher.Publish(new ProjectionCoreServiceMessage.SubComponentStarted("ProjectionCoreService"));
+        }
 
-        var projectionVersion = message.Version;
-        var projectionConfig = message.Config;
-        var namesBuilder = new ProjectionNamesBuilder(name, sourceDefinition);
+        public void Handle(ProjectionCoreServiceMessage.StopCore message)
+        {
+            StopProjections();
+            _publisher.Publish(new ProjectionCoreServiceMessage.SubComponentStopped("ProjectionCoreService"));
+        }
 
-        var projectionProcessingStrategy = _processingStrategySelector.CreateProjectionProcessingStrategy(
-            name,
-            projectionVersion,
-            namesBuilder,
-            sourceDefinition,
-            projectionConfig,
-            stateHandler,
-            message.HandlerType,
-            message.Query);
+        private void StopProjections()
+        {
+            _ioDispatcher.BackwardReader.CancelAll();
+            _ioDispatcher.ForwardReader.CancelAll();
+            _ioDispatcher.Writer.CancelAll();
 
-        CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
-        _publisher.Publish(
-            new CoreProjectionStatusMessage.Prepared(
-                message.ProjectionId, sourceDefinition));
-      }
-      catch (Exception ex)
-      {
-        _publisher.Publish(
-            new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
-      }
-    }
+            var allProjections = _projections.Values;
+            foreach (var projection in allProjections)
+                projection.Kill();
 
-    public void Handle(CoreProjectionManagementMessage.CreatePrepared message)
-    {
-      try
-      {
-        var name = message.Name;
-        var sourceDefinition = ProjectionSourceDefinition.From(message.SourceDefinition);
-        var projectionVersion = message.Version;
-        var projectionConfig = message.Config;
-        var namesBuilder = new ProjectionNamesBuilder(name, sourceDefinition);
+            if (_projections.Count > 0)
+            {
+                if (_logger.IsInformationLevelEnabled()) _logger.LogInformation("_projections is not empty after all the projections have been killed");
+                _projections.Clear();
+            }
+        }
 
-        var projectionProcessingStrategy = _processingStrategySelector.CreateProjectionProcessingStrategy(
-            name,
-            projectionVersion,
-            namesBuilder,
-            sourceDefinition,
-            projectionConfig,
-            null,
-            message.HandlerType,
-            message.Query);
+        public void Handle(ProjectionCoreServiceMessage.CoreTick message)
+        {
+            message.Action();
+        }
 
-        CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
-        _publisher.Publish(
-            new CoreProjectionStatusMessage.Prepared(
-                message.ProjectionId, sourceDefinition));
-      }
-      catch (Exception ex)
-      {
-        _publisher.Publish(
-            new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
-      }
-    }
+        public void Handle(CoreProjectionManagementMessage.CreateAndPrepare message)
+        {
+            try
+            {
+                //TODO: factory method can throw
+                var stateHandler = CreateStateHandler(
+                    _timeoutScheduler,
+                    _logger,
+                    message.HandlerType,
+                    message.Query);
 
-    public void Handle(CoreProjectionManagementMessage.CreateAndPrepareSlave message)
-    {
-      try
-      {
-        var stateHandler = CreateStateHandler(_timeoutScheduler, _logger, message.HandlerType, message.Query);
+                string name = message.Name;
+                var sourceDefinition = ProjectionSourceDefinition.From(stateHandler.GetSourceDefinition());
 
-        string name = message.Name;
-        var sourceDefinition = ProjectionSourceDefinition.From(stateHandler.GetSourceDefinition());
-        var projectionVersion = message.Version;
-        var projectionConfig = message.Config.SetIsSlave();
-        var projectionProcessingStrategy =
-            _processingStrategySelector.CreateSlaveProjectionProcessingStrategy(
-                name,
-                projectionVersion,
-                sourceDefinition,
-                projectionConfig,
-                stateHandler,
-                message.MasterWorkerId,
+                var projectionVersion = message.Version;
+                var projectionConfig = message.Config;
+                var namesBuilder = new ProjectionNamesBuilder(name, sourceDefinition);
+
+                var projectionProcessingStrategy = _processingStrategySelector.CreateProjectionProcessingStrategy(
+                    name,
+                    projectionVersion,
+                    namesBuilder,
+                    sourceDefinition,
+                    projectionConfig,
+                    stateHandler,
+                    message.HandlerType,
+                    message.Query);
+
+                CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
+                _publisher.Publish(
+                    new CoreProjectionStatusMessage.Prepared(
+                        message.ProjectionId, sourceDefinition));
+            }
+            catch (Exception ex)
+            {
+                _publisher.Publish(
+                    new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
+            }
+        }
+
+        public void Handle(CoreProjectionManagementMessage.CreatePrepared message)
+        {
+            try
+            {
+                var name = message.Name;
+                var sourceDefinition = ProjectionSourceDefinition.From(message.SourceDefinition);
+                var projectionVersion = message.Version;
+                var projectionConfig = message.Config;
+                var namesBuilder = new ProjectionNamesBuilder(name, sourceDefinition);
+
+                var projectionProcessingStrategy = _processingStrategySelector.CreateProjectionProcessingStrategy(
+                    name,
+                    projectionVersion,
+                    namesBuilder,
+                    sourceDefinition,
+                    projectionConfig,
+                    null,
+                    message.HandlerType,
+                    message.Query);
+
+                CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
+                _publisher.Publish(
+                    new CoreProjectionStatusMessage.Prepared(
+                        message.ProjectionId, sourceDefinition));
+            }
+            catch (Exception ex)
+            {
+                _publisher.Publish(
+                    new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
+            }
+        }
+
+        public void Handle(CoreProjectionManagementMessage.CreateAndPrepareSlave message)
+        {
+            try
+            {
+                var stateHandler = CreateStateHandler(_timeoutScheduler, _logger, message.HandlerType, message.Query);
+
+                string name = message.Name;
+                var sourceDefinition = ProjectionSourceDefinition.From(stateHandler.GetSourceDefinition());
+                var projectionVersion = message.Version;
+                var projectionConfig = message.Config.SetIsSlave();
+                var projectionProcessingStrategy =
+                    _processingStrategySelector.CreateSlaveProjectionProcessingStrategy(
+                        name,
+                        projectionVersion,
+                        sourceDefinition,
+                        projectionConfig,
+                        stateHandler,
+                        message.MasterWorkerId,
+                        _publisher,
+                        message.MasterCoreProjectionId,
+                        this);
+                CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
+                _publisher.Publish(
+                    new CoreProjectionStatusMessage.Prepared(
+                        message.ProjectionId,
+                        sourceDefinition));
+            }
+            catch (Exception ex)
+            {
+                _publisher.Publish(new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
+            }
+        }
+
+        private void CreateCoreProjection(
+            Guid projectionCorrelationId, IPrincipal runAs, ProjectionProcessingStrategy processingStrategy)
+        {
+            var projection = processingStrategy.Create(
+                projectionCorrelationId,
+                _inputQueue,
+                _workerId,
+                runAs,
                 _publisher,
-                message.MasterCoreProjectionId,
-                this);
-        CreateCoreProjection(message.ProjectionId, projectionConfig.RunAs, projectionProcessingStrategy);
-        _publisher.Publish(
-            new CoreProjectionStatusMessage.Prepared(
-                message.ProjectionId,
-                sourceDefinition));
-      }
-      catch (Exception ex)
-      {
-        _publisher.Publish(new CoreProjectionStatusMessage.Faulted(message.ProjectionId, ex.Message));
-      }
-    }
+                _ioDispatcher,
+                _subscriptionDispatcher,
+                _timeProvider);
+            _projections.Add(projectionCorrelationId, projection);
+        }
 
-    private void CreateCoreProjection(
-        Guid projectionCorrelationId, IPrincipal runAs, ProjectionProcessingStrategy processingStrategy)
-    {
-      var projection = processingStrategy.Create(
-          projectionCorrelationId,
-          _inputQueue,
-          _workerId,
-          runAs,
-          _publisher,
-          _ioDispatcher,
-          _subscriptionDispatcher,
-          _timeProvider);
-      _projections.Add(projectionCorrelationId, projection);
-    }
+        public void Handle(CoreProjectionManagementMessage.Dispose message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                _projections.Remove(message.ProjectionId);
+                projection.Dispose();
+            }
+        }
 
-    public void Handle(CoreProjectionManagementMessage.Dispose message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        _projections.Remove(message.ProjectionId);
-        projection.Dispose();
-      }
-    }
+        public void Handle(CoreProjectionManagementMessage.Start message)
+        {
+            var projection = _projections[message.ProjectionId];
+            projection.Start();
+        }
 
-    public void Handle(CoreProjectionManagementMessage.Start message)
-    {
-      var projection = _projections[message.ProjectionId];
-      projection.Start();
-    }
+        public void Handle(CoreProjectionManagementMessage.LoadStopped message)
+        {
+            var projection = _projections[message.ProjectionId];
+            projection.LoadStopped();
+        }
 
-    public void Handle(CoreProjectionManagementMessage.LoadStopped message)
-    {
-      var projection = _projections[message.ProjectionId];
-      projection.LoadStopped();
-    }
+        public void Handle(CoreProjectionManagementMessage.Stop message)
+        {
+            var projection = _projections[message.ProjectionId];
+            projection.Stop();
+        }
 
-    public void Handle(CoreProjectionManagementMessage.Stop message)
-    {
-      var projection = _projections[message.ProjectionId];
-      projection.Stop();
-    }
+        public void Handle(CoreProjectionManagementMessage.Kill message)
+        {
+            var projection = _projections[message.ProjectionId];
+            projection.Kill();
+        }
 
-    public void Handle(CoreProjectionManagementMessage.Kill message)
-    {
-      var projection = _projections[message.ProjectionId];
-      projection.Kill();
-    }
+        public void Handle(CoreProjectionManagementMessage.GetState message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionManagementMessage.GetState message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionManagementMessage.GetResult message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionManagementMessage.GetResult message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionProcessingMessage.CheckpointCompleted message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionProcessingMessage.CheckpointCompleted message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionProcessingMessage.CheckpointLoaded message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionProcessingMessage.CheckpointLoaded message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionProcessingMessage.PrerecordedEventsLoaded message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionProcessingMessage.PrerecordedEventsLoaded message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionProcessingMessage.RestartRequested message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionProcessingMessage.RestartRequested message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(CoreProjectionProcessingMessage.Failed message)
+        {
+            if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(CoreProjectionProcessingMessage.Failed message)
-    {
-      if (_projections.TryGetValue(message.ProjectionId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public void Handle(ProjectionManagementMessage.SlaveProjectionsStarted message)
+        {
+            if (_projections.TryGetValue(message.CoreProjectionCorrelationId, out CoreProjection projection))
+            {
+                projection.Handle(message);
+            }
+        }
 
-    public void Handle(ProjectionManagementMessage.SlaveProjectionsStarted message)
-    {
-      if (_projections.TryGetValue(message.CoreProjectionCorrelationId, out CoreProjection projection))
-      {
-        projection.Handle(message);
-      }
-    }
+        public static IProjectionStateHandler CreateStateHandler(
+            ISingletonTimeoutScheduler singletonTimeoutScheduler,
+            ILogger logger,
+            string handlerType,
+            string query)
+        {
+            var stateHandler = new ProjectionStateHandlerFactory().Create(
+                handlerType,
+                query,
+                logger: logger.LogTrace,
+                cancelCallbackFactory:
+                    singletonTimeoutScheduler == null ? (Action<int, Action>)null : singletonTimeoutScheduler.Schedule);
+            return stateHandler;
+        }
 
-    public static IProjectionStateHandler CreateStateHandler(
-        ISingletonTimeoutScheduler singletonTimeoutScheduler,
-        ILogger logger,
-        string handlerType,
-        string query)
-    {
-      var stateHandler = new ProjectionStateHandlerFactory().Create(
-          handlerType,
-          query,
-          logger: logger.LogTrace,
-          cancelCallbackFactory:
-              singletonTimeoutScheduler == null ? (Action<int, Action>)null : singletonTimeoutScheduler.Schedule);
-      return stateHandler;
     }
-
-  }
 }

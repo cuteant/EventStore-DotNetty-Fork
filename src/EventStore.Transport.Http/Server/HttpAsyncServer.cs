@@ -12,7 +12,7 @@ namespace EventStore.Transport.Http.Server
         private static readonly ILogger Logger = TraceLogger.GetLogger<HttpAsyncServer>();
 
         public event Action<HttpAsyncServer, HttpListenerContext> RequestReceived;
-        
+
         public bool IsListening { get { return _listener.IsListening; } }
         public readonly string[] _listenPrefixes;
 
@@ -31,10 +31,10 @@ namespace EventStore.Transport.Http.Server
         private void CreateListener(IEnumerable<string> prefixes)
         {
             _listener = new HttpListener
-                            {
-                                Realm = "ES",
-                                AuthenticationSchemes = AuthenticationSchemes.Basic | AuthenticationSchemes.Anonymous
-                            };
+            {
+                Realm = "ES",
+                AuthenticationSchemes = AuthenticationSchemes.Basic | AuthenticationSchemes.Anonymous
+            };
             foreach (var prefix in prefixes)
             {
                 _listener.Prefixes.Add(prefix);
@@ -50,7 +50,7 @@ namespace EventStore.Transport.Http.Server
                 {
                     _listener.Start();
                 }
-                catch(HttpListenerException ex)
+                catch (HttpListenerException ex)
                 {
                     if (ex.ErrorCode == 5) //Access error don't see any better way of getting it
                     {
@@ -77,25 +77,24 @@ namespace EventStore.Transport.Http.Server
 
         private void TryAddAcl(string address)
         {
-            if (Runtime.IsMono)
-                return;
-
+#if DESKTOPCLR
             var args = string.Format("http add urlacl url={0} user=\"{1}\\{2}\"", address, Environment.UserDomainName, Environment.UserName);
             if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Attempting to add permissions for " + address + " using netsh " + args);
             var startInfo = new ProcessStartInfo("netsh", args)
-                          {
-                              Verb = "runas",
-                              CreateNoWindow = true,
-                              WindowStyle = ProcessWindowStyle.Hidden,
-                              UseShellExecute = true
-                          };
+            {
+                Verb = "runas",
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = true
+            };
 
             var aclProcess = Process.Start(startInfo);
 
-            if (aclProcess != null) 
+            if (aclProcess != null)
                 aclProcess.WaitForExit();
+#endif
         }
-    
+
         public void Shutdown()
         {
             try
@@ -136,20 +135,20 @@ namespace EventStore.Transport.Http.Server
             {
                 // that's not application-level error, ignore and continue
             }
-      catch (ObjectDisposedException)
-      {
-        // that's ok, just continue
-      }
+            catch (ObjectDisposedException)
+            {
+                // that's ok, just continue
+            }
             catch (InvalidOperationException)
             {
             }
             catch (Exception e)
             {
-                if(Logger.IsDebugLevelEnabled()) Logger.LogDebug(e, "EndGetContext exception. Status : {0}.", IsListening ? "listening" : "stopped");
+                if (Logger.IsDebugLevelEnabled()) Logger.LogDebug(e, "EndGetContext exception. Status : {0}.", IsListening ? "listening" : "stopped");
             }
 
             if (success)
-                try 
+                try
                 {
                     ProcessRequest(context);
                 }
@@ -162,7 +161,7 @@ namespace EventStore.Transport.Http.Server
                 catch (ApplicationException)
                 {
                 }
-                catch(Exception ex) 
+                catch (Exception ex)
                 {
                     Logger.LogError(ex, "ProcessRequest error");
                 }
@@ -201,7 +200,7 @@ namespace EventStore.Transport.Http.Server
             if (handler != null)
                 handler(this, context);
         }
-//MONOCHECK is this still needed?
+        //MONOCHECK is this still needed?
 #if MONO
        private static Func<HttpListenerRequest, HttpListenerContext> CreateGetContext()
         {

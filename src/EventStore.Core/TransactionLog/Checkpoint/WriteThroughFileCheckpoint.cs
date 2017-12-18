@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DESKTOPCLR
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -136,3 +137,4 @@ namespace EventStore.Core.TransactionLog.Checkpoint
         }
     }
 }
+#endif

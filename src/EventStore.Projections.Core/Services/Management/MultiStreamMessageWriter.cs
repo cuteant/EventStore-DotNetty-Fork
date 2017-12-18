@@ -11,107 +11,107 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Management
 {
-  public sealed class MultiStreamMessageWriter : IMultiStreamMessageWriter
-  {
-    private readonly ILogger Log = TraceLogger.GetLogger<MultiStreamMessageWriter>();
-    private readonly IODispatcher _ioDispatcher;
-
-    private readonly Dictionary<Guid, Queue> _queues = new Dictionary<Guid, Queue>();
-    private IODispatcherAsync.CancellationScope _cancellationScope;
-
-    public MultiStreamMessageWriter(IODispatcher ioDispatcher)
+    public sealed class MultiStreamMessageWriter : IMultiStreamMessageWriter
     {
-      _ioDispatcher = ioDispatcher;
-      _cancellationScope = new IODispatcherAsync.CancellationScope();
-    }
+        private readonly ILogger Log = TraceLogger.GetLogger<MultiStreamMessageWriter>();
+        private readonly IODispatcher _ioDispatcher;
 
-    public void Reset()
-    {
-      if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Resetting Worker Writer");
-      _cancellationScope.Cancel();
-      _cancellationScope = new IODispatcherAsync.CancellationScope();
-      _queues.Clear();
-    }
+        private readonly Dictionary<Guid, Queue> _queues = new Dictionary<Guid, Queue>();
+        private IODispatcherAsync.CancellationScope _cancellationScope;
 
-    public void PublishResponse(string command, Guid workerId, object body)
-    {
-      if (!_queues.TryGetValue(workerId, out Queue queue))
-      {
-        queue = new Queue();
-        _queues.Add(workerId, queue);
-      }
-      //TODO: PROJECTIONS: Remove before release
-      if (!Logging.FilteredMessages.Contains(command) && Log.IsDebugLevelEnabled())
-      {
-        Log.LogDebug("PROJECTIONS: Scheduling the writing of {0} to {1}. Current status of Writer: Busy: {2}", command, "$projections-$" + workerId, queue.Busy);
-      }
-      queue.Items.Add(new Queue.Item { Command = command, Body = body });
-      if (!queue.Busy)
-      {
-        EmitEvents(queue, workerId);
-      }
-    }
+        public MultiStreamMessageWriter(IODispatcher ioDispatcher)
+        {
+            _ioDispatcher = ioDispatcher;
+            _cancellationScope = new IODispatcherAsync.CancellationScope();
+        }
 
-    private void EmitEvents(Queue queue, Guid workerId)
-    {
-      queue.Busy = true;
-      var events = queue.Items.Select(CreateEvent).ToArray();
-      queue.Items.Clear();
-      var streamId = "$projections-$" + workerId.ToString("N");
-      _ioDispatcher.BeginWriteEvents(
-          _cancellationScope,
-          streamId,
-          ExpectedVersion.Any,
-          SystemAccount.Principal,
-          events,
-          completed =>
-          {
-            queue.Busy = false;
-            if (completed.Result == OperationResult.Success)
+        public void Reset()
+        {
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Resetting Worker Writer");
+            _cancellationScope.Cancel();
+            _cancellationScope = new IODispatcherAsync.CancellationScope();
+            _queues.Clear();
+        }
+
+        public void PublishResponse(string command, Guid workerId, object body)
+        {
+            if (!_queues.TryGetValue(workerId, out Queue queue))
             {
-              foreach (var evt in events)
-              {
-                // TODO: PROJECTIONS: Remove before release
-                if (!Logging.FilteredMessages.Contains(evt.EventType))
+                queue = new Queue();
+                _queues.Add(workerId, queue);
+            }
+            //TODO: PROJECTIONS: Remove before release
+            if (!Logging.FilteredMessages.Contains(command) && Log.IsDebugLevelEnabled())
+            {
+                Log.LogDebug("PROJECTIONS: Scheduling the writing of {0} to {1}. Current status of Writer: Busy: {2}", command, "$projections-$" + workerId, queue.Busy);
+            }
+            queue.Items.Add(new Queue.Item { Command = command, Body = body });
+            if (!queue.Busy)
+            {
+                EmitEvents(queue, workerId);
+            }
+        }
+
+        private void EmitEvents(Queue queue, Guid workerId)
+        {
+            queue.Busy = true;
+            var events = queue.Items.Select(CreateEvent).ToArray();
+            queue.Items.Clear();
+            var streamId = "$projections-$" + workerId.ToString("N");
+            _ioDispatcher.BeginWriteEvents(
+                _cancellationScope,
+                streamId,
+                ExpectedVersion.Any,
+                SystemAccount.Principal,
+                events,
+                completed =>
                 {
-                  if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished writing events to {0}: {1}", streamId, evt.EventType);
-                }
-              }
-            }
-            else
+                    queue.Busy = false;
+                    if (completed.Result == OperationResult.Success)
+                    {
+                        foreach (var evt in events)
+                        {
+                      // TODO: PROJECTIONS: Remove before release
+                      if (!Logging.FilteredMessages.Contains(evt.EventType))
+                            {
+                                if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished writing events to {0}: {1}", streamId, evt.EventType);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var message = String.Format("PROJECTIONS: Failed writing events to {0} because of {1}: {2}",
+                                streamId,
+                                completed.Result, String.Join(",", events.Select(x => String.Format("{0}", x.EventType))));
+                        if (Log.IsDebugLevelEnabled())
+                        {
+                            Log.LogDebug(message); //Can't do anything about it, log and move on
+                                                   //throw new Exception(message);
+                  }
+                    }
+
+                    if (queue.Items.Count > 0)
+                        EmitEvents(queue, workerId);
+                    else
+                        _queues.Remove(workerId);
+                }).Run();
+        }
+
+        private Event CreateEvent(Queue.Item item)
+        {
+            return new Event(Guid.NewGuid(), item.Command, true, item.Body.ToJsonBytes(), null);
+        }
+
+        private class Queue
+        {
+            public bool Busy;
+            public readonly List<Item> Items = new List<Item>();
+
+            internal class Item
             {
-              var message = String.Format("PROJECTIONS: Failed writing events to {0} because of {1}: {2}",
-                            streamId,
-                            completed.Result, String.Join(",", events.Select(x => String.Format("{0}", x.EventType))));
-              if (Log.IsDebugLevelEnabled())
-              {
-                Log.LogDebug(message); //Can't do anything about it, log and move on
-                                       //throw new Exception(message);
-              }
+                public string Command;
+                public object Body;
             }
-
-            if (queue.Items.Count > 0)
-              EmitEvents(queue, workerId);
-            else
-              _queues.Remove(workerId);
-          }).Run();
+        }
     }
-
-    private Event CreateEvent(Queue.Item item)
-    {
-      return new Event(Guid.NewGuid(), item.Command, true, item.Body.ToJsonBytes(), null);
-    }
-
-    private class Queue
-    {
-      public bool Busy;
-      public readonly List<Item> Items = new List<Item>();
-
-      internal class Item
-      {
-        public string Command;
-        public object Body;
-      }
-    }
-  }
 }

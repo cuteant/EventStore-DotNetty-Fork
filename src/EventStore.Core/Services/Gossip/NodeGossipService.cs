@@ -18,16 +18,16 @@ namespace EventStore.Core.Services.Gossip
         private readonly int _nodePriority;
 
         public NodeGossipService(IPublisher bus,
-                                 IGossipSeedSource gossipSeedSource,
-								                 VNodeInfo nodeInfo,
-                                 ICheckpoint writerCheckpoint,
-                                 ICheckpoint chaserCheckpoint,
-                                 IEpochManager epochManager,
-                                 Func<long> getLastCommitPosition,
-                                 int nodePriority,
-                                 TimeSpan interval,
-                                 TimeSpan allowedTimeDifference)
-                : base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference)
+                                   IGossipSeedSource gossipSeedSource,
+                                   VNodeInfo nodeInfo,
+                                   ICheckpoint writerCheckpoint,
+                                   ICheckpoint chaserCheckpoint,
+                                   IEpochManager epochManager,
+                                   Func<long> getLastCommitPosition,
+                                   int nodePriority,
+                                   TimeSpan interval,
+                                   TimeSpan allowedTimeDifference)
+            : base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference)
         {
             Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
             Ensure.NotNull(chaserCheckpoint, "chaserCheckpoint");
