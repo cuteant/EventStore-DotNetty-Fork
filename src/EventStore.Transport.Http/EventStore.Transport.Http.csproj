@@ -5,7 +5,7 @@
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.Transport.Http</RootNamespace>
     <AssemblyName>EventStore.Transport.Http</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>

@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using CuteAnt.IO;
 using EventStore.BufferManagement;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;

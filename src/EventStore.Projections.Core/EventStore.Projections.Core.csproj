@@ -7,7 +7,7 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.Projections.Core</RootNamespace>
     <AssemblyName>EventStore.Projections.Core</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -20,7 +20,7 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net451'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net471' ">
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="Microsoft.CSharp" />
