@@ -108,8 +108,9 @@ namespace EventStore.Core.Index
                 return;
             }
 
-            if(ShouldForceIndexVerify()){
-                Log.Debug("Forcing verification of index files...");
+            if (ShouldForceIndexVerify() && Log.IsDebugLevelEnabled())
+            {
+                Log.LogDebug("Forcing verification of index files...");
             }
 
             CreateIfDoesNotExist(_directory);
@@ -634,14 +635,14 @@ namespace EventStore.Core.Index
         }
 
         private void ForceIndexVerifyOnNextStartup(){
-            Log.Debug("Forcing index verification on next startup");
+            if(Log.IsDebugLevelEnabled()) Log.LogDebug("Forcing index verification on next startup");
             string path = Path.Combine(_directory,ForceIndexVerifyFilename);
             try{
                 using(FileStream fs = new FileStream(path, FileMode.OpenOrCreate)){
                 };
             }
             catch{
-                Log.Error("Could not create force index verification file at: "+path);
+                Log.LogError("Could not create force index verification file at: "+path);
             }
 
             return;
@@ -659,7 +660,7 @@ namespace EventStore.Core.Index
                     File.Delete(path);
             }
             catch{
-                Log.Error("Could not delete force index verification file at: "+path);
+                Log.LogError("Could not delete force index verification file at: "+path);
             }
         }
     }

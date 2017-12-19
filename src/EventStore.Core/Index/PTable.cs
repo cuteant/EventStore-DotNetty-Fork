@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
-using EventStore.Common.Log;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
@@ -43,7 +43,7 @@ namespace EventStore.Core.Index
         public const int DefaultBufferSize = 8192;
         public const int DefaultSequentialBufferSize = 65536;
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<PTable>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<PTable>();
 
         public Guid Id { get { return _id; } }
         public long Count { get { return _count; } }
@@ -87,7 +87,7 @@ namespace EventStore.Core.Index
             _id = id;
             _filename = filename;
 
-            Log.Trace("Loading "+(skipIndexVerify?"":"and Verification ")+"of PTable '{0}' started...", Path.GetFileName(Filename));
+            if (Log.IsTraceLevelEnabled()) Log.LogTrace("Loading "+(skipIndexVerify?"":"and Verification ")+"of PTable '{0}' started...", Path.GetFileName(Filename));
             var sw = Stopwatch.StartNew();
             _size = new FileInfo(_filename).Length;
 
@@ -199,10 +199,10 @@ namespace EventStore.Core.Index
             }
             catch (PossibleToHandleOutOfMemoryException)
             {
-                Log.Error("Unable to create midpoints for PTable '{0}' ({1} entries, depth {2} requested). "
+                Log.LogError("Unable to create midpoints for PTable '{0}' ({1} entries, depth {2} requested). "
                           + "Performance hit will occur. OOM Exception.", Path.GetFileName(Filename), Count, depth);
             }
-            Log.Trace("Loading PTable (Version: {0}) '{1}' ({2} entries, cache depth {3}) done in {4}.",
+            if (Log.IsTraceLevelEnabled()) Log.LogTrace("Loading PTable (Version: {0}) '{1}' ({2} entries, cache depth {3}) done in {4}.",
                       _version, Path.GetFileName(Filename), Count, calcdepth, sw.Elapsed);
         }
 
@@ -214,9 +214,10 @@ namespace EventStore.Core.Index
             var count = Count;
             if (count == 0 || depth == 0)
                 return null;
-
-            if(skipIndexVerify){
-                Log.Debug("Disabling Verification of PTable");
+            var debugEnabled = Log.IsDebugLevelEnabled();
+            if(skipIndexVerify && debugEnabled)
+            {
+                Log.LogDebug("Disabling Verification of PTable");
             }
 #if  MONO
             var workItem = GetWorkItem();
@@ -245,7 +246,7 @@ namespace EventStore.Core.Index
                             if(_midpointsCached == midpointsCount){
                                 //index verification is disabled and cached midpoints with the same depth requested are available
                                 //so, we can load them directly from the PTable file
-                                Log.Debug("Loading {0} cached midpoints from PTable",_midpointsCached);
+                                if(debugEnabled) Log.LogDebug("Loading {0} cached midpoints from PTable",_midpointsCached);
                                 long startOffset = stream.Length - MD5Size - PTableFooter.GetSize(_version) - _midpointsCacheSize;
                                 stream.Seek(startOffset,SeekOrigin.Begin);
                                 for(uint k=0;k<_midpointsCached;k++){
@@ -273,7 +274,7 @@ namespace EventStore.Core.Index
                                 return midpoints;
                             }
                             else
-                                Log.Debug("Skipping loading of cached midpoints from PTable due to count mismatch, cached midpoints: {0} / required midpoints: {1}",_midpointsCached, midpointsCount);
+                                if (debugEnabled) Log.LogDebug("Skipping loading of cached midpoints from PTable due to count mismatch, cached midpoints: {0} / required midpoints: {1}",_midpointsCached, midpointsCount);
                         }
 
                         if(!skipIndexVerify){

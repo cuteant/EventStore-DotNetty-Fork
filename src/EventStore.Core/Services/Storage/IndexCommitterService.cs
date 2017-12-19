@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
-using EventStore.Common.Log;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -29,7 +29,7 @@ namespace EventStore.Core.Services.Storage
                                          IHandle<SystemMessage.BecomeShuttingDown>,
                                          IHandle<StorageMessage.CommitAck>
     {
-        private readonly ILogger Log = LogManager.GetLoggerFor<IndexCommitterService>();
+        private readonly ILogger Log = TraceLogger.GetLogger<IndexCommitterService>();
         private readonly IIndexCommitter _indexCommitter;
         private readonly IPublisher _publisher;
         private readonly ICheckpoint _replicationCheckpoint;
@@ -104,7 +104,7 @@ namespace EventStore.Core.Services.Storage
             {
                 _queueStats.EnterIdle();
                 _queueStats.ProcessingStarted<FaultedIndexCommitterServiceState>(0);
-                Log.FatalException(exc, "Error in IndexCommitterService. Terminating...");
+                Log.LogCritical(exc, "Error in IndexCommitterService. Terminating...");
                 Application.Exit(ExitCode.Error, "Error in IndexCommitterService. Terminating...\nError: " + exc.Message);
                 while (!_stop)
                 {

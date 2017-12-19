@@ -110,7 +110,7 @@ namespace EventStore.BufferManagement.Tests
         public void should_throw_argumentnullexception_if_null_buffer()
         {
             BufferManager manager = new BufferManager(10, 1000, 0);
-            Assert.Throws<ArgumentNullException>(()=> { manager.CheckIn(null); });
+            Assert.Throws<ArgumentNullException>(()=> { manager.CheckIn((System.Collections.Generic.IEnumerable<ArraySegment<byte>>)null); });
         }
 
         [Test]

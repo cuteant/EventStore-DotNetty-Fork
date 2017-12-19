@@ -1,6 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\common\common.props" />
-  <Import Project="..\..\common\define.props" />
   
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net451</TargetFrameworks>
@@ -9,12 +7,17 @@
     <AssemblyName>EventStore.BufferManagement.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
+    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="NUnit" Version="$(NUnitPackageVersion)" />
     <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterPackageVersion)" />
-    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

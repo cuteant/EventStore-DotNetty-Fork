@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using EventStore.Common.Log;
+using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Storage
                                  IHandle<SystemMessage.SystemStart>,
                                  IHandle<SystemMessage.BecomeShuttingDown>
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<StorageChaser>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<StorageChaser>();
 
         private static readonly int TicksPerMs = (int)(Stopwatch.Frequency / 1000);
         private static readonly int MinFlushDelay = 2 * TicksPerMs;
@@ -118,7 +118,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.FatalException(exc, "Error in StorageChaser. Terminating...");
+                Log.LogCritical(exc, "Error in StorageChaser. Terminating...");
                 _queueStats.EnterIdle();
                 _queueStats.ProcessingStarted<FaultedChaserState>(0);
                 Application.Exit(ExitCode.Error, "Error in StorageChaser. Terminating...\nError: " + exc.Message);
