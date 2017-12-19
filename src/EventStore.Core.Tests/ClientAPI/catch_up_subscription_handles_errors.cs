@@ -723,12 +723,13 @@ namespace EventStore.Core.Tests.ClientAPI
 
         public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
+
             throw new NotImplementedException();
         }
 
         public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            throw new NotImplementedException();
+            return _subscribeToStreamAsync(stream, eventAppearedAsync, subscriptionDropped);
         }
 
         public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings, Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
