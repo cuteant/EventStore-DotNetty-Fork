@@ -39,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\NLog.config" Link="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="..\..\test\NLog.config" Link="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

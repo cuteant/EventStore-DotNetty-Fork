@@ -12,9 +12,9 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
         [Test]
         public void deleting_non_existing_user_throws()
         {
-            var ex = Assert.Throws<AggregateException>(() => _manager.DeleteUserAsync(Guid.NewGuid().ToString(), new UserCredentials("admin", "changeit")).Wait());
-            var realex = (UserCommandFailedException) ex.InnerException;
-            Assert.AreEqual(HttpStatusCode.NotFound, realex.HttpStatusCode);
+            var ex = Assert.ThrowsAsync<UserCommandFailedException>(() => _manager.DeleteUserAsync(Guid.NewGuid().ToString(), new UserCredentials("admin", "changeit")));
+            //var realex = (UserCommandFailedException) ex.InnerException;
+            Assert.AreEqual(HttpStatusCode.NotFound, ex.HttpStatusCode);
         }
 
         [Test]

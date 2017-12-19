@@ -63,7 +63,7 @@ namespace EventStore.Core.Tests.ClientAPI.UserManagement
         [Test]
         public void empty_current_password_throws()
         {
-            Assert.Throws<ArgumentNullException>(() => _manager.ChangePasswordAsync(_username, "", "newpassword", new UserCredentials("admin", "changeit")).Wait());
+            Assert.ThrowsAsync<ArgumentNullException>(() => _manager.ChangePasswordAsync(_username, "", "newpassword", new UserCredentials("admin", "changeit")));
         }
         [Test]
         public void null_new_password_throws()

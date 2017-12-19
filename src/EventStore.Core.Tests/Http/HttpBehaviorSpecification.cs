@@ -32,7 +32,7 @@ namespace EventStore.Core.Tests.Http
         protected byte[] _lastResponseBytes;
         protected JsonException _lastJsonException;
         //MONOCHECK Does this work now?
-#if DESKTOPCLR //!MONO
+#if !MONO
         private Func<HttpWebResponse, byte[]> _dumpResponse;
         private Func<HttpWebResponse, int> _dumpResponse2;
         private Func<HttpWebRequest, byte[]> _dumpRequest;
@@ -43,7 +43,7 @@ namespace EventStore.Core.Tests.Http
 
         public override void TestFixtureSetUp()
         {
-#if DESKTOPCLR //!MONO
+#if !MONO
             Helper.EatException(() => _dumpResponse = CreateDumpResponse());
             Helper.EatException(() => _dumpResponse2 = CreateDumpResponse2());
             Helper.EatException(() => _dumpRequest = CreateDumpRequest());
@@ -373,7 +373,7 @@ namespace EventStore.Core.Tests.Http
             {
                 response = (HttpWebResponse) ex.Response;
             }
-#if DESKTOPCLR //!MONO
+#if !MONO
             if (_dumpRequest != null)
             {
                 var bytes = _dumpRequest(request);
