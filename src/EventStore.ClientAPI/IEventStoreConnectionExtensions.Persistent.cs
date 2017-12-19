@@ -346,7 +346,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent, int?> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -378,7 +378,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -407,7 +407,7 @@ namespace EventStore.ClientAPI
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent, int?> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -435,7 +435,7 @@ namespace EventStore.ClientAPI
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
       ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -469,7 +469,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent, int?> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -497,7 +497,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -532,7 +532,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string subscriptionId,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -565,7 +565,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string subscriptionId,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -594,7 +594,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -623,7 +623,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -660,7 +660,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -697,7 +697,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -731,7 +731,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -764,7 +764,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription PersistentSubscribe(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -801,7 +801,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus, string subscriptionId,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -833,7 +833,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus, string subscriptionId,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -863,7 +863,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -891,7 +891,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -927,7 +927,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -960,7 +960,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -990,7 +990,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -1019,7 +1019,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStorePersistentSubscription"/> representing the subscription.</returns>
     public static EventStorePersistentSubscription<TEvent> PersistentSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings subscriptionSettings,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -1056,7 +1056,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string subscriptionId,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1086,7 +1086,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string subscriptionId,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1121,7 +1121,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1154,7 +1154,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
@@ -1184,7 +1184,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -1213,7 +1213,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription> PersistentSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, string subscriptionId, ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -1246,7 +1246,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus, string subscriptionId,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -1274,7 +1274,7 @@ namespace EventStore.ClientAPI
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus, string subscriptionId,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -1300,7 +1300,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus,
       string subscriptionId, ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -1325,7 +1325,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus,
       string subscriptionId, ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -1358,7 +1358,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
@@ -1388,7 +1388,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(this IEventStoreBus bus,
       string topic, string subscriptionId,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {

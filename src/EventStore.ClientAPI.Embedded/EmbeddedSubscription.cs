@@ -12,53 +12,53 @@ using EventStore.Core.Messaging;
 
 namespace EventStore.ClientAPI.Embedded
 {
-  internal class EmbeddedSubscription : EmbeddedSubscriptionBase<EventStoreSubscription>
-  {
-    private readonly UserCredentials _userCredentials;
-    private readonly IAuthenticationProvider _authenticationProvider;
-    private readonly bool _resolveLinkTos;
-
-
-    public EmbeddedSubscription(IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
-      string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
-      bool resolveLinkTos, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
-      : base(publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
+    internal class EmbeddedSubscription : EmbeddedSubscriptionBase<EventStoreSubscription>
     {
-      _userCredentials = userCredentials;
-      _authenticationProvider = authenticationProvider;
-      _resolveLinkTos = resolveLinkTos;
-    }
-    public EmbeddedSubscription(IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
-      string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
-      bool resolveLinkTos, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
-      : base(publisher, connectionId, source, streamId, eventAppearedAsync, subscriptionDropped)
-    {
-      _userCredentials = userCredentials;
-      _authenticationProvider = authenticationProvider;
-      _resolveLinkTos = resolveLinkTos;
-    }
+        private readonly UserCredentials _userCredentials;
+        private readonly IAuthenticationProvider _authenticationProvider;
+        private readonly bool _resolveLinkTos;
 
-    protected override EventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
-    {
-      return new EmbeddedVolatileEventStoreSubscription(Unsubscribe, StreamId, lastCommitPosition, lastEventNumber);
-    }
 
-    public override void Start(Guid correlationId)
-    {
-      CorrelationId = correlationId;
+        public EmbeddedSubscription(IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
+          string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
+          bool resolveLinkTos, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
+          Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
+          : base(publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
+        {
+            _userCredentials = userCredentials;
+            _authenticationProvider = authenticationProvider;
+            _resolveLinkTos = resolveLinkTos;
+        }
+        public EmbeddedSubscription(IPublisher publisher, Guid connectionId, TaskCompletionSource<EventStoreSubscription> source,
+          string streamId, UserCredentials userCredentials, IAuthenticationProvider authenticationProvider,
+          bool resolveLinkTos, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+          Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
+          : base(publisher, connectionId, source, streamId, eventAppearedAsync, subscriptionDropped)
+        {
+            _userCredentials = userCredentials;
+            _authenticationProvider = authenticationProvider;
+            _resolveLinkTos = resolveLinkTos;
+        }
 
-      Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
-          ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),
-          user => new ClientMessage.SubscribeToStream(
-              correlationId,
-              correlationId,
-              new PublishEnvelope(Publisher, true),
-              ConnectionId,
-              StreamId,
-              _resolveLinkTos,
-              user));
+        protected override EventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
+        {
+            return new EmbeddedVolatileEventStoreSubscription(Unsubscribe, StreamId, lastCommitPosition, lastEventNumber);
+        }
+
+        public override void Start(Guid correlationId)
+        {
+            CorrelationId = correlationId;
+
+            Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
+                ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),
+                user => new ClientMessage.SubscribeToStream(
+                    correlationId,
+                    correlationId,
+                    new PublishEnvelope(Publisher, true),
+                    ConnectionId,
+                    StreamId,
+                    _resolveLinkTos,
+                    user));
+        }
     }
-  }
 }

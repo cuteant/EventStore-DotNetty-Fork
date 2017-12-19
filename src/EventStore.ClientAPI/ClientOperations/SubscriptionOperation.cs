@@ -175,29 +175,17 @@ namespace EventStore.ClientAPI.ClientOperations
       return new TcpPackage(TcpCommand.UnsubscribeFromStream, _correlationId, new ClientMessage.UnsubscribeFromStream().Serialize());
     }
 
-    protected abstract bool InspectPackage(TcpPackage package, out InspectionResult result);
-
-    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent);
-    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent);
+    protected abstract Task<InspectionResult> TryInspectPackageAsync(TcpPackage package);
 
     public async Task<InspectionResult> InspectPackageAsync(TcpPackage package)
     {
       try
       {
-        if (InspectPackage(package, out InspectionResult result))
-        {
-          return result;
-        }
+        var result = await TryInspectPackageAsync(package).ConfigureAwait(false);
+        if (result != null) { return result; }
 
         switch (package.Command)
         {
-          case TcpCommand.StreamEventAppeared:
-            {
-              var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-              await EventAppearedAsync(TransformEvent(dto.Event));
-              return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
-            }
-
           case TcpCommand.SubscriptionDropped:
             {
               var dto = package.Data.Deserialize<ClientMessage.SubscriptionDropped>();

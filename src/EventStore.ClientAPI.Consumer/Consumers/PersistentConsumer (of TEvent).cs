@@ -11,13 +11,10 @@ namespace EventStore.ClientAPI.Consumers
   public class PersistentConsumer<TEvent> : StreamConsumer<PersistentSubscription<TEvent>, ConnectToPersistentSubscriptionSettings, TEvent>
     where TEvent : class
   {
-    private static readonly ILogger s_logger = TraceLogger.GetLogger<VolatileConsumer>();
+    private static readonly ILogger s_logger = TraceLogger.GetLogger<PersistentConsumer>();
 
-    private bool processingResolvedEvent;
-    private Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> _resolvedEventAppearedAsync;
-    private Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> _resolvedEventAppeared;
-    private Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> _eventAppearedAsync;
-    private Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> _eventAppeared;
+    private Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> _resolvedEventAppearedAsync;
+    private Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> _resolvedEventAppeared;
 
     private EventStorePersistentSubscription<TEvent> esSubscription;
 
@@ -37,35 +34,31 @@ namespace EventStore.ClientAPI.Consumers
     }
 
     public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> resolvedEventAppearedAsync)
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> resolvedEventAppearedAsync)
     {
       Initialize(bus, subscription);
       _resolvedEventAppearedAsync = resolvedEventAppearedAsync ?? throw new ArgumentNullException(nameof(resolvedEventAppearedAsync));
-      processingResolvedEvent = true;
     }
 
     public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> resolvedEventAppeared)
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> resolvedEventAppeared)
     {
       Initialize(bus, subscription);
       _resolvedEventAppeared = resolvedEventAppeared ?? throw new ArgumentNullException(nameof(resolvedEventAppeared));
-      processingResolvedEvent = true;
     }
 
     public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
     {
       if (null == eventAppearedAsync) { throw new ArgumentNullException(nameof(eventAppearedAsync)); }
       Initialize(bus, subscription);
-      _eventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
-      processingResolvedEvent = false;
+      _resolvedEventAppearedAsync = (sub, resolvedEvent, count) => eventAppearedAsync(resolvedEvent.Body);
     }
 
     public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
     {
       if (null == eventAppeared) { throw new ArgumentNullException(nameof(eventAppeared)); }
       Initialize(bus, subscription);
-      _eventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
-      processingResolvedEvent = false;
+      _resolvedEventAppeared = (sub, resolvedEvent, count) => eventAppeared(resolvedEvent.Body);
     }
 
     public override async Task ConnectToSubscriptionAsync()
@@ -114,35 +107,17 @@ namespace EventStore.ClientAPI.Consumers
     {
       try
       {
-        if (processingResolvedEvent)
+        if (_resolvedEventAppearedAsync != null)
         {
-          if (_resolvedEventAppearedAsync != null)
-          {
-            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials).ConfigureAwait(false);
-          }
-          else
-          {
-            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials).ConfigureAwait(false);
-          }
+          esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppearedAsync,
+                  async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                  Subscription.Credentials).ConfigureAwait(false);
         }
         else
         {
-          if (_eventAppearedAsync != null)
-          {
-            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials).ConfigureAwait(false);
-          }
-          else
-          {
-            esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppeared,
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials).ConfigureAwait(false);
-          }
+          esSubscription = await Bus.PersistentSubscribeAsync<TEvent>(Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _resolvedEventAppeared,
+                  async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                  Subscription.Credentials).ConfigureAwait(false);
         }
       }
       catch (Exception exc)

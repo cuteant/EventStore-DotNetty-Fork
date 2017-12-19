@@ -85,7 +85,7 @@ namespace Es.Consumer
   public class AutoSubscriberPersistentConsume : IAutoSubscriberPersistentConsume
   {
     [Stream("test-animal")]
-    public void Consume(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent)
+    public void Consume(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent, int? retryCount)
     {
       var msg = resolvedEvent.OriginalEvent.FullEvent.Value;
       if (msg is Cat cat)
@@ -101,7 +101,7 @@ namespace Es.Consumer
   public class AutoSubscriberPersistentConsumeAsync : IAutoSubscriberPersistentConsumeAsync
   {
     [Stream("test-animal")]
-    public Task ConsumeAsync(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent)
+    public Task ConsumeAsync(EventStorePersistentSubscription subscription, ResolvedEvent<object> resolvedEvent, int? retryCount)
     {
       var msg = resolvedEvent.OriginalEvent.FullEvent.Value;
       if (msg is Cat cat)
@@ -216,7 +216,7 @@ namespace Es.Consumer
   }
   public class AutoSubscriberPersistentConsume2 : IAutoSubscriberPersistentConsume<IAnimal>
   {
-    public void Consume(EventStorePersistentSubscription<IAnimal> subscription, ResolvedEvent<IAnimal> resolvedEvent)
+    public void Consume(EventStorePersistentSubscription<IAnimal> subscription, ResolvedEvent<IAnimal> resolvedEvent, int? retryCount)
     {
       var msg = resolvedEvent.OriginalEvent.FullEvent.Value;
       if (msg is Cat cat)
@@ -231,7 +231,7 @@ namespace Es.Consumer
   }
   public class AutoSubscriberPersistentConsumeAsync2 : IAutoSubscriberPersistentConsumeAsync<IAnimal>
   {
-    public Task ConsumeAsync(EventStorePersistentSubscription<IAnimal> subscription, ResolvedEvent<IAnimal> resolvedEvent)
+    public Task ConsumeAsync(EventStorePersistentSubscription<IAnimal> subscription, ResolvedEvent<IAnimal> resolvedEvent, int? retryCount)
     {
       var msg = resolvedEvent.OriginalEvent.FullEvent.Value;
       if (msg is Cat cat)

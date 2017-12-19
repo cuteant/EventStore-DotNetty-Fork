@@ -12,8 +12,8 @@ namespace EventStore.ClientAPI.Consumers
   {
     private static readonly ILogger s_logger = TraceLogger.GetLogger<VolatileConsumer>();
 
-    private Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> _eventAppearedAsync;
-    private Action<EventStorePersistentSubscription, ResolvedEvent<object>> _eventAppeared;
+    private Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> _eventAppearedAsync;
+    private Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> _eventAppeared;
 
     private EventStorePersistentSubscription esSubscription;
     private EventStorePersistentSubscription2 esSubscription2;
@@ -35,13 +35,13 @@ namespace EventStore.ClientAPI.Consumers
       base.Initialize(bus, subscription);
     }
 
-    public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync)
+    public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync)
     {
       Initialize(bus, subscription);
       _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
     }
 
-    public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared)
+    public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared)
     {
       Initialize(bus, subscription);
       _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));

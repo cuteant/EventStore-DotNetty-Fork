@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CuteAnt;
+using CuteAnt.Collections;
 using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Exceptions;
@@ -22,11 +22,11 @@ namespace EventStore.ClientAPI.Serialization
 
     private static ILogger s_logger = TraceLogger.GetLogger(typeof(SerializationManager));
     private static IList<IExternalSerializer> _externalSerializers;
-    private static readonly ConcurrentDictionary<Type, IExternalSerializer> _typeToExternalSerializerDictionary;
+    private static readonly CachedReadConcurrentDictionary<Type, IExternalSerializer> _typeToExternalSerializerDictionary;
 
-    private static readonly ConcurrentDictionary<Type, StreamAttribute> _typeToStreamProviderDictionary;
+    private static readonly CachedReadConcurrentDictionary<Type, StreamAttribute> _typeToStreamProviderDictionary;
 
-    private static readonly ConcurrentDictionary<Type, SerializationTokenAttribute> _typeToSerializationTokenDictionary;
+    private static readonly CachedReadConcurrentDictionary<Type, SerializationTokenAttribute> _typeToSerializationTokenDictionary;
 
     private static readonly JsonSerializerSettings _metadataSettings;
     private static readonly IJsonMessageFormatter _jsonFormatter;
@@ -50,9 +50,9 @@ namespace EventStore.ClientAPI.Serialization
     static SerializationManager()
     {
       _externalSerializers = new List<IExternalSerializer>();
-      _typeToExternalSerializerDictionary = new ConcurrentDictionary<Type, IExternalSerializer>();
-      _typeToStreamProviderDictionary = new ConcurrentDictionary<Type, StreamAttribute>();
-      _typeToSerializationTokenDictionary = new ConcurrentDictionary<Type, SerializationTokenAttribute>();
+      _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IExternalSerializer>();
+      _typeToStreamProviderDictionary = new CachedReadConcurrentDictionary<Type, StreamAttribute>();
+      _typeToSerializationTokenDictionary = new CachedReadConcurrentDictionary<Type, SerializationTokenAttribute>();
 
       _metadataSettings = JsonConvertX.CreateSerializerSettings(Formatting.Indented);
       _metadataSettings.Converters.Add(JsonConvertX.DefaultStringEnumCamelCaseConverter);

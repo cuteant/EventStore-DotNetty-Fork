@@ -12,7 +12,6 @@ using CuteAnt.Pool;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Consumers;
 using EventStore.ClientAPI.Subscriptions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.AutoSubscribing
@@ -32,8 +31,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
     private List<IStreamConsumer> _streamConsumers = new List<IStreamConsumer>();
     //private readonly ConcurrentHashSet<Type> _registeredConsumerTypes = new ConcurrentHashSet<Type>();
 
-    private readonly DictionaryCache<Type, object> _concreteConsumers = new DictionaryCache<Type, object>(DictionaryCacheConstants.SIZE_SMALL);
-    private readonly DictionaryCache<Type, IStreamConsumerGenerator> _streamConsumerGenerators = new DictionaryCache<Type, IStreamConsumerGenerator>(DictionaryCacheConstants.SIZE_SMALL);
+    private readonly CachedReadConcurrentDictionary<Type, object> _concreteConsumers = new CachedReadConcurrentDictionary<Type, object>(DictionaryCacheConstants.SIZE_SMALL);
+    private readonly CachedReadConcurrentDictionary<Type, IStreamConsumerGenerator> _streamConsumerGenerators = new CachedReadConcurrentDictionary<Type, IStreamConsumerGenerator>(DictionaryCacheConstants.SIZE_SMALL);
 
     private const int ON = 1;
     private const int OFF = 0;
@@ -360,7 +359,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       {
         var catchUpConsumer = new PersistentConsumer();
         catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-            consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStorePersistentSubscription, ResolvedEvent<object>>);
+            consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?>), concreteConsumer) as Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?>);
         return catchUpConsumer;
       }
 
@@ -372,7 +371,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       {
         var catchUpConsumer = new PersistentConsumer();
         catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-            consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task>);
+            consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task>), concreteConsumer) as Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task>);
         return catchUpConsumer;
       }
 
@@ -454,7 +453,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     protected IStreamConsumerGenerator GetStreamConsumerGenerator(Type eventType)
     {
-      return _streamConsumerGenerators.GetItem(eventType, type =>
+      return _streamConsumerGenerators.GetOrAdd(eventType, type =>
       {
         var generator = ActivatorUtils.FastCreateInstance<IStreamConsumerGenerator>(typeof(StreamConsumerGenerator<>).GetCachedGenericType(type));
         generator.Connection = this.Bus;
@@ -575,7 +574,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     protected object GetConcreteConsumer(Type concreteType)
     {
-      return _concreteConsumers.GetItem(concreteType, type => CreateInstance(type));
+      return _concreteConsumers.GetOrAdd(concreteType, type => CreateInstance(type));
     }
 
     #endregion
@@ -705,7 +704,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[]
         {
           typeof(EventStorePersistentSubscription),
-          typeof(ResolvedEvent<object>)
+          typeof(ResolvedEvent<object>),
+          typeof(int?)
         });
       }
       else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsumeAsync<>))
@@ -713,7 +713,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[]
         {
           typeof(EventStorePersistentSubscription<>).GetCachedGenericType(consumerInfo.MessageType),
-          typeof(ResolvedEvent<>).GetCachedGenericType(consumerInfo.MessageType)
+          typeof(ResolvedEvent<>).GetCachedGenericType(consumerInfo.MessageType),
+          typeof(int?)
         });
       }
       else if (interfaceType == typeof(IAutoSubscriberVolatileConsume) || interfaceType == typeof(IAutoSubscriberVolatileConsumeAsync))
@@ -825,7 +826,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           default:
             var persistentConsumer = new PersistentConsumer<T>();
             persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>>), concreteConsumer) as Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>>);
+                consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?>), concreteConsumer) as Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?>);
             return persistentConsumer;
         }
       }
@@ -852,7 +853,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           default:
             var persistentConsumer = new PersistentConsumer<T>();
             persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, Task>), concreteConsumer) as Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, Task>);
+                consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?, Task>), concreteConsumer) as Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?, Task>);
             return persistentConsumer;
         }
       }

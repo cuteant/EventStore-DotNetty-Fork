@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Internal;
+using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 
@@ -12,25 +13,21 @@ namespace EventStore.ClientAPI.ClientOperations
 {
   #region == class PersistentSubscriptionOperation ==
 
-  internal sealed class PersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent<object>>
+  internal sealed class PersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent<object>>
   {
     public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
       string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<PersistentEventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent<object>, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
       : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
     }
 
-    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override PersistentSubscriptionResolvedEvent<object> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
-      return rawEvent.ToResolvedEvent();
-    }
-
-    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent();
+      return new PersistentSubscriptionResolvedEvent<object>(rawEvent.ToResolvedEvent(), retryCount);
     }
   }
 
@@ -38,25 +35,21 @@ namespace EventStore.ClientAPI.ClientOperations
 
   #region == class PersistentSubscriptionOperation ==
 
-  internal sealed class PersistentSubscriptionOperation2 : ConnectToPersistentSubscriptionOperationBase<IResolvedEvent2>
+  internal sealed class PersistentSubscriptionOperation2 : ConnectToPersistentSubscriptionOperationBase<IPersistentSubscriptionResolvedEvent2>
   {
     public PersistentSubscriptionOperation2(TaskCompletionSource<PersistentEventStoreSubscription> source,
       string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<PersistentEventStoreSubscription, IResolvedEvent2, Task> eventAppearedAsync,
+      Func<PersistentEventStoreSubscription, IPersistentSubscriptionResolvedEvent2, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
       : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
     }
 
-    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override IPersistentSubscriptionResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
-      return rawEvent.ToResolvedEvent2();
-    }
-
-    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent2();
+      return rawEvent.ToPersistentSubscriptionResolvedEvent2(retryCount);
     }
   }
 
@@ -82,26 +75,21 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
 
-  internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent<TEvent>>
+  internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent<TEvent>>
     where TEvent : class
   {
     public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
       string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<PersistentEventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent<TEvent>, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
       : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
     }
 
-    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    protected override PersistentSubscriptionResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
-      return rawEvent.ToResolvedEvent<TEvent>();
-    }
-
-    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent<TEvent>();
+      return new PersistentSubscriptionResolvedEvent<TEvent>(rawEvent.ToResolvedEvent<TEvent>(), retryCount);
     }
   }
 
@@ -109,25 +97,21 @@ namespace EventStore.ClientAPI.ClientOperations
 
   #region == class ConnectToPersistentSubscriptionOperation ==
 
-  internal sealed class ConnectToPersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<ResolvedEvent>
+  internal sealed class ConnectToPersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent>
   {
     public ConnectToPersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
       string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-      Func<PersistentEventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
+      Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent, Task> eventAppearedAsync,
       Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
       Func<TcpPackageConnection> getConnection)
       : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
     {
     }
 
-    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override PersistentSubscriptionResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
-      return rawEvent.ToRawResolvedEvent();
-    }
-
-    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
-    {
-      return rawEvent.ToRawResolvedEvent();
+      return new PersistentSubscriptionResolvedEvent(rawEvent.ToRawResolvedEvent(), retryCount);
     }
   }
 
@@ -136,7 +120,7 @@ namespace EventStore.ClientAPI.ClientOperations
   #region == class ConnectToPersistentSubscriptionOperationBase<TResolvedEvent> ==
 
   internal abstract class ConnectToPersistentSubscriptionOperationBase<TResolvedEvent> : SubscriptionOperation<PersistentEventStoreSubscription, TResolvedEvent>, IConnectToPersistentSubscriptions
-    where TResolvedEvent : IResolvedEvent
+    where TResolvedEvent : IPersistentSubscriptionResolvedEvent
   {
     private readonly string _groupName;
     private readonly int _bufferSize;
@@ -166,6 +150,9 @@ namespace EventStore.ClientAPI.ClientOperations
       _bufferSize = settings.BufferSize;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount);
+
     protected override TcpPackage CreateSubscriptionPackage()
     {
       var dto = new ClientMessage.ConnectToPersistentSubscription(_groupName, _streamId, _bufferSize);
@@ -177,22 +164,20 @@ namespace EventStore.ClientAPI.ClientOperations
                             dto.Serialize());
     }
 
-    protected override bool InspectPackage(TcpPackage package, out InspectionResult result)
+    protected override async Task<InspectionResult> TryInspectPackageAsync(TcpPackage package)
     {
       if (package.Command == TcpCommand.PersistentSubscriptionConfirmation)
       {
         var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionConfirmation>();
         ConfirmSubscription(dto.LastCommitPosition, dto.LastEventNumber);
-        result = new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
         _subscriptionId = dto.SubscriptionId;
-        return true;
+        return new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
       }
       if (package.Command == TcpCommand.PersistentSubscriptionStreamEventAppeared)
       {
         var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionStreamEventAppeared>();
-        EventAppeared(TransformEvent(dto.Event));
-        result = new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
-        return true;
+        await EventAppearedAsync(TransformEvent(dto.Event, dto.RetryCount)).ConfigureAwait(false);
+        return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
       }
       if (package.Command == TcpCommand.SubscriptionDropped)
       {
@@ -200,33 +185,27 @@ namespace EventStore.ClientAPI.ClientOperations
         if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.AccessDenied)
         {
           DropSubscription(SubscriptionDropReason.AccessDenied, new AccessDeniedException("You do not have access to the stream."));
-          result = new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
-          return true;
+          return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
         if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.NotFound)
         {
           DropSubscription(SubscriptionDropReason.NotFound, new ArgumentException("Subscription not found"));
-          result = new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
-          return true;
+          return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
         if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.PersistentSubscriptionDeleted)
         {
           DropSubscription(SubscriptionDropReason.PersistentSubscriptionDeleted, new PersistentSubscriptionDeletedException());
-          result = new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
-          return true;
+          return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
         if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.SubscriberMaxCountReached)
         {
           DropSubscription(SubscriptionDropReason.MaxSubscribersReached, new MaximumSubscribersReachedException());
-          result = new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
-          return true;
+          return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
         DropSubscription((SubscriptionDropReason)dto.Reason, null, _getConnection());
-        result = new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
-        return true;
+        return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
       }
-      result = null;
-      return false;
+      return null;
     }
 
     protected override PersistentEventStoreSubscription CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber)

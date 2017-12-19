@@ -737,7 +737,7 @@ namespace EventStore.ClientAPI.Internal
 
     public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscription, ResolvedEvent<object>> eventAppeared,
+      Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -753,7 +753,7 @@ namespace EventStore.ClientAPI.Internal
     }
     public Task<EventStorePersistentSubscription> PersistentSubscribeAsync(string stream, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -779,7 +779,7 @@ namespace EventStore.ClientAPI.Internal
 
       var handlerCollection = new DefaultHandlerCollection();
       addHandlers(handlerCollection);
-      Task LocalEventAppearedAsync(EventStorePersistentSubscription2 sub, IResolvedEvent2 @event)
+      Task LocalEventAppearedAsync(EventStorePersistentSubscription2 sub, IResolvedEvent2 @event, int? retryCount)
       {
         var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
         return handler(@event);
@@ -796,7 +796,7 @@ namespace EventStore.ClientAPI.Internal
 
     public Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(string topic, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared,
+      Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -812,7 +812,7 @@ namespace EventStore.ClientAPI.Internal
     }
     public Task<EventStorePersistentSubscription<TEvent>> PersistentSubscribeAsync<TEvent>(string topic, string subscriptionId,
       ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
@@ -833,7 +833,7 @@ namespace EventStore.ClientAPI.Internal
 
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
       ConnectToPersistentSubscriptionSettings settings,
-      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent, int?> eventAppeared,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
@@ -849,7 +849,7 @@ namespace EventStore.ClientAPI.Internal
     }
     public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName,
       ConnectToPersistentSubscriptionSettings settings,
-      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {

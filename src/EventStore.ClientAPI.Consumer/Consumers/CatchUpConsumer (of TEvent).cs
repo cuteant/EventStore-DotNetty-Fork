@@ -11,13 +11,10 @@ namespace EventStore.ClientAPI.Consumers
   public class CatchUpConsumer<TEvent> : StreamConsumer<CatchUpSubscription<TEvent>, CatchUpSubscriptionSettings, TEvent>
     where TEvent : class
   {
-    private static readonly ILogger s_logger = TraceLogger.GetLogger<VolatileConsumer>();
+    private static readonly ILogger s_logger = TraceLogger.GetLogger<CatchUpConsumer>();
 
-    private bool processingResolvedEvent;
     private Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> _resolvedEventAppearedAsync;
     private Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> _resolvedEventAppeared;
-    private Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> _eventAppearedAsync;
-    private Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> _eventAppeared;
 
     private EventStoreCatchUpSubscription<TEvent> esSubscription;
 
@@ -33,7 +30,6 @@ namespace EventStore.ClientAPI.Consumers
     {
       Initialize(bus, subscription);
       _resolvedEventAppearedAsync = resolvedEventAppearedAsync ?? throw new ArgumentNullException(nameof(resolvedEventAppearedAsync));
-      processingResolvedEvent = true;
     }
 
     public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription,
@@ -41,23 +37,20 @@ namespace EventStore.ClientAPI.Consumers
     {
       Initialize(bus, subscription);
       _resolvedEventAppeared = resolvedEventAppeared ?? throw new ArgumentNullException(nameof(resolvedEventAppeared));
-      processingResolvedEvent = true;
     }
 
     public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
     {
       if (null == eventAppearedAsync) { throw new ArgumentNullException(nameof(eventAppearedAsync)); }
       Initialize(bus, subscription);
-      _eventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
-      processingResolvedEvent = false;
+      _resolvedEventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
     }
 
     public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
     {
       if (null == eventAppeared) { throw new ArgumentNullException(nameof(eventAppeared)); }
       Initialize(bus, subscription);
-      _eventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
-      processingResolvedEvent = false;
+      _resolvedEventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
     }
 
     public override Task ConnectToSubscriptionAsync() => ConnectToSubscriptionAsync(null);
@@ -77,39 +70,19 @@ namespace EventStore.ClientAPI.Consumers
 
       try
       {
-        if (processingResolvedEvent)
+        if (_resolvedEventAppearedAsync != null)
         {
-          if (_resolvedEventAppearedAsync != null)
-          {
-            esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppearedAsync,
-                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials);
-          }
-          else
-          {
-            esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppeared,
-                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials);
-          }
+          esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppearedAsync,
+                  _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                  async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                  Subscription.Credentials);
         }
         else
         {
-          if (_eventAppearedAsync != null)
-          {
-            esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
-                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials);
-          }
-          else
-          {
-            esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppeared,
-                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
-                    async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
-                    Subscription.Credentials);
-          }
+          esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppeared,
+                  _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                  async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                  Subscription.Credentials);
         }
       }
       catch (Exception exc)

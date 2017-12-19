@@ -49,6 +49,7 @@ namespace EventStore.ClientAPI
     public IEventDescriptor OriginalEventDescriptor => OriginalEvent.FullEvent.Descriptor;
 
     public IRecordedEvent GetOriginalEvent() => OriginalEvent;
+
     public object GetBody() => OriginalEvent.FullEvent.Value;
 
     #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Internal;
@@ -29,11 +30,8 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent();
-    }
-    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent();
     }
@@ -62,11 +60,8 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent2();
-    }
-    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent2();
     }
@@ -116,11 +111,8 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
-    {
-      return rawEvent.ToResolvedEvent<TEvent>();
-    }
-    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent<TEvent>();
     }
@@ -149,11 +141,8 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent)
-    {
-      return rawEvent.ToRawResolvedEvent();
-    }
-    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent)
     {
       return rawEvent.ToRawResolvedEvent();
     }
@@ -186,6 +175,9 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent);
+
     protected override TcpPackage CreateSubscriptionPackage()
     {
       var dto = new ClientMessage.SubscribeToStream(_streamId, _resolveLinkTos);
@@ -194,24 +186,21 @@ namespace EventStore.ClientAPI.ClientOperations
           _correlationId, _userCredentials?.Username, _userCredentials?.Password, dto.Serialize());
     }
 
-    protected override bool InspectPackage(TcpPackage package, out InspectionResult result)
+    protected override async Task<InspectionResult> TryInspectPackageAsync(TcpPackage package)
     {
       if (package.Command == TcpCommand.SubscriptionConfirmation)
       {
         var dto = package.Data.Deserialize<ClientMessage.SubscriptionConfirmation>();
         ConfirmSubscription(dto.LastCommitPosition, dto.LastEventNumber);
-        result = new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
-        return true;
+        return new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
       }
       if (package.Command == TcpCommand.StreamEventAppeared)
       {
         var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
-        EventAppeared(TransformEvent(dto.Event));
-        result = new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
-        return true;
+        await EventAppearedAsync(TransformEvent(dto.Event)).ConfigureAwait(false);
+        return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
       }
-      result = null;
-      return false;
+      return null;
     }
 
     protected override EventStoreSubscription CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber)

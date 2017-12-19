@@ -94,7 +94,7 @@ namespace Es.Consumer
         //{
         //  Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
         //});
-        conn.PersistentSubscribeAsync<IAnimal>(GROUP, settings, async (_, x) =>
+        conn.PersistentSubscribeAsync<IAnimal>(GROUP, settings, async (_, x, c) =>
         {
           var msg = x.OriginalEvent.FullEvent.Value;
           if (msg is Cat cat)
