@@ -31,7 +31,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public void Handle(ClientMessage.StreamEventAppeared message)
         {
-            StreamEventAppeared(message.CorrelationId, message.Event);
+            StreamEventAppeared(message.CorrelationId, message.Event, null);
         }
 
         public void Handle(ClientMessage.SubscriptionConfirmation message)
@@ -52,13 +52,13 @@ namespace EventStore.ClientAPI.Embedded
 
         public void Handle(ClientMessage.PersistentSubscriptionStreamEventAppeared message)
         {
-            StreamEventAppeared(message.CorrelationId, message.Event);
+            StreamEventAppeared(message.CorrelationId, message.Event, message.RetryCount);
         }
 
-        private void StreamEventAppeared(Guid correlationId, EventStore.Core.Data.ResolvedEvent resolvedEvent)
+        private void StreamEventAppeared(Guid correlationId, EventStore.Core.Data.ResolvedEvent resolvedEvent, int? retryCount)
         {
             _subscriptions.TryGetActiveSubscription(correlationId, out IEmbeddedSubscription subscription);
-            subscription.EventAppeared(resolvedEvent);
+            subscription.EventAppeared((resolvedEvent, retryCount));
         }
 
         private void ConfirmSubscription(Guid correlationId, long lastCommitPosition, long? lastEventNumber)

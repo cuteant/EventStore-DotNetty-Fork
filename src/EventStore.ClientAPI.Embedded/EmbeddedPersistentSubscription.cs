@@ -14,34 +14,38 @@ namespace EventStore.ClientAPI.Embedded
         private readonly UserCredentials _userCredentials;
         private readonly IAuthenticationProvider _authenticationProvider;
         private readonly int _bufferSize;
-        private readonly Func<EventStoreSubscription, PersistentSubscriptionResolvedEvent, Task> _eventAppeared;
         private string _subscriptionId;
 
+        private readonly Action<EventStoreSubscription, PersistentSubscriptionResolvedEvent> _eventAppeared;
+        private readonly Func<EventStoreSubscription, PersistentSubscriptionResolvedEvent, Task> _eventAppearedAsync;
+
         public EmbeddedPersistentSubscription(IPublisher publisher, Guid connectionId,
-          TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
-          UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
-          Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
-          Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
-          TimeSpan operationTimeout)
-          : base(publisher, connectionId, source, streamId, eventAppeared, subscriptionDropped)
+            TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
+            UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
+            Action<EventStoreSubscription, PersistentSubscriptionResolvedEvent> eventAppeared,
+            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
+            TimeSpan operationTimeout)
+            : base(publisher, connectionId, source, streamId, subscriptionDropped, false)
         {
             _subscriptionId = subscriptionId;
             _userCredentials = userCredentials;
             _authenticationProvider = authenticationProvider;
             _bufferSize = bufferSize;
+            _eventAppeared = eventAppeared;
         }
         public EmbeddedPersistentSubscription(IPublisher publisher, Guid connectionId,
-          TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
-          UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
-          Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
-          Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
-          TimeSpan operationTimeout)
-          : base(publisher, connectionId, source, streamId, eventAppearedAsync, subscriptionDropped)
+            TaskCompletionSource<PersistentEventStoreSubscription> source, string subscriptionId, string streamId,
+            UserCredentials userCredentials, IAuthenticationProvider authenticationProvider, int bufferSize,
+            Func<EventStoreSubscription, PersistentSubscriptionResolvedEvent, Task> eventAppearedAsync,
+            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, int maxRetries,
+            TimeSpan operationTimeout)
+            : base(publisher, connectionId, source, streamId, subscriptionDropped, true)
         {
             _subscriptionId = subscriptionId;
             _userCredentials = userCredentials;
             _authenticationProvider = authenticationProvider;
             _bufferSize = bufferSize;
+            _eventAppearedAsync = eventAppearedAsync;
         }
 
         protected override PersistentEventStoreSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber)
@@ -89,5 +93,9 @@ namespace EventStore.ClientAPI.Embedded
                     (ClientMessage.PersistentSubscriptionNackEvents.NakAction)action, processedEvents,
                     user));
         }
+
+        protected override void OnEventAppeared(ResolvedEvent resolvedEvent, int? retryCount) => _eventAppeared(Subscription, new PersistentSubscriptionResolvedEvent(resolvedEvent, retryCount));
+
+        protected override Task OnEventAppearedAsync(ResolvedEvent resolvedEvent, int? retryCount) => _eventAppearedAsync(Subscription, new PersistentSubscriptionResolvedEvent(resolvedEvent, retryCount));
     }
 }

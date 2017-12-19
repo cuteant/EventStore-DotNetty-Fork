@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Exceptions;
+using EventStore.ClientAPI.Messages;
 using EventStore.Core.Bus;
-using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.UserManagement;
 using Microsoft.Extensions.Logging;
@@ -20,40 +19,16 @@ namespace EventStore.ClientAPI.Embedded
         private readonly ILogger _log;
         protected readonly Guid ConnectionId;
         private readonly TaskCompletionSource<TSubscription> _source;
-        private readonly Action<EventStoreSubscription, ResolvedEvent> _eventAppeared;
-        private readonly Func<EventStoreSubscription, ResolvedEvent, Task> _eventAppearedAsync;
         private readonly Action<EventStoreSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
-        private readonly ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _actionQueue;
+        private readonly ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc)> _actionQueue;
         private int _unsubscribed;
-        private TSubscription _subscription;
+        protected TSubscription Subscription;
         protected IPublisher Publisher;
         protected string StreamId;
         protected Guid CorrelationId;
 
         protected EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
-            string streamId, Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
-            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
-            : this(publisher, connectionId, source, streamId, subscriptionDropped)
-        {
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
-
-            _eventAppeared = eventAppeared;
-            _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
-                e => ProcessItem(e));
-        }
-        protected EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
-            string streamId, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
-            Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
-            : this(publisher, connectionId, source, streamId, subscriptionDropped)
-        {
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
-
-            _eventAppearedAsync = eventAppearedAsync;
-            _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
-                e => ProcessItemAsync(e));
-        }
-        private EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
-            string streamId, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped)
+            string streamId, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool asynchronous)
         {
             Ensure.NotNull(source, nameof(source));
             Ensure.NotNull(streamId, nameof(streamId));
@@ -65,6 +40,16 @@ namespace EventStore.ClientAPI.Embedded
             _log = TraceLogger.GetLogger(this.GetType());
             _source = source;
             _subscriptionDropped = subscriptionDropped ?? ((a, b, c) => { });
+            if (asynchronous)
+            {
+                _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc)>(
+                    e => ProcessItemAsync(e));
+            }
+            else
+            {
+                _actionQueue = new ActionBlock<(bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc)>(
+                    e => ProcessItem(e));
+            }
         }
 
         public void DropSubscription(EventStore.Core.Services.SubscriptionDropReason reason, Exception ex)
@@ -86,23 +71,24 @@ namespace EventStore.ClientAPI.Embedded
             }
         }
 
-        public async Task EventAppeared(EventStore.Core.Data.ResolvedEvent resolvedEvent)
+        public async Task EventAppeared((EventStore.Core.Data.ResolvedEvent resolvedEvent, int? retryCount) resolvedEventWrapper)
         {
+            var resolvedEvent = resolvedEventWrapper.resolvedEvent;
             var e = resolvedEvent.OriginalPosition == null
                 ? resolvedEvent.ConvertToClientResolvedIndexEvent().ToRawResolvedEvent()
                 : resolvedEvent.ConvertToClientResolvedEvent().ToRawResolvedEvent();
-            await EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
+            await EnqueueMessage((true, e, resolvedEventWrapper.retryCount, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
         }
 
         public void ConfirmSubscription(long lastCommitPosition, long? lastEventNumber)
         {
             if (lastCommitPosition < -1)
                 throw new ArgumentOutOfRangeException("lastCommitPosition", string.Format("Invalid lastCommitPosition {0} on subscription confirmation.", lastCommitPosition));
-            if (_subscription != null)
+            if (Subscription != null)
                 throw new Exception("Double confirmation of subscription.");
 
-            _subscription = CreateVolatileSubscription(lastCommitPosition, lastEventNumber);
-            _source.SetResult(_subscription);
+            Subscription = CreateVolatileSubscription(lastCommitPosition, lastEventNumber);
+            _source.SetResult(Subscription);
         }
 
         protected abstract TSubscription CreateVolatileSubscription(long lastCommitPosition, long? lastEventNumber);
@@ -123,35 +109,35 @@ namespace EventStore.ClientAPI.Embedded
                     _source.TrySetException(exception);
                 }
 
-                if (reason == SubscriptionDropReason.UserInitiated && _subscription != null)
+                if (reason == SubscriptionDropReason.UserInitiated && Subscription != null)
                 {
                     Publisher.Publish(new CoreClientMessage.UnsubscribeFromStream(Guid.NewGuid(), CorrelationId, new NoopEnvelope(), SystemAccount.Principal));
                 }
 
-                if (_subscription != null)
+                if (Subscription != null)
                 {
-                    EnqueueMessage((false, ResolvedEvent.Null, reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    EnqueueMessage((false, ResolvedEvent.Null, default(int?), reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
                 }
             }
         }
 
 
-        private async Task EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private async Task EnqueueMessage((bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc) item)
         {
             await _actionQueue.SendAsync(item).ConfigureAwait(false);
         }
 
-        private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private void ProcessItem((bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc) item)
         {
             try
             {
                 if (item.isResolvedEvent)
                 {
-                    _eventAppeared(_subscription, item.resolvedEvent);
+                    OnEventAppeared(item.resolvedEvent, item.retryCount);
                 }
                 else
                 {
-                    _subscriptionDropped(_subscription, item.dropReason, item.exc);
+                    _subscriptionDropped(Subscription, item.dropReason, item.exc);
                 }
             }
             catch (Exception exc)
@@ -159,18 +145,19 @@ namespace EventStore.ClientAPI.Embedded
                 _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
             }
         }
+        protected abstract void OnEventAppeared(ResolvedEvent resolvedEvent, int? retryCount);
 
-        private async Task ProcessItemAsync((bool isResolvedEvent, ResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private async Task ProcessItemAsync((bool isResolvedEvent, ResolvedEvent resolvedEvent, int? retryCount, SubscriptionDropReason dropReason, Exception exc) item)
         {
             try
             {
                 if (item.isResolvedEvent)
                 {
-                    await _eventAppearedAsync(_subscription, item.resolvedEvent).ConfigureAwait(false);
+                    await OnEventAppearedAsync(item.resolvedEvent, item.retryCount).ConfigureAwait(false);
                 }
                 else
                 {
-                    _subscriptionDropped(_subscription, item.dropReason, item.exc);
+                    _subscriptionDropped(Subscription, item.dropReason, item.exc);
                 }
             }
             catch (Exception exc)
@@ -178,6 +165,7 @@ namespace EventStore.ClientAPI.Embedded
                 _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
             }
         }
+        protected abstract Task OnEventAppearedAsync(ResolvedEvent resolvedEvent, int? retryCount);
 
         public abstract void Start(Guid correlationId);
     }
