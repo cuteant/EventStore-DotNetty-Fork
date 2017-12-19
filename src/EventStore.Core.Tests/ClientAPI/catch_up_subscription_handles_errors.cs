@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.ClientOperations;
-using EventStore.ClientAPI.Common.Log;
+using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
@@ -46,7 +46,7 @@ namespace EventStore.Core.Tests.ClientAPI
             _dropException = null;
 
             var settings = new CatchUpSubscriptionSettings(1, 1, false, false, String.Empty);
-            _subscription = new EventStoreStreamCatchUpSubscription(_connection, new NoopLogger(), StreamId, null, null,
+            _subscription = new EventStoreStreamCatchUpSubscription(_connection, StreamId, null, null,
                 (subscription, ev) =>
                 {
                     _raisedEvents.Add(ev);
@@ -387,11 +387,11 @@ namespace EventStore.Core.Tests.ClientAPI
 
             _connection.HandleSubscribeToStreamAsync((stream, raise, drop) =>
             {
-                var taskCompletionSource = new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
-                VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
-                taskCompletionSource.SetResult(volatileEventStoreSubscription);
+            var taskCompletionSource = new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+            VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
+            taskCompletionSource.SetResult(volatileEventStoreSubscription);
 
-                raise(volatileEventStoreSubscription2, new ResolvedEvent(event1));
+            raise(volatileEventStoreSubscription2, event1.ToRawResolvedEvent());// new ResolvedEvent(event1));
 
                 return taskCompletionSource.Task;
             });
@@ -417,7 +417,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
         private static VolatileEventStoreSubscription CreateVolatileSubscription(Func<EventStoreSubscription, ResolvedEvent, Task> raise, Action<EventStoreSubscription, SubscriptionDropReason, Exception> drop, int? lastEventNumber)
         {
-            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(new NoopLogger(), new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously), StreamId, false, null, raise, drop, false, () => null), StreamId, -1, lastEventNumber);
+            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously), StreamId, SubscriptionSettings.Default, null, raise, drop, () => null), StreamId, -1, lastEventNumber);
         }
 
         private static StreamEventsSlice CreateStreamEventsSlice(int fromEvent = 0, int count = 1, bool isEnd = false)
@@ -430,7 +430,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                 null, null, null), null))
                 .ToArray();
 
-            return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events, fromEvent + count, 100, isEnd);
+            return new StreamEventsSlice(SliceReadStatus.Success, StreamId, fromEvent, ReadDirection.Forward, events.ToRawResolvedEvents(), fromEvent + count, 100, isEnd);
         }
     }
 
@@ -699,6 +699,56 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             var handler = Connected;
             if (handler != null) handler(this, e);
+        }
+
+        public Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings, Action<EventStoreSubscription, ResolvedEvent> eventAppeared, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EventStoreSubscription> SubscribeToStreamAsync(string stream, SubscriptionSettings settings, Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings, Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings, Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName, ConnectToPersistentSubscriptionSettings settings, Action<EventStorePersistentSubscriptionBase, ResolvedEvent, int?> eventAppeared, Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(string stream, string groupName, ConnectToPersistentSubscriptionSettings settings, Func<EventStorePersistentSubscriptionBase, ResolvedEvent, int?, Task> eventAppearedAsync, Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

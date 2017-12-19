@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Tests.Helpers;
 using NUnit.Framework;

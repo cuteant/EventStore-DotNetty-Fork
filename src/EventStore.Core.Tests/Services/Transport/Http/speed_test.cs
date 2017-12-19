@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DESKTOPCLR
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,6 +14,11 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Client;
 using EventStore.Transport.Http.Codecs;
 using NUnit.Framework;
+#if DESKTOPCLR
+using UriTemplateAlias = System.UriTemplate;
+#else
+using UriTemplateAlias = UriTemplate.Core.UriTemplate;
+#endif
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
@@ -114,7 +120,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                 });
             }
 
-            var uriTemplate = new UriTemplate(route);
+            var uriTemplate = new UriTemplateAlias(route);
             var bound = uriTemplate.BindByPosition(new Uri("http://localhost:12345/"),
                                                    Enumerable.Range(0,
                                                                     uriTemplate.PathSegmentVariableNames.Count +
@@ -207,3 +213,4 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         }
     }
 }
+#endif

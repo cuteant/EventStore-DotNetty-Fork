@@ -394,6 +394,59 @@ namespace EventStore.ClientAPI
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="groupName">The subscription group to connect to</param>
     /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      return connection.ConnectToPersistentSubscription(stream, groupName, (s, e, r) => eventAppeared(s, e), subscriptionDropped, userCredentials, bufferSize, autoAck, verboseLogging);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      return connection.ConnectToPersistentSubscription(stream, groupName, (s, e, r) => eventAppearedAsync(s, e), subscriptionDropped, userCredentials, bufferSize, autoAck, verboseLogging);
+    }
+
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
     /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
     /// <param name="eventAppeared">An action invoked when an event appears</param>
     /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
@@ -444,6 +497,54 @@ namespace EventStore.ClientAPI
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.ConnectToPersistentSubscriptionAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
         connection, Tuple.Create(stream, groupName), subscriptionSettings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      return connection.ConnectToPersistentSubscription(stream, groupName, subscriptionSettings, (s, e, r) => eventAppeared(s, e), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
+    public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings subscriptionSettings,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      return connection.ConnectToPersistentSubscription(stream, groupName, subscriptionSettings, (s, e, r) => eventAppearedAsync(s, e), subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -504,6 +605,111 @@ namespace EventStore.ClientAPI
       if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
+    public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, (s, e, r) => eventAppeared(s, e), subscriptionDropped, userCredentials, bufferSize, autoAck, verboseLogging);
+    }
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
+    /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
+    public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
+    {
+      return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, (s, e, r) => eventAppearedAsync(s, e), subscriptionDropped, userCredentials, bufferSize, autoAck, verboseLogging);
+    }
+
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
+    public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings settings,
+      Action<EventStorePersistentSubscriptionBase, ResolvedEvent> eventAppeared,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, (s, e, r) => eventAppeared(s, e), subscriptionDropped, userCredentials);
+    }
+
+    /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
+    /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
+    /// <param name="groupName">The subscription group to connect to</param>
+    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
+    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
+    /// must first be created with CreatePersistentSubscriptionAsync many connections
+    /// can connect to the same group and they will be treated as competing consumers within the group.
+    /// If one connection dies work will be balanced across the rest of the consumers in the group. If
+    /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
+    /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
+    public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
+      string stream, string groupName,
+      ConnectToPersistentSubscriptionSettings settings,
+      Func<EventStorePersistentSubscriptionBase, ResolvedEvent, Task> eventAppearedAsync,
+      Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
+      UserCredentials userCredentials = null)
+    {
+      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+
+      return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, (s, e, r) => eventAppearedAsync(s, e), subscriptionDropped, userCredentials);
     }
 
     #endregion

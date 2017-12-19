@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DESKTOPCLR
+using System;
 using System.Threading;
 using EventStore.Core.TransactionLog.Checkpoint;
 using NUnit.Framework;
@@ -70,3 +71,4 @@ namespace EventStore.Core.Tests.TransactionLog
         }
     }
 }
+#endif

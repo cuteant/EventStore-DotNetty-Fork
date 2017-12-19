@@ -1,6 +1,6 @@
 ﻿using System;
 using EventStore.Core.Services.Monitoring.Stats;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.Services.Monitoring

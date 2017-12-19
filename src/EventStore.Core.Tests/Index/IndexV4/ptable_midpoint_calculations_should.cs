@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using EventStore.Common.Log;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Index;
 using NUnit.Framework;
 
@@ -9,7 +9,7 @@ namespace EventStore.Core.Tests.Index.IndexV4
     public class ptable_midpoint_calculations_should: SpecificationWithDirectory
     {
         protected byte _ptableVersion = PTableVersions.IndexV4;
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ptable_midpoint_calculations_should>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ptable_midpoint_calculations_should>();
 
         private void construct_same_midpoint_indexes_for_any_combination_of_params(int maxIndexEntries){
             for(var numIndexEntries = 0; numIndexEntries < maxIndexEntries;numIndexEntries++){
@@ -32,13 +32,13 @@ namespace EventStore.Core.Tests.Index.IndexV4
                     }
 
                     if(requiredMidpoints.Count!=calculatedMidpoints.Count){
-                        Log.Error("Midpoint count mismatch for numIndexEntries: {0}, depth:{1} - Expected {2}, Found {3}",numIndexEntries,depth,requiredMidpoints.Count,calculatedMidpoints.Count);
+                        Log.LogError("Midpoint count mismatch for numIndexEntries: {0}, depth:{1} - Expected {2}, Found {3}",numIndexEntries,depth,requiredMidpoints.Count,calculatedMidpoints.Count);
                     }
                     Assert.AreEqual(requiredMidpoints.Count,calculatedMidpoints.Count);
 
                     for(var i=0;i<requiredMidpoints.Count;i++){
                         if(requiredMidpoints[i]!=calculatedMidpoints[i]){
-                            Log.Error("Midpoint mismatch at index {0} for numIndexEntries: {1}, depth:{2} - Expected {3}, Found {4}",i,numIndexEntries,depth,requiredMidpoints[i],calculatedMidpoints[i]);
+                            Log.LogError("Midpoint mismatch at index {0} for numIndexEntries: {1}, depth:{2} - Expected {3}, Found {4}",i,numIndexEntries,depth,requiredMidpoints[i],calculatedMidpoints[i]);
                         }
                         Assert.AreEqual(requiredMidpoints[i],calculatedMidpoints[i]);
                     }

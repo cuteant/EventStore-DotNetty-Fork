@@ -1,5 +1,5 @@
 using System;
-using EventStore.Common.Log;
+using Microsoft.Extensions.Logging;
 using EventStore.Core.Index;
 using NUnit.Framework;
 
@@ -15,7 +15,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
     [TestFixture(PTableVersions.IndexV4,true)]
     public class ptable_midpoint_cache_should: SpecificationWithDirectory
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<ptable_midpoint_cache_should>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<ptable_midpoint_cache_should>();
         protected byte _ptableVersion = PTableVersions.IndexV1;
         private bool _skipIndexVerify;
 
@@ -33,7 +33,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
                     PTable ptable = null;
                     try
                     {
-                        Log.Trace("Creating PTable with count {0}, depth {1}", count, depth);
+                        Log.LogTrace("Creating PTable with count {0}, depth {1}", count, depth);
                         ptable = ConstructPTable(GetFilePathFor(string.Format("{0}-{1}-indexv{2}.ptable", count, depth,_ptableVersion)), count, rnd,depth);
                         ValidateCache(ptable.GetMidPoints(), count, depth);
                     }

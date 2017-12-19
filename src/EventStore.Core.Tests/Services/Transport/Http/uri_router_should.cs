@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DESKTOPCLR
+using System;
 using System.Linq;
 using EventStore.Common.Utils;
 using EventStore.Core.Services.Transport.Http;
@@ -267,3 +268,4 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         }
     }
 }
+#endif
