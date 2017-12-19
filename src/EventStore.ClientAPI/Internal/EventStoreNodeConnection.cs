@@ -220,7 +220,7 @@ namespace EventStore.ClientAPI.Internal
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       Ensure.Nonnegative(start, nameof(start));
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
       var operation = new ReadRawStreamEventsForwardOperation(source, stream, start, count,
                                                               resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -232,7 +232,7 @@ namespace EventStore.ClientAPI.Internal
     {
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
       var operation = new ReadRawStreamEventsBackwardOperation(source, stream, start, count,
                                                                resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -243,7 +243,7 @@ namespace EventStore.ClientAPI.Internal
     public Task<AllEventsSlice> ReadAllEventsForwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       Ensure.Positive(maxCount, nameof(maxCount));
-      if (maxCount > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
       var operation = new ReadAllEventsForwardOperation(source, position, maxCount,
                                                         resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -254,7 +254,7 @@ namespace EventStore.ClientAPI.Internal
     public Task<AllEventsSlice> ReadAllEventsBackwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       Ensure.Positive(maxCount, nameof(maxCount));
-      if (maxCount > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
       var operation = new ReadAllEventsBackwardOperation(source, position, maxCount,
                                                          resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -298,7 +298,7 @@ namespace EventStore.ClientAPI.Internal
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       Ensure.Nonnegative(start, nameof(start));
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
       var operation = new ReadStreamEventsForwardOperation(source, stream, start, count,
                                                            resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -310,7 +310,7 @@ namespace EventStore.ClientAPI.Internal
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       Ensure.Nonnegative(start, nameof(start));
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice2>();
       var operation = new ReadStreamEventsForwardOperation2(source, stream, start, count,
                                                             resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -322,7 +322,7 @@ namespace EventStore.ClientAPI.Internal
     {
       Ensure.Nonnegative(start, nameof(start));
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
 
       var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();
@@ -340,7 +340,7 @@ namespace EventStore.ClientAPI.Internal
     {
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
       var operation = new ReadStreamEventsBackwardOperation(source, stream, start, count,
                                                             resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -351,7 +351,7 @@ namespace EventStore.ClientAPI.Internal
     public Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
       Ensure.Positive(count, nameof(count));
-      if (count > Consts.MaxReadSize) throw new ArgumentException($"Count should be less than {Consts.MaxReadSize}. For larger reads you should page.");
+      if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
 
       var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
       var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();

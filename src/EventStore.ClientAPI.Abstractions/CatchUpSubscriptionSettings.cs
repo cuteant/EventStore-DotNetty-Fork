@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI
     {
       Ensure.Positive(readBatchSize, nameof(readBatchSize));
       Ensure.Positive(maxLiveQueueSize, nameof(maxLiveQueueSize));
-      if (readBatchSize > Consts.MaxReadSize) { throw new ArgumentException($"Read batch size should be less than {Consts.MaxReadSize}. For larger reads you should page."); }
+      if (readBatchSize > ClientApiConstants.MaxReadSize) { throw new ArgumentException($"Read batch size should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page."); }
 
       MaxLiveQueueSize = maxLiveQueueSize;
       ReadBatchSize = readBatchSize;
