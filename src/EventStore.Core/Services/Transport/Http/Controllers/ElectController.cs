@@ -9,9 +9,6 @@ using EventStore.Transport.Http.Client;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Microsoft.Extensions.Logging;
-#if NETSTANDARD
-using UriTemplate.Core;
-#endif
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {

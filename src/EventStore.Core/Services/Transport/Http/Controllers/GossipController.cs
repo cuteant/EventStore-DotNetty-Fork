@@ -11,9 +11,6 @@ using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Microsoft.Extensions.Logging;
 using HttpStatusCode = EventStore.Transport.Http.HttpStatusCode;
-#if NETSTANDARD
-using UriTemplate.Core;
-#endif
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {

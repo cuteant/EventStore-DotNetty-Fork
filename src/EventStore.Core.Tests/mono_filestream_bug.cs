@@ -1,11 +1,6 @@
 ﻿using System;
 using System.IO;
 using NUnit.Framework;
-#if DESKTOPCLR
-using UriTemplateAlias = System.UriTemplate;
-#else
-using UriTemplateAlias = UriTemplate.Core.UriTemplate;
-#endif
 
 namespace EventStore.Core.Tests
 {
@@ -15,7 +10,7 @@ namespace EventStore.Core.Tests
         [Test]
         public void when_validating_a_uri_template_with_url_encoded_chars()
         {
-            var template = new UriTemplateAlias("/streams/$all?embed={embed}");
+            var template = new UriTemplate("/streams/$all?embed={embed}");
             var uri = new Uri("http://127.0.0.1/streams/$all");
             var baseaddress = new Uri("http://127.0.0.1");
             Assert.IsTrue(template.Match(baseaddress, uri) != null);

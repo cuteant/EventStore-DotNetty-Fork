@@ -28,7 +28,11 @@ namespace EventStore.Core.Tests.Index.IndexV1
         public override void TestFixtureSetUp()
         {
             base.TestFixtureSetUp();
+#if UNOFFICIALTESTING
+            _ptableCount = (long)(ushort.MaxValue + 10000L);
+#else
             _ptableCount = (long)(uint.MaxValue + 10000000L);
+#endif
             _size = _ptableCount * (long)_indexEntrySize + PTableHeader.Size + PTable.MD5Size;
             Console.WriteLine("Creating PTable at {0}. Size of PTable: {1}", Filename, _size);
             CreatePTableFile(Filename, _size, _indexEntrySize);
@@ -83,12 +87,14 @@ namespace EventStore.Core.Tests.Index.IndexV1
         [Test, Explicit]
         public void count_should_be_right()
         {
+            // TODO ## 苦竹 修改 ## 修改了大小之后测试不通过
             Assert.AreEqual(_ptableCount, _ptable.Count);
         }
 
         [Test, Explicit]
         public void filename_is_correct()
         {
+            // TODO ## 苦竹 修改 ## 修改了大小之后测试不通过
             Assert.AreEqual(Filename, _ptable.Filename);
         }
     }

@@ -31,8 +31,8 @@ namespace EventStore.Core.Tests.Http
         protected string _lastResponseBody;
         protected byte[] _lastResponseBytes;
         protected JsonException _lastJsonException;
-//MONOCHECK Does this work now?
-#if !MONO
+        //MONOCHECK Does this work now?
+#if DESKTOPCLR //!MONO
         private Func<HttpWebResponse, byte[]> _dumpResponse;
         private Func<HttpWebResponse, int> _dumpResponse2;
         private Func<HttpWebRequest, byte[]> _dumpRequest;
@@ -43,7 +43,7 @@ namespace EventStore.Core.Tests.Http
 
         public override void TestFixtureSetUp()
         {
-#if !MONO
+#if DESKTOPCLR //!MONO
             Helper.EatException(() => _dumpResponse = CreateDumpResponse());
             Helper.EatException(() => _dumpResponse2 = CreateDumpResponse2());
             Helper.EatException(() => _dumpRequest = CreateDumpRequest());
@@ -147,8 +147,8 @@ namespace EventStore.Core.Tests.Http
         protected HttpWebRequest CreateRequest(
             string path, string extra, string method, string contentType, ICredentials credentials = null, NameValueCollection headers = null)
         {
-			var uri = MakeUrl (path, extra);
-			var request = WebRequest.Create (uri);
+            var uri = MakeUrl (path, extra);
+            var request = WebRequest.Create (uri);
             var httpWebRequest = (HttpWebRequest)request;
             if(headers != null) {
                 httpWebRequest.Headers.Add(headers);
@@ -160,7 +160,7 @@ namespace EventStore.Core.Tests.Http
             if (credentials != null)
             {
                 httpWebRequest.Credentials = credentials;
-				httpWebRequest.PreAuthenticate = true;
+                httpWebRequest.PreAuthenticate = true;
             }
             return httpWebRequest;
         }
@@ -173,7 +173,7 @@ namespace EventStore.Core.Tests.Http
             if (credentials != null)
             {
                 httpWebRequest.Credentials = credentials;
-				httpWebRequest.PreAuthenticate = true;
+                httpWebRequest.PreAuthenticate = true;
             }
             return httpWebRequest;
         }
@@ -189,7 +189,7 @@ namespace EventStore.Core.Tests.Http
             var httpEndPoint = _node.ExtHttpEndPoint;
             var x =  new UriBuilder("http", httpEndPoint.Address.ToString(), httpEndPoint.Port, path);
             x.Query = extra;
-	    Console.WriteLine(new string('*', 50) + Environment.NewLine + path + Environment.NewLine + extra + Environment.NewLine + x.Uri + Environment.NewLine + new string('*', 50));
+        Console.WriteLine(new string('*', 50) + Environment.NewLine + path + Environment.NewLine + extra + Environment.NewLine + x.Uri + Environment.NewLine + new string('*', 50));
 
             return x.Uri;
         }
@@ -347,13 +347,13 @@ namespace EventStore.Core.Tests.Http
                 return default(T);
             }
         }
-			
-		protected void Get(string path, string extra, string accept = null, ICredentials credentials = null, bool setAcceptHeader = true, NameValueCollection headers = null)
+            
+        protected void Get(string path, string extra, string accept = null, ICredentials credentials = null, bool setAcceptHeader = true, NameValueCollection headers = null)
         {
             var request = CreateRequest(path, extra, "GET", null, credentials, headers);
-			if (setAcceptHeader) {
-				request.Accept = accept ?? "application/json";
-			}
+            if (setAcceptHeader) {
+                request.Accept = accept ?? "application/json";
+            }
             _lastResponse = GetRequestResponse(request);
             var memoryStream = new MemoryStream();
             _lastResponse.GetResponseStream().CopyTo(memoryStream);
@@ -373,7 +373,7 @@ namespace EventStore.Core.Tests.Http
             {
                 response = (HttpWebResponse) ex.Response;
             }
-#if !MONO
+#if DESKTOPCLR //!MONO
             if (_dumpRequest != null)
             {
                 var bytes = _dumpRequest(request);

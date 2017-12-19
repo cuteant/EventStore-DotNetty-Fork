@@ -1,8 +1,5 @@
 ﻿using System;
 using EventStore.Transport.Http.EntityManagement;
-#if NETSTANDARD
-using UriTemplate.Core;
-#endif
 
 namespace EventStore.Core.Services.Transport.Http
 {

@@ -6,9 +6,6 @@ using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using EventStore.Common.Utils;
-#if NETSTANDARD
-using UriTemplate.Core;
-#endif
 
 namespace EventStore.Core.Tests.Http
 {

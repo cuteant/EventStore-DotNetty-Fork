@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <ProjectReference Include="..\..\etc\UriTemplate.Core\UriTemplate.Core.csproj" />
+    <ProjectReference Include="..\..\etc\Mono.UriTemplate\Mono.UriTemplate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
