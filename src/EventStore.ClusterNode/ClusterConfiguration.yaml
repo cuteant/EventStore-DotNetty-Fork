@@ -16,7 +16,7 @@ StartStandardProjections: true
 DisableHTTPCaching: false
 
 # Minimum number of worker threads when running under mono. Set to 0 to leave machine defaults.
-MonoMinThreadpoolSize: 10
+# MonoMinThreadpoolSize: 10
 
 # Force the Event Store to run in possibly harmful environments such as with Boehm GC.
 Force: false
