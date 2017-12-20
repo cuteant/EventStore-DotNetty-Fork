@@ -32,6 +32,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CuteAnt.Runtime" Version="$(CuteAntRuntimePackageVersion)" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
     <PackageReference Include="Mono.Posix.NETStandard " Version="$(MonoPosixNETStandardPackageVersion)" />

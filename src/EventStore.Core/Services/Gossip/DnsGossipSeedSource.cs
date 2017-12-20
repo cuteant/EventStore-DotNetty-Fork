@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using CuteAnt.Pool;
 
 namespace EventStore.Core.Services.Gossip
 {
@@ -15,16 +18,33 @@ namespace EventStore.Core.Services.Gossip
             _managerHttpPort = managerHttpPort;
         }
 
-        public IAsyncResult BeginGetHostEndpoints(AsyncCallback requestCallback, object state)
-        {
-            return Dns.BeginGetHostAddresses(_hostname, requestCallback, state);
-        }
+        //public IAsyncResult BeginGetHostEndpoints(AsyncCallback requestCallback, object state)
+        //{
+        //    return Dns.BeginGetHostAddresses(_hostname, requestCallback, state);
+        //}
 
-        public IPEndPoint[] EndGetHostEndpoints(IAsyncResult asyncResult)
-        {
-            var addresses = Dns.EndGetHostAddresses(asyncResult);
+        //public IPEndPoint[] EndGetHostEndpoints(IAsyncResult asyncResult)
+        //{
+        //    var addresses = Dns.EndGetHostAddresses(asyncResult);
 
-            return addresses.Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
+        //    return addresses.Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
+        //}
+        public IPEndPoint[] GetHostEndpoints() => GetHostIPAddresses(_hostname).Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
+
+        private static IPAddress[] GetHostIPAddresses(string hostname)
+        {
+#if DEBUG   // only for testing
+            try
+            {
+                return DnsCache.ResolveAsync(hostname).GetAwaiter().GetResult();
+            }
+            catch (SocketException)
+            {
+                return new IPAddress[] { IPAddress.Parse("127.0.0.1") };
+            }
+#else
+            return DnsCache.ResolveAsync(hostname).GetAwaiter().GetResult();
+#endif
         }
     }
 }

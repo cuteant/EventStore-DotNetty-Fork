@@ -78,20 +78,8 @@ namespace EventStore.Core.Services.Gossip
             _state = GossipState.RetrievingGossipSeeds;
             try
             {
-                _gossipSeedSource.BeginGetHostEndpoints(OnGotGossipSeedSources, null);
-            }
-            catch (Exception ex)
-            {
-                Log.LogError(ex, "Error while retrieving cluster members through DNS.");
-                _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
-            }
-        }
-
-        private void OnGotGossipSeedSources(IAsyncResult ar)
-        {
-            try
-            {
-                var entries = _gossipSeedSource.EndGetHostEndpoints(ar);
+                //_gossipSeedSource.BeginGetHostEndpoints(OnGotGossipSeedSources, null);
+                var entries = _gossipSeedSource.GetHostEndpoints();
                 _bus.Publish(new GossipMessage.GotGossipSeedSources(entries));
             }
             catch (Exception ex)
@@ -100,6 +88,20 @@ namespace EventStore.Core.Services.Gossip
                 _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
             }
         }
+
+        //private void OnGotGossipSeedSources(IAsyncResult ar)
+        //{
+        //    try
+        //    {
+        //        var entries = _gossipSeedSource.EndGetHostEndpoints(ar);
+        //        _bus.Publish(new GossipMessage.GotGossipSeedSources(entries));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Log.LogError(ex, "Error while retrieving cluster members through DNS.");
+        //        _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
+        //    }
+        //}
 
         public void Handle(GossipMessage.GotGossipSeedSources message)
         {

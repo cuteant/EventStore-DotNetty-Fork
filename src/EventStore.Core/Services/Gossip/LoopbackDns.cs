@@ -9,20 +9,19 @@ namespace EventStore.Core.Services.Gossip
 
         public KnownEndpointGossipSeedSource(IPEndPoint[] ipEndPoints)
         {
-            if (ipEndPoints == null)
-                throw new ArgumentNullException("ipEndPoints");
-            _ipEndPoints = ipEndPoints;
+            _ipEndPoints = ipEndPoints ?? throw new ArgumentNullException(nameof(ipEndPoints));
         }
 
-        public IAsyncResult BeginGetHostEndpoints(AsyncCallback requestCallback, object state)
-        {
-            requestCallback(null);
-            return null;
-        }
+        //public IAsyncResult BeginGetHostEndpoints(AsyncCallback requestCallback, object state)
+        //{
+        //    requestCallback(null);
+        //    return null;
+        //}
 
-        public IPEndPoint[] EndGetHostEndpoints(IAsyncResult asyncResult)
-        {
-            return _ipEndPoints;
-        }
+        //public IPEndPoint[] EndGetHostEndpoints(IAsyncResult asyncResult)
+        //{
+        //    return _ipEndPoints;
+        //}
+        public IPEndPoint[] GetHostEndpoints() => _ipEndPoints;
     }
 }
