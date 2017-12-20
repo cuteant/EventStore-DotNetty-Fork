@@ -1,4 +1,4 @@
-#pragma warning disable 420
+﻿#pragma warning disable 420
 
 using System;
 using System.Collections.Generic;

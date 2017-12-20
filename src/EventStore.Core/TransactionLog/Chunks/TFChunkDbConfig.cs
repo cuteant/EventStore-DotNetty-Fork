@@ -1,4 +1,4 @@
-using EventStore.Common.Utils;
+﻿using EventStore.Common.Utils;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.FileNamingStrategy;
 

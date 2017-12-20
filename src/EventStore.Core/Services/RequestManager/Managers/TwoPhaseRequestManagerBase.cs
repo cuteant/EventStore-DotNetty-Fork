@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Security.Principal;
 using Microsoft.Extensions.Logging;

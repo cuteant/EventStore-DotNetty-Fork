@@ -1,4 +1,4 @@
-using System;
+锘縰sing System;
 using System.Security.Cryptography;
 using System.Diagnostics;
 using System.IO;
@@ -87,14 +87,14 @@ namespace EventStore.Core.Tests.Index.IndexV1
         [Test, Explicit]
         public void count_should_be_right()
         {
-            // TODO ## 苦竹 修改 ## 修改了大小之后测试不通过
+            // TODO ## 鑻︾ 淇敼 ## 淇敼浜嗗ぇ灏忎箣鍚庢祴璇曚笉閫氳繃
             Assert.AreEqual(_ptableCount, _ptable.Count);
         }
 
         [Test, Explicit]
         public void filename_is_correct()
         {
-            // TODO ## 苦竹 修改 ## 修改了大小之后测试不通过
+            // TODO ## 鑻︾ 淇敼 ## 淇敼浜嗗ぇ灏忎箣鍚庢祴璇曚笉閫氳繃
             Assert.AreEqual(Filename, _ptable.Filename);
         }
     }

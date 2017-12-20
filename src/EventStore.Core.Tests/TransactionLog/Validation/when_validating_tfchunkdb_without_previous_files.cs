@@ -1,4 +1,4 @@
-using EventStore.Core.Exceptions;
+﻿using EventStore.Core.Exceptions;
 using EventStore.Core.Tests.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.Chunks;
