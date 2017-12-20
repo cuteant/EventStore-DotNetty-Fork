@@ -26,7 +26,7 @@ namespace EventStore.Core.Services.Storage
 
         private static readonly int TicksPerMs = (int)(Stopwatch.Frequency / 1000);
         private static readonly int MinFlushDelay = 2 * TicksPerMs;
-#if MONO
+#if NETSTANDARD //MONO
         private readonly AutoResetEvent _flushSignal = new AutoResetEvent(false);
 #else
         private readonly ManualResetEventSlim _flushSignal = new ManualResetEventSlim();
@@ -179,7 +179,7 @@ namespace EventStore.Core.Services.Storage
             {
                 _queueStats.EnterIdle();
                 var startwait = _watch.ElapsedTicks;
-#if MONO
+#if NETSTANDARD //MONO
                 _flushSignal.WaitOne(FlushWaitTimeout);
 #else
                 _flushSignal.Wait(FlushWaitTimeout);

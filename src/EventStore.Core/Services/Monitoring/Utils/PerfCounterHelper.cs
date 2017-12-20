@@ -94,7 +94,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
         private string GetProcessInstanceName(string categoryName, string counterName)
         {
 #if MONO
-      return _pid.ToString();
+            return _pid.ToString();
 #else
             try
             {

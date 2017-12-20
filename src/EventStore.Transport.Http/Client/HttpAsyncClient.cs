@@ -84,7 +84,7 @@ namespace EventStore.Transport.Http.Client
                              Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
             var request = new HttpRequestMessage();
-//MONOCHECK is this still needed?
+            //MONOCHECK is this still needed?
 #if MONO
             request.Headers.Add("Keep-alive", "false");
 #endif
