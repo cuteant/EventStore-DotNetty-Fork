@@ -2,10 +2,10 @@
 
 namespace EventStore.ClusterNode
 {
-  public interface IEventStoreService
-  {
-    bool Start();
+    public interface IEventStoreService
+    {
+        bool Start();
 
-    bool Stop();
-  }
+        bool Stop();
+    }
 }

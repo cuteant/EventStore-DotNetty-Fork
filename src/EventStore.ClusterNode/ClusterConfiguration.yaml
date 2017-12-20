@@ -91,12 +91,17 @@ BetterOrdering: false
 # Disables Hard Deletes (UNSAFE: use to remove hard deletes)
 UnsafeIgnoreHardDelete: false
 
+# Bypasses the checking of file hashes of indexes during startup and after index merges (allows for faster startup and less disk pressure after merges).
+SkipIndexVerify: false
+
 # Sets the depth to cache for the mid point cache in index.
 IndexCacheDepth: 16
 
 # Always keeps the newer chunks from a scavenge operation.
 AlwaysKeepScavenged: false
 
+# The initial number of readers to start when opening a TFChunk
+ChunkInitialReaderCount: 5
 
 
 
@@ -106,7 +111,8 @@ AlwaysKeepScavenged: false
 RunProjections: All                    # None / System / All
 # The number of threads to use for projections.
 ProjectionThreads: 3
-
+# The number of minutes a query can be idle before it expires
+ProjectionsQueryExpiry: 5
 
 
 
