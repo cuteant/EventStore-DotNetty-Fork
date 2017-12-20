@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI.Serialization
 {
-  public interface IExternalSerializer
+  public interface IEventSerializer
   {
     /// <summary>Informs the serialization manager whether this serializer supports the type for serialization.</summary>
     /// <param name="itemType">The type of the item to be serialized</param>
@@ -22,7 +22,7 @@ namespace EventStore.ClientAPI.Serialization
   }
 
   /// <summary>EventSerializer</summary>
-  public abstract class EventSerializer : IExternalSerializer
+  public abstract class EventSerializer : IEventSerializer
   {
     /// <summary>Informs the serialization manager whether this serializer supports the type for serialization.</summary>
     /// <param name="itemType">The type of the item to be serialized</param>

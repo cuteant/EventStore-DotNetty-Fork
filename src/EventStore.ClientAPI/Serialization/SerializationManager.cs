@@ -21,8 +21,8 @@ namespace EventStore.ClientAPI.Serialization
     #region @@ Fields @@
 
     private static ILogger s_logger = TraceLogger.GetLogger(typeof(SerializationManager));
-    private static IList<IExternalSerializer> _externalSerializers;
-    private static readonly CachedReadConcurrentDictionary<Type, IExternalSerializer> _typeToExternalSerializerDictionary;
+    private static IList<IEventSerializer> _externalSerializers;
+    private static readonly CachedReadConcurrentDictionary<Type, IEventSerializer> _typeToExternalSerializerDictionary;
 
     private static readonly CachedReadConcurrentDictionary<Type, StreamAttribute> _typeToStreamProviderDictionary;
 
@@ -31,17 +31,17 @@ namespace EventStore.ClientAPI.Serialization
     private static readonly JsonSerializerSettings _metadataSettings;
     private static readonly IJsonMessageFormatter _jsonFormatter;
 
-    private static IExternalSerializer _jsonSerializer;
-    private static IExternalSerializer _gzJsonSerializer;
-    private static IExternalSerializer _lz4JsonSerializer;
+    private static IEventSerializer _jsonSerializer;
+    private static IEventSerializer _gzJsonSerializer;
+    private static IEventSerializer _lz4JsonSerializer;
 
-    private static IExternalSerializer _protobufSerializer;
-    private static IExternalSerializer _gzProtobufSerializer;
-    private static IExternalSerializer _lz4ProtobufSerializer;
+    private static IEventSerializer _protobufSerializer;
+    private static IEventSerializer _gzProtobufSerializer;
+    private static IEventSerializer _lz4ProtobufSerializer;
 
-    private static IExternalSerializer _hyperionSerializer;
-    private static IExternalSerializer _gzHyperionSerializer;
-    private static IExternalSerializer _lz4HyperionSerializer;
+    private static IEventSerializer _hyperionSerializer;
+    private static IEventSerializer _gzHyperionSerializer;
+    private static IEventSerializer _lz4HyperionSerializer;
 
     #endregion
 
@@ -49,8 +49,8 @@ namespace EventStore.ClientAPI.Serialization
 
     static SerializationManager()
     {
-      _externalSerializers = new List<IExternalSerializer>();
-      _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IExternalSerializer>();
+      _externalSerializers = new List<IEventSerializer>();
+      _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IEventSerializer>();
       _typeToStreamProviderDictionary = new CachedReadConcurrentDictionary<Type, StreamAttribute>();
       _typeToSerializationTokenDictionary = new CachedReadConcurrentDictionary<Type, SerializationTokenAttribute>();
 
@@ -119,7 +119,7 @@ namespace EventStore.ClientAPI.Serialization
 
     #region -- RegisterSerializationProvider --
 
-    public static void RegisterSerializationProvider(IExternalSerializer serializer, int? insertIndex = null)
+    public static void RegisterSerializationProvider(IEventSerializer serializer, int? insertIndex = null)
     {
       if (null == serializer) { throw new ArgumentNullException(nameof(serializer)); }
 
@@ -137,7 +137,7 @@ namespace EventStore.ClientAPI.Serialization
     }
 
     /// <summary>Loads the external srializers and places them into a hash set</summary>
-    /// <param name="providerTypes">The list of types that implement <see cref="IExternalSerializer"/></param>
+    /// <param name="providerTypes">The list of types that implement <see cref="IEventSerializer"/></param>
     public static void RegisterSerializationProviders(List<TypeInfo> providerTypes)
     {
       if (providerTypes == null) { return; }
@@ -148,7 +148,7 @@ namespace EventStore.ClientAPI.Serialization
       {
         try
         {
-          var serializer = ActivatorUtils.FastCreateInstance<IExternalSerializer>(typeInfo.AsType());
+          var serializer = ActivatorUtils.FastCreateInstance<IEventSerializer>(typeInfo.AsType());
           _externalSerializers.Add(serializer);
         }
         catch (Exception exception)
@@ -162,7 +162,7 @@ namespace EventStore.ClientAPI.Serialization
 
     #region ** TryLookupExternalSerializer **
 
-    private static bool TryLookupExternalSerializer(Type t, out IExternalSerializer serializer)
+    private static bool TryLookupExternalSerializer(Type t, out IEventSerializer serializer)
     {
       // essentially a no-op if there are no external serializers registered
       if (_externalSerializers.Count == 0)
@@ -375,7 +375,7 @@ namespace EventStore.ClientAPI.Serialization
           break;
         case SerializationToken.External:
           // 此处不考虑 expectedType
-          if (TryLookupExternalSerializer(actualType, out IExternalSerializer serializer))
+          if (TryLookupExternalSerializer(actualType, out IEventSerializer serializer))
           {
             data = serializer.Serialize(@event);
           }
@@ -648,7 +648,7 @@ namespace EventStore.ClientAPI.Serialization
             obj = _lz4ProtobufSerializer.Deserialize(type, data);
             break;
           case SerializationToken.External:
-            if (TryLookupExternalSerializer(type, out IExternalSerializer serializer))
+            if (TryLookupExternalSerializer(type, out IEventSerializer serializer))
             {
               obj = serializer.Deserialize(type, data);
             }

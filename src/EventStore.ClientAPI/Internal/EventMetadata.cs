@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using EventStore.ClientAPI.Serialization;
+using CuteAnt.Extensions.Serialization;
 using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Internal

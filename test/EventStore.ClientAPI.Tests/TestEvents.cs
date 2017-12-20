@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.ClientAPI.Serialization;
+using CuteAnt.Extensions.Serialization;
 using ProtoBuf;
 
 namespace EventStore.ClientAPI.Tests

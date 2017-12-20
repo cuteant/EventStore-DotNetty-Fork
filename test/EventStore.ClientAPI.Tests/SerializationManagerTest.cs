@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using CuteAnt;
+using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Serialization;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace EventStore.ClientAPI.Tests
 {
-  public class SerializationManagerTest
+    public class SerializationManagerTest
   {
     public SerializationManagerTest()
     {
