@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">    
+    <id>EventStore.Google.V8</id>
+    <version>$version$</version>
+    <title>EventStore.Google.V8</title>
+    <authors>Event Store LLP</authors>
+    <owners>Event Store LLP</owners>
+    <licenseUrl>http://geteventstore.com/terms/licence/bsd/</licenseUrl>
+    <projectUrl>https://github.com/EventStore/EventStore</projectUrl>
+    <iconUrl>http://geteventstore.com/assets/ouro-200.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Event Store takes a source dependency on Google V8 and the other projects necessary to build it, including gyp and ICU. These are cloned from our forks of their respective repositories during the build process.</description>
+    <tags>eventstore geteventstore google v8</tags>
+  </metadata>
+  <files>
+    <file src="..\src\libs\x64\win\js1.dll" target="runtimes\win-x64\native" />
+    <file src="..\src\libs\x64\ubuntu-14.04\libjs1.so" target="runtimes\ubuntu.14.04-x64\native" />
+    <file src="..\src\libs\x64\ubuntu-16.04\libjs1.so" target="runtimes\ubuntu.16.04-x64\native" />
+    <file src="..\src\libs\x64\ubuntu-16.04\libjs1.so" target="runtimes\linux-x64\native" />
+    <file src="..\src\libs\x64\osx-10.12\libjs1.dylib" target="runtimes\osx\native" />
+  </files>
+</package>
