@@ -11,8 +11,8 @@
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Client.Abstractions</PackageId>
-    <Title>EventStore.Client.Abstractions</Title>
+    <PackageId>EasyEventStore.Abstractions</PackageId>
+    <Title>EasyEventStore.Abstractions</Title>
     <Description>EventStore.Client.Abstractions</Description>
     <PackageTags>eventstore client queue</PackageTags>
   </PropertyGroup>

@@ -19,6 +19,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Projections.Core", "src\EventStore.Projections.Core\EventStore.Projections.Core.csproj", "{03E02082-E179-4730-81FF-CE914749D6E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI", "src\EventStore.ClientAPI\EventStore.ClientAPI.csproj", "{C7C0A3C2-A0EB-4FF4-A0CD-67EADF3F553F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE} = {1F1F202C-5AD3-4041-A063-F00585CF95CE}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Embedded", "src\EventStore.ClientAPI.Embedded\EventStore.ClientAPI.Embedded.csproj", "{0ED5BED0-EBF0-4C9D-B2A3-0EA54A767C3F}"
 EndProject
@@ -90,6 +93,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Projections.Core.Tests", "src\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{291045E9-8D6A-4C76-BE38-E4F09633045D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClusterNode", "src\EventStore.ClusterNode\EventStore.ClusterNode.csproj", "{880279B1-C620-429F-8414-AB6156D81973}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LZ4pn", "etc\LZ4pn\LZ4pn.csproj", "{973FBE9B-1A9A-4E79-AEC4-685D9525D707}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LZ4", "etc\LZ4\LZ4.csproj", "{1F1F202C-5AD3-4041-A063-F00585CF95CE}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -204,6 +211,14 @@ Global
 		{880279B1-C620-429F-8414-AB6156D81973}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{880279B1-C620-429F-8414-AB6156D81973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{880279B1-C620-429F-8414-AB6156D81973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{973FBE9B-1A9A-4E79-AEC4-685D9525D707}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{973FBE9B-1A9A-4E79-AEC4-685D9525D707}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{973FBE9B-1A9A-4E79-AEC4-685D9525D707}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{973FBE9B-1A9A-4E79-AEC4-685D9525D707}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -242,6 +257,8 @@ Global
 		{31763A92-7F58-4168-8906-5A9CAB3CED5E} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
 		{291045E9-8D6A-4C76-BE38-E4F09633045D} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{880279B1-C620-429F-8414-AB6156D81973} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
+		{973FBE9B-1A9A-4E79-AEC4-685D9525D707} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
+		{1F1F202C-5AD3-4041-A063-F00585CF95CE} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}
