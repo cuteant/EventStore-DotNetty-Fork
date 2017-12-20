@@ -189,7 +189,11 @@ namespace EventStore.Core.Tests.Http.Streams
             [Test]
             public void the_response_is_not_cachable()
             {
+#if DESKTOPCLR
                 Assert.AreEqual("max-age=0, no-cache, must-revalidate", _lastResponse.Headers["Cache-Control"]);
+#else
+                Assert.AreEqual("must-revalidate, no-cache, max-age=0", _lastResponse.Headers["Cache-Control"]);
+#endif
             }
         }
 
@@ -423,7 +427,7 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.AreEqual(MakeUrl("/streams/" + DeletedStreamName + "/0"), link);
             }
 
-	    [Test]
+        [Test]
             public void the_alternate_link_is_to_correct_uri()
             {
                 var link = _entries[0].GetLink("alternate");
@@ -550,10 +554,10 @@ namespace EventStore.Core.Tests.Http.Streams
             {
                 base.Given();
                 _head = GetJson<JObject>(TestStream, ContentType.AtomJson);
-		Console.WriteLine(new string('*', 60));
+        Console.WriteLine(new string('*', 60));
                 Console.WriteLine(_head);
                 Console.WriteLine(TestStream);
-		Console.WriteLine(new string('*', 60));
+        Console.WriteLine(new string('*', 60));
                 _previous = GetLink(_head, "previous");
                 _lastEventLocation = PostEvent(-1);
             }

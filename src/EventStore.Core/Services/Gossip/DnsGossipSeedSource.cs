@@ -29,22 +29,6 @@ namespace EventStore.Core.Services.Gossip
 
         //    return addresses.Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
         //}
-        public IPEndPoint[] GetHostEndpoints() => GetHostIPAddresses(_hostname).Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
-
-        private static IPAddress[] GetHostIPAddresses(string hostname)
-        {
-#if DEBUG   // only for testing
-            try
-            {
-                return DnsCache.ResolveAsync(hostname).GetAwaiter().GetResult();
-            }
-            catch (SocketException)
-            {
-                return new IPAddress[] { IPAddress.Parse("127.0.0.1") };
-            }
-#else
-            return DnsCache.ResolveAsync(hostname).GetAwaiter().GetResult();
-#endif
-        }
+        public IPEndPoint[] GetHostEndpoints() => DnsCache.ResolveAsync(_hostname).GetAwaiter().GetResult().Select(address => new IPEndPoint(address, _managerHttpPort)).ToArray();
     }
 }
