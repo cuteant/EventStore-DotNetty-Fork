@@ -114,6 +114,7 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test]
         public void read_events_til_stops_subscription_when_second_read_throws_immediately()
         {
+            // TODO4TESTING
             var expectedException = new ApplicationException("Test");
 
             int callCount = 0;
@@ -145,6 +146,7 @@ namespace EventStore.Core.Tests.ClientAPI
         [Test]
         public void read_events_til_stops_subscription_when_second_read_throws_asynchronously()
         {
+            // TODO4TESTING
             var expectedException = new ApplicationException("Test");
 
             int callCount = 0;

@@ -397,6 +397,7 @@ namespace EventStore.Core.Tests.Http.Streams
             [Test]
             public void the_feed_has_some_events()
             {
+                // TODO4TESTING
                 Assert.AreEqual(1, _entries.Count());
             }
         }
