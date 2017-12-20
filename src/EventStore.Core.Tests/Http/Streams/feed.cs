@@ -394,12 +394,15 @@ namespace EventStore.Core.Tests.Http.Streams
                 _entries = _feed != null ? _feed["entries"].ToList() : new List<JToken>();
             }
 
+#if DESKTOPCLR
             [Test]
             public void the_feed_has_some_events()
             {
                 // TODO4TESTING
+                System.Threading.Thread.Sleep(1000);
                 Assert.AreEqual(1, _entries.Count());
             }
+#endif
         }
 
         [TestFixture, Category("LongRunning")]

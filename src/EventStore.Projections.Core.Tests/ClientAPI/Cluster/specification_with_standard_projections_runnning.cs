@@ -300,15 +300,16 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.Cluster
         }
     }
 
-    [TestFixture, Explicit]
-    public class TestTest : specification_with_standard_projections_runnning
-    {
-        [Test, Explicit]
-        public void Test()
-        {
-            PostProjection(@"fromStream('$user-admin').outputState()");
+    // TODO4TESTING
+    //[TestFixture, Explicit]
+    //public class TestTest : specification_with_standard_projections_runnning
+    //{
+    //    [Test, Explicit]
+    //    public void Test()
+    //    {
+    //        PostProjection(@"fromStream('$user-admin').outputState()");
 
-            AssertStreamTail("$projections-test-projection-result", "Result:{}");
-        }
-    }
+    //        AssertStreamTail("$projections-test-projection-result", "Result:{}");
+    //    }
+    //}
 }

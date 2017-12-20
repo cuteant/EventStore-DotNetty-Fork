@@ -140,6 +140,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 
@@ -173,6 +174,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 
@@ -195,6 +197,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 
@@ -218,6 +221,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 
@@ -250,6 +254,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 
@@ -285,6 +290,7 @@ namespace EventStore.Core.Tests.ClientAPI
             });
 
             AssertStartFailsAndDropsSubscriptionWithException(expectedException);
+            Thread.Sleep(1000);
             Assert.That(_raisedEvents.Count, Is.EqualTo(1));
         }
 

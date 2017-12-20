@@ -87,6 +87,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Tests", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mono.UriTemplate", "etc\Mono.UriTemplate\Mono.UriTemplate.csproj", "{31763A92-7F58-4168-8906-5A9CAB3CED5E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Projections.Core.Tests", "src\EventStore.Projections.Core.Tests\EventStore.Projections.Core.Tests.csproj", "{291045E9-8D6A-4C76-BE38-E4F09633045D}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
@@ -192,6 +194,10 @@ Global
 		{31763A92-7F58-4168-8906-5A9CAB3CED5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31763A92-7F58-4168-8906-5A9CAB3CED5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31763A92-7F58-4168-8906-5A9CAB3CED5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{291045E9-8D6A-4C76-BE38-E4F09633045D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{291045E9-8D6A-4C76-BE38-E4F09633045D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{291045E9-8D6A-4C76-BE38-E4F09633045D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{291045E9-8D6A-4C76-BE38-E4F09633045D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,6 +234,7 @@ Global
 		{0D1D32B5-4F13-444D-A6B4-9DF75DD9F0F2} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{DEAEB1BC-5712-4977-828B-710FB264F095} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 		{31763A92-7F58-4168-8906-5A9CAB3CED5E} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
+		{291045E9-8D6A-4C76-BE38-E4F09633045D} = {F45ED8C2-E00B-4CE7-9DC8-9A5921E54C58}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}

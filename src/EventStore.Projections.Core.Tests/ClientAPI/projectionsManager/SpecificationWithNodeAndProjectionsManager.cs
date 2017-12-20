@@ -3,7 +3,6 @@ using System.Text;
 using NUnit.Framework;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Projections;
-using EventStore.ClientAPI.Common.Log;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Common.Options;
 using EventStore.Core;
@@ -52,7 +51,7 @@ namespace EventStore.Projections.Core.Tests.ClientAPI.projectionsManager
 
             try
             {
-                _projManager = new ProjectionsManager(new ConsoleLogger(), _node.ExtHttpEndPoint, _timeout);
+                _projManager = new ProjectionsManager(_node.ExtHttpEndPoint, _timeout);
                 Given();
                 When();
             }

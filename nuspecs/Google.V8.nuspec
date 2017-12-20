@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">    
-    <id>EventStore.Google.V8</id>
+    <id>EventStore.GoogleV8</id>
     <version>$version$</version>
-    <title>EventStore.Google.V8</title>
+    <title>EventStore.GoogleV8</title>
     <authors>Event Store LLP</authors>
     <owners>Event Store LLP</owners>
     <licenseUrl>http://geteventstore.com/terms/licence/bsd/</licenseUrl>
@@ -17,7 +17,7 @@
     <file src="..\src\libs\x64\win\js1.dll" target="runtimes\win-x64\native" />
     <file src="..\src\libs\x64\ubuntu-14.04\libjs1.so" target="runtimes\ubuntu.14.04-x64\native" />
     <file src="..\src\libs\x64\ubuntu-16.04\libjs1.so" target="runtimes\ubuntu.16.04-x64\native" />
-    <file src="..\src\libs\x64\ubuntu-16.04\libjs1.so" target="runtimes\linux-x64\native" />
+    <file src="..\src\libs\x64\amazon-2015.03\libjs1.so" target="runtimes\centos.7-x64\native" />
     <file src="..\src\libs\x64\osx-10.12\libjs1.dylib" target="runtimes\osx\native" />
   </files>
 </package>

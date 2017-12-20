@@ -16,7 +16,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         private Js1.CommandHandlerRegisteredDelegate _commandHandlerRegisteredCallback;
         private Js1.ReverseCommandHandlerDelegate _reverseCommandHandlerDelegate;
 
-        [Test, Explicit, Category("v8"), Category("Manual")]
+        [Test, Ignore("TODO4TESTING"), Category("v8"), Category("Manual")] //[Test, Explicit, Category("v8"), Category("Manual")]
         public void long_execution_of_non_v8_code_does_not_crash()
         {
             Assert.Throws<Js1Exception>(() => {

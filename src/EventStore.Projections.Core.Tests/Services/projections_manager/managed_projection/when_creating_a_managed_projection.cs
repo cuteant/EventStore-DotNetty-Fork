@@ -171,7 +171,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
         [Test]
         public void empty_name_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             new ManagedProjection(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
@@ -204,7 +204,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
         [Test]
         public void empty_name_throws_argument_exception2()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             new ManagedProjection(
                 Guid.NewGuid(),
                 Guid.NewGuid(),
