@@ -6,14 +6,14 @@
   <PropertyGroup>
     <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
-    <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
+    <AssemblyName>EventStore.ClientAPI</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <PropertyGroup Label="NuGet">
-    <PackageId>EasyEventStore.Consumer</PackageId>
-    <Title>EasyEventStore.Consumer</Title>
-    <Description>EventStore.Client.Consumer</Description>
+    <PackageId>EasyEventStore.AutoSubscribing</PackageId>
+    <Title>EasyEventStore.AutoSubscribing</Title>
+    <Description>EventStore.Client.AutoSubscribing</Description>
     <PackageTags>eventstore client queue</PackageTags>
   </PropertyGroup>
 
