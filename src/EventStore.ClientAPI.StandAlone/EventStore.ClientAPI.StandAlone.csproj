@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\version.client.props" />
+  <Import Project="..\nuget.client.props" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <RootNamespace>EventStore.ClientAPI</RootNamespace>
+    <AssemblyName>EventStore.ClientAPI</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>EasyEventStore.Core.StandAlone</PackageId>
+    <Title>EasyEventStore.Core.StandAlone</Title>
+    <Description>The client API for the Event Store. Get the open source or commercial versions of the Event Store server from http://geteventstore.com</Description>
+    <PackageTags>eventstore client</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);CLIENTAPI</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EventStore.ClientAPI\**\*.cs" Exclude="..\EventStore.ClientAPI\bin\**;..\EventStore.ClientAPI\obj\**" />
+    <EmbeddedResource Include="..\EventStore.ClientAPI\**\*.resx" Exclude="..\EventStore.ClientAPI\bin\**;..\EventStore.ClientAPI\obj\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
+    <PackageReference Include="Hyperion" Version="$(HyperionPackageVersion)" />
+    <PackageReference Include="protobuf-net" Version="$(ProtobufNetPackageVersion)" />
+    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="$(SystemThreadingTasksDataflowPackageVersion)" />
+    <PackageReference Include="System.ValueTuple" Version="$(SystemValueTuplePackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net471' or '$(TargetFramework)' == 'net451' ">
+    <PackageReference Include="lz4net" Version="$(Lz4netPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <ProjectReference Include="..\..\etc\LZ4\LZ4.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

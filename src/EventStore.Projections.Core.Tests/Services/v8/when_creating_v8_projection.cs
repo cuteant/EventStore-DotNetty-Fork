@@ -23,14 +23,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         public void api_can_be_used() 
         {
             var ver = Js1.ApiVersion();
-            LoggingUtils.WriteLine(ver + "");
+            //LoggingUtils.WriteLine(ver + "");
         }
 
         [Test, Category("v8")]
         public void api_can_be_used2()
         {
             var ver = Js1.ApiVersion();
-            LoggingUtils.WriteLine(ver + "");
+            //LoggingUtils.WriteLine(ver + "");
         }
 
         [Test, Category("v8")]
