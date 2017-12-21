@@ -29,7 +29,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager
                 "JS", _projection, logger: (s, _) =>
                     {
                         if (s.StartsWith("P:"))
-                            Console.WriteLine(s);
+                            LoggingUtils.WriteLine(s);
                         else
                             _logged.Add(s);
                     }); // skip prelude debug output

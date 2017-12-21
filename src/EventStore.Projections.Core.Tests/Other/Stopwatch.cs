@@ -36,7 +36,7 @@ namespace EventStore.Projections.Core.Tests.Other
             }
             sw.Stop();
             var measuredTime = sw.ElapsedMilliseconds;
-            Console.WriteLine(measuredTime - originalTime);
+            LoggingUtils.WriteLine((measuredTime - originalTime).ToString());
         }
     }
 }

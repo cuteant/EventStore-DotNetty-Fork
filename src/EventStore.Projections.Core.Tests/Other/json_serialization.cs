@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPosition(1, -1, 0);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -37,7 +37,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, 0);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -49,7 +49,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, -1);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -61,7 +61,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPreparePosition(1, 1234);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -73,7 +73,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromStreamPosition(1, "$ce-account", 12345);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -86,7 +86,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromStreamPositions(1, new Dictionary<string, long> {{"a", 1}, {"b", 2}});
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -100,7 +100,7 @@ namespace EventStore.Projections.Core.Tests.Other
                 0, new TFPos(100, 50), new Dictionary<string, long> {{"a", 1}, {"b", 2}});
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -112,7 +112,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPhase(2, completed: false);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -124,7 +124,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromPhase(0, completed: true);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -136,7 +136,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromByStreamPosition(0, "catalog", 1, "data", 2, 12345);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -148,7 +148,7 @@ namespace EventStore.Projections.Core.Tests.Other
             CheckpointTag tag = CheckpointTag.FromByStreamPosition(0, "catalog", -1, null, -1, 12345);
             byte[] bytes = tag.ToJsonBytes(_version);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTag back = instring.ParseCheckpointTagJson();
             Assert.AreEqual(tag, back);
@@ -161,7 +161,7 @@ namespace EventStore.Projections.Core.Tests.Other
             var extra = new Dictionary<string, JToken> {{"$$a", new JRaw("\"b\"")}, {"$$c", new JRaw("\"d\"")}};
             byte[] bytes = tag.ToJsonBytes(_version, extra);
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             CheckpointTagVersion back = instring.ParseCheckpointTagVersionExtraJson(_version);
             Assert.IsNotNull(back.ExtraMetadata);
@@ -178,7 +178,7 @@ namespace EventStore.Projections.Core.Tests.Other
             TestData data = new TestData("123");
             byte[] bytes = data.ToJsonBytes();
             string instring = Helper.UTF8NoBom.GetString(bytes);
-            Console.WriteLine(instring);
+            LoggingUtils.WriteLine(instring);
 
             TestData back = instring.ParseJson<TestData>();
             Assert.AreEqual(data, back);

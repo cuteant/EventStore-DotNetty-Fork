@@ -20,7 +20,7 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
             [SetUp]
             public void when()
             {
-                _handler = new CategorizeEventsByStreamPath("-", Console.WriteLine);
+                _handler = new CategorizeEventsByStreamPath("-", LoggingUtils.WriteLine);
                 _handler.Initialize();
                 string sharedState;
                 _result = _handler.ProcessEvent(
@@ -66,7 +66,7 @@ namespace EventStore.Projections.Core.Tests.Services.handlers
             [SetUp]
             public void when()
             {
-                _handler = new CategorizeEventsByStreamPath("-", Console.WriteLine);
+                _handler = new CategorizeEventsByStreamPath("-", LoggingUtils.WriteLine);
                 _handler.Initialize();
                 string sharedState;
                 _result = _handler.ProcessEvent(

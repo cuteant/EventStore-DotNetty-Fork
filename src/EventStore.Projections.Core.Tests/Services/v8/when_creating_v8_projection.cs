@@ -23,14 +23,14 @@ namespace EventStore.Projections.Core.Tests.Services.v8
         public void api_can_be_used() 
         {
             var ver = Js1.ApiVersion();
-            Console.WriteLine(ver);
+            LoggingUtils.WriteLine(ver + "");
         }
 
         [Test, Category("v8")]
         public void api_can_be_used2()
         {
             var ver = Js1.ApiVersion();
-            Console.WriteLine(ver);
+            LoggingUtils.WriteLine(ver + "");
         }
 
         [Test, Category("v8")]
@@ -96,7 +96,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                     logger: (s, _) => { },
                     cancelCallbackFactory: (timeout, action) => ThreadPool.QueueUserWorkItem(state =>
                         {
-                            Console.WriteLine("Calling a callback in " + timeout + "ms");
+                            LoggingUtils.WriteLine("Calling a callback in " + timeout + "ms");
                             Thread.Sleep(timeout);
                             action();
                         })))
@@ -126,10 +126,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                             }
                         });
                     ",
-                    logger: Console.WriteLine,
+                    logger: LoggingUtils.WriteLine,
                     cancelCallbackFactory: (timeout, action) => ThreadPool.QueueUserWorkItem(state =>
                     {
-                        Console.WriteLine("Calling a callback in " + timeout + "ms");
+                        LoggingUtils.WriteLine("Calling a callback in " + timeout + "ms");
                         Thread.Sleep(timeout);
                         action();
                     })))
@@ -168,10 +168,10 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                                 while (true) i++;
                         });
                     ",
-                    logger: Console.WriteLine,
+                    logger: LoggingUtils.WriteLine,
                     cancelCallbackFactory: (timeout, action) => ThreadPool.QueueUserWorkItem(state =>
                     {
-                        Console.WriteLine("Calling a callback in " + timeout + "ms");
+                        LoggingUtils.WriteLine("Calling a callback in " + timeout + "ms");
                         Thread.Sleep(timeout);
                         action();
                     })))
@@ -198,7 +198,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             //string m = null;
             for (var i = 0; i < 10; i++)
             {
-                Console.WriteLine(i);
+                LoggingUtils.WriteLine(i + "");
                 try
                 {
                     using (var h = _stateHandlerFactory.Create(
@@ -210,11 +210,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
                             while (true) i++;
                         }
                     });
-                ", logger: Console.WriteLine,
+                ", logger: LoggingUtils.WriteLine,
                         cancelCallbackFactory: (timeout, action) => ThreadPool.QueueUserWorkItem(
                             state =>
                                 {
-                                    Console.WriteLine("Calling a callback in " + timeout + "ms");
+                                    LoggingUtils.WriteLine("Calling a callback in " + timeout + "ms");
                                     Thread.Sleep(timeout);
                                     action();
                                 })))

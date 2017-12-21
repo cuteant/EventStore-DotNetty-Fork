@@ -22,11 +22,11 @@ namespace EventStore.Projections.Core.Tests.Services.v8
             Assert.Throws<Js1Exception>(() => {
                 _cancelCallbackFactory = (timeout, action) => ThreadPool.QueueUserWorkItem(state =>
                     {
-                        Console.WriteLine("Calling a callback in " + timeout + "ms");
+                        LoggingUtils.WriteLine("Calling a callback in " + timeout + "ms");
                         Thread.Sleep(timeout);
                         action();
                     });
-                Action<string, object[]> logger = (m, _) => Console.WriteLine(m);
+                Action<string, object[]> logger = (m, _) => LoggingUtils.WriteLine(m);
 
 
                 Func<string, Tuple<string, string>> getModuleSource = name =>

@@ -16,7 +16,7 @@ namespace EventStore.Projections.Core.Tests.Services.v8
     private IProjectionStateHandler _stateHandler;
     private string _projection;
     private Action<string, object[]> _logger;
-    private readonly Js1.LogDelegate _logDelegate = Console.WriteLine;
+    private readonly Js1.LogDelegate _logDelegate = LoggingUtils.WriteLine;
     private Js1.LoadModuleDelegate _loadModuleDelegate;
 
     [Test, Category("v8"), Category("Manual"), Explicit]

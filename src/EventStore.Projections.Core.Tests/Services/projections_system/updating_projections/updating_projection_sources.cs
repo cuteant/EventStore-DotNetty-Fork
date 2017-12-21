@@ -92,7 +92,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_system.updating
             {
                 Assert.NotNull(_state);
                 Assert.NotNull(_stateData);
-                Console.WriteLine(_stateData.ToJson());
+                LoggingUtils.WriteLine(_stateData.ToJson());
             }
         }
 

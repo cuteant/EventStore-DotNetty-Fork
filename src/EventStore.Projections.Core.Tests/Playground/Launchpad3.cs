@@ -66,9 +66,9 @@ namespace EventStore.Projections.Core.Tests.Playground
                     using (var requestStream = request.GetRequestStream())
                         requestStream.Write(data, 0, data.Length);
                     var response = (HttpWebResponse) request.GetResponse();
-                    Console.WriteLine(response.StatusDescription);
-                    Console.WriteLine(response.GetResponseHeader("Location"));
-                    Console.WriteLine(response.GetResponseHeader("Z"));
+                    LoggingUtils.WriteLine(response.StatusDescription);
+                    LoggingUtils.WriteLine(response.GetResponseHeader("Location"));
+                    LoggingUtils.WriteLine(response.GetResponseHeader("Z"));
                 }
                 catch (SocketException)
                 {

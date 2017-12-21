@@ -49,7 +49,7 @@ namespace EventStore.Projections.Core.Tests.Playground
                         try
                         {
                             var result = appDomain.ExecuteAssembly(executable, commandLine.Split(' '));
-                            Console.WriteLine(executable + "has exited with code " + result);
+                            LoggingUtils.WriteLine(executable + "has exited with code " + result);
                         }
                         catch (AppDomainUnloadedException)
                         {
@@ -64,7 +64,7 @@ namespace EventStore.Projections.Core.Tests.Playground
             var existing = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable));
             foreach (var p in existing)
             {
-                Console.WriteLine("Killing process {0} : {1}", p.Id, p.ProcessName);
+                LoggingUtils.WriteLine("Killing process {0} : {1}", p.Id, p.ProcessName);
                 p.Kill();
             }
             var startInfo = new ProcessStartInfo
@@ -90,7 +90,7 @@ namespace EventStore.Projections.Core.Tests.Playground
         {
             public void Handle(Message message)
             {
-                Console.WriteLine("Received: {0}({1})", message.GetType(), message);
+                LoggingUtils.WriteLine("Received: {0}({1})", message.GetType(), message);
             }
         }
     }

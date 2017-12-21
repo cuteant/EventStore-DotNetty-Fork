@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace EventStore.Projections.Core.Tests.Other
 {
-    [TestFixture, Ignore("Until resolved in MONO")]
+    [TestFixture] // , Ignore("Until resolved in MONO")]
     class when_matching_remaining_path
     {
         private UriTemplate _urlTemplate;
@@ -151,7 +151,7 @@ namespace EventStore.Projections.Core.Tests.Other
                     select g
                 )
             {
-                Console.WriteLine(tuple.Key);
+                LoggingUtils.WriteLine(tuple.Key);
                 Console.Write("   ");
                 foreach (var i in tuple)
                 {
@@ -160,7 +160,7 @@ namespace EventStore.Projections.Core.Tests.Other
                     else 
                         Console.Write(i.Item1);
                 }
-                Console.WriteLine();
+                LoggingUtils.WriteLine("");
             }
             Assert.Inconclusive();
         }
