@@ -6,7 +6,7 @@
   <PropertyGroup>
     <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
-    <AssemblyName>EventStore.ClientAPI</AssemblyName>
+    <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   
