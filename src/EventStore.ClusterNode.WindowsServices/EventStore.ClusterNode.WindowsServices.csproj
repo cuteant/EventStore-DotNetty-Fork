@@ -26,12 +26,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\apple-touch-icon.png" Link="clusternode-web\apple-touch-icon.png" />
+    <ProjectReference Include="..\EventStore.ClusterNode.Services\EventStore.ClusterNode.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\apple-touch-icon.png" Link="clusternode-web\apple-touch-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\css\main.min.css" Link="clusternode-web\css\main.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\es-tile.png" Link="clusternode-web\es-tile.png" />
-    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\favicon.png" Link="clusternode-web\favicon.png" />
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\es-tile.png" Link="clusternode-web\es-tile.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\favicon.png" Link="clusternode-web\favicon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-bold-webfont.woff" Link="clusternode-web\fonts\roboto-bold-webfont.woff">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -50,7 +60,9 @@
     <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\sourcecodepro-regular-webfont.woff" Link="clusternode-web\fonts\sourcecodepro-regular-webfont.woff">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\index.html" Link="clusternode-web\index.html" />
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\index.html" Link="clusternode-web\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
   <ItemGroup>
@@ -153,10 +165,6 @@
     <Folder Include="clusternode-web\js\ace\" />
     <Folder Include="Prelude\" />
     <Folder Include="projections\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\EventStore.ClusterNode.Services\EventStore.ClusterNode.Services.csproj" />
   </ItemGroup>
 
 </Project>
