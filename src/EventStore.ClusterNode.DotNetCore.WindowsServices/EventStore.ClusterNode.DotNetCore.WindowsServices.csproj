@@ -17,7 +17,6 @@
     <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
     <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
     <PackageReference Include="PeterKottas.DotNetCore.WindowsService.Signed" Version="$(PeterKottasDotNetCoreWindowsServiceSignedPackageVersion)" />
-    <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
