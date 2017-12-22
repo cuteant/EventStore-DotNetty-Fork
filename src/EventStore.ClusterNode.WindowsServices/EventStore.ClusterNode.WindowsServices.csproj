@@ -1,0 +1,162 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>EventStore.ClusterNode</RootNamespace>
+    <AssemblyName>EventStore.ClusterNode</AssemblyName>
+    <TargetFramework>net471</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\app2.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
+    <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
+    <PackageReference Include="Serilog" Version="$(SerilogPackageVersion)" />
+    <PackageReference Include="Serilog.Settings.AppSettings" Version="$(SerilogSettingsAppSettingsPackageVersion)" />
+    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="$(SerilogSinksColoredConsolePackageVersion)" />
+    <PackageReference Include="Serilog.Sinks.Literate" Version="$(SerilogSinksLiteratePackageVersion)" />
+    <PackageReference Include="Serilog.Sinks.RollingFile" Version="$(SerilogSinksRollingFilePackageVersion)" />
+    <PackageReference Include="Topshelf.Serilog.Unofficial" Version="$(TopshelfSerilogUnofficialPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\apple-touch-icon.png" Link="clusternode-web\apple-touch-icon.png" />
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\css\main.min.css" Link="clusternode-web\css\main.min.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\es-tile.png" Link="clusternode-web\es-tile.png" />
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\favicon.png" Link="clusternode-web\favicon.png" />
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-bold-webfont.woff" Link="clusternode-web\fonts\roboto-bold-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-bolditalic-webfont.woff" Link="clusternode-web\fonts\roboto-bolditalic-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-italic-webfont.woff" Link="clusternode-web\fonts\roboto-italic-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-regular-webfont.woff" Link="clusternode-web\fonts\roboto-regular-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\sourcecodepro-bold-webfont.woff" Link="clusternode-web\fonts\sourcecodepro-bold-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\sourcecodepro-regular-webfont.woff" Link="clusternode-web\fonts\sourcecodepro-regular-webfont.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\EventStore.ClusterNode.Web\clusternode-web\index.html" Link="clusternode-web\index.html" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\EventStore.ClusterNode.Services\ClusterConfiguration.yaml" Link="ClusterConfiguration.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-bold-webfont.woff2" Link="clusternode-web\fonts\roboto-bold-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-bolditalic-webfont.woff2" Link="clusternode-web\fonts\roboto-bolditalic-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-italic-webfont.woff2" Link="clusternode-web\fonts\roboto-italic-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\roboto-regular-webfont.woff2" Link="clusternode-web\fonts\roboto-regular-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\sourcecodepro-bold-webfont.woff2" Link="clusternode-web\fonts\sourcecodepro-bold-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\fonts\sourcecodepro-regular-webfont.woff2" Link="clusternode-web\fonts\sourcecodepro-regular-webfont.woff2">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\images\clipboard--hover.svg" Link="clusternode-web\images\clipboard--hover.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\images\clipboard.svg" Link="clusternode-web\images\clipboard.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\images\logo.svg" Link="clusternode-web\images\logo.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\ace.js" Link="clusternode-web\js\ace\ace.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\mode-javascript.js" Link="clusternode-web\js\ace\mode-javascript.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\mode-json.js" Link="clusternode-web\js\ace\mode-json.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\theme-monokai.js" Link="clusternode-web\js\ace\theme-monokai.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\worker-javascript.js" Link="clusternode-web\js\ace\worker-javascript.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\ace\worker-json.js" Link="clusternode-web\js\ace\worker-json.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\app.min.js" Link="clusternode-web\js\app.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\clusternode-web\js\requirejs.min.js" Link="clusternode-web\js\requirejs.min.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.ClusterNode.Web\projections\es.projections.environment.js" Link="projections\es.projections.environment.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.Projections.Core\Prelude\1Prelude.js" Link="Prelude\1Prelude.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.Projections.Core\Prelude\Modules.js" Link="Prelude\Modules.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.Projections.Core\Prelude\ModulesExecuted.js" Link="Prelude\ModulesExecuted.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\EventStore.Projections.Core\Prelude\Projections.js" Link="Prelude\Projections.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\NLog.config" Link="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="winsvcreg.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="winsvcstart.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="winsvcstop.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="winsvcunreg.cmd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="win.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="clusternode-web\css\" />
+    <Folder Include="clusternode-web\fonts\" />
+    <Folder Include="clusternode-web\images\" />
+    <Folder Include="clusternode-web\js\ace\" />
+    <Folder Include="Prelude\" />
+    <Folder Include="projections\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.ClusterNode.Services\EventStore.ClusterNode.Services.csproj" />
+  </ItemGroup>
+
+</Project>

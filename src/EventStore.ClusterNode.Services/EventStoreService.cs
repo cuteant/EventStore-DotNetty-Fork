@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
+//using System.ComponentModel.Composition;
+//using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -26,7 +26,7 @@ namespace EventStore.ClusterNode
     {
         private ClusterVNode _node;
         private ExclusiveDbLock _dbLock = null;
-        private ClusterNodeMutex _clusterNodeMutex = null;
+        //private ClusterNodeMutex _clusterNodeMutex = null;
 
         protected override string GetLogsDirectory(ClusterNodeOptions options)
         {
@@ -43,7 +43,7 @@ namespace EventStore.ClusterNode
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddNLog();
             TraceLogger.Initialize(loggerFactory);
-            Log = TraceLogger.GetLogger<Program>();
+            Log = TraceLogger.GetLogger<EventStoreService>();
 
             if (options.Db.StartsWith("~", StringComparison.Ordinal) && !options.Force)
             {
@@ -296,89 +296,89 @@ namespace EventStore.ClusterNode
             }
 
             var authenticationConfig = String.IsNullOrEmpty(options.AuthenticationConfig) ? options.Config : options.AuthenticationConfig;
-            var plugInContainer = FindPlugins();
-            var authenticationProviderFactory = GetAuthenticationProviderFactory(options.AuthenticationType, authenticationConfig, plugInContainer);
-            var consumerStrategyFactories = GetPlugInConsumerStrategyFactories(plugInContainer);
-            builder.WithAuthenticationProvider(authenticationProviderFactory);
+            //var plugInContainer = FindPlugins();
+            //var authenticationProviderFactory = GetAuthenticationProviderFactory(options.AuthenticationType, authenticationConfig, plugInContainer);
+            //var consumerStrategyFactories = GetPlugInConsumerStrategyFactories(plugInContainer);
+            //builder.WithAuthenticationProvider(authenticationProviderFactory);
 
-            return builder.Build(options, consumerStrategyFactories);
+            return builder.Build(options);//, consumerStrategyFactories);
         }
 
-        private static IPersistentSubscriptionConsumerStrategyFactory[] GetPlugInConsumerStrategyFactories(CompositionContainer plugInContainer)
-        {
-            var allPlugins = plugInContainer.GetExports<IPersistentSubscriptionConsumerStrategyPlugin>();
+      //  private static IPersistentSubscriptionConsumerStrategyFactory[] GetPlugInConsumerStrategyFactories(CompositionContainer plugInContainer)
+      //  {
+      //      var allPlugins = plugInContainer.GetExports<IPersistentSubscriptionConsumerStrategyPlugin>();
 
-            var strategyFactories = new List<IPersistentSubscriptionConsumerStrategyFactory>();
+      //      var strategyFactories = new List<IPersistentSubscriptionConsumerStrategyFactory>();
 
-            foreach (var potentialPlugin in allPlugins)
-            {
-                try
-                {
-                    var plugin = potentialPlugin.Value;
-                    Log.LogInformation("Loaded consumer strategy plugin: {0} version {1}.", plugin.Name, plugin.Version);
-                    strategyFactories.Add(plugin.GetConsumerStrategyFactory());
-                }
-                catch (CompositionException ex)
-                {
-                    Log.LogError(ex, "Error loading consumer strategy plugin.");
-                }
-            }
+      //      foreach (var potentialPlugin in allPlugins)
+      //      {
+      //          try
+      //          {
+      //              var plugin = potentialPlugin.Value;
+      //              Log.LogInformation("Loaded consumer strategy plugin: {0} version {1}.", plugin.Name, plugin.Version);
+      //              strategyFactories.Add(plugin.GetConsumerStrategyFactory());
+      //          }
+      //          catch (CompositionException ex)
+      //          {
+      //              Log.LogError(ex, "Error loading consumer strategy plugin.");
+      //          }
+      //      }
 
-            return strategyFactories.ToArray();
-        }
+      //      return strategyFactories.ToArray();
+      //  }
 
-        private static IAuthenticationProviderFactory GetAuthenticationProviderFactory(string authenticationType, string authenticationConfigFile, CompositionContainer plugInContainer)
-        {
-            var potentialPlugins = plugInContainer.GetExports<IAuthenticationPlugin>();
+      //  private static IAuthenticationProviderFactory GetAuthenticationProviderFactory(string authenticationType, string authenticationConfigFile, CompositionContainer plugInContainer)
+      //  {
+      //      var potentialPlugins = plugInContainer.GetExports<IAuthenticationPlugin>();
 
-            var authenticationTypeToPlugin = new Dictionary<string, Func<IAuthenticationProviderFactory>>
-      {
-        { "internal", () => new InternalAuthenticationProviderFactory() }
-      };
+      //      var authenticationTypeToPlugin = new Dictionary<string, Func<IAuthenticationProviderFactory>>
+      //{
+      //  { "internal", () => new InternalAuthenticationProviderFactory() }
+      //};
 
-            foreach (var potentialPlugin in potentialPlugins)
-            {
-                try
-                {
-                    var plugin = potentialPlugin.Value;
-                    var commandLine = plugin.CommandLineName.ToLowerInvariant();
-                    Log.LogInformation("Loaded authentication plugin: {0} version {1} (Command Line: {2})", plugin.Name, plugin.Version, commandLine);
-                    authenticationTypeToPlugin.Add(commandLine, () => plugin.GetAuthenticationProviderFactory(authenticationConfigFile));
-                }
-                catch (CompositionException ex)
-                {
-                    Log.LogError(ex, "Error loading authentication plugin.");
-                }
-            }
+      //      foreach (var potentialPlugin in potentialPlugins)
+      //      {
+      //          try
+      //          {
+      //              var plugin = potentialPlugin.Value;
+      //              var commandLine = plugin.CommandLineName.ToLowerInvariant();
+      //              Log.LogInformation("Loaded authentication plugin: {0} version {1} (Command Line: {2})", plugin.Name, plugin.Version, commandLine);
+      //              authenticationTypeToPlugin.Add(commandLine, () => plugin.GetAuthenticationProviderFactory(authenticationConfigFile));
+      //          }
+      //          catch (CompositionException ex)
+      //          {
+      //              Log.LogError(ex, "Error loading authentication plugin.");
+      //          }
+      //      }
 
-            if (!authenticationTypeToPlugin.TryGetValue(authenticationType.ToLowerInvariant(), out Func<IAuthenticationProviderFactory> factory))
-            {
-                throw new ApplicationInitializationException(string.Format("The authentication type {0} is not recognised. If this is supposed " +
-                            "to be provided by an authentication plugin, confirm the plugin DLL is located in {1}.\n" +
-                            "Valid options for authentication are: {2}.", authenticationType, Locations.PluginsDirectory, string.Join(", ", authenticationTypeToPlugin.Keys)));
-            }
+      //      if (!authenticationTypeToPlugin.TryGetValue(authenticationType.ToLowerInvariant(), out Func<IAuthenticationProviderFactory> factory))
+      //      {
+      //          throw new ApplicationInitializationException(string.Format("The authentication type {0} is not recognised. If this is supposed " +
+      //                      "to be provided by an authentication plugin, confirm the plugin DLL is located in {1}.\n" +
+      //                      "Valid options for authentication are: {2}.", authenticationType, Locations.PluginsDirectory, string.Join(", ", authenticationTypeToPlugin.Keys)));
+      //      }
 
-            return factory();
-        }
+      //      return factory();
+      //  }
 
-        private static CompositionContainer FindPlugins()
-        {
-            var catalog = new AggregateCatalog();
+        //private static CompositionContainer FindPlugins()
+        //{
+        //    var catalog = new AggregateCatalog();
 
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(Program).Assembly));
+        //    catalog.Catalogs.Add(new AssemblyCatalog(typeof(Program).Assembly));
 
-            if (Directory.Exists(Locations.PluginsDirectory))
-            {
-                Log.LogInformation("Plugins path: {0}", Locations.PluginsDirectory);
-                catalog.Catalogs.Add(new DirectoryCatalog(Locations.PluginsDirectory));
-            }
-            else
-            {
-                Log.LogInformation("Cannot find plugins path: {0}", Locations.PluginsDirectory);
-            }
+        //    if (Directory.Exists(Locations.PluginsDirectory))
+        //    {
+        //        Log.LogInformation("Plugins path: {0}", Locations.PluginsDirectory);
+        //        catalog.Catalogs.Add(new DirectoryCatalog(Locations.PluginsDirectory));
+        //    }
+        //    else
+        //    {
+        //        Log.LogInformation("Cannot find plugins path: {0}", Locations.PluginsDirectory);
+        //    }
 
-            return new CompositionContainer(catalog);
-        }
+        //    return new CompositionContainer(catalog);
+        //}
 
         protected override void OnStart()
         {
@@ -401,14 +401,14 @@ namespace EventStore.ClusterNode
             {
                 Log.LogError(exc.ToString());
             }
-            try
-            {
-                if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
-            }
-            catch (Exception exc)
-            {
-                Log.LogError(exc.ToString());
-            }
+            //try
+            //{
+            //    if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
+            //}
+            //catch (Exception exc)
+            //{
+            //    Log.LogError(exc.ToString());
+            //}
         }
     }
 }

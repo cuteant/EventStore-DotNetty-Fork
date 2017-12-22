@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -42,11 +41,11 @@ namespace EventStore.ClusterNode
                 StringBuilderManager.DefaultPolicy.MaximumRetainedCapacity = 1024 * 32;
 
                 string[] args = null;
-                var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");
-                if (!string.IsNullOrWhiteSpace(esConfigFile))
-                {
-                    args = new string[] { "-config", PathHelper.ApplicationBasePathCombine(esConfigFile) };
-                }
+                //var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");
+                //if (!string.IsNullOrWhiteSpace(esConfigFile))
+                //{
+                args = new string[] { "-config", PathHelper.ApplicationBasePathCombine("ClusterConfiguration.yaml") };
+                //}
                 var options = EventStoreOptions.Parse<TOptions>(args, Opts.EnvPrefix, Path.Combine(Locations.DefaultConfigurationDirectory, DefaultFiles.DefaultConfigFile));
 
                 //if (options.Help)

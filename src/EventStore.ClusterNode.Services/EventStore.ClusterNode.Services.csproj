@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>EventStore.ClusterNode</RootNamespace>
+    <AssemblyName>EventStore.ClusterNode.Services</AssemblyName>
+    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>EventStore.ClusterNode.Services</PackageId>
+    <Title>EventStore.ClusterNode.Services</Title>
+    <Description>EventStore.ClusterNode.Services</Description>
+    <PackageTags>eventstore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EventStore.ClusterNode\ClusterNodeOptions.cs" Link="ClusterNodeOptions.cs" />
+    <Compile Include="..\EventStore.ClusterNode\ClusterVNodeBuilder.cs" Link="ClusterVNodeBuilder.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
+    <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EventStore.Projections.Core\EventStore.Projections.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ClusterConfiguration.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
