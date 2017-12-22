@@ -145,7 +145,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
     {
       if (assemblies == null || !assemblies.Any()) { throw new ArgumentException("No assemblies specified.", nameof(assemblies)); }
 
-      RegisterConsumerTypes(assemblies.SelectMany(a => a.GetTypes()).ToArray());
+      RegisterConsumerTypes(assemblies.SelectMany(asm => TypeUtils.GetTypes(asm, t => true)).ToArray());
     }
 
     #endregion

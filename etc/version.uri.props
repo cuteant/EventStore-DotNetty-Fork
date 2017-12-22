@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">1.0.0</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rc</VersionSuffix>
+    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">beta</VersionSuffix>
     <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">171115</VersionDateSuffix>
     <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>
   </PropertyGroup>
