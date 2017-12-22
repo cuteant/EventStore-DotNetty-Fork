@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Transport.Http</PackageId>
-    <Title>EventStore.Transport.Http</Title>
-    <Description>Transport.Http</Description>
+    <PackageId>EventStore.Transport.Http.DotNetCore</PackageId>
+    <Title>EventStore.Transport.Http.DotNetCore</Title>
+    <Description>Transport.Http.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Rags</PackageId>
-    <Title>EventStore.Rags</Title>
-    <Description>EventStore.Rags</Description>
+    <PackageId>EventStore.Rags.DotNetCore</PackageId>
+    <Title>EventStore.Rags.DotNetCore</Title>
+    <Description>EventStore.Rags.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

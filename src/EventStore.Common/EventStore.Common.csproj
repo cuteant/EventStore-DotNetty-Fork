@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Common</PackageId>
-    <Title>EventStore.Common</Title>
-    <Description>EventStore.Common</Description>
+    <PackageId>EventStore.Common.DotNetCore</PackageId>
+    <Title>EventStore.Common.DotNetCore</Title>
+    <Description>EventStore.Common.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

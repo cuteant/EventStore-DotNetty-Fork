@@ -1,14 +1,14 @@
 <Project>
   <!-- Set common properties regarding assembly information and nuget packages -->
   <PropertyGroup>
-    <Product>UriTemplate.Core</Product>
-    <Authors>Jakub Pierewoj, Seabiscuit</Authors>
-    <Copyright>Copyright 2012-2017 Event Store LLP, Seabiscuit</Copyright>
-    <PackageIconUrl>http://icons.iconarchive.com/icons/ph03nyx/super-mario/256/Retro-Flower-Fire-2-icon.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/pierewoj/dotnet-uritemplate</PackageProjectUrl>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <Product>Mono.UriTemplate</Product>
+    <Authors>Mono Project</Authors>
+    <Copyright>Copyright 2017 Mono Project</Copyright>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageProjectUrl>https://github.com/mono/mono</PackageProjectUrl>
+    <PackageLicenseUrl>https://opensource.org/licenses/mit-license.php</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/pierewoj/dotnet-uritemplate</RepositoryUrl>
+    <RepositoryUrl>https://github.com/mono/mono</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>

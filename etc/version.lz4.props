@@ -3,9 +3,6 @@
   <PropertyGroup>
     <AssemblyVersion>1.0.15.93</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">1.0.15.93</VersionPrefix>
-    <!--<VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rtm</VersionSuffix>
-    <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">171112</VersionDateSuffix>
-    <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>-->
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFramework)' == 'net40' ">

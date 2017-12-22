@@ -11,9 +11,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.BufferManagement</PackageId>
-    <Title>EventStore.BufferManagement</Title>
-    <Description>EventStore.BufferManagement</Description>
+    <PackageId>EventStore.BufferManagement.DotNetCore</PackageId>
+    <Title>EventStore.BufferManagement.DotNetCore</Title>
+    <Description>EventStore.BufferManagement.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

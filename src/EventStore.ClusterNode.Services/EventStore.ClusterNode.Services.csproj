@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>

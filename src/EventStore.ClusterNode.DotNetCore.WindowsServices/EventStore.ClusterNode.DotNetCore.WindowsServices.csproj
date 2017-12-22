@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,6 +7,7 @@
     <AssemblyName>EventStore.ClusterNode</AssemblyName>
     <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">$(NETCoreApp2RuntimeFrameworkVersion)</RuntimeFrameworkVersion>
+    <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup>

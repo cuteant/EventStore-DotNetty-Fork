@@ -14,9 +14,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Projections.Core</PackageId>
-    <Title>EventStore.Projections.Core</Title>
-    <Description>EventStore.Projections.Core</Description>
+    <PackageId>EventStore.Projections.Core.DotNetCore</PackageId>
+    <Title>EventStore.Projections.Core.DotNetCore</Title>
+    <Description>EventStore.Projections.Core.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

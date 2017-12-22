@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>
     <AssemblyName>EventStore.ClusterNode</AssemblyName>
     <TargetFramework>net471</TargetFramework>
+    <IsPackable>false</IsPackable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">

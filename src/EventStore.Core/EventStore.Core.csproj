@@ -15,9 +15,9 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Core</PackageId>
-    <Title>EventStore.Core</Title>
-    <Description>EventStore.Core</Description>
+    <PackageId>EventStore.Core.DotNetCore</PackageId>
+    <Title>EventStore.Core.DotNetCore</Title>
+    <Description>EventStore.Core.DotNetCore</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
