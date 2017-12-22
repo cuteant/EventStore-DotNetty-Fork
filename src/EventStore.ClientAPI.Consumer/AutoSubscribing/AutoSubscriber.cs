@@ -237,10 +237,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
       var interfaceType = consumerInfo.InterfaceType;
       var concreteConsumer = GetConcreteConsumer(consumerInfo.ConcreteType);
       var topics = GetTopAttributeValues(consumerInfo, consumeMethod);
+      var isGenericType = interfaceType.GetTypeInfo().IsGenericType;
 
       #region IAutoSubscriberConsume<>
 
-      if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsume<>))
+      if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsume<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateConsumer(autoSubscriberConsumerAttr.Subscription, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -250,7 +251,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberConsumeAsync<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsumeAsync<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsumeAsync<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateAsyncConsumer(autoSubscriberConsumerAttr.Subscription, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -341,7 +342,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberCatchUpConsume<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsume<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsume<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateResolvedEventConsumer(SubscriptionType.CatchUp, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -351,7 +352,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberCatchUpConsumeAsync<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsumeAsync<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsumeAsync<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateAsyncResolvedEventConsumer(SubscriptionType.CatchUp, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -387,7 +388,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberPersistentConsume<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsume<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsume<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateResolvedEventConsumer(SubscriptionType.Persistent, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -397,7 +398,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberPersistentConsumeAsync<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsumeAsync<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsumeAsync<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateAsyncResolvedEventConsumer(SubscriptionType.Persistent, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -686,7 +687,8 @@ namespace EventStore.ClientAPI.AutoSubscribing
     {
       MethodInfo consumeMethod = null;
       var interfaceType = consumerInfo.InterfaceType;
-      if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsumeAsync<>))
+      var isGenericType = interfaceType.GetTypeInfo().IsGenericType;
+      if (isGenericType && (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsumeAsync<>)))
       {
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[] { consumerInfo.MessageType });
       }
@@ -706,7 +708,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           typeof(ResolvedEvent<object>)
         });
       }
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsumeAsync<>))
+      else if (isGenericType && (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberCatchUpConsumeAsync<>)))
       {
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[]
         {
@@ -723,7 +725,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           typeof(int?)
         });
       }
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsumeAsync<>))
+      else if (isGenericType && (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberPersistentConsumeAsync<>)))
       {
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[]
         {
@@ -740,7 +742,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
           typeof(ResolvedEvent<object>)
         });
       }
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsumeAsync<>))
+      else if (isGenericType && (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsumeAsync<>)))
       {
         consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[]
         {

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using CuteAnt.Extensions.Serialization;
 using EventStore.ClientAPI;
-using EventStore.ClientAPI.Serialization;
 using ProtoBuf;
 
 namespace Es.SharedModels

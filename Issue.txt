@@ -25,9 +25,9 @@ Issue.009 ★ StartsWith & EndsWith & ToLower & ToUpper
 
 Issue.010 ★ SpinWait 替换 Thread.Sleep(1)
 
-Issue.011 ☆ 需测试 NETCore 环境下是否可以使用 MemoryMappedFileCheckpoint
+Issue.011 ★ 需测试 NETCore 环境下是否可以使用 MemoryMappedFileCheckpoint
 
-Issue.012 ☆ 
+Issue.012 ☆ CombineStreamId 加一级缓存
 
 Issue.013 ☆ 
 
