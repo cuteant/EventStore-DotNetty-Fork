@@ -50,6 +50,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		clean.cmd = clean.cmd
 		Issue.txt = Issue.txt
 		NuGet.Config = NuGet.Config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.BufferManagement.Tests", "src\EventStore.BufferManagement.Tests\EventStore.BufferManagement.Tests.csproj", "{4CD7583C-EFA7-4C05-AB8D-1A1DB8DB6FD2}"

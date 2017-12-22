@@ -13,8 +13,14 @@
   <PropertyGroup Label="NuGet">
     <PackageId>EasyEventStore.Abstractions</PackageId>
     <Title>EasyEventStore.Abstractions</Title>
-    <Description>EventStore.Client.Abstractions</Description>
-    <PackageTags>eventstore client queue</PackageTags>
+    <Description>This library is primarily based on the EventStore.ClientAPI(The client API for the Event Store), with some additional features not available in the original code. 
+You can refer (https://eventstore.org/) for more details.
+
+Goals:
+
+1. To make working with Event Store on .NET as easy as possible.
+2. To build an API that is close to interchangable with EasyNetQ.</Description>
+    <PackageTags>eventstore client queue mq eventsourcing</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
