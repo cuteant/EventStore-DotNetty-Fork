@@ -6,5 +6,6 @@
         public const string Chaser = "chaser";
         public const string Epoch = "epoch";
         public const string Truncate = "truncate";
+        public const string Replication = "replication";
     }
 }
