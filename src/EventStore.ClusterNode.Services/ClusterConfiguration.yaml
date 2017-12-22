@@ -12,29 +12,30 @@
 
 # Start the built in system projections. Default: false
 StartStandardProjections: true
+
 # Disable HTTP caching.
-DisableHTTPCaching: false
+# DisableHTTPCaching: false
 
 # Minimum number of worker threads when running under mono. Set to 0 to leave machine defaults.
 # MonoMinThreadpoolSize: 10
 
 # Force the Event Store to run in possibly harmful environments such as with Boehm GC.
-Force: false
+# Force: false
 
-# The number of seconds between statistics gathers.
+# The number of seconds between statistics gathers. Default: 30s
 StatsPeriodSec: 3600
 
 # The number of threads to use for pool of worker services.
-WorkerThreads: 5
+# WorkerThreads: 5
 
 # Enables the tracking of various histograms in the backend, typically only used for debugging etc
-EnableHistograms: false
+# EnableHistograms: false
 
 # Log Http Requests and Responses before processing them.
-LogHttpRequests: false
+# LogHttpRequests: false
 
 # Skip Index Scan on Reads. This skips the index scan which was used to stop reading duplicates.
-SkipIndexScanOnReads: false
+# SkipIndexScanOnReads: false
 
 
 
@@ -44,12 +45,13 @@ SkipIndexScanOnReads: false
 # MinFlushDelayMs: 2
 
 # Disables the merging of chunks when scavenge is running
-DisableScavengeMerging: false
+# DisableScavengeMerging: false
+
 # The number of days to keep scavenge history
-ScavengeHistoryMaxAge: 30
+# ScavengeHistoryMaxAge: 30
 
 # The number of reader threads to use for processing reads.
-ReaderThreadsCount: 4
+# ReaderThreadsCount: 4
 
 # The number of chunks to cache in unmanaged memory.
 # CachedChunks: -1
@@ -57,9 +59,9 @@ ReaderThreadsCount: 4
 # ChunksCacheSize: 536871424
 
 # Adjusts the maximum size of a mem table.
-MaxMemTableSize: 1000000
+# MaxMemTableSize: 1000000
 # The number of events to read per candidate in the case of a hash collision
-HashCollisionReadLimit: 100
+# HashCollisionReadLimit: 100
 
 # The path the db should be loaded/saved to.
 # Db: data
@@ -67,41 +69,42 @@ HashCollisionReadLimit: 100
 # Index:
 
 # Keep everything in memory, no directories or files are created.
-MemDb: false
+# MemDb: false
+
 # Bypasses the checking of file hashes of database during startup (allows for faster startup).
-SkipDbVerify: false
+# SkipDbVerify: false
 
 # Enables Write Through when writing to the file system, this bypasses filesystem caches.
-WriteThrough: false
+# WriteThrough: false
 
 # Enables Unbuffered/DirectIO when writing to the file system, this bypasses filesystem caches.
-Unbuffered: false
+# Unbuffered: false
 
 # Prepare timeout (in milliseconds).
-PrepareTimeoutMs: 2000                  # 2 seconds
+# PrepareTimeoutMs: 2000                  # 2 seconds
 # Commit timeout (in milliseconds).
-CommitTimeoutMs: 2000                   # 2 seconds
+# CommitTimeoutMs: 2000                   # 2 seconds
 
 # Disable flushing to disk.  (UNSAFE: on power off)
-UnsafeDisableFlushToDisk: false
+# UnsafeDisableFlushToDisk: false
 
 # Enable Queue affinity on reads during write process to try to get better ordering.
-BetterOrdering: false
+# BetterOrdering: false
 
 # Disables Hard Deletes (UNSAFE: use to remove hard deletes)
-UnsafeIgnoreHardDelete: false
+# UnsafeIgnoreHardDelete: false
 
 # Bypasses the checking of file hashes of indexes during startup and after index merges (allows for faster startup and less disk pressure after merges).
-SkipIndexVerify: false
+# SkipIndexVerify: false
 
 # Sets the depth to cache for the mid point cache in index.
-IndexCacheDepth: 16
+# IndexCacheDepth: 16
 
 # Always keeps the newer chunks from a scavenge operation.
-AlwaysKeepScavenged: false
+# AlwaysKeepScavenged: false
 
 # The initial number of readers to start when opening a TFChunk
-ChunkInitialReaderCount: 5
+# ChunkInitialReaderCount: 5
 
 
 
@@ -110,9 +113,9 @@ ChunkInitialReaderCount: 5
 # Enables the running of projections. System runs built-in projections, All runs user projections. Default: None
 RunProjections: All                    # None / System / All
 # The number of threads to use for projections.
-ProjectionThreads: 3
+# ProjectionThreads: 3
 # The number of minutes a query can be idle before it expires
-ProjectionsQueryExpiry: 5
+# ProjectionsQueryExpiry: 5
 
 
 
@@ -179,27 +182,27 @@ ProjectionsQueryExpiry: 5
 
 
 # Heartbeat timeout for internal TCP sockets
-IntTcpHeartbeatTimeout: 700
+# IntTcpHeartbeatTimeout: 700
 # Heartbeat timeout for external TCP sockets
-ExtTcpHeartbeatTimeout: 1000
+# ExtTcpHeartbeatTimeout: 1000
 
 # Heartbeat interval for internal TCP sockets
-IntTcpHeartbeatInterval: 700
+# IntTcpHeartbeatInterval: 700
 # Heartbeat interval for external TCP sockets
-ExtTcpHeartbeatInterval: 2000
+# ExtTcpHeartbeatInterval: 2000
 
 # When enabled tells a single node to run gossip as if it is a cluster
-GossipOnSingleNode: false
+# GossipOnSingleNode: false
 
 # The maximum number of pending send bytes allowed before a connection is closed.
 # ConnectionPendingSendBytesThreshold: 10 * 1024 * 1024
 
 # Whether or not to run the admin ui on the external HTTP endpoint
-AdminOnExt: true
+# AdminOnExt: true
 # Whether or not to accept statistics requests on the external HTTP endpoint, needed if you use admin ui
-StatsOnExt: true
+# StatsOnExt: true
 # Whether or not to accept gossip requests on the external HTTP endpoint
-GossipOnExt: true
+# GossipOnExt: true
 
 # The prefixes that the internal HTTP server should respond to.
 # IntHttpPrefixes:
@@ -212,18 +215,18 @@ GossipOnExt: true
 #   - 
 
 # Enables trusted authentication by an intermediary in the HTTP
-EnableTrustedAuth: false
+# EnableTrustedAuth: false
 # Add interface prefixes
-AddInterfacePrefixes: true
+# AddInterfacePrefixes: true
 
 # Whether to use secure internal communication.
-UseInternalSsl: false
+# UseInternalSsl: false
 # Whether to disable insecure TCP communication
-DisableInsecureTCP: false
+# DisableInsecureTCP: false
 # Target host of server's SSL certificate.
-SslTargetHost: n/a
+# SslTargetHost: n/a
 # Whether to validate that server's certificate is trusted.
-SslValidateServer: true
+# SslValidateServer: true
 
 
 
@@ -254,16 +257,16 @@ SslValidateServer: true
 ## Cluster Options
 
 # The number of nodes in the cluster.
-ClusterSize: 1
+# ClusterSize: 1
 # The node priority used during master election
-NodePriority: 0
+# NodePriority: 0
 
 # The number of nodes which must acknowledge commits before acknowledging to a client.
-CommitCount: -1
+# CommitCount: -1
 # The number of nodes which must acknowledge prepares.
-PrepareCount: -1
+# PrepareCount: -1
 
-# Whether to use DNS lookup to discover other cluster nodes.
+# Whether to use DNS lookup to discover other cluster nodes. Default: true
 DiscoverViaDns: false
 
 # DNS name from which other nodes can be discovered.
@@ -278,11 +281,11 @@ DiscoverViaDns: false
 #   - 
 
 # The interval, in ms, nodes should try to gossip with each other.
-GossipIntervalMs: 1000
+# GossipIntervalMs: 1000
 # The amount of drift, in ms, between clocks on nodes allowed before gossip is rejected.
-GossipAllowedDifferenceMs: 60000
+# GossipAllowedDifferenceMs: 60000
 # The timeout, in ms, on gossip to another node.
-GossipTimeoutMs: 500
+# GossipTimeoutMs: 500
 
 
 

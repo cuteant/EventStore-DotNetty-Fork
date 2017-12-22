@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 
 namespace EventStore.Common.Utils
 {
@@ -37,14 +38,15 @@ namespace EventStore.Common.Utils
 
         public static string GetRuntimeVersion()
         {
-            var type = Type.GetType("Mono.Runtime");
-            if (type != null)
-            {
-                MethodInfo getDisplayNameMethod = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-                return getDisplayNameMethod != null ? (string)getDisplayNameMethod.Invoke(null, null) : "Mono <UNKNOWN>";
-            }
-            // must be .NET
-            return ".NET " + Environment.Version;
+            return RuntimeInformation.FrameworkDescription;
+            //var type = Type.GetType("Mono.Runtime");
+            //if (type != null)
+            //{
+            //    MethodInfo getDisplayNameMethod = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+            //    return getDisplayNameMethod != null ? (string)getDisplayNameMethod.Invoke(null, null) : "Mono <UNKNOWN>";
+            //}
+            //// must be .NET
+            //return ".NET " + Environment.Version;
         }
 
         private static OsFlavor DetermineOSFlavor()

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -123,10 +125,10 @@ namespace EventStore.ClusterNode
                     Application.Exit(3, "Appears that we are running in mono with boehm GC this is generally not a good idea, please run with sgen instead." +
                         "to run with sgen use mono --gc=sgen. If you really want to run with boehm GC you can use --force to override this error.");
                 }
-                if (OS.IsUnix && !(OS.GetRuntimeVersion().StartsWith("4.6.2", StringComparison.Ordinal)))
-                {
-                    Log.LogWarning("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
-                }
+                //if (OS.IsUnix && !(OS.GetRuntimeVersion().StartsWith("4.6.2", StringComparison.Ordinal)))
+                //{
+                //    Log.LogWarning("You appear to be running a version of Mono which is untested and not supported. Only Mono 4.6.2 is supported at this time.");
+                //}
             }
         }
 
@@ -152,17 +154,27 @@ namespace EventStore.ClusterNode
         {
             Application.AddDefines(options.Defines);
 
-            var projName = Assembly.GetEntryAssembly().GetName().Name.Replace(".", " - ");
+            var entryAsm = Assembly.GetEntryAssembly();
+            var asmName = entryAsm.GetName().Name;
+            var asmFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, asmName +
+#if DESKTOPCLR
+                ".exe");
+#else
+                ".dll");
+#endif
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(asmFullPath);
+            var buildTime = File.GetLastWriteTime(asmFullPath);
+            var projName = asmName.Replace(".", " - ");
             var componentName = GetComponentName(options);
 
             Log.LogInformation($"{projName}, {componentName}");
 
-            string logsDirectory = Path.GetFullPath(options.Log.IsNotEmptyString() ? options.Log : GetLogsDirectory(options));
+            //string logsDirectory = Path.GetFullPath(options.Log.IsNotEmptyString() ? options.Log : GetLogsDirectory(options));
             //LogManager.Init(componentName, logsDirectory, Locations.DefaultConfigurationDirectory);
 
-            Log.LogInformation("\n{0,-25} {1} ({2}/{3}, {4})", "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp);
-            Log.LogInformation("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, Environment.OSVersion);
-            Log.LogInformation("{0,-25} {1} ({2}-bit)", "RUNTIME:", OS.GetRuntimeVersion(), Marshal.SizeOf(typeof(IntPtr)) * 8);
+            Log.LogInformation("\n{0,-25} {1} ({2}, {3})", "ES VERSION:", fileVersionInfo.FileVersion, fileVersionInfo.ProductVersion.Replace(". Commit Hash: ", @"/"), buildTime.ToString("ddd, d MMMM yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture));
+            Log.LogInformation("{0,-25} {1} ({2})", "OS:", OS.OsFlavor, RuntimeInformation.OSDescription);
+            Log.LogInformation("{0,-25} {1} ({2}-bit)", "RUNTIME:", RuntimeInformation.FrameworkDescription, Marshal.SizeOf(typeof(IntPtr)) * 8);
             Log.LogInformation("{0,-25} {1}", "GC:", GC.MaxGeneration == 0 ? "NON-GENERATION (PROBABLY BOEHM)" : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1));
             Log.LogInformation("{0,-25} {1}", "LOGS:", ""); // LogManager.LogsDirectory
             Log.LogInformation("{0}", EventStoreOptions.DumpOptions());

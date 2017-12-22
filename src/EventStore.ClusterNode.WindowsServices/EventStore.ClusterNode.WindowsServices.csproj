@@ -5,9 +5,8 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>
     <AssemblyName>EventStore.ClusterNode</AssemblyName>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>net471</TargetFrameworks>
     <IsPackable>false</IsPackable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
