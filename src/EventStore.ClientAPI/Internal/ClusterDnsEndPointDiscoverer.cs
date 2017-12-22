@@ -26,8 +26,7 @@ namespace EventStore.ClientAPI.Internal
     private TimeSpan _gossipTimeout;
     private readonly bool _preferRandomNode;
 
-    public ClusterDnsEndPointDiscoverer(
-                                        string clusterDns,
+    public ClusterDnsEndPointDiscoverer(string clusterDns,
                                         int maxDiscoverAttempts,
                                         int managerExternalHttpPort,
                                         GossipSeed[] gossipSeeds,

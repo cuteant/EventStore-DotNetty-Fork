@@ -14,12 +14,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
   internal class TcpConnectionLockless : TcpConnectionBase, ITcpConnection
   {
     internal static ITcpConnection CreateConnectingConnection(Guid connectionId,
-                                                                  IPEndPoint remoteEndPoint,
-                                                                  TcpClientConnector connector,
-                                                                  TimeSpan connectionTimeout,
-                                                                  Action<ITcpConnection> onConnectionEstablished,
-                                                                  Action<ITcpConnection, SocketError> onConnectionFailed,
-                                                                  Action<ITcpConnection, SocketError> onConnectionClosed)
+                                                              IPEndPoint remoteEndPoint,
+                                                              TcpClientConnector connector,
+                                                              TimeSpan connectionTimeout,
+                                                              Action<ITcpConnection> onConnectionEstablished,
+                                                              Action<ITcpConnection, SocketError> onConnectionFailed,
+                                                              Action<ITcpConnection, SocketError> onConnectionClosed)
     {
       var connection = new TcpConnectionLockless(connectionId, remoteEndPoint, onConnectionClosed);
       // ReSharper disable ImplicitlyCapturedClosure

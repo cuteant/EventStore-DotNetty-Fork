@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
+using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.ClientAPI.UserManagement
 {
@@ -15,19 +16,22 @@ namespace EventStore.ClientAPI.UserManagement
     {
         private readonly UsersClient _client;
 
-        private readonly IPEndPoint _httpEndPoint;
+        private readonly EndPoint _httpEndPoint;
+        private readonly string _httpSchema;
 
         /// <summary>
         /// Creates a new instance of <see cref="UsersManager"/>.
         /// </summary>
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="operationTimeout"></param>
-        public UsersManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
+        /// /// <param name="httpSchema"></param>
+        public UsersManager(EndPoint httpEndPoint, TimeSpan operationTimeout, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
         {
             Ensure.NotNull(httpEndPoint, "httpEndPoint");
 
             _client = new UsersClient(operationTimeout);
             _httpEndPoint = httpEndPoint;
+            _httpSchema = httpSchema;
         }
 
         /// <summary>

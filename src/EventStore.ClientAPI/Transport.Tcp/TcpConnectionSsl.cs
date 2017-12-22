@@ -18,14 +18,14 @@ namespace EventStore.ClientAPI.Transport.Tcp
   internal class TcpConnectionSsl : TcpConnectionBase, ITcpConnection
   {
     public static ITcpConnection CreateConnectingConnection(Guid connectionId,
-                                                                IPEndPoint remoteEndPoint,
-                                                                string targetHost,
-                                                                bool validateServer,
-                                                                TcpClientConnector connector,
-                                                                TimeSpan connectionTimeout,
-                                                                Action<ITcpConnection> onConnectionEstablished,
-                                                                Action<ITcpConnection, SocketError> onConnectionFailed,
-                                                                Action<ITcpConnection, SocketError> onConnectionClosed)
+                                                            IPEndPoint remoteEndPoint,
+                                                            string targetHost,
+                                                            bool validateServer,
+                                                            TcpClientConnector connector,
+                                                            TimeSpan connectionTimeout,
+                                                            Action<ITcpConnection> onConnectionEstablished,
+                                                            Action<ITcpConnection, SocketError> onConnectionFailed,
+                                                            Action<ITcpConnection, SocketError> onConnectionClosed)
     {
       var connection = new TcpConnectionSsl(connectionId, remoteEndPoint, onConnectionClosed);
       // ReSharper disable ImplicitlyCapturedClosure
