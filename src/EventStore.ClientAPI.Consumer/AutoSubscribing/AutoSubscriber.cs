@@ -434,7 +434,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberVolatileConsume<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsume<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsume<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateResolvedEventConsumer(SubscriptionType.Volatile, consumerInfo, consumeMethod, concreteConsumer, topic);
@@ -444,7 +444,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
       #region IAutoSubscriberVolatileConsumeAsync<>
 
-      else if (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsumeAsync<>))
+      else if (isGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberVolatileConsumeAsync<>))
       {
         var consumerGenerator = GetStreamConsumerGenerator(consumerInfo.MessageType);
         return consumerGenerator.CreateAsyncResolvedEventConsumer(SubscriptionType.Volatile, consumerInfo, consumeMethod, concreteConsumer, topic);
