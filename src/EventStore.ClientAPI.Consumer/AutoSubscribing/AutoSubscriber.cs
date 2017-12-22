@@ -12,6 +12,7 @@ using CuteAnt.Pool;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Consumers;
 using EventStore.ClientAPI.Subscriptions;
+using Grace.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.AutoSubscribing
@@ -99,7 +100,13 @@ namespace EventStore.ClientAPI.AutoSubscribing
     /// <summary>SubscribingAllTopics，default: true</summary>
     public bool SubscribingAllTopics { get; }
 
-    public IServiceProvider Services { get; set; }
+    private IServiceProvider _services;
+    /// <summary>Services</summary>
+    public IServiceProvider Services { get => _services; set => Interlocked.CompareExchange(ref _services, value, null); }
+
+    private IInjectionScope _injectionScope;
+    /// <summary>InjectionScope</summary>
+    public IInjectionScope InjectionScope { get => _injectionScope; set => Interlocked.CompareExchange(ref _injectionScope, value, null); }
 
     /// <summary>Responsible for generating SubscriptionIds, when you use
     /// <see cref="IAutoSubscriberConsume{T}"/>, since it does not let you specify specific SubscriptionIds.
@@ -610,13 +617,21 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
     protected virtual object CreateInstance(Type instanceType)
     {
-      var services = Services;
-      return services != null
-          ? ActivatorUtils.CreateInstance(services, instanceType)
-          : ActivatorUtils.FastCreateInstance(instanceType);
+      return _injectionScope != null
+          ? ActivatorUtils.CreateInstance(_injectionScope, instanceType)
+          : _services != null
+            ? ActivatorUtils.CreateInstance(_services, instanceType)
+            : ActivatorUtils.FastCreateInstance(instanceType);
     }
 
-    protected T CreateInstance<T>() => (T)CreateInstance(typeof(T));
+    protected T CreateInstance<T>()
+    {
+      return _injectionScope != null
+          ? ActivatorUtils.CreateInstance<T>(_injectionScope)
+          : _services != null
+            ? (T)ActivatorUtils.CreateInstance<T>(_services) // TODO CuteAnt.Core更新后，去掉类型转换
+            : ActivatorUtils.FastCreateInstance<T>();
+    }
 
     protected T CreateInstance<T>(Type instanceType) => (T)CreateInstance(instanceType);
 
