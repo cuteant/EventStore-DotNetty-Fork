@@ -1,4 +1,64 @@
-# Event Store
+# EventStore .NETCore Fork
+
+This is a fork from EventStore project: https://github.com/eventstore/eventstore
+
+## ~ Features
+  - Using [TPL Dataflow](https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/dataflow-task-parallel-library) for building asynchronous event data processing pipelines.
+  - More efficient serialization(see https://github.com/cuteant/CuteAnt.Serialization).
+  - Object-Pooling.
+  - Faster Reflection.
+  - More friendly and more intuitive api for EventStore-Client.
+  - Better error handling with exceptions and better server connection detect.
+  - Auto Subscriber.
+  - Some Good Ideas for event subscriptions from [EasyNetQ](https://github.com/EasyNetQ/EasyNetQ).
+
+# EasyEventStore
+
+A Nice .NET Client API for EventStore.
+
+Goals:
+
+1. To make working with Event Store on .NET as easy as possible.
+2. To build an API that is close to interchangable with EasyNetQ.
+
+## [Samples](https://github.com/cuteant/EventStore-NETCore-Fork/tree/dev-netcore/samples)
+
+To publish with EasyEventStore (assuming you've already created an IEventStoreBus instance):
+
+1. Create an instance of your message, it can be any serializable .NET type.
+2. Call the Publish method on IBus passing it your message instance.
+
+Here's the code...
+
+    var message = new MyMessage { Text = "Hello Rabbit" };
+    bus.PublishEventAsync(message);
+
+To subscribe to a message we need to give EasyEventStore an action to perform whenever a message arrives. We do this by passing subscribe a delegate:
+
+    bus.VolatileSubscribe<MyMessage>((sub, e) => Console.WriteLine(e.Body.Text));
+    bus.CatchUpSubscribe<MyMessage>((sub, e) => Console.WriteLine(e.Body.Text));
+    bus.PersistentSubscribe<MyMessage>((sub, e) => Console.WriteLine(e.Body.Text));
+
+Now every time that an instance of MyMessage is published, EasyEventStore will call our delegate and print the message¡¯s Text property to the console.
+
+To send a message, use the Send method on IEventStoreBus, specifying the name of the stream you wish to send the message to and the message itself:
+
+    bus.SendEventAsync("my.stream", new MyMessage{ Text = "Hello Widgets!" });
+
+To setup a message receiver for a particular message type, use the Receive method on IEventStoreBus:
+
+    bus.VolatileSubscribe("my.stream", (sub, e) => Console.WriteLine("MyMessage: {0}", ((MyMessage)e.Body).Text));
+
+You can set up multiple receivers for different message types on the same queue by using the Receive overload that takes an Action&lt;IHandlerRegistration&gt;, for example:
+
+    bus.VolatileSubscribeAsync("my.stream", settings,
+        addHandlers: _ =>_
+        .Add<MyMessage>(message => deliveredMyMessage = message)
+        .Add<MyOtherMessage>(message => deliveredMyOtherMessage = message);
+
+# ~ ORIGINAL README ~
+
+## Event Store
 
 The open-source, functional database with Complex Event Processing in JavaScript.
 
