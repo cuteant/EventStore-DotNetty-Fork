@@ -5,10 +5,10 @@
     <Authors>Mono Project</Authors>
     <Copyright>Copyright 2017 Mono Project</Copyright>
     <PackageIconUrl></PackageIconUrl>
-    <PackageProjectUrl>https://github.com/mono/mono</PackageProjectUrl>
-    <PackageLicenseUrl>https://opensource.org/licenses/mit-license.php</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/mono/mono/tree/master/mcs/class/System.ServiceModel.Web/System</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/mono/mono/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/mono/mono</RepositoryUrl>
+    <RepositoryUrl>https://github.com/mono/mono/tree/master/mcs/class/System.ServiceModel.Web/System</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
