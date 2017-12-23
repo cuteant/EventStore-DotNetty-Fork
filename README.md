@@ -30,7 +30,7 @@ To publish with EasyEventStore (assuming you've already created an IEventStoreBu
 
 Here's the code...
 
-    var message = new MyMessage { Text = "Hello Rabbit" };
+    var message = new MyMessage { Text = "Hello EventStore" };
     bus.PublishEventAsync(message);
 
 To subscribe to a message we need to give EasyEventStore an action to perform whenever a message arrives. We do this by passing subscribe a delegate:
@@ -39,7 +39,7 @@ To subscribe to a message we need to give EasyEventStore an action to perform wh
     bus.CatchUpSubscribe<MyMessage>((sub, e) => Console.WriteLine(e.Body.Text));
     bus.PersistentSubscribe<MyMessage>((sub, e) => Console.WriteLine(e.Body.Text));
 
-Now every time that an instance of MyMessage is published, EasyEventStore will call our delegate and print the message¡¯s Text property to the console.
+Now every time that an instance of MyMessage is published, EasyEventStore will call our delegate and print the message's Text property to the console.
 
 To send a message, use the Send method on IEventStoreBus, specifying the name of the stream you wish to send the message to and the message itself:
 
