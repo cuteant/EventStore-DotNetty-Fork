@@ -97,7 +97,8 @@ namespace EventStore.Projections.Core.Services.Management
                                             PublishCommand(e);
                                     }
                                 }
-                            });
+                            },
+                            () => Log.Warn("Read forward of stream {0} timed out. Retrying", _streamId));
                 } while (!eof);
                 _lastAwakeCorrelationId = Guid.NewGuid();
                 yield return
