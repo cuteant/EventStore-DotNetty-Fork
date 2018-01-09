@@ -18,8 +18,10 @@ namespace EventStore.Core.TransactionLog.Chunks
         private readonly TFChunkDb _db;
         private readonly ICheckpoint _writerCheckpoint;
         private long _curPos;
+        private bool _optimizeReadSideCache;
+        private readonly TFChunkReaderExistsAtOptimizer _existsAtOptimizer;
 
-        public TFChunkReader(TFChunkDb db, ICheckpoint writerCheckpoint, long initialPosition = 0)
+        public TFChunkReader(TFChunkDb db, ICheckpoint writerCheckpoint, long initialPosition = 0, bool optimizeReadSideCache = false)
         {
             Ensure.NotNull(db, nameof(db));
             Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
@@ -28,6 +30,10 @@ namespace EventStore.Core.TransactionLog.Chunks
             _db = db;
             _writerCheckpoint = writerCheckpoint;
             _curPos = initialPosition;
+
+            _optimizeReadSideCache = optimizeReadSideCache;
+            if(_optimizeReadSideCache)
+                _existsAtOptimizer = TFChunkReaderExistsAtOptimizer.Instance;
         }
 
         public void Reposition(long position)
@@ -141,7 +147,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
 
                 // we are the beginning of chunk, so need to switch to previous one
-                // to do that we set cur position to the exact boundary position between current and previous chunk, 
+                // to do that we set cur position to the exact boundary position between current and previous chunk,
                 // this will be handled correctly on next iteration
                 _curPos = chunk.ChunkHeader.ChunkStartPosition;
             }
@@ -194,6 +200,8 @@ namespace EventStore.Core.TransactionLog.Chunks
             try
             {
                 CountRead(chunk.IsCached);
+                if(_optimizeReadSideCache)
+                    _existsAtOptimizer.Optimize(chunk);
                 return chunk.ExistsAt(chunk.ChunkHeader.GetLocalLogPosition(position));
             }
             catch (FileBeingDeletedException)

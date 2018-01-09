@@ -56,7 +56,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     var footer = ReadChunkFooter(versions[0]);
                     if (footer.IsCompleted)
                     {
-                        chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount);
+                        chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
                     }
                     else
                     {
@@ -67,7 +67,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 else
                 {
-                    chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount);
+                    chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
                 }
                 Manager.AddChunk(chunk);
                 chunkNum = chunk.ChunkHeader.ChunkEndNumber + 1;
@@ -93,7 +93,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 var chunkLocalPos = chunkHeader.GetLocalLogPosition(checkpoint);
                 if (chunkHeader.IsScavenged)
                 {
-                    var lastChunk = TFChunk.TFChunk.FromCompletedFile(chunkFileName, verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount);
+                    var lastChunk = TFChunk.TFChunk.FromCompletedFile(chunkFileName, verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
                     if (lastChunk.ChunkFooter.LogicalDataSize != chunkLocalPos)
                     {
                         lastChunk.Dispose();
