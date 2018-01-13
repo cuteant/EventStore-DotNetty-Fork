@@ -58,6 +58,11 @@
         <FileVersion>4.0.4.5000</FileVersion>
       </PropertyGroup>
     </When>
+    <When Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+      <PropertyGroup>
+        <FileVersion>4.0.4.5100</FileVersion>
+      </PropertyGroup>
+    </When>
     <Otherwise>
       <PropertyGroup>
         <FileVersion>4.0.4.9000</FileVersion>

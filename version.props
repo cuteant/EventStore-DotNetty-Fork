@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">4.0.4</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">beta</VersionSuffix>
+    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">preview1</VersionSuffix>
     <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">171115</VersionDateSuffix>
     <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>
   </PropertyGroup>
@@ -56,6 +56,11 @@
     <When Condition=" '$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netstandard2.0' ">
       <PropertyGroup>
         <FileVersion>4.0.4.5000</FileVersion>
+      </PropertyGroup>
+    </When>
+    <When Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+      <PropertyGroup>
+        <FileVersion>4.0.4.5100</FileVersion>
       </PropertyGroup>
     </When>
     <Otherwise>

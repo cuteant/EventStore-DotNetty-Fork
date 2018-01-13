@@ -6,7 +6,8 @@
 
 
   <ItemGroup>
-    <PackageReference Include="protobuf-net.abstractions" Version="$(ProtobufNetAbstractionsPackageVersion)" />
+    <PackageReference Include="MessagePack.Abstractions.Unofficial" Version="$(MessagePackAbstractionsUnofficialPackageVersion)" />
+    <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

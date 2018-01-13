@@ -8,8 +8,9 @@ using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
-using Hyperion;
-using Hyperion.SerializerFactories;
+using MessagePack;
+using MessagePack.Formatters;
+using Utf8Json;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -26,22 +27,15 @@ namespace EventStore.ClientAPI.Serialization
 
     private static readonly CachedReadConcurrentDictionary<Type, StreamAttribute> _typeToStreamProviderDictionary;
 
-    private static readonly CachedReadConcurrentDictionary<Type, SerializationTokenAttribute> _typeToSerializationTokenDictionary;
+    private static readonly CachedReadConcurrentDictionary<Type, EventSerializingTokenAttribute> _typeToSerializationTokenDictionary;
 
     private static readonly JsonSerializerSettings _metadataSettings;
     private static readonly IJsonMessageFormatter _jsonFormatter;
 
-    private static IEventSerializer _jsonSerializer;
-    private static IEventSerializer _gzJsonSerializer;
-    private static IEventSerializer _lz4JsonSerializer;
-
-    private static IEventSerializer _protobufSerializer;
-    private static IEventSerializer _gzProtobufSerializer;
-    private static IEventSerializer _lz4ProtobufSerializer;
-
-    private static IEventSerializer _hyperionSerializer;
-    private static IEventSerializer _gzHyperionSerializer;
-    private static IEventSerializer _lz4HyperionSerializer;
+    private static IMessageFormatter _jsonSerializer;
+    private static IMessageFormatter _utf8JsonSerializer;
+    private static IMessageFormatter _messagePackSerializer;
+    private static IMessageFormatter _lz4MessagePackSerializer;
 
     #endregion
 
@@ -52,7 +46,7 @@ namespace EventStore.ClientAPI.Serialization
       _externalSerializers = new List<IEventSerializer>();
       _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IEventSerializer>();
       _typeToStreamProviderDictionary = new CachedReadConcurrentDictionary<Type, StreamAttribute>();
-      _typeToSerializationTokenDictionary = new CachedReadConcurrentDictionary<Type, SerializationTokenAttribute>();
+      _typeToSerializationTokenDictionary = new CachedReadConcurrentDictionary<Type, EventSerializingTokenAttribute>();
 
       _metadataSettings = JsonConvertX.CreateSerializerSettings(Formatting.Indented);
       _metadataSettings.Converters.Add(JsonConvertX.DefaultStringEnumCamelCaseConverter);
@@ -62,57 +56,43 @@ namespace EventStore.ClientAPI.Serialization
         DefaultDeserializerSettings = _metadataSettings
       };
 
-      _jsonSerializer = new JsonEventSerializer();
-      _gzJsonSerializer = new GzJsonEventSerializer();
-      _lz4JsonSerializer = new LZ4JsonEventSerializer();
-
-      _protobufSerializer = new ProtobufEventSerializer();
-      _gzProtobufSerializer = new GzProtobufEventSerializer();
-      _lz4ProtobufSerializer = new LZ4ProtobufEventSerializer();
-
-      _hyperionSerializer = new HyperionEventSerializer();
-      _gzHyperionSerializer = new GzHyperionEventSerializer();
-      _lz4HyperionSerializer = new LZ4HyperionEventSerializer();
+      _jsonSerializer = JsonMessageFormatter.DefaultInstance;
+      _utf8JsonSerializer = Utf8JsonMessageFormatter.DefaultInstance;
+      _messagePackSerializer = MessagePackMessageFormatter.DefaultInstance;
+      _lz4MessagePackSerializer = LZ4MessagePackMessageFormatter.DefaultInstance;
     }
 
     #endregion
 
     #region -- Initialize --
 
+    /// <summary>Json message formatter</summary>
+    /// <param name="serializerSettings"></param>
+    /// <param name="deserializerSettings"></param>
     public static void Initialize(JsonSerializerSettings serializerSettings, JsonSerializerSettings deserializerSettings)
     {
       if (null == serializerSettings) { throw new ArgumentNullException(nameof(serializerSettings)); }
       if (null == deserializerSettings) { throw new ArgumentNullException(nameof(deserializerSettings)); }
 
-      _jsonSerializer = new JsonEventSerializer(serializerSettings, deserializerSettings);
-      _gzJsonSerializer = new GzJsonEventSerializer(serializerSettings, deserializerSettings);
-      _lz4JsonSerializer = new LZ4JsonEventSerializer(serializerSettings, deserializerSettings);
+      _jsonSerializer = new JsonMessageFormatter()
+      {
+        DefaultSerializerSettings = serializerSettings,
+        DefaultDeserializerSettings = deserializerSettings
+      };
     }
 
-    public static void Initialize(IEnumerable<Surrogate> surrogates,
-      IEnumerable<ValueSerializerFactory> serializerFactories = null, IEnumerable<Type> knownTypes = null)
+    /// <summary>Utf8Json message formatter</summary>
+    public static void Initialize(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
     {
-      if (null == surrogates) { throw new ArgumentNullException(nameof(surrogates)); }
-
-      _hyperionSerializer = new HyperionEventSerializer(surrogates, serializerFactories, knownTypes);
-      _gzHyperionSerializer = new GzHyperionEventSerializer(surrogates, serializerFactories, knownTypes);
-      _lz4HyperionSerializer = new LZ4HyperionEventSerializer(surrogates, serializerFactories, knownTypes);
+      Utf8JsonMessageFormatter.Register(formatters, resolvers);
     }
 
-    public static void Initialize(JsonSerializerSettings serializerSettings, JsonSerializerSettings deserializerSettings,
-      IEnumerable<Surrogate> surrogates, IEnumerable<ValueSerializerFactory> serializerFactories = null, IEnumerable<Type> knownTypes = null)
+    /// <summary>MessagePack message formatter</summary>
+    public static void Initialize(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers,
+      IMessagePackFormatter[] typelessFormatters, IFormatterResolver[] typelessResolvers)
     {
-      if (null == serializerSettings) { throw new ArgumentNullException(nameof(serializerSettings)); }
-      if (null == deserializerSettings) { throw new ArgumentNullException(nameof(deserializerSettings)); }
-      if (null == surrogates) { throw new ArgumentNullException(nameof(surrogates)); }
-
-      _jsonSerializer = new JsonEventSerializer(serializerSettings, deserializerSettings);
-      _gzJsonSerializer = new GzJsonEventSerializer(serializerSettings, deserializerSettings);
-      _lz4JsonSerializer = new LZ4JsonEventSerializer(serializerSettings, deserializerSettings);
-
-      _hyperionSerializer = new HyperionEventSerializer(surrogates, serializerFactories, knownTypes);
-      _gzHyperionSerializer = new GzHyperionEventSerializer(surrogates, serializerFactories, knownTypes);
-      _lz4HyperionSerializer = new LZ4HyperionEventSerializer(surrogates, serializerFactories, knownTypes);
+      MessagePackMessageFormatter.Register(formatters, resolvers);
+      MessagePackMessageFormatter.RegisterTypeless(typelessFormatters, typelessResolvers);
     }
 
     #endregion
@@ -234,27 +214,27 @@ namespace EventStore.ClientAPI.Serialization
 
     #endregion
 
-    #region -- RegisterSerializationToken --
+    #region -- RegisterSerializingToken --
 
-    public static void RegisterSerializationToken(Type expectedType, SerializationToken token)
+    public static void RegisterSerializingToken(Type expectedType, EventSerializingToken token)
     {
       if (null == expectedType) { throw new ArgumentNullException(nameof(expectedType)); }
 
-      _typeToSerializationTokenDictionary.TryAdd(expectedType, new SerializationTokenAttribute(token));
+      _typeToSerializationTokenDictionary.TryAdd(expectedType, new EventSerializingTokenAttribute(token));
     }
 
     #endregion
 
-    #region ** TryLookupSerializationToken **
+    #region ** TryLookupSerializingToken **
 
-    private static bool TryLookupSerializationToken(Type expectedType, out SerializationTokenAttribute tokenAttr)
+    private static bool TryLookupSerializingToken(Type expectedType, out EventSerializingTokenAttribute tokenAttr)
     {
       if (_typeToSerializationTokenDictionary.TryGetValue(expectedType, out tokenAttr))
       {
         return tokenAttr != null;
       }
 
-      tokenAttr = expectedType.GetCustomAttributeX<SerializationTokenAttribute>();
+      tokenAttr = expectedType.GetCustomAttributeX<EventSerializingTokenAttribute>();
 
       _typeToSerializationTokenDictionary.TryAdd(expectedType, tokenAttr);
 
@@ -263,23 +243,25 @@ namespace EventStore.ClientAPI.Serialization
 
     #endregion
 
-    #region ** GetSerializationToken **
+    #region ** GetSerializingToken **
 
-    internal static SerializationToken GetSerializationToken(Type actualType, Type expectedType = null)
+    internal static EventSerializingToken GetSerializingToken(Type actualType, Type expectedType = null)
     {
-      var token = SerializationToken.Json;
-      if (expectedType != null && TryLookupSerializationToken(expectedType, out SerializationTokenAttribute tokenAttr))
+      var token = EventSerializingToken.Json;
+      if (expectedType != null && TryLookupSerializingToken(expectedType, out EventSerializingTokenAttribute tokenAttr))
       {
         token = tokenAttr.Token;
       }
-      else if (TryLookupSerializationToken(actualType, out tokenAttr))
+      else if (TryLookupSerializingToken(actualType, out tokenAttr))
       {
         token = tokenAttr.Token;
       }
       else
       {
-        var protoContract = actualType.GetCustomAttributeX<ProtoBuf.ProtoContractAttribute>();
-        if (protoContract != null) { return SerializationToken.Protobuf; }
+        var msgPackContract = actualType.GetCustomAttributeX<MessagePackObjectAttribute>();
+        if (msgPackContract != null) { return EventSerializingToken.MessagePack; }
+        var utf8JsonContract = actualType.GetCustomAttributeX<JsonFormatterAttribute>();
+        if (utf8JsonContract != null) { return EventSerializingToken.Utf8Json; }
       }
       return token;
     }
@@ -339,41 +321,26 @@ namespace EventStore.ClientAPI.Serialization
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
 
-      var token = GetSerializationToken(actualType, expectedType);
+      var token = GetSerializingToken(actualType, expectedType);
       return SerializeEvent(token, eventType, actualType, @event, eventContext, expectedType);
     }
 
-    internal static EventData SerializeEvent(SerializationToken token, string eventType, Type actualType, object @event, Dictionary<string, object> eventContext, Type expectedType)
+    internal static EventData SerializeEvent(EventSerializingToken token, string eventType, Type actualType, object @event, Dictionary<string, object> eventContext, Type expectedType)
     {
       if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType); }
       byte[] data;
       switch (token)
       {
-        case SerializationToken.GzJson:
-          data = _gzJsonSerializer.Serialize(@event);
+        case EventSerializingToken.Utf8Json:
+          data = _utf8JsonSerializer.SerializeObject(@event);
           break;
-        case SerializationToken.Lz4Json:
-          data = _lz4JsonSerializer.Serialize(@event);
+        case EventSerializingToken.MessagePack:
+          data = _messagePackSerializer.SerializeObject(@event);
           break;
-        case SerializationToken.Hyperion:
-          data = _hyperionSerializer.Serialize(@event);
+        case EventSerializingToken.Lz4MessagePack:
+          data = _lz4MessagePackSerializer.SerializeObject(@event);
           break;
-        case SerializationToken.GzHyperion:
-          data = _gzHyperionSerializer.Serialize(@event);
-          break;
-        case SerializationToken.Lz4Hyperion:
-          data = _lz4HyperionSerializer.Serialize(@event);
-          break;
-        case SerializationToken.Protobuf:
-          data = _protobufSerializer.Serialize(@event);
-          break;
-        case SerializationToken.GzProtobuf:
-          data = _gzProtobufSerializer.Serialize(@event);
-          break;
-        case SerializationToken.Lz4Protobuf:
-          data = _lz4ProtobufSerializer.Serialize(@event);
-          break;
-        case SerializationToken.External:
+        case EventSerializingToken.External:
           // 此处不考虑 expectedType
           if (TryLookupExternalSerializer(actualType, out IEventSerializer serializer))
           {
@@ -384,14 +351,14 @@ namespace EventStore.ClientAPI.Serialization
             throw new InvalidOperationException($"Non-serializable exception of type {actualType.AssemblyQualifiedName}");
           }
           break;
-        case SerializationToken.Json:
+        case EventSerializingToken.Json:
         default:
           data = _jsonSerializer.Serialize(@event);
           break;
       }
       return new EventData(
-          Guid.NewGuid(), eventType, SerializationToken.Json == token, data,
-          _jsonFormatter.SerializeToBytes(new EventMetadata
+          Guid.NewGuid(), eventType, EventSerializingToken.Json == token, data,
+          _jsonFormatter.SerializeObject(new EventMetadata
           {
             EventType = RuntimeTypeNameFormatter.Serialize(actualType),
             Token = token,
@@ -456,7 +423,7 @@ namespace EventStore.ClientAPI.Serialization
       if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
       if (null == events) { throw new ArgumentNullException(nameof(events)); }
 
-      var token = GetSerializationToken(actualType, expectedType);
+      var token = GetSerializingToken(actualType, expectedType);
       return events.Select(_ => SerializeEvent(token, eventType, actualType, _, eventContext, expectedType)).ToArray();
     }
 
@@ -532,7 +499,7 @@ namespace EventStore.ClientAPI.Serialization
       if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
       if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
 
-      var token = GetSerializationToken(actualType, expectedType);
+      var token = GetSerializingToken(actualType, expectedType);
       var list = new EventData[events.Count];
       for (var idx = 0; idx < events.Count; idx++)
       {
@@ -553,7 +520,7 @@ namespace EventStore.ClientAPI.Serialization
       {
         throw new EventMetadataDeserializationException(_metadataEmpty);
       }
-      var meta = _jsonFormatter.DeserializeFromBytes<EventMetadata>(metadata);
+      var meta = _jsonFormatter.Deserialize<EventMetadata>(metadata);
       if (null == meta)
       {
         throw new EventMetadataDeserializationException(_metadataEmpty);
@@ -623,31 +590,16 @@ namespace EventStore.ClientAPI.Serialization
         var type = eventType ?? TypeUtils.ResolveType(meta.EventType);
         switch (meta.Token)
         {
-          case SerializationToken.GzJson:
-            obj = _gzJsonSerializer.Deserialize(type, data);
+          case EventSerializingToken.Utf8Json:
+            obj = _utf8JsonSerializer.Deserialize(type, data);
             break;
-          case SerializationToken.Lz4Json:
-            obj = _lz4JsonSerializer.Deserialize(type, data);
+          case EventSerializingToken.MessagePack:
+            obj = _messagePackSerializer.Deserialize(type, data);
             break;
-          case SerializationToken.Hyperion:
-            obj = _hyperionSerializer.Deserialize(type, data);
+          case EventSerializingToken.Lz4MessagePack:
+            obj = _lz4MessagePackSerializer.Deserialize(type, data);
             break;
-          case SerializationToken.GzHyperion:
-            obj = _gzHyperionSerializer.Deserialize(type, data);
-            break;
-          case SerializationToken.Lz4Hyperion:
-            obj = _lz4HyperionSerializer.Deserialize(type, data);
-            break;
-          case SerializationToken.Protobuf:
-            obj = _protobufSerializer.Deserialize(type, data);
-            break;
-          case SerializationToken.GzProtobuf:
-            obj = _gzProtobufSerializer.Deserialize(type, data);
-            break;
-          case SerializationToken.Lz4Protobuf:
-            obj = _lz4ProtobufSerializer.Deserialize(type, data);
-            break;
-          case SerializationToken.External:
+          case EventSerializingToken.External:
             if (TryLookupExternalSerializer(type, out IEventSerializer serializer))
             {
               obj = serializer.Deserialize(type, data);
@@ -657,7 +609,7 @@ namespace EventStore.ClientAPI.Serialization
               throw new Exception($"Non-serializable exception of type {type.AssemblyQualifiedName}");
             }
             break;
-          case SerializationToken.Json:
+          case EventSerializingToken.Json:
           default:
             obj = _jsonSerializer.Deserialize(type, data);
             break;

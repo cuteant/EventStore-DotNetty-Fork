@@ -9,7 +9,7 @@ namespace EventStore.ClientAPI.Common.Utils
 {
   static class Json
   {
-    private const int c_defaultBufferSize = 1024 * 2;
+    private const int c_initialBufferSize = 1024 * 64;
     public const int MinBufferSize = 128;
     public const int TinyBufferSize = 256;
     public const int SmallBufferSize = 512;
@@ -26,9 +26,9 @@ namespace EventStore.ClientAPI.Common.Utils
       _jsonFormatter = new JsonMessageFormatter() { DefaultSerializerSettings = JsonSettings, DefaultDeserializerSettings = JsonSettings };
     }
 
-    public static byte[] ToJsonBytes(this object source, int bufferSize = c_defaultBufferSize)
+    public static byte[] ToJsonBytes(this object source, int initialBufferSize = c_initialBufferSize)
     {
-      return _jsonFormatter.SerializeToBytes(source, bufferSize);
+      return _jsonFormatter.SerializeObject(source, initialBufferSize);
     }
 
     public static string ToJson(this object source)
@@ -48,7 +48,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
     public static T ParseJson<T>(this byte[] json)
     {
-      return _jsonFormatter.DeserializeFromBytes<T>(json);
+      return _jsonFormatter.Deserialize<T>(json);
     }
 
     public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)

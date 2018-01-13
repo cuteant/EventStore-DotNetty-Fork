@@ -1,79 +1,91 @@
 ﻿using System;
-using CuteAnt.Extensions.Serialization;
-using ProtoBuf;
+using EventStore.ClientAPI.Serialization;
+using MessagePack;
 
 namespace EventStore.ClientAPI.Tests
 {
-  [SerializationToken(SerializationToken.Json)]
+  [EventSerializingToken(EventSerializingToken.Json)]
   [Stream("test-animal", "animal")]
+  [Union(0, typeof(Cat))]
+  [Union(1, typeof(Dog))]
+  [Union(2, typeof(Cat1))]
+  [Union(3, typeof(Dog1))]
   public interface IAnimal
   {
     string Name { get; set; }
   }
 
-  [SerializationToken(SerializationToken.Hyperion)]
-  [ProtoContract]
+  [EventSerializingToken(EventSerializingToken.MessagePack)]
+  [MessagePackObject]
   [Stream("test-animal", "cat")]
   public class Cat : IAnimal
   {
-    [ProtoMember(1)]
+    [Key(0)]
     public string Name { get; set; }
-    [ProtoMember(2)]
+    [Key(1)]
     public string Meow { get; set; }
   }
 
-  [ProtoContract]
+  [MessagePackObject]
   public class Dog : IAnimal
   {
-    [ProtoMember(1)]
+    [Key(0)]
     public string Name { get; set; }
-    [ProtoMember(2)]
+    [Key(1)]
     public string Bark { get; set; }
   }
 
-  [SerializationToken(SerializationToken.Lz4Json)]
+  [EventSerializingToken(EventSerializingToken.Utf8Json)]
   [Stream("test-animal1", "animal1")]
+  [MessagePackObject]
+  [Union(0, typeof(Cat1))]
+  [Union(1, typeof(Dog1))]
   public abstract class Animal : IAnimal
   {
+    [Key(0)]
     public virtual string Name { get; set; }
   }
 
-  [SerializationToken(SerializationToken.External)]
+  [EventSerializingToken(EventSerializingToken.External)]
+  [MessagePackObject]
   public class Cat1 : Animal
   {
+    [Key(1)]
     public string Meow { get; set; }
   }
 
+  [MessagePackObject]
   public class Dog1 : Animal
   {
+    [Key(1)]
     public string Bark { get; set; }
   }
 
-  [SerializationToken(SerializationToken.GzJson)]
+  [EventSerializingToken(EventSerializingToken.MessagePack)]
   [Stream("test-message")]
-  [ProtoContract]
+  [MessagePackObject]
   public class StartMessage
   {
-    [ProtoMember(1)]
+    [Key(0)]
     public string Text { get; set; }
   }
 
   [Stream("test-message")]
-  [SerializationToken(SerializationToken.Lz4Json)]
-  [ProtoContract]
+  [EventSerializingToken(EventSerializingToken.Lz4MessagePack)]
+  [MessagePackObject]
   public class EndMessage
   {
-    [ProtoMember(1)]
+    [Key(0)]
     public string Text { get; set; }
   }
 
-  [SerializationToken(SerializationToken.Json)]
-  [ProtoContract]
+  [EventSerializingToken(EventSerializingToken.Json)]
+  [MessagePackObject]
   public class TestMessage
   {
-    [ProtoMember(1)]
+    [Key(0)]
     public long Id { get; set; }
-    [ProtoMember(2)]
+    [Key(1)]
     public string Text { get; set; }
   }
 

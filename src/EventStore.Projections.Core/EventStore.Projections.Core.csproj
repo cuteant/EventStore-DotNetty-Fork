@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventStore.GoogleV8" Version="4.0.0-rtm-171108" />
+    <PackageReference Include="EventStore.GoogleV8" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

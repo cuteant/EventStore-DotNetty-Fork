@@ -25,7 +25,7 @@ namespace EventStore.ClientAPI.Tests
       Assert.Equal(18, meta.GetValue<int>("age"));
       Assert.Equal("shenzhen", meta.GetValue<string>("city"));
       Assert.Equal("true", meta.GetValue<string>("isdel"));
-      Assert.Equal(true, meta.GetValue<bool>("isdel"));
+      Assert.True(meta.GetValue<bool>("isdel"));
       Assert.Null(meta.GetValue<string>("id"));
       Assert.Equal((int?)null, meta.GetValue<int?>("id"));
     }
