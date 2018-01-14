@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-    internal class TransactionalWriteOperation : OperationBase<object, ClientMessage.TransactionWriteCompleted>
+    internal class TransactionalWriteOperation : OperationBase<object, TcpClientMessageDto.TransactionWriteCompleted>
     {
         private readonly bool _requireMaster;
         private readonly long _transactionId;
@@ -27,24 +27,24 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override object CreateRequestDto()
         {
-            var dtos = _events.Select(x => new ClientMessage.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
-            return new ClientMessage.TransactionWrite(_transactionId, dtos, _requireMaster);
+            var dtos = _events.Select(x => new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
+            return new TcpClientMessageDto.TransactionWrite(_transactionId, dtos, _requireMaster);
         }
 
-        protected override InspectionResult InspectResponse(ClientMessage.TransactionWriteCompleted response)
+        protected override InspectionResult InspectResponse(TcpClientMessageDto.TransactionWriteCompleted response)
         {
             switch (response.Result)
             {
-                case ClientMessage.OperationResult.Success:
+                case OperationResult.Success:
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
-                case ClientMessage.OperationResult.PrepareTimeout:
+                case OperationResult.PrepareTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "PrepareTimeout");
-                case ClientMessage.OperationResult.CommitTimeout:
+                case OperationResult.CommitTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "CommitTimeout");
-                case ClientMessage.OperationResult.ForwardTimeout:
+                case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
-                case ClientMessage.OperationResult.AccessDenied:
+                case OperationResult.AccessDenied:
                     Fail(new AccessDeniedException("Write access denied."));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
@@ -52,7 +52,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        protected override object TransformResponse(ClientMessage.TransactionWriteCompleted response)
+        protected override object TransformResponse(TcpClientMessageDto.TransactionWriteCompleted response)
         {
             return null;
         }

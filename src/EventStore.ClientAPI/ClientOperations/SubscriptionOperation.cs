@@ -7,7 +7,7 @@ using CuteAnt.AsyncEx;
 using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.ClientAPI.Messages;
+using EventStore.Core.Messages;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
@@ -172,7 +172,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
     private TcpPackage CreateUnsubscriptionPackage()
     {
-      return new TcpPackage(TcpCommand.UnsubscribeFromStream, _correlationId, new ClientMessage.UnsubscribeFromStream().Serialize());
+      return new TcpPackage(TcpCommand.UnsubscribeFromStream, _correlationId, new TcpClientMessageDto.UnsubscribeFromStream().Serialize());
     }
 
     protected abstract Task<InspectionResult> TryInspectPackageAsync(TcpPackage package);
@@ -188,17 +188,17 @@ namespace EventStore.ClientAPI.ClientOperations
         {
           case TcpCommand.SubscriptionDropped:
             {
-              var dto = package.Data.Deserialize<ClientMessage.SubscriptionDropped>();
+              var dto = package.Data.Deserialize<TcpClientMessageDto.SubscriptionDropped>();
               switch (dto.Reason)
               {
-                case ClientMessage.SubscriptionDropped.SubscriptionDropReason.Unsubscribed:
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.Unsubscribed:
                   DropSubscription(SubscriptionDropReason.UserInitiated, null);
                   break;
-                case ClientMessage.SubscriptionDropped.SubscriptionDropReason.AccessDenied:
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.AccessDenied:
                   DropSubscription(SubscriptionDropReason.AccessDenied,
                                    new AccessDeniedException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to access denied."));
                   break;
-                case ClientMessage.SubscriptionDropped.SubscriptionDropReason.NotFound:
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.NotFound:
                   DropSubscription(SubscriptionDropReason.NotFound,
                                    new ArgumentException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to not found."));
                   break;
@@ -232,17 +232,17 @@ namespace EventStore.ClientAPI.ClientOperations
               if (_subscription != null)
                 throw new Exception("NotHandled command appeared while we were already subscribed.");
 
-              var message = package.Data.Deserialize<ClientMessage.NotHandled>();
+              var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
               switch (message.Reason)
               {
-                case ClientMessage.NotHandled.NotHandledReason.NotReady:
+                case TcpClientMessageDto.NotHandled.NotHandledReason.NotReady:
                   return new InspectionResult(InspectionDecision.Retry, "NotHandled - NotReady");
 
-                case ClientMessage.NotHandled.NotHandledReason.TooBusy:
+                case TcpClientMessageDto.NotHandled.NotHandledReason.TooBusy:
                   return new InspectionResult(InspectionDecision.Retry, "NotHandled - TooBusy");
 
-                case ClientMessage.NotHandled.NotHandledReason.NotMaster:
-                  var masterInfo = message.AdditionalInfo.Deserialize<ClientMessage.NotHandled.MasterInfo>();
+                case TcpClientMessageDto.NotHandled.NotHandledReason.NotMaster:
+                  var masterInfo = message.AdditionalInfo.Deserialize<TcpClientMessageDto.NotHandled.MasterInfo>();
                   return new InspectionResult(InspectionDecision.Reconnect, "NotHandled - NotMaster",
                                               masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-    internal class CommitTransactionOperation : OperationBase<WriteResult, ClientMessage.TransactionCommitCompleted>
+    internal class CommitTransactionOperation : OperationBase<WriteResult, TcpClientMessageDto.TransactionCommitCompleted>
     {
         private readonly bool _requireMaster;
         private readonly long _transactionId;
@@ -22,33 +22,33 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override object CreateRequestDto()
         {
-            return new ClientMessage.TransactionCommit(_transactionId, _requireMaster);
+            return new TcpClientMessageDto.TransactionCommit(_transactionId, _requireMaster);
         }
 
-        protected override InspectionResult InspectResponse(ClientMessage.TransactionCommitCompleted response)
+        protected override InspectionResult InspectResponse(TcpClientMessageDto.TransactionCommitCompleted response)
         {
             switch (response.Result)
             {
-                case ClientMessage.OperationResult.Success:
+                case OperationResult.Success:
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
-                case ClientMessage.OperationResult.PrepareTimeout:
+                case OperationResult.PrepareTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "PrepareTimeout");
-                case ClientMessage.OperationResult.CommitTimeout:
+                case OperationResult.CommitTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "CommitTimeout");
-                case ClientMessage.OperationResult.ForwardTimeout:
+                case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
-                case ClientMessage.OperationResult.WrongExpectedVersion:
+                case OperationResult.WrongExpectedVersion:
                     var err = string.Format("Commit transaction failed due to WrongExpectedVersion. TransactionID: {0}.", _transactionId);
                     Fail(new WrongExpectedVersionException(err));
                     return new InspectionResult(InspectionDecision.EndOperation, "WrongExpectedVersion");
-                case ClientMessage.OperationResult.StreamDeleted:
+                case OperationResult.StreamDeleted:
                     Fail(new StreamDeletedException());
                     return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
-                case ClientMessage.OperationResult.InvalidTransaction:
+                case OperationResult.InvalidTransaction:
                     Fail(new InvalidTransactionException());
                     return new InspectionResult(InspectionDecision.EndOperation, "InvalidTransaction");
-                case ClientMessage.OperationResult.AccessDenied:
+                case OperationResult.AccessDenied:
                     Fail(new AccessDeniedException("Write access denied."));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
@@ -56,7 +56,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        protected override WriteResult TransformResponse(ClientMessage.TransactionCommitCompleted response)
+        protected override WriteResult TransformResponse(TcpClientMessageDto.TransactionCommitCompleted response)
         {
             return new WriteResult(response.LastEventNumber, new Position(response.PreparePosition ?? -1, response.CommitPosition ?? -1));
         }

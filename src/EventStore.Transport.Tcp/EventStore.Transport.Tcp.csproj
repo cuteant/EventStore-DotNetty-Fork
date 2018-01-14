@@ -19,7 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="protobuf-net.unofficial" Version="$(ProtobufNetUnofficialPackageVersion)" />
+    <PackageReference Include="MessagePack.Unofficial" Version="$(MessagePackUnofficialPackageVersion)" />
+    <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -15,7 +16,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override StreamEventsSlice<object> TransformResponse(ClientMessage.ReadStreamEventsCompleted response)
+    protected override StreamEventsSlice<object> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
     {
       return new StreamEventsSlice<object>(StatusCode.Convert(response.Result),
                                            _stream,
@@ -37,7 +38,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override StreamEventsSlice<T> TransformResponse(ClientMessage.ReadStreamEventsCompleted response)
+    protected override StreamEventsSlice<T> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
     {
       return new StreamEventsSlice<T>(StatusCode.Convert(response.Result),
                                       _stream,
@@ -59,7 +60,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override StreamEventsSlice TransformResponse(ClientMessage.ReadStreamEventsCompleted response)
+    protected override StreamEventsSlice TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
     {
       return new StreamEventsSlice(StatusCode.Convert(response.Result),
                                    _stream,
@@ -72,7 +73,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
 
-  internal abstract class ReadStreamEventsBackwardOperationBase<TResult> : OperationBase<TResult, ClientMessage.ReadStreamEventsCompleted>
+  internal abstract class ReadStreamEventsBackwardOperationBase<TResult> : OperationBase<TResult, TcpClientMessageDto.ReadStreamEventsCompleted>
   {
     internal readonly string _stream;
     internal readonly long _fromEventNumber;
@@ -94,26 +95,26 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected override object CreateRequestDto()
     {
-      return new ClientMessage.ReadStreamEvents(_stream, _fromEventNumber, _maxCount, _resolveLinkTos, _requireMaster);
+      return new TcpClientMessageDto.ReadStreamEvents(_stream, _fromEventNumber, _maxCount, _resolveLinkTos, _requireMaster);
     }
 
-    protected override InspectionResult InspectResponse(ClientMessage.ReadStreamEventsCompleted response)
+    protected override InspectionResult InspectResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
     {
       switch (response.Result)
       {
-        case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.Success:
+        case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.Success:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "Success");
-        case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.StreamDeleted:
+        case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.StreamDeleted:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
-        case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.NoStream:
+        case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.NoStream:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "NoStream");
-        case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.Error:
+        case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.Error:
           Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
           return new InspectionResult(InspectionDecision.EndOperation, "Error");
-        case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.AccessDenied:
+        case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.AccessDenied:
           Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
         default:

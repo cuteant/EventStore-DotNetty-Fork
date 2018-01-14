@@ -8,6 +8,7 @@ using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -25,7 +26,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override PersistentSubscriptionResolvedEvent<object> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
+    protected override PersistentSubscriptionResolvedEvent<object> TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
       return new PersistentSubscriptionResolvedEvent<object>(rawEvent.ToResolvedEvent(), retryCount);
     }
@@ -47,7 +48,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override IPersistentSubscriptionResolvedEvent2 TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
+    protected override IPersistentSubscriptionResolvedEvent2 TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
       return rawEvent.ToPersistentSubscriptionResolvedEvent2(retryCount);
     }
@@ -87,7 +88,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override PersistentSubscriptionResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
+    protected override PersistentSubscriptionResolvedEvent<TEvent> TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
       return new PersistentSubscriptionResolvedEvent<TEvent>(rawEvent.ToResolvedEvent<TEvent>(), retryCount);
     }
@@ -109,7 +110,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override PersistentSubscriptionResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount)
+    protected override PersistentSubscriptionResolvedEvent TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
     {
       return new PersistentSubscriptionResolvedEvent(rawEvent.ToRawResolvedEvent(), retryCount);
     }
@@ -151,11 +152,11 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedIndexedEvent rawEvent, int? retryCount);
+    protected abstract TResolvedEvent TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount);
 
     protected override TcpPackage CreateSubscriptionPackage()
     {
-      var dto = new ClientMessage.ConnectToPersistentSubscription(_groupName, _streamId, _bufferSize);
+      var dto = new TcpClientMessageDto.ConnectToPersistentSubscription(_groupName, _streamId, _bufferSize);
       return new TcpPackage(TcpCommand.ConnectToPersistentSubscription,
                             _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
                             _correlationId,
@@ -168,36 +169,36 @@ namespace EventStore.ClientAPI.ClientOperations
     {
       if (package.Command == TcpCommand.PersistentSubscriptionConfirmation)
       {
-        var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionConfirmation>();
+        var dto = package.Data.Deserialize<TcpClientMessageDto.PersistentSubscriptionConfirmation>();
         ConfirmSubscription(dto.LastCommitPosition, dto.LastEventNumber);
         _subscriptionId = dto.SubscriptionId;
         return new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
       }
       if (package.Command == TcpCommand.PersistentSubscriptionStreamEventAppeared)
       {
-        var dto = package.Data.Deserialize<ClientMessage.PersistentSubscriptionStreamEventAppeared>();
+        var dto = package.Data.Deserialize<TcpClientMessageDto.PersistentSubscriptionStreamEventAppeared>();
         await EventAppearedAsync(TransformEvent(dto.Event, dto.RetryCount)).ConfigureAwait(false);
         return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
       }
       if (package.Command == TcpCommand.SubscriptionDropped)
       {
-        var dto = package.Data.Deserialize<ClientMessage.SubscriptionDropped>();
-        if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.AccessDenied)
+        var dto = package.Data.Deserialize<TcpClientMessageDto.SubscriptionDropped>();
+        if (dto.Reason == TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.AccessDenied)
         {
           DropSubscription(SubscriptionDropReason.AccessDenied, new AccessDeniedException("You do not have access to the stream."));
           return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
-        if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.NotFound)
+        if (dto.Reason == TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.NotFound)
         {
           DropSubscription(SubscriptionDropReason.NotFound, new ArgumentException("Subscription not found"));
           return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
-        if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.PersistentSubscriptionDeleted)
+        if (dto.Reason == TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.PersistentSubscriptionDeleted)
         {
           DropSubscription(SubscriptionDropReason.PersistentSubscriptionDeleted, new PersistentSubscriptionDeletedException());
           return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
         }
-        if (dto.Reason == ClientMessage.SubscriptionDropped.SubscriptionDropReason.SubscriberMaxCountReached)
+        if (dto.Reason == TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.SubscriberMaxCountReached)
         {
           DropSubscription(SubscriptionDropReason.MaxSubscribersReached, new MaximumSubscribersReachedException());
           return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
@@ -216,7 +217,7 @@ namespace EventStore.ClientAPI.ClientOperations
     public void NotifyEventsProcessed(Guid[] processedEvents)
     {
       Ensure.NotNull(processedEvents, nameof(processedEvents));
-      var dto = new ClientMessage.PersistentSubscriptionAckEvents(
+      var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(
           _subscriptionId,
           processedEvents.Select(x => x.ToByteArray()).ToArray());
 
@@ -233,11 +234,11 @@ namespace EventStore.ClientAPI.ClientOperations
     {
       Ensure.NotNull(processedEvents, nameof(processedEvents));
       Ensure.NotNull(reason, nameof(reason));
-      var dto = new ClientMessage.PersistentSubscriptionNakEvents(
+      var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(
           _subscriptionId,
           processedEvents.Select(x => x.ToByteArray()).ToArray(),
           reason,
-          (ClientMessage.PersistentSubscriptionNakEvents.NakAction)action);
+          (TcpClientMessageDto.PersistentSubscriptionNakEvents.NakAction)action);
 
       var package = new TcpPackage(TcpCommand.PersistentSubscriptionNakEvents,
                             _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,

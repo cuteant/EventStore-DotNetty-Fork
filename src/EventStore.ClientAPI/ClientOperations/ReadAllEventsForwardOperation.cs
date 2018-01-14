@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-    internal class ReadAllEventsForwardOperation : OperationBase<AllEventsSlice, ClientMessage.ReadAllEventsCompleted>
+    internal class ReadAllEventsForwardOperation : OperationBase<AllEventsSlice, TcpClientMessageDto.ReadAllEventsCompleted>
     {
         private readonly Position _position;
         private readonly int _maxCount;
@@ -27,21 +27,21 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override object CreateRequestDto()
         {
-            return new ClientMessage.ReadAllEvents(_position.CommitPosition, _position.PreparePosition, _maxCount,
+            return new TcpClientMessageDto.ReadAllEvents(_position.CommitPosition, _position.PreparePosition, _maxCount,
                                                    _resolveLinkTos, _requireMaster);
         }
 
-        protected override InspectionResult InspectResponse(ClientMessage.ReadAllEventsCompleted response)
+        protected override InspectionResult InspectResponse(TcpClientMessageDto.ReadAllEventsCompleted response)
         {
             switch (response.Result)
             {
-                case ClientMessage.ReadAllEventsCompleted.ReadAllResult.Success:
+                case TcpClientMessageDto.ReadAllEventsCompleted.ReadAllResult.Success:
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
-                case ClientMessage.ReadAllEventsCompleted.ReadAllResult.Error:
+                case TcpClientMessageDto.ReadAllEventsCompleted.ReadAllResult.Error:
                     Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                     return new InspectionResult(InspectionDecision.EndOperation, "Error");
-                case ClientMessage.ReadAllEventsCompleted.ReadAllResult.AccessDenied:
+                case TcpClientMessageDto.ReadAllEventsCompleted.ReadAllResult.AccessDenied:
                     Fail(new AccessDeniedException("Read access denied for $all."));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
@@ -49,7 +49,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        protected override AllEventsSlice TransformResponse(ClientMessage.ReadAllEventsCompleted response)
+        protected override AllEventsSlice TransformResponse(TcpClientMessageDto.ReadAllEventsCompleted response)
         {
             return new AllEventsSlice(ReadDirection.Forward,
                                       new Position(response.CommitPosition, response.PreparePosition),

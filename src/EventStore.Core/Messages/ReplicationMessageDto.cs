@@ -1,23 +1,24 @@
 ﻿using EventStore.Common.Utils;
-using ProtoBuf;
+using MessagePack;
 
 namespace EventStore.Core.Messages
 {
     public static class ReplicationMessageDto
     {
-        [ProtoContract]
-        public class PrepareAck
+        [MessagePackObject]
+        public sealed class PrepareAck
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public long LogPosition { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte Flags { get; set; }
 
             public PrepareAck()
             {
             }
 
+            [SerializationConstructor]
             public PrepareAck(long logPosition, byte flags)
             {
                 LogPosition = logPosition;
@@ -25,25 +26,26 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class CommitAck
+        [MessagePackObject]
+        public sealed class CommitAck
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public long LogPosition { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public long TransactionPosition { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public long FirstEventNumber { get; set; }
 
-            [ProtoMember(4)]
+            [Key(3)]
             public long LastEventNumber { get; set; }
 
             public CommitAck()
             {
             }
 
+            [SerializationConstructor]
             public CommitAck(long logPosition, long transactionPosition, long firstEventNumber, long lastEventNumber)
             {
                 LogPosition = logPosition;
@@ -53,22 +55,23 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class Epoch
+        [MessagePackObject]
+        public sealed class Epoch
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public long EpochPosition { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public int EpochNumber { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public byte[] EpochId { get; set; }
 
             public Epoch()
             {
             }
 
+            [SerializationConstructor]
             public Epoch(long epochPosition, int epochNumber, byte[] epochId)
             {
                 EpochPosition = epochPosition;
@@ -77,37 +80,38 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class SubscribeReplica
+        [MessagePackObject]
+        public sealed class SubscribeReplica
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public long LogPosition { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] ChunkId { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public Epoch[] LastEpochs { get; set; }
 
-            [ProtoMember(4)]
+            [Key(3)]
             public byte[] Ip { get; set; }
 
-            [ProtoMember(5)]
+            [Key(4)]
             public int Port { get; set; }
 
-            [ProtoMember(6)]
+            [Key(5)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(7)]
+            [Key(6)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(8)]
+            [Key(7)]
             public bool IsPromotable { get; set; }
 
             public SubscribeReplica()
             {
             }
 
+            [SerializationConstructor]
             public SubscribeReplica(long logPosition, byte[] chunkId, Epoch[] lastEpochs, byte[] ip, int port,
                                     byte[] masterId, byte[] subscriptionId, bool isPromotable)
             {
@@ -123,19 +127,20 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class ReplicaSubscriptionRetry
+        [MessagePackObject]
+        public sealed class ReplicaSubscriptionRetry
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
             public ReplicaSubscriptionRetry()
             {
             }
 
+            [SerializationConstructor]
             public ReplicaSubscriptionRetry(byte[] masterId, byte[] subscriptionId)
             {
                 Ensure.NotNull(masterId, "masterId");
@@ -146,22 +151,23 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class ReplicaSubscribed
+        [MessagePackObject]
+        public sealed class ReplicaSubscribed
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public long SubscriptionPosition { get; set; }
 
             public ReplicaSubscribed()
             {
             }
 
+            [SerializationConstructor]
             public ReplicaSubscribed(byte[] masterId, byte[] subscriptionId, long subscriptionPosition)
             {
                 Ensure.NotNull(masterId, "masterId");
@@ -174,19 +180,20 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class ReplicaLogPositionAck
+        [MessagePackObject]
+        public sealed class ReplicaLogPositionAck
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public long ReplicationLogPosition { get; set; }
 
             public ReplicaLogPositionAck()
             {
             }
 
+            [SerializationConstructor]
             public ReplicaLogPositionAck(byte[] subscriptionId, long replicationLogPosition)
             {
                 SubscriptionId = subscriptionId;
@@ -194,28 +201,29 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class CreateChunk
+        [MessagePackObject]
+        public sealed class CreateChunk
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public byte[] ChunkHeaderBytes { get; set; }
 
-            [ProtoMember(4)]
+            [Key(3)]
             public int FileSize { get; set; }
 
-            [ProtoMember(5)]
+            [Key(4)]
             public bool IsCompletedChunk { get; set; }
 
             public CreateChunk()
             {
             }
 
+            [SerializationConstructor]
             public CreateChunk(byte[] masterId, byte[] subscriptionId, byte[] chunkHeaderBytes, int fileSize, bool isCompletedChunk)
             {
                 Ensure.NotNull(masterId, "masterId");
@@ -230,34 +238,35 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class RawChunkBulk
+        [MessagePackObject]
+        public sealed class RawChunkBulk
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public int ChunkStartNumber { get; set; }
 
-            [ProtoMember(4)]
+            [Key(3)]
             public int ChunkEndNumber { get; set; }
 
-            [ProtoMember(5)]
+            [Key(4)]
             public int RawPosition { get; set; }
 
-            [ProtoMember(6)]
+            [Key(5)]
             public byte[] RawBytes { get; set; }
 
-            [ProtoMember(7)]
+            [Key(6)]
             public bool CompleteChunk { get; set; }
 
             public RawChunkBulk()
             {
             }
 
+            [SerializationConstructor]
             public RawChunkBulk(byte[] masterId,
                                 byte[] subscriptionId,
                                 int chunkStartNumber,
@@ -281,34 +290,35 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class DataChunkBulk
+        [MessagePackObject]
+        public sealed class DataChunkBulk
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
-            [ProtoMember(3)]
+            [Key(2)]
             public int ChunkStartNumber { get; set; }
 
-            [ProtoMember(4)]
+            [Key(3)]
             public int ChunkEndNumber { get; set; }
 
-            [ProtoMember(5)]
+            [Key(4)]
             public long SubscriptionPosition { get; set; }
 
-            [ProtoMember(6)]
+            [Key(5)]
             public byte[] DataBytes { get; set; }
 
-            [ProtoMember(7)]
+            [Key(6)]
             public bool CompleteChunk { get; set; }
 
             public DataChunkBulk()
             {
             }
 
+            [SerializationConstructor]
             public DataChunkBulk(byte[] masterId,
                                  byte[] subscriptionId,
                                  int chunkStartNumber,
@@ -332,19 +342,20 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class SlaveAssignment
+        [MessagePackObject]
+        public sealed class SlaveAssignment
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
             public SlaveAssignment()
             {
             }
 
+            [SerializationConstructor]
             public SlaveAssignment(byte[] masterId, byte[] subscriptionId)
             {
                 MasterId = masterId;
@@ -352,19 +363,20 @@ namespace EventStore.Core.Messages
             }
         }
 
-        [ProtoContract]
-        public class CloneAssignment
+        [MessagePackObject]
+        public sealed class CloneAssignment
         {
-            [ProtoMember(1)]
+            [Key(0)]
             public byte[] MasterId { get; set; }
 
-            [ProtoMember(2)]
+            [Key(1)]
             public byte[] SubscriptionId { get; set; }
 
             public CloneAssignment()
             {
             }
 
+            [SerializationConstructor]
             public CloneAssignment(byte[] masterId, byte[] subscriptionId)
             {
                 MasterId = masterId;

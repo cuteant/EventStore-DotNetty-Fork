@@ -1,57 +1,32 @@
 ﻿using System;
-using System.IO;
-using CuteAnt.IO;
+using CuteAnt.Extensions.Serialization;
 using Microsoft.Extensions.Logging;
-using ProtoBuf;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
-  internal static class ProtobufExtensions
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger(typeof(ProtobufExtensions));
-
-    public static T Deserialize<T>(this byte[] data)
+    internal static class ProtobufExtensions
     {
-      return Deserialize<T>(new ArraySegment<byte>(data));
-    }
+        private static readonly ILogger Log = TraceLogger.GetLogger(typeof(ProtobufExtensions));
+        private static readonly MessagePackMessageFormatter s_formatter = MessagePackMessageFormatter.DefaultInstance;
 
-    public static T Deserialize<T>(this ArraySegment<byte> data)
-    {
-      try
-      {
-        using (var memory = new MemoryStream(data.Array, data.Offset, data.Count))
+        public static T Deserialize<T>(this byte[] data)
         {
-          var res = Serializer.Deserialize<T>(memory);
-          return res;
+            return s_formatter.Deserialize<T>(data);
         }
-      }
-      catch (Exception e)
-      {
-        if (Log.IsDebugLevelEnabled())
+
+        public static T Deserialize<T>(this ArraySegment<byte> data)
         {
-          Log.LogDebug("Deserialization to {0} failed : {1}", typeof(T).FullName, e);
+            return s_formatter.Deserialize<T>(data.Array, data.Offset, data.Count);
         }
-        return default(T);
-      }
-    }
 
-    public static ArraySegment<byte> Serialize<T>(this T protoContract)
-    {
-      using (var memory = MemoryStreamManager.GetStream())
-      {
-        Serializer.Serialize(memory, protoContract);
-        var bytes = memory.ToArray();
-        return new ArraySegment<byte>(bytes, 0, bytes.Length);
-      }
-    }
+        public static ArraySegment<byte> Serialize<T>(this T protoContract)
+        {
+            return new ArraySegment<byte>(s_formatter.SerializeObject(protoContract));
+        }
 
-    public static byte[] SerializeToArray<T>(this T protoContract)
-    {
-      using (var memory = MemoryStreamManager.GetStream())
-      {
-        Serializer.Serialize(memory, protoContract);
-        return memory.ToArray();
-      }
+        public static byte[] SerializeToArray<T>(this T protoContract)
+        {
+            return s_formatter.SerializeObject(protoContract);
+        }
     }
-  }
 }

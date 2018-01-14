@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <RootNamespace>EventStore.Core.Messages</RootNamespace>
+    <AssemblyName>EventStore.Core.Messages</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>EventStore.Core.Messages.DotNetCore</PackageId>
+    <Title>EventStore.Core.Messages.DotNetCore</Title>
+    <Description>EventStore.Core.Messages.DotNetCore</Description>
+    <PackageTags>eventstore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MessagePack.Abstractions.Unofficial" Version="$(MessagePackAbstractionsUnofficialPackageVersion)" />
+    <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
+  </ItemGroup>
+</Project>

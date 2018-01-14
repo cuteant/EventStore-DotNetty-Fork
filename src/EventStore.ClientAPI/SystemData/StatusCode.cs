@@ -1,19 +1,19 @@
 ﻿using System;
-using EventStore.ClientAPI.Messages;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.SystemData
 {
     internal class StatusCode
     {
-        public static SliceReadStatus Convert(ClientMessage.ReadStreamEventsCompleted.ReadStreamResult code)
+        public static SliceReadStatus Convert(TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult code)
         {
             switch (code)
             {
-                case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.Success:
+                case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.Success:
                     return SliceReadStatus.Success;
-                case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.NoStream:
+                case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.NoStream:
                     return SliceReadStatus.StreamNotFound;
-                case ClientMessage.ReadStreamEventsCompleted.ReadStreamResult.StreamDeleted:
+                case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.StreamDeleted:
                     return SliceReadStatus.StreamDeleted;
                 default:
                     throw new ArgumentOutOfRangeException("code");

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -14,7 +15,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override EventReadResult<object> TransformResponse(ClientMessage.ReadEventCompleted response)
+    protected override EventReadResult<object> TransformResponse(TcpClientMessageDto.ReadEventCompleted response)
     {
       var readStatus = Convert(response.Result);
       return new EventReadResult<object>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus));
@@ -29,7 +30,7 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override EventReadResult<T> TransformResponse(ClientMessage.ReadEventCompleted response)
+    protected override EventReadResult<T> TransformResponse(TcpClientMessageDto.ReadEventCompleted response)
     {
       var readStatus = Convert(response.Result);
       return new EventReadResult<T>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent<T>(readStatus));
@@ -44,14 +45,14 @@ namespace EventStore.ClientAPI.ClientOperations
     {
     }
 
-    protected override EventReadResult TransformResponse(ClientMessage.ReadEventCompleted response)
+    protected override EventReadResult TransformResponse(TcpClientMessageDto.ReadEventCompleted response)
     {
       var readStatus = Convert(response.Result);
       return new EventReadResult(readStatus, _stream, _eventNumber, response.Event.ToRawResolvedEvent(readStatus));
     }
   }
 
-  internal abstract class ReadEventOperationBase<TResult> : OperationBase<TResult, ClientMessage.ReadEventCompleted>
+  internal abstract class ReadEventOperationBase<TResult> : OperationBase<TResult, TcpClientMessageDto.ReadEventCompleted>
   {
     internal readonly string _stream;
     internal readonly long _eventNumber;
@@ -70,29 +71,29 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected override object CreateRequestDto()
     {
-      return new ClientMessage.ReadEvent(_stream, _eventNumber, _resolveLinkTo, _requireMaster);
+      return new TcpClientMessageDto.ReadEvent(_stream, _eventNumber, _resolveLinkTo, _requireMaster);
     }
 
-    protected override InspectionResult InspectResponse(ClientMessage.ReadEventCompleted response)
+    protected override InspectionResult InspectResponse(TcpClientMessageDto.ReadEventCompleted response)
     {
       switch (response.Result)
       {
-        case ClientMessage.ReadEventCompleted.ReadEventResult.Success:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.Success:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "Success");
-        case ClientMessage.ReadEventCompleted.ReadEventResult.NotFound:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.NotFound:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "NotFound");
-        case ClientMessage.ReadEventCompleted.ReadEventResult.NoStream:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.NoStream:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "NoStream");
-        case ClientMessage.ReadEventCompleted.ReadEventResult.StreamDeleted:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.StreamDeleted:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
-        case ClientMessage.ReadEventCompleted.ReadEventResult.Error:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.Error:
           Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
           return new InspectionResult(InspectionDecision.EndOperation, "Error");
-        case ClientMessage.ReadEventCompleted.ReadEventResult.AccessDenied:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.AccessDenied:
           Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
         default:
@@ -100,17 +101,17 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    internal static EventReadStatus Convert(ClientMessage.ReadEventCompleted.ReadEventResult result)
+    internal static EventReadStatus Convert(TcpClientMessageDto.ReadEventCompleted.ReadEventResult result)
     {
       switch (result)
       {
-        case ClientMessage.ReadEventCompleted.ReadEventResult.Success:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.Success:
           return EventReadStatus.Success;
-        case ClientMessage.ReadEventCompleted.ReadEventResult.NotFound:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.NotFound:
           return EventReadStatus.NotFound;
-        case ClientMessage.ReadEventCompleted.ReadEventResult.NoStream:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.NoStream:
           return EventReadStatus.NoStream;
-        case ClientMessage.ReadEventCompleted.ReadEventResult.StreamDeleted:
+        case TcpClientMessageDto.ReadEventCompleted.ReadEventResult.StreamDeleted:
           return EventReadStatus.StreamDeleted;
         default:
           throw new Exception($"Unexpected ReadEventResult: {result}.");

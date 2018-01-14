@@ -10,7 +10,7 @@ using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.ClientAPI.Messages;
+using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
@@ -294,7 +294,7 @@ namespace EventStore.ClientAPI.Internal
       _connectingPhase = ConnectingPhase.Identification;
 
       _identifyInfo = new IdentifyInfo(Guid.NewGuid(), _stopwatch.Elapsed);
-      var dto = new ClientMessage.IdentifyClient(ClientVersion, _esConnection.ConnectionName);
+      var dto = new TcpClientMessageDto.IdentifyClient(ClientVersion, _esConnection.ConnectionName);
       _connection.EnqueueSend(new TcpPackage(TcpCommand.IdentifyClient, _identifyInfo.CorrelationId, dto.Serialize()));
     }
 

@@ -5,12 +5,12 @@ using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
-using EventStore.ClientAPI.Messages;
+using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-  internal class UpdatePersistentSubscriptionOperation : OperationBase<PersistentSubscriptionUpdateResult, ClientMessage.UpdatePersistentSubscriptionCompleted>
+  internal class UpdatePersistentSubscriptionOperation : OperationBase<PersistentSubscriptionUpdateResult, TcpClientMessageDto.UpdatePersistentSubscriptionCompleted>
   {
     private readonly string _stream;
     private readonly string _groupName;
@@ -53,25 +53,25 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected override object CreateRequestDto()
     {
-      return new ClientMessage.UpdatePersistentSubscription(_groupName, _stream, _resolveLinkTos, _startFromBeginning, _messageTimeoutMilliseconds,
+      return new TcpClientMessageDto.UpdatePersistentSubscription(_groupName, _stream, _resolveLinkTos, _startFromBeginning, _messageTimeoutMilliseconds,
           _recordStatistics, _liveBufferSize, _readBatchSize, _bufferSize, _maxRetryCount, _namedConsumerStrategy == SystemConsumerStrategies.RoundRobin, _checkPointAfter,
           _maxCheckPointCount, _minCheckPointCount, _maxSubscriberCount, _namedConsumerStrategy);
     }
 
-    protected override InspectionResult InspectResponse(ClientMessage.UpdatePersistentSubscriptionCompleted response)
+    protected override InspectionResult InspectResponse(TcpClientMessageDto.UpdatePersistentSubscriptionCompleted response)
     {
       switch (response.Result)
       {
-        case ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.Success:
+        case TcpClientMessageDto.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.Success:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "Success");
-        case ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.Fail:
+        case TcpClientMessageDto.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.Fail:
           Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} failed '{response.Reason}'"));
           return new InspectionResult(InspectionDecision.EndOperation, "Fail");
-        case ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.AccessDenied:
+        case TcpClientMessageDto.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.AccessDenied:
           Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
-        case ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.DoesNotExist:
+        case TcpClientMessageDto.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.DoesNotExist:
           Fail(new InvalidOperationException(String.Format(CultureInfo.InvariantCulture, Consts.PersistentSubscriptionDoesNotExist, _groupName, _stream)));
           return new InspectionResult(InspectionDecision.EndOperation, "DoesNotExist");
         default:
@@ -79,7 +79,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    protected override PersistentSubscriptionUpdateResult TransformResponse(ClientMessage.UpdatePersistentSubscriptionCompleted response)
+    protected override PersistentSubscriptionUpdateResult TransformResponse(TcpClientMessageDto.UpdatePersistentSubscriptionCompleted response)
     {
       return new PersistentSubscriptionUpdateResult(PersistentSubscriptionUpdateStatus.Success);
     }

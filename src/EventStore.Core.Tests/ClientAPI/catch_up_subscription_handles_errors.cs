@@ -11,7 +11,7 @@ using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using NUnit.Framework;
-using ClientMessage = EventStore.ClientAPI.Messages.ClientMessage;
+using ClientMessage = EventStore.Core.Messages.TcpClientMessageDto;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
 using SystemSettings = EventStore.ClientAPI.SystemSettings;

@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.Logging;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-    internal class DeleteStreamOperation : OperationBase<DeleteResult, ClientMessage.DeleteStreamCompleted>
+    internal class DeleteStreamOperation : OperationBase<DeleteResult, TcpClientMessageDto.DeleteStreamCompleted>
     {
         private readonly bool _requireMaster;
         private readonly string _stream;
@@ -27,33 +27,33 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override object CreateRequestDto()
         {
-            return new ClientMessage.DeleteStream(_stream, _expectedVersion, _requireMaster, _hardDelete);
+            return new TcpClientMessageDto.DeleteStream(_stream, _expectedVersion, _requireMaster, _hardDelete);
         }
 
-        protected override InspectionResult InspectResponse(ClientMessage.DeleteStreamCompleted response)
+        protected override InspectionResult InspectResponse(TcpClientMessageDto.DeleteStreamCompleted response)
         {
             switch (response.Result)
             {
-                case ClientMessage.OperationResult.Success:
+                case OperationResult.Success:
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
-                case ClientMessage.OperationResult.PrepareTimeout:
+                case OperationResult.PrepareTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "PrepareTimeout");
-                case ClientMessage.OperationResult.CommitTimeout:
+                case OperationResult.CommitTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "CommitTimeout");
-                case ClientMessage.OperationResult.ForwardTimeout:
+                case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
-                case ClientMessage.OperationResult.WrongExpectedVersion:
+                case OperationResult.WrongExpectedVersion:
                     var err = string.Format("Delete stream failed due to WrongExpectedVersion. Stream: {0}, Expected version: {1}.", _stream, _expectedVersion);
                     Fail(new WrongExpectedVersionException(err));
                     return new InspectionResult(InspectionDecision.EndOperation, "WrongExpectedVersion");
-                case ClientMessage.OperationResult.StreamDeleted:
+                case OperationResult.StreamDeleted:
                     Fail(new StreamDeletedException(_stream));
                     return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
-                case ClientMessage.OperationResult.InvalidTransaction:
+                case OperationResult.InvalidTransaction:
                     Fail(new InvalidTransactionException());
                     return new InspectionResult(InspectionDecision.EndOperation, "InvalidTransaction");
-                case ClientMessage.OperationResult.AccessDenied:
+                case OperationResult.AccessDenied:
                     Fail(new AccessDeniedException(string.Format("Write access denied for stream '{0}'.", _stream)));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
@@ -61,7 +61,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        protected override DeleteResult TransformResponse(ClientMessage.DeleteStreamCompleted response)
+        protected override DeleteResult TransformResponse(TcpClientMessageDto.DeleteStreamCompleted response)
         {
             return new DeleteResult(new Position(response.PreparePosition ?? -1, response.CommitPosition ?? -1));
         }

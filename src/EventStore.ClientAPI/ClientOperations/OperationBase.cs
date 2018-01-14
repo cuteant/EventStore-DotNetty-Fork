@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.ClientAPI.Messages;
+using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
@@ -108,17 +108,17 @@ namespace EventStore.ClientAPI.ClientOperations
 
     public InspectionResult InspectNotHandled(TcpPackage package)
     {
-      var message = package.Data.Deserialize<ClientMessage.NotHandled>();
+      var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
       switch (message.Reason)
       {
-        case ClientMessage.NotHandled.NotHandledReason.NotReady:
+        case TcpClientMessageDto.NotHandled.NotHandledReason.NotReady:
           return new InspectionResult(InspectionDecision.Retry, "NotHandled - NotReady");
 
-        case ClientMessage.NotHandled.NotHandledReason.TooBusy:
+        case TcpClientMessageDto.NotHandled.NotHandledReason.TooBusy:
           return new InspectionResult(InspectionDecision.Retry, "NotHandled - TooBusy");
 
-        case ClientMessage.NotHandled.NotHandledReason.NotMaster:
-          var masterInfo = message.AdditionalInfo.Deserialize<ClientMessage.NotHandled.MasterInfo>();
+        case TcpClientMessageDto.NotHandled.NotHandledReason.NotMaster:
+          var masterInfo = message.AdditionalInfo.Deserialize<TcpClientMessageDto.NotHandled.MasterInfo>();
           return new InspectionResult(InspectionDecision.Reconnect, "NotHandled - NotMaster",
                                       masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 

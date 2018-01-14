@@ -6,6 +6,7 @@ using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Core.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
@@ -31,7 +32,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent<object> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    protected override ResolvedEvent<object> TransformEvent(TcpClientMessageDto.ResolvedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent();
     }
@@ -61,7 +62,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override IResolvedEvent2 TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    protected override IResolvedEvent2 TransformEvent(TcpClientMessageDto.ResolvedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent2();
     }
@@ -112,7 +113,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent<TEvent> TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    protected override ResolvedEvent<TEvent> TransformEvent(TcpClientMessageDto.ResolvedEvent rawEvent)
     {
       return rawEvent.ToResolvedEvent<TEvent>();
     }
@@ -142,7 +143,7 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent)
+    protected override ResolvedEvent TransformEvent(TcpClientMessageDto.ResolvedEvent rawEvent)
     {
       return rawEvent.ToRawResolvedEvent();
     }
@@ -176,11 +177,11 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract TResolvedEvent TransformEvent(ClientMessage.ResolvedEvent rawEvent);
+    protected abstract TResolvedEvent TransformEvent(TcpClientMessageDto.ResolvedEvent rawEvent);
 
     protected override TcpPackage CreateSubscriptionPackage()
     {
-      var dto = new ClientMessage.SubscribeToStream(_streamId, _resolveLinkTos);
+      var dto = new TcpClientMessageDto.SubscribeToStream(_streamId, _resolveLinkTos);
       return new TcpPackage(
           TcpCommand.SubscribeToStream, _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
           _correlationId, _userCredentials?.Username, _userCredentials?.Password, dto.Serialize());
@@ -190,13 +191,13 @@ namespace EventStore.ClientAPI.ClientOperations
     {
       if (package.Command == TcpCommand.SubscriptionConfirmation)
       {
-        var dto = package.Data.Deserialize<ClientMessage.SubscriptionConfirmation>();
+        var dto = package.Data.Deserialize<TcpClientMessageDto.SubscriptionConfirmation>();
         ConfirmSubscription(dto.LastCommitPosition, dto.LastEventNumber);
         return new InspectionResult(InspectionDecision.Subscribed, "SubscriptionConfirmation");
       }
       if (package.Command == TcpCommand.StreamEventAppeared)
       {
-        var dto = package.Data.Deserialize<ClientMessage.StreamEventAppeared>();
+        var dto = package.Data.Deserialize<TcpClientMessageDto.StreamEventAppeared>();
         await EventAppearedAsync(TransformEvent(dto.Event)).ConfigureAwait(false);
         return new InspectionResult(InspectionDecision.DoNothing, "StreamEventAppeared");
       }

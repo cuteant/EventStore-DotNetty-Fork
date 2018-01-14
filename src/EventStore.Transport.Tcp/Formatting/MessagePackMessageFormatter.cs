@@ -1,36 +1,37 @@
 ﻿using System;
 using System.IO;
 using EventStore.BufferManagement;
+using MessagePack;
 
 namespace EventStore.Transport.Tcp.Formatting
 {
     /// <summary>
-    /// Formats a message for transport using ProtoBuf serialization
+    /// Formats a message for transport using MessagePack serialization
     /// </summary>
-    public class ProtoBufMessageFormatter<T> : FormatterBase<T>
+    public class MessagePackMessageFormatter<T> : FormatterBase<T>
     {
         private readonly BufferManager _bufferManager;
         private readonly int _initialBuffers;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProtoBufMessageFormatter{T}"/> class.
+        /// Initializes a new instance of the <see cref="MessagePackMessageFormatter{T}"/> class.
         /// </summary>
-        public ProtoBufMessageFormatter() : this(BufferManager.Default, 2) { }
+        public MessagePackMessageFormatter() : this(BufferManager.Default, 2) { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProtoBufMessageFormatter{T}"/> class.
+        /// Initializes a new instance of the <see cref="MessagePackMessageFormatter{T}"/> class.
         /// </summary>
         /// <param name="bufferManager">The buffer manager.</param>
-        public ProtoBufMessageFormatter(BufferManager bufferManager) : this(bufferManager, 2) { }
+        public MessagePackMessageFormatter(BufferManager bufferManager) : this(bufferManager, 2) { }
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProtoBufMessageFormatter{T}"/> class.
+        /// Initializes a new instance of the <see cref="MessagePackMessageFormatter{T}"/> class.
         /// </summary>
         /// <param name="bufferManager">The buffer manager.</param>
         /// <param name="initialBuffers">The number of initial buffers.</param>
-        public ProtoBufMessageFormatter(BufferManager bufferManager, int initialBuffers)
+        public MessagePackMessageFormatter(BufferManager bufferManager, int initialBuffers)
         {
             _bufferManager = bufferManager;
             _initialBuffers = initialBuffers;
@@ -48,7 +49,7 @@ namespace EventStore.Transport.Tcp.Formatting
 
             var bufferPool = new BufferPool(_initialBuffers, _bufferManager);
             var stream = new BufferPoolStream(bufferPool);
-            ProtoBuf.Serializer.Serialize(stream, message);
+            MessagePackSerializer.Serialize(stream, message);
             return bufferPool;
         }
 
@@ -61,7 +62,7 @@ namespace EventStore.Transport.Tcp.Formatting
         {
             if (stream == null)
                 throw new ArgumentNullException("stream");
-            return ProtoBuf.Serializer.Deserialize<T>(stream);
+            return MessagePackSerializer.Deserialize<T>(stream);
         }
     }
 }

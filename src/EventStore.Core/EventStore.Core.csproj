@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="CuteAnt.Runtime" Version="$(CuteAntRuntimePackageVersion)" />
+    <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
@@ -46,6 +47,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\etc\HdrHistogram\HdrHistogram.csproj" />
+    <ProjectReference Include="..\EventStore.Core.Messages\EventStore.Core.Messages.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
   </ItemGroup>

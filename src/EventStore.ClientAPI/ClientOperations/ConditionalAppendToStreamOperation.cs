@@ -5,11 +5,12 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
+using EventStore.Core.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
 {
-  internal class ConditionalAppendToStreamOperation : OperationBase<ConditionalWriteResult, ClientMessage.WriteEventsCompleted>
+  internal class ConditionalAppendToStreamOperation : OperationBase<ConditionalWriteResult, TcpClientMessageDto.WriteEventsCompleted>
   {
     private readonly bool _requireMaster;
     private readonly string _stream;
@@ -34,38 +35,38 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected override object CreateRequestDto()
     {
-      var dtos = _events.Select(x => new ClientMessage.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
-      return new ClientMessage.WriteEvents(_stream, _expectedVersion, dtos, _requireMaster);
+      var dtos = _events.Select(x => new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
+      return new TcpClientMessageDto.WriteEvents(_stream, _expectedVersion, dtos, _requireMaster);
     }
 
-    protected override InspectionResult InspectResponse(ClientMessage.WriteEventsCompleted response)
+    protected override InspectionResult InspectResponse(TcpClientMessageDto.WriteEventsCompleted response)
     {
       switch (response.Result)
       {
-        case ClientMessage.OperationResult.Success:
+        case OperationResult.Success:
           if (_wasCommitTimeout)
           {
             if (Log.IsDebugLevelEnabled()) Log.LogDebug("IDEMPOTENT WRITE SUCCEEDED FOR {0}.", this);
           }
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "Success");
-        case ClientMessage.OperationResult.PrepareTimeout:
+        case OperationResult.PrepareTimeout:
           return new InspectionResult(InspectionDecision.Retry, "PrepareTimeout");
-        case ClientMessage.OperationResult.ForwardTimeout:
+        case OperationResult.ForwardTimeout:
           return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
-        case ClientMessage.OperationResult.CommitTimeout:
+        case OperationResult.CommitTimeout:
           _wasCommitTimeout = true;
           return new InspectionResult(InspectionDecision.Retry, "CommitTimeout");
-        case ClientMessage.OperationResult.WrongExpectedVersion:
+        case OperationResult.WrongExpectedVersion:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "ExpectedVersionMismatch");
-        case ClientMessage.OperationResult.StreamDeleted:
+        case OperationResult.StreamDeleted:
           Succeed();
           return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
-        case ClientMessage.OperationResult.InvalidTransaction:
+        case OperationResult.InvalidTransaction:
           Fail(new InvalidTransactionException());
           return new InspectionResult(InspectionDecision.EndOperation, "InvalidTransaction");
-        case ClientMessage.OperationResult.AccessDenied:
+        case OperationResult.AccessDenied:
           Fail(new AccessDeniedException(string.Format("Write access denied for stream '{0}'.", _stream)));
           return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
         default:
@@ -73,13 +74,13 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    protected override ConditionalWriteResult TransformResponse(ClientMessage.WriteEventsCompleted response)
+    protected override ConditionalWriteResult TransformResponse(TcpClientMessageDto.WriteEventsCompleted response)
     {
-      if (response.Result == ClientMessage.OperationResult.WrongExpectedVersion)
+      if (response.Result == OperationResult.WrongExpectedVersion)
       {
         return new ConditionalWriteResult(ConditionalWriteStatus.VersionMismatch);
       }
-      if (response.Result == ClientMessage.OperationResult.StreamDeleted)
+      if (response.Result == OperationResult.StreamDeleted)
       {
         return new ConditionalWriteResult(ConditionalWriteStatus.StreamDeleted);
       }
