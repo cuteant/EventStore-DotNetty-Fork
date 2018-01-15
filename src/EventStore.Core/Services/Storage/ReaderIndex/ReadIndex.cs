@@ -98,12 +98,12 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return _indexReader.CheckStreamAccess(streamId, streamAccessType, user);
         }
 
-        IndexReadAllResult IReadIndex.ReadAllEventsForward(TFPos pos, int maxCount)
+        IndexReadAllResult IReadIndex.ReadAllEventsForward(in TFPos pos, int maxCount)
         {
             return _allReader.ReadAllEventsForward(pos, maxCount);
         }
 
-        IndexReadAllResult IReadIndex.ReadAllEventsBackward(TFPos pos, int maxCount)
+        IndexReadAllResult IReadIndex.ReadAllEventsBackward(in TFPos pos, int maxCount)
         {
             return _allReader.ReadAllEventsBackward(pos, maxCount);
         }

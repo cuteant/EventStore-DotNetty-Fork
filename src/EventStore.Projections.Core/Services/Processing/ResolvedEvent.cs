@@ -127,7 +127,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public ResolvedEvent(
             string positionStreamId, long positionSequenceNumber, string eventStreamId, long eventSequenceNumber,
-            bool resolvedLinkTo, TFPos position, TFPos eventOrLinkTargetPosition, Guid eventId, string eventType, bool isJson, byte[] data,
+            bool resolvedLinkTo, in TFPos position, in TFPos eventOrLinkTargetPosition, Guid eventId, string eventType, bool isJson, byte[] data,
             byte[] metadata, byte[] positionMetadata, byte[] streamMetadata, DateTime timestamp)
         {
 
@@ -153,7 +153,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public ResolvedEvent(
             string positionStreamId, long positionSequenceNumber, string eventStreamId, long eventSequenceNumber,
-            bool resolvedLinkTo, TFPos position, Guid eventId, string eventType, bool isJson, string data,
+            bool resolvedLinkTo, in TFPos position, Guid eventId, string eventType, bool isJson, string data,
             string metadata, string positionMetadata = null, string streamMetadata = null)
         {
             DateTime timestamp = default(DateTime);

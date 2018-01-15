@@ -759,7 +759,7 @@ namespace EventStore.Core.Messages
 
             public ReadAllEventsForwardCompleted(Guid correlationId, ReadAllResult result, string error, ResolvedEvent[] events,
                                                  StreamMetadata streamMetadata, bool isCachePublic, int maxCount,
-                                                 TFPos currentPos, TFPos nextPos, TFPos prevPos, long tfLastCommitPosition)
+                                                 in TFPos currentPos, in TFPos nextPos, in TFPos prevPos, long tfLastCommitPosition)
             {
                 Ensure.NotNull(events, "events");
 
@@ -827,7 +827,7 @@ namespace EventStore.Core.Messages
 
             public ReadAllEventsBackwardCompleted(Guid correlationId, ReadAllResult result, string error, ResolvedEvent[] events,
                                                   StreamMetadata streamMetadata, bool isCachePublic, int maxCount,
-                                                  TFPos currentPos, TFPos nextPos, TFPos prevPos, long tfLastCommitPosition)
+                                                  in TFPos currentPos, in TFPos nextPos, in TFPos prevPos, long tfLastCommitPosition)
             {
                 Ensure.NotNull(events, "events");
 
@@ -1230,7 +1230,7 @@ namespace EventStore.Core.Messages
             public readonly string GroupName;
             public readonly ResolvedEvent Event;
 
-            public ReplayParkedMessage(Guid internalCorrId, Guid correlationId, IEnvelope envelope, string streamId, string groupName, ResolvedEvent @event, IPrincipal user)
+            public ReplayParkedMessage(Guid internalCorrId, Guid correlationId, IEnvelope envelope, string streamId, string groupName, in ResolvedEvent @event, IPrincipal user)
                 :base(internalCorrId, correlationId, envelope, user)
             {
                 EventStreamId = streamId;

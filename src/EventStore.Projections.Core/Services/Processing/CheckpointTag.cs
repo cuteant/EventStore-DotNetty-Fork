@@ -42,7 +42,7 @@ namespace EventStore.Projections.Core.Services.Processing
             Mode_ = CalculateMode();
         }
 
-        private CheckpointTag(int phase, TFPos position, Dictionary<string, long> streams)
+        private CheckpointTag(int phase, in TFPos position, Dictionary<string, long> streams)
         {
             Phase = phase;
             Position = position;
@@ -57,7 +57,7 @@ namespace EventStore.Projections.Core.Services.Processing
             Mode_ = CalculateMode();
         }
 
-        private CheckpointTag(int phase, TFPos position)
+        private CheckpointTag(int phase, in TFPos position)
         {
             Phase = phase;
             Position = position;
@@ -77,7 +77,7 @@ namespace EventStore.Projections.Core.Services.Processing
             Mode_ = CalculateMode();
         }
 
-        private CheckpointTag(int phase, IDictionary<string, long> eventTypes, TFPos position)
+        private CheckpointTag(int phase, IDictionary<string, long> eventTypes, in TFPos position)
         {
             Phase = phase;
             Position = position;
@@ -369,7 +369,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return new CheckpointTag(phase, new TFPos(commitPosition, preparePosition));
         }
 
-        public static CheckpointTag FromPosition(int phase, TFPos position)
+        public static CheckpointTag FromPosition(int phase, in TFPos position)
         {
             return new CheckpointTag(phase, position);
         }
@@ -390,7 +390,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return new CheckpointTag(phase, streams);
         }
 
-        public static CheckpointTag FromEventTypeIndexPositions(int phase, TFPos position, IDictionary<string, long> streams)
+        public static CheckpointTag FromEventTypeIndexPositions(int phase, in TFPos position, IDictionary<string, long> streams)
         {
             // streams cloned inside
             return new CheckpointTag(phase, streams, position);
@@ -489,7 +489,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return FromStreamPositions(Phase, resultDictionary);
         }
 
-        public CheckpointTag UpdateEventTypeIndexPosition(TFPos position, string eventType, long eventSequenceNumber)
+        public CheckpointTag UpdateEventTypeIndexPosition(in TFPos position, string eventType, long eventSequenceNumber)
         {
             if (Mode_ != Mode.EventTypeIndex)
                 throw new ArgumentException("Invalid tag mode", "tag");
@@ -497,7 +497,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return FromEventTypeIndexPositions(Phase, position, resultDictionary);
         }
 
-        public CheckpointTag UpdateEventTypeIndexPosition(TFPos position)
+        public CheckpointTag UpdateEventTypeIndexPosition(in TFPos position)
         {
             if (Mode_ != Mode.EventTypeIndex)
                 throw new ArgumentException("Invalid tag mode", "tag");

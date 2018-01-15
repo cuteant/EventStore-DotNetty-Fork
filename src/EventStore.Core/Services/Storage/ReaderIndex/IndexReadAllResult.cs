@@ -12,7 +12,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         public readonly TFPos NextPos;
         public readonly TFPos PrevPos;
 
-        public IndexReadAllResult(List<CommitEventRecord> records, TFPos currentPos, TFPos nextPos, TFPos prevPos)
+        public IndexReadAllResult(List<CommitEventRecord> records, in TFPos currentPos, in TFPos nextPos, in TFPos prevPos)
         {
             Ensure.NotNull(records, "records");
 

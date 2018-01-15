@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.AwakeReaderService
             public readonly Message ReplyWithMessage;
 
             public SubscribeAwake(
-                IEnvelope envelope, Guid correlationId, string streamId, TFPos @from, Message replyWithMessage)
+                IEnvelope envelope, Guid correlationId, string streamId, in TFPos @from, Message replyWithMessage)
             {
                 StreamId = streamId;
                 From = @from;

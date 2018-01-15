@@ -31,7 +31,7 @@ namespace EventStore.Projections.Core.Services.Processing
             public readonly float Progress;
             public readonly TFPos TfPosition;
 
-            public PendingEvent(in EventStore.Core.Data.ResolvedEvent resolvedEvent, TFPos tfPosition, float progress)
+            public PendingEvent(in EventStore.Core.Data.ResolvedEvent resolvedEvent, in TFPos tfPosition, float progress)
             {
                 ResolvedEvent = resolvedEvent;
                 Progress = progress;
@@ -153,7 +153,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _readAs = readAs;
             }
 
-            protected void DeliverEvent(float progress, ResolvedEvent resolvedEvent, TFPos position)
+            protected void DeliverEvent(float progress, ResolvedEvent resolvedEvent, in TFPos position)
             {
                 if (resolvedEvent.EventOrLinkTargetPosition <= _reader._lastEventPosition) { return; }
                 _reader._lastEventPosition = resolvedEvent.EventOrLinkTargetPosition;
@@ -375,7 +375,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 return queue;
             }
 
-            private bool BeforeTheLastKnownIndexCheckpoint(TFPos tfPosition)
+            private bool BeforeTheLastKnownIndexCheckpoint(in TFPos tfPosition)
             {
                 return _lastKnownIndexCheckpointPosition != null && tfPosition <= _lastKnownIndexCheckpointPosition;
             }
@@ -579,7 +579,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _reader.PublishIORequest(delay, readEventsForward, timeoutMessage, corrId);
             }
 
-            private void DeliverEventRetrievedByIndex(in EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
+            private void DeliverEventRetrievedByIndex(in EventStore.Core.Data.ResolvedEvent pair, float progress, in TFPos position)
             {
                 //TODO: add event sequence validation for inside the index stream
                 var resolvedEvent = new ResolvedEvent(pair, null);
@@ -634,7 +634,7 @@ namespace EventStore.Projections.Core.Services.Processing
             private Guid _pendingRequestCorrelationId;
 
             public TfBased(
-                ITimeProvider timeProvider, EventByTypeIndexEventReader reader, TFPos fromTfPosition,
+                ITimeProvider timeProvider, EventByTypeIndexEventReader reader, in TFPos fromTfPosition,
                 IPublisher publisher, IPrincipal readAs)
                 : base(reader, readAs)
             {
@@ -755,7 +755,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _reader.PublishIORequest(delay, readRequest, timeoutMessage, _pendingRequestCorrelationId);
             }
 
-            private void DeliverLastCommitPosition(TFPos lastPosition)
+            private void DeliverLastCommitPosition(in TFPos lastPosition)
             {
                 if (_reader._stopOnEof) { return; }
                 _publisher.Publish(
@@ -764,7 +764,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 //TODO: check was is passed here
             }
 
-            private void DeliverEventRetrievedFromTf(in EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
+            private void DeliverEventRetrievedFromTf(in EventStore.Core.Data.ResolvedEvent pair, float progress, in TFPos position)
             {
                 var resolvedEvent = new ResolvedEvent(pair, null);
 
@@ -793,7 +793,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
         }
 
-        private void DoSwitch(TFPos lastKnownIndexCheckpointPosition)
+        private void DoSwitch(in TFPos lastKnownIndexCheckpointPosition)
         {
             if (Paused || PauseRequested || _disposed)
             {

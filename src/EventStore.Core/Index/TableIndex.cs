@@ -599,10 +599,10 @@ namespace EventStore.Core.Index
             _indexMap.InOrder().ToList().ForEach(x => x.WaitForDisposal(TimeSpan.FromMilliseconds(5000)));
         }
 
-        private IndexEntry CreateIndexEntry(IndexKey key)
+        private IndexEntry CreateIndexEntry(in IndexKey key)
         {
-            key = CreateIndexKey(key.StreamId, key.Version, key.Position);
-            return new IndexEntry(key.Hash, key.Version, key.Position);
+            var newkey = CreateIndexKey(key.StreamId, key.Version, key.Position);
+            return new IndexEntry(newkey.Hash, newkey.Version, newkey.Position);
         }
 
         private ulong UpgradeHash(string streamId, ulong lowHash)

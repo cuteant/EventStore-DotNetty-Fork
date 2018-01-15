@@ -227,7 +227,7 @@ namespace EventStore.Core.Index
             }
         }
 
-        private static List<List<PTable>> LoadPTables(StreamReader reader, string indexmapFilename, TFPos checkpoints, int cacheDepth, bool skipIndexVerify)
+        private static List<List<PTable>> LoadPTables(StreamReader reader, string indexmapFilename, in TFPos checkpoints, int cacheDepth, bool skipIndexVerify)
         {
             var tables = new List<List<PTable>>();
 

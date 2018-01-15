@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             public readonly TFPos Position;
 
-            protected Item(TFPos position)
+            protected Item(in TFPos position)
             {
                 Position = position;
             }

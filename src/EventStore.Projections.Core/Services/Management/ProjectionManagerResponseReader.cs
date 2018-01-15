@@ -170,7 +170,7 @@ namespace EventStore.Projections.Core.Services.Management
             ReadForward();
         }
 
-        private void SubscribeAwake(TFPos subscribeFrom)
+        private void SubscribeAwake(in TFPos subscribeFrom)
         {
             _ioDispatcher.SubscribeAwake(
                 ProjectionNamesBuilder._projectionsMasterStream,

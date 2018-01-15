@@ -1647,7 +1647,7 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             if (_parkMessageCompleted != null) _parkMessageCompleted(ParkedEvents[idx], result);
         }
 
-        public void BeginParkMessage(ResolvedEvent ev, string reason, Action<ResolvedEvent, OperationResult> completed)
+        public void BeginParkMessage(in ResolvedEvent ev, string reason, Action<ResolvedEvent, OperationResult> completed)
         {
             ParkedEvents.Add(ev);
             _lastParkedEventNumber = ev.OriginalEventNumber;

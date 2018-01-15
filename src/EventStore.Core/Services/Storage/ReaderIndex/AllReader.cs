@@ -14,13 +14,13 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         /// Returns event records in the sequence they were committed into TF.
         /// Positions is specified as pre-positions (pointer at the beginning of the record).
         /// </summary>
-        IndexReadAllResult ReadAllEventsForward(TFPos pos, int maxCount);
+        IndexReadAllResult ReadAllEventsForward(in TFPos pos, int maxCount);
 
         /// <summary>
         /// Returns event records in the reverse sequence they were committed into TF.
         /// Positions is specified as post-positions (pointer after the end of record).
         /// </summary>
-        IndexReadAllResult ReadAllEventsBackward(TFPos pos, int maxCount);
+        IndexReadAllResult ReadAllEventsBackward(in TFPos pos, int maxCount);
     }
 
     public class AllReader : IAllReader
@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             _replicationCheckpoint = replicationCheckpoint;
         }
 
-        public IndexReadAllResult ReadAllEventsForward(TFPos pos, int maxCount)
+        public IndexReadAllResult ReadAllEventsForward(in TFPos pos, int maxCount)
         {
             var records = new List<CommitEventRecord>();
             var nextPos = pos;
@@ -152,7 +152,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return checkpoint >= position;
         }
 
-        public IndexReadAllResult ReadAllEventsBackward(TFPos pos, int maxCount)
+        public IndexReadAllResult ReadAllEventsBackward(in TFPos pos, int maxCount)
         {
             var records = new List<CommitEventRecord>();
             var nextPos = pos;

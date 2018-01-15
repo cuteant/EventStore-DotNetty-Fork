@@ -444,14 +444,14 @@ namespace EventStore.Core.Services.Storage
                 EmptyRecords, null, false, error ?? string.Empty, -1, lastEventNumber, true, lastCommitPosition);
         }
 
-        private ClientMessage.ReadAllEventsForwardCompleted NoData(ClientMessage.ReadAllEventsForward msg, ReadAllResult result, TFPos pos, long lastCommitPosition, string error = null)
+        private ClientMessage.ReadAllEventsForwardCompleted NoData(ClientMessage.ReadAllEventsForward msg, ReadAllResult result, in TFPos pos, long lastCommitPosition, string error = null)
         {
             return new ClientMessage.ReadAllEventsForwardCompleted(
                 msg.CorrelationId, result, error, ResolvedEvent.EmptyArray, null, false,
                 msg.MaxCount, pos, TFPos.Invalid, TFPos.Invalid, lastCommitPosition);
         }
 
-        private ClientMessage.ReadAllEventsBackwardCompleted NoData(ClientMessage.ReadAllEventsBackward msg, ReadAllResult result, TFPos pos, long lastCommitPosition, string error = null)
+        private ClientMessage.ReadAllEventsBackwardCompleted NoData(ClientMessage.ReadAllEventsBackward msg, ReadAllResult result, in TFPos pos, long lastCommitPosition, string error = null)
         {
             return new ClientMessage.ReadAllEventsBackwardCompleted(
                 msg.CorrelationId, result, error, ResolvedEvent.EmptyArray, null, false,

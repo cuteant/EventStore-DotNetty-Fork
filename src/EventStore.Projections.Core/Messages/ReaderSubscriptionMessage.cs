@@ -137,8 +137,8 @@ namespace EventStore.Projections.Core.Messages
             private readonly long? _positionEventNumber;
 
             public EventReaderPartitionDeleted(
-                Guid correlationId, string partition, long? lastEventNumber, TFPos? deleteLinkOrEventPosition,
-                TFPos? deleteEventOrLinkTargetPosition, string positionStreamId, long? positionEventNumber,
+                Guid correlationId, string partition, long? lastEventNumber, in TFPos? deleteLinkOrEventPosition,
+                in TFPos? deleteEventOrLinkTargetPosition, string positionStreamId, long? positionEventNumber,
                 CheckpointTag preTagged = null, object source = null)
                 : base(correlationId, preTagged, source)
             {
@@ -229,7 +229,7 @@ namespace EventStore.Projections.Core.Messages
             public override int MsgTypeId { get { return TypeId; } }
 
             public static CommittedEventDistributed Sample(
-                Guid correlationId, TFPos position, TFPos originalPosition, string positionStreamId, long positionSequenceNumber,
+                Guid correlationId, in TFPos position, in TFPos originalPosition, string positionStreamId, long positionSequenceNumber,
                 string eventStreamId, long eventSequenceNumber, bool resolvedLinkTo, Guid eventId, string eventType,
                 bool isJson, byte[] data, byte[] metadata, long? safeTransactionFileReaderJoinPosition, float progress)
             {
@@ -242,7 +242,7 @@ namespace EventStore.Projections.Core.Messages
             }
 
             public static CommittedEventDistributed Sample(
-                Guid correlationId, TFPos position, string eventStreamId, long eventSequenceNumber,
+                Guid correlationId, in TFPos position, string eventStreamId, long eventSequenceNumber,
                 bool resolvedLinkTo, Guid eventId, string eventType, bool isJson, byte[] data, byte[] metadata,
                 DateTime? timestamp = null)
             {

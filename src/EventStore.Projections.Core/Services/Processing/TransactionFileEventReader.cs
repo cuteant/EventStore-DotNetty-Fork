@@ -163,7 +163,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _resolveLinkTos, false, null, ReadAs);
         }
 
-        private void DeliverLastCommitPosition(TFPos lastPosition)
+        private void DeliverLastCommitPosition(in TFPos lastPosition)
         {
             if (_stopOnEof)
                 return;
@@ -174,7 +174,7 @@ namespace EventStore.Projections.Core.Services.Processing
         }
 
         private void DeliverEvent(
-            in EventStore.Core.Data.ResolvedEvent @event, long lastCommitPosition, TFPos currentFrom)
+            in EventStore.Core.Data.ResolvedEvent @event, long lastCommitPosition, in TFPos currentFrom)
         {
             EventRecord linkEvent = @event.Link;
             EventRecord targetEvent = @event.Event ?? linkEvent;
