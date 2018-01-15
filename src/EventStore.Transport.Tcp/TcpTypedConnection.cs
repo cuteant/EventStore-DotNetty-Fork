@@ -90,7 +90,7 @@ namespace EventStore.Transport.Tcp
             connection.ReceiveAsync(OnRawDataReceived);
         }
 
-        private void IncomingMessageArrived(ArraySegment<byte> message)
+        private void IncomingMessageArrived(in ArraySegment<byte> message)
         {
             _receiveCallback(this, _formatter.From(message));
         }

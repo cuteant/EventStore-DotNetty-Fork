@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _connection.ReceiveAsync(OnRawDataReceived);
         }
 
-        private void OnMessageArrived(ArraySegment<byte> data)
+        private void OnMessageArrived(in ArraySegment<byte> data)
         {
             TcpPackage package;
             try

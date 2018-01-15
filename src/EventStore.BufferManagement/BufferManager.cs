@@ -245,7 +245,7 @@ namespace EventStore.BufferManagement
         /// calling <see cref="CheckIn(ArraySegment{byte})"></see> on the buffer
         /// </remarks>
         /// <param name="buffer">The <see cref="ArraySegment{T}"></see> to return to the cache</param>
-        public void CheckIn(ArraySegment<byte> buffer)
+        public void CheckIn(in ArraySegment<byte> buffer)
         {
             CheckBuffer(buffer);
             _buffers.Push(buffer);
@@ -272,7 +272,7 @@ namespace EventStore.BufferManagement
         }
 
         //[Conditional("DEBUG")]
-        private void CheckBuffer(ArraySegment<byte> buffer)
+        private void CheckBuffer(in ArraySegment<byte> buffer)
         {
             if (buffer.Array == null || buffer.Count == 0 || buffer.Array.Length < buffer.Offset + buffer.Count)
                 throw new Exception("Attempt to check in invalid buffer");

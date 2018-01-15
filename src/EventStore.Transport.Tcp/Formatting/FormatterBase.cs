@@ -54,7 +54,7 @@ namespace EventStore.Transport.Tcp.Formatting
         /// </summary>
         /// <param name="segment">The segment containing the raw data.</param>
         /// <returns></returns>
-        public virtual T From(ArraySegment<byte> segment)
+        public virtual T From(in ArraySegment<byte> segment)
         {
             using (var stream = new MemoryStream(segment.Array, segment.Offset, segment.Count, false))
             {

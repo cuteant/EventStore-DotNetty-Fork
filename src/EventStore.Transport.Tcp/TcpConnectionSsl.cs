@@ -561,7 +561,7 @@ namespace EventStore.Transport.Tcp
             public readonly ArraySegment<byte> Buf;
             public readonly int DataLen;
 
-            public ReceivedData(ArraySegment<byte> buf, int dataLen)
+            public ReceivedData(in ArraySegment<byte> buf, int dataLen)
             {
                 Buf = buf;
                 DataLen = dataLen;

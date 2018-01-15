@@ -41,7 +41,7 @@ namespace EventStore.ClientAPI.Common.Utils
             return FormatBinaryDump(new ArraySegment<byte>(logBulk ?? Empty.ByteArray));
         }
 
-        public static string FormatBinaryDump(ArraySegment<byte> logBulk)
+        public static string FormatBinaryDump(in ArraySegment<byte> logBulk)
         {
             if (logBulk.Count == 0)
                 return "--- NO DATA ---";

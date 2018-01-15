@@ -172,7 +172,7 @@ namespace EventStore.BufferManagement
         /// </summary>
         /// <param name="position">The position to write at.</param>
         /// <param name="data">The data.</param>
-        public void Write(int position, ArraySegment<byte> data)
+        public void Write(int position, in ArraySegment<byte> data)
         {
             CheckDisposed();
             int written = 0;
@@ -219,7 +219,7 @@ namespace EventStore.BufferManagement
         /// <param name="position">The position to read from.</param>
         /// <param name="data">Where to read the data to.</param>
         /// <returns></returns>
-        public int ReadFrom(int position, ArraySegment<byte> data)
+        public int ReadFrom(int position, in ArraySegment<byte> data)
         {
             CheckDisposed();
             if (position >= _length)

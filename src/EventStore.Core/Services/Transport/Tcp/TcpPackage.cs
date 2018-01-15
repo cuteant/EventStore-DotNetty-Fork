@@ -28,7 +28,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public readonly string Password;
         public readonly ArraySegment<byte> Data;
 
-        public static TcpPackage FromArraySegment(ArraySegment<byte> data)
+        public static TcpPackage FromArraySegment(in ArraySegment<byte> data)
         {
             if (data.Count < MandatorySize)
                 throw new ArgumentException($"ArraySegment too short, length: {data.Count}", "data");
@@ -71,7 +71,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
         }
 
-        public TcpPackage(TcpCommand command, Guid correlationId, ArraySegment<byte> data)
+        public TcpPackage(TcpCommand command, Guid correlationId, in ArraySegment<byte> data)
             : this(command, TcpFlags.None, correlationId, null, null, data)
         {
         }
@@ -81,7 +81,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
         }
 
-        public TcpPackage(TcpCommand command, TcpFlags flags, Guid correlationId, string login, string password, ArraySegment<byte> data)
+        public TcpPackage(TcpCommand command, TcpFlags flags, Guid correlationId, string login, string password, in ArraySegment<byte> data)
         {
             if ((flags & TcpFlags.Authenticated) != 0)
             {

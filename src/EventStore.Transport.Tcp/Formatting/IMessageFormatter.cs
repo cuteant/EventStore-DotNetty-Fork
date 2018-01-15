@@ -38,7 +38,7 @@ namespace EventStore.Transport.Tcp.Formatting
         /// </summary>
         /// <param name="segment">The buffer pool.</param>
         /// <returns>A message representing the data given</returns>
-        T From(ArraySegment<byte> segment);
+        T From(in ArraySegment<byte> segment);
 
         /// <summary>
         /// Takes an Array and converts its contents to a message object

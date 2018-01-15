@@ -44,7 +44,7 @@ namespace EventStore.Transport.Tcp.Framing
             }
         }
 
-        public void UnFrameData(ArraySegment<byte> data)
+        public void UnFrameData(in ArraySegment<byte> data)
         {
             Parse(data);
         }
@@ -53,7 +53,7 @@ namespace EventStore.Transport.Tcp.Framing
         /// Parses a stream chunking based on STX/ETX framing. Calls are re-entrant and hold state internally.
         /// </summary>
         /// <param name="bytes">A byte array of data to append</param>
-        private void Parse(ArraySegment<byte> bytes)
+        private void Parse(in ArraySegment<byte> bytes)
         {
             byte[] data = bytes.Array;
             for (int i = bytes.Offset; i < bytes.Offset + bytes.Count; i++)

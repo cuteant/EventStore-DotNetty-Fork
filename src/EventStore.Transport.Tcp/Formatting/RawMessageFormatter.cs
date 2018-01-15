@@ -62,7 +62,7 @@ namespace EventStore.Transport.Tcp.Formatting
             return bufferPool.ToByteArray();
         }
 
-        public byte[] From(ArraySegment<byte> segment)
+        public byte[] From(in ArraySegment<byte> segment)
         {
             var msg = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, msg, 0, segment.Count);
