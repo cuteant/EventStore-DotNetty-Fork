@@ -93,7 +93,7 @@ namespace EventStore.Core.Services
             {
                 case LinkTo:
                     {
-                        string[] parts = Helper.UTF8NoBom.GetStringWithBuffer(data).Split(_linkToSeparator, 2);
+                        string[] parts = Helper.UTF8NoBom.GetString(data).Split(_linkToSeparator, 2);
                         streamId = parts[1];
                         break;
                     }
@@ -101,7 +101,7 @@ namespace EventStore.Core.Services
                 case V1__StreamCreated__:
                 case V2__StreamCreated_InIndex:
                     {
-                        streamId = Helper.UTF8NoBom.GetStringWithBuffer(data);
+                        streamId = Helper.UTF8NoBom.GetString(data);
                         break;
                     }
                 default:

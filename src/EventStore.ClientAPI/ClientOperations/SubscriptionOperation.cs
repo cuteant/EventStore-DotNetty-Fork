@@ -213,7 +213,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
           case TcpCommand.NotAuthenticated:
             {
-              string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
+              string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
               DropSubscription(SubscriptionDropReason.NotAuthenticated,
                                new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
               return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
@@ -221,7 +221,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
           case TcpCommand.BadRequest:
             {
-              string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
+              string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
               DropSubscription(SubscriptionDropReason.ServerError,
                                new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
               return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest: {message}");

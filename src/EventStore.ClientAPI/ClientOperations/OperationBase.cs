@@ -94,14 +94,14 @@ namespace EventStore.ClientAPI.ClientOperations
 
     public InspectionResult InspectNotAuthenticated(TcpPackage package)
     {
-      string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
+      string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
       Fail(new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
       return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
     }
 
     public InspectionResult InspectBadRequest(TcpPackage package)
     {
-      string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
+      string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
       Fail(new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
       return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest - {message}");
     }

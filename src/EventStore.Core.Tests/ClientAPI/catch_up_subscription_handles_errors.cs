@@ -328,7 +328,7 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.That(task.Wait(TimeoutMs));
         }
 
-        [Test]
+        [Test] // TODO 未通过
         public void when_live_processing_and_disconnected_reconnect_keeps_events_ordered()
         {
             int callCount = 0;
@@ -414,8 +414,6 @@ namespace EventStore.Core.Tests.ClientAPI
             waitForOutOfOrderEvent.Set();
 
             Assert.That(_raisedEventEvent.Wait(TimeoutMs));
-
-            Thread.Sleep(1000);
 
             Assert.That(_raisedEvents[0].OriginalEventNumber, Is.EqualTo(0));
             Assert.That(_raisedEvents[1].OriginalEventNumber, Is.EqualTo(1));

@@ -74,7 +74,7 @@ namespace EventStore.Transport.Http.Codecs
                         }
 
                         writer.Flush();
-                        return Helper.UTF8NoBom.GetStringWithBuffer(memory.GetBuffer(), 0, (int)memory.Length);
+                        return Helper.UTF8NoBom.GetString(memory.GetBuffer(), 0, (int)memory.Length);
                     }
                 }
             }

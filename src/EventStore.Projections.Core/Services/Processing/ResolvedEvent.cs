@@ -52,12 +52,12 @@ namespace EventStore.Projections.Core.Services.Processing
             Timestamp = positionEvent.TimeStamp;
 
             //TODO: handle utf-8 conversion exception
-            Data = @event != null && @event.Data != null ? Helper.UTF8NoBom.GetStringWithBuffer(@event.Data) : null;
-            Metadata = @event != null && @event.Metadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(@event.Metadata) : null;
+            Data = @event != null && @event.Data != null ? Helper.UTF8NoBom.GetString(@event.Data) : null;
+            Metadata = @event != null && @event.Metadata != null ? Helper.UTF8NoBom.GetString(@event.Metadata) : null;
             PositionMetadata = _resolvedLinkTo
-                ? (positionEvent.Metadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(positionEvent.Metadata) : null)
+                ? (positionEvent.Metadata != null ? Helper.UTF8NoBom.GetString(positionEvent.Metadata) : null)
                 : null;
-            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(streamMetadata) : null;
+            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
 
             TFPos eventOrLinkTargetPosition;
             if (_resolvedLinkTo)
@@ -144,10 +144,10 @@ namespace EventStore.Projections.Core.Services.Processing
             Timestamp = timestamp;
 
             //TODO: handle utf-8 conversion exception
-            Data = data != null ? Helper.UTF8NoBom.GetStringWithBuffer(data) : null;
-            Metadata = metadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(metadata) : null;
-            PositionMetadata = positionMetadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(positionMetadata) : null;
-            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetStringWithBuffer(streamMetadata) : null;
+            Data = data != null ? Helper.UTF8NoBom.GetString(data) : null;
+            Metadata = metadata != null ? Helper.UTF8NoBom.GetString(metadata) : null;
+            PositionMetadata = positionMetadata != null ? Helper.UTF8NoBom.GetString(positionMetadata) : null;
+            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
         }
 
 

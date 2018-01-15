@@ -737,7 +737,7 @@ namespace EventStore.Projections.Core.Services.Management
                             registeredProjections.Add(ProjectionEventTypes.ProjectionsInitialized, projectionId);
                             continue;
                         }
-                        var projectionName = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Event.Data);
+                        var projectionName = Helper.UTF8NoBom.GetString(evnt.Event.Data);
                         if (string.IsNullOrEmpty(projectionName) || _projections.ContainsKey(projectionName))
                         {
                             _logger.LogWarning("PROJECTIONS: The following projection: {0} has a duplicate registration event.", projectionName);

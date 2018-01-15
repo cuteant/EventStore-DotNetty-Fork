@@ -47,7 +47,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 {
                     for (int i = 0; i < x.Events.Length; i++)
                     {
-                        var streamId = Helper.UTF8NoBom.GetStringWithBuffer(x.Events[i].Event.Data);
+                        var streamId = Helper.UTF8NoBom.GetString(x.Events[i].Event.Data);
                         lock (_locker)
                         {
                             _streamIdCache.PutRecord(streamId, streamId, false);
@@ -80,7 +80,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void WriteEvent(Event evnt, int retryCount)
         {
-            _ioDispatcher.WriteEvent(_projectionNamesBuilder.GetEmittedStreamsName(), ExpectedVersion.Any, evnt, SystemAccount.Principal, x => OnWriteComplete(x, evnt, Helper.UTF8NoBom.GetStringWithBuffer(evnt.Data), retryCount));
+            _ioDispatcher.WriteEvent(_projectionNamesBuilder.GetEmittedStreamsName(), ExpectedVersion.Any, evnt, SystemAccount.Principal, x => OnWriteComplete(x, evnt, Helper.UTF8NoBom.GetString(evnt.Data), retryCount));
         }
 
         private void OnWriteComplete(ClientMessage.WriteEventsCompleted completed, Event evnt, string streamId, int retryCount)

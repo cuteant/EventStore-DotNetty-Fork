@@ -301,7 +301,7 @@ namespace EventStore.Core.Services
             {
                 try
                 {
-                    string[] parts = Helper.UTF8NoBom.GetStringWithBuffer(eventRecord.Data).Split(_linkToSeparator, 2);
+                    string[] parts = Helper.UTF8NoBom.GetString(eventRecord.Data).Split(_linkToSeparator, 2);
                     long eventNumber = long.Parse(parts[0]);
                     string streamId = parts[1];
 

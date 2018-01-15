@@ -238,9 +238,9 @@ namespace EventStore.Core.Services.Transport.Http
                         {
                             try
                             {
-                                richEntry.Data = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Data);
+                                richEntry.Data = Helper.UTF8NoBom.GetString(evnt.Data);
                                 // next step may fail, so we have already assigned body
-                                richEntry.Data = FormatJson(Helper.UTF8NoBom.GetStringWithBuffer(evnt.Data));
+                                richEntry.Data = FormatJson(Helper.UTF8NoBom.GetString(evnt.Data));
                             }
                             catch
                             {
@@ -248,13 +248,13 @@ namespace EventStore.Core.Services.Transport.Http
                             }
                         }
                         else
-                            richEntry.Data = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Data);
+                            richEntry.Data = Helper.UTF8NoBom.GetString(evnt.Data);
                     }
                     else if (embedContent >= EmbedLevel.TryHarder)
                     {
                         try
                         {
-                            richEntry.Data = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Data);
+                            richEntry.Data = Helper.UTF8NoBom.GetString(evnt.Data);
                             // next step may fail, so we have already assigned body
                             richEntry.Data = FormatJson(richEntry.Data);
                             // it is json if successed
@@ -270,7 +270,7 @@ namespace EventStore.Core.Services.Transport.Http
                     {
                         try
                         {
-                            richEntry.MetaData = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Metadata);
+                            richEntry.MetaData = Helper.UTF8NoBom.GetString(evnt.Metadata);
                             richEntry.IsMetaData = richEntry.MetaData.IsNotEmptyString();
                             // next step may fail, so we have already assigned body
                             if (embedContent >= EmbedLevel.PrettyBody)
@@ -291,7 +291,7 @@ namespace EventStore.Core.Services.Transport.Http
                         {
                             try
                             {
-                                richEntry.LinkMetaData = Helper.UTF8NoBom.GetStringWithBuffer(lnk.Metadata);
+                                richEntry.LinkMetaData = Helper.UTF8NoBom.GetString(lnk.Metadata);
                                 richEntry.IsLinkMetaData = richEntry.LinkMetaData.IsNotEmptyString();
                                 // next step may fail, so we have already assigned body
                                 if (embedContent >= EmbedLevel.PrettyBody)
@@ -320,7 +320,7 @@ namespace EventStore.Core.Services.Transport.Http
             }
             else if (link != null)
             {
-                var eventLoc = GetLinkData(Encoding.UTF8.GetStringWithBuffer(link.Data));
+                var eventLoc = GetLinkData(Encoding.UTF8.GetString(link.Data));
                 SetEntryProperties(eventLoc.Item1, eventLoc.Item2, link.TimeStamp, requestedUrl, entry);
                 entry.SetSummary("$>");
             }

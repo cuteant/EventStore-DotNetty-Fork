@@ -65,8 +65,8 @@ namespace EventStore.Core.Messages
                 this.eventId = eventId;
                 this.eventType = eventType;
 
-                this.data = Helper.UTF8NoBom.GetStringWithBuffer(data ?? LogRecord.NoData);
-                this.metadata = Helper.UTF8NoBom.GetStringWithBuffer(metadata ?? LogRecord.NoData);
+                this.data = Helper.UTF8NoBom.GetString(data ?? LogRecord.NoData);
+                this.metadata = Helper.UTF8NoBom.GetString(metadata ?? LogRecord.NoData);
             }
         }
 
@@ -92,8 +92,8 @@ namespace EventStore.Core.Messages
                     eventNumber = evnt.Event.EventNumber;
                     eventType = evnt.Event.EventType;
                     eventId = evnt.Event.EventId.ToString();
-                    data = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Event.Data ?? Empty.ByteArray);
-                    metadata = Helper.UTF8NoBom.GetStringWithBuffer(evnt.Event.Metadata ?? Empty.ByteArray);
+                    data = Helper.UTF8NoBom.GetString(evnt.Event.Data ?? Empty.ByteArray);
+                    metadata = Helper.UTF8NoBom.GetString(evnt.Event.Metadata ?? Empty.ByteArray);
                 }
                 else
                 {

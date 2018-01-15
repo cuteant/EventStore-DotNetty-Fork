@@ -105,7 +105,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
 
             if (eventRecord.EventType == SystemEventTypes.LinkTo) // Unresolved link.
             {
-                sourceStreamId = Helper.UTF8NoBom.GetStringWithBuffer(eventRecord.Data);
+                sourceStreamId = Helper.UTF8NoBom.GetString(eventRecord.Data);
                 int separatorIndex = sourceStreamId.IndexOf(LinkToSeparator);
                 if (separatorIndex != -1)
                 {

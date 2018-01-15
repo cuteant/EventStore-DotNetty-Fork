@@ -57,7 +57,7 @@ namespace EventStore.Transport.Http.EntityManagement
                         offset = 3;
                     }
 
-                    onSuccess(manager, Helper.UTF8NoBom.GetStringWithBuffer(bytes, offset, bytes.Length - offset));
+                    onSuccess(manager, Helper.UTF8NoBom.GetString(bytes, offset, bytes.Length - offset));
                 },
                 onError);
         }

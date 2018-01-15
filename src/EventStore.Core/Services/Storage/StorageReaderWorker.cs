@@ -521,7 +521,7 @@ namespace EventStore.Core.Services.Storage
             {
                 try
                 {
-                    var parts = Helper.UTF8NoBom.GetStringWithBuffer(eventRecord.Data).Split(LinkToSeparator, 2);
+                    var parts = Helper.UTF8NoBom.GetString(eventRecord.Data).Split(LinkToSeparator, 2);
                     long eventNumber = long.Parse(parts[0]);
                     var streamId = parts[1];
 

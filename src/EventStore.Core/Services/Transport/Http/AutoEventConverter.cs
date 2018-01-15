@@ -79,21 +79,21 @@ namespace EventStore.Core.Services.Transport.Http
                 case ContentType.Raw:
                     return LoadRaw(request, includedId, includedType);
                 case ContentType.Json:
-                    return LoadRaw(sourceCodec.Encoding.GetStringWithBuffer(request), true, includedId, includedType);
+                    return LoadRaw(sourceCodec.Encoding.GetString(request), true, includedId, includedType);
                 case ContentType.EventJson:
                 case ContentType.EventsJson:
                 case ContentType.AtomJson:
-                    var writeEvents = LoadFromJson(sourceCodec.Encoding.GetStringWithBuffer(request));
+                    var writeEvents = LoadFromJson(sourceCodec.Encoding.GetString(request));
                     if (writeEvents.IsEmpty()) return null;
                     return Parse(writeEvents);
 
                 case ContentType.ApplicationXml:
                 case ContentType.Xml:
-                    return LoadRaw(sourceCodec.Encoding.GetStringWithBuffer(request), false, includedId, includedType);
+                    return LoadRaw(sourceCodec.Encoding.GetString(request), false, includedId, includedType);
                 case ContentType.EventXml:
                 case ContentType.EventsXml:
                 case ContentType.Atom:
-                    var writeEvents2 = LoadFromXml(sourceCodec.Encoding.GetStringWithBuffer(request));
+                    var writeEvents2 = LoadFromXml(sourceCodec.Encoding.GetString(request));
                     if (writeEvents2.IsEmpty()) return null;
                     return Parse(writeEvents2);
                 default:

@@ -730,7 +730,7 @@ namespace EventStore.ClientAPI.Internal
 
       if (package.Command == TcpCommand.BadRequest && package.CorrelationId == Guid.Empty)
       {
-        string message = Helper.EatException(() => Helper.UTF8NoBom.GetStringWithBuffer(package.Data.Array, package.Data.Offset, package.Data.Count));
+        string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
         var exc = new EventStoreConnectionException($"Bad request received from server. Error: {(string.IsNullOrEmpty(message) ? "<no message>" : message)}");
         await CloseConnectionAsync("Connection-wide BadRequest received. Too dangerous to continue.", exc).ConfigureAwait(false);
         return;

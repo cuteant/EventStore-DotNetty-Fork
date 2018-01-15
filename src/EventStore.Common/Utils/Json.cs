@@ -95,7 +95,7 @@ namespace EventStore.Common.Utils
         {
             try
             {
-                JToken.Parse(Helper.UTF8NoBom.GetStringWithBuffer(value));
+                JToken.Parse(Helper.UTF8NoBom.GetString(value));
             }
             catch
             {

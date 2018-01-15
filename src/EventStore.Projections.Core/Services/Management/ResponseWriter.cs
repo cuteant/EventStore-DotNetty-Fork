@@ -92,7 +92,7 @@ namespace EventStore.Projections.Core.Services.Management
                         {
                             var message = String.Format("PROJECTIONS: Failed writing events to {0} because of {1}: {2}",
                                 ProjectionNamesBuilder._projectionsMasterStream,
-                                completed.Result, String.Join(",", events.Select(x => String.Format("{0}-{1}", x.EventType, Helper.UTF8NoBom.GetStringWithBuffer(x.Data)))));
+                                completed.Result, String.Join(",", events.Select(x => String.Format("{0}-{1}", x.EventType, Helper.UTF8NoBom.GetString(x.Data)))));
                             _logger.LogDebug(message); //Can't do anything about it, log and move on
                                                        //throw new Exception(message);
                         }

@@ -7,7 +7,7 @@ namespace EventStore.Projections.Core.Utils
     {
         public static string FromUtf8(this byte[] self)
         {
-            return Helper.UTF8NoBom.GetStringWithBuffer(self);
+            return Helper.UTF8NoBom.GetString(self);
         }
 
         public static byte[] ToUtf8(this string self)
