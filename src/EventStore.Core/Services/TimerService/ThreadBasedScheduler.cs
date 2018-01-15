@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.TimerService
             return _queueStats.GetStatistics(_tasks.Count);
         }
 
-        private struct ScheduledTask
+        private readonly struct ScheduledTask
         {
             public readonly DateTime DueTime;
             public readonly Action<IScheduler, object> Action;

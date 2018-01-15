@@ -1132,7 +1132,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             return string.Format("#{0}-{1} ({2})", _chunkHeader.ChunkStartNumber, _chunkHeader.ChunkEndNumber, Path.GetFileName(_filename));
         }
 
-        private struct Midpoint
+        private readonly struct Midpoint
         {
             public readonly int ItemIndex;
             public readonly long LogPos;

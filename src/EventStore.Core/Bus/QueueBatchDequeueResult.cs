@@ -3,9 +3,15 @@
     /// <summary>
     /// A struct providing information for <see cref="ISingleConsumerMessageQueue.TryDequeue"/> result.
     /// </summary>
-    public struct QueueBatchDequeueResult
+    public readonly struct QueueBatchDequeueResult
     {
-        public int DequeueCount;
-        public int EstimateCurrentQueueCount;
+        public readonly int DequeueCount;
+        public readonly int EstimateCurrentQueueCount;
+
+        public QueueBatchDequeueResult(int dequeueCount, int estimateCurrentQueueCount)
+        {
+            DequeueCount = dequeueCount;
+            EstimateCurrentQueueCount = estimateCurrentQueueCount;
+        }
     }
 }

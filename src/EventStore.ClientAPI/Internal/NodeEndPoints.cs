@@ -3,7 +3,7 @@ using System.Net;
 
 namespace EventStore.ClientAPI.Internal
 {
-    internal struct NodeEndPoints
+    internal readonly struct NodeEndPoints
     {
         public readonly IPEndPoint TcpEndPoint;
         public readonly IPEndPoint SecureTcpEndPoint;

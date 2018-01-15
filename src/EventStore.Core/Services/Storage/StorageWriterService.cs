@@ -713,7 +713,7 @@ namespace EventStore.Core.Services.Storage
             _indexWriter.PurgeNotProcessedTransactions(Db.Config.WriterCheckpoint.Read());
         }
 
-        private struct WriteResult
+        private readonly struct WriteResult
         {
             public readonly long WrittenPos;
             public readonly long NewPos;

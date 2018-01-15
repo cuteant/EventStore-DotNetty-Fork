@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>Result type returned after conditionally writing to a stream.</summary>
-  public struct ConditionalWriteResult
+  public readonly struct ConditionalWriteResult
   {
     /// <summary>Returns if the write was successful.</summary>
     public readonly ConditionalWriteStatus Status;

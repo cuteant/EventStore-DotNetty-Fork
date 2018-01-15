@@ -750,7 +750,7 @@ namespace EventStore.Core.Index
                 throw new TimeoutException();
         }
 
-        internal struct Midpoint
+        internal readonly struct Midpoint
         {
             public readonly IndexEntryKey Key;
             public readonly long ItemIndex;
@@ -762,10 +762,10 @@ namespace EventStore.Core.Index
             }
         }
 
-        internal struct IndexEntryKey
+        internal readonly struct IndexEntryKey
         {
-            public ulong Stream;
-            public long Version;
+            public readonly ulong Stream;
+            public readonly long Version;
             public IndexEntryKey(ulong stream, long version)
             {
                 Stream = stream;

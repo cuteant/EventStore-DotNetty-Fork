@@ -4,7 +4,7 @@ using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.Storage.ReaderIndex
 {
-    public struct IndexReadStreamResult
+    public readonly struct IndexReadStreamResult
     {
         internal static readonly EventRecord[] EmptyRecords = new EventRecord[0];
 

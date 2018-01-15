@@ -3,7 +3,7 @@ using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.PersistentSubscription
 {
-    public struct OutstandingMessage
+    public readonly struct OutstandingMessage
     {
         public readonly ResolvedEvent ResolvedEvent;
         public readonly PersistentSubscriptionClient HandlingClient;

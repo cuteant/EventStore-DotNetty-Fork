@@ -2,7 +2,7 @@
 
 namespace EventStore.Core.TransactionLog
 {
-    public struct RecordReadResult
+    public readonly struct RecordReadResult
     {
         public static readonly RecordReadResult Failure = new RecordReadResult(false, -1, null, 0);
 
@@ -29,7 +29,7 @@ namespace EventStore.Core.TransactionLog
         }
     }
 
-    public struct SeqReadResult
+    public readonly struct SeqReadResult
     {
         public static readonly SeqReadResult Failure = new SeqReadResult(false, true, null, 0, -1, -1);
 

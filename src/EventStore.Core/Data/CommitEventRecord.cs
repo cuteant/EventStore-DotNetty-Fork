@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Core.Data
 {
-    public struct CommitEventRecord
+    public readonly struct CommitEventRecord
     {
         public readonly EventRecord Event;
         public readonly long CommitPosition;

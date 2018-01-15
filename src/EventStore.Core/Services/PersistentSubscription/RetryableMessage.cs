@@ -2,7 +2,7 @@
 
 namespace EventStore.Core.Services.PersistentSubscription
 {
-    public struct RetryableMessage
+    public readonly struct RetryableMessage
     {
         public readonly Guid MessageId;
         public readonly DateTime DueTime;

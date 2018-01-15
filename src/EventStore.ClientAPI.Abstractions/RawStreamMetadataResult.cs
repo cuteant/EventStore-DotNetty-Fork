@@ -5,7 +5,7 @@ namespace EventStore.ClientAPI
 {
   /// <summary>Represents stream metadata as a series of properties for system
   /// data and a byte array for user metadata.</summary>
-  public struct RawStreamMetadataResult
+  public readonly struct RawStreamMetadataResult
   {
     /// <summary>The name of the stream.</summary>
     public readonly string Stream;

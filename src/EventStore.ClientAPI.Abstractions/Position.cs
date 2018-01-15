@@ -4,7 +4,7 @@ namespace EventStore.ClientAPI
 {
   /// <summary>A structure referring to a potential logical record position
   /// in the Event Store transaction file.</summary>
-  public struct Position
+  public readonly struct Position
   {
     /// <summary>Position representing the start of the transaction file</summary>
     public static readonly Position Start = new Position(0, 0);

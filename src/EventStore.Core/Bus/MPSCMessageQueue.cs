@@ -139,11 +139,11 @@ namespace EventStore.Core.Bus
             // Volatile.Write(ref sequenceReadTo, current);
             sequenceReadTo = c;
 
-            result = new QueueBatchDequeueResult
-            {
-                DequeueCount = i,
-                EstimateCurrentQueueCount = (int) estimatedCount
-            };
+            result = new QueueBatchDequeueResult(i, (int)estimatedCount);
+            //{
+            //    DequeueCount = i,
+            //    EstimateCurrentQueueCount = (int) estimatedCount
+            //};
 
             return true;
         }

@@ -1,7 +1,7 @@
 ﻿namespace EventStore.ClientAPI
 {
   /// <summary>Result type returned after deleting a stream.</summary>
-  public struct DeleteResult
+  public readonly struct DeleteResult
   {
     /// <summary>The <see cref="LogPosition"/> of the write.</summary>
     public readonly Position LogPosition;

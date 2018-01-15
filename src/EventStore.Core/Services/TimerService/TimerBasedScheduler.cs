@@ -73,7 +73,7 @@ namespace EventStore.Core.Services.TimerService
             _timer.Dispose();
         }
 
-        private struct ScheduledTask
+        private readonly struct ScheduledTask
         {
             public readonly DateTime DueTime;
             public readonly Action<IScheduler, object> Action;

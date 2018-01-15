@@ -144,7 +144,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             return _retry.Min(x => x.ResolvedEvent.OriginalEventNumber);
         }
 
-        public struct OutstandingMessagePointer
+        public readonly struct OutstandingMessagePointer
         {
             private readonly LinkedListNode<OutstandingMessage> _entry;
 

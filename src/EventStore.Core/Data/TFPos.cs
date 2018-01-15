@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 
 namespace EventStore.Core.Data
 {
-    public struct TFPos : IEquatable<TFPos>, IComparable<TFPos>
+    public readonly struct TFPos : IEquatable<TFPos>, IComparable<TFPos>
     {
         public static readonly TFPos Invalid = new TFPos(-1, -1);
         public static readonly TFPos HeadOfTf = new TFPos(-1, -1);

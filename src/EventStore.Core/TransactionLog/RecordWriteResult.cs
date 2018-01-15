@@ -2,9 +2,9 @@
 
 namespace EventStore.Core.TransactionLog
 {
-    public struct RecordWriteResult
+    public readonly struct RecordWriteResult
     {
-        public bool Success;
+        public readonly bool Success;
         public readonly long OldPosition;
         public readonly long NewPosition;
 

@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Core.Services.Storage.ReaderIndex
 {
-    public struct CommitCheckResult
+    public readonly struct CommitCheckResult
     {
         public readonly CommitDecision Decision;
         public readonly string EventStreamId;

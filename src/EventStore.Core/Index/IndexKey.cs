@@ -1,11 +1,11 @@
 ﻿namespace EventStore.Core.Index
 {
-    public struct IndexKey
+    public readonly struct IndexKey
     {
-        public string StreamId;
-        public long Version;
-        public long Position;
-        public ulong Hash;
+        public readonly string StreamId;
+        public readonly long Version;
+        public readonly long Position;
+        public readonly ulong Hash;
         public IndexKey(string streamId, long version, long position) : this(streamId, version, position, 0) { }
         public IndexKey(string streamId, long version, long position, ulong hash)
         {

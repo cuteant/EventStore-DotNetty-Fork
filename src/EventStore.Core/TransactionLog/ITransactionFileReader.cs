@@ -14,7 +14,7 @@ namespace EventStore.Core.TransactionLog
         bool ExistsAt(long position);
     }
 
-    public struct TFReaderLease : IDisposable
+    public readonly struct TFReaderLease : IDisposable
     {
         public readonly ITransactionFileReader Reader;
         private readonly ObjectPool<ITransactionFileReader> _pool;

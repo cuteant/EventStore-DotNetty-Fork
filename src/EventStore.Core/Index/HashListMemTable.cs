@@ -219,7 +219,7 @@ namespace EventStore.Core.Index
             return _version == PTableVersions.IndexV1 ? hash >> 32 : hash;
         }
 
-        private struct Entry
+        private readonly struct Entry
         {
             public readonly long EvNum;
             public readonly long LogPos;

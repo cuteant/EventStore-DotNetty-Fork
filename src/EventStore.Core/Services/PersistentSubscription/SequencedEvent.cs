@@ -2,7 +2,7 @@
 
 namespace EventStore.Core.Services.PersistentSubscription
 {
-    public struct SequencedEvent
+    public readonly struct SequencedEvent
     {
         public readonly long Sequence;
         public readonly ResolvedEvent Event;

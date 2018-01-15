@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI
 {
   /// <summary>A structure representing a single event or an resolved link event.</summary>
-  public struct ResolvedEvent<T> : IResolvedEvent<T> where T : class
+  public readonly struct ResolvedEvent<T> : IResolvedEvent<T> where T : class
   {
     /// <summary>The event, or the resolved link event if this <see cref="ResolvedEvent"/> is a link event.</summary>
     public readonly RecordedEvent<T> Event;

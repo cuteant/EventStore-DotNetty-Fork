@@ -865,7 +865,7 @@ namespace EventStore.ClientAPI.Internal
     public event EventHandler<ClientErrorEventArgs> ErrorOccurred = delegate { };
     public event EventHandler<ClientAuthenticationFailedEventArgs> AuthenticationFailed = delegate { };
 
-    private struct HeartbeatInfo
+    private readonly struct HeartbeatInfo
     {
       public readonly int LastPackageNumber;
       public readonly bool IsIntervalStage;
@@ -879,7 +879,7 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private struct ReconnectionInfo
+    private readonly struct ReconnectionInfo
     {
       public readonly int ReconnectionAttempt;
       public readonly TimeSpan TimeStamp;
@@ -891,7 +891,7 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private struct AuthInfo
+    private readonly struct AuthInfo
     {
       public readonly Guid CorrelationId;
       public readonly TimeSpan TimeStamp;
@@ -903,7 +903,7 @@ namespace EventStore.ClientAPI.Internal
       }
     }
 
-    private struct IdentifyInfo
+    private readonly struct IdentifyInfo
     {
       public readonly Guid CorrelationId;
       public readonly TimeSpan TimeStamp;

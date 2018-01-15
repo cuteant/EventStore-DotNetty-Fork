@@ -108,7 +108,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return _systemSettings;
         }
 
-        public struct EventNumberCached
+        public readonly struct EventNumberCached
         {
             public readonly int Version;
             public readonly long? LastEventNumber;
@@ -120,7 +120,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        public struct MetadataCached
+        public readonly struct MetadataCached
         {
             public readonly int Version;
             public readonly StreamMetadata Metadata;

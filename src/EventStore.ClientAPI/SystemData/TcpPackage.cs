@@ -12,7 +12,7 @@ namespace EventStore.ClientAPI.SystemData
     Authenticated = 0x01,
   }
 
-  internal struct TcpPackage
+  internal readonly struct TcpPackage
   {
     public const int CommandOffset = 0;
     public const int FlagsOffset = CommandOffset + 1;

@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  public struct PersistentSubscriptionResolvedEvent<T> : IPersistentSubscriptionResolvedEvent<T> where T : class
+  public readonly struct PersistentSubscriptionResolvedEvent<T> : IPersistentSubscriptionResolvedEvent<T> where T : class
   {
     /// <summary>RetryCount</summary>
     public readonly int? RetryCount;

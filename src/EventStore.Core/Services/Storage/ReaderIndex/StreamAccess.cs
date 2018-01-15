@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Core.Services.Storage.ReaderIndex
 {
-    public struct StreamAccess
+    public readonly struct StreamAccess
     {
         public readonly bool Granted;
         public readonly bool Public;

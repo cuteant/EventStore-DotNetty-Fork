@@ -34,7 +34,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         RawMetaInfo GetStreamRawMeta(string streamId);
     }
 
-    public struct RawMetaInfo
+    public readonly struct RawMetaInfo
     {
         public readonly long MetaLastEventNumber;
         public readonly byte[] RawMeta;
@@ -448,7 +448,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return new RawMetaInfo(metaLastEventNumber, meta.RawMeta);
         }
 
-        private struct StreamMeta
+        private readonly struct StreamMeta
         {
             public readonly byte[] RawMeta;
             public readonly StreamMetadata Meta;
@@ -460,7 +460,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private struct EventInfo
+        private readonly struct EventInfo
         {
             public readonly string StreamId;
             public readonly long EventNumber;
@@ -472,7 +472,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private struct TransInfo
+        private readonly struct TransInfo
         {
             public readonly long TransactionId;
             public readonly long LogPosition;
@@ -484,7 +484,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private struct CommitInfo
+        private readonly struct CommitInfo
         {
             public readonly string StreamId;
             public readonly long LogPosition;

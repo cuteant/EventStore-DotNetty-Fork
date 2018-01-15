@@ -2,7 +2,7 @@
 
 namespace EventStore.Core.Services.Transport.Http
 {
-    public struct RequestParams
+    public readonly struct RequestParams
     {
         public readonly bool IsDone;
         public readonly TimeSpan Timeout;

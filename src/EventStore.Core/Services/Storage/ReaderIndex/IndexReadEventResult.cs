@@ -3,7 +3,7 @@ using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.Storage.ReaderIndex
 {
-    public struct IndexReadEventResult
+    public readonly struct IndexReadEventResult
     {
         public readonly ReadEventResult Result;
         public readonly EventRecord Record;

@@ -5,7 +5,7 @@ using EventStore.Core.Data;
 
 namespace EventStore.Core.Services.Storage.ReaderIndex
 {
-    public struct IndexReadAllResult
+    public readonly struct IndexReadAllResult
     {
         public readonly List<CommitEventRecord> Records;
         public readonly TFPos CurrentPos;

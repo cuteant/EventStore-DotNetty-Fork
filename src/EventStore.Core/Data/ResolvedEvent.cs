@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Core.Data
 {
-    public struct ResolvedEvent
+    public readonly struct ResolvedEvent
     {
         public static readonly ResolvedEvent[] EmptyArray = new ResolvedEvent[0];
         public static readonly ResolvedEvent EmptyEvent = new ResolvedEvent();

@@ -23,7 +23,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public void StartOperation(Guid id)
         {
-            var record = new Operation { Start = _watch.ElapsedTicks };
+            var record = new Operation(_watch.ElapsedTicks);
             _operations.AddOrUpdate(id, record, (q, val) => record);
         }
 
@@ -77,9 +77,10 @@ namespace EventStore.Core.Services.PersistentSubscription
             return ret;
         }
 
-        struct Operation
+        readonly struct Operation
         {
-            public long Start;
+            public readonly long Start;
+            public Operation(long start) { Start = start; }
         }
     }
 
@@ -88,10 +89,10 @@ namespace EventStore.Core.Services.PersistentSubscription
         public readonly List<Measurement> Measurements = new List<Measurement>();
     }
 
-    public struct Measurement
+    public readonly struct Measurement
     {
-        public string Key;
-        public int Value;
+        public readonly string Key;
+        public readonly int Value;
         public Measurement(string key, int value)
         {
             this.Key = key;

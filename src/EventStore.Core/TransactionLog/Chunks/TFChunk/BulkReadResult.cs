@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 {
-    public struct BulkReadResult
+    public readonly struct BulkReadResult
     {
         public readonly int OldPosition;
         public readonly int BytesRead;

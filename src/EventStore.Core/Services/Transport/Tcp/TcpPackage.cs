@@ -12,7 +12,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         TrustedWrite = 0x02
     }
 
-    public struct TcpPackage
+    public readonly struct TcpPackage
     {
         public const int CommandOffset = 0;
         public const int FlagsOffset = CommandOffset + 1;

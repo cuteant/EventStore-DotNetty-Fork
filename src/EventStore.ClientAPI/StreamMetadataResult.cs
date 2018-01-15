@@ -6,7 +6,7 @@ namespace EventStore.ClientAPI
     /// Represents stream metadata as a series of properties for system
     /// data and a <see cref="StreamMetadata"/> object for user metadata.
     /// </summary>
-    public struct StreamMetadataResult
+    public readonly struct StreamMetadataResult
     {
         /// <summary>
         /// The name of the stream.

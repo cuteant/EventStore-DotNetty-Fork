@@ -1,7 +1,7 @@
 ﻿namespace EventStore.ClientAPI
 {
   /// <summary>Result type returned after writing to a stream.</summary>
-  public struct WriteResult
+  public readonly struct WriteResult
   {
     /// <summary>The next expected version for the stream.</summary>
     public readonly long NextExpectedVersion;

@@ -2,7 +2,7 @@
 
 namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 {
-    public struct PosMap
+    public readonly struct PosMap
     {
         public const int FullSize = sizeof(long) + sizeof(int);
         public const int DeprecatedSize = sizeof(int) + sizeof(int);
