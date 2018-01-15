@@ -415,6 +415,8 @@ namespace EventStore.Core.Tests.ClientAPI
 
             Assert.That(_raisedEventEvent.Wait(TimeoutMs));
 
+            Thread.Sleep(1000);
+
             Assert.That(_raisedEvents[0].OriginalEventNumber, Is.EqualTo(0));
             Assert.That(_raisedEvents[1].OriginalEventNumber, Is.EqualTo(1));
 

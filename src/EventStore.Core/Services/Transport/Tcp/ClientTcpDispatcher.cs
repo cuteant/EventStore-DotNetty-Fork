@@ -181,7 +181,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                                              dto.PreparePosition ?? -1,
                                                              dto.CommitPosition ?? -1);
             return new ClientMessage.WriteEventsCompleted(package.CorrelationId,
-                                                          (OperationResult)dto.Result,
+                                                          dto.Result,
                                                           dto.Message,
                                                           dto.CurrentVersion ?? -1);
         }
@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionStartCompleted>();
             if (dto == null) return null;
-            return new ClientMessage.TransactionStartCompleted(package.CorrelationId, dto.TransactionId, (OperationResult)dto.Result, dto.Message);
+            return new ClientMessage.TransactionStartCompleted(package.CorrelationId, dto.TransactionId, dto.Result, dto.Message);
         }
 
         private static TcpPackage WrapTransactionStartCompleted(ClientMessage.TransactionStartCompleted msg)
@@ -319,7 +319,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.DeleteStreamCompleted>();
             if (dto == null) return null;
-            return new ClientMessage.DeleteStreamCompleted(package.CorrelationId, (OperationResult)dto.Result,
+            return new ClientMessage.DeleteStreamCompleted(package.CorrelationId, dto.Result,
                                                            dto.Message,
                                                            dto.PreparePosition ?? -1,
                                                            dto.CommitPosition ?? -1);
@@ -518,7 +518,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
             TcpConnectionManager connection)
         {
-            var dto = package.Data.Deserialize<TcpClientMessageDto.CreatePersistentSubscription>();
+            var dto = package.Data.Deserialize<TcpClientMessageDto.DeletePersistentSubscription>();
             if (dto == null) return null;
             return new ClientMessage.DeletePersistentSubscription(Guid.NewGuid(), package.CorrelationId, envelope,
                             dto.EventStreamId, dto.SubscriptionGroupName, user);
@@ -622,7 +622,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         private TcpPackage WrapNotHandled(ClientMessage.NotHandled msg)
         {
-            var dto = new TcpClientMessageDto.NotHandled(msg.Reason, msg.AdditionalInfo == null ? null : msg.AdditionalInfo.SerializeToArray());
+            var dto = new TcpClientMessageDto.NotHandled(msg.Reason, msg.AdditionalInfo?.SerializeToArray());
             return new TcpPackage(TcpCommand.NotHandled, msg.CorrelationId, dto.Serialize());
         }
 
