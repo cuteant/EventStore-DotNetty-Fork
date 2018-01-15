@@ -28,7 +28,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private const int MaxNumberOfRetries = 5;
 
         public CoreProjectionCheckpointWriter(
-            string projectionCheckpointStreamId, IODispatcher ioDispatcher, ProjectionVersion projectionVersion,
+            string projectionCheckpointStreamId, IODispatcher ioDispatcher, in ProjectionVersion projectionVersion,
             string name)
         {
             _projectionCheckpointStreamId = projectionCheckpointStreamId;

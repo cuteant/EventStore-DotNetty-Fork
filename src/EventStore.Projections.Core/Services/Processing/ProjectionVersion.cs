@@ -1,6 +1,6 @@
 ﻿namespace EventStore.Projections.Core.Services.Processing
 {
-    public struct ProjectionVersion
+    public readonly struct ProjectionVersion
     {
         public readonly long ProjectionId;
         public readonly long Epoch;

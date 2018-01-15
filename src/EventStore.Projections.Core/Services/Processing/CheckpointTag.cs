@@ -530,7 +530,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return resultDictionary;
         }
 
-        public byte[] ToJsonBytes(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
+        public byte[] ToJsonBytes(in ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
         {
             if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
@@ -545,7 +545,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
         }
 
-        public string ToJsonString(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
+        public string ToJsonString(in ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
         {
             if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
@@ -583,7 +583,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return new JRaw(StringWriterManager.ReturnAndFree(textWriter));
         }
 
-        public void WriteTo(ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData, JsonWriter jsonWriter)
+        public void WriteTo(in ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData, JsonWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
             if (projectionVersion.ProjectionId > 0)
@@ -658,14 +658,14 @@ namespace EventStore.Projections.Core.Services.Processing
             jsonWriter.WriteEndObject();
         }
 
-        private static void WriteVersion(ProjectionVersion projectionVersion, JsonWriter jsonWriter)
+        private static void WriteVersion(in ProjectionVersion projectionVersion, JsonWriter jsonWriter)
         {
             jsonWriter.WriteValue(
                 projectionVersion.ProjectionId + ":" + projectionVersion.Epoch + ":" + projectionVersion.Version + ":"
                 + ProjectionsSubsystem.VERSION);
         }
 
-        public static CheckpointTagVersion FromJson(JsonReader reader, ProjectionVersion current, bool skipStartObject = false)
+        public static CheckpointTagVersion FromJson(JsonReader reader, in ProjectionVersion current, bool skipStartObject = false)
         {
             if (!skipStartObject)
                 Check(reader.Read(), reader);

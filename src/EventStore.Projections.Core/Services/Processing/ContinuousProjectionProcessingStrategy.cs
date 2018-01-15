@@ -9,7 +9,7 @@ namespace EventStore.Projections.Core.Services.Processing
     public class ContinuousProjectionProcessingStrategy : DefaultProjectionProcessingStrategy
     {
         public ContinuousProjectionProcessingStrategy(
-            string name, ProjectionVersion projectionVersion, IProjectionStateHandler stateHandler,
+            string name, in ProjectionVersion projectionVersion, IProjectionStateHandler stateHandler,
             ProjectionConfig projectionConfig, IQuerySources sourceDefinition, ILogger logger,
             ReaderSubscriptionDispatcher subscriptionDispatcher)
             : base(

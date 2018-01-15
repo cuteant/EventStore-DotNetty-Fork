@@ -28,7 +28,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private long _lastWrittenCheckpointEventNumber;
 
         public CoreProjectionCheckpointReader(
-            IPublisher publisher, Guid projectionCorrelationId, IODispatcher ioDispatcher, string projectionCheckpointStreamId, ProjectionVersion projectionVersion, bool useCheckpoints)
+            IPublisher publisher, Guid projectionCorrelationId, IODispatcher ioDispatcher, string projectionCheckpointStreamId, in ProjectionVersion projectionVersion, bool useCheckpoints)
         {
             _publisher = publisher;
             _projectionCorrelationId = projectionCorrelationId;

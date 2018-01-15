@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly bool _isBiState;
 
         protected EventReaderBasedProjectionProcessingStrategy(
-            string name, ProjectionVersion projectionVersion, ProjectionConfig projectionConfig,
+            string name, in ProjectionVersion projectionVersion, ProjectionConfig projectionConfig,
             IQuerySources sourceDefinition, ILogger logger, ReaderSubscriptionDispatcher subscriptionDispatcher)
             : base(name, projectionVersion, logger)
         {
@@ -179,7 +179,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly IProjectionStateHandler _stateHandler;
 
         protected DefaultProjectionProcessingStrategy(
-            string name, ProjectionVersion projectionVersion, IProjectionStateHandler stateHandler,
+            string name, in ProjectionVersion projectionVersion, IProjectionStateHandler stateHandler,
             ProjectionConfig projectionConfig, IQuerySources sourceDefinition, ILogger logger,
             ReaderSubscriptionDispatcher subscriptionDispatcher)
             : base(name, projectionVersion, projectionConfig, sourceDefinition, logger, subscriptionDispatcher)

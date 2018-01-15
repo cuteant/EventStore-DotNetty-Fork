@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public CheckpointTag Tag;
         public Dictionary<string, JToken> ExtraMetadata;
 
-        public CheckpointTag AdjustBy(PositionTagger tagger, ProjectionVersion version)
+        public CheckpointTag AdjustBy(PositionTagger tagger, in ProjectionVersion version)
         {
             if (SystemVersion == ProjectionsSubsystem.VERSION && Version.Version == version.Version
                 && Version.ProjectionId == version.ProjectionId)
@@ -49,7 +49,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return CheckpointTag.FromJson(reader, default(ProjectionVersion)).Tag;
         }
 
-        public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this byte[] source, ProjectionVersion current)
+        public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this byte[] source, in ProjectionVersion current)
         {
             if (source == null || source.Length == 0)
             {
@@ -62,7 +62,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return CheckpointTag.FromJson(reader, current);
         }
 
-        public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this string source, ProjectionVersion current)
+        public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this string source, in ProjectionVersion current)
         {
             if (string.IsNullOrEmpty(source))
             {

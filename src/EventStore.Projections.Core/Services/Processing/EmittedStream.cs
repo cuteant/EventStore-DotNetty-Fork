@@ -144,7 +144,7 @@ namespace EventStore.Projections.Core.Services.Processing
         }
 
         public EmittedStream(
-            string streamId, WriterConfiguration writerConfiguration, ProjectionVersion projectionVersion,
+            string streamId, WriterConfiguration writerConfiguration, in ProjectionVersion projectionVersion,
             PositionTagger positionTagger, CheckpointTag fromCheckpointPosition, IPublisher publisher, IODispatcher ioDispatcher,
             IEmittedStreamContainer readyHandler, bool noCheckpoints = false)
         {
