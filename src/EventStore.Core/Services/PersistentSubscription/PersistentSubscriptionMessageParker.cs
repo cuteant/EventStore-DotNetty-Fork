@@ -36,12 +36,12 @@ namespace EventStore.Core.Services.PersistentSubscription
             return new Event(eventId, SystemEventTypes.StreamMetadata, isJson: true, data: dataBytes, metadata: null);
         }
 
-        private void WriteStateCompleted(Action<ResolvedEvent, OperationResult> completed, ResolvedEvent ev, ClientMessage.WriteEventsCompleted msg)
+        private void WriteStateCompleted((Action<ResolvedEvent, OperationResult> completed, ResolvedEvent ev) pair, ClientMessage.WriteEventsCompleted msg)
         {
-            completed?.Invoke(ev, msg.Result);
+            pair.completed?.Invoke(pair.ev, msg.Result);
         }
 
-        public void BeginParkMessage(ResolvedEvent ev, string reason, Action<ResolvedEvent, OperationResult> completed)
+        public void BeginParkMessage(in ResolvedEvent ev, string reason, Action<ResolvedEvent, OperationResult> completed)
         {
             var metadata = new ParkedMessageMetadata { Added = DateTime.Now, Reason = reason, SubscriptionEventNumber = ev.OriginalEventNumber };
 
@@ -49,10 +49,11 @@ namespace EventStore.Core.Services.PersistentSubscription
 
             var parkedEvent = new Event(Guid.NewGuid(), SystemEventTypes.LinkTo, false, data, metadata.ToJson());
 
-            _ioDispatcher.WriteEvent(_parkedStreamId, ExpectedVersion.Any, parkedEvent, SystemAccount.Principal, x => WriteStateCompleted(completed, ev, x));
+            var pair = (completed, ev);
+            _ioDispatcher.WriteEvent(_parkedStreamId, ExpectedVersion.Any, parkedEvent, SystemAccount.Principal, x => WriteStateCompleted(pair, x));
         }
 
-        private string GetLinkToFor(ResolvedEvent ev)
+        private string GetLinkToFor(in ResolvedEvent ev)
         {
             if (ev.Event == null) // Unresolved link so just use the bad/deleted link data.
             {

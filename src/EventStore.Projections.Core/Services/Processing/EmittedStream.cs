@@ -393,7 +393,7 @@ namespace EventStore.Projections.Core.Services.Processing
             return stop || message.IsEndOfStream;
         }
 
-        private static bool IsV1StreamCreatedEvent(EventStore.Core.Data.ResolvedEvent e)
+        private static bool IsV1StreamCreatedEvent(in EventStore.Core.Data.ResolvedEvent e)
         {
             return e.Link == null && e.OriginalEventNumber == 0
                    && (e.OriginalEvent.EventType == SystemEventTypes.V1__StreamCreatedImplicit__

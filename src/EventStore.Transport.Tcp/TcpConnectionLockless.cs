@@ -406,7 +406,7 @@ namespace EventStore.Transport.Tcp
             return RemoteEndPoint.ToString();
         }
 
-        private struct ReceivedData
+        private readonly struct ReceivedData
         {
             public readonly ArraySegment<byte> Buf;
             public readonly int DataLen;

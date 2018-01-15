@@ -501,7 +501,7 @@ namespace EventStore.Core.Messages
             public readonly string Error;
 
             public ReadEventCompleted(Guid correlationId, string eventStreamId, ReadEventResult result,
-                                      ResolvedEvent record, StreamMetadata streamMetadata, bool isCachePublic, string error)
+                                      in ResolvedEvent record, StreamMetadata streamMetadata, bool isCachePublic, string error)
             {
                 Ensure.NotNullOrEmpty(eventStreamId, "eventStreamId");
                 //if (result == ReadEventResult.Success)
@@ -1323,7 +1323,7 @@ namespace EventStore.Core.Messages
             public readonly Guid CorrelationId;
             public readonly ResolvedEvent Event;
 
-            public StreamEventAppeared(Guid correlationId, ResolvedEvent @event)
+            public StreamEventAppeared(Guid correlationId, in ResolvedEvent @event)
             {
                 CorrelationId = correlationId;
                 Event = @event;
@@ -1338,7 +1338,7 @@ namespace EventStore.Core.Messages
             public readonly Guid CorrelationId;
             public readonly ResolvedEvent Event;
             public readonly int RetryCount;
-            public PersistentSubscriptionStreamEventAppeared(Guid correlationId, ResolvedEvent @event, int retryCount)
+            public PersistentSubscriptionStreamEventAppeared(Guid correlationId, in ResolvedEvent @event, int retryCount)
             {
                 CorrelationId = correlationId;
                 Event = @event;

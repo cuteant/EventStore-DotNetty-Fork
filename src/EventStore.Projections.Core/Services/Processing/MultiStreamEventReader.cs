@@ -355,7 +355,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
         }
 
-        private void DeliverEvent(EventStore.Core.Data.ResolvedEvent pair, float progress)
+        private void DeliverEvent(in EventStore.Core.Data.ResolvedEvent pair, float progress)
         {
             _deliveredEvents++;
             var positionEvent = pair.OriginalEvent;
@@ -386,7 +386,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     _stopOnEof ? (long?)null : positionEvent.LogPosition, progress, source: this.GetType()));
         }
 
-        private long? EventPairToPosition(EventStore.Core.Data.ResolvedEvent resolvedEvent)
+        private long? EventPairToPosition(in EventStore.Core.Data.ResolvedEvent resolvedEvent)
         {
             return resolvedEvent.OriginalEvent.LogPosition;
         }

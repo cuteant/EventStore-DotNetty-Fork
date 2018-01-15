@@ -174,7 +174,7 @@ namespace EventStore.Projections.Core.Services.Processing
         }
 
         private void DeliverEvent(
-            EventStore.Core.Data.ResolvedEvent @event, long lastCommitPosition, TFPos currentFrom)
+            in EventStore.Core.Data.ResolvedEvent @event, long lastCommitPosition, TFPos currentFrom)
         {
             EventRecord linkEvent = @event.Link;
             EventRecord targetEvent = @event.Event ?? linkEvent;

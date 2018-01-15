@@ -175,7 +175,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
         }
 
-        private void EnqueueStreamForProcessing(EventStore.Core.Data.ResolvedEvent resolvedEvent)
+        private void EnqueueStreamForProcessing(in EventStore.Core.Data.ResolvedEvent resolvedEvent)
         {
             //TODO: consider catalog referring to earlier written events (should we check here?)
             if (resolvedEvent.OriginalEvent.LogPosition > _limitingCommitPosition)
@@ -185,7 +185,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _catalogNextSequenceNumber = resolvedEvent.OriginalEventNumber;
         }
 
-        private void DeliverEvent(EventStore.Core.Data.ResolvedEvent pair, float progress)
+        private void DeliverEvent(in EventStore.Core.Data.ResolvedEvent pair, float progress)
         {
             EventRecord positionEvent = pair.OriginalEvent;
             if (positionEvent.LogPosition > _limitingCommitPosition)

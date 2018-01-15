@@ -35,7 +35,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public readonly bool IsLinkToDeletedStream;
         public readonly bool IsLinkToDeletedStreamTombstone;
 
-        public ResolvedEvent(EventStore.Core.Data.ResolvedEvent resolvedEvent, byte[] streamMetadata)
+        public ResolvedEvent(in EventStore.Core.Data.ResolvedEvent resolvedEvent, byte[] streamMetadata)
         {
             var positionEvent = resolvedEvent.Link ?? resolvedEvent.Event;
             _linkOrEventPosition = resolvedEvent.OriginalPosition.GetValueOrDefault();

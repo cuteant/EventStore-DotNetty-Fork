@@ -707,7 +707,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return result;
         }
 
-        private static TcpClientMessageDto.ResolvedEvent ConvertToResolvedEventV1(ResolvedEvent evnt)
+        private static TcpClientMessageDto.ResolvedEvent ConvertToResolvedEventV1(in ResolvedEvent evnt)
         {
             TcpClientMessageDto.EventRecord eventRecord = null;
             TcpClientMessageDto.EventRecord linkRecord = null;
@@ -726,7 +726,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                                 evnt.OriginalPosition.Value.PreparePosition);
         }
 
-        private static TcpClientMessageDto.ResolvedIndexedEvent ConvertToResolvedIndexedEventV1(ResolvedEvent evnt)
+        private static TcpClientMessageDto.ResolvedIndexedEvent ConvertToResolvedIndexedEventV1(in ResolvedEvent evnt)
         {
             TcpClientMessageDto.EventRecord eventRecord = null;
             TcpClientMessageDto.EventRecord linkRecord = null;

@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
 #pragma warning restore 649
         }
 
-        private void PublishPasswordChangeNotificationFrom(ResolvedEvent @event)
+        private void PublishPasswordChangeNotificationFrom(in ResolvedEvent @event)
         {
             var data = @event.Event.Data;
             try

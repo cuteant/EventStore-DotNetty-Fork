@@ -9,7 +9,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
             get { return SystemConsumerStrategies.DispatchToSingle; }
         }
 
-        public override ConsumerPushResult PushMessageToClient(ResolvedEvent ev, int retryCount)
+        public override ConsumerPushResult PushMessageToClient(in ResolvedEvent ev, int retryCount)
         {
             for (int i = 0; i < Clients.Count; i++)
             {

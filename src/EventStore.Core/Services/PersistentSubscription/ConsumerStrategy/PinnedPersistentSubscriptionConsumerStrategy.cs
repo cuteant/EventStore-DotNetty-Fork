@@ -55,7 +55,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
             _state.DisconnectNode(nodeId);
         }
 
-        public ConsumerPushResult PushMessageToClient(ResolvedEvent ev, int retryCount)
+        public ConsumerPushResult PushMessageToClient(in ResolvedEvent ev, int retryCount)
         {
             if (_state == null)
             {
@@ -84,20 +84,20 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
             return ConsumerPushResult.Sent;
         }
 
-        private void OnEventRemoved(PersistentSubscriptionClient client, ResolvedEvent ev)
+        private void OnEventRemoved(PersistentSubscriptionClient client, in ResolvedEvent ev)
         {
             var assignmentId = GetAssignmentId(ev);
             _state.EventRemoved(client.CorrelationId, assignmentId);
         }
 
-        private uint GetAssignmentId(ResolvedEvent ev)
+        private uint GetAssignmentId(in ResolvedEvent ev)
         {
             string sourceStreamId = GetSourceStreamId(ev);
 
             return _hash.Hash(sourceStreamId) % (uint)_state.Assignments.Length;
         }
 
-        private static string GetSourceStreamId(ResolvedEvent ev)
+        private static string GetSourceStreamId(in ResolvedEvent ev)
         {
             var eventRecord = ev.Event ?? ev.Link; // Unresolved link just use the link
 

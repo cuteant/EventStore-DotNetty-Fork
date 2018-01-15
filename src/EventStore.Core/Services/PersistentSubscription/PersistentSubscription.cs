@@ -197,7 +197,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        public void NotifyLiveSubscriptionMessage(ResolvedEvent resolvedEvent)
+        public void NotifyLiveSubscriptionMessage(in ResolvedEvent resolvedEvent)
         {
             lock (_lock)
             {
@@ -311,7 +311,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        public void AddMessageAsProcessing(ResolvedEvent ev, PersistentSubscriptionClient client)
+        public void AddMessageAsProcessing(in ResolvedEvent ev, PersistentSubscriptionClient client)
         {
             lock (_lock)
             {
@@ -381,7 +381,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        private void ParkMessage(ResolvedEvent resolvedEvent, string reason, int count)
+        private void ParkMessage(in ResolvedEvent resolvedEvent, string reason, int count)
         {
             _settings.MessageParker.BeginParkMessage(resolvedEvent, reason, (e, result) =>
             {
@@ -538,7 +538,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             return true;
         }
 
-        private void RetryMessage(ResolvedEvent @event, int count)
+        private void RetryMessage(in ResolvedEvent @event, int count)
         {
             if (Log.IsDebugLevelEnabled())
             {
@@ -554,7 +554,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             return _statistics.GetStatistics();
         }
 
-        public void RetrySingleMessage(ResolvedEvent @event)
+        public void RetrySingleMessage(in ResolvedEvent @event)
         {
             _streamBuffer.AddRetry(new OutstandingMessage(@event.OriginalEvent.EventId, null, @event, 0));
         }

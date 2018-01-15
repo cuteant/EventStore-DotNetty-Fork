@@ -84,7 +84,7 @@ namespace EventStore.Core.Messages
             {
             }
 
-            public ReadEventCompletedText(ResolvedEvent evnt)
+            public ReadEventCompletedText(in ResolvedEvent evnt)
             {
                 if (evnt.Event != null)
                 {

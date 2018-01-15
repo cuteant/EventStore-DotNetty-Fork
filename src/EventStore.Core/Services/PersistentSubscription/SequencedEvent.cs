@@ -7,7 +7,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         public readonly long Sequence;
         public readonly ResolvedEvent Event;
 
-        public SequencedEvent(long sequence, ResolvedEvent @event)
+        public SequencedEvent(long sequence, in ResolvedEvent @event)
         {
             this.Sequence = sequence;
             this.Event = @event;

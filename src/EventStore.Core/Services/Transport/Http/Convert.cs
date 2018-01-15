@@ -210,7 +210,7 @@ namespace EventStore.Core.Services.Transport.Http
             return descriptionDocument;
         }
 
-        public static EntryElement ToEntry(ResolvedEvent eventLinkPair, Uri requestedUrl, EmbedLevel embedContent, bool singleEntry = false)
+        public static EntryElement ToEntry(in ResolvedEvent eventLinkPair, Uri requestedUrl, EmbedLevel embedContent, bool singleEntry = false)
         {
             if (requestedUrl == null)
                 return null;

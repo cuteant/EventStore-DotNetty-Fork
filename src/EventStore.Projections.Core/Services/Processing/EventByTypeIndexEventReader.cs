@@ -31,7 +31,7 @@ namespace EventStore.Projections.Core.Services.Processing
             public readonly float Progress;
             public readonly TFPos TfPosition;
 
-            public PendingEvent(EventStore.Core.Data.ResolvedEvent resolvedEvent, TFPos tfPosition, float progress)
+            public PendingEvent(in EventStore.Core.Data.ResolvedEvent resolvedEvent, TFPos tfPosition, float progress)
             {
                 ResolvedEvent = resolvedEvent;
                 Progress = progress;
@@ -380,7 +380,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 return _lastKnownIndexCheckpointPosition != null && tfPosition <= _lastKnownIndexCheckpointPosition;
             }
 
-            private void ReadIndexCheckpointStreamCompleted(ReadStreamResult result, EventStore.Core.Data.ResolvedEvent[] events)
+            private void ReadIndexCheckpointStreamCompleted(ReadStreamResult result, in EventStore.Core.Data.ResolvedEvent[] events)
             {
                 if (_disposed) { return; }
 
@@ -579,7 +579,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _reader.PublishIORequest(delay, readEventsForward, timeoutMessage, corrId);
             }
 
-            private void DeliverEventRetrievedByIndex(EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
+            private void DeliverEventRetrievedByIndex(in EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
             {
                 //TODO: add event sequence validation for inside the index stream
                 var resolvedEvent = new ResolvedEvent(pair, null);
@@ -764,7 +764,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 //TODO: check was is passed here
             }
 
-            private void DeliverEventRetrievedFromTf(EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
+            private void DeliverEventRetrievedFromTf(in EventStore.Core.Data.ResolvedEvent pair, float progress, TFPos position)
             {
                 var resolvedEvent = new ResolvedEvent(pair, null);
 

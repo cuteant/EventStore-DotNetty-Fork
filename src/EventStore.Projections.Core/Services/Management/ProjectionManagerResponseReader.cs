@@ -183,7 +183,7 @@ namespace EventStore.Projections.Core.Services.Management
                 null);
         }
 
-        private void PublishCommand(ResolvedEvent resolvedEvent)
+        private void PublishCommand(in ResolvedEvent resolvedEvent)
         {
             var command = resolvedEvent.Event.EventType;
             //TODO: PROJECTIONS: Remove before release

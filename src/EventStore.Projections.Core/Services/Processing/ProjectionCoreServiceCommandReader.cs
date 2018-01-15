@@ -186,7 +186,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
         }
 
-        private void PublishCommand(EventStore.Core.Data.ResolvedEvent resolvedEvent)
+        private void PublishCommand(in EventStore.Core.Data.ResolvedEvent resolvedEvent)
         {
             var command = resolvedEvent.Event.EventType;
             if (!Logging.FilteredMessages.Contains(command) && Log.IsDebugLevelEnabled())

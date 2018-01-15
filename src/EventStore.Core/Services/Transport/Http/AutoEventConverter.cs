@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -19,7 +18,7 @@ namespace EventStore.Core.Services.Transport.Http
     {
         private static readonly ILogger Log = TraceLogger.GetLogger(typeof(AutoEventConverter));
 
-        public static object SmartFormat(ResolvedEvent evnt, ICodec targetCodec)
+        public static object SmartFormat(in ResolvedEvent evnt, ICodec targetCodec)
         {
             var dto = CreateDataDto(evnt);
 
@@ -55,7 +54,7 @@ namespace EventStore.Core.Services.Transport.Http
             }
         }
 
-        public static HttpClientMessageDto.ReadEventCompletedText CreateDataDto(ResolvedEvent evnt)
+        public static HttpClientMessageDto.ReadEventCompletedText CreateDataDto(in ResolvedEvent evnt)
         {
             var dto = new HttpClientMessageDto.ReadEventCompletedText(evnt);
             if (evnt.Event.Flags.HasFlag(PrepareFlags.IsJson))

@@ -226,7 +226,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 get { return _tag; }
             }
 
-            public void SetLoadedEvent(EventStore.Core.Data.ResolvedEvent eventLinkPair)
+            public void SetLoadedEvent(in EventStore.Core.Data.ResolvedEvent eventLinkPair)
             {
                 _result = eventLinkPair;
             }

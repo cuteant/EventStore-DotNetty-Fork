@@ -107,7 +107,7 @@ namespace EventStore.Projections.Core.Services.Management
             // unlikely we can ever get here, but still possible - do nothing
         }
 
-        private void PublishCommand(ResolvedEvent resolvedEvent)
+        private void PublishCommand(in ResolvedEvent resolvedEvent)
         {
             var command = resolvedEvent.Event.EventType;
             if (Log.IsDebugLevelEnabled()) Log.LogDebug("Response received: {0}", command);

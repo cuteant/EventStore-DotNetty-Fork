@@ -338,7 +338,7 @@ namespace EventStore.Projections.Core.Services.Processing
         }
 
         protected void SendPrerecordedEvent(
-            EventStore.Core.Data.ResolvedEvent pair, CheckpointTag positionTag,
+            in EventStore.Core.Data.ResolvedEvent pair, CheckpointTag positionTag,
             long prerecordedEventMessageSequenceNumber)
         {
             var committedEvent = new ReaderSubscriptionMessage.CommittedEventDistributed(

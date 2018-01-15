@@ -26,7 +26,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             _consumerStrategy.ClientAdded(client);
         }
 
-        public ConsumerPushResult PushMessageToClient(ResolvedEvent ev, int retryCount)
+        public ConsumerPushResult PushMessageToClient(in ResolvedEvent ev, int retryCount)
         {
             return _consumerStrategy.PushMessageToClient(ev, retryCount);
         }

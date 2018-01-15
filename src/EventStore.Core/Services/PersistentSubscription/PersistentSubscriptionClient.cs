@@ -93,7 +93,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             return removedAny;
         }
 
-        public bool Push(ResolvedEvent evnt, int retryCount)
+        public bool Push(in ResolvedEvent evnt, int retryCount)
         {
             if (!CanSend()) { return false; }
             _allowedMessages--;
@@ -128,7 +128,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             return AvailableSlots > 0;
         }
 
-        private void OnEventConfirmed(ResolvedEvent ev)
+        private void OnEventConfirmed(in ResolvedEvent ev)
         {
             var handler = EventConfirmed;
             if (handler != null) handler(this, ev);

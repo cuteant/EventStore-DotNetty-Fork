@@ -150,7 +150,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _catalogEof = true;
         }
 
-        private void DeliverEvent(EventStore.Core.Data.ResolvedEvent pair, float progress)
+        private void DeliverEvent(in EventStore.Core.Data.ResolvedEvent pair, float progress)
         {
             _deliveredEvents++;
 
