@@ -526,7 +526,7 @@ namespace EventStore.Core.Services.Storage
             }
         }
 
-        private static bool CheckTransactionInfo(long transactionId, TransactionInfo transactionInfo)
+        private static bool CheckTransactionInfo(long transactionId, in TransactionInfo transactionInfo)
         {
             if (transactionInfo.TransactionOffset < -1 || transactionInfo.EventStreamId.IsEmptyString())
             {
@@ -586,7 +586,7 @@ namespace EventStore.Core.Services.Storage
             }
         }
 
-        private static void ActOnCommitCheckFailure(IEnvelope envelope, Guid correlationId, CommitCheckResult result)
+        private static void ActOnCommitCheckFailure(IEnvelope envelope, Guid correlationId, in CommitCheckResult result)
         {
             switch (result.Decision)
             {

@@ -451,7 +451,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return null;
         }
 
-        private static PrepareLogRecord GetPrepare(TFReaderLease reader, long logPosition)
+        private static PrepareLogRecord GetPrepare(in TFReaderLease reader, long logPosition)
         {
             var result = reader.TryReadAt(logPosition);
             if (!result.Success) { return null; }

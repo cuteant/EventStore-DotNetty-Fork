@@ -12,7 +12,7 @@
     /// <summary>Constructs a new <see cref="WriteResult"/>.</summary>
     /// <param name="nextExpectedVersion">The next expected version for the stream.</param>
     /// <param name="logPosition">The position of the write in the log</param>
-    public WriteResult(long nextExpectedVersion, Position logPosition)
+    public WriteResult(long nextExpectedVersion, in Position logPosition)
     {
       LogPosition = logPosition;
       NextExpectedVersion = nextExpectedVersion;

@@ -50,7 +50,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        public void AddRetry(OutstandingMessage ev)
+        public void AddRetry(in OutstandingMessage ev)
         {
             // Insert the retried event before any events with higher version number.
 
@@ -72,7 +72,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             _retry.AddLast(ev);
         }
 
-        public void AddLiveMessage(OutstandingMessage ev)
+        public void AddLiveMessage(in OutstandingMessage ev)
         {
             if (Live)
             {
@@ -84,7 +84,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             _liveBuffer.Enqueue(ev);
         }
 
-        public void AddReadMessage(OutstandingMessage ev)
+        public void AddReadMessage(in OutstandingMessage ev)
         {
             if (Live) return;
             if (ev.ResolvedEvent.OriginalEventNumber <= _initialSequence)

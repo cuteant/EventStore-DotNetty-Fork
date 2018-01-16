@@ -630,7 +630,7 @@ namespace EventStore.Core.Index
             return new IndexEntryKey(stream, version);
         }
 
-        private Range LocateRecordRange(IndexEntryKey key, out IndexEntryKey lowKey, out IndexEntryKey highKey)
+        private Range LocateRecordRange(in IndexEntryKey key, out IndexEntryKey lowKey, out IndexEntryKey highKey)
         {
             lowKey = new IndexEntryKey(ulong.MaxValue,long.MaxValue);
             highKey = new IndexEntryKey(ulong.MinValue,long.MinValue);
@@ -647,7 +647,7 @@ namespace EventStore.Core.Index
             return new Range(midpoints[lowerMidpoint].ItemIndex, midpoints[upperMidpoint].ItemIndex);
         }
 
-        private long LowerMidpointBound(Midpoint[] midpoints, IndexEntryKey key)
+        private long LowerMidpointBound(Midpoint[] midpoints, in IndexEntryKey key)
         {
             long l = 0;
             long r = midpoints.Length - 1;
@@ -662,7 +662,7 @@ namespace EventStore.Core.Index
             return l;
         }
 
-        private long UpperMidpointBound(Midpoint[] midpoints, IndexEntryKey key)
+        private long UpperMidpointBound(Midpoint[] midpoints, in IndexEntryKey key)
         {
             long l = 0;
             long r = midpoints.Length - 1;
@@ -755,7 +755,7 @@ namespace EventStore.Core.Index
             public readonly IndexEntryKey Key;
             public readonly long ItemIndex;
 
-            public Midpoint(IndexEntryKey key, long itemIndex)
+            public Midpoint(in IndexEntryKey key, long itemIndex)
             {
                 Key = key;
                 ItemIndex = itemIndex;
@@ -772,7 +772,7 @@ namespace EventStore.Core.Index
                 Version = version;
             }
 
-            public bool GreaterThan(IndexEntryKey other)
+            public bool GreaterThan(in IndexEntryKey other)
             {
                 if(Stream == other.Stream)
                 {
@@ -781,7 +781,7 @@ namespace EventStore.Core.Index
                 return Stream > other.Stream;
             }
 
-            public bool SmallerThan(IndexEntryKey other)
+            public bool SmallerThan(in IndexEntryKey other)
             {
                 if(Stream == other.Stream)
                 {
@@ -790,7 +790,7 @@ namespace EventStore.Core.Index
                 return Stream < other.Stream;
             }
 
-            public bool GreaterEqualsThan(IndexEntryKey other)
+            public bool GreaterEqualsThan(in IndexEntryKey other)
             {
                 if (Stream == other.Stream)
                 {
@@ -799,7 +799,7 @@ namespace EventStore.Core.Index
                 return Stream >= other.Stream;
             }
 
-            public bool SmallerEqualsThan(IndexEntryKey other)
+            public bool SmallerEqualsThan(in IndexEntryKey other)
             {
                 if(Stream == other.Stream)
                 {

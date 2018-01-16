@@ -144,7 +144,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
       _connection.ReceiveAsync(OnRawDataReceived);
     }
 
-    public void EnqueueSend(TcpPackage package)
+    public void EnqueueSend(in TcpPackage package)
     {
       if (_connection == null)
       {

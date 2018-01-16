@@ -65,7 +65,7 @@ namespace EventStore.ClientAPI.Internal
   {
     public readonly NodeEndPoints EndPoints;
 
-    public EstablishTcpConnectionMessage(NodeEndPoints endPoints)
+    public EstablishTcpConnectionMessage(in NodeEndPoints endPoints)
     {
       EndPoints = endPoints;
     }
@@ -424,7 +424,7 @@ namespace EventStore.ClientAPI.Internal
     public readonly TcpPackageConnection Connection;
     public readonly TcpPackage Package;
 
-    public HandleTcpPackageMessage(TcpPackageConnection connection, TcpPackage package)
+    public HandleTcpPackageMessage(TcpPackageConnection connection, in TcpPackage package)
     {
       Connection = connection;
       Package = package;

@@ -77,7 +77,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return null;
         }
 
-        public Message UnwrapPackage(TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass, TcpConnectionManager connection, byte version)
+        public Message UnwrapPackage(in TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass, TcpConnectionManager connection, byte version)
         {
             if (envelope == null)
                 throw new ArgumentNullException("envelope");

@@ -49,7 +49,7 @@ namespace EventStore.ClientAPI.ClientOperations
                             CreateRequestDto().Serialize());
     }
 
-    public virtual InspectionResult InspectPackage(TcpPackage package)
+    public virtual InspectionResult InspectPackage(in TcpPackage package)
     {
       try
       {
@@ -106,7 +106,7 @@ namespace EventStore.ClientAPI.ClientOperations
       return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest - {message}");
     }
 
-    public InspectionResult InspectNotHandled(TcpPackage package)
+    public InspectionResult InspectNotHandled(in TcpPackage package)
     {
       var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
       switch (message.Reason)
@@ -128,7 +128,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    public InspectionResult InspectUnexpectedCommand(TcpPackage package, TcpCommand expectedCommand)
+    public InspectionResult InspectUnexpectedCommand(in TcpPackage package, TcpCommand expectedCommand)
     {
       if (package.Command == expectedCommand)
         throw new ArgumentException($"Command should not be {package.Command}.");

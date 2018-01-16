@@ -54,7 +54,7 @@ namespace EventStore.ClientAPI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent<object> TransformEvent(PersistentSubscriptionResolvedEvent<object> resolvedEvent) => resolvedEvent.Event;
+    protected override ResolvedEvent<object> TransformEvent(in PersistentSubscriptionResolvedEvent<object> resolvedEvent) => resolvedEvent.Event;
   }
 
   #endregion
@@ -167,7 +167,7 @@ namespace EventStore.ClientAPI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent<TEvent> TransformEvent(PersistentSubscriptionResolvedEvent<TEvent> resolvedEvent) => resolvedEvent.Event;
+    protected override ResolvedEvent<TEvent> TransformEvent(in PersistentSubscriptionResolvedEvent<TEvent> resolvedEvent) => resolvedEvent.Event;
   }
 
   #endregion

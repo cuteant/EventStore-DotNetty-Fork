@@ -458,7 +458,7 @@ namespace EventStore.Core.Services.Storage
                 msg.MaxCount, pos, TFPos.Invalid, TFPos.Invalid, lastCommitPosition);
         }
 
-        private static void CheckEventsOrder(ClientMessage.ReadStreamEventsForward msg, IndexReadStreamResult result)
+        private static void CheckEventsOrder(ClientMessage.ReadStreamEventsForward msg, in IndexReadStreamResult result)
         {
             for (var index = 1; index < result.Records.Length; index++)
             {
@@ -476,7 +476,7 @@ namespace EventStore.Core.Services.Storage
             }
         }
 
-        private static void CheckEventsOrder(ClientMessage.ReadStreamEventsBackward msg, IndexReadStreamResult result)
+        private static void CheckEventsOrder(ClientMessage.ReadStreamEventsBackward msg, in IndexReadStreamResult result)
         {
             for (var index = 1; index < result.Records.Length; index++)
             {

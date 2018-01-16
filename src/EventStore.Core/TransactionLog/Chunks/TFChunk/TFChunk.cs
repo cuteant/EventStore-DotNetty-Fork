@@ -1137,7 +1137,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             public readonly int ItemIndex;
             public readonly long LogPos;
 
-            public Midpoint(int itemIndex, PosMap posmap)
+            public Midpoint(int itemIndex, in PosMap posmap)
             {
                 ItemIndex = itemIndex;
                 LogPos = posmap.LogPos;

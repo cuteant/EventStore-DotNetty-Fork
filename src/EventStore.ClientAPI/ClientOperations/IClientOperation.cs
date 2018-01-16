@@ -6,7 +6,7 @@ namespace EventStore.ClientAPI.ClientOperations
     internal interface IClientOperation
     {
         TcpPackage CreateNetworkPackage(Guid correlationId);
-        InspectionResult InspectPackage(TcpPackage package);
+        InspectionResult InspectPackage(in TcpPackage package);
         void Fail(Exception exception);
     }
 

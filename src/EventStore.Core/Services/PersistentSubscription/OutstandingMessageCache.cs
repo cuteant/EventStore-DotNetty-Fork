@@ -54,7 +54,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             foreach(var m in messageIds) Remove(m);
         }
 
-        public StartMessageResult StartMessage(OutstandingMessage message, DateTime expires)
+        public StartMessageResult StartMessage(in OutstandingMessage message, DateTime expires)
         {
             if (_outstandingRequests.ContainsKey(message.EventId))
                 return StartMessageResult.SkippedDuplicate;

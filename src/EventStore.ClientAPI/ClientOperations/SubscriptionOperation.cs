@@ -147,7 +147,7 @@ namespace EventStore.ClientAPI.ClientOperations
       _getConnection = getConnection;
     }
 
-    protected void EnqueueSend(TcpPackage package)
+    protected void EnqueueSend(in TcpPackage package)
     {
       _getConnection().EnqueueSend(package);
     }

@@ -229,7 +229,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        private void MarkBeginProcessing(OutstandingMessage message)
+        private void MarkBeginProcessing(in OutstandingMessage message)
         {
             _statistics.IncrementProcessed();
             StartMessage(message, _settings.MessageTimeout == TimeSpan.MaxValue ? DateTime.MaxValue : DateTime.UtcNow + _settings.MessageTimeout);
@@ -476,7 +476,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        private void StartMessage(OutstandingMessage message, DateTime expires)
+        private void StartMessage(in OutstandingMessage message, DateTime expires)
         {
             var result = _outstandingMessages.StartMessage(message, expires);
 
@@ -531,7 +531,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        private bool ActionTakenForRetriedMessage(OutstandingMessage message)
+        private bool ActionTakenForRetriedMessage(in OutstandingMessage message)
         {
             if (message.RetryCount < _settings.MaxRetryCount) return false;
             ParkMessage(message.ResolvedEvent, string.Format("Reached retry count of {0}", _settings.MaxRetryCount), 0);

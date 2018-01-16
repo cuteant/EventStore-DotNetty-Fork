@@ -388,7 +388,7 @@ namespace EventStore.Core.Index
             bs.Flush();
         }
 
-        private static void AppendMidpointRecordTo(Stream stream, byte[] buffer, byte version, Midpoint midpointEntry, int midpointEntrySize)
+        private static void AppendMidpointRecordTo(Stream stream, byte[] buffer, byte version, in Midpoint midpointEntry, int midpointEntrySize)
         {
             if(version >= PTableVersions.IndexV4){
                 ulong eventStream = midpointEntry.Key.Stream;

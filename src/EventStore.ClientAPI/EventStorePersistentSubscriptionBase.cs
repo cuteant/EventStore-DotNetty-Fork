@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override ResolvedEvent TransformEvent(PersistentSubscriptionResolvedEvent resolvedEvent) => resolvedEvent.Event;
+    protected override ResolvedEvent TransformEvent(in PersistentSubscriptionResolvedEvent resolvedEvent) => resolvedEvent.Event;
   }
 
   /// <summary>Represents a persistent subscription connection.</summary>
@@ -113,7 +113,7 @@ namespace EventStore.ClientAPI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected abstract TResolvedEvent TransformEvent(TPersistentSubscriptionResolvedEvent resolvedEvent);
+    protected abstract TResolvedEvent TransformEvent(in TPersistentSubscriptionResolvedEvent resolvedEvent);
 
     internal async Task<TSubscription> StartAsync()
     {
@@ -267,12 +267,12 @@ namespace EventStore.ClientAPI
       EnqueueSubscriptionDropNotification(reason, exception);
     }
 
-    private async Task OnEventAppearedAsync(EventStoreSubscription subscription, TPersistentSubscriptionResolvedEvent resolvedEvent)
+    private Task OnEventAppearedAsync(EventStoreSubscription subscription, in TPersistentSubscriptionResolvedEvent resolvedEvent)
     {
-      await _targetBlock.SendAsync(resolvedEvent).ConfigureAwait(false);
+      return _targetBlock.SendAsync(resolvedEvent);
     }
 
-    private void ProcessResolvedEvent(TPersistentSubscriptionResolvedEvent resolvedEvent)
+    private void ProcessResolvedEvent(in TPersistentSubscriptionResolvedEvent resolvedEvent)
     {
       if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {

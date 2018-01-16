@@ -74,7 +74,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private IndexReadEventResult ReadEventInternal(TFReaderLease reader, string streamId, long eventNumber)
+        private IndexReadEventResult ReadEventInternal(in TFReaderLease reader, string streamId, long eventNumber)
         {
             var lastEventNumber = GetStreamLastEventNumberCached(reader, streamId);
             var metadata = GetStreamMetadataCached(reader, streamId);
@@ -131,7 +131,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private PrepareLogRecord ReadPrepareInternal(TFReaderLease reader, string streamId, long eventNumber)
+        private PrepareLogRecord ReadPrepareInternal(in TFReaderLease reader, string streamId, long eventNumber)
         {
             // we assume that you already did check for stream deletion
             Ensure.NotNullOrEmpty(streamId, nameof(streamId));
@@ -141,7 +141,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                           ReadPrepare(reader, streamId, eventNumber);
         }
 
-        private PrepareLogRecord ReadPrepare(TFReaderLease reader, string streamId, long eventNumber)
+        private PrepareLogRecord ReadPrepare(in TFReaderLease reader, string streamId, long eventNumber)
         {
             var recordsQuery = _tableIndex.GetRange(streamId, eventNumber, eventNumber)
                                           .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader, x.Position) })
@@ -156,7 +156,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return null;
         }
 
-        private PrepareLogRecord ReadPrepareSkipScan(TFReaderLease reader, string streamId, long eventNumber)
+        private PrepareLogRecord ReadPrepareSkipScan(in TFReaderLease reader, string streamId, long eventNumber)
         {
             if (_tableIndex.TryGetOneValue(streamId, eventNumber, out long position))
             {
@@ -174,7 +174,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return null;
         }
 
-        protected static PrepareLogRecord ReadPrepareInternal(TFReaderLease reader, long logPosition)
+        protected static PrepareLogRecord ReadPrepareInternal(in TFReaderLease reader, long logPosition)
         {
             RecordReadResult result = reader.TryReadAt(logPosition);
             if (!result.Success) { return null; }
@@ -360,7 +360,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private StreamAccess CheckStreamAccessInternal(TFReaderLease reader, string streamId,
+        private StreamAccess CheckStreamAccessInternal(in TFReaderLease reader, string streamId,
           StreamAccessType streamAccessType, IPrincipal user)
         {
             if (SystemStreams.IsMetastream(streamId))
@@ -443,7 +443,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        private long GetStreamLastEventNumberCached(TFReaderLease reader, string streamId)
+        private long GetStreamLastEventNumberCached(in TFReaderLease reader, string streamId)
         {
             // if this is metastream -- check if original stream was deleted, if yes -- metastream is deleted as well
             if (SystemStreams.IsMetastream(streamId)
@@ -470,7 +470,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return res ?? lastEventNumber;
         }
 
-        private long GetStreamLastEventNumberUncached(TFReaderLease reader, string streamId)
+        private long GetStreamLastEventNumberUncached(in TFReaderLease reader, string streamId)
         {
             if (!_tableIndex.TryGetLatestEntry(streamId, out IndexEntry latestEntry))
             {
@@ -512,7 +512,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return latestVersion == long.MinValue ? ExpectedVersion.NoStream : latestVersion;
         }
 
-        private bool OriginalStreamExists(TFReaderLease reader, string metaStreamId)
+        private bool OriginalStreamExists(in TFReaderLease reader, string metaStreamId)
         {
             if (SystemStreams.IsSystemStream(metaStreamId))
             {
@@ -524,7 +524,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return false;
         }
 
-        private StreamMetadata GetStreamMetadataCached(TFReaderLease reader, string streamId)
+        private StreamMetadata GetStreamMetadataCached(in TFReaderLease reader, string streamId)
         {
             // if this is metastream -- check if original stream was deleted, if yes -- metastream is deleted as well
             if (SystemStreams.IsMetastream(streamId)) { return _metastreamMetadata; }
@@ -547,7 +547,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return res ?? streamMetadata;
         }
 
-        private StreamMetadata GetStreamMetadataUncached(TFReaderLease reader, string streamId)
+        private StreamMetadata GetStreamMetadataUncached(in TFReaderLease reader, string streamId)
         {
             var metastreamId = SystemStreams.MetastreamOf(streamId);
             var metaEventNumber = GetStreamLastEventNumberCached(reader, metastreamId);

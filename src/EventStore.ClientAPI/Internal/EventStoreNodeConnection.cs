@@ -240,7 +240,7 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<AllEventsSlice> ReadAllEventsForwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
+    public Task<AllEventsSlice> ReadAllEventsForwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       Ensure.Positive(maxCount, nameof(maxCount));
       if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
@@ -251,7 +251,7 @@ namespace EventStore.ClientAPI.Internal
       return source.Task;
     }
 
-    public Task<AllEventsSlice> ReadAllEventsBackwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
+    public Task<AllEventsSlice> ReadAllEventsBackwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       Ensure.Positive(maxCount, nameof(maxCount));
       if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
@@ -698,7 +698,7 @@ namespace EventStore.ClientAPI.Internal
 
     #region -- SubscribeToAllFrom --
 
-    public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -714,7 +714,7 @@ namespace EventStore.ClientAPI.Internal
       return catchUpSubscription;
     }
 
-    public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

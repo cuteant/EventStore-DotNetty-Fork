@@ -326,7 +326,7 @@ namespace EventStore.Core.Index
             }
         }
 
-        private static Tuple<string, bool> ReadEntry(TFReaderLease reader, long position)
+        private static Tuple<string, bool> ReadEntry(in TFReaderLease reader, long position)
         {
             RecordReadResult result = reader.TryReadAt(position);
             if (!result.Success)

@@ -23,7 +23,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         CommitCheckResult CheckCommit(string streamId, long expectedVersion, IEnumerable<Guid> eventIds);
         void PreCommit(CommitLogRecord commit);
         void PreCommit(IList<PrepareLogRecord> commitedPrepares);
-        void UpdateTransactionInfo(long transactionId, long logPosition, TransactionInfo transactionInfo);
+        void UpdateTransactionInfo(long transactionId, long logPosition, in TransactionInfo transactionInfo);
         TransactionInfo GetTransactionInfo(long writerCheckpoint, long transactionId);
         void PurgeNotProcessedCommitsTill(long checkpoint);
         void PurgeNotProcessedTransactions(long checkpoint);
@@ -116,7 +116,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return CheckCommit(streamId, expectedVersion, eventIds);
         }
 
-        private static PrepareLogRecord GetPrepare(TFReaderLease reader, long logPosition)
+        private static PrepareLogRecord GetPrepare(in TFReaderLease reader, long logPosition)
         {
             var result = reader.TryReadAt(logPosition);
             if (!result.Success) { return null; }
@@ -291,7 +291,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
         }
 
-        public void UpdateTransactionInfo(long transactionId, long logPosition, TransactionInfo transactionInfo)
+        public void UpdateTransactionInfo(long transactionId, long logPosition, in TransactionInfo transactionInfo)
         {
             _notProcessedTrans.Enqueue(new TransInfo(transactionId, logPosition));
             _transactionInfoCache.Put(transactionId, transactionInfo, +1);

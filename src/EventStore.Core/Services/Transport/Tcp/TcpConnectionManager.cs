@@ -233,7 +233,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             OnPackageReceived(package);
         }
 
-        private void OnPackageReceived(TcpPackage package)
+        private void OnPackageReceived(in TcpPackage package)
         {
             try
             {
@@ -245,7 +245,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             }
         }
 
-        public void ProcessPackage(TcpPackage package)
+        public void ProcessPackage(in TcpPackage package)
         {
             if (_serviceType == TcpServiceType.External && (package.Flags & TcpFlags.TrustedWrite) != 0)
             {
@@ -334,7 +334,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             }
         }
 
-        private void UnwrapAndPublishPackage(TcpPackage package, IPrincipal user, string login, string password)
+        private void UnwrapAndPublishPackage(in TcpPackage package, IPrincipal user, string login, string password)
         {
             Message message = null;
             string error = "";
@@ -407,7 +407,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             if (package != null) { SendPackage(package.Value); }
         }
 
-        private void SendPackage(TcpPackage package, bool checkQueueSize = true)
+        private void SendPackage(in TcpPackage package, bool checkQueueSize = true)
         {
             if (IsClosed) return;
 
@@ -483,7 +483,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             private readonly TcpConnectionManager _manager;
             private readonly TcpPackage _package;
 
-            public TcpAuthRequest(TcpConnectionManager manager, TcpPackage package, string login, string password)
+            public TcpAuthRequest(TcpConnectionManager manager, in TcpPackage package, string login, string password)
               : base(login, password)
             {
                 _manager = manager;
