@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 
 namespace EventStore.Projections.Core.Tests.Other
@@ -151,16 +152,18 @@ namespace EventStore.Projections.Core.Tests.Other
                     select g
                 )
             {
-                LoggingUtils.WriteLine(tuple.Key);
-                Console.Write("   ");
+                var sb = new StringBuilder();
+                sb.AppendLine(tuple.Key);
+                sb.Append("   ");
                 foreach (var i in tuple)
                 {
                     if (char.IsWhiteSpace(i.Item1))
-                        Console.Write(Uri.HexEscape(i.Item1));
-                    else 
-                        Console.Write(i.Item1);
+                        sb.Append(Uri.HexEscape(i.Item1));
+                    else
+                        sb.Append(i.Item1);
                 }
-                LoggingUtils.WriteLine("");
+                sb.AppendLine("");
+                LoggingUtils.WriteLine(sb.ToString());
             }
             Assert.Inconclusive();
         }

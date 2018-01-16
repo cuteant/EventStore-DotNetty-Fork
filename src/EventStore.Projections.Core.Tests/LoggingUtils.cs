@@ -9,8 +9,8 @@ namespace EventStore.Projections.Core.Tests
     {
         private static ILogger s_logger = TraceLogger.GetLogger<LoggingUtils>();
 
-        public static void WriteLine(string message) => LoggingUtils.WriteLine(message);
+        public static void WriteLine(string message) => s_logger.LogInformation(message);
 
-        public static void WriteLine(string format, params object[] args) => LoggingUtils.WriteLine(format, args);
+        public static void WriteLine(string format, params object[] args) => s_logger.LogInformation(format, args);
     }
 }

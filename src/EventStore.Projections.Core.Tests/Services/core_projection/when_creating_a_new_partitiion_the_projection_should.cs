@@ -45,7 +45,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
         public void passes_partition_created_notification_to_the_handler()
         {
             Assert.AreEqual(1, _stateHandler._partitionCreatedProcessed);
-            Assert.Inconclusive();
+            Assert.IsTrue(true); //Assert.Inconclusive();
         }
     }
 }
