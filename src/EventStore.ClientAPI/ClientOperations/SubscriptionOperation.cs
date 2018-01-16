@@ -327,7 +327,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
     protected abstract TSubscription CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber);
 
-    protected void EventAppeared(TResolvedEvent e)
+    protected void EventAppeared(in TResolvedEvent e)
     {
       if (_unsubscribed != 0) { return; }
 
@@ -342,9 +342,9 @@ namespace EventStore.ClientAPI.ClientOperations
       EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
     }
 
-    protected async Task EventAppearedAsync(TResolvedEvent e)
+    protected Task EventAppearedAsync(in TResolvedEvent e)
     {
-      if (_unsubscribed != 0) { return; }
+      if (_unsubscribed != 0) { return TaskConstants.Completed; }
 
       if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
 
@@ -354,7 +354,7 @@ namespace EventStore.ClientAPI.ClientOperations
                       _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
                       e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
       }
-      await EnqueueMessageAsync((true, e, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
+      return EnqueueMessageAsync((true, e, SubscriptionDropReason.Unknown, null));
     }
 
     private void EnqueueMessage((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
@@ -376,7 +376,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    protected virtual void ProcessResolvedEvent(TResolvedEvent resolvedEvent)
+    protected virtual void ProcessResolvedEvent(in TResolvedEvent resolvedEvent)
     {
       _eventAppeared(_subscription, resolvedEvent);
     }
@@ -409,7 +409,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    protected virtual Task ProcessResolvedEventAsync(TResolvedEvent resolvedEvent)
+    protected virtual Task ProcessResolvedEventAsync(in TResolvedEvent resolvedEvent)
     {
       return _eventAppearedAsync(_subscription, resolvedEvent);
     }

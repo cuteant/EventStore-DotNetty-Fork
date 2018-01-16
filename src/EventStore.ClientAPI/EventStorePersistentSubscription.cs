@@ -106,7 +106,7 @@ namespace EventStore.ClientAPI
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override IResolvedEvent2 TransformEvent(IPersistentSubscriptionResolvedEvent2 resolvedEvent) => resolvedEvent;
+    protected override IResolvedEvent2 TransformEvent(in IPersistentSubscriptionResolvedEvent2 resolvedEvent) => resolvedEvent;
   }
 
   #endregion

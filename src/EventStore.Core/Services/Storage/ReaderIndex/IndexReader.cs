@@ -143,8 +143,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         private PrepareLogRecord ReadPrepare(in TFReaderLease reader, string streamId, long eventNumber)
         {
+            var reader1 = reader;
             var recordsQuery = _tableIndex.GetRange(streamId, eventNumber, eventNumber)
-                                          .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader, x.Position) })
+                                          .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader1, x.Position) })
                                           .Where(x => x.Prepare != null && x.Prepare.EventStreamId == streamId)
                                           .GroupBy(x => x.Version).Select(x => x.Last()).ToList();
             //if (recordsQuery.Count() == 1)

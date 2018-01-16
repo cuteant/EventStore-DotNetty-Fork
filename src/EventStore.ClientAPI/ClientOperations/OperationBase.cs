@@ -92,16 +92,16 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    public InspectionResult InspectNotAuthenticated(TcpPackage package)
+    public InspectionResult InspectNotAuthenticated(in TcpPackage package)
     {
-      string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+      string message = string.Empty; try { Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count); } catch { }
       Fail(new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
       return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
     }
 
-    public InspectionResult InspectBadRequest(TcpPackage package)
+    public InspectionResult InspectBadRequest(in TcpPackage package)
     {
-      string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+      string message = string.Empty; try { Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count); } catch { }
       Fail(new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
       return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest - {message}");
     }

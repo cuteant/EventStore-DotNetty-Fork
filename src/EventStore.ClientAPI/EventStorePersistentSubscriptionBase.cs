@@ -172,7 +172,7 @@ namespace EventStore.ClientAPI
     /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
     /// <remarks>There is no need to ack a message if you have Auto Ack enabled</remarks>
     /// <param name="event">The <see cref="ResolvedEvent"></see> to acknowledge</param>
-    public void Acknowledge(TResolvedEvent @event)
+    public void Acknowledge(in TResolvedEvent @event)
     {
       _subscription.NotifyEventsProcessed(new[] { @event.OriginalEventId });
     }
@@ -208,7 +208,7 @@ namespace EventStore.ClientAPI
     /// <param name="event">The event to mark as failed</param>
     /// <param name="action">The <see cref="PersistentSubscriptionNakEventAction"></see> action to take</param>
     /// <param name="reason">A string with a message as to why the failure is occurring</param>
-    public void Fail(TResolvedEvent @event, PersistentSubscriptionNakEventAction action, string reason)
+    public void Fail(in TResolvedEvent @event, PersistentSubscriptionNakEventAction action, string reason)
     {
       _subscription.NotifyEventsFailed(new[] { @event.OriginalEventId }, action, reason);
     }

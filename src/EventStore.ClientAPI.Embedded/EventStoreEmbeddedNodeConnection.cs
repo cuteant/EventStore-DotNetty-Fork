@@ -308,7 +308,7 @@ namespace EventStore.ClientAPI.Embedded
             return source.Task;
         }
 
-        public Task<AllEventsSlice> ReadAllEventsForwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
+        public Task<AllEventsSlice> ReadAllEventsForwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             Ensure.Positive(maxCount, nameof(maxCount));
             if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException(string.Format("Count should be less than {0}. For larger reads you should page.", ClientApiConstants.MaxReadSize));
@@ -317,15 +317,15 @@ namespace EventStore.ClientAPI.Embedded
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadAllEventsForward(source));
 
             var corrId = Guid.NewGuid();
-
+            var commitPosition = position.CommitPosition; var preparePosition = position.PreparePosition;
             _publisher.PublishWithAuthentication(_authenticationProvider, GetUserCredentials(_settings, userCredentials), source.SetException, user => new ClientMessage.ReadAllEventsForward(corrId, corrId, envelope,
-                position.CommitPosition,
-                position.PreparePosition, maxCount, resolveLinkTos, false, null, user));
+                commitPosition,
+                preparePosition, maxCount, resolveLinkTos, false, null, user));
 
             return source.Task;
         }
 
-        public Task<AllEventsSlice> ReadAllEventsBackwardAsync(Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
+        public Task<AllEventsSlice> ReadAllEventsBackwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             Ensure.Positive(maxCount, nameof(maxCount));
             if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException(string.Format("Count should be less than {0}. For larger reads you should page.", ClientApiConstants.MaxReadSize));
@@ -334,10 +334,10 @@ namespace EventStore.ClientAPI.Embedded
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadAllEventsBackward(source));
 
             var corrId = Guid.NewGuid();
-
+            var commitPosition = position.CommitPosition; var preparePosition = position.PreparePosition;
             _publisher.PublishWithAuthentication(_authenticationProvider, GetUserCredentials(_settings, userCredentials), source.SetException, user => new ClientMessage.ReadAllEventsBackward(corrId, corrId, envelope,
-                position.CommitPosition,
-                position.PreparePosition, maxCount, resolveLinkTos, false, null, user));
+                commitPosition,
+                preparePosition, maxCount, resolveLinkTos, false, null, user));
 
             return source.Task;
         }
@@ -463,7 +463,7 @@ namespace EventStore.ClientAPI.Embedded
             return subscription.StartAsync();
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -478,7 +478,7 @@ namespace EventStore.ClientAPI.Embedded
             catchUpSubscription.StartAsync();
             return catchUpSubscription;
         }
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

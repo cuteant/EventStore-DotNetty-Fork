@@ -58,12 +58,12 @@ namespace EventStore.Core.Tests.TransactionLog
             throw new NotImplementedException();
         }
 
-        public IndexReadAllResult ReadAllEventsForward(TFPos pos, int maxCount)
+        public IndexReadAllResult ReadAllEventsForward(in TFPos pos, int maxCount)
         {
             throw new NotImplementedException();
         }
 
-        public IndexReadAllResult ReadAllEventsBackward(TFPos pos, int maxCount)
+        public IndexReadAllResult ReadAllEventsBackward(in TFPos pos, int maxCount)
         {
             throw new NotImplementedException();
         }

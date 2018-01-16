@@ -209,13 +209,13 @@ namespace EventStore.ClientAPI.ClientOperations
       return new VolatileEventStoreSubscription(this, _streamId, lastCommitPosition, lastEventNumber);
     }
 
-    protected override void ProcessResolvedEvent(TResolvedEvent resolvedEvent)
+    protected override void ProcessResolvedEvent(in TResolvedEvent resolvedEvent)
     {
       Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
       _eventAppeared(_subscription, resolvedEvent);
     }
 
-    protected override Task ProcessResolvedEventAsync(TResolvedEvent resolvedEvent)
+    protected override Task ProcessResolvedEventAsync(in TResolvedEvent resolvedEvent)
     {
       Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
       return _eventAppearedAsync(_subscription, resolvedEvent);

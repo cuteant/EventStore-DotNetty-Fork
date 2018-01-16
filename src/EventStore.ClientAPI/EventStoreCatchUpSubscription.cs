@@ -193,7 +193,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Try to process a single <see cref="ResolvedEvent"/>.</summary>
     /// <param name="e">The <see cref="ResolvedEvent"/> to process.</param>
-    protected abstract void TryProcess(TResolvedEvent e);
+    protected abstract void TryProcess(in TResolvedEvent e);
 
     #endregion
 
@@ -384,7 +384,7 @@ namespace EventStore.ClientAPI
 
     #region ++ EnqueuePushedEventAsync ++
 
-    protected async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, TResolvedEvent e)
+    protected Task EnqueuePushedEventAsync(EventStoreSubscription subscription, in TResolvedEvent e)
     {
       if (Verbose)
       {
@@ -398,10 +398,10 @@ namespace EventStore.ClientAPI
       {
         EnqueueSubscriptionDropNotification(SubscriptionDropReason.ProcessingQueueOverflow, null);
         subscription.Unsubscribe();
-        return;
+        return TaskConstants.Completed;
       }
 
-      await _liveQueue.SendAsync(e).ConfigureAwait(false);
+      return _liveQueue.SendAsync(e);
     }
 
     #endregion
@@ -431,7 +431,7 @@ namespace EventStore.ClientAPI
 
     #region ** ProcessLiveQueue **
 
-    private void ProcessLiveQueue(TResolvedEvent e)
+    private void ProcessLiveQueue(in TResolvedEvent e)
     {
       if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
       {
@@ -483,7 +483,7 @@ namespace EventStore.ClientAPI
 
     #region ** ProcessHistoricalQueue **
 
-    private void ProcessHistoricalQueue(TResolvedEvent e)
+    private void ProcessHistoricalQueue(in TResolvedEvent e)
     {
       if (_lastHistoricalEventError != null) { return; }
       try
@@ -712,7 +712,7 @@ namespace EventStore.ClientAPI
     }
 
     /// <inheritdoc />
-    protected override void TryProcess(ResolvedEvent e)
+    protected override void TryProcess(in ResolvedEvent e)
     {
       bool processed = false;
       if (e.OriginalPosition > _lastProcessedPosition)
@@ -891,7 +891,7 @@ namespace EventStore.ClientAPI
     }
 
     /// <inheritdoc />
-    protected override void TryProcess(TResolvedEvent e)
+    protected override void TryProcess(in TResolvedEvent e)
     {
       bool processed = false;
       if (e.OriginalEventNumber > _lastProcessedEventNumber)

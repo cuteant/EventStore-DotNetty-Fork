@@ -283,7 +283,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 case TcpCommand.BadRequest:
                     {
                         var reason = string.Empty;
-                        Helper.EatException(() => reason = Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count));
+                        try { reason = Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count); } catch { }
                         Log.LogError("Bad request received from '{0}{1}' [{2}, L{3}, {4:B}], will stop server. CorrelationId: {5:B}, Error: {6}.",
                                       ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint,
                                       LocalEndPoint, ConnectionId, package.CorrelationId, reason.IsEmptyString() ? "<reason missing>" : reason);
