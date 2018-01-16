@@ -179,7 +179,7 @@ namespace EventStore.BufferManagement
         /// </summary>
         /// <remarks>
         /// It is the client's responsibility to return the buffer to the manager by
-        /// calling <see cref="CheckIn(ArraySegment{byte})"></see> on the buffer
+        /// calling <c>CheckIn</c> on the buffer
         /// </remarks>
         /// <returns>A <see cref="ArraySegment{T}"></see> that can be used as a buffer</returns>
         public ArraySegment<byte> CheckOut()
@@ -242,7 +242,7 @@ namespace EventStore.BufferManagement
         /// </summary>
         /// <remarks>
         /// It is the client's responsibility to return the buffer to the manger by
-        /// calling <see cref="CheckIn(ArraySegment{byte})"></see> on the buffer
+        /// calling <c>CheckIn</c> on the buffer
         /// </remarks>
         /// <param name="buffer">The <see cref="ArraySegment{T}"></see> to return to the cache</param>
         public void CheckIn(in ArraySegment<byte> buffer)

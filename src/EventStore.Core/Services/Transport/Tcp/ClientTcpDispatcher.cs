@@ -102,7 +102,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             AddWrapper<ClientMessage.PersistentSubscriptionStreamEventAppeared>(WrapPersistentSubscriptionStreamEventAppearedV1, ClientVersion.V1);
         }
 
-        private static Message UnwrapPing(in TcpPackage package, IEnvelope envelope)
+        private static Message UnwrapPing(TcpPackage package, IEnvelope envelope)
         {
             var data = new byte[package.Data.Count];
             Buffer.BlockCopy(package.Data.Array, package.Data.Offset, data, 0, package.Data.Count);
@@ -111,7 +111,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return pongMessage;
         }
 
-        private static Message UnwrapIdentifyClient(in TcpPackage package, IEnvelope envelope)
+        private static Message UnwrapIdentifyClient(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.IdentifyClient>();
             if (dto == null) return null;
@@ -124,7 +124,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.Pong, message.CorrelationId, message.Payload);
         }
 
-        private static ClientMessage.WriteEvents UnwrapWriteEvents(in TcpPackage package, IEnvelope envelope,
+        private static ClientMessage.WriteEvents UnwrapWriteEvents(TcpPackage package, IEnvelope envelope,
                                                                    IPrincipal user, string login, string password)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.WriteEvents>();
@@ -170,7 +170,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 : new TcpPackage(command, TcpFlags.None, msg.InternalCorrId, null, null, dto.Serialize());
         }
 
-        private static ClientMessage.WriteEventsCompleted UnwrapWriteEventsCompleted(in TcpPackage package, IEnvelope envelope)
+        private static ClientMessage.WriteEventsCompleted UnwrapWriteEventsCompleted(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.WriteEventsCompleted>();
             if (dto == null) return null;
@@ -198,7 +198,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.WriteEventsCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.TransactionStart UnwrapTransactionStart(in TcpPackage package, IEnvelope envelope,
+        private static ClientMessage.TransactionStart UnwrapTransactionStart(TcpPackage package, IEnvelope envelope,
                                                                              IPrincipal user, string login, string password)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionStart>();
@@ -213,7 +213,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return CreateWriteRequestPackage(TcpCommand.TransactionStart, msg, dto);
         }
 
-        private static ClientMessage.TransactionStartCompleted UnwrapTransactionStartCompleted(in TcpPackage package, IEnvelope envelope)
+        private static ClientMessage.TransactionStartCompleted UnwrapTransactionStartCompleted(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionStartCompleted>();
             if (dto == null) return null;
@@ -226,7 +226,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.TransactionStartCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.TransactionWrite UnwrapTransactionWrite(in TcpPackage package, IEnvelope envelope,
+        private static ClientMessage.TransactionWrite UnwrapTransactionWrite(TcpPackage package, IEnvelope envelope,
                                                                              IPrincipal user, string login, string password)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionWrite>();
@@ -256,7 +256,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return CreateWriteRequestPackage(TcpCommand.TransactionWrite, msg, dto);
         }
 
-        private static ClientMessage.TransactionWriteCompleted UnwrapTransactionWriteCompleted(in TcpPackage package, IEnvelope envelope)
+        private static ClientMessage.TransactionWriteCompleted UnwrapTransactionWriteCompleted(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionWriteCompleted>();
             if (dto == null) return null;
@@ -269,7 +269,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.TransactionWriteCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.TransactionCommit UnwrapTransactionCommit(in TcpPackage package, IEnvelope envelope,
+        private static ClientMessage.TransactionCommit UnwrapTransactionCommit(TcpPackage package, IEnvelope envelope,
                                                                                IPrincipal user, string login, string password)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionCommit>();
@@ -284,7 +284,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return CreateWriteRequestPackage(TcpCommand.TransactionCommit, msg, dto);
         }
 
-        private static ClientMessage.TransactionCommitCompleted UnwrapTransactionCommitCompleted(in TcpPackage package, IEnvelope envelope)
+        private static ClientMessage.TransactionCommitCompleted UnwrapTransactionCommitCompleted(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.TransactionCommitCompleted>();
             if (dto == null) return null;
@@ -300,7 +300,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.TransactionCommitCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.DeleteStream UnwrapDeleteStream(in TcpPackage package, IEnvelope envelope,
+        private static ClientMessage.DeleteStream UnwrapDeleteStream(TcpPackage package, IEnvelope envelope,
                                                                      IPrincipal user, string login, string password)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.DeleteStream>();
@@ -315,7 +315,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return CreateWriteRequestPackage(TcpCommand.DeleteStream, msg, dto);
         }
 
-        private static ClientMessage.DeleteStreamCompleted UnwrapDeleteStreamCompleted(in TcpPackage package, IEnvelope envelope)
+        private static ClientMessage.DeleteStreamCompleted UnwrapDeleteStreamCompleted(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.DeleteStreamCompleted>();
             if (dto == null) return null;
@@ -334,7 +334,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.DeleteStreamCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.ReadEvent UnwrapReadEvent(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private static ClientMessage.ReadEvent UnwrapReadEvent(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ReadEvent>();
             if (dto == null) return null;
@@ -350,7 +350,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReadEventCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.ReadStreamEventsForward UnwrapReadStreamEventsForward(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private static ClientMessage.ReadStreamEventsForward UnwrapReadStreamEventsForward(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ReadStreamEvents>();
             if (dto == null) return null;
@@ -367,7 +367,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReadStreamEventsForwardCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.ReadStreamEventsBackward UnwrapReadStreamEventsBackward(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private static ClientMessage.ReadStreamEventsBackward UnwrapReadStreamEventsBackward(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ReadStreamEvents>();
             if (dto == null) return null;
@@ -394,7 +394,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return result;
         }
 
-        private static ClientMessage.ReadAllEventsForward UnwrapReadAllEventsForward(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private static ClientMessage.ReadAllEventsForward UnwrapReadAllEventsForward(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEvents>();
             if (dto == null) return null;
@@ -412,7 +412,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReadAllEventsForwardCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private static ClientMessage.ReadAllEventsBackward UnwrapReadAllEventsBackward(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private static ClientMessage.ReadAllEventsBackward UnwrapReadAllEventsBackward(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ReadAllEvents>();
             if (dto == null) return null;
@@ -440,7 +440,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return result;
         }
 
-        private ClientMessage.SubscribeToStream UnwrapSubscribeToStream(in TcpPackage package,
+        private ClientMessage.SubscribeToStream UnwrapSubscribeToStream(TcpPackage package,
                                                                         IEnvelope envelope,
                                                                         IPrincipal user,
                                                                         string login,
@@ -453,7 +453,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                                        connection.ConnectionId, dto.EventStreamId, dto.ResolveLinkTos, user);
         }
 
-        private ClientMessage.UnsubscribeFromStream UnwrapUnsubscribeFromStream(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private ClientMessage.UnsubscribeFromStream UnwrapUnsubscribeFromStream(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.UnsubscribeFromStream>();
             if (dto == null) return null;
@@ -467,7 +467,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         private ClientMessage.CreatePersistentSubscription UnwrapCreatePersistentSubscription(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
             TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.CreatePersistentSubscription>();
@@ -490,7 +490,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         private ClientMessage.UpdatePersistentSubscription UnwrapUpdatePersistentSubscription(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
             TcpConnectionManager connection)
         {
 
@@ -515,7 +515,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         private ClientMessage.DeletePersistentSubscription UnwrapDeletePersistentSubscription(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string username, string password,
             TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.DeletePersistentSubscription>();
@@ -544,7 +544,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
 
         private ClientMessage.ConnectToPersistentSubscription UnwrapConnectToPersistentSubscription(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
             TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.ConnectToPersistentSubscription>();
@@ -554,7 +554,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         private ClientMessage.PersistentSubscriptionAckEvents UnwrapPersistentSubscriptionAckEvents(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
             TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.PersistentSubscriptionAckEvents>();
@@ -565,7 +565,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         private ClientMessage.PersistentSubscriptionNackEvents UnwrapPersistentSubscriptionNackEvents(
-            in TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
+            TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass,
             TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.PersistentSubscriptionNakEvents>();
@@ -600,7 +600,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.SubscriptionDropped, msg.CorrelationId, dto.Serialize());
         }
 
-        private ClientMessage.ScavengeDatabase UnwrapScavengeDatabase(in TcpPackage package, IEnvelope envelope, IPrincipal user)
+        private ClientMessage.ScavengeDatabase UnwrapScavengeDatabase(TcpPackage package, IEnvelope envelope, IPrincipal user)
         {
             return new ClientMessage.ScavengeDatabase(envelope, package.CorrelationId, user);
         }
@@ -613,7 +613,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ScavengeDatabaseCompleted, msg.CorrelationId, dto.Serialize());
         }
 
-        private ClientMessage.NotHandled UnwrapNotHandled(in TcpPackage package, IEnvelope envelope)
+        private ClientMessage.NotHandled UnwrapNotHandled(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
             if (dto == null) return null;

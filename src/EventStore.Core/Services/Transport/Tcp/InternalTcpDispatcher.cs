@@ -47,7 +47,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.PrepareAck, msg.CorrelationId, dto.Serialize());
         }
 
-        private static StorageMessage.PrepareAck UnwrapPrepareAck(in TcpPackage package, IEnvelope envelope)
+        private static StorageMessage.PrepareAck UnwrapPrepareAck(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.PrepareAck>();
             return new StorageMessage.PrepareAck(package.CorrelationId, dto.LogPosition, (PrepareFlags) dto.Flags);
@@ -59,7 +59,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.CommitAck, msg.CorrelationId, dto.Serialize());
         }
 
-        private static StorageMessage.CommitAck UnwrapCommitAck(in TcpPackage package, IEnvelope envelope)
+        private static StorageMessage.CommitAck UnwrapCommitAck(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.CommitAck>();
             return new StorageMessage.CommitAck(package.CorrelationId,
@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                                 dto.LastEventNumber);
         }
 
-        private ReplicationMessage.ReplicaSubscriptionRequest UnwrapReplicaSubscriptionRequest(in TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
+        private ReplicationMessage.ReplicaSubscriptionRequest UnwrapReplicaSubscriptionRequest(TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.SubscribeReplica>();
             var vnodeTcpEndPoint = new IPEndPoint(new IPAddress(dto.Ip), dto.Port);
@@ -100,7 +100,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.SubscribeReplica, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.ReplicaLogPositionAck UnwrapReplicaLogPositionAck(in TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
+        private ReplicationMessage.ReplicaLogPositionAck UnwrapReplicaLogPositionAck(TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.ReplicaLogPositionAck>();
             return new ReplicationMessage.ReplicaLogPositionAck(new Guid(dto.SubscriptionId), dto.ReplicationLogPosition);
@@ -112,7 +112,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReplicaLogPositionAck, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.CreateChunk UnwrapCreateChunk(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.CreateChunk UnwrapCreateChunk(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.CreateChunk>();
             ChunkHeader chunkHeader;
@@ -133,7 +133,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.CreateChunk, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.RawChunkBulk UnwrapRawChunkBulk(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.RawChunkBulk UnwrapRawChunkBulk(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.RawChunkBulk>();
             return new ReplicationMessage.RawChunkBulk(new Guid(dto.MasterId), 
@@ -157,7 +157,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.RawChunkBulk, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.DataChunkBulk UnwrapDataChunkBulk(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.DataChunkBulk UnwrapDataChunkBulk(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.DataChunkBulk>();
             return new ReplicationMessage.DataChunkBulk(new Guid(dto.MasterId), 
@@ -181,7 +181,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.DataChunkBulk, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.ReplicaSubscriptionRetry UnwrapReplicaSubscriptionRetry(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.ReplicaSubscriptionRetry UnwrapReplicaSubscriptionRetry(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.ReplicaSubscriptionRetry>();
             return new ReplicationMessage.ReplicaSubscriptionRetry(new Guid(dto.MasterId), new Guid(dto.SubscriptionId));
@@ -193,7 +193,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReplicaSubscriptionRetry, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.ReplicaSubscribed UnwrapReplicaSubscribed(in TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
+        private ReplicationMessage.ReplicaSubscribed UnwrapReplicaSubscribed(TcpPackage package, IEnvelope envelope, TcpConnectionManager connection)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.ReplicaSubscribed>();
             return new ReplicationMessage.ReplicaSubscribed(new Guid(dto.MasterId),
@@ -210,7 +210,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.ReplicaSubscribed, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.SlaveAssignment UnwrapSlaveAssignment(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.SlaveAssignment UnwrapSlaveAssignment(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.SlaveAssignment>();
             return new ReplicationMessage.SlaveAssignment(new Guid(dto.MasterId), new Guid(dto.SubscriptionId));
@@ -222,7 +222,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new TcpPackage(TcpCommand.SlaveAssignment, Guid.NewGuid(), dto.Serialize());
         }
 
-        private ReplicationMessage.CloneAssignment UnwrapCloneAssignment(in TcpPackage package, IEnvelope envelope)
+        private ReplicationMessage.CloneAssignment UnwrapCloneAssignment(TcpPackage package, IEnvelope envelope)
         {
             var dto = package.Data.Deserialize<ReplicationMessageDto.CloneAssignment>();
             return new ReplicationMessage.CloneAssignment(new Guid(dto.MasterId), new Guid(dto.SubscriptionId));

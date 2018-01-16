@@ -84,7 +84,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
             return ConsumerPushResult.Sent;
         }
 
-        private void OnEventRemoved(PersistentSubscriptionClient client, in ResolvedEvent ev)
+        private void OnEventRemoved(PersistentSubscriptionClient client, ResolvedEvent ev)
         {
             var assignmentId = GetAssignmentId(ev);
             _state.EventRemoved(client.CorrelationId, assignmentId);

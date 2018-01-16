@@ -267,7 +267,7 @@ namespace EventStore.ClientAPI
       EnqueueSubscriptionDropNotification(reason, exception);
     }
 
-    private Task OnEventAppearedAsync(EventStoreSubscription subscription, in TPersistentSubscriptionResolvedEvent resolvedEvent)
+    private Task OnEventAppearedAsync(EventStoreSubscription subscription, TPersistentSubscriptionResolvedEvent resolvedEvent)
     {
       return _targetBlock.SendAsync(resolvedEvent);
     }

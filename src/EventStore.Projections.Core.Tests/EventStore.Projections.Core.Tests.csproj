@@ -16,10 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
-    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
+    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
     <PackageReference Include="NUnit" Version="$(NUnitPackageVersion)" />
     <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterPackageVersion)" />
     <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />

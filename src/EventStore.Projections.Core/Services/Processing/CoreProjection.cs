@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Log;
 using EventStore.Core.Bus;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;
@@ -11,6 +10,7 @@ using EventStore.Projections.Core.Messages;
 using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;
 using EventStore.Projections.Core.Services.Management;
 using EventStore.Projections.Core.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
@@ -18,11 +18,11 @@ namespace EventStore.Projections.Core.Services.Processing
     //TODO: separate check-pointing from projection handling
 
     public class CoreProjection : IDisposable,
-                                  ICoreProjection,
-                                  ICoreProjectionForProcessingPhase,
-                                  IHandle<CoreProjectionManagementMessage.GetState>,
-                                  IHandle<CoreProjectionManagementMessage.GetResult>,
-                                  IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>
+                                      ICoreProjection,
+                                      ICoreProjectionForProcessingPhase,
+                                      IHandle<CoreProjectionManagementMessage.GetState>,
+                                      IHandle<CoreProjectionManagementMessage.GetResult>,
+                                      IHandle<ProjectionManagementMessage.SlaveProjectionsStarted>
     {
         [Flags]
         private enum State : uint
@@ -112,7 +112,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _name = effectiveProjectionName;
             _version = version;
             _stopOnEof = projectionProcessingStrategy.GetStopOnEof();
-            _logger = logger ?? LogManager.GetLoggerFor<CoreProjection>();
+            _logger = logger ?? TraceLogger.GetLogger<CoreProjection>();
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
             _partitionStateCache = partitionStateCache;
@@ -339,7 +339,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(CoreProjectionProcessingMessage.RestartRequested message)
         {
-            _logger.Info(
+            if(_logger.IsInformationLevelEnabled()) _logger.LogInformation(
                 "Projection '{0}'({1}) restart has been requested due to: '{2}'", _name, _projectionCorrelationId,
                 message.Reason);
             if (_state != State.Running)

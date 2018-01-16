@@ -111,7 +111,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
       connection.ReceiveAsync(OnRawDataReceived);
     }
 
-    private void IncomingMessageArrived(in ArraySegment<byte> data)
+    private void IncomingMessageArrived(ArraySegment<byte> data)
     {
       var package = new TcpPackage();
       var valid = false;

@@ -630,7 +630,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
       return _injectionScope != null
           ? ActivatorUtils.CreateInstance<T>(_injectionScope)
           : _services != null
-            ? (T)ActivatorUtils.CreateInstance<T>(_services) // TODO CuteAnt.Core更新后，去掉类型转换
+            ? ActivatorUtils.CreateInstance<T>(_services)
             : ActivatorUtils.FastCreateInstance<T>();
     }
 

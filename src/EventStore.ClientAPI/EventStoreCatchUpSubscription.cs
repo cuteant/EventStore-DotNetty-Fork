@@ -384,7 +384,7 @@ namespace EventStore.ClientAPI
 
     #region ++ EnqueuePushedEventAsync ++
 
-    protected Task EnqueuePushedEventAsync(EventStoreSubscription subscription, in TResolvedEvent e)
+    protected async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, TResolvedEvent e)
     {
       if (Verbose)
       {
@@ -398,10 +398,9 @@ namespace EventStore.ClientAPI
       {
         EnqueueSubscriptionDropNotification(SubscriptionDropReason.ProcessingQueueOverflow, null);
         subscription.Unsubscribe();
-        return TaskConstants.Completed;
       }
 
-      return _liveQueue.SendAsync(e);
+      await _liveQueue.SendAsync(e).ConfigureAwait(false);
     }
 
     #endregion
