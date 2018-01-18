@@ -64,12 +64,12 @@ namespace EventStore.ClientAPI.Serialization
 
     #endregion
 
-    #region -- Initialize --
+    #region -- Register --
 
     /// <summary>Json message formatter</summary>
     /// <param name="serializerSettings"></param>
     /// <param name="deserializerSettings"></param>
-    public static void Initialize(JsonSerializerSettings serializerSettings, JsonSerializerSettings deserializerSettings)
+    public static void Register(JsonSerializerSettings serializerSettings, JsonSerializerSettings deserializerSettings)
     {
       if (null == serializerSettings) { throw new ArgumentNullException(nameof(serializerSettings)); }
       if (null == deserializerSettings) { throw new ArgumentNullException(nameof(deserializerSettings)); }
@@ -82,17 +82,16 @@ namespace EventStore.ClientAPI.Serialization
     }
 
     /// <summary>Utf8Json message formatter</summary>
-    public static void Initialize(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
+    public static void Register(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
     {
       Utf8JsonMessageFormatter.Register(formatters, resolvers);
     }
 
     /// <summary>MessagePack message formatter</summary>
-    public static void Initialize(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers,
+    public static void Register(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers,
       IMessagePackFormatter[] typelessFormatters, IFormatterResolver[] typelessResolvers)
     {
       MessagePackMessageFormatter.Register(formatters, resolvers);
-      MessagePackMessageFormatter.RegisterTypeless(typelessFormatters, typelessResolvers);
     }
 
     #endregion
