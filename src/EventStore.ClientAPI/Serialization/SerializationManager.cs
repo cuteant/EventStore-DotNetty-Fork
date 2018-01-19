@@ -84,14 +84,14 @@ namespace EventStore.ClientAPI.Serialization
     /// <summary>Utf8Json message formatter</summary>
     public static void Register(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
     {
-      Utf8JsonMessageFormatter.Register(formatters, resolvers);
+      Utf8JsonStandardResolver.Register(formatters, resolvers);
     }
 
     /// <summary>MessagePack message formatter</summary>
     public static void Register(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers,
       IMessagePackFormatter[] typelessFormatters, IFormatterResolver[] typelessResolvers)
     {
-      MessagePackMessageFormatter.Register(formatters, resolvers);
+      MessagePackStandardResolver.Register(formatters, resolvers);
     }
 
     #endregion
