@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using EventStore.ClientAPI.Serialization;
+using CuteAnt.Extensions.Serialization;
 using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Internal
@@ -10,7 +10,7 @@ namespace EventStore.ClientAPI.Internal
     public string EventType { get; set; }
 
     [JsonProperty("token")]
-    public EventSerializingToken Token { get; set; }
+    public SerializingToken Token { get; set; }
 
     [JsonProperty("context")]
     public Dictionary<string, object> Context { get; set; }

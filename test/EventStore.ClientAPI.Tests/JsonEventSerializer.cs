@@ -1,11 +1,10 @@
 ﻿using System;
 using CuteAnt.Extensions.Serialization;
-using CuteAnt.IO;
 using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Serialization
 {
-  internal class JsonEventSerializer : EventSerializer
+  internal class JsonEventSerializer : IExternalSerializer
   {
     private const int c_bufferSize = 1024 * 2;
 
@@ -33,12 +32,12 @@ namespace EventStore.ClientAPI.Serialization
     }
 
     /// <inheritdoc/>
-    public override bool IsSupportedType(Type itemType) => true;
+    public bool IsSupportedType(Type itemType) => true;
 
     /// <inheritdoc/>
-    public override object Deserialize(Type expectedType, byte[] data) => _jsonFormatter.Deserialize(expectedType, data);
+    public object Deserialize(Type expectedType, byte[] data) => _jsonFormatter.Deserialize(expectedType, data);
 
     /// <inheritdoc/>
-    public override byte[] Serialize(object value) => _jsonFormatter.SerializeObject(value, c_bufferSize);
+    public byte[] SerializeObject(object value) => _jsonFormatter.SerializeObject(value, c_bufferSize);
   }
 }
