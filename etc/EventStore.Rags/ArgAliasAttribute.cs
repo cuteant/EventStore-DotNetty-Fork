@@ -3,7 +3,7 @@
 namespace EventStore.Rags
 {
     /// <summary>
-    /// Set an alias or aliases for an argument
+    /// Set an alias or aliases for an argument.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class ArgAliasAttribute : Attribute

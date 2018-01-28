@@ -561,7 +561,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreAllCatchUpSubscription ---
 
-  /// <summary>A catch-up subscription to all events in the Event Store.</summary>
+  /// <summary>A catch-up subscription to all events in Event Store.</summary>
   public class EventStoreAllCatchUpSubscription : EventStoreCatchUpSubscription<EventStoreAllCatchUpSubscription, ResolvedEvent>
   {
     static EventStoreAllCatchUpSubscription()
@@ -771,7 +771,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreStreamCatchUpSubscriptionBase ---
 
-  /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
+  /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
   public abstract class EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent> : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>, IStreamCheckpointer
     where TSubscription : EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent>
     where TStreamEventsSlice : IStreamEventsSlice<TResolvedEvent>
@@ -950,7 +950,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreStreamCatchUpSubscription ---
 
-  /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
+  /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
   public class EventStoreStreamCatchUpSubscription : EventStoreStreamCatchUpSubscriptionBase<EventStoreStreamCatchUpSubscription, StreamEventsSlice, ResolvedEvent>
   {
     static EventStoreStreamCatchUpSubscription()
@@ -1026,7 +1026,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreCatchUpSubscription ---
 
-  /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
+  /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
   public class EventStoreCatchUpSubscription : EventStoreStreamCatchUpSubscriptionBase<EventStoreCatchUpSubscription, StreamEventsSlice<object>, ResolvedEvent<object>>
   {
     static EventStoreCatchUpSubscription()
@@ -1101,7 +1101,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreCatchUpSubscription2 ---
 
-  /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
+  /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
   public class EventStoreCatchUpSubscription2 : EventStoreStreamCatchUpSubscriptionBase<EventStoreCatchUpSubscription2, StreamEventsSlice2, IResolvedEvent2>
   {
     static EventStoreCatchUpSubscription2()
@@ -1176,7 +1176,7 @@ namespace EventStore.ClientAPI
 
   #region --- class EventStoreCatchUpSubscription<TEvent> ---
 
-  /// <summary>A catch-up subscription to a single stream in the Event Store.</summary>
+  /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
   public class EventStoreCatchUpSubscription<TEvent> : EventStoreStreamCatchUpSubscriptionBase<EventStoreCatchUpSubscription<TEvent>, StreamEventsSlice<TEvent>, ResolvedEvent<TEvent>>
     where TEvent : class
   {

@@ -9,18 +9,18 @@ namespace EventStore.ClientAPI
   {
     #region -- AppendToStream --
 
-    /// <summary>Appends Events synchronously to a stream.</summary>
+    /// <summary>Appends events synchronously to a stream.</summary>
     /// <remarks>When appending events to a stream the <see cref="ExpectedVersion"/> choice can
     /// make a very large difference in the observed behavior. For example, if no stream exists
     /// and ExpectedVersion.Any is used, a new stream will be implicitly created when appending.
     ///
     /// There are also differences in idempotency between different types of calls.
-    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any the Event Store
-    /// will give you an idempotency guarantee. If using ExpectedVersion.Any the Event Store
+    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any, Event Store
+    /// will give you an idempotency guarantee. If using ExpectedVersion.Any, Event Store
     /// will do its best to provide idempotency but does not guarantee idempotency.</remarks>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to append events to</param>
-    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
+    /// <param name="stream">The name of the stream to append events to.</param>
+    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to.</param>
     /// <param name="events">The events to append to the stream</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult AppendToStream(this IEventStoreConnectionBase connection, string stream, long expectedVersion, params EventData[] events)
@@ -32,18 +32,18 @@ namespace EventStore.ClientAPI
                 connection, stream, expectedVersion, events);
     }
 
-    /// <summary>Appends Events synchronously to a stream.</summary>
+    /// <summary>Appends events synchronously to a stream.</summary>
     /// <remarks>When appending events to a stream the <see cref="ExpectedVersion"/> choice can
     /// make a very large difference in the observed behavior. For example, if no stream exists
     /// and ExpectedVersion.Any is used, a new stream will be implicitly created when appending.
     ///
     /// There are also differences in idempotency between different types of calls.
-    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any the Event Store
-    /// will give you an idempotency guarantee. If using ExpectedVersion.Any the Event Store
+    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any, Event Store
+    /// will give you an idempotency guarantee. If using ExpectedVersion.Any, Event Store
     /// will do its best to provide idempotency but does not guarantee idempotency.</remarks>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to append events to</param>
-    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
+    /// <param name="stream">The name of the stream to append events to.</param>
+    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <param name="events">The events to append to the stream</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
@@ -57,18 +57,18 @@ namespace EventStore.ClientAPI
                 connection, stream, expectedVersion, userCredentials, events);
     }
 
-    /// <summary>Appends Events synchronously to a stream.</summary>
+    /// <summary>Appends events synchronously to a stream.</summary>
     /// <remarks>When appending events to a stream the <see cref="ExpectedVersion"/> choice can
     /// make a very large difference in the observed behavior. For example, if no stream exists
     /// and ExpectedVersion.Any is used, a new stream will be implicitly created when appending.
     ///
     /// There are also differences in idempotency between different types of calls.
-    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any the Event Store
-    /// will give you an idempotency guarantee. If using ExpectedVersion.Any the Event Store
+    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any, Event Store
+    /// will give you an idempotency guarantee. If using ExpectedVersion.Any, Event Store
     /// will do its best to provide idempotency but does not guarantee idempotency.</remarks>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to append events to</param>
-    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
+    /// <param name="stream">The name of the stream to append events to.</param>
+    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to.</param>
     /// <param name="events">The events to append to the stream</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
@@ -86,18 +86,18 @@ namespace EventStore.ClientAPI
 
     #region -- ConditionalAppendToStream --
 
-    /// <summary>Appends Events synchronously to a stream if the stream version matches the <paramref name="expectedVersion"/>.</summary>
+    /// <summary>Appends events synchronously to a stream if the stream version matches the <paramref name="expectedVersion"/>.</summary>
     /// <remarks>When appending events to a stream the <see cref="ExpectedVersion"/> choice can
     /// make a very large difference in the observed behavior. For example, if no stream exists
     /// and ExpectedVersion.Any is used, a new stream will be implicitly created when appending.
     ///
     /// There are also differences in idempotency between different types of calls.
-    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any the Event Store
-    /// will give you an idempotency guarantee. If using ExpectedVersion.Any the Event Store
+    /// If you specify an ExpectedVersion aside from ExpectedVersion.Any, Event Store
+    /// will give you an idempotency guarantee. If using ExpectedVersion.Any, Event Store
     /// will do its best to provide idempotency but does not guarantee idempotency.</remarks>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to append events to</param>
-    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to</param>
+    /// <param name="stream">The name of the stream to append events to.</param>
+    /// <param name="expectedVersion">The <see cref="ExpectedVersion"/> of the stream to append to.</param>
     /// <param name="events">The events to append to the stream</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="ConditionalWriteResult"/> describing if the operation succeeded and, if not, the reason for failure (which can be either stream version mismatch or trying to write to a deleted stream).</returns>

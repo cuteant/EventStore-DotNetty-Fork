@@ -43,7 +43,7 @@ namespace EventStore.ClientAPI
 
     #region -- DeleteStream --
 
-    /// <summary>Deletes a stream from the Event Store synchronously.</summary>
+    /// <summary>Deletes a stream from Event Store synchronously.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream to delete.</param>
     /// <param name="expectedVersion">The expected version that the streams should have when being deleted. <see cref="ExpectedVersion"/></param>
@@ -60,12 +60,12 @@ namespace EventStore.ClientAPI
 
     }
 
-    /// <summary>Deletes a stream from the Event Store synchronously.</summary>
+    /// <summary>Deletes a stream from Event Store synchronously.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream to delete.</param>
     /// <param name="expectedVersion">The expected version that the streams should have when being deleted. <see cref="ExpectedVersion"/></param>
-    /// <param name="hardDelete">Indicator for tombstoning vs soft-deleting the stream. Tombstoned streams can never be recreated. Soft-deleted streams
-    /// can be written to again, but the EventNumber sequence will not start from 0.</param>
+    /// <param name="hardDelete">Indicator for tombstoning vs soft-deleting the stream. Tombstoned streams can never be recreated.
+    /// Soft-deleted streams can be written to again, but the EventNumber sequence will not start from 0.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="DeleteResult"/> containing the results of the delete stream operation.</returns>
     public static DeleteResult DeleteStream(this IEventStoreConnectionBase connection,
@@ -82,12 +82,12 @@ namespace EventStore.ClientAPI
 
     #region -- StartTransaction --
 
-    /// <summary>Starts a transaction in the event store on a given stream asynchronously.</summary>
+    /// <summary>Starts a transaction in Event Store on a given stream.</summary>
     /// <remarks>A <see cref="EventStoreTransaction"/> allows the calling of multiple writes with multiple
-    /// round trips over long periods of time between the caller and the event store. This method
+    /// round trips over long periods of time between the caller and Event Store. This method
     /// is only available through the TCP interface and no equivalent exists for the RESTful interface.</remarks>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to start a transaction on</param>
+    /// <param name="stream">The stream to start a transaction on.</param>
     /// <param name="expectedVersion">The expected version of the stream at the time of starting the transaction</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="EventStoreTransaction"/> representing a multi-request transaction.</returns>

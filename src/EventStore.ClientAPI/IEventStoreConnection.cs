@@ -4,7 +4,7 @@ using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Maintains a full duplex connection to the EventStore.</summary>
+  /// <summary>Maintains a full duplex connection to Event Store.</summary>
   /// <remarks>An <see cref="IEventStoreConnection"/> operates quite differently than say a SqlConnection. Normally
   /// when using an <see cref="IEventStoreConnection"/> you want to keep the connection open for a much longer of time than
   /// when you use a SqlConnection. If you prefer the usage pattern of using(new Connection()) .. then you would likely
@@ -12,16 +12,16 @@ namespace EventStore.ClientAPI
   ///
   /// Another difference is that with the <see cref="IEventStoreConnection"/> all operations are handled in a full async manner
   /// (even if you call the synchronous behaviors). Many threads can use an <see cref="IEventStoreConnection"/> at the same
-  /// time or a single thread can make many asynchronous requests. To get the most performance out of the connection
+  /// time or a single thread can make many asynchronous requests. To get the best performance out of the connection
   /// it is generally recommended to use it in this way.</remarks>
   public interface IEventStoreConnection : IEventStoreConnectionBase
   {
-    /// <summary>Gets the name of this connection. A connection name can be used for disambiguation in log files.</summary>
+    /// <summary>Gets the name of this connection. A connection name is useful for disambiguation in log files.</summary>
     string ConnectionName { get; }
 
-    /// <summary>Continues transaction by provided transaction ID.</summary>
+    /// <summary>Continues specified transaction.</summary>
     /// <remarks>A <see cref="EventStoreTransaction"/> allows the calling of multiple writes with multiple
-    /// round trips over long periods of time between the caller and the event store. This method
+    /// round trips over long periods of time between the caller and Event Store. This method
     /// is only available through the TCP interface and no equivalent exists for the RESTful interface.</remarks>
     /// <param name="transactionId">The transaction ID that needs to be continued.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
@@ -30,18 +30,18 @@ namespace EventStore.ClientAPI
 
     #region -- Read all events --
 
-    /// <summary>Reads All Events in the node forward asynchronously (e.g. beginning to end).</summary>
-    /// <param name="position">The position to start reading from</param>
-    /// <param name="maxCount">The maximum count to read</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <summary>Asynchronously reads all events in the node forward (e.g. beginning to end)..</summary>
+    /// <param name="position">The position to start reading from.</param>
+    /// <param name="maxCount">The maximum count to read.</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;AllEventsSlice&gt;"/> containing the records read.</returns>
     Task<AllEventsSlice> ReadAllEventsForwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null);
 
-    /// <summary>Reads All Events in the node backwards (e.g. end to beginning).</summary>
-    /// <param name="position">The position to start reading from</param>
-    /// <param name="maxCount">The maximum count to read</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
+    /// <summary>Asynchronously reads all events in the node backwards (e.g. end to beginning).</summary>
+    /// <param name="position">The position to start reading from.</param>
+    /// <param name="maxCount">The maximum count to read.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;AllEventsSlice&gt;"/> containing the records read.</returns>
     Task<AllEventsSlice> ReadAllEventsBackwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null);
@@ -50,26 +50,26 @@ namespace EventStore.ClientAPI
 
     #region -- SubscribeToAllAsync --
 
-    /// <summary>Asynchronously subscribes to all events in the Event Store. New
+    /// <summary>Asynchronously subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null);
 
-    /// <summary>Asynchronously subscribes to all events in the Event Store. New
+    /// <summary>Asynchronously subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> SubscribeToAllAsync(SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -81,7 +81,7 @@ namespace EventStore.ClientAPI
     #region -- SubscribeToAllFrom --
 
     /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
-    /// onwards are read from the Event Store and presented to the user of
+    /// onwards are read from Event Store and presented to the user of
     /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -100,11 +100,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="Position.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
@@ -113,7 +113,7 @@ namespace EventStore.ClientAPI
       UserCredentials userCredentials = null);
 
     /// <summary>Subscribes to a all events. Existing events from lastCheckpoint
-    /// onwards are read from the Event Store and presented to the user of
+    /// onwards are read from Event Store and presented to the user of
     /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -132,11 +132,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="Position.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,

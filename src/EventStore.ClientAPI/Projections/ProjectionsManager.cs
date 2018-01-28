@@ -9,8 +9,8 @@ using EventStore.ClientAPI.Transport.Http;
 namespace EventStore.ClientAPI.Projections
 {
   /// <summary>
-  /// API for managing projections in the Event Store through C# code. Communicates
-  /// with the Event Store over the RESTful API.
+  /// API for managing projections in Event Store through C# code. Communicates
+  /// with Event Store over the RESTful API.
   /// </summary>
   public class ProjectionsManager
   {

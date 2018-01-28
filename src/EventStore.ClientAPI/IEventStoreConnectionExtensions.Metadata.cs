@@ -13,10 +13,10 @@ namespace EventStore.ClientAPI
     /// <summary>Sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream for which to set metadata.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, string topic, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
@@ -36,7 +36,7 @@ namespace EventStore.ClientAPI
     /// <param name="stream">The name of the stream for which to set metadata.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
@@ -69,11 +69,11 @@ namespace EventStore.ClientAPI
 
     /// <summary>Sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
+    /// <param name="actualType">The actual type.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       Type actualType, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -86,12 +86,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       Type actualType, string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -110,8 +110,8 @@ namespace EventStore.ClientAPI
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata<TEvent>(this IEventStoreConnectionBase connection,
       long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -125,11 +125,11 @@ namespace EventStore.ClientAPI
 
     /// <summary>Sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="WriteResult"/> containing the results of the write operation.</returns>
     public static WriteResult SetStreamMetadata<TEvent>(this IEventStoreConnectionBase connection,
       string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -163,8 +163,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="StreamMetadataResult"/> representing system and user-specified metadata as properties.</returns>
     public static StreamMetadataResult GetStreamMetadata(this IEventStoreConnectionBase connection,
@@ -178,9 +178,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="StreamMetadataResult"/> representing system and user-specified metadata as properties.</returns>
     public static StreamMetadataResult GetStreamMetadata(this IEventStoreConnectionBase connection,
@@ -198,7 +198,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="StreamMetadataResult"/> representing system and user-specified metadata as properties.</returns>
     public static StreamMetadataResult GetStreamMetadata<TEvent>(this IEventStoreConnectionBase connection,
@@ -212,8 +212,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="StreamMetadataResult"/> representing system and user-specified metadata as properties.</returns>
     public static StreamMetadataResult GetStreamMetadata<TEvent>(this IEventStoreConnectionBase connection,
@@ -252,11 +252,11 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
+    /// <param name="actualType">The actual type.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;WriteResult&gt;"/> containing the results of the write operation.</returns>
     public static Task<WriteResult> SetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -268,12 +268,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;WriteResult&gt;"/> containing the results of the write operation.</returns>
     public static Task<WriteResult> SetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -292,8 +292,8 @@ namespace EventStore.ClientAPI
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;WriteResult&gt;"/> containing the results of the write operation.</returns>
     public static Task<WriteResult> SetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,
       long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -305,11 +305,11 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously sets the metadata for a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="expectedMetastreamVersion">The expected version for the write to the metadata stream.</param>
     /// <param name="metadata">A <see cref="StreamMetadata"/> representing the new metadata.</param>
-    /// <param name="expectedType">The expected type</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="expectedType">The expected type.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;WriteResult&gt;"/> containing the results of the write operation.</returns>
     public static Task<WriteResult> SetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,
       string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
@@ -327,7 +327,7 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="stream">The name of the stream for which to read metadata.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
@@ -341,8 +341,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
@@ -355,9 +355,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="actualType">The actual type</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="actualType">The actual type.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
@@ -375,7 +375,7 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
     public static Task<StreamMetadataResult> GetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,
@@ -387,8 +387,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the metadata for a stream and converts the metadata into a <see cref="StreamMetadata"/>.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="expectedType">The expected type</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="expectedType">The expected type.</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;StreamMetadataResult&gt;"/> representing system and user-specified metadata as properties.</returns>
     public static Task<StreamMetadataResult> GetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,

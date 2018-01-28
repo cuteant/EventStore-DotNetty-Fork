@@ -2,13 +2,13 @@
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  /// <summary>A stream events slice represents the result of a single read operation to Event Store.</summary>
   public class StreamEventsSlice : IStreamEventsSlice<ResolvedEvent>
   {
-    /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt</summary>
+    /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt.</summary>
     public SliceReadStatus Status { get; }
 
-    /// <summary>The name of the stream read</summary>
+    /// <summary>The name of the stream to read.</summary>
     public string Stream { get; }
 
     /// <summary>The starting point (represented as a sequence number) of the read operation.</summary>
@@ -30,13 +30,13 @@ namespace EventStore.ClientAPI
     public bool IsEndOfStream { get; }
 
     internal StreamEventsSlice(SliceReadStatus status,
-                                 string stream,
-                                 long fromEventNumber,
-                                 ReadDirection readDirection,
-                                 ResolvedEvent[] events,
-                                 long nextEventNumber,
-                                 long lastEventNumber,
-                                 bool isEndOfStream)
+                               string stream,
+                               long fromEventNumber,
+                               ReadDirection readDirection,
+                               ResolvedEvent[] events,
+                               long nextEventNumber,
+                               long lastEventNumber,
+                               bool isEndOfStream)
     {
       if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
 

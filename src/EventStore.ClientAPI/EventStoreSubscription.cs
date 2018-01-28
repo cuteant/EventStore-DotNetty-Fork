@@ -4,7 +4,7 @@ namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Represents a subscription to a single stream or to the stream
-    /// of all events in the Event Store.
+    /// of all events in Event Store.
     /// </summary>
     public abstract class EventStoreSubscription : IDisposable, IStreamCheckpointer
     {

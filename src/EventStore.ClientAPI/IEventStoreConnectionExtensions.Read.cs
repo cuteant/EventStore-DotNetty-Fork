@@ -11,9 +11,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads a single event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
+    /// <param name="stream">The stream to read from.</param>
     /// <param name="eventNumber">The event number to read, <see cref="StreamPosition">StreamPosition.End</see> to read the last event in the stream</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="EventReadResult"/> containing the results of the read operation.</returns>
     public static EventReadResult ReadEvent(this IEventStoreConnectionBase connection,
@@ -26,12 +26,12 @@ namespace EventStore.ClientAPI
                 connection, stream, eventNumber, resolveLinkTos, userCredentials);
     }
 
-    /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
+    /// <summary>Reads count events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="start">The starting point to read from</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="start">The starting point to read from.</param>
     /// <param name="count">The count of items to read</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice ReadStreamEventsForward(this IEventStoreConnectionBase connection,
@@ -46,10 +46,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The Event Stream to read from</param>
-    /// <param name="start">The position to start reading from</param>
+    /// <param name="stream">The Event Stream to read from.</param>
+    /// <param name="start">The position to start reading from.</param>
     /// <param name="count">The count to read from the position</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice ReadStreamEventsBackward(this IEventStoreConnectionBase connection,
@@ -68,10 +68,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the frist event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A result of the read operation</returns>
+    /// <returns>A result of the read operation.</returns>
     public static EventReadResult ReadFirstEvent(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
@@ -89,10 +89,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the frist event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static Task<EventReadResult> ReadFirstEventAsync(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
@@ -107,10 +107,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Reads the last event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static EventReadResult ReadLastEvent(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
@@ -127,10 +127,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously reads the last event from a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically</param>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
-    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation</returns>
+    /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static async Task<EventReadResult> ReadLastEventAsync(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {

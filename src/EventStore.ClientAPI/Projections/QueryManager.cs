@@ -8,8 +8,8 @@ using Newtonsoft.Json.Linq;
 
 namespace EventStore.ClientAPI.Projections
 {
-  /// <summary>API for executinmg queries in the Event Store through C# code. Communicates
-  /// with the Event Store over the RESTful API.</summary>
+  /// <summary>API for executinmg queries in Event Store through C# code. Communicates
+  /// with Event Store over the RESTful API.</summary>
   public class QueryManager
   {
     private readonly TimeSpan _queryTimeout;

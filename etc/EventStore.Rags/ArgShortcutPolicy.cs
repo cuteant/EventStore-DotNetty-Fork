@@ -1,7 +1,7 @@
 ﻿namespace EventStore.Rags
 {
     /// <summary>
-    /// An enum to represent argument shortcut policies
+    /// An enum to represent argument shortcut policies.
     /// </summary>
     public enum ArgShortcutPolicy
     {

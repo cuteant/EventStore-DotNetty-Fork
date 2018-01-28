@@ -3,8 +3,8 @@ using EventStore.ClientAPI.Common;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Represents the settings for a <see cref="T:EventStore.ClientAPI.PersistentEventStoreSubscription"/>.
-  /// This should not be used directly, but instead created via a <see cref="PersistentSubscriptionSettingsBuilder"/>.</summary>
+  /// <summary>Represents the settings for a <see cref="T:EventStore.ClientAPI.PersistentEventStoreSubscription"></see>.
+  /// You should not use this directly, but instead created via a <see cref="PersistentSubscriptionSettingsBuilder"></see>.</summary>
   public class PersistentSubscriptionSettings
   {
     /// <summary>Creates a new <see cref="PersistentSubscriptionSettingsBuilder"/> object.</summary>
@@ -29,22 +29,22 @@ namespace EventStore.ClientAPI
     /// <summary>Whether or not the <see cref="T:EventStore.ClientAPI.PersistentEventStoreSubscription"/> should resolve linkTo events to their linked events.</summary>
     public readonly bool ResolveLinkTos;
 
-    /// <summary>Where the subscription should start from (position).</summary>
+    /// <summary>Which event position in the stream the subscription should start from.</summary>
     public readonly long StartFrom;
 
-    /// <summary>Whether or not in depth latency statistics should be tracked on this subscription.</summary>
+    /// <summary>Whether to track latency statistics on this subscription.</summary>
     public readonly bool ExtraStatistics;
 
-    /// <summary>The amount of time after which a message should be considered to be timedout and retried.</summary>
+    /// <summary>The amount of time after which to consider a message as timedout and retried.</summary>
     public readonly TimeSpan MessageTimeout;
 
-    /// <summary>The maximum number of retries (due to timeout) before a message get considered to be parked.</summary>
+    /// <summary>The maximum number of retries (due to timeout) before a message is considered to be parked.</summary>
     public int MaxRetryCount;
 
-    /// <summary>The size of the buffer listening to live messages as they happen.</summary>
+    /// <summary>The size of the buffer (in-memory) listening to live messages as they happen before paging occurs.</summary>
     public int LiveBufferSize;
 
-    /// <summary>The number of events read at a time when paging in history.</summary>
+    /// <summary>The number of events read at a time when paging through history.</summary>
     public int ReadBatchSize;
 
     /// <summary>The number of events to cache when paging through history.</summary>
@@ -53,10 +53,10 @@ namespace EventStore.ClientAPI
     /// <summary>The amount of time to try to checkpoint after.</summary>
     public readonly TimeSpan CheckPointAfter;
 
-    /// <summary>The minimum number of messages to checkpoint.</summary>
+    /// <summary>The minimum number of messages to write to a checkpoint.</summary>
     public readonly int MinCheckPointCount;
 
-    /// <summary>The maximum number of messages to checkpoint if this number is a reached a checkpoint will be forced.</summary>
+    /// <summary>The maximum number of messages not checkpointed before forcing a checkpoint.</summary>
     public readonly int MaxCheckPointCount;
 
     /// <summary>The maximum number of subscribers allowed.</summary>

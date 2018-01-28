@@ -12,9 +12,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void CreatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -41,10 +41,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void CreatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -56,8 +56,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void CreatePersistentSubscription<TEvent>(this IEventStoreBus bus,
       string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -68,9 +68,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Create a persistent subscription group on a stream.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void CreatePersistentSubscription<TEvent>(this IEventStoreBus bus,
       string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -85,9 +85,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void UpdatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -114,10 +114,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void UpdatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -129,8 +129,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void UpdatePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
       string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -141,9 +141,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="subscriptionSettings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="userCredentials">The credentials to be used for this operation.</param>
     public static void UpdatePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
       string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
@@ -158,9 +158,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Delete a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, UserCredentials userCredentials = null)
     {
@@ -186,10 +186,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Delete a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, UserCredentials userCredentials = null)
     {
@@ -201,7 +201,7 @@ namespace EventStore.ClientAPI
     /// <summary>Delete a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     public static void DeletePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
       string groupName, UserCredentials userCredentials = null)
       where TEvent : class
@@ -211,9 +211,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>Delete a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     public static void DeletePersistentSubscription<TEvent>(this IEventStoreConnectionBase connection,
       string topic, string groupName, UserCredentials userCredentials = null)
       where TEvent : class
@@ -227,10 +227,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task CreatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
@@ -244,8 +244,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task CreatePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
@@ -261,10 +261,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously update a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to create the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="stream">The name of the stream to create the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task UpdatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
@@ -278,8 +278,8 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously update a persistent subscription group on a stream.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="groupName">The name of the group to create</param>
-    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription</param>
+    /// <param name="groupName">The name of the group to create.</param>
+    /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task UpdatePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
@@ -296,10 +296,10 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The name of the stream to delete the persistent subscription on</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The name of the stream to delete the persistent subscription on.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task DeletePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, UserCredentials userCredentials = null)
@@ -313,7 +313,7 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
     /// <param name="groupName">The name of the group to delete</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
     public static Task DeletePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
       string groupName, UserCredentials userCredentials = null) where TEvent : class
@@ -329,12 +329,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -342,7 +342,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -361,12 +361,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -374,7 +374,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -392,12 +392,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -405,7 +405,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -418,12 +418,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -431,7 +431,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStorePersistentSubscriptionBase"/> representing the subscription.</returns>
     public static EventStorePersistentSubscriptionBase ConnectToPersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -445,12 +445,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -473,12 +473,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -501,12 +501,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -525,12 +525,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -553,12 +553,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -566,7 +566,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -581,12 +581,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -594,7 +594,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -609,12 +609,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -622,7 +622,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -635,12 +635,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -648,7 +648,7 @@ namespace EventStore.ClientAPI
     /// can connect to the same group and they will be treated as competing consumers within the group.
     /// If one connection dies work will be balanced across the rest of the consumers in the group. If
     /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStorePersistentSubscriptionBase&gt;"/> representing the subscription.</returns>
     public static Task<EventStorePersistentSubscriptionBase> ConnectToPersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string groupName,
@@ -662,12 +662,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -688,12 +688,12 @@ namespace EventStore.ClientAPI
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="groupName">The subscription group to connect to</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="groupName">The subscription group to connect to.</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -722,14 +722,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -755,14 +755,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -787,11 +787,11 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -816,11 +816,11 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -849,15 +849,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -886,15 +886,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -923,12 +923,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -956,12 +956,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -993,13 +993,13 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1025,13 +1025,13 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1057,10 +1057,10 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1085,10 +1085,10 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1113,18 +1113,18 @@ namespace EventStore.ClientAPI
     #region -- PersistentSubscribe(Generic-Topic) --
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1146,18 +1146,18 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Subscribes to a persistent subscription(competing consumer) on event store.</summary>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1183,11 +1183,11 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1212,11 +1212,11 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1246,14 +1246,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1276,14 +1276,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1310,15 +1310,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1343,15 +1343,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1376,12 +1376,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1405,12 +1405,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1438,13 +1438,13 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1466,13 +1466,13 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1494,10 +1494,10 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1519,10 +1519,10 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1544,18 +1544,18 @@ namespace EventStore.ClientAPI
     #region -- PersistentSubscribeAsync(Generic-Topic) --
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppeared">An action invoked when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1574,18 +1574,18 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event appears.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1613,14 +1613,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1642,11 +1642,11 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1668,14 +1668,14 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1701,15 +1701,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1733,12 +1733,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1762,15 +1762,15 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="bufferSize">The buffer size to use for the persistent subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
     /// <param name="autoAck">Whether the subscription should automatically acknowledge messages processed.
     /// If not set the receiver is required to explicitly acknowledge messages through the subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with <c>CreatePersistentSubscriptionAsync</c> many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.
@@ -1794,12 +1794,12 @@ namespace EventStore.ClientAPI
     /// and type will get messages delivered in turn. This is useful if you want multiple subscribers
     /// to load balance a subscription in a round-robin fashion.</param>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
     /// must first be created with CreatePersistentSubscriptionAsync many connections
     /// can connect to the same group and they will be treated as competing consumers within the group.

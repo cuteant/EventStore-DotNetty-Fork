@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Maintains a full duplex connection to the EventStore.</summary>
+  /// <summary>Maintains a full duplex connection to Event Store.</summary>
   /// <remarks>An <see cref="IEventStoreConnectionMultiplexer"/> operates quite differently than say a SqlConnection. Normally
   /// when using an <see cref="IEventStoreConnectionMultiplexer"/> you want to keep the connection open for a much longer of time than
   /// when you use a SqlConnection. If you prefer the usage pattern of using(new Connection()) .. then you would likely
@@ -16,9 +16,9 @@ namespace EventStore.ClientAPI
   {
     /// <summary>Continues transaction by provided transaction ID.</summary>
     /// <remarks>A <see cref="EventStoreTransaction"/> allows the calling of multiple writes with multiple
-    /// round trips over long periods of time between the caller and the event store. This method
+    /// round trips over long periods of time between the caller and Event Store. This method
     /// is only available through the TCP interface and no equivalent exists for the RESTful interface.</remarks>
-    /// <param name="stream">The stream to continue a transaction on</param>
+    /// <param name="stream">The stream to continue a transaction on.</param>
     /// <param name="transactionId">The transaction ID that needs to be continued.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="EventStoreTransaction"/> representing a multi-request transaction.</returns>

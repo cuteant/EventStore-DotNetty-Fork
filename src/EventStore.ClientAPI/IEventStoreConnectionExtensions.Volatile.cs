@@ -12,12 +12,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -35,12 +35,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -58,11 +58,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection,
       string stream, SubscriptionSettings subscriptionSettings,
@@ -80,11 +80,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToStream(this IEventStoreConnectionBase connection,
       string stream, SubscriptionSettings subscriptionSettings,
@@ -106,11 +106,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToStreamAsync(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -125,11 +125,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToStreamAsync(this IEventStoreConnectionBase connection, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -145,15 +145,15 @@ namespace EventStore.ClientAPI
 
     #region -- SubscribeToAll --
 
-    /// <summary>Subscribes to all events in the Event Store. New
+    /// <summary>Subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -166,15 +166,15 @@ namespace EventStore.ClientAPI
                        .ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
-    /// <summary>Subscribes to all events in the Event Store. New
+    /// <summary>Subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -187,14 +187,14 @@ namespace EventStore.ClientAPI
                        .ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
-    /// <summary>Subscribes to all events in the Event Store. New
+    /// <summary>Subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -206,14 +206,14 @@ namespace EventStore.ClientAPI
                        .ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
-    /// <summary>Subscribes to all events in the Event Store. New
+    /// <summary>Subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription SubscribeToAll(this IEventStoreConnection connection, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -229,14 +229,14 @@ namespace EventStore.ClientAPI
 
     #region -- SubscribeToAllAsync --
 
-    /// <summary>Asynchronously subscribes to all events in the Event Store. New
+    /// <summary>Asynchronously subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToAllAsync(this IEventStoreConnection connection, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent> eventAppeared,
@@ -248,14 +248,14 @@ namespace EventStore.ClientAPI
       return connection.SubscribeToAllAsync(settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
-    /// <summary>Asynchronously subscribes to all events in the Event Store. New
+    /// <summary>Asynchronously subscribes to all events in Event Store. New
     /// events written to the stream while the subscription is active
     /// will be pushed to the client.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> SubscribeToAllAsync(this IEventStoreConnection connection, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent, Task> eventAppearedAsync,
@@ -275,12 +275,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<object>> eventAppeared,
@@ -298,12 +298,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
@@ -321,11 +321,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, SubscriptionSettings subscriptionSettings,
@@ -343,11 +343,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, SubscriptionSettings subscriptionSettings,
@@ -369,13 +369,13 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos,
@@ -396,13 +396,13 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos,
@@ -423,12 +423,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings subscriptionSettings,
@@ -448,12 +448,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings subscriptionSettings,
@@ -477,11 +477,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<TEnent>> eventAppeared,
@@ -499,11 +499,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<TEnent>, Task> eventAppearedAsync,
@@ -521,10 +521,10 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, SubscriptionSettings subscriptionSettings,
       Action<EventStoreSubscription, ResolvedEvent<TEnent>> eventAppeared,
@@ -541,10 +541,10 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, SubscriptionSettings subscriptionSettings,
       Func<EventStoreSubscription, ResolvedEvent<TEnent>, Task> eventAppearedAsync,
@@ -565,12 +565,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, string topic, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<TEnent>> eventAppeared,
@@ -588,12 +588,12 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus, string topic, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<TEnent>, Task> eventAppearedAsync,
@@ -611,11 +611,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus,
       string topic, SubscriptionSettings subscriptionSettings,
@@ -633,11 +633,11 @@ namespace EventStore.ClientAPI
     /// <summary>Subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="subscriptionSettings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="EventStoreSubscription"/> representing the subscription.</returns>
     public static EventStoreSubscription VolatileSubscribe<TEnent>(this IEventStoreBus bus,
       string topic, SubscriptionSettings subscriptionSettings,
@@ -660,11 +660,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus, string stream, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<object>> eventAppeared,
@@ -679,11 +679,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus, string stream, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<object>, Task> eventAppearedAsync,
@@ -702,12 +702,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos,
@@ -725,12 +725,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos,
@@ -748,12 +748,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings settings,
@@ -770,12 +770,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings settings,
@@ -796,10 +796,10 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
@@ -814,10 +814,10 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
@@ -832,10 +832,10 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, SubscriptionSettings settings,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
@@ -849,10 +849,10 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, SubscriptionSettings settings,
       Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
@@ -870,11 +870,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, string topic, bool resolveLinkTos,
       Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
@@ -889,11 +889,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when a new event is received over the subscription.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(this IEventStoreBus bus, string topic, bool resolveLinkTos,
       Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
@@ -913,11 +913,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
@@ -932,11 +932,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, SubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
@@ -950,11 +950,11 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
@@ -973,12 +973,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
@@ -995,12 +995,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings settings, Action<IConsumerRegistration> addHandlers,
@@ -1016,12 +1016,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
@@ -1038,12 +1038,12 @@ namespace EventStore.ClientAPI
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
-    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
+    /// <param name="settings">The <see cref="SubscriptionSettings"/> for the subscription.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     public static Task<EventStoreSubscription> VolatileSubscribeAsync(this IEventStoreBus bus,
       string stream, string topic, SubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,

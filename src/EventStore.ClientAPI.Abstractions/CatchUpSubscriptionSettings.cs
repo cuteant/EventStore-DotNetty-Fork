@@ -3,7 +3,7 @@ using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>Settings for <see cref="T:EventStore.ClientAPI.EventStoreCatchUpSubscription"/></summary>
+  /// <summary>Settings for <see cref="T:EventStore.ClientAPI.EventStoreCatchUpSubscription"/>.</summary>
   public partial class CatchUpSubscriptionSettings : SubscriptionSettings
   {
     /// <inheritdoc />
@@ -15,10 +15,10 @@ namespace EventStore.ClientAPI
     /// <inheritdoc />
     public override int NumActionBlocks { get => DefaultNumActionBlocks; set { } }
 
-    /// <summary>The maximum amount to cache when processing from live subscription. Going above will drop subscription.</summary>
+    /// <summary>The maximum amount of events to cache when processing from a live subscription. Going above this value will drop the subscription.</summary>
     public readonly int MaxLiveQueueSize;
 
-    /// <summary>The number of events to read per batch when reading history.</summary>
+    /// <summary>The number of events to read per batch when reading the history.</summary>
     public readonly int ReadBatchSize;
 
     /// <summary>The name of subscription.</summary>
@@ -33,11 +33,11 @@ namespace EventStore.ClientAPI
         subscriptionName: String.Empty);
 
     /// <summary>Constructs a <see cref="CatchUpSubscriptionSettings"/> object.</summary>
-    /// <param name="maxLiveQueueSize">The maximum amount to buffer when processing from live subscription. Going above will drop subscription.</param>
-    /// <param name="readBatchSize">The number of events to read per batch when reading history</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
-    /// <param name="resolveLinkTos">Whether or not to resolve link events</param>
-    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="maxLiveQueueSize">The maximum amount of events to buffer when processing from a live subscription. Going above this amount will drop the subscription.</param>
+    /// <param name="readBatchSize">The number of events to read per batch when reading through history.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
+    /// <param name="resolveLinkTos">Whether to resolve link events.</param>
+    /// <param name="subscriptionName">The name of the subscription.</param>
     public CatchUpSubscriptionSettings(int maxLiveQueueSize, int readBatchSize, bool verboseLogging, bool resolveLinkTos, string subscriptionName = "")
     {
       Ensure.Positive(readBatchSize, nameof(readBatchSize));
@@ -52,9 +52,9 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Creates a <see cref="CatchUpSubscriptionSettings"/>.</summary>
-    /// <param name="resolveLinkTos">Whether or not to resolve link events</param>
-    /// <param name="subscriptionName">The name of subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve link events.</param>
+    /// <param name="subscriptionName">The name of the subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns></returns>
     public static CatchUpSubscriptionSettings Create(bool resolveLinkTos, string subscriptionName = "", bool verboseLogging = false)
     {
@@ -62,10 +62,10 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Creates a <see cref="CatchUpSubscriptionSettings"/>.</summary>
-    /// <param name="readBatchSize">The number of events to read per batch when reading history</param>
-    /// <param name="resolveLinkTos">Whether or not to resolve link events</param>
-    /// <param name="subscriptionName">The name of subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="readBatchSize">The number of events to read per batch when reading through history.</param>
+    /// <param name="resolveLinkTos">Whether to resolve link events.</param>
+    /// <param name="subscriptionName">The name of the subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns></returns>
     public static CatchUpSubscriptionSettings Create(int readBatchSize, bool resolveLinkTos, string subscriptionName = "", bool verboseLogging = false)
     {
@@ -73,11 +73,11 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Creates a <see cref="CatchUpSubscriptionSettings"/>.</summary>
-    /// <param name="maxLiveQueueSize">The maximum amount to buffer when processing from live subscription. Going above will drop subscription.</param>
-    /// <param name="readBatchSize">The number of events to read per batch when reading history</param>
-    /// <param name="resolveLinkTos">Whether or not to resolve link events</param>
-    /// <param name="subscriptionName">The name of subscription.</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="maxLiveQueueSize">The maximum amount of events to buffer when processing from a live subscription. Going above this amount will drop the subscription.</param>
+    /// <param name="readBatchSize">The number of events to read per batch when reading through history.</param>
+    /// <param name="resolveLinkTos">Whether to resolve link events.</param>
+    /// <param name="subscriptionName">The name of the subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns></returns>
     public static CatchUpSubscriptionSettings Create(int maxLiveQueueSize, int readBatchSize, bool resolveLinkTos, string subscriptionName = "", bool verboseLogging = false)
     {

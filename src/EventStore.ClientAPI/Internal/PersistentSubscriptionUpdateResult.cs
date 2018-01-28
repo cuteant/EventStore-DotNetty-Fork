@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// A Persistent Subscription Create Result is the result of a single operation updating a
-    /// persistent subscription in the event store
+    /// persistent subscription in Event Store
     /// </summary>
     public class PersistentSubscriptionUpdateResult
     {

@@ -9,7 +9,7 @@ using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Internal
 {
-  /// <summary>Maintains a full duplex connection to the EventStore</summary>
+  /// <summary>Maintains a full duplex connection to Event Store</summary>
   /// <remarks>An <see cref="EventStoreConnection"/> operates quite differently than say a <c>SqlConnection</c>. Normally
   /// when using an <see cref="EventStoreConnection"/> you want to keep the connection open for a much longer of time than
   /// when you use a SqlConnection. If you prefer the usage pattern of using(new Connection()) .. then you would likely

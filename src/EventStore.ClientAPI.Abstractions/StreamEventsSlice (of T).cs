@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  /// <summary>A stream events slice represents the result of a single read operation to Event Store.</summary>
   public class StreamEventsSlice<T> : StreamEventsSliceBase, IStreamEventsSlice<ResolvedEvent<T>> where T : class
   {
     /// <summary>The events read represented as <see cref="ResolvedEvent&lt;T&gt;"/></summary>
@@ -22,7 +22,7 @@ namespace EventStore.ClientAPI
     }
   }
 
-  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  /// <summary>A stream events slice represents the result of a single read operation to Event Store.</summary>
   public class StreamEventsSlice2 : StreamEventsSliceBase, IStreamEventsSlice<IResolvedEvent2>
   {
     /// <summary>The events read represented as <see cref="IResolvedEvent2"/></summary>
@@ -42,13 +42,13 @@ namespace EventStore.ClientAPI
     }
   }
 
-  /// <summary>An Stream Events Slice represents the result of a single read operation to the event store.</summary>
+  /// <summary>A stream events slice represents the result of a single read operation to Event Store.</summary>
   public class StreamEventsSliceBase
   {
-    /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt</summary>
+    /// <summary>The <see cref="SliceReadStatus"/> representing the status of this read attempt.</summary>
     public SliceReadStatus Status { get; }
 
-    /// <summary>The name of the stream read</summary>
+    /// <summary>The name of the stream to read.</summary>
     public string Stream { get; }
 
     /// <summary>The starting point (represented as a sequence number) of the read operation.</summary>

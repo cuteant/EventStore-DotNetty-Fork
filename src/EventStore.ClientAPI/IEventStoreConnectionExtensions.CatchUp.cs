@@ -22,12 +22,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
@@ -53,12 +53,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamStart(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
@@ -88,12 +88,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
@@ -122,12 +122,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="subscriptionSettings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamEnd(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings subscriptionSettings,
@@ -160,12 +160,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
@@ -200,12 +200,12 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="Task&lt;EventStoreStreamCatchUpSubscription&gt;"/> representing the subscription.</returns>
     public static async Task<EventStoreStreamCatchUpSubscription> SubscribeToStreamEndAsync(this IEventStoreConnectionBase connection,
       string stream, CatchUpSubscriptionSettings settings,
@@ -244,7 +244,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -254,14 +254,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     //[Obsolete("This method will be obsoleted in the next major version please switch to the overload with a settings object")]
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
@@ -290,7 +290,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreStreamCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -300,14 +300,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreStreamCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreStreamCatchUpSubscription SubscribeToStreamFrom(this IEventStoreConnectionBase connection,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
@@ -327,7 +327,7 @@ namespace EventStore.ClientAPI
     #region -- SubscribeToAllFrom --
 
     /// <summary>Subscribes to all events. Existing events from lastCheckpoint
-    /// onwards are read from the Event Store and presented to the user of
+    /// onwards are read from Event Store and presented to the user of
     /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -347,14 +347,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="Position.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     //[Obsolete("This overload will be removed in the next major release please use the overload with a settings object")]
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
@@ -370,7 +370,7 @@ namespace EventStore.ClientAPI
     }
 
     /// <summary>Subscribes to all events. Existing events from lastCheckpoint
-    /// onwards are read from the Event Store and presented to the user of
+    /// onwards are read from Event Store and presented to the user of
     /// <see cref="EventStoreAllCatchUpSubscription"/> as if they had been pushed.
     ///
     /// Once the end of the stream is read the subscription is
@@ -390,14 +390,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="Position.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreAllCatchUpSubscription SubscribeToAllFrom(this IEventStoreConnection connection,
       Position? lastCheckpoint, bool resolveLinkTos,
@@ -428,7 +428,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -438,14 +438,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
@@ -472,7 +472,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -482,14 +482,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos,
@@ -520,8 +520,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -531,14 +531,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos,
@@ -567,8 +567,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -578,14 +578,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos,
@@ -614,8 +614,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -625,11 +625,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -656,8 +656,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -667,11 +667,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -711,14 +711,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, bool resolveLinkTos,
@@ -755,14 +755,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, bool resolveLinkTos,
@@ -799,11 +799,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -838,11 +838,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -872,7 +872,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -882,14 +882,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppeared">An action invoked when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppeared">An action invoked when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, long? lastCheckpoint, bool resolveLinkTos,
@@ -917,7 +917,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -927,14 +927,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="eventAppearedAsync">A Task invoked and awaited when an event is received over the subscription.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(this IEventStoreBus bus,
       string topic, long? lastCheckpoint, bool resolveLinkTos,
@@ -967,7 +967,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -977,14 +977,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
@@ -1010,7 +1010,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1020,11 +1020,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -1048,7 +1048,7 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
+    /// <param name="stream">The stream to subscribe to.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1058,14 +1058,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
@@ -1095,8 +1095,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1106,14 +1106,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IConsumerRegistration> addHandlers,
@@ -1141,8 +1141,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1152,11 +1152,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
@@ -1182,8 +1182,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1193,14 +1193,14 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="resolveLinkTos">Whether to resolve Link events automatically</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="readBatchSize">The batch size to use during the read phase</param>
-    /// <param name="subscriptionName">The name of subscription</param>
-    /// <param name="verboseLogging">Enables verbose logging on the subscription</param>
+    /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="readBatchSize">The batch size to use during the read phase.</param>
+    /// <param name="subscriptionName">The name of subscription.</param>
+    /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
@@ -1228,8 +1228,8 @@ namespace EventStore.ClientAPI
     /// <see cref="EventStoreCatchUpSubscription"/> switches from the reading
     /// phase to the live subscription phase.</summary>
     /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
-    /// <param name="stream">The stream to subscribe to</param>
-    /// <param name="topic">The topic</param>
+    /// <param name="stream">The stream to subscribe to.</param>
+    /// <param name="topic">The topic.</param>
     /// <param name="lastCheckpoint">The event number from which to start.
     ///
     /// To receive all events in the stream, use <see cref="StreamCheckpoint.StreamStart" />.
@@ -1239,11 +1239,11 @@ namespace EventStore.ClientAPI
     ///
     /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
     /// the first event in the stream.</param>
-    /// <param name="addHandlers">A function to add handlers to the consumer</param>
-    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events</param>
-    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped</param>
-    /// <param name="userCredentials">User credentials to use for the operation</param>
-    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription</param>
+    /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+    /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
+    /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
+    /// <param name="userCredentials">User credentials to use for the operation.</param>
+    /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
     public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
       string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,

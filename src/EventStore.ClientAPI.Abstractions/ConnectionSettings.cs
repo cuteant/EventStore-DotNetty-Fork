@@ -5,7 +5,7 @@ using EventStore.ClientAPI.SystemData;
 namespace EventStore.ClientAPI
 {
   /// <summary>A <see cref="ConnectionSettings"/> object is an immutable representation of the settings for an
-  /// <see cref="T:EventStore.ClientAPI.IEventStoreConnection"/>. A <see cref="ConnectionSettings"/> object can be built using
+  /// <see cref="T:EventStore.ClientAPI.IEventStoreConnection"/>. You can build a <see cref="ConnectionSettings"/> object using
   /// a <see cref="ConnectionSettingsBuilder"/>, either via the <see cref="Create"/> method, or via
   /// the constructor of <see cref="ConnectionSettingsBuilder"/>.</summary>
   public sealed class ConnectionSettings
@@ -16,13 +16,13 @@ namespace EventStore.ClientAPI
     public static ConnectionSettings Default { get { return DefaultSettings.Value; } }
 
     /// <summary>Creates a new set of <see cref="ConnectionSettings"/>.</summary>
-    /// <returns>A <see cref="ConnectionSettingsBuilder"/> that can be used to build up a <see cref="ConnectionSettings"/></returns>
+    /// <returns>A <see cref="ConnectionSettingsBuilder"/> you can use to build up a <see cref="ConnectionSettings"/>.</returns>.
     public static ConnectionSettingsBuilder Create()
     {
       return new ConnectionSettingsBuilder();
     }
 
-    /// <summary>Whether or not do excessive logging of <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic.</summary>
+    /// <summary>Whether to use excessive logging of <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic.</summary>
     public readonly bool VerboseLogging;
 
     /// <summary>The maximum number of outstanding items allowed in the queue.</summary>

@@ -14,7 +14,7 @@ namespace EventStore.ClientAPI
     /// <summary>Returns the event that was read or which triggered the subscription.
     ///
     /// If this <see cref="ResolvedEvent"/> represents a link event, the Link
-    /// will be the <see cref="OriginalEvent"/>, otherwise it will be the Event.</summary>
+    /// will be the <see cref="OriginalEvent"/>, otherwise it will be the event.</summary>
     public RecordedEvent OriginalEvent => Link ?? Event;
 
     /// <summary>Indicates whether this <see cref="ResolvedEvent"/> is a resolved link event.</summary>

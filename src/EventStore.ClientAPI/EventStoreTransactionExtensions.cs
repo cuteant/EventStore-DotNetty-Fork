@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
                 transaction);
     }
 
-    /// <summary>Writes to a transaction in the event store.</summary>
+    /// <summary>Writes to a transaction in Event Store.</summary>
     /// <param name="transaction">The <see cref="EventStoreTransaction"/> to write to.</param>
     /// <param name="events">The events to write</param>
     public static void Write(this EventStoreTransaction transaction, params EventData[] events)
@@ -31,7 +31,7 @@ namespace EventStore.ClientAPI
           transaction, events);
     }
 
-    /// <summary>Writes to a transaction in the event store.</summary>
+    /// <summary>Writes to a transaction in Event Store.</summary>
     /// <param name="transaction">The <see cref="EventStoreTransaction"/> to write to.</param>
     /// <param name="events">The events to write</param>
     public static void Write(this EventStoreTransaction transaction, IEnumerable<EventData> events)

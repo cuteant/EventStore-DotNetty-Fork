@@ -2,7 +2,7 @@
 {
     /// <summary>
     /// A Persistent Subscription Delete Result is the result of a single operation deleting a
-    /// persistent subscription in the event store
+    /// persistent subscription in Event Store
     /// </summary>
     class PersistentSubscriptionDeleteResult
     {

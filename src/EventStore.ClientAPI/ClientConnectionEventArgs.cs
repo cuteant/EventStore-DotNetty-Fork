@@ -10,7 +10,7 @@ namespace EventStore.ClientAPI
     public class ClientConnectionEventArgs : EventArgs
     {
         /// <summary>
-        /// The endpoint of the Event Store server to or from which the connection was connected or disconnected.
+        /// The endpoint of Event Store server to or from which the connection was connected or disconnected.
         /// </summary>
         public IPEndPoint RemoteEndPoint { get; private set; }
 
@@ -23,7 +23,7 @@ namespace EventStore.ClientAPI
         /// Constructs a new instance of <see cref="ClientConnectionEventArgs"/>.
         /// </summary>
         /// <param name="connection">The <see cref="IEventStoreConnection"/> responsible for raising the event.</param>
-        /// <param name="remoteEndPoint">The endpoint of the Event Store server to or from which the connection was connected or disconnected.</param>
+        /// <param name="remoteEndPoint">The endpoint of Event Store server to or from which the connection was connected or disconnected.</param>
         public ClientConnectionEventArgs(IEventStoreConnection connection, IPEndPoint remoteEndPoint)
         {
             Connection = connection;

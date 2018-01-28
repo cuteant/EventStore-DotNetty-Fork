@@ -34,11 +34,13 @@
 
   <ItemGroup>
     <PackageReference Include="CuteAnt.Runtime" Version="$(CuteAntRuntimePackageVersion)" />
+    <PackageReference Include="DotNetty.Handlers.Unofficial" Version="$(DotNettyHandlersUnofficialPackageVersion)" />
+    <PackageReference Include="DotNetty.Transport.Libuv.Unofficial" Version="$(DotNettyTransportLibuvUnofficialPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
-    <PackageReference Include="Mono.Posix.NETStandard " Version="$(MonoPosixNETStandardPackageVersion)" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="$(MonoPosixNETStandardPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

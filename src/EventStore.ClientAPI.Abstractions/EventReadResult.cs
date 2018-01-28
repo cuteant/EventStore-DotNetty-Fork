@@ -2,7 +2,7 @@
 
 namespace EventStore.ClientAPI
 {
-  /// <summary>A Event Read Result is the result of a single event read operation to the event store.</summary>
+  /// <summary>A Event Read Result is the result of a single event read operation to the Event Store.</summary>
   public class EventReadResult
   {
     /// <summary>The <see cref="EventReadStatus"/> representing the status of this read attempt.</summary>
