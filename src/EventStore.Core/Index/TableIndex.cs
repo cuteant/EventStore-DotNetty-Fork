@@ -83,7 +83,7 @@ namespace EventStore.Core.Index
             _maxTablesPerLevel = maxTablesPerLevel;
             _additionalReclaim = additionalReclaim;
             _inMem = inMem;
-            _skipIndexVerify = ShouldForceIndexVerify() ? false: skipIndexVerify;
+            _skipIndexVerify = ShouldForceIndexVerify() ? false : skipIndexVerify;
             _indexCacheDepth = indexCacheDepth;
             _ptableVersion = ptableVersion;
             _awaitingMemTables = new List<TableItem> { new TableItem(_memTableFactory(), -1, -1) };
@@ -235,18 +235,18 @@ namespace EventStore.Core.Index
                     {
                         _backgroundRunningEvent.Reset();
                         _backgroundRunning = true;
-                        ThreadPool.QueueUserWorkItem(x => ReadOffQueue());
+                        ThreadPoolScheduler.Schedule(ReadOffQueue, null);
                     }
 
                     if (_additionalReclaim)
                     {
-                        ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
+                        ThreadPoolScheduler.Schedule(ReclaimMemoryIfNeeded, _awaitingMemTables);
                     }
                 }
             }
         }
 
-        private void ReadOffQueue()
+        private void ReadOffQueue(object state)
         {
             try
             {
@@ -339,8 +339,9 @@ namespace EventStore.Core.Index
             return new Tuple<string, bool>(((TransactionLog.LogRecords.PrepareLogRecord)result.LogRecord).EventStreamId, true);
         }
 
-        private void ReclaimMemoryIfNeeded(List<TableItem> awaitingMemTables)
+        private void ReclaimMemoryIfNeeded(object state)
         {
+            var awaitingMemTables = (List<TableItem>)state;
             var toPutOnDisk = awaitingMemTables.OfType<IMemTable>().Count() - MaxMemoryTables;
             var traceEnabled = Log.IsTraceLevelEnabled();
             for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
@@ -383,7 +384,8 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
-                catch (MaybeCorruptIndexException e){
+                catch (MaybeCorruptIndexException e)
+                {
                     ForceIndexVerifyOnNextStartup();
                     throw e;
                 }
@@ -426,7 +428,8 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
-                catch (MaybeCorruptIndexException e){
+                catch (MaybeCorruptIndexException e)
+                {
                     ForceIndexVerifyOnNextStartup();
                     throw e;
                 }
@@ -467,7 +470,8 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
-                catch (MaybeCorruptIndexException e){
+                catch (MaybeCorruptIndexException e)
+                {
                     ForceIndexVerifyOnNextStartup();
                     throw e;
                 }
@@ -508,7 +512,8 @@ namespace EventStore.Core.Index
                 {
                     if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
                 }
-                catch (MaybeCorruptIndexException e){
+                catch (MaybeCorruptIndexException e)
+                {
                     ForceIndexVerifyOnNextStartup();
                     throw e;
                 }
@@ -631,33 +636,41 @@ namespace EventStore.Core.Index
             }
         }
 
-        private void ForceIndexVerifyOnNextStartup(){
-            if(Log.IsDebugLevelEnabled()) Log.LogDebug("Forcing index verification on next startup");
-            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
-            try{
-                using(FileStream fs = new FileStream(path, FileMode.OpenOrCreate)){
+        private void ForceIndexVerifyOnNextStartup()
+        {
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Forcing index verification on next startup");
+            string path = Path.Combine(_directory, ForceIndexVerifyFilename);
+            try
+            {
+                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                {
                 };
             }
-            catch{
-                Log.LogError("Could not create force index verification file at: "+path);
+            catch
+            {
+                Log.LogError("Could not create force index verification file at: " + path);
             }
 
             return;
         }
 
-        private bool ShouldForceIndexVerify(){
-            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
+        private bool ShouldForceIndexVerify()
+        {
+            string path = Path.Combine(_directory, ForceIndexVerifyFilename);
             return File.Exists(path);
         }
 
-        private void DeleteForceIndexVerifyFile(){
-            string path = Path.Combine(_directory,ForceIndexVerifyFilename);
-            try{
-                if(File.Exists(path))
+        private void DeleteForceIndexVerifyFile()
+        {
+            string path = Path.Combine(_directory, ForceIndexVerifyFilename);
+            try
+            {
+                if (File.Exists(path))
                     File.Delete(path);
             }
-            catch{
-                Log.LogError("Could not delete force index verification file at: "+path);
+            catch
+            {
+                Log.LogError("Could not delete force index verification file at: " + path);
             }
         }
     }

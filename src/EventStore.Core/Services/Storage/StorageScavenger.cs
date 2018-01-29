@@ -64,7 +64,7 @@ namespace EventStore.Core.Services.Storage
         {
             if (Interlocked.CompareExchange(ref _isScavengingRunning, 1, 0) == 0)
             {
-                ThreadPool.QueueUserWorkItem(_ => Scavenge(message));
+                ThreadPoolScheduler.Schedule(Scavenge, message);
             }
             else
             {
@@ -76,8 +76,9 @@ namespace EventStore.Core.Services.Storage
             }
         }
 
-        private void Scavenge(ClientMessage.ScavengeDatabase message)
+        private void Scavenge(object state)
         {
+            var message = (ClientMessage.ScavengeDatabase)state;
             var sw = Stopwatch.StartNew();
             Guid scavengeId = Guid.NewGuid();
             var streamName = $"{SystemStreams.ScavengesStream}-{scavengeId}";

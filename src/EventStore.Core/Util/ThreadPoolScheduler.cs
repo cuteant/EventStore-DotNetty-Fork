@@ -4,6 +4,9 @@
 
 namespace System.Threading
 {
+    // https://github.com/dotnet/coreclr/pull/14214
+    // https://github.com/dotnet/corefx/issues/12442
+
     internal static class ThreadPoolScheduler
     {
         public static void Schedule(Action action)

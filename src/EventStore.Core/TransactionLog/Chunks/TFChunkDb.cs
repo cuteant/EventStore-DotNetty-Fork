@@ -135,7 +135,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 var preLastChunk = Manager.GetChunk(lastChunkNum - 1);
                 var lastBgChunkNum = preLastChunk.ChunkHeader.ChunkStartNumber - 1;
-                ThreadPool.QueueUserWorkItem(_ =>
+                ThreadPoolScheduler.Schedule(_ =>
                 {
                     for (int chunkNum = lastBgChunkNum; chunkNum >= 0;)
                     {
@@ -163,7 +163,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                         }
                         chunkNum = chunk.ChunkHeader.ChunkStartNumber - 1;
                     }
-                });
+                }, null);
             }
 
             Manager.EnableCaching();

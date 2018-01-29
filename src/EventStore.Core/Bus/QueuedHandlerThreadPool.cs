@@ -151,11 +151,7 @@ namespace EventStore.Core.Bus
             _queue.Enqueue(message);
             if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
             {
-                // https://github.com/dotnet/coreclr/pull/14214
-                // https://github.com/dotnet/corefx/issues/12442
-                // Queue to low contention local ThreadPool queue; rather than global queue as per Task
-                //Threading.ThreadPool.QueueUserWorkItem(_actionWaitCallback, action, preferLocal: true);
-                ThreadPool.QueueUserWorkItem(ReadFromQueue);
+                ThreadPoolScheduler.Schedule(ReadFromQueue, null);
             }
         }
 
