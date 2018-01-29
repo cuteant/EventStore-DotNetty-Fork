@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using CuteAnt.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Messaging
@@ -40,7 +41,7 @@ namespace EventStore.Core.Messaging
             int msgTypeCount = 0;
             foreach (var msgType in
                 (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                 from type in LoadAvailableTypes(assembly)
+                 from type in TypeUtils.GetTypes(assembly, t => true) //LoadAvailableTypes(assembly)
                  where rootMsgType.IsAssignableFrom(type)
                  select type))
             {
