@@ -5,7 +5,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace EventStore.Core.TransactionLog.Unbuffered
 {
-#if !USE_UNIX_IO
+//#if !USE_UNIX_IO
     internal unsafe static class WinNative
     {
         [DllImport("KERNEL32", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
@@ -75,5 +75,5 @@ namespace EventStore.Core.TransactionLog.Unbuffered
 
         public const int INVALID_SET_FILE_POINTER = -1;
     }
-#endif
+//#endif
 }
