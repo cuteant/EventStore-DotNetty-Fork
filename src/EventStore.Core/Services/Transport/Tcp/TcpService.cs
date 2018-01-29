@@ -44,32 +44,32 @@ namespace EventStore.Core.Services.Transport.Tcp
         private readonly int _connectionPendingSendBytesThreshold;
 
         public TcpService(IPublisher publisher,
-                           IPEndPoint serverEndPoint,
-                           IPublisher networkSendQueue,
-                           TcpServiceType serviceType,
-                           TcpSecurityType securityType,
-                           ITcpDispatcher dispatcher,
-                           TimeSpan heartbeatInterval,
-                           TimeSpan heartbeatTimeout,
-                           IAuthenticationProvider authProvider,
-                           X509Certificate certificate,
-                           int connectionPendingSendBytesThreshold)
+                          IPEndPoint serverEndPoint,
+                          IPublisher networkSendQueue,
+                          TcpServiceType serviceType,
+                          TcpSecurityType securityType,
+                          ITcpDispatcher dispatcher,
+                          TimeSpan heartbeatInterval,
+                          TimeSpan heartbeatTimeout,
+                          IAuthenticationProvider authProvider,
+                          X509Certificate certificate,
+                          int connectionPendingSendBytesThreshold)
             : this(publisher, serverEndPoint, networkSendQueue, serviceType, securityType, (_, __) => dispatcher,
                    heartbeatInterval, heartbeatTimeout, authProvider, certificate, connectionPendingSendBytesThreshold)
         {
         }
 
         public TcpService(IPublisher publisher,
-                           IPEndPoint serverEndPoint,
-                           IPublisher networkSendQueue,
-                           TcpServiceType serviceType,
-                           TcpSecurityType securityType,
-                           Func<Guid, IPEndPoint, ITcpDispatcher> dispatcherFactory,
-                           TimeSpan heartbeatInterval,
-                           TimeSpan heartbeatTimeout,
-                           IAuthenticationProvider authProvider,
-                           X509Certificate certificate,
-                           int connectionPendingSendBytesThreshold)
+                          IPEndPoint serverEndPoint,
+                          IPublisher networkSendQueue,
+                          TcpServiceType serviceType,
+                          TcpSecurityType securityType,
+                          Func<Guid, IPEndPoint, ITcpDispatcher> dispatcherFactory,
+                          TimeSpan heartbeatInterval,
+                          TimeSpan heartbeatTimeout,
+                          IAuthenticationProvider authProvider,
+                          X509Certificate certificate,
+                          int connectionPendingSendBytesThreshold)
         {
             Ensure.NotNull(publisher, "publisher");
             Ensure.NotNull(serverEndPoint, "serverEndPoint");

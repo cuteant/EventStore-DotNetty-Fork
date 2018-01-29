@@ -260,10 +260,10 @@ namespace EventStore.Core
                     if (!vNodeSettings.DisableInsecureTCP)
                     {
                         var intTcpService = new TcpService(_mainQueue, _nodeInfo.InternalTcp, _workersHandler,
-                                                          TcpServiceType.Internal, TcpSecurityType.Normal,
-                                                        new InternalTcpDispatcher(),
-                                                        vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
-                                                        _internalAuthenticationProvider, null, ESConsts.UnrestrictedPendingSendBytes);
+                                                           TcpServiceType.Internal, TcpSecurityType.Normal,
+                                                           new InternalTcpDispatcher(),
+                                                           vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
+                                                           _internalAuthenticationProvider, null, ESConsts.UnrestrictedPendingSendBytes);
                         _mainBus.Subscribe<SystemMessage.SystemInit>(intTcpService);
                         _mainBus.Subscribe<SystemMessage.SystemStart>(intTcpService);
                         _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(intTcpService);
@@ -273,10 +273,10 @@ namespace EventStore.Core
                     if (_nodeInfo.InternalSecureTcp != null)
                     {
                         var intSecTcpService = new TcpService(_mainQueue, _nodeInfo.InternalSecureTcp, _workersHandler,
-                                                            TcpServiceType.Internal, TcpSecurityType.Secure,
-                                                            new InternalTcpDispatcher(),
-                                                            vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
-                                                            _internalAuthenticationProvider, vNodeSettings.Certificate, ESConsts.UnrestrictedPendingSendBytes);
+                                                              TcpServiceType.Internal, TcpSecurityType.Secure,
+                                                              new InternalTcpDispatcher(),
+                                                              vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
+                                                              _internalAuthenticationProvider, vNodeSettings.Certificate, ESConsts.UnrestrictedPendingSendBytes);
                         _mainBus.Subscribe<SystemMessage.SystemInit>(intSecTcpService);
                         _mainBus.Subscribe<SystemMessage.SystemStart>(intSecTcpService);
                         _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(intSecTcpService);
@@ -330,8 +330,8 @@ namespace EventStore.Core
 
             // EXTERNAL HTTP
             _externalHttpService = new HttpService(ServiceAccessibility.Public, _mainQueue, new TrieUriRouter(),
-                                                    _workersHandler, vNodeSettings.LogHttpRequests, vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalIPAs,
-                                                    vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalHttpPortAs, vNodeSettings.ExtHttpPrefixes);
+                                                   _workersHandler, vNodeSettings.LogHttpRequests, vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalIPAs,
+                                                   vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalHttpPortAs, vNodeSettings.ExtHttpPrefixes);
             _externalHttpService.SetupController(persistentSubscriptionController);
             if (vNodeSettings.AdminOnPublic)
             {
@@ -523,7 +523,7 @@ namespace EventStore.Core
             {
                 // MASTER REPLICATION
                 var masterReplicationService = new MasterReplicationService(_mainQueue, gossipInfo.InstanceId, db, _workersHandler,
-                                                                        epochManager, vNodeSettings.ClusterNodeCount);
+                                                                            epochManager, vNodeSettings.ClusterNodeCount);
                 _mainBus.Subscribe<SystemMessage.SystemStart>(masterReplicationService);
                 _mainBus.Subscribe<SystemMessage.StateChangeMessage>(masterReplicationService);
                 _mainBus.Subscribe<ReplicationMessage.ReplicaSubscriptionRequest>(masterReplicationService);
@@ -532,8 +532,8 @@ namespace EventStore.Core
 
                 // REPLICA REPLICATION
                 var replicaService = new ReplicaService(_mainQueue, db, epochManager, _workersHandler, _internalAuthenticationProvider,
-                                                    gossipInfo, vNodeSettings.UseSsl, vNodeSettings.SslTargetHost, vNodeSettings.SslValidateServer,
-                                                    vNodeSettings.IntTcpHeartbeatTimeout, vNodeSettings.ExtTcpHeartbeatInterval);
+                                                        gossipInfo, vNodeSettings.UseSsl, vNodeSettings.SslTargetHost, vNodeSettings.SslValidateServer,
+                                                        vNodeSettings.IntTcpHeartbeatTimeout, vNodeSettings.ExtTcpHeartbeatInterval);
                 _mainBus.Subscribe<SystemMessage.StateChangeMessage>(replicaService);
                 _mainBus.Subscribe<ReplicationMessage.ReconnectToMaster>(replicaService);
                 _mainBus.Subscribe<ReplicationMessage.SubscribeToMaster>(replicaService);
@@ -554,7 +554,7 @@ namespace EventStore.Core
                 // GOSSIP
 
                 var gossip = new NodeGossipService(_mainQueue, gossipSeedSource, gossipInfo, db.Config.WriterCheckpoint,
-                             db.Config.ChaserCheckpoint, epochManager, () => readIndex.LastCommitPosition,
+                                                   db.Config.ChaserCheckpoint, epochManager, () => readIndex.LastCommitPosition,
                                                    vNodeSettings.NodePriority, vNodeSettings.GossipInterval, vNodeSettings.GossipAllowedTimeDifference);
                 _mainBus.Subscribe<SystemMessage.SystemInit>(gossip);
                 _mainBus.Subscribe<GossipMessage.RetrieveGossipSeedSources>(gossip);

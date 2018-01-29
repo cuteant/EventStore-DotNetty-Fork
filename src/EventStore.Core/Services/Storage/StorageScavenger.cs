@@ -64,9 +64,7 @@ namespace EventStore.Core.Services.Storage
         {
             if (Interlocked.CompareExchange(ref _isScavengingRunning, 1, 0) == 0)
             {
-                //ThreadPool.QueueUserWorkItem(_ => Scavenge(message));
-                Task.Factory.StartNew(state => Scavenge((ClientMessage.ScavengeDatabase)state),
-                                      message, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                ThreadPool.QueueUserWorkItem(_ => Scavenge(message));
             }
             else
             {

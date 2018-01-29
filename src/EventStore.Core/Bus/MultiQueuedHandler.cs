@@ -15,8 +15,8 @@ namespace EventStore.Core.Bus
         private int _nextQueueNum = -1;
 
         public MultiQueuedHandler(int queueCount,
-                                     Func<int, IQueuedHandler> queueFactory,
-                                     Func<Message, int> queueHash = null)
+                                  Func<int, IQueuedHandler> queueFactory,
+                                  Func<Message, int> queueHash = null)
         {
             Ensure.Positive(queueCount, nameof(queueCount));
             Ensure.NotNull(queueFactory, nameof(queueFactory));

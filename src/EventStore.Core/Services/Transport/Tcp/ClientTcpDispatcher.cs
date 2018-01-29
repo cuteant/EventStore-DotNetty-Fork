@@ -176,10 +176,10 @@ namespace EventStore.Core.Services.Transport.Tcp
             if (dto == null) return null;
             if (dto.Result == OperationResult.Success)
                 return new ClientMessage.WriteEventsCompleted(package.CorrelationId,
-                                                             dto.FirstEventNumber,
-                                                             dto.LastEventNumber,
-                                                             dto.PreparePosition ?? -1,
-                                                             dto.CommitPosition ?? -1);
+                                                              dto.FirstEventNumber,
+                                                              dto.LastEventNumber,
+                                                              dto.PreparePosition ?? -1,
+                                                              dto.CommitPosition ?? -1);
             return new ClientMessage.WriteEventsCompleted(package.CorrelationId,
                                                           dto.Result,
                                                           dto.Message,

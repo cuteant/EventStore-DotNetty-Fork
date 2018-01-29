@@ -42,7 +42,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             }
         }
 
-        private void BackgroundCachingProcess()//object state)
+        private void BackgroundCachingProcess(object state)
         {
             do
             {
@@ -296,8 +296,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             Interlocked.Increment(ref _backgroundPassesRemaining);
             if (Interlocked.CompareExchange(ref _backgroundRunning, 1, 0) == 0)
             {
-                //ThreadPool.QueueUserWorkItem(BackgroundCachingProcess);
-                Task.Factory.StartNew(BackgroundCachingProcess, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                ThreadPool.QueueUserWorkItem(BackgroundCachingProcess);
             }
 
             if (!chunk.IsReadOnly && chunk.ChunkHeader.ChunkSize + ChunkHeader.Size + ChunkFooter.Size <= _config.MaxChunksCacheSize)

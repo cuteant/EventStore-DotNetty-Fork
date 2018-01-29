@@ -36,11 +36,11 @@ namespace EventStore.Core.Bus
         private readonly QueueStatsCollector _queueStats;
 
         public QueuedHandlerSleep(IHandle<Message> consumer,
-                                    string name,
-                                    bool watchSlowMsg = true,
-                                    TimeSpan? slowMsgThreshold = null,
-                                    TimeSpan? threadStopWaitTimeout = null,
-                                    string groupName = null)
+                                  string name,
+                                  bool watchSlowMsg = true,
+                                  TimeSpan? slowMsgThreshold = null,
+                                  TimeSpan? threadStopWaitTimeout = null,
+                                  string groupName = null)
         {
             Ensure.NotNull(consumer, nameof(consumer));
             Ensure.NotNull(name, nameof(name));

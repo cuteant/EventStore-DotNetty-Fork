@@ -8,7 +8,7 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;netstandard2.0;net471</TargetFrameworks>
     <RootNamespace>EventStore.Core</RootNamespace>
     <AssemblyName>EventStore.Core</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -21,11 +21,11 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0 '">
+  <PropertyGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <DefineConstants>$(DefineConstants);USE_UNIX_IO</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net471' ">
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netfx' ">
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceModel.Web" />
@@ -38,12 +38,12 @@
     <PackageReference Include="DotNetty.Transport.Libuv.Unofficial" Version="$(DotNettyTransportLibuvUnofficialPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
     <PackageReference Include="Mono.Posix.NETStandard" Version="$(MonoPosixNETStandardPackageVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <ProjectReference Include="..\..\etc\Mono.UriTemplate\Mono.UriTemplate.csproj" />
   </ItemGroup>
 

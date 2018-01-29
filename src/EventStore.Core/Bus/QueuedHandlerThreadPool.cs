@@ -38,11 +38,11 @@ namespace EventStore.Core.Bus
         private int _isRunning;
 
         public QueuedHandlerThreadPool(IHandle<Message> consumer,
-                                          string name,
-                                          bool watchSlowMsg = true,
-                                          TimeSpan? slowMsgThreshold = null,
-                                          TimeSpan? threadStopWaitTimeout = null,
-                                          string groupName = null)
+                                       string name,
+                                       bool watchSlowMsg = true,
+                                       TimeSpan? slowMsgThreshold = null,
+                                       TimeSpan? threadStopWaitTimeout = null,
+                                       string groupName = null)
         {
             Ensure.NotNull(consumer, nameof(consumer));
             Ensure.NotNull(name, nameof(name));
@@ -79,7 +79,7 @@ namespace EventStore.Core.Bus
             _queueMonitor.Unregister(this);
         }
 
-        private void ReadFromQueue()//object o)
+        private void ReadFromQueue(object o)
         {
             var proceed = true;
             var traceEnabled = Log.IsTraceLevelEnabled();
@@ -151,8 +151,11 @@ namespace EventStore.Core.Bus
             _queue.Enqueue(message);
             if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
             {
-                //ThreadPool.QueueUserWorkItem(ReadFromQueue);
-                Task.Factory.StartNew(ReadFromQueue, CancellationToken.None, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                // https://github.com/dotnet/coreclr/pull/14214
+                // https://github.com/dotnet/corefx/issues/12442
+                // Queue to low contention local ThreadPool queue; rather than global queue as per Task
+                //Threading.ThreadPool.QueueUserWorkItem(_actionWaitCallback, action, preferLocal: true);
+                ThreadPool.QueueUserWorkItem(ReadFromQueue);
             }
         }
 

@@ -59,16 +59,16 @@ namespace EventStore.Core.Services.Transport.Tcp
         private TcpServiceType _serviceType;
 
         public TcpConnectionManager(string connectionName,
-                                       TcpServiceType serviceType,
-                                       ITcpDispatcher dispatcher,
-                                       IPublisher publisher,
-                                       ITcpConnection openedConnection,
-                                       IPublisher networkSendQueue,
-                                       IAuthenticationProvider authProvider,
-                                       TimeSpan heartbeatInterval,
-                                       TimeSpan heartbeatTimeout,
-                                       Action<TcpConnectionManager, SocketError> onConnectionClosed,
-                                       int connectionPendingSendBytesThreshold)
+                                    TcpServiceType serviceType,
+                                    ITcpDispatcher dispatcher,
+                                    IPublisher publisher,
+                                    ITcpConnection openedConnection,
+                                    IPublisher networkSendQueue,
+                                    IAuthenticationProvider authProvider,
+                                    TimeSpan heartbeatInterval,
+                                    TimeSpan heartbeatTimeout,
+                                    Action<TcpConnectionManager, SocketError> onConnectionClosed,
+                                    int connectionPendingSendBytesThreshold)
         {
             Ensure.NotNull(dispatcher, "dispatcher");
             Ensure.NotNull(publisher, "publisher");
@@ -108,20 +108,20 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         public TcpConnectionManager(string connectionName,
-                                       Guid connectionId,
-                                       ITcpDispatcher dispatcher,
-                                       IPublisher publisher,
-                                       IPEndPoint remoteEndPoint,
-                                       TcpClientConnector connector,
-                                       bool useSsl,
-                                       string sslTargetHost,
-                                       bool sslValidateServer,
-                                       IPublisher networkSendQueue,
-                                       IAuthenticationProvider authProvider,
-                                       TimeSpan heartbeatInterval,
-                                       TimeSpan heartbeatTimeout,
-                                       Action<TcpConnectionManager> onConnectionEstablished,
-                                       Action<TcpConnectionManager, SocketError> onConnectionClosed)
+                                    Guid connectionId,
+                                    ITcpDispatcher dispatcher,
+                                    IPublisher publisher,
+                                    IPEndPoint remoteEndPoint,
+                                    TcpClientConnector connector,
+                                    bool useSsl,
+                                    string sslTargetHost,
+                                    bool sslValidateServer,
+                                    IPublisher networkSendQueue,
+                                    IAuthenticationProvider authProvider,
+                                    TimeSpan heartbeatInterval,
+                                    TimeSpan heartbeatTimeout,
+                                    Action<TcpConnectionManager> onConnectionEstablished,
+                                    Action<TcpConnectionManager, SocketError> onConnectionClosed)
         {
             Ensure.NotEmptyGuid(connectionId, "connectionId");
             Ensure.NotNull(dispatcher, "dispatcher");
