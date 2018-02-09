@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -29,18 +30,17 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly Dictionary<string, long?> _preparePositions = new Dictionary<string, long?>(StringComparer.Ordinal);
 
         // event, link, progress
-        // null element in a queue means tream deleted 
+        // null element in a queue means stream deleted 
         private readonly Dictionary<string, Queue<Tuple<EventStore.Core.Data.ResolvedEvent, float>>> _buffers =
             new Dictionary<string, Queue<Tuple<EventStore.Core.Data.ResolvedEvent, float>>>(StringComparer.Ordinal);
 
         private const int _maxReadCount = 111;
         private long? _safePositionToJoin;
-        private readonly Dictionary<string, bool> _eofs;
+        private readonly ConcurrentDictionary<string, bool> _eofs;
         private int _deliveredEvents;
         private long _lastPosition;
 
-        private readonly Dictionary<string, Guid> _pendingRequests;
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+        private readonly ConcurrentDictionary<string, Guid> _pendingRequests;
 
         public MultiStreamEventReader(
           IODispatcher ioDispatcher, IPublisher publisher, Guid eventReaderCorrelationId, IPrincipal readAs, int phase,
@@ -53,16 +53,16 @@ namespace EventStore.Projections.Core.Services.Processing
             if (streams.Length == 0) throw new ArgumentException(nameof(streams));
 
             _streams = new HashSet<string>(streams, StringComparer.Ordinal);
-            _eofs = _streams.ToDictionary(v => v, v => false);
+            _eofs = new ConcurrentDictionary<string, bool>(_streams.ToDictionary(v => v, v => false), StringComparer.Ordinal);
             var positions = CheckpointTag.FromStreamPositions(phase, fromPositions);
             ValidateTag(positions);
             _fromPositions = positions;
             _resolveLinkTos = resolveLinkTos;
             _timeProvider = timeProvider;
-            _pendingRequests = new Dictionary<string, Guid>(StringComparer.Ordinal);
+            _pendingRequests = new ConcurrentDictionary<string, Guid>(StringComparer.Ordinal);
             foreach (var stream in streams)
             {
-                _pendingRequests.Add(stream, Guid.Empty);
+                _pendingRequests[stream] = Guid.Empty;
                 _preparePositions.Add(stream, null);
             }
         }
@@ -125,10 +125,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             if (Paused) { throw new InvalidOperationException("Paused"); }
 
-            using (var token = _lock.CreateToken(true))
-            {
-                if (!_pendingRequests.Values.Any(x => x == message.CorrelationId)) { return; }
-            }
+            if (!_pendingRequests.Values.Any(x => x == message.CorrelationId)) return;
 
             _lastPosition = message.TfLastCommitPosition;
             switch (message.Result)
@@ -186,10 +183,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (_disposed) { return; }
             if (Paused) { return; }
-            using (var token = _lock.CreateToken(true))
-            {
-                if (!_pendingRequests.Values.Any(x => x == message.CorrelationId)) { return; }
-            }
+            if (!_pendingRequests.Values.Any(x => x == message.CorrelationId)) return;
 
             _eventsRequested.Remove(message.StreamId);
             PauseOrContinueProcessing();
@@ -299,10 +293,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _eventsRequested.Add(stream);
 
             var pendingRequestCorrelationId = Guid.NewGuid();
-            using (var token = _lock.CreateToken())
-            {
-                _pendingRequests[stream] = pendingRequestCorrelationId;
-            }
+            _pendingRequests[stream] = pendingRequestCorrelationId;
             var readEventsForward = new ClientMessage.ReadStreamEventsForward(
                 Guid.NewGuid(), pendingRequestCorrelationId, new SendToThisEnvelope(this), stream, _fromPositions.Streams[stream],
                 _maxReadCount, _resolveLinkTos, false, null, ReadAs);
