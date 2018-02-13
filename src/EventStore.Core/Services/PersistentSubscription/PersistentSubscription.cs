@@ -124,7 +124,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void SetLive()
         {
-            //TODO GFY this is hacky and just trying to keep the state at this level when it 
+            //TODO GFY this is hacky and just trying to keep the state at this level when it
             //lives in the streambuffer its for reporting reasons and likely should be revisited
             //at some point.
             _state &= ~PersistentSubscriptionState.Behind;
@@ -158,9 +158,10 @@ namespace EventStore.Core.Services.PersistentSubscription
                 }
                 if (isEndOfStream)
                 {
-                    SetLive();
-                    _streamBuffer.MoveToLive();
-                    return;
+                    if(_streamBuffer.TryMoveToLive()){
+                        SetLive();
+                        return;
+                    }
                 }
                 _nextEventToPullFrom = newposition;
                 TryReadingNewBatch();
