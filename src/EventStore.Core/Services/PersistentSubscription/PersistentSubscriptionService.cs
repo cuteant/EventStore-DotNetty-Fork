@@ -571,7 +571,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public void Handle(ClientMessage.ReplayAllParkedMessages message)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Replying parked messages.");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Replaying parked messages.");
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
