@@ -55,7 +55,12 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private string GetLinkToFor(in ResolvedEvent ev)
         {
-            return $"{ev.OriginalEventNumber}@{ev.OriginalStreamId}";
+            if (ev.Event == null) // Unresolved link so just use the bad/deleted link data.
+            {
+                return Encoding.UTF8.GetString(ev.Link.Data);
+            }
+
+            return $"{ev.Event.EventNumber}@{ev.Event.EventStreamId}";
         }
 
 
