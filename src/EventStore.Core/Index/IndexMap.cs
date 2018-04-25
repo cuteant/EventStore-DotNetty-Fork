@@ -320,17 +320,29 @@ namespace EventStore.Core.Index
             var debugEnabled = Log.IsDebugLevelEnabled();
             while (trial < 5)
             {
+                void errorHandler(Exception ex)
+                {
+                    Log.LogError("Failed trial to replace indexmap {0} with {1}.", filename, tmpIndexMap);
+                    Log.LogError("Exception: {0}", ex.ToString());
+                    trial += 1;
+                };
                 try
                 {
-                    if (File.Exists(filename)) { File.Delete(filename); }
-
+                    if (File.Exists(filename))
+					{
+                        File.SetAttributes(filename, FileAttributes.Normal);
+                        File.Delete(filename);
+					}
                     File.Move(tmpIndexMap, filename);
                     break;
                 }
                 catch (IOException exc)
                 {
-                    if (debugEnabled) Log.LogDebug(exc, "Failed trial to replace indexmap.");
-                    trial += 1;
+                    errorHandler(exc);
+                }
+                catch (UnauthorizedAccessException exc)
+                {
+                    errorHandler(exc);
                 }
             }
         }
