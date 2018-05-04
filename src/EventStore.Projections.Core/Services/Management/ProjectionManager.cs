@@ -262,7 +262,8 @@ namespace EventStore.Projections.Core.Services.Management
             return name == ProjectionNamesBuilder.StandardProjections.EventByCategoryStandardProjection ||
                    name == ProjectionNamesBuilder.StandardProjections.EventByTypeStandardProjection ||
                    name == ProjectionNamesBuilder.StandardProjections.StreamByCategoryStandardProjection ||
-                   name == ProjectionNamesBuilder.StandardProjections.StreamsStandardProjection;
+                   name == ProjectionNamesBuilder.StandardProjections.StreamsStandardProjection ||
+                   name == ProjectionNamesBuilder.StandardProjections.EventByCorrIdStandardProjection;
         }
 
         public void Handle(ProjectionManagementMessage.Command.GetQuery message)
@@ -867,6 +868,10 @@ namespace EventStore.Projections.Core.Services.Management
                 CreateSystemProjection(
                     ProjectionNamesBuilder.StandardProjections.EventByTypeStandardProjection,
                     typeof(IndexEventsByEventType),
+                    "");
+                CreateSystemProjection(
+                    ProjectionNamesBuilder.StandardProjections.EventByCorrIdStandardProjection,
+                    typeof(ByCorrelationId),
                     "");
             }
         }
