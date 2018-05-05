@@ -45,10 +45,10 @@ namespace EventStore.Core.Services.Gossip
         private readonly Random _rnd = new Random(Math.Abs(Environment.TickCount));
 
         protected GossipServiceBase(IPublisher bus,
-                                      IGossipSeedSource gossipSeedSource,
-                                      VNodeInfo nodeInfo,
-                                      TimeSpan gossipInterval,
-                                      TimeSpan allowedTimeDifference)
+                                    IGossipSeedSource gossipSeedSource,
+                                    VNodeInfo nodeInfo,
+                                    TimeSpan gossipInterval,
+                                    TimeSpan allowedTimeDifference)
         {
             Ensure.NotNull(bus, nameof(bus));
             Ensure.NotNull(gossipSeedSource, nameof(gossipSeedSource));
