@@ -34,7 +34,7 @@ namespace EventStore.Core.Tests.AwakeService
             When();
         }
 
-        private class TestMessage : Message
+        public class TestMessage : Message
         {
             private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
 
