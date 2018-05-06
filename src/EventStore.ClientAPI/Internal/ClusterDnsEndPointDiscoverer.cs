@@ -25,26 +25,33 @@ namespace EventStore.ClientAPI.Internal
     private readonly HttpAsyncClient _client;
     private ClusterMessages.MemberInfoDto[] _oldGossip;
     private TimeSpan _gossipTimeout;
-    private readonly bool _preferRandomNode;
+
+    private readonly NodePreference _nodePreference;
 
     public ClusterDnsEndPointDiscoverer(string clusterDns,
                                         int maxDiscoverAttempts,
                                         int managerExternalHttpPort,
                                         GossipSeed[] gossipSeeds,
                                         TimeSpan gossipTimeout,
-                                        bool preferRandomNode)
+                                        NodePreference nodePreference)
     {
       _clusterDns = clusterDns;
       _maxDiscoverAttempts = maxDiscoverAttempts;
       _managerExternalHttpPort = managerExternalHttpPort;
       _gossipSeeds = gossipSeeds;
       _gossipTimeout = gossipTimeout;
-      _preferRandomNode = preferRandomNode;
+      _nodePreference = nodePreference;
       _client = new HttpAsyncClient(_gossipTimeout);
     }
 
     public async Task<NodeEndPoints> DiscoverAsync(IPEndPoint failedTcpEndPoint)
     {
+      var maxDiscoverAttemptsStr = "";
+      if (_maxDiscoverAttempts != Int32.MaxValue)
+      {
+        maxDiscoverAttemptsStr = "/" + _maxDiscoverAttempts;
+      }
+
       var infoEnabled = _log.IsInformationLevelEnabled();
       for (int attempt = 1; attempt <= _maxDiscoverAttempts; ++attempt)
       {
@@ -54,15 +61,25 @@ namespace EventStore.ClientAPI.Internal
           var endPoints = await DiscoverEndPoint(failedTcpEndPoint).ConfigureAwait(false);
           if (endPoints != null)
           {
-            if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} successful: best candidate is {2}.", attempt, _maxDiscoverAttempts, endPoints);
+            if (infoEnabled)
+            {
+              _log.LogInformation("Discovering attempt {0}{1} successful: best candidate is {2}.", attempt, maxDiscoverAttemptsStr, endPoints);
+            }
+
             return endPoints.Value;
           }
 
-          if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed: no candidate found.", attempt, _maxDiscoverAttempts);
+          if (infoEnabled)
+          {
+            _log.LogInformation("Discovering attempt {0}{1} failed: no candidate found.", attempt, maxDiscoverAttemptsStr);
+          }
         }
         catch (Exception exc)
         {
-          if (infoEnabled) _log.LogInformation("Discovering attempt {0}/{1} failed with error: {2}.", attempt, _maxDiscoverAttempts, exc);
+          if (infoEnabled)
+          {
+            _log.LogInformation("Discovering attempt {0}{1} failed with error: {2}.", attempt, maxDiscoverAttemptsStr, exc);
+          }
         }
 
         //Thread.Sleep(500);
@@ -85,7 +102,7 @@ namespace EventStore.ClientAPI.Internal
           continue;
         }
 
-        var bestNode = TryDetermineBestNode(gossip.Members, _preferRandomNode);
+        var bestNode = TryDetermineBestNode(gossip.Members, _nodePreference);
         if (bestNode != null)
         {
           _oldGossip = gossip.Members;
@@ -218,7 +235,7 @@ namespace EventStore.ClientAPI.Internal
       return result;
     }
 
-    private NodeEndPoints? TryDetermineBestNode(IEnumerable<ClusterMessages.MemberInfoDto> members, bool preferRandomNode)
+    private NodeEndPoints? TryDetermineBestNode(IEnumerable<ClusterMessages.MemberInfoDto> members, NodePreference nodePreference)
     {
       var notAllowedStates = new[]
       {
@@ -232,14 +249,20 @@ namespace EventStore.ClientAPI.Internal
                          .OrderByDescending(x => x.State)
                          .ToArray();
 
-      if (preferRandomNode)
+      switch (nodePreference)
       {
-        RandomShuffle(nodes, 0, nodes.Length - 1);
+        case NodePreference.Random:
+          RandomShuffle(nodes, 0, nodes.Length - 1);
+          break;
+        case NodePreference.Slave:
+          nodes = nodes.OrderBy(nodeEntry => nodeEntry.State != ClusterMessages.VNodeState.Slave).ToArray(); // OrderBy is a stable sort and only affects order of matching entries
+          RandomShuffle(nodes, 0, nodes.Count(nodeEntry => nodeEntry.State == ClusterMessages.VNodeState.Slave) - 1);
+          break;
       }
 
       var node = nodes.FirstOrDefault();
 
-      if (node == null)
+      if (node == default(ClusterMessages.MemberInfoDto))
       {
         //_log.Info("Unable to locate suitable node. Gossip info:\n{0}.", string.Join("\n", members.Select(x => x.ToString())));
         return null;

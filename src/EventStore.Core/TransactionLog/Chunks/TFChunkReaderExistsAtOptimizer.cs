@@ -1,6 +1,6 @@
 using System;
-using EventStore.Common.Log;
 using EventStore.Core.DataStructures;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
@@ -21,7 +21,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         //Least-Recently-Used cache to keep track of scavenged TFChunks that have cached bloom filters
         private LRUCache<string, TFChunk.TFChunk> _cache;
         private const int MaxBloomFiltersCached = 10000; //around 5GB RAM max if we consider 200,000 log positions/chunk and 20 bits/log position
-        private static readonly ILogger Log = LogManager.GetLoggerFor<TFChunkReaderExistsAtOptimizer>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkReaderExistsAtOptimizer>();
 
 
         public TFChunkReaderExistsAtOptimizer(int maxCached){
@@ -29,7 +29,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 var chunk = (TFChunk.TFChunk) o;
                 if(chunk == null)
                     return false;
-                Log.Debug("Optimizing chunk "+chunk.FileName+" for fast merge...");
+                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Optimizing chunk "+chunk.FileName+" for fast merge...");
                 chunk.OptimizeExistsAt();
                 return true;
             };
@@ -38,7 +38,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 var chunk = (TFChunk.TFChunk) o;
                 if(chunk == null)
                     return false;
-                Log.Debug("Clearing fast merge optimizations from chunk "+chunk.FileName+"...");
+                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Clearing fast merge optimizations from chunk "+chunk.FileName+"...");
                 chunk.DeOptimizeExistsAt();
                 return true;
             };

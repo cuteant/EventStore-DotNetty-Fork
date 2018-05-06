@@ -13,14 +13,11 @@ namespace EventStore.ClientAPI
     private static readonly Lazy<ConnectionSettings> DefaultSettings = new Lazy<ConnectionSettings>(() => Create(), true);
 
     /// <summary>The default <see cref="ConnectionSettings"/>.</summary>
-    public static ConnectionSettings Default { get { return DefaultSettings.Value; } }
+    public static ConnectionSettings Default => DefaultSettings.Value;
 
     /// <summary>Creates a new set of <see cref="ConnectionSettings"/>.</summary>
     /// <returns>A <see cref="ConnectionSettingsBuilder"/> you can use to build up a <see cref="ConnectionSettings"/>.</returns>.
-    public static ConnectionSettingsBuilder Create()
-    {
-      return new ConnectionSettingsBuilder();
-    }
+    public static ConnectionSettingsBuilder Create() => new ConnectionSettingsBuilder();
 
     /// <summary>Whether to use excessive logging of <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic.</summary>
     public readonly bool VerboseLogging;
@@ -42,6 +39,9 @@ namespace EventStore.ClientAPI
 
     /// <summary>The amount of time to delay before attempting to reconnect.</summary>
     public readonly TimeSpan ReconnectionDelay;
+
+    /// <summary>The amount of time a request for an operation is permitted to be queued awaiting transmission to the server.</summary>
+    public readonly TimeSpan QueueTimeout;
 
     /// <summary>The amount of time before an operation is considered to have timed out.</summary>
     public readonly TimeSpan OperationTimeout;
@@ -88,7 +88,7 @@ namespace EventStore.ClientAPI
     public readonly TimeSpan GossipTimeout;
 
     /// <summary>Whether to randomly choose a node that is alive from known nodes.</summary>
-    public readonly bool PreferRandomNode;
+    public readonly NodePreference NodePreference;
 
     /// <summary>The interval after which a client will time out during connection.</summary>
     public readonly TimeSpan ClientConnectionTimeout;
@@ -97,29 +97,30 @@ namespace EventStore.ClientAPI
     public readonly bool ThrowOnNoMatchingHandler;
 
     internal ConnectionSettings(bool verboseLogging,
-                                  int maxQueueSize,
-                                  int maxConcurrentItems,
-                                  int maxRetries,
-                                  int maxReconnections,
-                                  bool requireMaster,
-                                  TimeSpan reconnectionDelay,
-                                  TimeSpan operationTimeout,
-                                  TimeSpan operationTimeoutCheckPeriod,
-                                  UserCredentials defaultUserCredentials,
-                                  bool useSslConnection,
-                                  string targetHost,
-                                  bool validateServer,
-                                  bool failOnNoServerResponse,
-                                  TimeSpan heartbeatInterval,
-                                  TimeSpan heartbeatTimeout,
-                                  TimeSpan clientConnectionTimeout,
-                                  string clusterDns,
-                                  GossipSeed[] gossipSeeds,
-                                  int maxDiscoverAttempts,
-                                  int externalGossipPort,
-                                  TimeSpan gossipTimeout,
-                                  bool preferRandomNode,
-                                  bool throwOnNoMatchingHandler)
+                                int maxQueueSize,
+                                int maxConcurrentItems,
+                                int maxRetries,
+                                int maxReconnections,
+                                bool requireMaster,
+                                TimeSpan reconnectionDelay,
+                                TimeSpan queueTimeout,
+                                TimeSpan operationTimeout,
+                                TimeSpan operationTimeoutCheckPeriod,
+                                UserCredentials defaultUserCredentials,
+                                bool useSslConnection,
+                                string targetHost,
+                                bool validateServer,
+                                bool failOnNoServerResponse,
+                                TimeSpan heartbeatInterval,
+                                TimeSpan heartbeatTimeout,
+                                TimeSpan clientConnectionTimeout,
+                                string clusterDns,
+                                GossipSeed[] gossipSeeds,
+                                int maxDiscoverAttempts,
+                                int externalGossipPort,
+                                TimeSpan gossipTimeout,
+                                NodePreference nodePreference,
+                                bool throwOnNoMatchingHandler)
     {
       Ensure.Positive(maxQueueSize, nameof(maxQueueSize));
       Ensure.Positive(maxConcurrentItems, nameof(maxConcurrentItems));
@@ -142,6 +143,7 @@ namespace EventStore.ClientAPI
       MaxReconnections = maxReconnections;
       RequireMaster = requireMaster;
       ReconnectionDelay = reconnectionDelay;
+      QueueTimeout = queueTimeout;
       OperationTimeout = operationTimeout;
       OperationTimeoutCheckPeriod = operationTimeoutCheckPeriod;
       ClientConnectionTimeout = clientConnectionTimeout;
@@ -158,7 +160,7 @@ namespace EventStore.ClientAPI
       MaxDiscoverAttempts = maxDiscoverAttempts;
       ExternalGossipPort = externalGossipPort;
       GossipTimeout = gossipTimeout;
-      PreferRandomNode = preferRandomNode;
+      NodePreference = nodePreference;
 
       ThrowOnNoMatchingHandler = throwOnNoMatchingHandler;
     }

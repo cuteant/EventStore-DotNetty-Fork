@@ -296,7 +296,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             Interlocked.Increment(ref _backgroundPassesRemaining);
             if (Interlocked.CompareExchange(ref _backgroundRunning, 1, 0) == 0)
             {
-                ThreadPoolScheduler.Schedule(BackgroundCachingProcess, null);
+                ThreadPoolScheduler.Schedule(BackgroundCachingProcess, (object)null);
             }
 
             if (!chunk.IsReadOnly && chunk.ChunkHeader.ChunkSize + ChunkHeader.Size + ChunkFooter.Size <= _config.MaxChunksCacheSize)

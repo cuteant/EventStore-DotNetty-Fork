@@ -235,7 +235,7 @@ namespace EventStore.Core.Index
                     {
                         _backgroundRunningEvent.Reset();
                         _backgroundRunning = true;
-                        ThreadPoolScheduler.Schedule(ReadOffQueue, null);
+                        ThreadPoolScheduler.Schedule(ReadOffQueue, (object)null);
                     }
 
                     if (_additionalReclaim)

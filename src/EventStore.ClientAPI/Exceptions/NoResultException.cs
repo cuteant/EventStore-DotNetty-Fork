@@ -1,7 +1,5 @@
 ﻿using System;
-#if DESKTOPCLR
 using System.Runtime.Serialization;
-#endif
 
 namespace EventStore.ClientAPI.Exceptions
 {
@@ -32,13 +30,11 @@ namespace EventStore.ClientAPI.Exceptions
     {
     }
 
-#if DESKTOPCLR
     /// <summary>
     /// Constructs a new <see cref="NoResultException"/>.
     /// </summary>
     protected NoResultException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
     }
-#endif
   }
 }

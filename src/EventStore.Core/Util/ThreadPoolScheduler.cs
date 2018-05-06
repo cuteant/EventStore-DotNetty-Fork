@@ -19,18 +19,26 @@ namespace System.Threading
 #endif
         }
 
+#if NETCOREAPP_2_0_GREATER
+        public static void Schedule<TState>(Action<TState> action, TState state)
+        {
+            // Queue to low contention local ThreadPool queue; rather than global queue as per Task
+            ThreadPool.QueueUserWorkItem(action, state, preferLocal: true);
+        }
+#else
         public static void Schedule(Action<object> action, object state)
         {
-#if NETCOREAPP_2_0_GREATER
-            // Queue to low contention local ThreadPool queue; rather than global queue as per Task
-            ThreadPool.QueueUserWorkItem(_actionObjectWaitCallback, new ActionObjectAsWaitCallback(action, state), preferLocal: true);
-#else
             ThreadPool.QueueUserWorkItem(_actionObjectWaitCallback, new ActionObjectAsWaitCallback(action, state));
-#endif
         }
+#endif
 
+#if NETCOREAPP_2_0_GREATER
+        private readonly static Action<Action> _actionWaitCallback = state => state.Invoke();
+#else
         private readonly static WaitCallback _actionWaitCallback = state => ((Action)state)();
+#endif
 
+#if !NETCOREAPP_2_0_GREATER
         private readonly static WaitCallback _actionObjectWaitCallback = state => ((ActionObjectAsWaitCallback)state).Run();
 
         private sealed class ActionObjectAsWaitCallback
@@ -46,5 +54,6 @@ namespace System.Threading
 
             public void Run() => _action(_state);
         }
+#endif
     }
 }

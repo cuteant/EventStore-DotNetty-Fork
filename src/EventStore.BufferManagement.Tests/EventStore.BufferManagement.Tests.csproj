@@ -6,6 +6,8 @@
     <RootNamespace>EventStore.BufferManagement.Tests</RootNamespace>
     <AssemblyName>EventStore.BufferManagement.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

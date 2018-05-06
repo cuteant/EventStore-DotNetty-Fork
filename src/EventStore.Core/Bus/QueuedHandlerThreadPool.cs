@@ -151,7 +151,7 @@ namespace EventStore.Core.Bus
             _queue.Enqueue(message);
             if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
             {
-                ThreadPoolScheduler.Schedule(ReadFromQueue, null);
+                ThreadPoolScheduler.Schedule(ReadFromQueue, (object)null);
             }
         }
 

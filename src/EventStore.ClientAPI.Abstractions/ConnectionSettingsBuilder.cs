@@ -19,6 +19,7 @@ namespace EventStore.ClientAPI
     private bool _requireMaster = Consts.DefaultRequireMaster;
 
     private TimeSpan _reconnectionDelay = Consts.DefaultReconnectionDelay;
+    private TimeSpan _queueTimeout = Consts.DefaultQueueTimeout;
     private TimeSpan _operationTimeout = Consts.DefaultOperationTimeout;
     private TimeSpan _operationTimeoutCheckPeriod = Consts.DefaultOperationTimeoutCheckPeriod;
 
@@ -36,12 +37,10 @@ namespace EventStore.ClientAPI
     private int _gossipExternalHttpPort = Consts.DefaultClusterManagerExternalHttpPort;
     private TimeSpan _gossipTimeout = TimeSpan.FromSeconds(1);
     private GossipSeed[] _gossipSeeds;
-    private bool _preferRandomNode;
+    private NodePreference _nodePreference = NodePreference.Master;
     private bool _throwOnNoMatchingHandler;
 
-    internal ConnectionSettingsBuilder()
-    {
-    }
+    internal ConnectionSettingsBuilder() { }
 
     /// <summary>ThrowOnNoMatchingHandler</summary>
     /// <returns></returns>
@@ -153,6 +152,16 @@ namespace EventStore.ClientAPI
     public ConnectionSettingsBuilder SetReconnectionDelayTo(TimeSpan reconnectionDelay)
     {
       _reconnectionDelay = reconnectionDelay;
+      return this;
+    }
+
+    /// <summary>Sets the maximum permitted time a request may be queued awaiting transmission;
+    /// if exceeded an <see cref="T:EventStore.ClientAPI.Exceptions.OperationExpiredException"/> is thrown.</summary>
+    /// <param name="queueTimeout"></param>
+    /// <returns></returns>
+    public ConnectionSettingsBuilder SetQueueTimeoutTo(TimeSpan queueTimeout)
+    {
+      _queueTimeout = queueTimeout;
       return this;
     }
 
@@ -272,7 +281,15 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
     public ConnectionSettingsBuilder PreferRandomNode()
     {
-      _preferRandomNode = true;
+      _nodePreference = NodePreference.Random;
+      return this;
+    }
+
+    /// <summary>Whether to prioritize choosing a slave node that's alive from the known nodes.</summary>
+    /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
+    public ConnectionSettingsBuilder PreferSlaveNode()
+    {
+      _nodePreference = NodePreference.Slave;
       return this;
     }
 
@@ -352,6 +369,7 @@ namespace EventStore.ClientAPI
                                     _maxReconnections,
                                     _requireMaster,
                                     _reconnectionDelay,
+                                    _queueTimeout,
                                     _operationTimeout,
                                     _operationTimeoutCheckPeriod,
                                     _defaultUserCredentials,
@@ -367,7 +385,7 @@ namespace EventStore.ClientAPI
                                     _maxDiscoverAttempts,
                                     _gossipExternalHttpPort,
                                     _gossipTimeout,
-                                    _preferRandomNode,
+                                    _nodePreference,
                                     _throwOnNoMatchingHandler);
     }
   }

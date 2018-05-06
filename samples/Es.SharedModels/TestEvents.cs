@@ -1,10 +1,10 @@
 ﻿using EventStore.ClientAPI;
-using EventStore.ClientAPI.Serialization;
+using CuteAnt.Extensions.Serialization;
 using MessagePack;
 
 namespace Es.SharedModels
 {
-  [EventSerializingToken(EventSerializingToken.Json)]
+  [SerializingToken(SerializingToken.Json)]
   [Stream("test-animal", "animal")]
   [Union(0, typeof(Cat))]
   [Union(1, typeof(Dog))]
@@ -15,7 +15,7 @@ namespace Es.SharedModels
     string Name { get; set; }
   }
 
-  [EventSerializingToken(EventSerializingToken.MessagePack)]
+  [SerializingToken(SerializingToken.MessagePack)]
   [MessagePackObject]
   [Stream("test-animal", "cat")]
   public class Cat : IAnimal
@@ -35,7 +35,7 @@ namespace Es.SharedModels
     public string Bark { get; set; }
   }
 
-  [EventSerializingToken(EventSerializingToken.Utf8Json)]
+  [SerializingToken(SerializingToken.Utf8Json)]
   [Stream("test-animal1", "animal1")]
   [MessagePackObject]
   [Union(0, typeof(Cat1))]
@@ -46,7 +46,7 @@ namespace Es.SharedModels
     public virtual string Name { get; set; }
   }
 
-  [EventSerializingToken(EventSerializingToken.External)]
+  [SerializingToken(SerializingToken.External)]
   [MessagePackObject]
   public class Cat1 : Animal
   {
@@ -61,7 +61,7 @@ namespace Es.SharedModels
     public string Bark { get; set; }
   }
 
-  [EventSerializingToken(EventSerializingToken.MessagePack)]
+  [SerializingToken(SerializingToken.MessagePack)]
   [Stream("test-message")]
   [MessagePackObject]
   public class StartMessage
@@ -71,7 +71,7 @@ namespace Es.SharedModels
   }
 
   [Stream("test-message")]
-  [EventSerializingToken(EventSerializingToken.Lz4MessagePack)]
+  [SerializingToken(SerializingToken.Lz4MessagePack)]
   [MessagePackObject]
   public class EndMessage
   {
@@ -79,7 +79,7 @@ namespace Es.SharedModels
     public string Text { get; set; }
   }
 
-  [EventSerializingToken(EventSerializingToken.Json)]
+  [SerializingToken(SerializingToken.Json)]
   [MessagePackObject]
   public class TestMessage
   {

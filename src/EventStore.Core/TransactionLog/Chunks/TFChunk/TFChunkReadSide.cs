@@ -6,6 +6,7 @@ using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog.LogRecords;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 {
@@ -128,6 +129,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         private class TFChunkReadSideScavenged : TFChunkReadSide, IChunkReadSide
         {
+            private static readonly ILogger s_logger = TraceLogger.GetLogger<TFChunkReadSideScavenged>();
             private Midpoint[] _midpoints;
             private bool _optimizeCache;
             private BloomFilter _logPositionsBloomFilter;
@@ -183,7 +185,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 }
 
                 if(bf == null){
-                    Log.Warn(String.Format("Could not create bloom filter for chunk: {0}, map count: {1}",Chunk.FileName, mapCount));
+                    s_logger.LogWarning("Could not create bloom filter for chunk: {0}, map count: {1}", Chunk.FileName, mapCount);
                     return null;
                 }
 

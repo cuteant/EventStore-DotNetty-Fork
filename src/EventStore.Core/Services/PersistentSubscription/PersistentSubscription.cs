@@ -450,6 +450,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             {
                 if ((_state & PersistentSubscriptionState.ReplayingParkedMessages) == 0) return;
 
+                var debugEnabled = Log.IsDebugLevelEnabled();
                 foreach (var ev in events)
                 {
                     if (ev.OriginalEventNumber == stopAt)

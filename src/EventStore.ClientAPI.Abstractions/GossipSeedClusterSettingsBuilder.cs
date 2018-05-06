@@ -11,7 +11,7 @@ namespace EventStore.ClientAPI
     private GossipSeed[] _gossipSeeds;
     private TimeSpan _gossipTimeout = TimeSpan.FromSeconds(1);
     private int _maxDiscoverAttempts = Consts.DefaultMaxClusterDiscoverAttempts;
-    private bool _preferRandomNode = false;
+    private NodePreference _nodePreference = NodePreference.Master;
 
     /// <summary>Sets gossip seed endpoints for the client.
     /// TODO: This was a note.
@@ -50,6 +50,14 @@ namespace EventStore.ClientAPI
       return this;
     }
 
+    /// <summary>Allows infinite nodes discovery attempts.</summary>
+    /// <returns></returns>
+    public GossipSeedClusterSettingsBuilder KeepDiscovering()
+    {
+      _maxDiscoverAttempts = Int32.MaxValue;
+      return this;
+    }
+
     /// <summary>Sets the maximum number of attempts for discovery.</summary>
     /// <param name="maxDiscoverAttempts">The maximum number of attempts for DNS discovery.</param>
     /// <returns>A <see cref="GossipSeedClusterSettingsBuilder"/> for further configuration.</returns>
@@ -77,22 +85,24 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="GossipSeedClusterSettingsBuilder"/> for further configuration.</returns>
     public GossipSeedClusterSettingsBuilder PreferRandomNode()
     {
-      _preferRandomNode = true;
+      _nodePreference = NodePreference.Random;
+      return this;
+    }
+
+    /// <summary>Whether to prioritize choosing a slave node that's alive from the known nodes.</summary>
+    /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
+    public GossipSeedClusterSettingsBuilder PreferSlaveNode()
+    {
+      _nodePreference = NodePreference.Slave;
       return this;
     }
 
     /// <summary>Builds a <see cref="ClusterSettings"/> object from a <see cref="GossipSeedClusterSettingsBuilder"/>.</summary>
     /// <param name="builder"><see cref="GossipSeedClusterSettingsBuilder"/> from which to build a <see cref="ClusterSettings"/></param>
     /// <returns></returns>
-    public static implicit operator ClusterSettings(GossipSeedClusterSettingsBuilder builder)
-    {
-      return builder.Build();
-    }
+    public static implicit operator ClusterSettings(GossipSeedClusterSettingsBuilder builder) => builder.Build();
 
     /// <summary>Builds a <see cref="ClusterSettings"/> object from a <see cref="GossipSeedClusterSettingsBuilder"/>.</summary>
-    public ClusterSettings Build()
-    {
-      return new ClusterSettings(_gossipSeeds, _maxDiscoverAttempts, _gossipTimeout, _preferRandomNode);
-    }
+    public ClusterSettings Build() => new ClusterSettings(_gossipSeeds, _maxDiscoverAttempts, _gossipTimeout, _nodePreference);
   }
 }

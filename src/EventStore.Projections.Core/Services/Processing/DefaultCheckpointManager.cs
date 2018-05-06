@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -10,6 +9,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Projections.Core.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
@@ -106,7 +106,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         m, requestedStateCheckpointTag, loadCompleted, partitionStreamName, stateEventType),
                 () =>
                 {
-                    _logger.Warn("Read backward for stream {0} timed out. Retrying", partitionStreamName);
+                    _logger.LogWarning("Read backward for stream {0} timed out. Retrying", partitionStreamName);
                     _loadStateRequests.Remove(requestId);
                     _readRequestsInProgress--;
                     ReadPartitionStream(partitionStreamName, eventNumber, requestedStateCheckpointTag, loadCompleted, stateEventType);

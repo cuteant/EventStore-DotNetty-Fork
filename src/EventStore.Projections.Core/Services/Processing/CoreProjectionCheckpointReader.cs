@@ -7,6 +7,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.UserManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
@@ -18,7 +19,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly IODispatcher _ioDispatcher;
         private readonly string _projectionCheckpointStreamId;
         private readonly bool _useCheckpoints;
-        private readonly ILogger _logger = LogManager.GetLoggerFor<CoreProjectionCheckpointReader>();
+        private readonly ILogger _logger = TraceLogger.GetLogger<CoreProjectionCheckpointReader>();
 
         private bool _stateRequested;
 
@@ -74,7 +75,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _projectionCheckpointStreamId, _nextStateIndexToRequest, recordsToRequest, false,
                 SystemAccount.Principal, OnLoadStateReadRequestCompleted, 
                 () => {
-                    _logger.Warn("Read forward of stream {0} timed out. Retrying.", _projectionCheckpointStreamId);
+                    _logger.LogWarning("Read forward of stream {0} timed out. Retrying.", _projectionCheckpointStreamId);
                     RequestLoadState();
                 }, _readRequestId);
         }

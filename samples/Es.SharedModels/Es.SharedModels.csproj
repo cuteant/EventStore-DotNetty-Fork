@@ -6,6 +6,7 @@
 
 
   <ItemGroup>
+    <PackageReference Include="CuteAnt.Extensions.Serialization.Abstractions" Version="$(CuteAntExtensionsSerializationAbstractionsPackageVersion)" />
     <PackageReference Include="MessagePack.Abstractions.Unofficial" Version="$(MessagePackAbstractionsUnofficialPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>

@@ -5,6 +5,8 @@
     <RootNamespace>EventStore.Core.Tests</RootNamespace>
     <AssemblyName>EventStore.Core.Tests</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup>

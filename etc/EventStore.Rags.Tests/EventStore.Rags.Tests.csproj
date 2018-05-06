@@ -6,6 +6,8 @@
     <RootNamespace>EventStore.Rags.Tests</RootNamespace>
     <AssemblyName>EventStore.Rags.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">

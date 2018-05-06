@@ -702,8 +702,8 @@ namespace EventStore.ClientAPI
 
       if (!done && slice.IsEndOfStream)
       {
-        // we are waiting for server to flush its data
-        //Thread.Sleep(1); 
+        // we are awaiting the server to flush its data
+        //await Task.Delay(1).ConfigureAwait(false); 
         var spinner = new SpinWait();
         spinner.SpinOnce();
       }
@@ -881,8 +881,8 @@ namespace EventStore.ClientAPI
 
       if (!done && slice.IsEndOfStream)
       {
-        // we are waiting for server to flush its data
-        //Thread.Sleep(1); 
+        // we are awaiting the server to flush its data
+        //await Task.Delay(1).ConfigureAwait(false); 
         var spinner = new SpinWait();
         spinner.SpinOnce();
       }
