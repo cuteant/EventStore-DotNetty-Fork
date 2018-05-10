@@ -6,14 +6,11 @@ using System.Linq;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Exceptions;
-using EventStore.Core.Helpers;
 using EventStore.Core.Index;
 using EventStore.Core.Services;
 using EventStore.Core.Services.Storage.ReaderIndex;
-using EventStore.Core.Services.UserManagement;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 using EventStore.Core.TransactionLog.LogRecords;
-using EventStore.Core.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
@@ -23,29 +20,23 @@ namespace EventStore.Core.TransactionLog.Chunks
         private static readonly ILogger Log = TraceLogger.GetLogger<TFChunkScavenger>();
 
         private readonly TFChunkDb _db;
-        private readonly IODispatcher _ioDispatcher;
+        private readonly ITFChunkScavengerLog _scavengerLog;
         private readonly ITableIndex _tableIndex;
-        private readonly Guid _scavengeId;
-        private readonly string _nodeEndpoint;
         private readonly IReadIndex _readIndex;
         private readonly long _maxChunkDataSize;
         private readonly bool _unsafeIgnoreHardDeletes;
         private const int MaxRetryCount = 5;
 
-        public TFChunkScavenger(TFChunkDb db, IODispatcher ioDispatcher, ITableIndex tableIndex, IReadIndex readIndex,
-                                  Guid scavengeId, string nodeEndpoint, long? maxChunkDataSize = null, bool unsafeIgnoreHardDeletes = false)
+        public TFChunkScavenger(TFChunkDb db, ITFChunkScavengerLog scavengerLog, ITableIndex tableIndex, IReadIndex readIndex, long? maxChunkDataSize = null, bool unsafeIgnoreHardDeletes=false)
         {
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(ioDispatcher, nameof(ioDispatcher));
-            Ensure.NotNull(tableIndex, nameof(tableIndex));
-            Ensure.NotNull(nodeEndpoint, nameof(nodeEndpoint));
-            Ensure.NotNull(readIndex, nameof(readIndex));
+            Ensure.NotNull(db, "db");
+            Ensure.NotNull(scavengerLog, "scavengerLog");
+            Ensure.NotNull(tableIndex, "tableIndex");
+            Ensure.NotNull(readIndex, "readIndex");
 
             _db = db;
-            _ioDispatcher = ioDispatcher;
+            _scavengerLog = scavengerLog;
             _tableIndex = tableIndex;
-            _scavengeId = scavengeId;
-            _nodeEndpoint = nodeEndpoint;
             _readIndex = readIndex;
             _maxChunkDataSize = maxChunkDataSize ?? db.Config.ChunkSize;
             _unsafeIgnoreHardDeletes = unsafeIgnoreHardDeletes;
@@ -244,7 +235,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                     }
 
                     newChunk.MarkForDeletion();
-                    PublishChunksCompletedEvent(chunkStartNumber, chunkEndNumber, sw.Elapsed, false, spaceSaved);
+                    _scavengerLog.ChunksNotScavenged(chunkStartNumber, chunkEndNumber, sw.Elapsed, spaceSaved, "Decided to keep old chunk.");
+
                     return false;
                 }
 
@@ -290,7 +282,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                         Log.LogTrace("Old chunks total size: {0}, scavenged chunk size: {1}.", oldSize, newSize);
                     }
                     spaceSaved = oldSize - newSize;
-                    PublishChunksCompletedEvent(chunkStartNumber, chunkEndNumber, sw.Elapsed, true, spaceSaved);
+                    _scavengerLog.ChunksScavenged(chunkStartNumber, chunkEndNumber, sw.Elapsed, spaceSaved);
+
                     return true;
                 }
                 else
@@ -303,7 +296,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                         Log.LogTrace("But switching was prevented for new chunk: #{0}-{1} ({2}).", chunkStartNumber, chunkEndNumber, Path.GetFileName(tmpChunkPath));
                         Log.LogTrace("Old chunks total size: {0}, scavenged chunk size: {1}.", oldSize, newSize);
                     }
-                    PublishChunksCompletedEvent(chunkStartNumber, chunkEndNumber, sw.Elapsed, false, spaceSaved);
+                    _scavengerLog.ChunksNotScavenged(chunkStartNumber, chunkEndNumber, sw.Elapsed, spaceSaved, "Chunk switch prevented.");
+
                     return false;
                 }
             }
@@ -318,7 +312,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                     Log.LogInformation("Exception message: {0}.", exc.Message);
                 }
                 DeleteTempChunk(tmpChunkPath, MaxRetryCount);
-                PublishChunksCompletedEvent(chunkStartNumber, chunkEndNumber, sw.Elapsed, false, spaceSaved, exc.Message);
+                _scavengerLog.ChunksNotScavenged(chunkStartNumber, chunkEndNumber, sw.Elapsed, spaceSaved, exc.Message);
+
                 return false;
             }
             catch (Exception ex)
@@ -329,7 +324,8 @@ namespace EventStore.Core.TransactionLog.Chunks
                              + "Exception: {2}.", chunkStartNumber, chunkEndNumber, ex.ToString());
                 }
                 DeleteTempChunk(tmpChunkPath, MaxRetryCount);
-                PublishChunksCompletedEvent(chunkStartNumber, chunkEndNumber, sw.Elapsed, false, 0, ex.Message);
+                _scavengerLog.ChunksNotScavenged(chunkStartNumber, chunkEndNumber, sw.Elapsed, spaceSaved, ex.Message);
+
                 return false;
             }
         }
@@ -353,45 +349,6 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     Log.LogError(ex, "Failed to delete the temp chunk. Retry limit of {0} reached. Reason: ", MaxRetryCount);
                     throw;
-                }
-            }
-        }
-
-        private void PublishChunksCompletedEvent(int chunkStartNumber, int chunkEndNumber,
-                                                     TimeSpan elapsed, bool wasScavenged, long spaceSaved, string errorMessage = "")
-        {
-            var evnt = new Event(Guid.NewGuid(), SystemEventTypes.ScavengeChunksCompleted, true, new Dictionary<string, object>
-      {
-        {"scavengeId", _scavengeId},
-        {"chunkStartNumber", chunkStartNumber},
-        {"chunkEndNumber", chunkEndNumber},
-        {"timeTaken", elapsed},
-        {"wasScavenged", wasScavenged},
-        {"spaceSaved", spaceSaved},
-        {"nodeEndpoint", _nodeEndpoint},
-        {"errorMessage", errorMessage}
-      }.ToJsonBytes(), null);
-
-            var streamName = $"{SystemStreams.ScavengesStream}-{_scavengeId}";
-            WriteScavengeChunkCompletedEvent(streamName, evnt, MaxRetryCount);
-        }
-
-        private void WriteScavengeChunkCompletedEvent(string streamId, Event eventToWrite, int retryCount)
-        {
-            _ioDispatcher.WriteEvent(streamId, ExpectedVersion.Any, eventToWrite, SystemAccount.Principal, m => WriteScavengeChunkCompletedEventCompleted(m, streamId, eventToWrite, retryCount));
-        }
-
-        private void WriteScavengeChunkCompletedEventCompleted(ClientMessage.WriteEventsCompleted msg, string streamId, Event eventToWrite, int retryCount)
-        {
-            if (msg.Result != OperationResult.Success)
-            {
-                if (retryCount > 0)
-                {
-                    WriteScavengeChunkCompletedEvent(streamId, eventToWrite, --retryCount);
-                }
-                else
-                {
-                    Log.LogError("Failed to write an event to the {0} stream. Retry limit of {1} reached. Reason: {2}", streamId, MaxRetryCount, msg.Result);
                 }
             }
         }
