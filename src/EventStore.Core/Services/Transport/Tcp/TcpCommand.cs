@@ -68,7 +68,7 @@
         UpdatePersistentSubscriptionCompleted = 0xCF,
 
         ScavengeDatabase = 0xD0,
-        ScavengeDatabaseCompleted = 0xD1,
+        ScavengeDatabaseResponse = 0xD1,
 
         BadRequest = 0xF0,
         NotHandled = 0xF1,
