@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -236,67 +237,75 @@ namespace EventStore.Core.Index
 
                     Interlocked.Exchange(ref _awaitingMemTables, newTables);
                     if (_inMem) { return; }
-                    if (!_backgroundRunning)
-                    {
-                        _backgroundRunningEvent.Reset();
-                        _backgroundRunning = true;
-                        ThreadPoolScheduler.Schedule(ReadOffQueue, (object)null);
-                    }
+                    TryProcessAwaitingTables();
 
                     if (_additionalReclaim)
-                    {
-                        ThreadPoolScheduler.Schedule(ReclaimMemoryIfNeeded, _awaitingMemTables);
-                    }
+                        ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
                 }
             }
         }
 
-        private void ReadOffQueue(object state)
+        private void TryProcessAwaitingTables()
+        {
+            lock(_awaitingTablesLock)
+            {
+                if (!_backgroundRunning)
+                {
+                    _backgroundRunningEvent.Reset();
+                    _backgroundRunning = true;
+                    ThreadPool.QueueUserWorkItem(x => ReadOffQueue());
+                }
+            }
+        }
+
+        private void ReadOffQueue()
         {
             try
             {
-                var traceEnabled = Log.IsTraceLevelEnabled();
                 while (true)
                 {
                     TableItem tableItem;
                     //ISearchTable table;
-                    using (var lockToken = _awaitingTablesLock.CreateToken(true))
+                    lock (_awaitingTablesLock)
                     {
-                        if (traceEnabled) Log.LogTrace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
+                        Log.Trace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
                         if (_awaitingMemTables.Count == 1)
                         {
-                            _backgroundRunning = false;
-                            _backgroundRunningEvent.Set();
+
                             return;
                         }
+
                         tableItem = _awaitingMemTables[_awaitingMemTables.Count - 1];
                     }
 
                     PTable ptable;
-                    if (tableItem.Table is IMemTable memtable)
+                    var memtable = tableItem.Table as IMemTable;
+                    if (memtable != null)
                     {
                         memtable.MarkForConversion();
-                        ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
+                        ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(),
+                            _indexCacheDepth, _skipIndexVerify);
                     }
                     else
-                    {
-                        ptable = (PTable)tableItem.Table;
-                    }
+                        ptable = (PTable) tableItem.Table;
 
                     var indexmapFile = Path.Combine(_directory, IndexMapFilename);
 
                     MergeResult mergeResult;
                     using (var reader = _tfReaderFactory())
                     {
-                        mergeResult = _indexMap.AddPTable(ptable, tableItem.PrepareCheckpoint, tableItem.CommitCheckpoint,
-                                                          (streamId, currentHash) => UpgradeHash(streamId, currentHash),
-                                                          entry => reader.ExistsAt(entry.Position),
-                                                          entry => ReadEntry(reader, entry.Position), _fileNameProvider, _ptableVersion, _indexCacheDepth, _skipIndexVerify);
+                        mergeResult = _indexMap.AddPTable(ptable, tableItem.PrepareCheckpoint,
+                            tableItem.CommitCheckpoint,
+                            (streamId, currentHash) => UpgradeHash(streamId, currentHash),
+                            entry => reader.ExistsAt(entry.Position),
+                            entry => ReadEntry(reader, entry.Position), _fileNameProvider, _ptableVersion,
+                            _indexCacheDepth, _skipIndexVerify);
                     }
+
                     _indexMap = mergeResult.MergedMap;
                     _indexMap.SaveToFile(indexmapFile);
 
-                    using (var lockToken = _awaitingTablesLock.CreateToken(false))
+                    lock (_awaitingTablesLock)
                     {
                         var memTables = _awaitingMemTables.ToList();
 
@@ -306,25 +315,135 @@ namespace EventStore.Core.Index
                         // parallel thread could already switch table,
                         // so if we have another PTable instance with same ID,
                         // we need to kill that instance as we added ours already
-                        if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable ctt)
-                        {
-                            ctt.MarkForDestruction();
-                        }
+                        if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable)
+                            ((PTable) corrTable.Table).MarkForDestruction();
 
-                        if (traceEnabled) Log.LogTrace("There are now {0} awaiting tables.", memTables.Count);
-                        Interlocked.Exchange(ref _awaitingMemTables, memTables);
+                        Log.Trace("There are now {0} awaiting tables.", memTables.Count);
+                        _awaitingMemTables = memTables;
                     }
+
                     mergeResult.ToDelete.ForEach(x => x.MarkForDestruction());
                 }
             }
             catch (FileBeingDeletedException exc)
             {
-                Log.LogError(exc, "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
+                Log.ErrorException(exc,
+                    "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error in TableIndex.ReadOffQueue");
+                Log.ErrorException(exc, "Error in TableIndex.ReadOffQueue");
                 throw;
+            }
+            finally
+            {
+                lock (_awaitingTablesLock)
+                {
+                    _backgroundRunning = false;
+                    _backgroundRunningEvent.Set();
+                }
+            }
+        }
+
+        internal void WaitForBackgroundTasks()
+        {
+            if (!_backgroundRunningEvent.Wait(7000))
+            {
+                throw new TimeoutException("Waiting for background tasks took too long.");
+            }
+        }
+
+        public void Scavenge(IIndexScavengerLog log, CancellationToken ct)
+        {
+            GetExclusiveBackgroundTask(ct);
+            var sw = Stopwatch.StartNew();
+
+            try
+            {
+                Log.Info("Starting scavenge of TableIndex.");
+                ScavengeInternal(log, ct);
+            }
+            finally
+            {
+                lock (_awaitingTablesLock)
+                {
+                    _backgroundRunning = false;
+                    _backgroundRunningEvent.Set();
+
+                    TryProcessAwaitingTables();
+                }
+
+                Log.Info("Completed scavenge of TableIndex.  Elapsed: {0}", sw.Elapsed);
+            }
+        }
+
+        private void ScavengeInternal(IIndexScavengerLog log, CancellationToken ct)
+        {
+            var toScavenge = _indexMap.InOrder().ToList();
+
+            foreach (var pTable in toScavenge)
+            {
+                var startNew = Stopwatch.StartNew();
+
+                try
+                {
+                    ct.ThrowIfCancellationRequested();
+
+                    using (var reader = _tfReaderFactory())
+                    {
+                        var indexmapFile = Path.Combine(_directory, IndexMapFilename);
+
+                        var scavengeResult = _indexMap.Scavenge(pTable.Id, ct,
+                            (streamId, currentHash) => UpgradeHash(streamId, currentHash),
+                            entry => reader.ExistsAt(entry.Position),
+                            entry => ReadEntry(reader, entry.Position), _fileNameProvider, _ptableVersion,
+                            _indexCacheDepth, _skipIndexVerify);
+
+                        if (scavengeResult.IsSuccess)
+                        {
+                            _indexMap = scavengeResult.ScavengedMap;
+                            _indexMap.SaveToFile(indexmapFile);
+
+                            scavengeResult.OldTable.MarkForDestruction();
+
+                            var entriesDeleted = scavengeResult.OldTable.Count - scavengeResult.NewTable.Count;
+                            log.IndexTableScavenged(scavengeResult.Level, scavengeResult.Index, startNew.Elapsed, entriesDeleted, scavengeResult.NewTable.Count, scavengeResult.SpaceSaved);
+                        }
+                        else
+                        {
+                            log.IndexTableNotScavenged(scavengeResult.Level, scavengeResult.Index, startNew.Elapsed, pTable.Count, "");
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    log.IndexTableNotScavenged(-1, -1, startNew.Elapsed, pTable.Count, "Scavenge cancelled");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    log.IndexTableNotScavenged(-1, -1, startNew.Elapsed, pTable.Count, ex.Message);
+                    throw;
+                }
+            }
+        }
+
+        private void GetExclusiveBackgroundTask(CancellationToken ct)
+        {
+            while (true)
+            {
+                lock (_awaitingTablesLock)
+                {
+                    if (!_backgroundRunning)
+                    {
+                        _backgroundRunningEvent.Reset();
+                        _backgroundRunning = true;
+                        return;
+                    }
+                }
+
+                Log.Info("Waiting for TableIndex background task to complete before starting scavenge.");
+                _backgroundRunningEvent.Wait(ct);
             }
         }
 

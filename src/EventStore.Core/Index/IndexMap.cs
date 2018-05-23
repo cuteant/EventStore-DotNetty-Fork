@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Exceptions;
-using EventStore.Core.Messages;
 using EventStore.Core.Util;
 using Microsoft.Extensions.Logging;
 
@@ -444,6 +444,46 @@ namespace EventStore.Core.Index
 
             var indexMap = new IndexMap(Version, tables, prepareCheckpoint, commitCheckpoint, _maxTablesPerLevel);
             return new MergeResult(indexMap, toDelete);
+        }
+
+        public ScavengeResult Scavenge(Guid toScavenge, CancellationToken ct,
+            Func<string, ulong, ulong> upgradeHash,
+            Func<IndexEntry, bool> existsAt,
+            Func<IndexEntry, Tuple<string, bool>> recordExistsAt,
+            IIndexFilenameProvider filenameProvider,
+            byte version,
+            int indexCacheDepth = 16,
+            bool skipIndexVerify = false)
+        {
+
+            var scavengedMap = CopyFrom(_map);
+            for (int level = 0; level < scavengedMap.Count; level++)
+            {
+                for (int i = 0; i < scavengedMap[level].Count; i++)
+                {
+                    if (scavengedMap[level][i].Id == toScavenge)
+                    {
+                        long spaceSaved;
+                        var filename = filenameProvider.GetFilenameNewTable();
+                        var oldTable = scavengedMap[level][i];
+
+                        PTable scavenged = PTable.Scavenged(oldTable, filename, upgradeHash, existsAt, recordExistsAt, version, out spaceSaved, indexCacheDepth, skipIndexVerify, ct);
+
+                        if (scavenged == null)
+                        {
+                            return ScavengeResult.Failed(oldTable, level, i);
+                        }
+
+                        scavengedMap[level][i] = scavenged;
+
+                        var indexMap = new IndexMap(Version, scavengedMap, PrepareCheckpoint, CommitCheckpoint, _maxTablesPerLevel);
+                        
+                        return ScavengeResult.Success(indexMap, oldTable, scavenged, spaceSaved, level, i);
+                    }
+                }
+            }
+
+            throw new ArgumentException("Unable to find table in map.", nameof(toScavenge));
         }
 
         public void Dispose(TimeSpan timeout)
