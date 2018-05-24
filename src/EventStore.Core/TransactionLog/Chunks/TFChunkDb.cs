@@ -56,18 +56,18 @@ namespace EventStore.Core.TransactionLog.Chunks
                     var footer = ReadChunkFooter(versions[0]);
                     if (footer.IsCompleted)
                     {
-                        chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
+                        chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache, reduceFileCachePressure: Config.ReduceFileCachePressure);
                     }
                     else
                     {
-                        chunk = TFChunk.TFChunk.FromOngoingFile(versions[0], Config.ChunkSize, checkSize: false, unbuffered:Config.Unbuffered, writethrough:Config.WriteThrough, initialReaderCount:Config.InitialReaderCount);
+                        chunk = TFChunk.TFChunk.FromOngoingFile(versions[0], Config.ChunkSize, checkSize: false, unbuffered:Config.Unbuffered, writethrough:Config.WriteThrough, initialReaderCount:Config.InitialReaderCount, reduceFileCachePressure: Config.ReduceFileCachePressure);
                         // chunk is full with data, we should complete it right here
                         if (!readOnly) { chunk.Complete(); }
                     }
                 }
                 else
                 {
-                    chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
+                    chunk = TFChunk.TFChunk.FromCompletedFile(versions[0], verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache, reduceFileCachePressure: Config.ReduceFileCachePressure);
                 }
                 Manager.AddChunk(chunk);
                 chunkNum = chunk.ChunkHeader.ChunkEndNumber + 1;
@@ -93,7 +93,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 var chunkLocalPos = chunkHeader.GetLocalLogPosition(checkpoint);
                 if (chunkHeader.IsScavenged)
                 {
-                    var lastChunk = TFChunk.TFChunk.FromCompletedFile(chunkFileName, verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache);
+                    var lastChunk = TFChunk.TFChunk.FromCompletedFile(chunkFileName, verifyHash: false, unbufferedRead:Config.Unbuffered, initialReaderCount:Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache, reduceFileCachePressure:Config.ReduceFileCachePressure);
                     if (lastChunk.ChunkFooter.LogicalDataSize != chunkLocalPos)
                     {
                         lastChunk.Dispose();
@@ -118,7 +118,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 else
                 {
-                    var lastChunk = TFChunk.TFChunk.FromOngoingFile(chunkFileName, (int)chunkLocalPos, checkSize: false, unbuffered:Config.Unbuffered, writethrough:Config.WriteThrough, initialReaderCount:Config.InitialReaderCount);
+                    var lastChunk = TFChunk.TFChunk.FromOngoingFile(chunkFileName, (int)chunkLocalPos, checkSize: false, unbuffered:Config.Unbuffered, writethrough:Config.WriteThrough, initialReaderCount:Config.InitialReaderCount, reduceFileCachePressure:Config.ReduceFileCachePressure);
                     Manager.AddChunk(lastChunk);
                 }
             }
