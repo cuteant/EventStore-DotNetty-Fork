@@ -73,7 +73,11 @@ namespace EventStore.Core.Services.VNode
             _subSystems = subSystems;
             if (vnodeSettings.ClusterNodeCount == 1)
             {
-                _serviceShutdownsToExpect = 4;
+                _serviceShutdownsToExpect =   1 /* StorageChaser */
+                                            + 1 /* StorageReader */
+                                            + 1 /* StorageWriter */
+                                            + 1 /* IndexCommitterService */
+                                            + 1 /* HttpService External*/;
             }
 
             _subSystemInitsToExpect = _subSystems != null ? subSystems.Length : 0;
@@ -855,7 +859,6 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.ServiceShutdown message)
         {
             if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] Service '{1}' has shut down.", _nodeInfo.InternalHttp, message.ServiceName);
-
             _serviceShutdownsToExpect -= 1;
             if (_serviceShutdownsToExpect == 0)
             {
