@@ -87,14 +87,14 @@ namespace EventStore.Core.Services.PersistentSubscription
             _state = message.State;
 
             if (message.State == VNodeState.Master) return;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Subscriptions received state change to {_state} stopping listening.");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Persistent subscriptions received state change to {_state}. Stopping listening.");
             ShutdownSubscriptions();
             Stop();
         }
 
         public void Handle(SystemMessage.BecomeMaster message)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Subscriptions Became Master so now handling subscriptions");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Persistent subscriptions Became Master so now handling subscriptions");
             InitToEmpty();
             _handleTick = true;
             _bus.Publish(_tickRequestMessage);
@@ -138,7 +138,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"create subscription {key}");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Creating persistent subscription {key}");
             //TODO revisit for permissions. maybe make admin only?
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
@@ -188,7 +188,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                                     message.NamedConsumerStrategy,
                                     ToTimeout(message.MessageTimeoutMilliseconds)
                                     );
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New persistent subscription {0}.", message.GroupName);
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New persistent subscription {0}.", key);
             _config.Updated = DateTime.Now;
             _config.UpdatedBy = message.User.Identity.Name;
             _config.Entries.Add(new PersistentSubscriptionEntry
@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"update subscription {key}");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Updating persistent subscription {key}");
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -338,7 +338,8 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(ClientMessage.DeletePersistentSubscription message)
         {
             if (!_started) { return; }
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"delete subscription {message.GroupName}");
+            var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Deleting persistent subscription {key}");
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -348,7 +349,6 @@ namespace EventStore.Core.Services.PersistentSubscription
                                     "You do not have permissions to create streams"));
                 return;
             }
-            var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             if (!_subscriptionsById.TryGetValue(key, out PersistentSubscription subscription))
             {
                 message.Envelope.ReplyWith(new ClientMessage.DeletePersistentSubscriptionCompleted(message.CorrelationId,
@@ -409,7 +409,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(TcpMessage.ConnectionClosed message)
         {
             //TODO CC make a map for this
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Lost connection from {message.Connection.RemoteEndPoint}");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Persistent subscription lost connection from {message.Connection.RemoteEndPoint}");
             if (_subscriptionsById == null) return; //havn't built yet.
             foreach (var subscription in _subscriptionsById.Values)
             {
@@ -444,7 +444,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 message.Envelope.ReplyWith(new ClientMessage.SubscriptionDropped(message.CorrelationId, SubscriptionDropReason.SubscriberMaxCountReached));
                 return;
             }
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New connection to persistent subscription {0}.", message.SubscriptionId);
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New connection to persistent subscription {0} by {1}", key, message.ConnectionId);
             var lastEventNumber = _readIndex.GetStreamLastEventNumber(message.EventStreamId);
             var lastCommitPos = _readIndex.LastCommitPosition;
             var subscribedMessage = new ClientMessage.PersistentSubscriptionConfirmation(key, message.CorrelationId, lastCommitPos, lastEventNumber);
@@ -571,8 +571,8 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public void Handle(ClientMessage.ReplayAllParkedMessages message)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Replaying parked messages.");
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Replaying parked messages for persistent subscription {0}", key);
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -680,7 +680,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void SaveConfiguration(Action continueWith)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Saving Configuration.");
+            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Saving persistent subscription configuration");
             var data = _config.GetSerializedForm();
             var ev = new Event(Guid.NewGuid(), "PersistentConfig1", true, data, new byte[0]);
             _ioDispatcher.WriteEvent(SystemStreams.PersistentSubscriptionConfig, ExpectedVersion.Any, ev, SystemAccount.Principal, x => HandleSaveConfigurationCompleted(continueWith, x));
@@ -695,11 +695,11 @@ namespace EventStore.Core.Services.PersistentSubscription
                     break;
                 case OperationResult.CommitTimeout:
                 case OperationResult.PrepareTimeout:
-                    if (Log.IsInformationLevelEnabled()) Log.LogInformation("Timeout while trying to save subscription configuration.");
+                    if (Log.IsInformationLevelEnabled()) Log.LogInformation("Timeout while trying to save persistent subscription configuration. Retrying");
                     SaveConfiguration(continueWith);
                     break;
                 default:
-                    throw new Exception(obj.Result + " is an unexpected result writing subscription configuration.");
+                    throw new Exception(obj.Result + " is an unexpected result writing persistent subscription configuration.");
             }
         }
 

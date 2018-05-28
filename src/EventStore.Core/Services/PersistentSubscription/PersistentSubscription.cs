@@ -87,7 +87,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 var debugEnabled = Log.IsDebugLevelEnabled();
                 if (!checkpoint.HasValue)
                 {
-                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: read no checksum.");
+                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: no checkpoint found.");
 
                     if (debugEnabled) Log.LogDebug($"strtfrom = {_settings.StartFrom}");
                     _nextEventToPullFrom = _settings.StartFrom >= 0 ? _settings.StartFrom : 0;
@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 else
                 {
                     _nextEventToPullFrom = checkpoint.Value + 1;
-                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: read checksum {checkpoint.Value}");
+                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: read checkpoint {checkpoint.Value}");
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, true);
                     TryReadingNewBatch();
                 }
@@ -392,13 +392,13 @@ namespace EventStore.Core.Services.PersistentSubscription
                     {
                         if (Log.IsInformationLevelEnabled())
                         {
-                            Log.LogInformation("Unable to park message {0}/{1} operation failed {2} retrying.",
+                            Log.LogInformation("Unable to park message {0}/{1} operation failed {2} retrying",
                                         e.OriginalStreamId, e.OriginalEventNumber, result);
                         }
                         ParkMessage(e, reason, count + 1);
                         return;
                     }
-                    Log.LogError("Unable to park message {0}/{1} operation failed {2} after retries. Possible message loss.", e.OriginalStreamId,
+                    Log.LogError("Unable to park message {0}/{1} operation failed {2} after retries. Possible message loss", e.OriginalStreamId,
                           e.OriginalEventNumber, result);
                 }
                 lock (_lock)
@@ -458,7 +458,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                         break;
                     }
 
-                    if (debugEnabled) Log.LogDebug("Retrying event {0} on subscription {1}", ev.OriginalEvent.EventId, _settings.SubscriptionId);
+                    if (debugEnabled) Log.LogDebug("Retrying event {0} {1}/{2} on subscription {3}", ev.OriginalEvent.EventId, ev.OriginalStreamId, ev.OriginalEventNumber, _settings.SubscriptionId);
                     _streamBuffer.AddRetry(new OutstandingMessage(ev.OriginalEvent.EventId, null, ev, 0));
                 }
 
@@ -543,7 +543,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (Log.IsDebugLevelEnabled())
             {
-                Log.LogDebug("Retrying message {0} {1}/{2}", SubscriptionId, @event.OriginalStreamId, @event.OriginalPosition);
+                Log.LogDebug("Retrying message {0} {1}/{2}", SubscriptionId, @event.OriginalStreamId, @event.OriginalEventNumber);
             }
             _outstandingMessages.Remove(@event.OriginalEvent.EventId);
             _pushClients.RemoveProcessingMessage(@event.OriginalEvent.EventId);
