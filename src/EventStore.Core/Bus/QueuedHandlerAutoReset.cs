@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Concurrent;
+using System;
 using System.Threading;
+using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
-using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace EventStore.Core.Bus
 {
-    /// <summary>Lightweight in-memory queue with a separate thread in which it passes messages
+    /// <summary>
+    /// Lightweight in-memory queue with a separate thread in which it passes messages
     /// to the consumer. It also tracks statistics about the message processing to help
-    /// in identifying bottlenecks</summary>
+    /// in identifying bottlenecks
+    /// </summary>
     public class QueuedHandlerAutoReset : IQueuedHandler, IHandle<Message>, IPublisher, IMonitoredQueue, IThreadSafePublisher
     {
-        private static readonly ILogger Log = TraceLogger.GetLogger<QueuedHandlerAutoReset>();
+        private static readonly ILogger Log = LogManager.GetLoggerFor<QueuedHandlerAutoReset>();
 
         public int MessageCount { get { return _queue.Count; } }
         public string Name { get { return _queueStats.Name; } }
@@ -46,8 +48,8 @@ namespace EventStore.Core.Bus
                                       TimeSpan? threadStopWaitTimeout = null,
                                       string groupName = null)
         {
-            Ensure.NotNull(consumer, nameof(consumer));
-            Ensure.NotNull(name, nameof(name));
+            Ensure.NotNull(consumer, "consumer");
+            Ensure.NotNull(name, "name");
 
             _consumer = consumer;
 
@@ -62,15 +64,13 @@ namespace EventStore.Core.Bus
         public Task Start()
         {
             if (_thread != null)
-            {
                 throw new InvalidOperationException("Already a thread running.");
-            }
 
             _queueMonitor.Register(this);
 
             _stopped.Reset();
 
-            _thread = new Thread(ReadFromQueue) { IsBackground = true, Name = Name };
+            _thread = new Thread(ReadFromQueue) {IsBackground = true, Name = Name};
             _thread.Start();
             return _tcs.Task;
         }
@@ -79,9 +79,7 @@ namespace EventStore.Core.Bus
         {
             _stop = true;
             if (!_stopped.Wait(_threadStopWaitTimeout))
-            {
-                throw new TimeoutException($"Unable to stop thread '{Name}'.");
-            }
+                throw new TimeoutException(string.Format("Unable to stop thread '{0}'.", Name));
         }
 
         public void RequestStop()
@@ -95,7 +93,6 @@ namespace EventStore.Core.Bus
             _queueStats.Start();
             Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
 
-            var traceEnabled = Log.IsTraceLevelEnabled();
             while (!_stop)
             {
                 Message msg = null;
@@ -128,16 +125,11 @@ namespace EventStore.Core.Bus
                             var elapsed = DateTime.UtcNow - start;
                             if (elapsed > _slowMsgThreshold)
                             {
-                                if (traceEnabled)
-                                {
-                                    Log.LogTrace("SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                              Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                                }
+                                Log.Trace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
+                                          Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
                                 if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                {
-                                    Log.LogError("---!!! VERY SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
+                                    Log.Error("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
                                               Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                                }
                             }
                         }
                         else
@@ -150,7 +142,7 @@ namespace EventStore.Core.Bus
                 }
                 catch (Exception ex)
                 {
-                    Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, Name);
+                    Log.ErrorException(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
 #if DEBUG
                     throw;
 #endif
@@ -178,7 +170,8 @@ namespace EventStore.Core.Bus
             _queueStats.Enqueued();
 #endif
             _queue.Enqueue(message);
-            if (_starving) { _msgAddEvent.Set(); }
+            if (_starving)
+                _msgAddEvent.Set();
         }
 
         public void Handle(Message message)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -7,7 +7,6 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Transport.Http.Codecs;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -58,7 +57,7 @@ namespace EventStore.TestClient.Commands
                 context,
                 connectionEstablished: conn =>
                 {
-                    context.Log.LogInformation("[{0}, L{1}]: Writing...", conn.RemoteEndPoint, conn.LocalEndPoint);
+                    context.Log.Info("[{remoteEndPoint}, L{localEndPoint}]: Writing...", conn.RemoteEndPoint, conn.LocalEndPoint);
                     sw.Start();
                     conn.EnqueueSend(package.AsByteArray());
                 },
@@ -76,15 +75,15 @@ namespace EventStore.TestClient.Commands
                     var dto = pkg.Data.Deserialize<TcpClientMessageDto.WriteEventsCompleted>();
                     if (dto.Result == TcpClientMessageDto.OperationResult.Success)
                     {
-                        context.Log.LogInformation("Successfully written. EventId: {0}.", package.CorrelationId);
+                        context.Log.Info("Successfully written. EventId: {correlationId}.", package.CorrelationId);
                         PerfUtils.LogTeamCityGraphData(string.Format("{0}-latency-ms", Keyword), (int)Math.Round(sw.Elapsed.TotalMilliseconds));
                     }
                     else
                     {
-                        context.Log.LogInformation("Error while writing: {0} ({1}).", dto.Message, dto.Result);
+                        context.Log.Info("Error while writing: {message} ({e}).", dto.Message, dto.Result);
                     }
 
-                    context.Log.LogInformation("Write request took: {0}.", sw.Elapsed);
+                    context.Log.Info("Write request took: {elapsed}.", sw.Elapsed);
                     conn.Close();
                     context.Success();
                 },

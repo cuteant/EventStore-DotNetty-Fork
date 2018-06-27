@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Transport.Tcp;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -41,7 +40,7 @@ namespace EventStore.TestClient.Commands
                     context,
                     connectionEstablished: conn =>
                     {
-                        context.Log.LogInformation("[{0}, L{1}]: Starting transaction...", conn.RemoteEndPoint, conn.LocalEndPoint);
+                        context.Log.Info("[{remoteEndPoint}, L{localEndPoint}]: Starting transaction...", conn.RemoteEndPoint, conn.LocalEndPoint);
                         sw.Start();
                         
                         var tranStart = new TcpClientMessageDto.TransactionStart(eventStreamId, expectedVersion, false);
@@ -64,13 +63,13 @@ namespace EventStore.TestClient.Commands
                                 if (dto.Result != TcpClientMessageDto.OperationResult.Success)
                                 {
                                     var msg = string.Format("Error while starting transaction: {0} ({1}).", dto.Message, dto.Result);
-                                    context.Log.LogInformation(msg);
+                                    context.Log.Info("Error while starting transaction: {message} ({e}).", dto.Message, dto.Result);
                                     context.Fail(reason: msg);
                                 }
                                 else
                                 {
-                                    context.Log.LogInformation("Successfully started transaction. TransactionId: {0}.", dto.TransactionId);
-                                    context.Log.LogInformation("Now sending transactional events...", dto.TransactionId);
+                                    context.Log.Info("Successfully started transaction. TransactionId: {transactionId}.", dto.TransactionId);
+                                    context.Log.Info("Now sending transactional events. TransactionId: {transactionId}", dto.TransactionId);
 
                                     transactionId = dto.TransactionId;
                                     stage = Stage.Writing;
@@ -105,8 +104,9 @@ namespace EventStore.TestClient.Commands
                                 var dto = pkg.Data.Deserialize<TcpClientMessageDto.TransactionWriteCompleted>();
                                 if (dto.Result != TcpClientMessageDto.OperationResult.Success)
                                 {
-                                    var msg = string.Format("Error while writing transactional event: {0} ({1}).", dto.Message, dto.Result);
-                                    context.Log.LogInformation(msg);
+                                    
+                                    context.Log.Info("Error while writing transactional event: {message} ({e}).", dto.Message, dto.Result);
+                                    var msg = String.Format("Error while writing transactional event: {0} ({1}).", dto.Message, dto.Result);
                                     context.Fail(reason: msg);
                                 }
                                 else
@@ -114,7 +114,7 @@ namespace EventStore.TestClient.Commands
                                     writtenEvents += 1;
                                     if (writtenEvents == eventsCnt)
                                     {
-                                        context.Log.LogInformation("Written all events. Committing...");
+                                        context.Log.Info("Written all events. Committing...");
 
                                         stage = Stage.Committing;
                                         var commitDto = new TcpClientMessageDto.TransactionCommit(transactionId, false);
@@ -138,14 +138,14 @@ namespace EventStore.TestClient.Commands
                                 if (dto.Result != TcpClientMessageDto.OperationResult.Success)
                                 {
                                     var msg = string.Format("Error while committing transaction: {0} ({1}).", dto.Message, dto.Result);
-                                    context.Log.LogInformation(msg);
-                                    context.Log.LogInformation("Transaction took: {0}.", sw.Elapsed);
+                                    context.Log.Info("Error while committing transaction: {message} ({e}).", dto.Message, dto.Result);
+                                    context.Log.Info("Transaction took: {elapsed}.", sw.Elapsed);
                                     context.Fail(reason: msg);
                                 }
                                 else
                                 {
-                                    context.Log.LogInformation("Successfully committed transaction [{0}]!", dto.TransactionId);
-                                    context.Log.LogInformation("Transaction took: {0}.", sw.Elapsed);
+                                    context.Log.Info("Successfully committed transaction [{transactionId}]!", dto.TransactionId);
+                                    context.Log.Info("Transaction took: {elapsed}.", sw.Elapsed);
                                     PerfUtils.LogTeamCityGraphData(string.Format("{0}-latency-ms", Keyword), (int)Math.Round(sw.Elapsed.TotalMilliseconds));
                                     context.Success();
                                 }

@@ -1,164 +1,164 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using EventStore.Common.Log;
 using System.Collections.Concurrent;
 
 namespace EventStore.TestClient
 {
-  public static class PortsHelper
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger("PortsHelper");
-
-    public const int PortStart = 45000;
-    public const int PortCount = 200;
-
-    private static readonly ConcurrentQueue<int> AvailablePorts =
-        new ConcurrentQueue<int>(Enumerable.Range(PortStart, PortCount));
-
-    public static void InitPorts(IPAddress ip)
+    public static class PortsHelper
     {
-      var sw = Stopwatch.StartNew();
+        private static readonly ILogger Log = LogManager.GetLogger("PortsHelper");
 
-      int p;
-      while (AvailablePorts.TryDequeue(out p))
-      {
-      }
+        public const int PortStart = 45000;
+        public const int PortCount = 200;
 
-      Log.LogTrace("PortsHelper: starting to examine ports at [{0}].", ip);
+        private static readonly ConcurrentQueue<int> AvailablePorts = 
+            new ConcurrentQueue<int>(Enumerable.Range(PortStart, PortCount));
 
-      int succ = 0;
-      for (int port = PortStart; port < PortStart + PortCount; ++port)
-      {
-        try
+        public static void InitPorts(IPAddress ip)
         {
-          var listener = new TcpListener(ip, port);
-          listener.Start();
-          listener.Stop();
-        }
-        catch (Exception exc)
-        {
-          Log.LogTrace(exc, "PortsHelper: port {0} unavailable for TcpListener. Error: {1}.", port, exc.Message);
-          continue;
-        }
+            var sw = Stopwatch.StartNew();
 
-        try
-        {
-          var httpListener = new HttpListener();
-          httpListener.Prefixes.Add(string.Format("http://+:{0}/", port));
-          httpListener.Start();
-
-          Exception httpListenerError = null;
-          var listenTask = Task.Factory.StartNew(() =>
-          {
-            try
+            int p;
+            while (AvailablePorts.TryDequeue(out p))
             {
-              var context = httpListener.GetContext();
-              context.Response.Close(new byte[] { 1, 2, 3 }, true);
             }
-            catch (Exception exc)
+
+            Log.Trace("PortsHelper: starting to examine ports at [{ip}].", ip);
+
+            int succ = 0;
+            for (int port = PortStart; port < PortStart + PortCount; ++port)
             {
-              httpListenerError = exc;
-            }
-          });
+                try
+                {
+                    var listener = new TcpListener(ip, port);
+                    listener.Start();
+                    listener.Stop();
+                }
+                catch (Exception exc)
+                {
+                    Log.TraceException(exc, "PortsHelper: port {port} unavailable for TcpListener. Error: {e}.", port, exc.Message);
+                    continue;
+                }
 
-          var request = (HttpWebRequest)WebRequest.Create(string.Format("http://{0}:{1}/", ip, port));
-          var buffer = new byte[256];
-          var read = request.GetResponse().GetResponseStream().Read(buffer, 0, buffer.Length);
-          if (read != 3 || buffer[0] != 1 || buffer[1] != 2 || buffer[2] != 3)
-            throw new Exception(string.Format("Unexpected response received from HTTP on port {0}.", port));
+                try
+                {
+                    var httpListener = new HttpListener();
+                    httpListener.Prefixes.Add(string.Format("http://+:{0}/", port));
+                    httpListener.Start();
 
-          if (!listenTask.Wait(5000))
-            throw new Exception("PortsHelper: time out waiting for HttpListener to return.");
-          if (httpListenerError != null)
-            throw httpListenerError;
-
-          httpListener.Stop();
-        }
-        catch (Exception exc)
-        {
-          Log.LogTrace(exc, "PortsHelper: port {0} unavailable for HttpListener. Error: {1}.", port, exc.Message);
-          continue;
-        }
-
-        AvailablePorts.Enqueue(port);
-        succ += 1;
-      }
-
-      Log.LogTrace("PortsHelper: {0} ports are available at [{1}].", succ, ip);
-      if (succ <= PortCount / 2)
-        throw new Exception("More than half requested ports are unavailable.");
-
-      Log.LogTrace("PortsHelper: test took {0}.", sw.Elapsed);
-    }
-
-    public static int GetAvailablePort(IPAddress ip)
-    {
-      for (int i = 0; i < 50; ++i)
-      {
-        int port;
-        if (!AvailablePorts.TryDequeue(out port))
-          throw new Exception("Couldn't get free TCP port for MiniNode.");
-
-        /*
+                    Exception httpListenerError = null;
+                    var listenTask = Task.Factory.StartNew(() =>
+                    {
                         try
                         {
-                            var listener = new TcpListener(ip, port);
-                            listener.Start();
-                            listener.Stop();
+                            var context = httpListener.GetContext();
+                            context.Response.Close(new byte[] {1, 2, 3}, true);
                         }
-                        catch (Exception)
+                        catch (Exception exc)
                         {
-                            AvailablePorts.Enqueue(port);
-                            continue;
+                            httpListenerError = exc;
                         }
-        */
+                    });
 
-        try
-        {
-          var httpListener = new HttpListener();
-          httpListener.Prefixes.Add(string.Format("http://127.0.0.1:{0}/", port));
-          httpListener.Start();
-          httpListener.Stop();
-        }
-        catch (Exception)
-        {
-          AvailablePorts.Enqueue(port);
-          continue;
-          //                    throw new Exception(
-          //                        string.Format("HttpListener couldn't listen on port {0}, but TcpListener was OK.\nError: {1}", port, exc), exc);
-        }
-        return port;
-      }
-      throw new Exception("Reached trials limit while trying to get free port for MiniNode");
-    }
+                    var request = (HttpWebRequest)WebRequest.Create(string.Format("http://{0}:{1}/", ip, port));
+                    var buffer = new byte[256];
+                    var read = request.GetResponse().GetResponseStream().Read(buffer, 0, buffer.Length);
+                    if (read != 3 || buffer[0] != 1 || buffer[1] != 2 || buffer[2] != 3)
+                        throw new Exception(string.Format("Unexpected response received from HTTP on port {0}.", port));
 
-    public static void ReturnPort(int port)
-    {
-      AvailablePorts.Enqueue(port);
-    }
+                    if (!listenTask.Wait(5000))
+                        throw new Exception("PortsHelper: time out waiting for HttpListener to return.");
+                    if (httpListenerError != null)
+                        throw httpListenerError;
 
-    /*
-            private static int[] GetRandomPorts(int from, int portCount)
-            {
-                var res = new int[portCount];
-                var rnd = new Random(Math.Abs(Guid.NewGuid().GetHashCode()));
-                for (int i = 0; i < portCount; ++i)
-                {
-                    res[i] = from + i;
+                    httpListener.Stop();
                 }
-                for (int i = 0; i < portCount; ++i)
+                catch (Exception exc)
                 {
-                    int index = rnd.Next(portCount - i);
-                    int tmp = res[i];
-                    res[i] = res[i + index];
-                    res[i + index] = tmp;
+                    Log.TraceException(exc, "PortsHelper: port {port} unavailable for HttpListener. Error: {e}.", port, exc.Message);
+                    continue;
                 }
-                return res;
+
+                AvailablePorts.Enqueue(port);
+                succ += 1;
             }
-    */
-  }
+
+            Log.Trace("PortsHelper: {ports} ports are available at [{ip}].", succ, ip);
+            if (succ <= PortCount/2)
+                throw new Exception("More than half requested ports are unavailable.");
+
+            Log.Trace("PortsHelper: test took {elapsed}.", sw.Elapsed);
+        }
+
+        public static int GetAvailablePort(IPAddress ip)
+        {
+            for (int i = 0; i < 50; ++i)
+            {
+                int port;
+                if (!AvailablePorts.TryDequeue(out port))
+                    throw new Exception("Couldn't get free TCP port for MiniNode.");
+
+/*
+                try
+                {
+                    var listener = new TcpListener(ip, port);
+                    listener.Start();
+                    listener.Stop();
+                }
+                catch (Exception)
+                {
+                    AvailablePorts.Enqueue(port);
+                    continue;
+                }
+*/
+
+                try
+                {
+                    var httpListener = new HttpListener();
+					httpListener.Prefixes.Add(string.Format("http://127.0.0.1:{0}/", port));
+                    httpListener.Start();
+                    httpListener.Stop();
+                }
+                catch (Exception)
+                {
+                    AvailablePorts.Enqueue(port);
+                    continue;
+//                    throw new Exception(
+//                        string.Format("HttpListener couldn't listen on port {0}, but TcpListener was OK.\nError: {1}", port, exc), exc);
+                }
+                return port;
+            }
+            throw new Exception("Reached trials limit while trying to get free port for MiniNode");
+        }
+
+        public static void ReturnPort(int port)
+        {
+            AvailablePorts.Enqueue(port);
+        }
+
+/*
+        private static int[] GetRandomPorts(int from, int portCount)
+        {
+            var res = new int[portCount];
+            var rnd = new Random(Math.Abs(Guid.NewGuid().GetHashCode()));
+            for (int i = 0; i < portCount; ++i)
+            {
+                res[i] = from + i;
+            }
+            for (int i = 0; i < portCount; ++i)
+            {
+                int index = rnd.Next(portCount - i);
+                int tmp = res[i];
+                res[i] = res[i + index];
+                res[i + index] = tmp;
+            }
+            return res;
+        }
+*/
+    }
 }

@@ -1,11 +1,11 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
+using System.Text;
+using EventStore.Common.Log;
 
 namespace EventStore.TestClient
 {
     public static class PerfUtils
     {
-        private static readonly ILogger Log = TraceLogger.GetLogger(typeof(PerfUtils));
+        private static readonly ILogger Log = LogManager.GetLoggerFor(typeof(PerfUtils));
 
         private const string ColumnSplitter = ";";
         private const string PairSplitter = ":";
@@ -36,7 +36,7 @@ namespace EventStore.TestClient
             }
             sb.AppendLine("end]]");
 
-            Log.LogDebug(sb.ToString());
+            Log.Debug(sb.ToString());
         }
 
         private static string Format(string name, object value)
@@ -53,10 +53,10 @@ namespace EventStore.TestClient
         {
             if (value < 0)
             {
-                Log.LogError("Value is {0}, however TeamCity requires Value as a positive (non negative) integer.", value);
+                Log.Error("Value is {value}, however TeamCity requires Value as a positive (non negative) integer.", value);
                 return;
             }
-            Log.LogDebug("\n##teamcity[buildStatisticValue key='{0}' value='{1}']", key, value);
+            Log.Debug("\n##teamcity[buildStatisticValue key='{key}' value='{value}']", key, value);
         }
 
         public class NameValue

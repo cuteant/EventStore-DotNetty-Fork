@@ -1,83 +1,83 @@
-﻿using Microsoft.Extensions.Logging;
+using EventStore.Common.Log;
 using EventStore.Common.Utils;
 
 namespace EventStore.TestClient.Commands.DvuBasic
 {
-  public class Status
-  {
-    private readonly ILogger _log;
-
-    public int ThreadId { get; private set; }
-    public bool Success { get; private set; }
-
-    public Status(ILogger log)
+    public class Status
     {
-      Ensure.NotNull(log, "log");
-      _log = log;
-    }
+        private readonly ILogger _log;
 
-    public void ReportWritesProgress(int threadId,
-                                     int sent,
-                                     int prepareTimeouts,
-                                     int commitTimeouts,
-                                     int forwardTimeouts,
-                                     int wrongExpctdVersions,
-                                     int streamsDeleted,
-                                     int fails,
-                                     int requests)
-    {
-      var sentP = ToPercent(sent, requests);
-      var failsP = ToPercent(fails, sent);
+        public int ThreadId { get; private set; }
+        public bool Success { get; private set; }
 
-      var table = new ConsoleTable("WRITER ID", "Completed %", "Completed/Total",
-                                   "Failed %", "Failed/Sent", "Prepare Timeouts",
-                                   "Commit Timeouts", "Forward Timeouts",
-                                   "Wrong Versions", "Stream Deleted");
-      table.AppendRow(threadId.ToString(), string.Format("{0:0.0}%", sentP), string.Format("{0}/{1}", sent, requests),
-                      string.Format("{0:0.0}%", failsP), string.Format("{0}/{1}", fails, sent), prepareTimeouts.ToString(),
-                      commitTimeouts.ToString(), forwardTimeouts.ToString(),
-                      wrongExpctdVersions.ToString(), streamsDeleted.ToString());
+        public Status(ILogger log)
+        {
+            Ensure.NotNull(log, "log");
+            _log = log;
+        }
 
-      if (failsP > 50d)
-        _log.LogCritical(table.CreateIndentedTable());
-      else
-        _log.LogInformation(table.CreateIndentedTable());
-    }
+        public void ReportWritesProgress(int threadId,
+                                         int sent,
+                                         int prepareTimeouts,
+                                         int commitTimeouts,
+                                         int forwardTimeouts,
+                                         int wrongExpctdVersions,
+                                         int streamsDeleted,
+                                         int fails,
+                                         int requests)
+        {
+            var sentP = ToPercent(sent, requests);
+            var failsP = ToPercent(fails, sent);
 
-    public void ReportReadsProgress(int threadId, int successes, int fails)
-    {
-      var all = successes + fails;
+            var table = new ConsoleTable("WRITER ID", "Completed %", "Completed/Total",
+                                         "Failed %", "Failed/Sent", "Prepare Timeouts",
+                                         "Commit Timeouts", "Forward Timeouts",
+                                         "Wrong Versions", "Stream Deleted");
+            table.AppendRow(threadId.ToString(), string.Format("{0:0.0}%", sentP), string.Format("{0}/{1}", sent, requests),
+                            string.Format("{0:0.0}%", failsP), string.Format("{0}/{1}", fails, sent), prepareTimeouts.ToString(),
+                            commitTimeouts.ToString(), forwardTimeouts.ToString(),
+                            wrongExpctdVersions.ToString(), streamsDeleted.ToString());
 
-      var table = new ConsoleTable("READER ID", "Fails", "Total Random Reads");
-      table.AppendRow(threadId.ToString(), fails.ToString(), all.ToString());
+            if (failsP > 50d)
+                _log.Fatal(table.CreateIndentedTable());
+            else
+                _log.Info(table.CreateIndentedTable());
+        }
 
-      if (fails != 0)
-        _log.LogCritical(table.CreateIndentedTable());
-      else
-        _log.LogInformation(table.CreateIndentedTable());
-    }
+        public void ReportReadsProgress(int threadId, int successes, int fails)
+        {
+            var all = successes + fails;
 
-    public void ReportReadError(int threadId, string stream, int indx)
-    {
-      _log.LogCritical("FATAL : READER [{0}] encountered an error in {1} ({2})", threadId, stream, indx);
-    }
+            var table = new ConsoleTable("READER ID", "Fails", "Total Random Reads");
+            table.AppendRow(threadId.ToString(), fails.ToString(), all.ToString());
 
-    public void ReportNotFoundOnRead(int threadId, string stream, int indx)
-    {
-      _log.LogCritical("FATAL : READER [{0}] asked for event {1} in '{2}' but server returned 'Not Found'", threadId,
+            if (fails != 0)
+                _log.Fatal(table.CreateIndentedTable());
+            else
+                _log.Info(table.CreateIndentedTable());
+        }
+
+        public void ReportReadError(int threadId, string stream, int indx)
+        {
+            _log.Fatal("FATAL : READER [{threadId}] encountered an error in {stream} ({index})", threadId, stream, indx);
+        }
+
+        public void ReportNotFoundOnRead(int threadId, string stream, int indx)
+        {
+            _log.Fatal("FATAL : READER [{threadId}] asked for event {index} in '{stream}' but server returned 'Not Found'", threadId,
                        indx, stream);
-    }
+        }
 
-    public void FinilizeStatus(int threadId, bool success)
-    {
-      ThreadId = threadId;
-      Success = success;
-    }
+        public void FinilizeStatus(int threadId, bool success)
+        {
+            ThreadId = threadId;
+            Success = success;
+        }
 
-    private double ToPercent(int value, int max)
-    {
-      var approx = (value / (double)max) * 100d;
-      return approx <= 100d ? approx : 100;
+        private double ToPercent(int value, int max)
+        {
+            var approx = (value / (double)max) * 100d;
+            return approx <= 100d ? approx : 100;
+        }
     }
-  }
 }

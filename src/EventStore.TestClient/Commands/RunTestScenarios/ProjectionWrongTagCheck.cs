@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands.RunTestScenarios
 {
@@ -44,8 +43,12 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
                            _executionPeriod.TotalMinutes,
                            GetType().Name);
 
-                Log.LogInformation(msg);
-                Log.LogInformation("##teamcity[message '{0}']", msg);
+                Log.Info("=================== Start run #{iteration}, elapsed {elapsed} of {executionPeriod} minutes, {type} =================== ",
+                           GetIterationCode(),
+                           (int)stopWatch.Elapsed.TotalMinutes,
+                           _executionPeriod.TotalMinutes,
+                           GetType().Name); 
+                Log.Info("##teamcity[message '{message}']", msg);
 
                 var iterationTask = RunIteration();
                 iterationTask.Wait();
@@ -122,7 +125,7 @@ namespace EventStore.TestClient.Commands.RunTestScenarios
 
             });
 
-            return Task.Factory.ContinueWhenAll(new[] { writeTask, successTask }, tasks => { Log.LogInformation("Iteration {0} tasks completed", GetIterationCode()); Task.WaitAll(tasks); Log.LogInformation("Iteration {0} successfull", GetIterationCode()); });
+            return Task.Factory.ContinueWhenAll(new[] { writeTask, successTask }, tasks => { Log.Info("Iteration {iteration} tasks completed", GetIterationCode()); Task.WaitAll(tasks); Log.Info("Iteration {iteration} successful", GetIterationCode()); });
         }
     }
 }

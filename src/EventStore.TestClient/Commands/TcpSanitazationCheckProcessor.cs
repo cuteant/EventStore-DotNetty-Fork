@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Microsoft.Extensions.Logging;
+using EventStore.Common.Log;
 using EventStore.Core.Services.Transport.Tcp;
 using System.Linq;
 using EventStore.Transport.Tcp;
@@ -12,7 +12,7 @@ namespace EventStore.TestClient.Commands
 {
     public class TcpSanitazationCheckProcessor : ICmdProcessor
     {
-        private static readonly ILogger Log = TraceLogger.GetLogger<TcpSanitazationCheckProcessor>();
+        private static readonly ILogger Log = LogManager.GetLoggerFor<TcpSanitazationCheckProcessor>();
 
         public string Keyword
         {
@@ -34,7 +34,7 @@ namespace EventStore.TestClient.Commands
         {
             context.IsAsync();
 
-            var commandsToCkeck = new[]
+            var commandsToCheck = new[]
                                       {
                                           (byte) TcpCommand.WriteEvents,
                                           (byte) TcpCommand.TransactionStart,
@@ -50,7 +50,7 @@ namespace EventStore.TestClient.Commands
                                           (byte) TcpCommand.UnsubscribeFromStream,
                                       };
 
-            var packages = commandsToCkeck.Select(c => new TcpPackage((TcpCommand)c, Guid.NewGuid(), new byte[] { 0, 1, 0, 1 }).AsByteArray())
+            var packages = commandsToCheck.Select(c => new TcpPackage((TcpCommand)c, Guid.NewGuid(), new byte[] { 0, 1, 0, 1 }).AsByteArray())
                                           .Union(new[]
                                                      {
                                                          BitConverter.GetBytes(int.MaxValue).Union(new byte[] {1, 2, 3, 4}).ToArray(),
@@ -64,8 +64,8 @@ namespace EventStore.TestClient.Commands
                 var established = new AutoResetEvent(false);
                 var dropped = new AutoResetEvent(false);
 
-                if (step < commandsToCkeck.Length)
-                    Console.WriteLine("{0} Starting step {1} ({2}) {0}", new string('#', 20), step, (TcpCommand) commandsToCkeck[step]);
+                if (step < commandsToCheck.Length)
+                    Console.WriteLine("{0} Starting step {1} ({2}) {0}", new string('#', 20), step, (TcpCommand) commandsToCheck[step]);
                 else
                     Console.WriteLine("{0} Starting step {1} (RANDOM BYTES) {0}", new string('#', 20), step);
 
@@ -83,21 +83,21 @@ namespace EventStore.TestClient.Commands
                 connection.EnqueueSend(pkg);
                 dropped.WaitOne();
 
-                if (step < commandsToCkeck.Length)
-                    Console.WriteLine("{0} Step {1} ({2}) Completed {0}", new string('#', 20), step, (TcpCommand)commandsToCkeck[step]);
+                if (step < commandsToCheck.Length)
+                    Console.WriteLine("{0} Step {1} ({2}) Completed {0}", new string('#', 20), step, (TcpCommand)commandsToCheck[step]);
                 else
                     Console.WriteLine("{0} Step {1} (RANDOM BYTES) Completed {0}", new string('#', 20), step);
 
                 step++;
             }
 
-            Log.LogInformation("Sent {0} packages. {1} invalid dtos, {2} bar formatted packages. Got {3} BadRequests. Success",
+            Log.Info("Sent {packages} packages. {commandsToCheck} invalid dtos, {barFormattedPackages} bar formatted packages. Got {badRequests} BadRequests. Success",
                      packages.Count(),
-                     commandsToCkeck.Length,
-                     packages.Count() - commandsToCkeck.Length,
+                     commandsToCheck.Length,
+                     packages.Count() - commandsToCheck.Length,
                      packages.Count());
 
-            Log.LogInformation("Now sending raw bytes...");
+            Log.Info("Now sending raw bytes...");
             try
             {
                 SendRaw(context.Client.TcpEndpoint, BitConverter.GetBytes(int.MaxValue));

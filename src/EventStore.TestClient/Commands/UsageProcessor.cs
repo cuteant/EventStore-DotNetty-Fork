@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace EventStore.TestClient.Commands
 {
@@ -18,7 +17,7 @@ namespace EventStore.TestClient.Commands
         public bool Execute(CommandProcessorContext context, string[] args)
         {
             var allCommands = string.Join("\n\n", _commands.RegisteredProcessors.Select(x => x.Usage.ToUpper()));
-            context.Log.LogInformation("Available commands:\n{0}", allCommands);
+            context.Log.Info("Available commands:\n{allCommands}", allCommands);
             return true;
         }
     }

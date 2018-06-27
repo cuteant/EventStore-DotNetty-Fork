@@ -1,155 +1,156 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using EventStore.ClientAPI.Exceptions;
-using Microsoft.Extensions.Logging;
+using EventStore.Common.Log;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.TestClient.Commands.RunTestScenarios;
 using EventStore.Transport.Tcp;
+using ILogger = EventStore.Common.Log.ILogger;
 
 namespace EventStore.TestClient.Commands
 {
-  internal class RunTestScenariosProcessor : ICmdProcessor
-  {
-    private static readonly ILogger Log = TraceLogger.GetLogger<RunTestScenariosProcessor>();
-    private const string AllScenariosFlag = "ALL";
-
-    public string Keyword
+    internal class RunTestScenariosProcessor : ICmdProcessor
     {
-      get
-      {
-        return string.Format("RT");
-      }
-    }
+        private static readonly ILogger Log = LogManager.GetLoggerFor<RunTestScenariosProcessor>();
+        private const string AllScenariosFlag = "ALL";
 
-    public string Usage
-    {
-      get
-      {
-        const string usage = "<max concurrent requests, int> " +
-                             "\n<connections, int> " +
-                             "\n<streams count, int> " +
-                             "\n<eventsPerStream, int> " +
-                             "\n<streams delete step, int> " +
-                             "\n<scenario name, string, " + AllScenariosFlag + " for all scenarios>" +
-                             "\n<execution period minutes, int>" +
-                             "\n<dbParentPath or custom node, string or ip:tcp:http>";
-
-        return usage;
-      }
-    }
-
-    public bool Execute(CommandProcessorContext context, string[] args)
-    {
-      if (args.Length != 0 && false == (args.Length == 7 || args.Length == 8))
-        return false;
-
-      var maxConcurrentRequests = 20;
-      var connections = 10;
-      var streams = 100;
-      var eventsPerStream = 400;
-      var streamDeleteStep = 7;
-      var scenarioName = "";
-      var executionPeriodMinutes = 2;
-      string dbParentPath = null;
-      NodeConnectionInfo customNode = null;
-
-      {
-        if (args.Length == 9)
+        public string Keyword
         {
-          throw new ArgumentException("Not compatible arguments, only one of <dbPath> or <custom node> can be specified.");
-        }
-
-        if (args.Length == 8)
-        {
-          IPAddress ip;
-          int tcpPort;
-          int httpPort;
-
-          var atoms = args[7].Split(':');
-          if (atoms.Length == 3
-              && IPAddress.TryParse(atoms[0], out ip)
-              && int.TryParse(atoms[1], out tcpPort)
-              && int.TryParse(atoms[2], out httpPort))
-          {
-            customNode = new NodeConnectionInfo(ip, tcpPort, httpPort);
-
-            args = CutLastArgument(args);
-          }
-        }
-
-        if (args.Length == 7 || args.Length == 8)
-        {
-          try
-          {
-            maxConcurrentRequests = int.Parse(args[0]);
-            connections = int.Parse(args[1]);
-            streams = int.Parse(args[2]);
-            eventsPerStream = int.Parse(args[3]);
-            streamDeleteStep = int.Parse(args[4]);
-            scenarioName = args[5];
-            executionPeriodMinutes = int.Parse(args[6]);
-
-            if (args.Length == 8)
+            get
             {
-              dbParentPath = args[7];
+                return string.Format("RT");
             }
-            else
-            {
-              var envDbPath = Environment.GetEnvironmentVariable("EVENTSTORE_DATABASEPATH");
-              if (!string.IsNullOrEmpty(envDbPath))
-                dbParentPath = envDbPath;
-            }
-
-          }
-          catch (Exception e)
-          {
-            Log.LogError("Invalid arguments ({0})", e.Message);
-            return false;
-          }
         }
-      }
 
-      context.IsAsync();
+        public string Usage
+        {
+            get
+            {
+                const string usage = "<max concurrent requests, int> " +
+                                     "\n<connections, int> " +
+                                     "\n<streams count, int> " +
+                                     "\n<eventsPerStream, int> " +
+                                     "\n<streams delete step, int> " +
+                                     "\n<scenario name, string, " + AllScenariosFlag + " for all scenarios>" +
+                                     "\n<execution period minutes, int>" +
+                                     "\n<dbParentPath or custom node, string or ip:tcp:http>";
 
-      Log.LogInformation("\n---" +
-               "\nRunning scenario {0} using {1} connections with {2} max concurrent requests," +
-               "\nfor {3} streams {4} events each deleting every {5}th stream. " +
-               "\nExecution period {6} minutes. " +
-               "\nDatabase path {7};" +
-               "\nCustom Node {8};" +
-               "\n---",
-               scenarioName,
-               connections,
-               maxConcurrentRequests,
-               streams,
-               eventsPerStream,
-               streamDeleteStep,
-               executionPeriodMinutes,
-               dbParentPath,
-               customNode);
+                return usage;
+            }
+        }
 
-      var directTcpSender = CreateDirectTcpSender(context);
-      var allScenarios = new IScenario[]
-      {
-                new LoopingScenario(directTcpSender,
-                                    maxConcurrentRequests,
-                                    connections,
-                                    streams,
-                                    eventsPerStream,
-                                    streamDeleteStep,
+        public bool Execute(CommandProcessorContext context, string[] args)
+        {
+            if (args.Length != 0 && false == (args.Length == 7 || args.Length == 8))
+                return false;
+
+            var maxConcurrentRequests = 20;
+            var connections = 10;
+            var streams = 100;
+            var eventsPerStream = 400;
+            var streamDeleteStep = 7;
+            var scenarioName = "";
+            var executionPeriodMinutes = 2;
+            string dbParentPath = null;
+            NodeConnectionInfo customNode = null;
+
+            {
+                if (args.Length == 9)
+                {
+                    throw new ArgumentException("Not compatible arguments, only one of <dbPath> or <custom node> can be specified.");
+                }
+
+                if (args.Length == 8)
+                {
+                    IPAddress ip;
+                    int tcpPort;
+                    int httpPort;
+
+                    var atoms = args[7].Split(':');
+                    if (atoms.Length == 3
+                        && IPAddress.TryParse(atoms[0], out ip)
+                        && int.TryParse(atoms[1], out tcpPort)
+                        && int.TryParse(atoms[2], out httpPort))
+                    {
+                        customNode = new NodeConnectionInfo(ip, tcpPort, httpPort);
+
+                        args = CutLastArgument(args);
+                    }
+                }
+
+                if (args.Length == 7 || args.Length == 8)
+                {
+                    try
+                    {
+                        maxConcurrentRequests = int.Parse(args[0]);
+                        connections = int.Parse(args[1]);
+                        streams = int.Parse(args[2]);
+                        eventsPerStream = int.Parse(args[3]);
+                        streamDeleteStep = int.Parse(args[4]);
+                        scenarioName = args[5];
+                        executionPeriodMinutes = int.Parse(args[6]);
+
+                        if (args.Length == 8)
+                        {
+                            dbParentPath = args[7];
+                        }
+                        else
+                        {
+                            var envDbPath = Environment.GetEnvironmentVariable("EVENTSTORE_DATABASEPATH");
+                            if (!string.IsNullOrEmpty(envDbPath))
+                                dbParentPath = envDbPath;
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error("Invalid arguments ({e})", e.Message);
+                        return false;
+                    }
+                }
+            }
+
+            context.IsAsync();
+
+            Log.Info("\n---" +
+                     "\nRunning scenario {scenario} using {connections} connections with {maxConcurrentRequests} max concurrent requests," +
+                     "\nfor {streams} streams {eventsPerStream} events each deleting every {streamDeleteStep}th stream. " +
+                     "\nExecution period {executionPeriod} minutes. " +
+                     "\nDatabase path {dbParentPath};" +
+                     "\nCustom Node {customNode};" +
+                     "\n---",
+                     scenarioName,
+                     connections,
+                     maxConcurrentRequests,
+                     streams,
+                     eventsPerStream,
+                     streamDeleteStep,
+                     executionPeriodMinutes,
+                     dbParentPath,
+                     customNode);
+
+            var directTcpSender = CreateDirectTcpSender(context);
+            var allScenarios = new IScenario[]
+            {
+                new LoopingScenario(directTcpSender, 
+                                    maxConcurrentRequests, 
+                                    connections, 
+                                    streams, 
+                                    eventsPerStream, 
+                                    streamDeleteStep, 
                                     TimeSpan.FromMinutes(executionPeriodMinutes),
                                     dbParentPath,
-                                    customNode),
+                                    customNode), 
                 new ProjectionsKillScenario(directTcpSender,
                                             maxConcurrentRequests,
                                             connections,
                                             streams,
                                             eventsPerStream,
-                                            streamDeleteStep,
+                                            streamDeleteStep, 
                                             dbParentPath,
                                             customNode),
                 new ProjForeachForcedCommonNameScenario(directTcpSender,
@@ -161,115 +162,115 @@ namespace EventStore.TestClient.Commands
                                             TimeSpan.FromMinutes(executionPeriodMinutes),
                                             dbParentPath,
                                             customNode),
-                new ProjForeachForcedCommonNameNoRestartScenario (directTcpSender,
-                                            maxConcurrentRequests,
-                                            connections,
-                                            streams,
-                                            eventsPerStream,
+                new ProjForeachForcedCommonNameNoRestartScenario (directTcpSender, 
+                                            maxConcurrentRequests, 
+                                            connections, 
+                                            streams, 
+                                            eventsPerStream, 
+                                            streamDeleteStep, 
+                                            TimeSpan.FromMinutes(executionPeriodMinutes),
+                                            dbParentPath,
+                                            customNode), 
+                new LoopingProjTranWriteScenario(directTcpSender, 
+                                            maxConcurrentRequests, 
+                                            connections, 
+                                            streams, 
+                                            eventsPerStream, 
                                             streamDeleteStep,
                                             TimeSpan.FromMinutes(executionPeriodMinutes),
                                             dbParentPath,
-                                            customNode),
-                new LoopingProjTranWriteScenario(directTcpSender,
-                                            maxConcurrentRequests,
-                                            connections,
-                                            streams,
-                                            eventsPerStream,
-                                            streamDeleteStep,
-                                            TimeSpan.FromMinutes(executionPeriodMinutes),
-                                            dbParentPath,
-                                            customNode),
-                new LoopingProjectionKillScenario(directTcpSender,
-                                                  maxConcurrentRequests,
-                                                  connections,
-                                                  streams,
-                                                  eventsPerStream,
-                                                  streamDeleteStep,
+                                            customNode), 
+                new LoopingProjectionKillScenario(directTcpSender, 
+                                                  maxConcurrentRequests, 
+                                                  connections, 
+                                                  streams, 
+                                                  eventsPerStream, 
+                                                  streamDeleteStep, 
                                                   TimeSpan.FromMinutes(executionPeriodMinutes),
                                                   dbParentPath,
-                                                  customNode),
-                new MassProjectionsScenario(directTcpSender,
-                                            maxConcurrentRequests,
-                                            connections,
-                                            streams,
-                                            eventsPerStream,
-                                            streamDeleteStep,
+                                                  customNode), 
+                new MassProjectionsScenario(directTcpSender, 
+                                            maxConcurrentRequests, 
+                                            connections, 
+                                            streams, 
+                                            eventsPerStream, 
+                                            streamDeleteStep, 
                                             dbParentPath,
                                             customNode),
-                new ProjectionWrongTagCheck(directTcpSender,
-                                            maxConcurrentRequests,
-                                            connections,
-                                            streams,
-                                            eventsPerStream,
-                                            streamDeleteStep,
+                new ProjectionWrongTagCheck(directTcpSender, 
+                                            maxConcurrentRequests, 
+                                            connections, 
+                                            streams, 
+                                            eventsPerStream, 
+                                            streamDeleteStep, 
                                             TimeSpan.FromMinutes(executionPeriodMinutes),
                                             dbParentPath,
-                                            customNode),
-          };
+                                            customNode), 
+                };
 
-      Log.LogInformation("Found scenarios {0} total :\n{1}.", allScenarios.Length, allScenarios.Aggregate(new StringBuilder(),
-                                                                                                 (sb, s) => sb.AppendFormat("{0}, ", s.GetType().Name)));
-      var scenarios = allScenarios.Where(x => scenarioName == AllScenariosFlag
-                                              || x.GetType().Name.Equals(scenarioName, StringComparison.OrdinalIgnoreCase))
-                                  .ToArray();
+            Log.Info("Found scenarios {scenariosCount} total :\n{scenarios}.", allScenarios.Length, allScenarios.Aggregate(new StringBuilder(),
+                                                                                                       (sb, s) => sb.AppendFormat("{0}, ", s.GetType().Name)));
+            var scenarios = allScenarios.Where(x => scenarioName == AllScenariosFlag
+                                                    || x.GetType().Name.Equals(scenarioName, StringComparison.InvariantCultureIgnoreCase))
+                                        .ToArray();
 
-      Log.LogInformation("Running test scenarios ({0} total)...", scenarios.Length);
+            Log.Info("Running test scenarios ({scenarios} total)...", scenarios.Length);
 
-      foreach (var scenario in scenarios)
-      {
-        using (scenario)
-        {
-          try
-          {
-            Log.LogInformation("Run scenario {0}", scenario.GetType().Name);
-            scenario.Run();
-            scenario.Clean();
-            Log.LogInformation("Scenario run successfully");
-          }
-          catch (Exception e)
-          {
-            context.Fail(e);
-          }
+            foreach (var scenario in scenarios)
+            {
+                using (scenario)
+                {
+                    try
+                    {
+                        Log.Info("Run scenario {type}", scenario.GetType().Name);
+                        scenario.Run();
+                        scenario.Clean();
+                        Log.Info("Scenario run successfully");
+                    }
+                    catch (Exception e)
+                    {
+                        context.Fail(e);
+                    }
+                }
+            }
+            Log.Info("Finished running test scenarios");
+
+            if (context.ExitCode == 0)
+                context.Success();
+
+            return true;
         }
-      }
-      Log.LogInformation("Finished running test scenarios");
 
-      if (context.ExitCode == 0)
-        context.Success();
+        private static string[] CutLastArgument(string[] args)
+        {
+            var cutArgs = new string[7];
+            Array.Copy(args, cutArgs, 7);
+            return cutArgs;
+        }
 
-      return true;
+        private Action<IPEndPoint, byte[]> CreateDirectTcpSender(CommandProcessorContext context)
+        {
+            const int timeoutMilliseconds = 4000;
+
+            Action<IPEndPoint, byte[]> sender = (tcpEndPoint, bytes) =>
+            {
+                var sent = new AutoResetEvent(false);
+
+                Action<TcpTypedConnection<byte[]>, TcpPackage> handlePackage = (_, __) => { };
+                Action<TcpTypedConnection<byte[]>> established = connection =>
+                {
+                    connection.EnqueueSend(bytes);
+                    connection.Close();
+                    sent.Set();
+                };
+                Action<TcpTypedConnection<byte[]>, SocketError> closed = (_, __) => sent.Set();
+
+                context.Client.CreateTcpConnection(context, handlePackage, established, closed, false, tcpEndPoint);
+                if (!sent.WaitOne(timeoutMilliseconds))
+                    throw new ApplicationException("Connection to server was not closed in time.");
+            };   
+
+            return sender;
+        }
     }
-
-    private static string[] CutLastArgument(string[] args)
-    {
-      var cutArgs = new string[7];
-      Array.Copy(args, cutArgs, 7);
-      return cutArgs;
-    }
-
-    private Action<IPEndPoint, byte[]> CreateDirectTcpSender(CommandProcessorContext context)
-    {
-      const int timeoutMilliseconds = 4000;
-
-      Action<IPEndPoint, byte[]> sender = (tcpEndPoint, bytes) =>
-      {
-        var sent = new AutoResetEvent(false);
-
-        Action<TcpTypedConnection<byte[]>, TcpPackage> handlePackage = (_, __) => { };
-        Action<TcpTypedConnection<byte[]>> established = connection =>
-              {
-            connection.EnqueueSend(bytes);
-            connection.Close();
-            sent.Set();
-          };
-        Action<TcpTypedConnection<byte[]>, SocketError> closed = (_, __) => sent.Set();
-
-        context.Client.CreateTcpConnection(context, handlePackage, established, closed, false, tcpEndPoint);
-        if (!sent.WaitOne(timeoutMilliseconds))
-          throw new ApplicationException("Connection to server was not closed in time.");
-      };
-
-      return sender;
-    }
-  }
 }

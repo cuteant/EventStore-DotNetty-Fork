@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using EventStore.Core.Services.Transport.Tcp;
 using EventStore.Transport.Tcp;
-using Microsoft.Extensions.Logging;
 
 namespace EventStore.TestClient.Commands
 {
@@ -82,7 +81,7 @@ namespace EventStore.TestClient.Commands
             clients.ForEach(x => x.Close());
 
             var reqPerSec = (all + 0.0)/sw.ElapsedMilliseconds*1000;
-            context.Log.LogInformation("{0} requests completed in {1}ms ({2:0.00} reqs per sec).", all, sw.ElapsedMilliseconds, reqPerSec);
+            context.Log.Info("{requests} requests completed in {elapsed}ms ({rate:0.00} reqs per sec).", all, sw.ElapsedMilliseconds, reqPerSec);
             PerfUtils.LogData(Keyword,
                               PerfUtils.Row(PerfUtils.Col("clientsCnt", clientsCnt),
                                             PerfUtils.Col("requestsCnt", requestsCnt),

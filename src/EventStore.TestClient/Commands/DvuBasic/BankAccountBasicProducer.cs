@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Logging;
+using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Transport.Http.Codecs;
@@ -10,7 +10,7 @@ namespace EventStore.TestClient.Commands.DvuBasic
 {
     public class BankAccountBasicProducer : IBasicProducer
     {
-        private static readonly ILogger Log = TraceLogger.GetLogger<BankAccountBasicProducer>();
+        private static readonly ILogger Log = LogManager.GetLoggerFor<BankAccountBasicProducer>();
 
         public string Name
         {
@@ -105,9 +105,9 @@ namespace EventStore.TestClient.Commands.DvuBasic
 
         private static void LogExpected(object generated, object actual, string reason)
         {
-            Log.LogInformation("Expected: {0}\n" +
-                     "  Actual: {1}\n" +
-                     " Details: {2}",
+            Log.Info("Expected: {expected}\n" +
+                     "  Actual: {actual}\n" +
+                     " Details: {reason}",
                      generated.ToString(),
                      (actual == null ? "<null>" : actual.ToString()),
                      reason
