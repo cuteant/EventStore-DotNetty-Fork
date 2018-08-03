@@ -318,7 +318,8 @@ namespace EventStore.Core.Index
 
             int trial = 0;
             var debugEnabled = Log.IsDebugLevelEnabled();
-            while (trial < 5)
+            int maxTrials = 5;
+            while (trial < maxTrials)
             {
                 void errorHandler(Exception ex)
                 {
@@ -339,6 +340,10 @@ namespace EventStore.Core.Index
                 catch (IOException exc)
                 {
                     errorHandler(exc);
+                    if(trial>=maxTrials){
+                        ProcessUtil.PrintWhoIsLocking(tmpIndexMap, Log);
+                        ProcessUtil.PrintWhoIsLocking(filename, Log);
+                    }
                 }
                 catch (UnauthorizedAccessException exc)
                 {
