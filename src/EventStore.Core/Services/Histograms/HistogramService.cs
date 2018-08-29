@@ -13,30 +13,34 @@ namespace EventStore.Core.Services.Histograms
     {
         private const long NUMBEROFNS = 1000000000L;
         private static readonly Stopwatch _stopwatch = new Stopwatch();
-        private static readonly ConcurrentDictionary<string, LongHistogram> Histograms = new ConcurrentDictionary<string, LongHistogram>();
+        private static readonly ConcurrentDictionary<string, HistogramBase> Histograms = new ConcurrentDictionary<string, HistogramBase>();
 
         static HistogramService()
         {
             _stopwatch.Start();
         }
 
-        public static LongHistogram GetHistogram(string name)
+        public static HistogramBase GetHistogram(string name)
         {
-            Histograms.TryGetValue(name, out LongHistogram ret);
+	        HistogramBase ret;
+            Histograms.TryGetValue(name, out ret);
             return ret;
         }
 
         public static Measurement Measure(string name)
         {
             var histogram = GetHistogram(name);
-            return new Measurement { watch = _stopwatch, Start = _stopwatch.ElapsedTicks, Histogram = histogram };
+            return new Measurement {watch = _stopwatch, Start = _stopwatch.ElapsedTicks, Histogram=histogram};
         }
 
         public static void SetValue(string name, long value)
         {
             if (value >= NUMBEROFNS) return;
-            if (name == null) return;
-            if (!Histograms.TryGetValue(name, out LongHistogram hist)) { return; }
+            if(name == null) return;
+            HistogramBase hist;
+            if(!Histograms.TryGetValue(name, out hist)) {
+                return;
+            }
             lock (hist)
             {
                 hist.RecordValue(value);
@@ -82,34 +86,34 @@ namespace EventStore.Core.Services.Histograms
     }
 
 
-    public struct Measurement : IDisposable
-    {
-        public Stopwatch watch;
-        public LongHistogram Histogram;
-        public long Start;
-
-        public void Dispose()
+        public struct Measurement : IDisposable
         {
-            if (Histogram == null) return;
-            lock (Histogram)
+            public Stopwatch watch;
+            public HistogramBase Histogram;
+            public long Start;
+
+            public void Dispose()
             {
-                var valueToRecord = (((double)watch.ElapsedTicks - Start) / Stopwatch.Frequency) * 1000000000;
-                if (valueToRecord < HighestPowerOf2(Histogram.HighestTrackableValue))
+                if (Histogram == null) return;
+                lock (Histogram)
                 {
-                    Histogram.RecordValue((long)valueToRecord);
+                    var valueToRecord = (((double)watch.ElapsedTicks - Start) / Stopwatch.Frequency) * 1000000000;
+                    if (valueToRecord < HighestPowerOf2(Histogram.HighestTrackableValue))
+                    {
+                        Histogram.RecordValue((long)valueToRecord);
+                    }
                 }
             }
-        }
-        private static long HighestPowerOf2(long x)
-        {
-            x--;
-            x |= (x >> 1);
-            x |= (x >> 2);
-            x |= (x >> 4);
-            x |= (x >> 8);
-            x |= (x >> 16);
-            return (x + 1);
-        }
+            private static long HighestPowerOf2(long x)
+            {
+                x--;
+                x |= (x >> 1);
+                x |= (x >> 2);
+                x |= (x >> 4);
+                x |= (x >> 8);
+                x |= (x >> 16);
+                return (x + 1);
+            }
 
-    }
+        }
 }
