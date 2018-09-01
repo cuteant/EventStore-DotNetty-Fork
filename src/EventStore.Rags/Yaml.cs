@@ -69,10 +69,5 @@ namespace EventStore.Rags
             }
             return options;
         }
-
-        private static string MakeString(IEnumerable<string> values)
-        {
-            return string.Join(",", values);
-        }
     }
 }
