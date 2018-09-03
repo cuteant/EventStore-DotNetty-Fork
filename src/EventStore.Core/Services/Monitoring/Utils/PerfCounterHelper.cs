@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using EventStore.Common.Utils;
 using EventStore.Core.Services.Monitoring.Stats;
 using Microsoft.Extensions.Logging;
 
@@ -93,9 +94,12 @@ namespace EventStore.Core.Services.Monitoring.Utils
 
         private string GetProcessInstanceName(string categoryName, string counterName)
         {
-#if MONO
-            return _pid.ToString();
-#else
+            // On Unix or MacOS, use the PID as the instance name
+            if (Runtime.IsUnixOrMac)
+            {
+                return _pid.ToString();
+            }
+
             try
             {
                 if (PerformanceCounterCategory.Exists(categoryName))
@@ -124,7 +128,6 @@ namespace EventStore.Core.Services.Monitoring.Utils
             }
 
             return null;
-#endif
         }
 
 
