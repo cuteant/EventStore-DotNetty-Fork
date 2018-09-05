@@ -36,6 +36,8 @@ using EventStore.Core.Settings;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks;
 using Microsoft.Extensions.Logging;
+using System.Collections;
+using System.Diagnostics;
 
 namespace EventStore.Core
 {
@@ -72,6 +74,12 @@ namespace EventStore.Core
         private readonly InMemoryBus[] _workerBuses;
         private readonly MultiQueuedHandler _workersHandler;
         public event EventHandler<VNodeStatusChangeArgs> NodeStatusChanged;
+        private readonly List<Task> _tasks = new List<Task>();
+        public IEnumerable<Task> Tasks { get { return _tasks; } }
+#if DEBUG
+        public TaskCompletionSource<bool> _taskAddedTrigger = new TaskCompletionSource<bool>();
+        public object _taskAddLock = new object();
+#endif
 
         protected virtual void OnNodeStatusChanged(VNodeStatusChangeArgs e)
         {
@@ -89,6 +97,10 @@ namespace EventStore.Core
             Ensure.NotNull(db, nameof(db));
             Ensure.NotNull(vNodeSettings, nameof(vNodeSettings));
             Ensure.NotNull(gossipSeedSource, nameof(gossipSeedSource));
+
+#if DEBUG
+            AddTask(_taskAddedTrigger.Task);
+#endif
 
             var isSingleNode = vNodeSettings.ClusterNodeCount == 1;
             _nodeInfo = vNodeSettings.NodeInfo;
@@ -202,6 +214,8 @@ namespace EventStore.Core
             var storageWriter = new ClusterStorageWriterService(_mainQueue, _mainBus, vNodeSettings.MinFlushDelay,
                                                                 db, writer, readIndex.IndexWriter, epochManager,
                                                                 () => readIndex.LastCommitPosition); // subscribes internally
+            AddTasks(storageWriter.Tasks);
+
             monitoringRequestBus.Subscribe<MonitoringMessage.InternalStatsRequest>(storageWriter);
 
             var storageReader = new StorageReaderService(_mainQueue, _mainBus, readIndex, vNodeSettings.ReaderThreadsCount, db.Config.WriterCheckpoint);
@@ -211,12 +225,16 @@ namespace EventStore.Core
             monitoringRequestBus.Subscribe<MonitoringMessage.InternalStatsRequest>(storageReader);
 
             var indexCommitterService = new IndexCommitterService(readIndex.IndexCommitter, _mainQueue, db.Config.ReplicationCheckpoint, db.Config.WriterCheckpoint, vNodeSettings.CommitAckCount);
+            AddTask(indexCommitterService.Task);
+
             _mainBus.Subscribe<SystemMessage.StateChangeMessage>(indexCommitterService);
             _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(indexCommitterService);
             _mainBus.Subscribe<StorageMessage.CommitAck>(indexCommitterService);
 
             var chaser = new TFChunkChaser(db, db.Config.WriterCheckpoint, db.Config.ChaserCheckpoint, db.Config.OptimizeReadSideCache);
             var storageChaser = new StorageChaser(_mainQueue, db.Config.WriterCheckpoint, chaser, indexCommitterService, epochManager);
+            AddTask(storageChaser.Task);
+
 #if DEBUG
             QueueStatsCollector.InitializeCheckpoints(
                 _nodeInfo.DebugIndex, db.Config.WriterCheckpoint, db.Config.ChaserCheckpoint);
@@ -508,7 +526,9 @@ namespace EventStore.Core
 
             // TIMER
             _timeProvider = new RealTimeProvider();
-            _timerService = new TimerService(new ThreadBasedScheduler(_timeProvider));
+            var threadBasedScheduler = new ThreadBasedScheduler(_timeProvider);
+            AddTask(threadBasedScheduler.Task);
+            _timerService = new TimerService(threadBasedScheduler);
             _mainBus.Subscribe<SystemMessage.BecomeShutdown>(_timerService);
             _mainBus.Subscribe<TimerMessage.Schedule>(_timerService);
 
@@ -524,6 +544,7 @@ namespace EventStore.Core
                 // MASTER REPLICATION
                 var masterReplicationService = new MasterReplicationService(_mainQueue, gossipInfo.InstanceId, db, _workersHandler,
                                                                             epochManager, vNodeSettings.ClusterNodeCount);
+                AddTask(masterReplicationService.Task);
                 _mainBus.Subscribe<SystemMessage.SystemStart>(masterReplicationService);
                 _mainBus.Subscribe<SystemMessage.StateChangeMessage>(masterReplicationService);
                 _mainBus.Subscribe<ReplicationMessage.ReplicaSubscriptionRequest>(masterReplicationService);
@@ -566,11 +587,11 @@ namespace EventStore.Core
                 _mainBus.Subscribe<SystemMessage.VNodeConnectionEstablished>(gossip);
                 _mainBus.Subscribe<SystemMessage.VNodeConnectionLost>(gossip);
             }
-            _workersHandler.Start();
-            _mainQueue.Start();
-            monitoringQueue.Start();
-            subscrQueue.Start();
-            perSubscrQueue.Start();
+            AddTasks(_workersHandler.Start());
+            AddTask(_mainQueue.Start());
+            AddTask(monitoringQueue.Start());
+            AddTask(subscrQueue.Start());
+            AddTask(perSubscrQueue.Start());
 
             if (subsystems != null)
             {
@@ -625,6 +646,34 @@ namespace EventStore.Core
         public void Handle(SystemMessage.BecomeShutdown message)
         {
             _shutdownEvent.Set();
+        }
+
+        public void AddTasks(IEnumerable<Task> tasks){
+#if DEBUG
+            foreach(var task in tasks){
+                AddTask(task);
+            }
+#endif
+        }
+        public void AddTask(Task task){
+#if DEBUG
+            lock(_taskAddLock){
+                _tasks.Add(task);
+
+                //keep reference to old trigger task
+                var oldTrigger = _taskAddedTrigger;
+
+                //create and add new trigger task to list
+                _taskAddedTrigger = new TaskCompletionSource<bool>();
+                _tasks.Add(_taskAddedTrigger.Task);
+
+                //remove old trigger task from list
+                _tasks.Remove(oldTrigger.Task);
+
+                //trigger old trigger task
+                oldTrigger.SetResult(true);
+            }
+#endif
         }
 
         public Task<ClusterVNode> StartAndWaitUntilReady()

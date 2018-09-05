@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -64,6 +65,8 @@ namespace EventStore.Core.Services.Replication
         private TimeSpan _noQuorumTimestamp = TimeSpan.Zero;
         private bool _noQuorumNotified;
         private ManualResetEventSlim _flushSignal = new ManualResetEventSlim();
+        private readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
+        public Task Task { get {return _tcs.Task;} }
 
         public MasterReplicationService(IPublisher publisher,
                                            Guid instanceId,
@@ -337,6 +340,7 @@ namespace EventStore.Core.Services.Replication
 
         private void MainLoop()
         {
+            try{
             _queueStats.Start();
             QueueMonitor.Default.Register(this);
 
@@ -371,6 +375,9 @@ namespace EventStore.Core.Services.Replication
                 catch (Exception exc)
                 {
                     if (Log.IsInformationLevelEnabled()) Log.LogInformation(exc, "Error during master replication iteration.");
+#if DEBUG
+                    throw;
+#endif
                 }
             }
 
@@ -382,9 +389,15 @@ namespace EventStore.Core.Services.Replication
             _db.Config.WriterCheckpoint.Flushed -= OnWriterFlushed;
 
             _publisher.Publish(new SystemMessage.ServiceShutdown(Name));
-
-            _queueStats.Stop();
-            QueueMonitor.Default.Unregister(this);
+            }
+            catch(Exception ex){
+                _tcs.TrySetException(ex);
+                throw;
+            }
+            finally{
+                _queueStats.Stop();
+                QueueMonitor.Default.Unregister(this);
+            }
         }
 
         private void OnWriterFlushed(long obj)

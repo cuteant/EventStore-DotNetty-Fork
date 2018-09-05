@@ -7,6 +7,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace EventStore.Core.Bus
 {
@@ -36,6 +37,8 @@ namespace EventStore.Core.Bus
         private readonly QueueStatsCollector _queueStats;
 
         private int _isRunning;
+        private readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
+
 
         public QueuedHandlerThreadPool(IHandle<Message> consumer,
                                        string name,
@@ -57,10 +60,11 @@ namespace EventStore.Core.Bus
             _queueStats = new QueueStatsCollector(name, groupName);
         }
 
-        public void Start()
+        public Task Start()
         {
             _queueStats.Start();
             _queueMonitor.Register(this);
+            return _tcs.Task;
         }
 
         public void Stop()
@@ -81,6 +85,7 @@ namespace EventStore.Core.Bus
 
         private void ReadFromQueue(object o)
         {
+        try{
             var proceed = true;
             var traceEnabled = Log.IsTraceLevelEnabled();
 
@@ -130,6 +135,9 @@ namespace EventStore.Core.Bus
                     catch (Exception ex)
                     {
                         Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, _queueStats.Name);
+#if DEBUG
+                        throw;
+#endif
                     }
                 }
 
@@ -140,6 +148,12 @@ namespace EventStore.Core.Bus
                 // try to reacquire lock if needed
                 proceed = !_stop && _queue.Count > 0 && Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0;
             }
+        }
+        catch(Exception ex){
+            _tcs.TrySetException(ex);
+            throw;
+        }
+
         }
 
         public void Publish(Message message)
