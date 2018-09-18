@@ -577,7 +577,6 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(CoreProjectionStatusMessage.Stopped message)
         {
             _stateHandler.Stopped(message);
-            Reply();
             if (Deleting)
             {
                 SetState(ManagedProjectionState.Deleting);
@@ -587,7 +586,6 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(CoreProjectionStatusMessage.Faulted message)
         {
             _stateHandler.Faulted(message);
-            Reply();
         }
 
         public void Handle(CoreProjectionStatusMessage.Prepared message)
