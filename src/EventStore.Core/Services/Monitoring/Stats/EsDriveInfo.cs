@@ -8,10 +8,25 @@ namespace EventStore.Core.Services.Monitoring.Stats
 {
     public class EsDriveInfo
     {
+        ///<summary>
+        ///Data storage path
+        ///</summary>
         public readonly string DiskName;
+        ///<summary>
+        ///Total bytes of space available to Event Store
+        ///</summary>
         public readonly long TotalBytes;
+        ///<summary>
+        ///Remaining bytes of space available to Event Store
+        ///</summary>
         public readonly long AvailableBytes;
+        ///<summary>
+        ///Total bytes of space used by Event Store
+        ///</summary>
         public readonly long UsedBytes;
+        ///<summary>
+        ///Percentage usage of space used by Event Store
+        ///</summary>
         public readonly string Usage;
 
         public static EsDriveInfo FromDirectory(string path, ILogger log)
