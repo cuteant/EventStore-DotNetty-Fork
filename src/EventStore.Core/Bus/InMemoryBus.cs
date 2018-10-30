@@ -30,6 +30,7 @@ namespace EventStore.Core.Bus
 
         private readonly bool _watchSlowMsg;
         private readonly TimeSpan _slowMsgThreshold;
+        private object _handlersLock = new object();
 
         private InMemoryBusUnoptimized()
           : this("Test")
@@ -47,6 +48,7 @@ namespace EventStore.Core.Bus
 
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             if (!_typeHash.TryGetValue(typeof(T), out List<IMessageHandler> handlers))
@@ -58,16 +60,19 @@ namespace EventStore.Core.Bus
             {
                 handlers.Add(new MessageHandler<T>(handler, handler.GetType().Name));
             }
+            }
         }
 
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             if (_typeHash.TryGetValue(typeof(T), out List<IMessageHandler> handlers))
             {
                 var messageHandler = handlers.FirstOrDefault(x => x.IsSame<T>(handler));
                 if (messageHandler != null) { handlers.Remove(messageHandler); }
+            }
             }
         }
 
@@ -146,6 +151,7 @@ namespace EventStore.Core.Bus
 
         private readonly bool _watchSlowMsg;
         private readonly TimeSpan _slowMsgThreshold;
+        private object _handlersLock = new object();
 
         private InMemoryBus2()
           : this("Test")
@@ -163,6 +169,7 @@ namespace EventStore.Core.Bus
 
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out List<Type> descendants))
@@ -182,12 +189,13 @@ namespace EventStore.Core.Bus
                     handlers.Add(new MessageHandler<T>(handler, handler.GetType().Name));
                 }
             }
-
+            }
         }
 
         public void Unsubscribe<T>(IHandle<T> handler)
           where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out List<Type> descendants))
@@ -206,6 +214,7 @@ namespace EventStore.Core.Bus
                     }
                 }
             }
+                }
         }
 
         public void Handle(Message message)
@@ -269,6 +278,7 @@ namespace EventStore.Core.Bus
 
         private readonly bool _watchSlowMsg;
         private readonly TimeSpan _slowMsgThreshold;
+        private object _handlersLock = new object();
 
         private InMemoryBus()
           : this("Test")
@@ -290,6 +300,7 @@ namespace EventStore.Core.Bus
 
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof(T)];
@@ -301,10 +312,12 @@ namespace EventStore.Core.Bus
                     handlers.Add(new MessageHandler<T>(handler, handler.GetType().Name));
                 }
             }
-        }
+             }
+       }
 
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
+            lock(_handlersLock){
             Ensure.NotNull(handler, nameof(handler));
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof(T)];
@@ -316,6 +329,7 @@ namespace EventStore.Core.Bus
                 {
                     handlers.Remove(messageHandler);
                 }
+            }
             }
         }
 
