@@ -44,12 +44,12 @@ namespace EventStore.Projections.Core.Tests.ClientAPI
 
                 _manager = new ProjectionsManager(
                     _node.ExtHttpEndPoint,
-                    TimeSpan.FromMilliseconds(10000));
+                TimeSpan.FromMilliseconds(20000));
 
                 _queryManager = new QueryManager(
                     _node.ExtHttpEndPoint,
-                    TimeSpan.FromMilliseconds(10000),
-                    TimeSpan.FromMilliseconds(10000));
+                    TimeSpan.FromMilliseconds(20000),
+                    TimeSpan.FromMilliseconds(20000));
 
                 WaitIdle();
 
