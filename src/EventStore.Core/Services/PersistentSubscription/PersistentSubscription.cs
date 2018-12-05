@@ -89,7 +89,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 {
                     if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: no checkpoint found.");
 
-                    if (debugEnabled) Log.LogDebug($"strtfrom = {_settings.StartFrom}");
+                    if (debugEnabled) Log.LogDebug($"Start from = {_settings.StartFrom}");
                     _nextEventToPullFrom = _settings.StartFrom >= 0 ? _settings.StartFrom : 0;
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, _settings.StartFrom >= 0);
                     TryReadingNewBatch();
