@@ -48,11 +48,11 @@ namespace EventStore.Projections.Core.Services.Processing
         private readonly HeadingEventReader _headingEventReader;
         private readonly ICheckpoint _writerCheckpoint;
         private readonly bool _runHeadingReader;
-
+        private readonly bool _faultOutOfOrderProjections;
 
         public EventReaderCoreService(
           IPublisher publisher, IODispatcher ioDispatcher, int eventCacheSize,
-          ICheckpoint writerCheckpoint, bool runHeadingReader)
+            ICheckpoint writerCheckpoint, bool runHeadingReader, bool faultOutOfOrderProjections)
         {
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
@@ -62,6 +62,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             _writerCheckpoint = writerCheckpoint;
             _runHeadingReader = runHeadingReader;
+            _faultOutOfOrderProjections = faultOutOfOrderProjections;
         }
 
         public void Handle(ReaderSubscriptionManagement.Pause message)
@@ -263,6 +264,14 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 return; // unsubscribed
             }
+
+            if (!_faultOutOfOrderProjections && message.Reason.Contains("was expected in the stream"))
+            {
+                // Log without fault the projection
+                _logger.Trace(message.Reason);
+                return;
+            }
+
             var subscription = _subscriptions[projectionId];
             Handle(new ReaderSubscriptionManagement.Unsubscribe(subscription.SubscriptionId));
             _publisher.Publish(new EventReaderSubscriptionMessage.Failed(subscription.SubscriptionId, message.Reason));
