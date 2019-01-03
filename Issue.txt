@@ -27,9 +27,9 @@ Issue.010 ★ SpinWait 替换 Thread.Sleep(1)
 
 Issue.011 ★ 需测试 NETCore 环境下是否可以使用 MemoryMappedFileCheckpoint
 
-Issue.012 ☆ 
+Issue.012 ☆ Nloglogger
 
-Issue.013 ☆ 
+Issue.013 ☆ src/eventstore.core/messages/tcpclientmessagedto.cs
 
 Issue.014 ☆ 
 
