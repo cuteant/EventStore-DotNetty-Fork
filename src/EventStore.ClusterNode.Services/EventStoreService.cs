@@ -273,7 +273,7 @@ namespace EventStore.ClusterNode
             if (options.WriteThrough) { builder.EnableWriteThrough(); }
             if (options.SkipIndexScanOnReads) { builder.SkipIndexScanOnReads(); }
             if (options.ReduceFileCachePressure) { builder.ReduceFileCachePressure(); }
-            //if (options.StructuredLog) { builder.StructuredLog(options.StructuredLog); }
+            if (options.StructuredLog) { builder.WithStructuredLogging(options.StructuredLog); }
 
             if (options.IntSecureTcpPort > 0 || options.ExtSecureTcpPort > 0)
             {

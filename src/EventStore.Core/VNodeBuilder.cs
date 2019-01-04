@@ -39,7 +39,7 @@ namespace EventStore.Core
         protected bool _disableHTTPCaching;
         protected bool _logHttpRequests;
         protected bool _enableHistograms;
-
+        protected bool _structuredLog;
         protected IPEndPoint _internalTcp;
         protected IPEndPoint _internalSecureTcp;
         protected IPEndPoint _externalTcp;
@@ -148,6 +148,7 @@ namespace EventStore.Core
             _cachedChunks = Opts.CachedChunksDefault;
             _inMemoryDb = true;
             _projectionType = ProjectionType.None;
+            _structuredLog = Opts.StructuredLogDefault;
 
             _externalTcp = new IPEndPoint(Opts.ExternalIpDefault, Opts.ExternalTcpPortDefault);
             _externalSecureTcp = null;
@@ -241,6 +242,17 @@ namespace EventStore.Core
             _clusterNodeCount = clusterNodeCount;
             _prepareAckCount = quorumSize;
             _commitAckCount = quorumSize;
+            return this;
+        }
+
+        /// <summary>
+        /// Enable structured logging
+        /// </summary>
+        /// <param name="structuredLog">Enable structured logging</param>
+        /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+        public VNodeBuilder WithStructuredLogging(bool structuredLog)
+        {
+            _structuredLog = structuredLog;
             return this;
         }
 
