@@ -2,11 +2,18 @@
 
 namespace EventStore.Projections.Core.Messages.Persisted.Commands
 {
-    public struct PersistedProjectionVersion
+    public readonly struct PersistedProjectionVersion
     {
-        public long Id;
-        public long Epoch;
-        public long Version;
+        public readonly long Id;
+        public readonly long Epoch;
+        public readonly long Version;
+
+        public PersistedProjectionVersion(long id, long epoch, long version)
+        {
+            Id = id;
+            Epoch = epoch;
+            Version = version;
+        }
 
         public static implicit operator ProjectionVersion(PersistedProjectionVersion source)
         {
@@ -15,12 +22,7 @@ namespace EventStore.Projections.Core.Messages.Persisted.Commands
 
         public static implicit operator PersistedProjectionVersion(ProjectionVersion source)
         {
-            return new PersistedProjectionVersion
-            {
-                Epoch = source.Epoch,
-                Id = source.ProjectionId,
-                Version = source.Version
-            };
+            return new PersistedProjectionVersion(source.ProjectionId, source.Epoch, source.Version);
         }
     }
 }

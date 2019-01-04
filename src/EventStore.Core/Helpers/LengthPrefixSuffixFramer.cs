@@ -75,8 +75,7 @@ namespace EventStore.Core.Helpers
                     {
                         if (_packageLength <= 0 || _packageLength > _maxPackageSize)
                         {
-                            Log.LogError("FRAMING ERROR! Data:");
-                            Log.LogError(Helper.FormatBinaryDump(bytes));
+                            Log.LogError($"FRAMING ERROR! Data:\n{Helper.FormatBinaryDump(bytes)}");
                             throw new PackageFramingException(string.Format("Package size is out of bounds: {0} (max: {1}).",
                                                                             _packageLength, _maxPackageSize));
                         }

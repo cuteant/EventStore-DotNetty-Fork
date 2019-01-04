@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Bus
 {
@@ -17,7 +17,7 @@ namespace EventStore.Core.Bus
     public class QueuedHandlerAutoResetWithMpsc : IQueuedHandler, IHandle<Message>, IPublisher, IMonitoredQueue,
         IThreadSafePublisher
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<QueuedHandlerAutoResetWithMpsc>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<QueuedHandlerAutoResetWithMpsc>();
 
         public string Name
         {
@@ -141,13 +141,13 @@ namespace EventStore.Core.Bus
                                     var elapsed = DateTime.UtcNow - start;
                                     if (elapsed > _slowMsgThreshold)
                                     {
-                                        Log.Trace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevEstimatedQueueCount}/{curEstimatedQueueCount}.",
+                                        Log.LogTrace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevEstimatedQueueCount}/{curEstimatedQueueCount}.",
                                             Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds,
                                             estimatedQueueCount,
                                             _queue.EstimageCurrentQueueCount());
                                         if (elapsed > QueuedHandler.VerySlowMsgThreshold &&
                                             !(msg is SystemMessage.SystemInit))
-                                            Log.Error("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevEstimatedQueueCount}/{curEstimatedQueueCount}.",
+                                            Log.LogError("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevEstimatedQueueCount}/{curEstimatedQueueCount}.",
                                                 Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds,
                                                 estimatedQueueCount, _queue.EstimageCurrentQueueCount());
                                     }
@@ -159,7 +159,7 @@ namespace EventStore.Core.Bus
                             }
                             catch (Exception ex)
                             {
-                                Log.ErrorException(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
+                                Log.LogError(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
 #if DEBUG
                                 throw;
 #endif
@@ -172,7 +172,7 @@ namespace EventStore.Core.Bus
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorException(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
+                    Log.LogError(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
 #if DEBUG
                     throw;
 #endif

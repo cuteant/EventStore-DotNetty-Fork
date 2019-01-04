@@ -1,14 +1,14 @@
 <Project>
   <!-- Set common properties regarding assembly information and nuget packages -->
   <PropertyGroup>
-    <Product>Mono.UriTemplate</Product>
-    <Authors>Mono Project</Authors>
-    <Copyright>Copyright 2017 Mono Project</Copyright>
+    <Product>SimpleSyndicate.UriTemplate</Product>
+    <Authors>simpleSyndicate</Authors>
+    <Copyright>Copyright © simpleSyndicate 2018</Copyright>
     <PackageIconUrl></PackageIconUrl>
-    <PackageProjectUrl>https://github.com/mono/mono/tree/master/mcs/class/System.ServiceModel.Web/System</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/mono/mono/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/gazooka/SimpleSyndicate.UriTemplate</PackageProjectUrl>
+    <PackageLicense>https://github.com/gazooka/SimpleSyndicate.UriTemplate/blob/master/README.md</PackageLicense>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/mono/mono/tree/master/mcs/class/System.ServiceModel.Web/System</RepositoryUrl>
+    <RepositoryUrl>https://github.com/gazooka/SimpleSyndicate.UriTemplate</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>

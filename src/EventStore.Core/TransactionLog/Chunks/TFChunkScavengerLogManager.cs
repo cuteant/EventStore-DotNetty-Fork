@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Helpers;
@@ -9,6 +8,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services;
 using EventStore.Core.Services.Storage;
 using EventStore.Core.Services.UserManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
 {
@@ -18,7 +18,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         private readonly TimeSpan _scavengeHistoryMaxAge;
         private readonly IODispatcher _ioDispatcher;
         private const int MaxRetryCount = 5;
-        private static readonly ILogger Log = LogManager.GetLoggerFor<StorageScavenger>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<StorageScavenger>();
         private int _isInitialised;
 
         public TFChunkScavengerLogManager(string nodeEndpoint, TimeSpan scavengeHistoryMaxAge, IODispatcher ioDispatcher)
@@ -36,7 +36,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             SetMaxAge();
 
-            Log.Debug("Searching for incomplete scavenges on node {nodeEndPoint}.", _nodeEndpoint);
+            Log.LogDebug("Searching for incomplete scavenges on node {nodeEndPoint}.", _nodeEndpoint);
             GatherIncompleteScavenges(-1, new HashSet<string>(), new List<string>());
         }
 
@@ -64,19 +64,19 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                         if (currentMetadata.MaxAge == _scavengeHistoryMaxAge)
                         {
-                            Log.Debug("Max age already set for the {stream} stream.", SystemStreams.ScavengesStream);
+                            Log.LogDebug("Max age already set for the {stream} stream.", SystemStreams.ScavengesStream);
                             return;
                         }
                     }
 
-                    Log.Debug("Setting max age for the {stream} stream to {maxAge}.", SystemStreams.ScavengesStream, _scavengeHistoryMaxAge);
+                    Log.LogDebug("Setting max age for the {stream} stream to {maxAge}.", SystemStreams.ScavengesStream, _scavengeHistoryMaxAge);
 
                     var metadata = new StreamMetadata(maxAge: _scavengeHistoryMaxAge);
                     var metaStreamEvent = new Event(Guid.NewGuid(), SystemEventTypes.StreamMetadata, isJson: true, data: metadata.ToJsonBytes(), metadata: null);
                     _ioDispatcher.WriteEvent(metaStreamId, ExpectedVersion.Any, metaStreamEvent, SystemAccount.Principal, m => {
                         if (m.Result != OperationResult.Success)
                         {
-                            Log.Error("Failed to write the $maxAge of {days} days metadata for the {stream} stream. Reason: {reason}", _scavengeHistoryMaxAge.TotalDays, SystemStreams.ScavengesStream, m.Result);
+                            Log.LogError("Failed to write the $maxAge of {days} days metadata for the {stream} stream. Reason: {reason}", _scavengeHistoryMaxAge.TotalDays, SystemStreams.ScavengesStream, m.Result);
                         }
                     });
 
@@ -93,7 +93,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                     if (readResult.Result != ReadStreamResult.Success && readResult.Result != ReadStreamResult.NoStream)
                     {
-                        Log.Debug("Unable to read {stream} for scavenge log clean up. Result: {result}", SystemStreams.ScavengesStream, readResult.Result);
+                        Log.LogDebug("Unable to read {stream} for scavenge log clean up. Result: {result}", SystemStreams.ScavengesStream, readResult.Result);
                         return;
                     }
 
@@ -112,7 +112,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                             object scavengeIdEntry;
                             if (!dictionary.TryGetValue("scavengeId", out scavengeIdEntry))
                             {
-                                Log.Warn("An entry in the scavenge log has no scavengeId");
+                                Log.LogWarning("An entry in the scavenge log has no scavengeId");
                                 continue;                                
                             }
 
@@ -149,11 +149,11 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (incompletedScavenges.Count == 0)
             {
-                Log.Debug("No incomplete scavenges found on node {nodeEndPoint}.", _nodeEndpoint);
+                Log.LogDebug("No incomplete scavenges found on node {nodeEndPoint}.", _nodeEndpoint);
             }
             else
             {
-                Log.Info("Found {incomplete} incomplete scavenge{s} on node {nodeEndPoint}. Marking as failed:{newLine}{incompleteScavenges}", incompletedScavenges.Count, incompletedScavenges.Count == 1 ? "" : "s", _nodeEndpoint, Environment.NewLine, string.Join(Environment.NewLine, incompletedScavenges));
+                Log.LogInformation("Found {incomplete} incomplete scavenge{s} on node {nodeEndPoint}. Marking as failed:{newLine}{incompleteScavenges}", incompletedScavenges.Count, incompletedScavenges.Count == 1 ? "" : "s", _nodeEndpoint, Environment.NewLine, string.Join(Environment.NewLine, incompletedScavenges));
             }
 
             foreach (var incompletedScavenge in incompletedScavenges)

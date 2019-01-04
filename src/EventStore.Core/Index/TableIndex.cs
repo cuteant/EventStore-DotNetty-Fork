@@ -41,7 +41,7 @@ namespace EventStore.Core.Index
         private readonly Func<TFReaderLease> _tfReaderFactory;
         private readonly IIndexFilenameProvider _fileNameProvider;
 
-        private readonly ReaderWriterLockSlim _awaitingTablesLock = new ReaderWriterLockSlim();
+        private readonly object _awaitingTablesLock = new object();
 
         private IndexMap _indexMap;
         private List<TableItem> _awaitingMemTables;
@@ -167,11 +167,7 @@ namespace EventStore.Core.Index
         {
             try
             {
-                var sb = StringBuilderManager.Allocate();
-                sb.AppendFormat("IndexMap '{0}' content:\n", indexmapFile);
-                sb.AppendLine(Helper.FormatBinaryDump(File.ReadAllBytes(indexmapFile)));
-
-                Log.LogError(StringBuilderManager.ReturnAndFree(sb));
+                Log.LogError($"IndexMap '{indexmapFile}' content:\n {Helper.FormatBinaryDump(File.ReadAllBytes(indexmapFile))}");
             }
             catch (Exception exc)
             {
@@ -228,7 +224,7 @@ namespace EventStore.Core.Index
                     prepareCheckpoint = Math.Max(prepareCheckpoint, collection[i].Position);
                 }
 
-                using (var lockToken = _awaitingTablesLock.CreateToken(false))
+                lock (_awaitingTablesLock)
                 {
                     var newTables = new List<TableItem> { new TableItem(_memTableFactory(), -1, -1) };
                     newTables.AddRange(_awaitingMemTables.Select(
@@ -241,7 +237,7 @@ namespace EventStore.Core.Index
                     TryProcessAwaitingTables();
 
                     if (_additionalReclaim)
-                        ThreadPool.QueueUserWorkItem(x => ReclaimMemoryIfNeeded(_awaitingMemTables));
+                        ThreadPoolScheduler.Schedule(ReclaimMemoryIfNeeded, _awaitingMemTables);
                 }
             }
         }
@@ -254,7 +250,7 @@ namespace EventStore.Core.Index
                 {
                     _backgroundRunningEvent.Reset();
                     _backgroundRunning = true;
-                    ThreadPool.QueueUserWorkItem(x => ReadOffQueue());
+                    ThreadPoolScheduler.Schedule(x => ReadOffQueue(), (object)null);
                 }
             }
         }
@@ -269,7 +265,7 @@ namespace EventStore.Core.Index
                     //ISearchTable table;
                     lock (_awaitingTablesLock)
                     {
-                        Log.Trace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
+                        Log.LogTrace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
                         if (_awaitingMemTables.Count == 1)
                         {
 
@@ -319,7 +315,7 @@ namespace EventStore.Core.Index
                         if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable)
                             ((PTable) corrTable.Table).MarkForDestruction();
 
-                        Log.Trace("There are now {0} awaiting tables.", memTables.Count);
+                        Log.LogTrace("There are now {0} awaiting tables.", memTables.Count);
                         _awaitingMemTables = memTables;
                     }
 
@@ -328,12 +324,12 @@ namespace EventStore.Core.Index
             }
             catch (FileBeingDeletedException exc)
             {
-                Log.ErrorException(exc,
+                Log.LogError(exc,
                     "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
             }
             catch (Exception exc)
             {
-                Log.ErrorException(exc, "Error in TableIndex.ReadOffQueue");
+                Log.LogError(exc, "Error in TableIndex.ReadOffQueue");
                 throw;
             }
             finally
@@ -361,7 +357,7 @@ namespace EventStore.Core.Index
 
             try
             {
-                Log.Info("Starting scavenge of TableIndex.");
+                Log.LogInformation("Starting scavenge of TableIndex.");
                 ScavengeInternal(log, ct);
             }
             finally
@@ -377,7 +373,7 @@ namespace EventStore.Core.Index
                     TryProcessAwaitingTables();
                 }
 
-                Log.Info("Completed scavenge of TableIndex.  Elapsed: {0}", sw.Elapsed);
+                Log.LogInformation("Completed scavenge of TableIndex.  Elapsed: {0}", sw.Elapsed);
             }
         }
 
@@ -446,7 +442,7 @@ namespace EventStore.Core.Index
                     }
                 }
 
-                Log.Info("Waiting for TableIndex background task to complete before starting scavenge.");
+                Log.LogInformation("Waiting for TableIndex background task to complete before starting scavenge.");
                 _backgroundRunningEvent.Wait(ct);
             }
         }
@@ -467,9 +463,14 @@ namespace EventStore.Core.Index
             return new Tuple<string, bool>(((TransactionLog.LogRecords.PrepareLogRecord)result.LogRecord).EventStreamId, true);
         }
 
+#if NETCOREAPP
+        private void ReclaimMemoryIfNeeded(List<TableItem> awaitingMemTables)
+        {
+#else
         private void ReclaimMemoryIfNeeded(object state)
         {
             var awaitingMemTables = (List<TableItem>)state;
+#endif
             var toPutOnDisk = awaitingMemTables.OfType<IMemTable>().Count() - MaxMemoryTables;
             var traceEnabled = Log.IsTraceLevelEnabled();
             for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
@@ -481,7 +482,7 @@ namespace EventStore.Core.Index
 
                 var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
                 var swapped = false;
-                using (var token = _awaitingTablesLock.CreateToken(false))
+                lock (_awaitingTablesLock)
                 {
                     for (var j = _awaitingMemTables.Count - 1; j >= 1; j--)
                     {

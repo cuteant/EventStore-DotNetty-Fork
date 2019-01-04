@@ -55,7 +55,7 @@ namespace EventStore.ClientAPI.Embedded
             StreamEventAppeared(message.CorrelationId, message.Event, message.RetryCount);
         }
 
-        private void StreamEventAppeared(Guid correlationId, EventStore.Core.Data.ResolvedEvent resolvedEvent, int? retryCount)
+        private void StreamEventAppeared(Guid correlationId, in EventStore.Core.Data.ResolvedEvent resolvedEvent, int? retryCount)
         {
             _subscriptions.TryGetActiveSubscription(correlationId, out IEmbeddedSubscription subscription);
             subscription.EventAppeared((resolvedEvent, retryCount));

@@ -21,8 +21,8 @@ namespace EventStore.Core.Services.Monitoring
     {
         None = 0x0,       // only for tests
         Stream = 0x1,
-        Csv = 0x2,
-        StreamAndCsv = Stream | Csv
+        File = 0x2,
+        StreamAndFile = Stream | File
     }
 
     public class MonitoringService : IHandle<SystemMessage.SystemInit>,
@@ -114,9 +114,9 @@ namespace EventStore.Core.Services.Monitoring
                 {
                     var rawStats = stats.GetStats(useGrouping: false, useMetadata: false);
 
-                    if ((_statsStorage & StatsStorage.Csv) != 0)
+                    if ((_statsStorage & StatsStorage.File) != 0)
                     {
-                        SaveStatsToCsvFile(rawStats);
+                        SaveStatsToFile(rawStats);
                     }
 
                     if ((_statsStorage & StatsStorage.Stream) != 0)
@@ -148,7 +148,7 @@ namespace EventStore.Core.Services.Monitoring
             return statsContainer;
         }
 
-        private void SaveStatsToCsvFile(Dictionary<string, object> rawStats)
+        private void SaveStatsToFile(Dictionary<string, object> rawStats)
         {
             var header = StatsCsvEncoder.GetHeader(rawStats);
             var infoEnabled = RegularLog.IsInformationLevelEnabled();

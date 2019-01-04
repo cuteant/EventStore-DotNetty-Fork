@@ -277,8 +277,10 @@ namespace EventStore.Core.Tests.Http.Streams
             }
         }
 
-#if DESKTOPCLR
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_posting_an_event_as_array_to_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -323,6 +325,9 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_deleting_to_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -359,6 +364,9 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_getting_from_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -395,6 +403,9 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_getting_from_all_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -432,6 +443,9 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_getting_from_encoded_all_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -469,6 +483,9 @@ namespace EventStore.Core.Tests.Http.Streams
         }
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_posting_an_event_as_array_to_metadata_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -508,6 +525,9 @@ namespace EventStore.Core.Tests.Http.Streams
 
 
         [TestFixture, Category("LongRunning")]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public class when_getting_from_metadata_stream_with_slash : HttpBehaviorSpecification
         {
             private HttpWebResponse _response;
@@ -543,7 +563,6 @@ namespace EventStore.Core.Tests.Http.Streams
                 Assert.AreEqual(MakeUrl(TestStream + "/metadata"), _response.Headers[HttpResponseHeader.Location]);
             }
         }
-#endif
 
         [TestFixture, Category("LongRunning")]
         public class when_posting_an_event_without_EventId_as_array : HttpBehaviorSpecification

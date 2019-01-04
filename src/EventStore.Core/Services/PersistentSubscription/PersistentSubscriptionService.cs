@@ -666,7 +666,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     }
                     catch (Exception ex)
                     {
-                        Log.LogError("There was an error loading configuration from storage.", ex);
+                        Log.LogError(ex, "There was an error loading configuration from storage.");
                     }
                     break;
                 case ReadStreamResult.NoStream:

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using EventStore.Common.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Index
 {
@@ -83,7 +84,7 @@ namespace EventStore.Core.Index
                     fs.FlushToDisk();
                 }
             }
-            Log.Trace("Dumped MemTable [{id}, {table} entries] in {elapsed}.", table.Id, table.Count, sw.Elapsed);
+            Log.LogTrace("Dumped MemTable [{id}, {table} entries] in {elapsed}.", table.Id, table.Count, sw.Elapsed);
             return new PTable(filename, table.Id, depth: cacheDepth, skipIndexVerify: skipIndexVerify);
         }
 
@@ -103,7 +104,7 @@ namespace EventStore.Core.Index
             if (tables.Count == 2)
                 return MergeTo2(tables, numIndexEntries, indexEntrySize, outputFile, upgradeHash, existsAt, readRecord, version, cacheDepth, skipIndexVerify); // special case
 
-            Log.Trace("PTables merge started.");
+            Log.LogTrace("PTables merge started.");
             var watch = Stopwatch.StartNew();
 
             var enumerators = tables.Select(table => new EnumerableTable(version, table, upgradeHash, existsAt, readRecord)).ToList();
@@ -183,7 +184,7 @@ namespace EventStore.Core.Index
                         f.FlushToDisk();
                     }
                 }
-                Log.Trace("PTables merge finished in {elapsed} ([{entryCount}] entries merged into {dumpedEntryCount}).",
+                Log.LogTrace("PTables merge finished in {elapsed} ([{entryCount}] entries merged into {dumpedEntryCount}).",
                           watch.Elapsed, string.Join(", ", tables.Select(x => x.Count)), dumpedEntryCount);
                 return new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth, skipIndexVerify: skipIndexVerify);
             }
@@ -217,7 +218,7 @@ namespace EventStore.Core.Index
                                        Func<string, ulong, ulong> upgradeHash, Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord,
                                        byte version, int cacheDepth, bool skipIndexVerify)
         {
-            Log.Trace("PTables merge started (specialized for <= 2 tables).");
+            Log.LogTrace("PTables merge started (specialized for <= 2 tables).");
             var watch = Stopwatch.StartNew();
 
             var fileSizeUpToIndexEntries = GetFileSizeUpToIndexEntries(numIndexEntries, version);
@@ -298,7 +299,7 @@ namespace EventStore.Core.Index
                         f.FlushToDisk();
                     }
                 }
-                Log.Trace("PTables merge finished in {elapsed} ([{entryCount}] entries merged into {dumpedEntryCount}).",
+                Log.LogTrace("PTables merge finished in {elapsed} ([{entryCount}] entries merged into {dumpedEntryCount}).",
                           watch.Elapsed, string.Join(", ", tables.Select(x => x.Count)), dumpedEntryCount);
                 return new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth, skipIndexVerify: skipIndexVerify);
             }
@@ -325,7 +326,7 @@ namespace EventStore.Core.Index
 
             var fileSizeUpToIndexEntries = GetFileSizeUpToIndexEntries(numIndexEntries, version);
 
-            Log.Trace("PTables scavenge started with {numIndexEntries} entries.", numIndexEntries);
+            Log.LogTrace("PTables scavenge started with {numIndexEntries} entries.", numIndexEntries);
             var watch = Stopwatch.StartNew();
             long keptCount = 0L;
             long droppedCount;
@@ -368,7 +369,7 @@ namespace EventStore.Core.Index
 
                         if (droppedCount == 0 && !forceKeep)
                         {
-                            Log.Trace(
+                            Log.LogTrace(
                                 "PTable scavenge finished in {elapsed}. No entries removed so not keeping scavenged table.",
                                 watch.Elapsed);
 
@@ -379,7 +380,7 @@ namespace EventStore.Core.Index
                             }
                             catch (Exception ex)
                             {
-                                Log.ErrorException(ex, "Unable to delete unwanted scavenged PTable: {outputFile}", outputFile);
+                                Log.LogError(ex, "Unable to delete unwanted scavenged PTable: {outputFile}", outputFile);
                             }
 
                             spaceSaved = 0;
@@ -388,7 +389,7 @@ namespace EventStore.Core.Index
 
                         if (droppedCount == 0 && forceKeep)
                         {
-                            Log.Trace("Keeping scavenged index even though it isn't smaller; version upgraded.");
+                            Log.LogTrace("Keeping scavenged index even though it isn't smaller; version upgraded.");
                         }
 
                         //CALCULATE AND WRITE MIDPOINTS
@@ -412,7 +413,7 @@ namespace EventStore.Core.Index
                     }
                 }
 
-                Log.Trace("PTable scavenge finished in {elapsed} ({droppedCount} entries removed, {keptCount} remaining).", watch.Elapsed,
+                Log.LogTrace("PTable scavenge finished in {elapsed} ({droppedCount} entries removed, {keptCount} remaining).", watch.Elapsed,
                     droppedCount, keptCount);
                 var scavengedTable = new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth,
                     skipIndexVerify: skipIndexVerify);
@@ -427,7 +428,7 @@ namespace EventStore.Core.Index
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorException(ex, "Unable to delete unwanted scavenged PTable: {outputFile}", outputFile);
+                    Log.LogError(ex, "Unable to delete unwanted scavenged PTable: {outputFile}", outputFile);
                 }
                 throw;
             }
@@ -522,10 +523,10 @@ namespace EventStore.Core.Index
                     AppendMidpointRecordTo(bs,buffer,version,pt,indexEntrySize);
                 }
                 midpointsWritten = midpoints.Count;
-                Log.Debug("Cached {midpointsWritten} index midpoints to PTable", midpointsWritten);
+                Log.LogDebug("Cached {midpointsWritten} index midpoints to PTable", midpointsWritten);
             }
             else
-                Log.Debug("Not caching index midpoints to PTable due to count mismatch. Table entries: {numIndexEntries} / Dumped entries: {dumpedEntryCount}, Required midpoint count: {requiredMidpointCount} /  Actual midpoint count: {midpoints}", numIndexEntries, dumpedEntryCount, requiredMidpointCount, midpoints.Count);
+                Log.LogDebug("Not caching index midpoints to PTable due to count mismatch. Table entries: {numIndexEntries} / Dumped entries: {dumpedEntryCount}, Required midpoint count: {requiredMidpointCount} /  Actual midpoint count: {midpoints}", numIndexEntries, dumpedEntryCount, requiredMidpointCount, midpoints.Count);
 
             bs.Flush();
             fs.SetLength(fs.Position + PTableFooter.GetSize(version));
@@ -534,7 +535,7 @@ namespace EventStore.Core.Index
             bs.Flush();
         }
 
-        private static void AppendMidpointRecordTo(Stream stream, byte[] buffer, byte version, Midpoint midpointEntry, int midpointEntrySize)
+        private static void AppendMidpointRecordTo(Stream stream, byte[] buffer, byte version, in Midpoint midpointEntry, int midpointEntrySize)
         {
             if(version >= PTableVersions.IndexV4){
                 ulong eventStream = midpointEntry.Key.Stream;

@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Principal;
 using System.Threading;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;

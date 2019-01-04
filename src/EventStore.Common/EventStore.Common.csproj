@@ -2,27 +2,43 @@
   <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
-  <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.Common</RootNamespace>
     <AssemblyName>EventStore.Common</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Common.DotNetCore</PackageId>
-    <Title>EventStore.Common.DotNetCore</Title>
-    <Description>EventStore.Common.DotNetCore</Description>
+    <PackageId>EventStore.Common.Unofficial</PackageId>
+    <Title>EventStore.Common.Unofficial</Title>
+    <Description>EventStore.Common.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CuteAnt.Core" Version="$(CuteAntCorePackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\etc\EventStore.Rags\EventStore.Rags.csproj" />
+    <ProjectReference Include="..\EventStore.Common.Utils\EventStore.Common.Utils.csproj" />
+    <ProjectReference Include="..\EventStore.Rags\EventStore.Rags.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Internal\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Internal\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

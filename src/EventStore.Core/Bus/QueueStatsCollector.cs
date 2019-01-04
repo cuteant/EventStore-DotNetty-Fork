@@ -270,11 +270,11 @@ namespace EventStore.Core.Bus
         private static void WaitStop(int multiplier = 1){
             Debug.Assert(_idleDetectionEnabled, "_idleDetectionEnabled was false when WaitStop() entered");
             lock(_notifyStopLock){
-                var counter = 0;
+                var counter = 0; var isDebugEnabled = _logger.IsDebugLevelEnabled();
                 while(_totalStarted > 0){
                     if (!Monitor.Wait(_notifyStopLock, 100))
                     {
-                        Console.WriteLine("Waiting for STOP state...");
+                        if (isDebugEnabled) { _logger.LogDebug("Waiting for STOP state..."); }
                         counter++;
                         if (counter > 150 * multiplier)
                             throw new ApplicationException("Infinite WaitStop() loop?");
@@ -293,6 +293,7 @@ namespace EventStore.Core.Bus
             lock (_notifyIdleLock)
             {
                 var successes = 0;
+                var debugEnabled = _logger.IsDebugLevelEnabled();
                 while (successes < 2)
                 {
                     while (_nonIdle > 0 || _totalLength > 0 || (waitForCheckpoints && (AreCheckpointsDifferent(0) || AreCheckpointsDifferent(1)

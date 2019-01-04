@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Projections.Core.Messages.ParallelQueryProcessingMessages;

@@ -1,10 +1,10 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.Common.Log;
 using EventStore.Common.Utils;
+using Microsoft.Extensions.Logging;
 
 /*Courtesy of Eric Johannsen: https://stackoverflow.com/a/20623311*/
 static public class ProcessUtil
@@ -147,13 +147,13 @@ static public class ProcessUtil
     static public void PrintWhoIsLocking(string path, ILogger logger){
         if(!Runtime.IsWindows) return;
         try{
-            logger.Error("Trying to retrieve list of processes having a file handle open on {path} (requires admin privileges)",path);
+            logger.LogError("Trying to retrieve list of processes having a file handle open on {path} (requires admin privileges)",path);
             var processes = ProcessUtil.WhoIsLocking(path);
             var processList = processes.Count==0?"None":string.Join(Environment.NewLine, processes.Select(x => string.Format("[{0}] {1}", x.Id, x.MainModule.FileName)));
-            logger.Error("Processes locking {path}:"+Environment.NewLine+"{processList}", path, processList);
+            logger.LogError("Processes locking {path}:"+Environment.NewLine+"{processList}", path, processList);
         }
         catch(Exception e){
-            logger.ErrorException(e, "Could not retrieve list of processes using file handle {path}", path);
+            logger.LogError(e, "Could not retrieve list of processes using file handle {path}", path);
         }
     }
 }

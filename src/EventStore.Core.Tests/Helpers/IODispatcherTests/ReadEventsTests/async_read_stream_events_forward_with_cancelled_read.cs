@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using EventStore.Core.Helpers;
 using NUnit.Framework;

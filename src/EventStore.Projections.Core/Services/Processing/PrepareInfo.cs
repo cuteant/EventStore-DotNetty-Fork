@@ -2,7 +2,7 @@
 
 namespace EventStore.Projections.Core.Services.Processing
 {
-    internal struct PrepareInfo
+    internal readonly struct PrepareInfo
     {
         private readonly PrepareLogRecord _prepareRecord;
 

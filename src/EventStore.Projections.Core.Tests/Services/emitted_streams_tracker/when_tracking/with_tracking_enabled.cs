@@ -1,4 +1,5 @@
-﻿using EventStore.ClientAPI.Common.Utils;
+﻿using EventStore.ClientAPI;
+using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Projections.Core.Services.Processing;
 using NUnit.Framework;
@@ -20,9 +21,9 @@ namespace EventStore.Projections.Core.Tests.Services.emitted_streams_tracker.whe
 
         protected override void When()
         {
-            var sub = _conn.SubscribeToStreamAsync(_projectionNamesBuilder.GetEmittedStreamsName(), true, (s, evnt) => {
+            var sub = _conn.SubscribeToStreamAsync(_projectionNamesBuilder.GetEmittedStreamsName(), true, async (s, evnt) => {
                 _eventAppeared.Signal();
-                return Task.CompletedTask;
+                await Task.CompletedTask;
             }, userCredentials: _credentials).Result;
 
             _emittedStreamsTracker.TrackEmittedStream(new EmittedEvent[]

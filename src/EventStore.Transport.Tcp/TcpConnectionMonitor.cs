@@ -86,15 +86,7 @@ namespace EventStore.Transport.Tcp
 
             if (Application.IsDefined(Application.DumpStatistics) && Log.IsTraceLevelEnabled())
             {
-                Log.LogTrace("\n# Total connections: {0,3}. Out: {1:0.00}b/s  In: {2:0.00}b/s  Pending Send: {3}  " +
-                          "In Send: {4}  Pending Received: {5} Measure Time: {6}",
-                          stats.Connections,
-                          stats.SendingSpeed,
-                          stats.ReceivingSpeed,
-                          stats.PendingSend,
-                          stats.InSend,
-                          stats.PendingSend,
-                          stats.MeasureTime);
+                Log.AnalyzeConnections(stats);
             }
             return stats;
         }

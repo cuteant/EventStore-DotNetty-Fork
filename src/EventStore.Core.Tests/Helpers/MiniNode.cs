@@ -191,7 +191,7 @@ namespace EventStore.Core.Tests.Helpers
                 } else if(startNodeTask.IsCompleted){
                     if(t.Status != TaskStatus.RanToCompletion)
                         throw new ApplicationException("MiniNode has not properly started.");
-                    Log.Info("MiniNode successfully started!");
+                    Log.LogInformationX("MiniNode successfully started!");
                 }
             });
         }

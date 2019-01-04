@@ -263,39 +263,39 @@ namespace EventStore.Core.Index
                 try
                 {
                     Parallel.ForEach(GetAllLines(reader).Reverse(), // Reverse so we load the highest levels (biggest files) first - ensures we use concurrency in the most efficient way. 
-                        new ParallelOptions {MaxDegreeOfParallelism = threads},
-                        indexMapEntry =>
+                        new ParallelOptions { MaxDegreeOfParallelism = threads }, LocalAction);
+                    void LocalAction(string indexMapEntry)
+                    {
+                        if (checkpoints.PreparePosition < 0 || checkpoints.CommitPosition < 0)
+                            throw new CorruptIndexException(
+                                string.Format("Negative prepare/commit checkpoint in non-empty IndexMap: {0}.", checkpoints));
+
+                        PTable ptable = null;
+                        var pieces = indexMapEntry.Split(',');
+                        try
                         {
-                            if (checkpoints.PreparePosition < 0 || checkpoints.CommitPosition < 0)
-                                throw new CorruptIndexException(
-                                    string.Format("Negative prepare/commit checkpoint in non-empty IndexMap: {0}.", checkpoints));
+                            var level = int.Parse(pieces[0]);
+                            var position = int.Parse(pieces[1]);
+                            var file = pieces[2];
+                            var path = Path.GetDirectoryName(indexmapFilename);
+                            var ptablePath = Path.Combine(path, file);
 
-                            PTable ptable = null;
-                            var pieces = indexMapEntry.Split(',');
-                            try
+                            ptable = PTable.FromFile(ptablePath, cacheDepth, skipIndexVerify);
+
+                            lock (tables)
                             {
-                                var level = int.Parse(pieces[0]);
-                                var position = int.Parse(pieces[1]);
-                                var file = pieces[2];
-                                var path = Path.GetDirectoryName(indexmapFilename);
-                                var ptablePath = Path.Combine(path, file);
-
-                                ptable = PTable.FromFile(ptablePath, cacheDepth, skipIndexVerify);
-
-                                lock (tables)
-                                {
-                                    InsertTableToTables(tables, level, position, ptable);
-                                }
+                                InsertTableToTables(tables, level, position, ptable);
                             }
-                            catch (Exception)
-                            {
-                                // if PTable file path was correct, but data is corrupted, we still need to dispose opened streams
-                                if (ptable != null)
-                                    ptable.Dispose();
+                        }
+                        catch (Exception)
+                        {
+                            // if PTable file path was correct, but data is corrupted, we still need to dispose opened streams
+                            if (ptable != null)
+                                ptable.Dispose();
 
-                                throw;
-                            }
-                        });
+                            throw;
+                        }
+                    }
                     
                     // Verify map is correct
                     for (int i = 0; i < tables.Count; ++i)
@@ -389,10 +389,10 @@ namespace EventStore.Core.Index
                 try
                 {
                     if (File.Exists(filename))
-					{
+                    {
                         File.SetAttributes(filename, FileAttributes.Normal);
                         File.Delete(filename);
-					}
+                    }
                     File.Move(tmpIndexMap, filename);
                     break;
                 }

@@ -1,18 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <RootNamespace>EventStore.Core</RootNamespace>
+    <AssemblyName>EventStore.Native</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
-  <ItemGroup>
-      <Reference Include="Mono.Posix" Condition="$(OS) != 'Windows_NT'" />
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>EventStore.Native.Unofficial</PackageId>
+    <Title>EventStore.Native.Unofficial</Title>
+    <Description>EventStore.Native.Unofficial</Description>
+    <PackageTags>eventstore</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netfx' ">
+    <PackageReference Include="Mono.Posix" Version="$(MonoPosixPackageVersion)" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Mono.Posix" Version="5.4.0.201" Condition="'$(OS)' == 'Windows_NT'" />
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="$(MonoPosixNETStandardPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EventStore.Common\EventStore.Common.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Compile Update="Internal\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Internal\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

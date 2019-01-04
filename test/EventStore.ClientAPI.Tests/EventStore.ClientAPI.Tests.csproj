@@ -3,7 +3,7 @@
   <PropertyGroup>
     <RootNamespace>EventStore.ClientAPI.Tests</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Tests</AssemblyName>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.0;net471;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471;net452</TargetFrameworks>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 

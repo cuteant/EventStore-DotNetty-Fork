@@ -15,7 +15,7 @@
   </metadata>
   <files>
     <file src="..\src\libs\x64\win\js1.dll" target="runtimes\win-x64\native" />
-    <file src="..\src\libs\x64\ubuntu-16.04\libjs1.so" target="runtimes\linux-x64\native" />
-    <file src="..\src\libs\x64\osx-10.12\libjs1.dylib" target="runtimes\osx-x64\native" />
+    <file src="..\src\libs\x64\linux\libjs1.so" target="runtimes\linux-x64\native" />
+    <file src="..\src\libs\x64\mac\libjs1.dylib" target="runtimes\osx-x64\native" />
   </files>
 </package>

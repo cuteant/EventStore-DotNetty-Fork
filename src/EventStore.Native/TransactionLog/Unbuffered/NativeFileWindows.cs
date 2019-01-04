@@ -25,7 +25,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
             WinNative.SetFilePointer(handle, low, out high, WinNative.EMoveMethod.Begin);
             if (!WinNative.SetEndOfFile(handle))
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
 
             FSync(handle);
@@ -40,7 +40,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         {
             if (!WinNative.WriteFile(handle, buffer, count, ref written, IntPtr.Zero))
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
         }
 
@@ -50,7 +50,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
 
             if (!WinNative.ReadFile(handle, buffer, count, ref read, 0))
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
 
             return read;
@@ -60,7 +60,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         {
             if (!WinNative.GetFileSizeEx(handle, out var size))
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
 
             return size;
@@ -78,7 +78,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
                 IntPtr.Zero);
             if (handle.IsInvalid)
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
 
             return handle;
@@ -99,7 +99,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
                 IntPtr.Zero);
             if (handle.IsInvalid)
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
 
             return handle;
@@ -112,7 +112,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
             var f = WinNative.SetFilePointer(handle, low, out high, WinNative.EMoveMethod.Begin);
             if (f == WinNative.INVALID_SET_FILE_POINTER)
             {
-                throw new Win32Exception();
+                ThrowHelper.ThrowWin32Exception();
             }
         }
     }

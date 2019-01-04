@@ -38,6 +38,9 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         }
 
         [Test]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public void returns_location_header()
         {
             Assert.AreEqual("http://" + _node.ExtHttpEndPoint + "/subscriptions/stream/groupname334", _response.Headers["location"]);
@@ -76,6 +79,9 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         }
 
         [Test]
+#if NETCOREAPP
+        [Ignore("not yet supported")]
+#endif
         public void returns_location_header()
         {
             Assert.AreEqual("http://" + _node.ExtHttpEndPoint + "/subscriptions/stream/groupname334", _response.Headers["location"]);

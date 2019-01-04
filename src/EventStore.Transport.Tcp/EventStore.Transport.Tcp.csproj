@@ -3,27 +3,42 @@
   <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
-  
+
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.Transport.Tcp</RootNamespace>
     <AssemblyName>EventStore.Transport.Tcp</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Transport.Tcp.DotNetCore</PackageId>
-    <Title>EventStore.Transport.Tcp.DotNetCore</Title>
-    <Description>EventStore.Transport.Tcp.DotNetCore</Description>
+    <PackageId>EventStore.Transport.Tcp.Unofficial</PackageId>
+    <Title>EventStore.Transport.Tcp.Unofficial</Title>
+    <Description>EventStore.Transport.Tcp.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack.Unofficial" Version="$(MessagePackUnofficialPackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EventStore.BufferManagement\EventStore.BufferManagement.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Internal\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Internal\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

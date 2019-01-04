@@ -106,7 +106,11 @@ StatsPeriodSec: 3600
 # The initial number of readers to start when opening a TFChunk
 # ChunkInitialReaderCount: 5
 
+# Number of threads to be used to initialize the database. Will be capped at host processor count.
+# InitializationThreads: 1
 
+# Change the way the DB files are opened to reduce their stickiness in the system file cache.
+# ReduceFileCachePressure: false
 
 ## Projections Options
 
@@ -116,7 +120,8 @@ RunProjections: All                    # None / System / All
 # ProjectionThreads: 3
 # The number of minutes a query can be idle before it expires
 # ProjectionsQueryExpiry: 5
-
+# Fault the projection if the Event number that was expected in the stream differs from what is received. This may happen if events have been deleted or expired
+#FaultOutOfOrderProjections: false
 
 
 ## Authentication Options

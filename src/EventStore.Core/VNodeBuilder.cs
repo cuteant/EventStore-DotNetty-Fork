@@ -269,6 +269,7 @@ namespace EventStore.Core
         /// </summary>
         /// <param name="projectionType">The mode in which to run the projections system</param>
         /// <param name="numberOfThreads">The number of threads to use for projections. Defaults to 3.</param>
+        /// <param name="faultOutOfOrderProjections"></param>
         /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
         public VNodeBuilder RunProjections(ProjectionType projectionType, int numberOfThreads = Opts.ProjectionThreadsDefault, bool faultOutOfOrderProjections = Opts.FaultOutOfOrderProjectionsDefault)
         {
@@ -1070,8 +1071,8 @@ namespace EventStore.Core
             _chunkInitialReaderCount = chunkInitialReaderCount;
             return this;
         }
-        
-        
+
+
         /// <summary>
         /// Sets the number of threads to use to initialize the node.
         /// </summary>
@@ -1445,7 +1446,7 @@ namespace EventStore.Core
                     _reduceFileCachePressure,
                     _initializationThreads,
                     _faultOutOfOrderProjections);
-            
+
             var infoController = new InfoController(options, _projectionType);
 
             if (_log.IsInformationLevelEnabled())
@@ -1540,17 +1541,20 @@ namespace EventStore.Core
                 var chaserCheckFilename = Path.Combine(dbPath, Checkpoint.Chaser + ".chk");
                 var epochCheckFilename = Path.Combine(dbPath, Checkpoint.Epoch + ".chk");
                 var truncateCheckFilename = Path.Combine(dbPath, Checkpoint.Truncate + ".chk");
-//#if NETSTANDARD
-//                writerChk = new FileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
-//                chaserChk = new FileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
-//                epochChk = new FileCheckpoint(epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
-//                truncateChk = new FileCheckpoint(truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
-//#else
+                //if (Runtime.IsMono)
+                //{
+                //    writerChk = new FileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
+                //    chaserChk = new FileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
+                //    epochChk = new FileCheckpoint(epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
+                //    truncateChk = new FileCheckpoint(truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
+                //}
+                //else
+                //{
                 writerChk = new MemoryMappedFileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
                 chaserChk = new MemoryMappedFileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
                 epochChk = new MemoryMappedFileCheckpoint(epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
                 truncateChk = new MemoryMappedFileCheckpoint(truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
-//#endif
+                //}
             }
 
             var cache = cachedChunks >= 0

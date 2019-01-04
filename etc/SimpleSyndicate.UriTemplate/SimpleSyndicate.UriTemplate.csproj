@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\version.uri.props" />
+  <Import Project="..\nuget.uri.props" />
+  
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <RootNamespace>System</RootNamespace>
+    <AssemblyName>SimpleSyndicate.UriTemplate</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="NuGet">
+    <PackageId>SimpleSyndicate.UriTemplate.Unofficial</PackageId>
+    <Title>SimpleSyndicate.UriTemplate (Unofficial)</Title>
+    <Description>System.UriTemplate for .Net Standard</Description>
+    <PackageTags>UriTemplate UriTemplateMatch</PackageTags>
+  </PropertyGroup>
+
+</Project>

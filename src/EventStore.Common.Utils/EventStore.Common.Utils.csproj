@@ -1,7 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\version.props" />
+  <Import Project="..\..\nuget.props" />
+  
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <RootNamespace>EventStore.Common.Utils</RootNamespace>
+    <AssemblyName>EventStore.Common.Utils</AssemblyName>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Label="NuGet">
+    <PackageId>EventStore.Common.Utils.Unofficial</PackageId>
+    <Title>EventStore.Common.Utils.Unofficial</Title>
+    <Description>EventStore.Common.Utils.Unofficial</Description>
+    <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
 </Project>

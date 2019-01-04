@@ -6,7 +6,7 @@
     <Copyright>Copyright 2016 Gil Tene, Lee Campbell</Copyright>
     <PackageIconUrl>http://hdrhistogram.github.io/HdrHistogram.NET/HdrHistogram-icon-64x64.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/HdrHistogram/HdrHistogram.NET</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/HdrHistogram/HdrHistogram.NET/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/HdrHistogram/HdrHistogram.NET/master/LICENSE.txt</PackageLicense>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/HdrHistogram/HdrHistogram.NET</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>

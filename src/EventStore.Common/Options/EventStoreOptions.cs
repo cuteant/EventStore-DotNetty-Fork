@@ -168,7 +168,7 @@ namespace EventStore.Common.Options
             {
                 if (!properties.Any(x => x.Name.Equals(optionSource.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    throw new OptionException(String.Format("The option {0} is not a known option", optionSource.Name), optionSource.Name);
+                    throw new OptionException($"The option {optionSource.Name} is not a known option", optionSource.Name);
                 }
             }
             return optionSources;
@@ -205,7 +205,7 @@ namespace EventStore.Common.Options
                 }
                 catch
                 {
-                    throw new OptionException(String.Format("The value {0} could not be converted to {1}", optionSource.Value, property.PropertyType.Name), property.Name);
+                    throw new OptionException($"The value {optionSource.Value} could not be converted to {property.PropertyType.Name}", property.Name);
                 }
             }
             return optionSources;

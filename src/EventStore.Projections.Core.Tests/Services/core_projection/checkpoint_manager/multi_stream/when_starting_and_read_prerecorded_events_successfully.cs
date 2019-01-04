@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using EventStore.Core.Bus;
 using EventStore.Projections.Core.Services.Processing;

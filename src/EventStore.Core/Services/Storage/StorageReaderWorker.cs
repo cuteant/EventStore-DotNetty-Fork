@@ -58,7 +58,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Read Event operation has expired for Stream: {0}, Event Number: {1}. Operation Expired at {2}", msg.EventStreamId, msg.EventNumber, msg.Expires);
+                    Log.LogDebug("Read Event operation has expired for Stream: {0}, Event Number: {1}. Operation Expired at {2}", msg.EventStreamId, msg.EventNumber, msg.Expires);
                 return;
             }
             msg.Envelope.ReplyWith(ReadEvent(msg));
@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Read Stream Events Forward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
+                    Log.LogDebug("Read Stream Events Forward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
                 return;
             }
             using (HistogramService.Measure(_readerStreamRangeHistogram))
@@ -107,7 +107,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Read Stream Events Backward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
+                    Log.LogDebug("Read Stream Events Backward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
                 return;
             }
             msg.Envelope.ReplyWith(ReadStreamEventsBackward(msg));
@@ -118,7 +118,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Read All Stream Events Forward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
+                    Log.LogDebug("Read All Stream Events Forward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
                 return;
             }
             using (HistogramService.Measure(_readerAllRangeHistogram))
@@ -165,7 +165,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Read All Stream Events Backward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
+                    Log.LogDebug("Read All Stream Events Backward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
                 return;
             }
             msg.Envelope.ReplyWith(ReadAllEventsBackward(msg));
@@ -176,7 +176,7 @@ namespace EventStore.Core.Services.Storage
             if (msg.Expires < DateTime.UtcNow)
             {
                 if(LogExpiredMessage(msg.Expires))
-                    Log.Debug("Check Stream Access operation has expired for Stream: {0}. Operation Expired at {1}", msg.EventStreamId, msg.Expires);
+                    Log.LogDebug("Check Stream Access operation has expired for Stream: {0}. Operation Expired at {1}", msg.EventStreamId, msg.Expires);
                 return;
             }
             msg.Envelope.ReplyWith(CheckStreamAccess(msg));
@@ -586,11 +586,11 @@ namespace EventStore.Core.Services.Storage
             if(!_batchLoggingEnabled) return;
             if(_expiredBatchCount == 0){
                 _batchLoggingEnabled = false;
-                Log.Warn("StorageReaderWorker #{0}: Batch logging disabled, read load is back to normal", _queueId);
+                Log.LogWarning("StorageReaderWorker #{0}: Batch logging disabled, read load is back to normal", _queueId);
                 return;
             }
 
-            Log.Warn("StorageReaderWorker #{0}: {1} read operations have expired", _queueId, _expiredBatchCount);
+            Log.LogWarning("StorageReaderWorker #{0}: {1} read operations have expired", _queueId, _expiredBatchCount);
             _expiredBatchCount = 0;
             _publisher.Publish(
                 TimerMessage.Schedule.Create(TimeSpan.FromSeconds(2),
@@ -611,7 +611,7 @@ namespace EventStore.Core.Services.Storage
                 if(_expiredBatchCount >= 50){
                     if(expire - _lastExpireTime.Value <= TimeSpan.FromSeconds(1)){ //heuristic to match approximately >= 50 expired messages / second
                         _batchLoggingEnabled = true;
-                        Log.Warn("StorageReaderWorker #{0}: Batch logging enabled, high rate of expired read messages detected", _queueId);
+                        Log.LogWarning("StorageReaderWorker #{0}: Batch logging enabled, high rate of expired read messages detected", _queueId);
                         _publisher.Publish(
                             TimerMessage.Schedule.Create(TimeSpan.FromSeconds(2),
                                                     new PublishEnvelope(_publisher),

@@ -1093,36 +1093,30 @@ namespace EventStore.Core.Messages
         }
 
         [MessagePackObject]
-        public sealed class ScavengeDatabaseCompleted
+        public sealed class ScavengeDatabaseResponse
         {
             [Key(0)]
-            public readonly ScavengeDatabaseCompleted.ScavengeResult Result;
+            public readonly ScavengeDatabaseResponse.ScavengeResult Result;
             [Key(1)]
-            public readonly string Error;
-            [Key(2)]
-            public readonly int TotalTimeMs;
-            [Key(3)]
-            public readonly long TotalSpaceSaved;
+            public readonly string ScavengeId;
 
             public enum ScavengeResult
             {
 
-                Success = 0,
+                Started = 0,
 
                 InProgress = 1,
 
-                Failed = 2
+                Unauthorized = 2
             }
 
-            private ScavengeDatabaseCompleted() { }
+            private ScavengeDatabaseResponse() { }
 
             [SerializationConstructor]
-            public ScavengeDatabaseCompleted(ScavengeDatabaseCompleted.ScavengeResult result, string error, int totalTimeMs, long totalSpaceSaved)
+            public ScavengeDatabaseResponse(ScavengeDatabaseResponse.ScavengeResult result, string scavengeId)
             {
                 Result = result;
-                Error = error;
-                TotalTimeMs = totalTimeMs;
-                TotalSpaceSaved = totalSpaceSaved;
+                ScavengeId = scavengeId;
             }
         }
 

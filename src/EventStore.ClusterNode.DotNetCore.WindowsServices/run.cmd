@@ -1,1 +1,0 @@
-dotnet EventStore.ClusterNode.dll

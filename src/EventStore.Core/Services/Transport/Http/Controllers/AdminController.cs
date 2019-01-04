@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 }
             }
 
-            Log.Info("Request scavenging because /admin/scavenge?startFromChunk={0}&threads={1} request has been received.", startFromChunk, threads);
+            Log.LogInformation("Request scavenging because /admin/scavenge?startFromChunk={0}&threads={1} request has been received.", startFromChunk, threads);
 
             var envelope = new SendToHttpEnvelope(_networkSendQueue, entity, (e, message) =>
                 {
@@ -99,7 +99,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             var scavengeId = match.BoundVariables["scavengeId"];
 
-            Log.Info("Stopping scavenge because /admin/scavenge/{0} DELETE request has been received.", scavengeId);
+            Log.LogInformation("Stopping scavenge because /admin/scavenge/{0} DELETE request has been received.", scavengeId);
 
             var envelope = new SendToHttpEnvelope(_networkSendQueue, entity, (e, message) =>
                 {

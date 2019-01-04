@@ -6,7 +6,7 @@
     <Copyright>Copyright 2012-2017 Event Store LLP, Seabiscuit</Copyright>
     <PackageIconUrl></PackageIconUrl>
     <PackageProjectUrl>https://github.com/cuteant/EventStore-NETCore-Fork</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/cuteant/EventStore-NETCore-Fork/blob/dev-netcore/LICENSE.md</PackageLicenseUrl>
+    <PackageLicense>https://github.com/cuteant/EventStore-NETCore-Fork/blob/dev-netcore/LICENSE.md</PackageLicense>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/cuteant/EventStore-NETCore-Fork.git</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>

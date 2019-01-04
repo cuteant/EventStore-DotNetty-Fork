@@ -8,16 +8,16 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.Core</RootNamespace>
     <AssemblyName>EventStore.Core</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Core.DotNetCore</PackageId>
-    <Title>EventStore.Core.DotNetCore</Title>
-    <Description>EventStore.Core.DotNetCore</Description>
+    <PackageId>EventStore.Core.Unofficial</PackageId>
+    <Title>EventStore.Core.Unofficial</Title>
+    <Description>EventStore.Core.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
@@ -34,16 +34,15 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
-    <PackageReference Include="Mono.Posix.NETStandard" Version="$(MonoPosixNETStandardPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
-    <ProjectReference Include="..\..\etc\Mono.UriTemplate\Mono.UriTemplate.csproj" />
+    <ProjectReference Include="..\..\etc\SimpleSyndicate.UriTemplate\SimpleSyndicate.UriTemplate.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\etc\HdrHistogram\HdrHistogram.csproj" />
     <ProjectReference Include="..\EventStore.Core.Messages\EventStore.Core.Messages.csproj" />
+    <ProjectReference Include="..\EventStore.Native\EventStore.Native.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
   </ItemGroup>

@@ -203,11 +203,11 @@ namespace EventStore.ClusterNode
                    .WithIndexVerification(options.SkipIndexVerify)
                    .WithIndexCacheDepth(options.IndexCacheDepth)
                    .WithSslTargetHost(options.SslTargetHost)
-                   .RunProjections(options.RunProjections, options.ProjectionThreads)
+                   .RunProjections(options.RunProjections, options.ProjectionThreads, options.FaultOutOfOrderProjections)
                    .WithProjectionQueryExpirationOf(TimeSpan.FromMinutes(options.ProjectionsQueryExpiry))
                    .WithTfCachedChunks(options.CachedChunks)
                    .WithTfChunksCacheSize(options.ChunksCacheSize)
-                   .WithStatsStorage(StatsStorage.StreamAndCsv)
+                   .WithStatsStorage(StatsStorage.StreamAndFile)
                    .AdvertiseInternalIPAs(options.IntIpAdvertiseAs)
                    .AdvertiseExternalIPAs(options.ExtIpAdvertiseAs)
                    .AdvertiseInternalHttpPortAs(options.IntHttpPortAdvertiseAs)
@@ -218,7 +218,8 @@ namespace EventStore.ClusterNode
                    .AdvertiseExternalSecureTCPPortAs(options.ExtSecureTcpPortAdvertiseAs)
                    .HavingReaderThreads(options.ReaderThreadsCount)
                    .WithConnectionPendingSendBytesThreshold(options.ConnectionPendingSendBytesThreshold)
-                   .WithChunkInitialReaderCount(options.ChunkInitialReaderCount);
+                   .WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
+                   .WithInitializationThreads(options.InitializationThreads);
 
             if (options.GossipSeed.Length > 0)
             {
@@ -271,6 +272,8 @@ namespace EventStore.ClusterNode
             if (options.Unbuffered) { builder.EnableUnbuffered(); }
             if (options.WriteThrough) { builder.EnableWriteThrough(); }
             if (options.SkipIndexScanOnReads) { builder.SkipIndexScanOnReads(); }
+            if (options.ReduceFileCachePressure) { builder.ReduceFileCachePressure(); }
+            //if (options.StructuredLog) { builder.StructuredLog(options.StructuredLog); }
 
             if (options.IntSecureTcpPort > 0 || options.ExtSecureTcpPort > 0)
             {
@@ -410,5 +413,10 @@ namespace EventStore.ClusterNode
             //    Log.LogError(exc.ToString());
             //}
         }
+
+        //protected override bool GetIsStructuredLog(ClusterNodeOptions options)
+        //{
+        //    return options.StructuredLog;
+        //}
     }
 }

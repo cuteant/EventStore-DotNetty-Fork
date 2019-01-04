@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
 #if DESKTOPCLR
@@ -45,7 +45,7 @@ namespace EventStore.Common.Utils
                 return;
             }
 
-#if NETSTANDARD
+#if NETCOREAPP
             FlushSafe = f => f.Flush(flushToDisk: true);
 #else
             try
@@ -57,7 +57,7 @@ namespace EventStore.Common.Utils
                 {
                     f.Flush(flushToDisk: false);
                     if (!FlushFileBuffers(GetFileHandle(f)))
-                        throw new Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
+                        ThrowHelper.ThrowException_FlushFileBuffersFailed();
                 };
             }
             catch (Exception exc)

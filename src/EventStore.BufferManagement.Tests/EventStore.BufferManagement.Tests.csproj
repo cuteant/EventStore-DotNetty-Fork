@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net471</TargetFrameworks>
-    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">$(NETCoreApp2RuntimeFrameworkVersion)</RuntimeFrameworkVersion>
-    <RootNamespace>EventStore.BufferManagement.Tests</RootNamespace>
-    <AssemblyName>EventStore.BufferManagement.Tests</AssemblyName>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <DebugType>full</DebugType>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -13,17 +11,16 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
+    <PackageReference Include="NUnit" Version="$(NUnitPackageVersion)" />
+    <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterPackageVersion)" />
     <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="$(NUnitPackageVersion)" />
-    <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterPackageVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\EventStore.BufferManagement\EventStore.BufferManagement.csproj" />
+    <ProjectReference Include="..\EventStore.BufferManagement\EventStore.BufferManagement.csproj" />
   </ItemGroup>
 
   <ItemGroup>

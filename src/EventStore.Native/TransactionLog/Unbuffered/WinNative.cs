@@ -73,6 +73,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         public static extern int SetFilePointer(SafeFileHandle handle, int lDistanceToMove,
             out int lpDistanceToMoveHigh, EMoveMethod dwMoveMethod);
 
+        // ReSharper disable once InconsistentNaming
         public const int INVALID_SET_FILE_POINTER = -1;
     }
 }

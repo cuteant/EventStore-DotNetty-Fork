@@ -5,7 +5,7 @@
   <PropertyGroup>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>
     <AssemblyName>EventStore.ClusterNode.Services</AssemblyName>
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
@@ -24,7 +24,7 @@
     <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
     <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(SystemConfigurationConfigurationManagerPackageVersion)" />
   </ItemGroup>
 

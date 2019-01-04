@@ -27,13 +27,13 @@ Issue.010 ★ SpinWait 替换 Thread.Sleep(1)
 
 Issue.011 ★ 需测试 NETCore 环境下是否可以使用 MemoryMappedFileCheckpoint
 
-Issue.012 ☆ Nloglogger
+Issue.012 ☆ 
 
-Issue.013 ☆ src/eventstore.core/messages/tcpclientmessagedto.cs
+Issue.013 ☆ 
 
 Issue.014 ☆ 
 
-Issue.015 ☆ 
+Issue.015 ☆ FileStreamExtensions.FlushSafe 修改为扩展方法
 
 Issue.016 ☆ 
 

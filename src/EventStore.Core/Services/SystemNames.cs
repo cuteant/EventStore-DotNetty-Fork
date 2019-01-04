@@ -1,5 +1,4 @@
 ﻿using System;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 
 namespace EventStore.Core.Services

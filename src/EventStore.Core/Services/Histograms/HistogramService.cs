@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Histograms
 
         public static HistogramBase GetHistogram(string name)
         {
-	        HistogramBase ret;
+            HistogramBase ret;
             Histograms.TryGetValue(name, out ret);
             return ret;
         }
@@ -30,7 +30,7 @@ namespace EventStore.Core.Services.Histograms
         public static Measurement Measure(string name)
         {
             var histogram = GetHistogram(name);
-            return new Measurement {watch = _stopwatch, Start = _stopwatch.ElapsedTicks, Histogram=histogram};
+            return new Measurement(_stopwatch, _stopwatch.ElapsedTicks, histogram);
         }
 
         public static void SetValue(string name, long value)
@@ -86,34 +86,41 @@ namespace EventStore.Core.Services.Histograms
     }
 
 
-        public struct Measurement : IDisposable
-        {
-            public Stopwatch watch;
-            public HistogramBase Histogram;
-            public long Start;
+    public readonly struct Measurement : IDisposable
+    {
+        public readonly Stopwatch Watch;
+        public readonly HistogramBase Histogram;
+        public readonly long Start;
 
-            public void Dispose()
+        public Measurement(Stopwatch watch, long start, HistogramBase histogram)
+        {
+            Watch = watch;
+            Start = start;
+            Histogram = histogram;
+        }
+
+        public void Dispose()
+        {
+            if (Histogram == null) return;
+            lock (Histogram)
             {
-                if (Histogram == null) return;
-                lock (Histogram)
+                var valueToRecord = (((double)Watch.ElapsedTicks - Start) / Stopwatch.Frequency) * 1000000000;
+                if (valueToRecord < HighestPowerOf2(Histogram.HighestTrackableValue))
                 {
-                    var valueToRecord = (((double)watch.ElapsedTicks - Start) / Stopwatch.Frequency) * 1000000000;
-                    if (valueToRecord < HighestPowerOf2(Histogram.HighestTrackableValue))
-                    {
-                        Histogram.RecordValue((long)valueToRecord);
-                    }
+                    Histogram.RecordValue((long)valueToRecord);
                 }
             }
-            private static long HighestPowerOf2(long x)
-            {
-                x--;
-                x |= (x >> 1);
-                x |= (x >> 2);
-                x |= (x >> 4);
-                x |= (x >> 8);
-                x |= (x >> 16);
-                return (x + 1);
-            }
-
         }
+        private static long HighestPowerOf2(long x)
+        {
+            x--;
+            x |= (x >> 1);
+            x |= (x >> 2);
+            x |= (x >> 4);
+            x |= (x >> 8);
+            x |= (x >> 16);
+            return (x + 1);
+        }
+
+    }
 }

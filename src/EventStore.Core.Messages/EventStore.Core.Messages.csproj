@@ -10,14 +10,14 @@
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Core.Messages.DotNetCore</PackageId>
-    <Title>EventStore.Core.Messages.DotNetCore</Title>
-    <Description>EventStore.Core.Messages.DotNetCore</Description>
+    <PackageId>EventStore.Core.Messages.Unofficial</PackageId>
+    <Title>EventStore.Core.Messages.Unofficial</Title>
+    <Description>EventStore.Core.Messages.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack.Abstractions.Unofficial" Version="$(MessagePackAbstractionsUnofficialPackageVersion)" />
+    <PackageReference Include="MessagePack.Abstractions" Version="$(MessagePackAbstractionsPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;

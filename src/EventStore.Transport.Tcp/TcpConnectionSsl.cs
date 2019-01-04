@@ -275,21 +275,21 @@ namespace EventStore.Transport.Tcp
             if (!Log.IsInformationLevelEnabled()) { return; }
 
             Log.LogInformation("[S{0}, L{1}]", RemoteEndPoint, LocalEndPoint);
-            Log.Info("Cipher: {0}", stream.CipherAlgorithm);
+            Log.LogInformation("Cipher: {0}", stream.CipherAlgorithm);
             try{
-                Log.Info("Cipher strength: {0}", stream.CipherStrength);
+                Log.LogInformation("Cipher strength: {0}", stream.CipherStrength);
             }
             catch(NotImplementedException){
             }
-            Log.Info("Hash: {0}", stream.HashAlgorithm);
+            Log.LogInformation("Hash: {0}", stream.HashAlgorithm);
             try{
-                Log.Info("Hash strength: {0}", stream.HashStrength);
+                Log.LogInformation("Hash strength: {0}", stream.HashStrength);
             }
             catch(NotImplementedException){
             }
-            Log.Info("Key exchange: {0}", stream.KeyExchangeAlgorithm);
+            Log.LogInformation("Key exchange: {0}", stream.KeyExchangeAlgorithm);
             try{
-                Log.Info("Key exchange strength: {0}", stream.KeyExchangeStrength);
+                Log.LogInformation("Key exchange strength: {0}", stream.KeyExchangeStrength);
             }
             catch(NotImplementedException){
             }
@@ -300,7 +300,7 @@ namespace EventStore.Transport.Tcp
             Log.LogInformation("Can read: {0}, write {1}", stream.CanRead, stream.CanWrite);
             Log.LogInformation("Can timeout: {0}", stream.CanTimeout);
             try{
-                Log.Info("Certificate revocation list checked: {0}", stream.CheckCertRevocationStatus);
+                Log.LogInformation("Certificate revocation list checked: {0}", stream.CheckCertRevocationStatus);
             }
             catch(NotImplementedException){
             }

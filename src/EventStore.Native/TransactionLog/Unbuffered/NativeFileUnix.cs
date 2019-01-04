@@ -106,13 +106,13 @@ namespace EventStore.Core.TransactionLog.Unbuffered
 			var han = Syscall.open(path, flags, FilePermissions.S_IRWXU);
 			if (han < 0)
 			{
-				throw new Win32Exception();
+				ThrowHelper.ThrowWin32Exception();
 			}
 
 			var handle = new SafeFileHandle((IntPtr)han, true);
 			if (handle.IsInvalid)
 			{
-				throw new Exception("Invalid handle");
+				ThrowHelper.ThrowException_InvalidHandle();
 			}
 
 			MacCaching.Disable(handle);

@@ -49,7 +49,7 @@ namespace EventStore.Core.Util
                 contentLocalPath = contentLocalPath.Substring(_localWebRootPath.Length);
             }
 
-            //_logger.Trace("{0} requested from MiniWeb", contentLocalPath);
+            //_logger.LogTrace("{0} requested from MiniWeb", contentLocalPath);
             try
             {
                 var extensionToContentType = new Dictionary<string, string>(StringComparer.Ordinal)

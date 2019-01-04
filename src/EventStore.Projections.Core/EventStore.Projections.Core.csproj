@@ -7,16 +7,16 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.Projections.Core</RootNamespace>
     <AssemblyName>EventStore.Projections.Core</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Projections.Core.DotNetCore</PackageId>
-    <Title>EventStore.Projections.Core.DotNetCore</Title>
-    <Description>EventStore.Projections.Core.DotNetCore</Description>
+    <PackageId>EventStore.Projections.Core.Unofficial</PackageId>
+    <Title>EventStore.Projections.Core.Unofficial</Title>
+    <Description>EventStore.Projections.Core.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventStore.GoogleV8" Version="4.0.0" />
+    <PackageReference Include="EventStore.GoogleV8" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

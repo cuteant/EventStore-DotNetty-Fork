@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.Threading;
-using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Bus
 {
@@ -17,7 +17,7 @@ namespace EventStore.Core.Bus
     /// </summary>
     public class QueuedHandlerAutoReset : IQueuedHandler, IHandle<Message>, IPublisher, IMonitoredQueue, IThreadSafePublisher
     {
-        private static readonly ILogger Log = LogManager.GetLoggerFor<QueuedHandlerAutoReset>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<QueuedHandlerAutoReset>();
 
         public int MessageCount { get { return _queue.Count; } }
         public string Name { get { return _queueStats.Name; } }
@@ -125,10 +125,10 @@ namespace EventStore.Core.Bus
                             var elapsed = DateTime.UtcNow - start;
                             if (elapsed > _slowMsgThreshold)
                             {
-                                Log.Trace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
+                                Log.LogTrace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
                                           Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
                                 if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                    Log.Error("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
+                                    Log.LogError("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
                                               Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
                             }
                         }
@@ -142,7 +142,7 @@ namespace EventStore.Core.Bus
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorException(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
+                    Log.LogError(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
 #if DEBUG
                     throw;
 #endif

@@ -3,16 +3,16 @@
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI.Embedded</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Embedded</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Client.Embedded.DotNetCore</PackageId>
-    <Title>EventStore.Client.Embedded.DotNetCore</Title>
-    <Description>EventStore.ClientAPI.Embedded.DotNetCore</Description>
+    <PackageId>EventStore.Client.Embedded.Unofficial</PackageId>
+    <Title>EventStore.Client.Embedded.Unofficial</Title>
+    <Description>EventStore.ClientAPI.Embedded.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

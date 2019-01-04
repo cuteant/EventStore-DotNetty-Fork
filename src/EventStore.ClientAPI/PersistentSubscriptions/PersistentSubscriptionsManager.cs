@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.PersistentSubscriptions
 {

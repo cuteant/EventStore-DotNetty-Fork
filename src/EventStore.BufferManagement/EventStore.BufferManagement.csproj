@@ -4,16 +4,16 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.BufferManagement</RootNamespace>
     <AssemblyName>EventStore.BufferManagement</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.BufferManagement.DotNetCore</PackageId>
-    <Title>EventStore.BufferManagement.DotNetCore</Title>
-    <Description>EventStore.BufferManagement.DotNetCore</Description>
+    <PackageId>EventStore.BufferManagement.Unofficial</PackageId>
+    <Title>EventStore.BufferManagement.Unofficial</Title>
+    <Description>EventStore.BufferManagement.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 

@@ -5,16 +5,16 @@
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
     <RootNamespace>EventStore.Transport.Http</RootNamespace>
     <AssemblyName>EventStore.Transport.Http</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
-    <PackageId>EventStore.Transport.Http.DotNetCore</PackageId>
-    <Title>EventStore.Transport.Http.DotNetCore</Title>
-    <Description>Transport.Http.DotNetCore</Description>
+    <PackageId>EventStore.Transport.Http.Unofficial</PackageId>
+    <Title>EventStore.Transport.Http.Unofficial</Title>
+    <Description>Transport.Http.Unofficial</Description>
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
@@ -24,6 +24,20 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventStore.BufferManagement\EventStore.BufferManagement.csproj" />
-    <ProjectReference Include="..\EventStore.Common\EventStore.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Internal\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Internal\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

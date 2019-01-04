@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using EventStore.Common.Log;
 using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Bus
 {
@@ -22,7 +22,7 @@ namespace EventStore.Core.Bus
 
         public static readonly TimeSpan DefaultSlowMessageThreshold = TimeSpan.FromMilliseconds(48);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<InMemoryBus>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<InMemoryBus>();
 
         public string Name { get; private set; }
 
@@ -114,7 +114,7 @@ namespace EventStore.Core.Bus
 
                         var elapsed = DateTime.UtcNow - start;
                         if (elapsed > _slowMsgThreshold)
-                            Log.Trace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.", Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
+                            Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.", Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
                     }
                     else
                     {
@@ -138,7 +138,7 @@ namespace EventStore.Core.Bus
 
         public static readonly TimeSpan DefaultSlowMessageThreshold = TimeSpan.FromMilliseconds(48);
 
-        private static readonly ILogger Log = LogManager.GetLoggerFor<InMemoryBus2>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<InMemoryBus2>();
 
         public string Name { get; private set; }
 
@@ -235,7 +235,7 @@ namespace EventStore.Core.Bus
                     var elapsed = DateTime.UtcNow - start;
                     if (elapsed > _slowMsgThreshold)
                     {
-                        Log.Trace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
+                        Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
                                   Name, message.GetType().Name, (int) elapsed.TotalMilliseconds, handler.HandlerName);
                     }
                 }
@@ -259,7 +259,7 @@ namespace EventStore.Core.Bus
         }
 
         public static readonly TimeSpan DefaultSlowMessageThreshold = TimeSpan.FromMilliseconds(48);
-        private static readonly ILogger Log = LogManager.GetLoggerFor<InMemoryBus>();
+        private static readonly ILogger Log = TraceLogger.GetLogger<InMemoryBus>();
 
         public string Name { get; private set; }
 
@@ -338,10 +338,10 @@ namespace EventStore.Core.Bus
                     var elapsed = DateTime.UtcNow - start;
                     if (elapsed > _slowMsgThreshold)
                     {
-                        Log.Trace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
+                        Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
                                   Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
                         if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(message is SystemMessage.SystemInit))
-                            Log.Error("---!!! VERY SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
+                            Log.LogError("---!!! VERY SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
                                       Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
                     }
                 }

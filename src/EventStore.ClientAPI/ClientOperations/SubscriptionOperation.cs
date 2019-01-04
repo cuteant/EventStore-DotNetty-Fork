@@ -363,7 +363,7 @@ namespace EventStore.ClientAPI.ClientOperations
       AsyncContext.Run(async (targetBlock, i) => await targetBlock.SendAsync(i).ConfigureAwait(false), _targetBlock, item);
       if (InputCount > _maxQueueSize)
       {
-        DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
+        DropSubscription(SubscriptionDropReason.ProcessingQueueOverflow, new Exception("client buffer too big"));
       }
     }
 
@@ -372,7 +372,7 @@ namespace EventStore.ClientAPI.ClientOperations
       await _targetBlock.SendAsync(item).ConfigureAwait(false);
       if (InputCount > _maxQueueSize)
       {
-        DropSubscription(SubscriptionDropReason.UserInitiated, new Exception("client buffer too big"));
+        DropSubscription(SubscriptionDropReason.ProcessingQueueOverflow, new Exception("client buffer too big"));
       }
     }
 

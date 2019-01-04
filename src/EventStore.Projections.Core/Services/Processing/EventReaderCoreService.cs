@@ -268,7 +268,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (!_faultOutOfOrderProjections && message.Reason.Contains("was expected in the stream"))
             {
                 // Log without fault the projection
-                _logger.Trace(message.Reason);
+                _logger.LogTrace(message.Reason);
                 return;
             }
 

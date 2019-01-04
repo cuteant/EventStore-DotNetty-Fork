@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,10 +25,10 @@ namespace EventStore.Core.TransactionLog.Chunks
             Manager = new TFChunkManager(Config);
         }
 
-        struct ChunkInfo
-        {
-            public int ChunkStartNumber;
-            public string ChunkFileName;
+        readonly struct ChunkInfo {
+            public readonly int ChunkStartNumber;
+            public readonly string ChunkFileName;
+            public ChunkInfo(string chunkFileName, int chunkStartNumber) { ChunkFileName = chunkFileName; ChunkStartNumber = chunkStartNumber; }
         }
 
         IEnumerable<ChunkInfo> GetAllLatestChunkVersions(long checkpoint)
@@ -45,7 +45,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                 var chunkHeader = ReadChunkHeader(chunkFileName);
 
-                yield return new ChunkInfo { ChunkFileName = chunkFileName, ChunkStartNumber = chunkNum };
+                yield return new ChunkInfo(chunkFileName, chunkNum);
 
                 chunkNum = chunkHeader.ChunkEndNumber + 1;
             }
@@ -69,42 +69,42 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             try
             {
-                Parallel.ForEach(GetAllLatestChunkVersions(checkpoint),
-                    new ParallelOptions {MaxDegreeOfParallelism = threads},
-                    chunkInfo =>
+                Parallel.ForEach(GetAllLatestChunkVersions(checkpoint), 
+                    new ParallelOptions { MaxDegreeOfParallelism = threads }, LocalAction);
+                void LocalAction(ChunkInfo chunkInfo)
+                {
+                    TFChunk.TFChunk chunk;
+                    if (lastChunkVersions.Length == 0 && (chunkInfo.ChunkStartNumber + 1) * (long)Config.ChunkSize == checkpoint)
                     {
-                        TFChunk.TFChunk chunk;
-                        if (lastChunkVersions.Length == 0 && (chunkInfo.ChunkStartNumber + 1) * (long) Config.ChunkSize == checkpoint)
-                        {
-                            // The situation where the logical data size is exactly divisible by ChunkSize,
-                            // so it might happen that we have checkpoint indicating one more chunk should exist,
-                            // but the actual last chunk is (lastChunkNum-1) one and it could be not completed yet -- perfectly valid situation.
-                            var footer = ReadChunkFooter(chunkInfo.ChunkFileName);
-                            if (footer.IsCompleted)
-                                chunk = TFChunk.TFChunk.FromCompletedFile(chunkInfo.ChunkFileName, verifyHash: false, unbufferedRead: Config.Unbuffered,
-                                    initialReaderCount: Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache,
-                                    reduceFileCachePressure: Config.ReduceFileCachePressure);
-                            else
-                            {
-                                chunk = TFChunk.TFChunk.FromOngoingFile(chunkInfo.ChunkFileName, Config.ChunkSize, checkSize: false,
-                                    unbuffered: Config.Unbuffered,
-                                    writethrough: Config.WriteThrough, initialReaderCount: Config.InitialReaderCount,
-                                    reduceFileCachePressure: Config.ReduceFileCachePressure);
-                                // chunk is full with data, we should complete it right here
-                                if (!readOnly)
-                                    chunk.Complete();
-                            }
-                        }
-                        else
-                        {
+                        // The situation where the logical data size is exactly divisible by ChunkSize,
+                        // so it might happen that we have checkpoint indicating one more chunk should exist,
+                        // but the actual last chunk is (lastChunkNum-1) one and it could be not completed yet -- perfectly valid situation.
+                        var footer = ReadChunkFooter(chunkInfo.ChunkFileName);
+                        if (footer.IsCompleted)
                             chunk = TFChunk.TFChunk.FromCompletedFile(chunkInfo.ChunkFileName, verifyHash: false, unbufferedRead: Config.Unbuffered,
                                 initialReaderCount: Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache,
                                 reduceFileCachePressure: Config.ReduceFileCachePressure);
+                        else
+                        {
+                            chunk = TFChunk.TFChunk.FromOngoingFile(chunkInfo.ChunkFileName, Config.ChunkSize, checkSize: false,
+                                unbuffered: Config.Unbuffered,
+                                writethrough: Config.WriteThrough, initialReaderCount: Config.InitialReaderCount,
+                                reduceFileCachePressure: Config.ReduceFileCachePressure);
+                            // chunk is full with data, we should complete it right here
+                            if (!readOnly)
+                                chunk.Complete();
                         }
+                    }
+                    else
+                    {
+                        chunk = TFChunk.TFChunk.FromCompletedFile(chunkInfo.ChunkFileName, verifyHash: false, unbufferedRead: Config.Unbuffered,
+                            initialReaderCount: Config.InitialReaderCount, optimizeReadSideCache: Config.OptimizeReadSideCache,
+                            reduceFileCachePressure: Config.ReduceFileCachePressure);
+                    }
 
-                        // This call is theadsafe.
-                        Manager.AddChunk(chunk);
-                    });
+                    // This call is theadsafe.
+                    Manager.AddChunk(chunk);
+                }
             }
             catch (AggregateException aggEx)
             {
@@ -142,7 +142,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     Manager.AddChunk(lastChunk);
                     if (!readOnly)
                     {
-                        Log.Info("Moving WriterCheckpoint from {checkpoint} to {chunkEndPosition}, as it points to the scavenged chunk. "
+                        Log.LogInformation("Moving WriterCheckpoint from {checkpoint} to {chunkEndPosition}, as it points to the scavenged chunk. "
                                  + "If that was not caused by replication of scavenged chunks, that could be a bug.",
                             checkpoint, lastChunk.ChunkHeader.ChunkEndPosition);
                         Config.WriterCheckpoint.Write(lastChunk.ChunkHeader.ChunkEndPosition);
@@ -171,7 +171,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 var preLastChunk = Manager.GetChunk(lastChunkNum - 1);
                 var lastBgChunkNum = preLastChunk.ChunkHeader.ChunkStartNumber;
-                ThreadPool.QueueUserWorkItem(_ =>
+                ThreadPoolScheduler.Schedule(_ =>
                 {
                     for (int chunkNum = lastBgChunkNum; chunkNum >= 0;)
                     {
@@ -182,14 +182,14 @@ namespace EventStore.Core.TransactionLog.Chunks
                         }
                         catch (FileBeingDeletedException exc)
                         {
-                            Log.Trace("{exceptionType} exception was thrown while doing background validation of chunk {chunk}.",
+                            Log.LogTrace("{exceptionType} exception was thrown while doing background validation of chunk {chunk}.",
                                 exc.GetType().Name, chunk);
-                            Log.Trace("That's probably OK, especially if truncation was request at the same time: {e}.",
+                            Log.LogTrace("That's probably OK, especially if truncation was request at the same time: {e}.",
                                 exc.Message);
                         }
                         catch (Exception exc)
                         {
-                            Log.FatalException(exc, "Verification of chunk {chunk} failed, terminating server...", chunk);
+                            Log.LogCritical(exc, "Verification of chunk {chunk} failed, terminating server...", chunk);
                             var msg = string.Format("Verification of chunk {0} failed, terminating server...", chunk);
                             Application.Exit(ExitCode.Error, msg);
                             return;
@@ -197,7 +197,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                         chunkNum = chunk.ChunkHeader.ChunkStartNumber - 1;
                     }
-                });
+                }, (object)null);
             }
 
             Manager.EnableCaching();
@@ -298,14 +298,14 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 catch (Exception exc)
                 {
-                    Log.ErrorException(exc, "Error while trying to delete remaining temp file: '{tempFile}'.", tempFile);
+                    Log.LogError(exc, "Error while trying to delete remaining temp file: '{tempFile}'.", tempFile);
                 }
             }
         }
 
         private void RemoveFile(string reason, string file)
         {
-            Log.Trace(reason, file);
+            Log.LogTrace(reason, file);
             File.SetAttributes(file, FileAttributes.Normal);
             File.Delete(file);
         }

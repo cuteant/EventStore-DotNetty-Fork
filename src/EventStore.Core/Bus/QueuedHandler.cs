@@ -5,11 +5,7 @@ namespace EventStore.Core.Bus
 {
     // on Windows AutoReset version is much slower, but on Linux ManualResetEventSlim version is much slower
     public class QueuedHandler :
-//#if NETSTANDARD
-//        QueuedHandlerAutoReset,
-//#else
         QueuedHandlerMRES,
-//#endif
         IQueuedHandler
     {
         public static IQueuedHandler CreateQueuedHandler(IHandle<Message> consumer, string name,
@@ -41,11 +37,7 @@ namespace EventStore.Core.Bus
         }
 
         class QueueHandlerUsingMpsc :
-//#if NETSTANDARD
-//            QueuedHandlerAutoResetWithMpsc,
-//#else
             QueuedHandlerMresWithMpsc,
-//#endif
             IQueuedHandler
         {
             public QueueHandlerUsingMpsc(IHandle<Message> consumer,

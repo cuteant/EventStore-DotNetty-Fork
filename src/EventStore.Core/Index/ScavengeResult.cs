@@ -1,4 +1,4 @@
-namespace EventStore.Core.Index
+﻿namespace EventStore.Core.Index
 {
     public class ScavengeResult
     {

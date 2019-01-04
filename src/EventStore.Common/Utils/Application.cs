@@ -29,7 +29,7 @@ namespace EventStore.Common.Utils
 
         public static void RegisterExitAction(Action<int> exitAction)
         {
-            Ensure.NotNull(exitAction, nameof(exitAction));
+            if (null == exitAction) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.exitAction);
 
             _exit = exitAction;
         }
@@ -53,7 +53,7 @@ namespace EventStore.Common.Utils
         {
             if (Interlocked.CompareExchange(ref _exited, 1, 0) != 0) { return; }
 
-            Ensure.NotNullOrEmpty(reason, nameof(reason));
+            if (string.IsNullOrEmpty(reason)) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason);
 
             if (!silent)
             {
@@ -83,7 +83,7 @@ namespace EventStore.Common.Utils
 
         public static bool IsDefined(string define)
         {
-            Ensure.NotNull(define, nameof(define));
+            if (null == define) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.define);
             return _defines.Contains(define);
         }
     }
