@@ -7,6 +7,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.PersistentSubscription

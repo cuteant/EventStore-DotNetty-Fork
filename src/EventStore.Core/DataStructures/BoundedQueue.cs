@@ -15,7 +15,7 @@ namespace EventStore.Core.DataStructures
             _maxCapacity = maxCapacity;
         }
 
-        public void Enqueue(T obj)
+        public void Enqueue(in T obj)
         {
             if (_queue.Count >= _maxCapacity) Dequeue();
             _queue.Enqueue(obj);

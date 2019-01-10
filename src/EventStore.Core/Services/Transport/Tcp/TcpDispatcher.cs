@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
-using Microsoft.Extensions.Logging;
 using EventStore.Core.Messaging;
+using EventStore.Transport.Tcp.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Transport.Tcp
 {
@@ -57,7 +58,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 // ReSharper restore RedundantCast
         }
 
-        public TcpPackage? WrapMessage(Message message, byte version)
+        public TcpPackage WrapMessage(Message message, byte version)
         {
             if (message == null)
                 throw new ArgumentNullException("message");
@@ -77,7 +78,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return null;
         }
 
-        public Message UnwrapPackage(in TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass, TcpConnectionManager connection, byte version)
+        public Message UnwrapPackage(TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass, TcpConnectionManager connection, byte version)
         {
             if (envelope == null)
                 throw new ArgumentNullException("envelope");

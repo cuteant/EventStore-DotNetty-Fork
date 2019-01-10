@@ -259,6 +259,106 @@ RunProjections: All                    # None / System / All
 
 
 
+## DotNetty Options
+
+# Whether to use Libuv-Transport
+# EnableLibuv: true
+
+# If set to true, we will use IPV6 addresses upon DNS resolution for host names.
+# Otherwise, we will use IPV4.
+# DnsUseIpv6 = false
+
+# If set to true, we will enforce usage of IPV4 or IPV6 addresses upon DNS resolution for host names.
+# If dns-use-ipv6 = true, we will use IPV6 enforcement
+# Otherwise, we will use IPV4.
+# Warning: when ip family is enforced, any connection between IPV4 and IPV6 is impossible
+#
+# enforce-ip-family setting is used only in some special cases, when default behaviour of 
+# underlying sockets leads to errors. Typically this occurs when an environment doesn't support
+# IPV6 or dual-mode sockets.
+# As of 09/21/2016 there are two known cases: running under Mono and in Azure WebApp  
+# for them we will need enforce-ip-family = true, and for Azure dns-use-ipv6 = false
+# This property is always set to true if Mono runtime is detected.
+# EnforceIpFamily = false
+
+# Sets the connectTimeoutMillis of all outbound connections,
+# i.e. how long a connect may take until it is timed out
+# ConnectionTimeout = 15 s
+
+# Toggles buffer pooling on and off inside DotNetty.
+# EnableBufferPooling = true
+
+# Sets the high water mark for the in and outbound sockets,
+# set to 0b for platform default
+# WriteBufferHighWaterMark = 0b
+
+# Sets the low water mark for the in and outbound sockets,
+# set to 0b for platform default
+# WriteBufferLowWaterMark = 0b
+
+# Sets the send buffer size of the Sockets,
+# set to 0b for platform default
+# SendBufferSize = 256K
+
+# Sets the receive buffer size of the Sockets,
+# set to 0b for platform default
+# ReceiveBufferSize = 256K
+
+# Maximum message size the transport will accept, but at least 32000 bytes.
+# MaxFrameSize = 10M
+
+# Sets the size of the connection backlog
+# Backlog = 4096
+
+# Enables the TCP_NODELAY flag, i.e. disables Nagleâ€™s algorithm
+# TcpNoDelay = true
+
+# Enables TCP Keepalive, subject to the O/S kernelâ€™s configuration
+# TcpKeepAlive = true
+
+# TcpLinger = 0
+
+# Enables SO_REUSEADDR, which determines when an ActorSystem can open
+# the specified listen port (the meaning differs between *nix and Windows)
+# Valid values are "on", "off", and "off-for-windows"
+# due to the following Windows bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4476378
+# "off-for-windows" of course means that it's "on" for all other platforms
+# TcpReuseAddr = on
+
+# Enables SO_REUSEPORT
+# TcpReusePort = true
+
+# Used to configure the number of I/O worker threads on server sockets
+
+# Min number of threads to cap factor-based number to
+# ServerSocketWorkerPoolSizeMin = 2
+
+# The pool size factor is used to determine thread pool size
+# using the following formula: ceil(available processors * factor).
+# Resulting size is then bounded by the pool-size-min and
+# pool-size-max values.
+# ServerSocketWorkerPoolSizeFactor = 1.0
+
+# Max number of threads to cap factor-based number to
+# ServerSocketWorkerPoolSizeMax = 2
+
+# Used to configure the number of I/O worker threads on client sockets
+
+# Min number of threads to cap factor-based number to
+# ClientSocketWorkerPoolSizeMin = 2
+
+# The pool size factor is used to determine thread pool size
+# using the following formula: ceil(available processors * factor).
+# Resulting size is then bounded by the pool-size-min and
+# pool-size-max values.
+# ClientSocketWorkerPoolSizeFactor = 1.0
+
+# Max number of threads to cap factor-based number to
+# ClientSocketWorkerPoolSizeMax = 2
+
+
+
+
 ## Cluster Options
 
 # The number of nodes in the cluster.

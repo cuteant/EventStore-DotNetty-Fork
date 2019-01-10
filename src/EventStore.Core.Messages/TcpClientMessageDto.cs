@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using EventStore.Core.Messages;
 using MessagePack;
 
-namespace EventStore.Core.Messages
+namespace EventStore.Transport.Tcp.Messages
 {
     public static partial class TcpClientMessageDto
     {

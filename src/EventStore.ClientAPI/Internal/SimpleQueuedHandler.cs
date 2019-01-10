@@ -7,46 +7,52 @@ using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI.Internal
 {
-  internal class SimpleQueuedHandler
-  {
-    private readonly Dictionary<Type, Func<Message, Task>> _handlers;
-    private readonly ActionBlock<Message> _messageBlock;
-
-    public SimpleQueuedHandler()
+    internal class SimpleQueuedHandler
     {
-      _handlers = new Dictionary<Type, Func<Message, Task>>();
-      _messageBlock = new ActionBlock<Message>(ProcessMessageAsync,
-                                               new ExecutionDataflowBlockOptions { TaskScheduler = TaskUtility.TaskSchedulerPair.ExclusiveScheduler });
-    }
+        private readonly Dictionary<Type, Func<Message, Task>> _handlers;
+        private readonly ActionBlock<Message> _messageBlock;
 
-    public void RegisterHandler<T>(Func<T, Task> handler)
-      where T : Message
-    {
-      Ensure.NotNull(handler, nameof(handler));
+        public SimpleQueuedHandler()
+        {
+            _handlers = new Dictionary<Type, Func<Message, Task>>();
+            _messageBlock = new ActionBlock<Message>(ProcessMessageAsync,
+                                                     new ExecutionDataflowBlockOptions { TaskScheduler = TaskUtility.TaskSchedulerPair.ExclusiveScheduler });
+        }
 
-      _handlers.Add(typeof(T), async msg => await handler((T)msg).ConfigureAwait(false));
-    }
+        public void RegisterHandler<T>(Func<T, Task> handler)
+          where T : Message
+        {
+            Ensure.NotNull(handler, nameof(handler));
 
-    public void EnqueueMessage(Message message)
-    {
-      Ensure.NotNull(message, nameof(message));
-      //_messageBlock.Post(message);
-      AsyncContext.Run(async (targetBlock, msg) => await targetBlock.SendAsync(msg).ConfigureAwait(false), _messageBlock, message);
-    }
+            _handlers.Add(typeof(T), async msg => await handler((T)msg).ConfigureAwait(false));
+        }
 
-    public Task EnqueueMessageAsync(Message message)
-    {
-      Ensure.NotNull(message, nameof(message));
-      return _messageBlock.SendAsync(message);
-    }
+        public void EnqueueMessage(Message message)
+        {
+            Ensure.NotNull(message, nameof(message));
+            //_messageBlock.Post(message);
+            AsyncContext.Run(s_sendToQueueFunc, _messageBlock, message);
+        }
 
-    private Task ProcessMessageAsync(Message message)
-    {
-      if (!_handlers.TryGetValue(message.GetType(), out Func<Message, Task> handler))
-      {
-        throw new Exception($"No handler registered for message {message.GetType().Name}");
-      }
-      return handler(message);
+        private static readonly Func<ActionBlock<Message>, Message, Task<bool>> s_sendToQueueFunc = SendToQueueAsync;
+        private static async Task<bool> SendToQueueAsync(ActionBlock<Message> targetBlock, Message message)
+        {
+            return await targetBlock.SendAsync(message).ConfigureAwait(false);
+        }
+
+        public Task EnqueueMessageAsync(Message message)
+        {
+            Ensure.NotNull(message, nameof(message));
+            return _messageBlock.SendAsync(message);
+        }
+
+        private Task ProcessMessageAsync(Message message)
+        {
+            if (!_handlers.TryGetValue(message.GetType(), out Func<Message, Task> handler))
+            {
+                throw new Exception($"No handler registered for message {message.GetType().Name}");
+            }
+            return handler(message);
+        }
     }
-  }
 }

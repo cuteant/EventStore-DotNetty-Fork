@@ -54,7 +54,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerB", "samples\Es.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerA", "samples\Es.ConsumerA\Es.ConsumerA.csproj", "{D59F3A37-5444-449B-9573-55F18DF2DF10}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", "src\EventStore.Core.Messages\EventStore.Core.Messages.csproj", "{2014E747-0B79-40A9-964A-FBB64786CE56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", "src\EventStore.Core.Messages\EventStore.Core.Messages.csproj", "{1305DA1F-D80E-4DED-8335-179BF9620BF8}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Async.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.shproj", "{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Transport.Tcp", "src\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj", "{A86CDE6B-59CE-48CB-BC18-8081B1727354}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -63,6 +67,7 @@ Global
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems*{65e9ed9b-9545-47d8-a39c-da22c323abb2}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems*{b2be33a0-1eb0-49f7-bd28-72806d4a1df1}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems*{f0dcba0c-1ee9-403c-931c-555776f6c680}*SharedItemsImports = 13
@@ -108,10 +113,14 @@ Global
 		{D59F3A37-5444-449B-9573-55F18DF2DF10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D59F3A37-5444-449B-9573-55F18DF2DF10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D59F3A37-5444-449B-9573-55F18DF2DF10}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2014E747-0B79-40A9-964A-FBB64786CE56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2014E747-0B79-40A9-964A-FBB64786CE56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2014E747-0B79-40A9-964A-FBB64786CE56}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2014E747-0B79-40A9-964A-FBB64786CE56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1305DA1F-D80E-4DED-8335-179BF9620BF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1305DA1F-D80E-4DED-8335-179BF9620BF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1305DA1F-D80E-4DED-8335-179BF9620BF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1305DA1F-D80E-4DED-8335-179BF9620BF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A86CDE6B-59CE-48CB-BC18-8081B1727354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A86CDE6B-59CE-48CB-BC18-8081B1727354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A86CDE6B-59CE-48CB-BC18-8081B1727354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A86CDE6B-59CE-48CB-BC18-8081B1727354}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,7 +143,9 @@ Global
 		{23065515-683A-4766-BF3F-719395C2A8DA} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{6C326FED-F74A-47BD-85FF-F7A97A4358B0} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{D59F3A37-5444-449B-9573-55F18DF2DF10} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
-		{2014E747-0B79-40A9-964A-FBB64786CE56} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{1305DA1F-D80E-4DED-8335-179BF9620BF8} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{A86CDE6B-59CE-48CB-BC18-8081B1727354} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FC05632E-9D0B-4A7D-8D39-89FA66EC3144}

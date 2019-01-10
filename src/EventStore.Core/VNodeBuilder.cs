@@ -25,7 +25,7 @@ namespace EventStore.Core
     /// Allows a client to build a <see cref="ClusterVNode" /> for use with the Embedded client API by specifying
     /// high level options rather than using the constructor of <see cref="ClusterVNode"/> directly.
     /// </summary>
-    public abstract class VNodeBuilder
+    public abstract partial class VNodeBuilder
     {
         // ReSharper disable FieldCanBeMadeReadOnly.Local - as more options are added
         protected ILogger _log;
@@ -1441,7 +1441,7 @@ namespace EventStore.Core
                     _disableHTTPCaching,
                     _logHttpRequests,
                     _connectionPendingSendBytesThreshold,
-                    _chunkInitialReaderCount,
+                    _chunkInitialReaderCount, CreateTransportSettings(),
                     _index,
                     _enableHistograms,
                     _skipIndexVerify,

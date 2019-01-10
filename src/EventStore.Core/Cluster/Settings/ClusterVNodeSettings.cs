@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
@@ -9,6 +7,7 @@ using EventStore.Core.Authentication;
 using EventStore.Core.Data;
 using EventStore.Core.Services.Monitoring;
 using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
+using EventStore.Transport.Tcp;
 
 namespace EventStore.Core.Cluster.Settings
 {
@@ -82,6 +81,7 @@ namespace EventStore.Core.Cluster.Settings
         public readonly bool GossipOnSingleNode;
         public readonly bool FaultOutOfOrderProjections;
         public readonly bool StructuredLog;
+        public readonly DotNettyTransportSettings TransportSettings;
         public ClusterVNodeSettings(Guid instanceId, int debugIndex,
                                     IPEndPoint internalTcpEndPoint,
                                     IPEndPoint internalSecureTcpEndPoint,
@@ -132,6 +132,7 @@ namespace EventStore.Core.Cluster.Settings
                                     bool logHttpRequests,
                                     int connectionPendingSendBytesThreshold,
                                     int chunkInitialReaderCount,
+                                    DotNettyTransportSettings transportSettings,
                                     string index = null, bool enableHistograms = false,
                                     bool skipIndexVerify = false,
                                     int indexCacheDepth = 16,
@@ -246,6 +247,8 @@ namespace EventStore.Core.Cluster.Settings
 
             FaultOutOfOrderProjections = faultOutOfOrderProjections;
             StructuredLog = structuredLog;
+
+            TransportSettings = transportSettings;
         }
 
 

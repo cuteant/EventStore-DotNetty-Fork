@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace EventStore.Transport.Tcp.Framing
+namespace EventStore.Transport.Tcp
 {
-    public class PackageFramingException: Exception
+    public class PackageFramingException : Exception
     {
         public PackageFramingException()
         {

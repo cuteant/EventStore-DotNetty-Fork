@@ -6,7 +6,7 @@ using EventStore.Rags;
 
 namespace EventStore.ClusterNode
 {
-    public class ClusterNodeOptions : IOptions
+    public partial class ClusterNodeOptions : IOptions
     {
         [ArgDescription(Opts.ShowHelpDescr, Opts.AppGroup)]
         public bool Help { get; set; }
@@ -363,6 +363,30 @@ namespace EventStore.ClusterNode
 
             ConnectionPendingSendBytesThreshold = Opts.ConnectionPendingSendBytesThresholdDefault;
             ChunkInitialReaderCount = Opts.ChunkInitialReaderCountDefault;
+
+
+            EnableLibuv = Opts.EnableLibuvDefault;
+            DnsUseIpv6 = Opts.DnsUseIpv6Default;
+            EnforceIpFamily = Opts.EnforceIpFamilyDefault;
+            ConnectTimeout = Opts.ConnectTimeoutDefault;
+            EnableBufferPooling = Opts.EnableBufferPoolingDefault;
+            WriteBufferHighWaterMark = Opts.WriteBufferHighWaterMarkDefault;
+            WriteBufferLowWaterMark = Opts.WriteBufferLowWaterMarkDefault;
+            SendBufferSize = Opts.SendBufferSizeDefault;
+            ReceiveBufferSize = Opts.ReceiveBufferSizeDefault;
+            MaxFrameSize = Opts.MaxFrameSizeDefault;
+            Backlog = Opts.BacklogDefault;
+            TcpNoDelay = Opts.TcpNoDelayDefault;
+            TcpKeepAlive = Opts.TcpKeepAliveDefault;
+            TcpLinger = Opts.TcpLingerDefault;
+            TcpReuseAddr = Opts.TcpReuseAddrDefault;
+            TcpReusePort = Opts.TcpReusePortDefault;
+            ServerSocketWorkerPoolSizeMin = Opts.ServerSocketWorkerPoolSizeMinDefault;
+            ServerSocketWorkerPoolSizeFactor = Opts.ServerSocketWorkerPoolSizeFactorDefault;
+            ServerSocketWorkerPoolSizeMax = Opts.ServerSocketWorkerPoolSizeMaxDefault;
+            ClientSocketWorkerPoolSizeMin = Opts.ClientSocketWorkerPoolSizeMinDefault;
+            ClientSocketWorkerPoolSizeFactor = Opts.ClientSocketWorkerPoolSizeFactorDefault;
+            ClientSocketWorkerPoolSizeMax = Opts.ClientSocketWorkerPoolSizeMaxDefault;
         }
     }
 }

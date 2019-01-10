@@ -254,7 +254,7 @@ namespace EventStore.Core
                 // EXTERNAL TCP
                 if (!vNodeSettings.DisableInsecureTCP)
                 {
-                    var extTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalTcp, _workersHandler,
+                    var extTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.ExternalTcp, _workersHandler,
                                                        TcpServiceType.External, TcpSecurityType.Normal, new ClientTcpDispatcher(),
                                                        vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
                                                        _internalAuthenticationProvider, null, vNodeSettings.ConnectionPendingSendBytesThreshold);
@@ -266,7 +266,7 @@ namespace EventStore.Core
                 // EXTERNAL SECURE TCP
                 if (_nodeInfo.ExternalSecureTcp != null)
                 {
-                    var extSecTcpService = new TcpService(_mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
+                    var extSecTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
                                                           TcpServiceType.External, TcpSecurityType.Secure, new ClientTcpDispatcher(),
                                                           vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
                                                           _internalAuthenticationProvider, vNodeSettings.Certificate, vNodeSettings.ConnectionPendingSendBytesThreshold);
@@ -279,7 +279,7 @@ namespace EventStore.Core
                     // INTERNAL TCP
                     if (!vNodeSettings.DisableInsecureTCP)
                     {
-                        var intTcpService = new TcpService(_mainQueue, _nodeInfo.InternalTcp, _workersHandler,
+                        var intTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.InternalTcp, _workersHandler,
                                                            TcpServiceType.Internal, TcpSecurityType.Normal,
                                                            new InternalTcpDispatcher(),
                                                            vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
@@ -292,7 +292,7 @@ namespace EventStore.Core
                     // INTERNAL SECURE TCP
                     if (_nodeInfo.InternalSecureTcp != null)
                     {
-                        var intSecTcpService = new TcpService(_mainQueue, _nodeInfo.InternalSecureTcp, _workersHandler,
+                        var intSecTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.InternalSecureTcp, _workersHandler,
                                                               TcpServiceType.Internal, TcpSecurityType.Secure,
                                                               new InternalTcpDispatcher(),
                                                               vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
@@ -554,7 +554,7 @@ namespace EventStore.Core
                 monitoringInnerBus.Subscribe<ReplicationMessage.GetReplicationStats>(masterReplicationService);
 
                 // REPLICA REPLICATION
-                var replicaService = new ReplicaService(_mainQueue, db, epochManager, _workersHandler, _internalAuthenticationProvider,
+                var replicaService = new ReplicaService(vNodeSettings.TransportSettings, _mainQueue, db, epochManager, _workersHandler, _internalAuthenticationProvider,
                                                         gossipInfo, vNodeSettings.UseSsl, vNodeSettings.SslTargetHost, vNodeSettings.SslValidateServer,
                                                         vNodeSettings.IntTcpHeartbeatTimeout, vNodeSettings.ExtTcpHeartbeatInterval);
                 _mainBus.Subscribe<SystemMessage.StateChangeMessage>(replicaService);

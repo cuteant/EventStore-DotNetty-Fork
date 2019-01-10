@@ -5,8 +5,8 @@ using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
-using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {

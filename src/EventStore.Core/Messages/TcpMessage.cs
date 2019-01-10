@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Net.Sockets;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Transport.Tcp;
+using EventStore.Transport.Tcp;
 
 namespace EventStore.Core.Messages
 {
@@ -84,9 +84,9 @@ namespace EventStore.Core.Messages
             public override int MsgTypeId { get { return TypeId; } }
 
             public readonly TcpConnectionManager Connection;
-            public readonly SocketError SocketError;
+            public readonly DisassociateInfo SocketError;
 
-            public ConnectionClosed(TcpConnectionManager connection, SocketError socketError)
+            public ConnectionClosed(TcpConnectionManager connection, DisassociateInfo socketError)
             {
                 Connection = connection;
                 SocketError = socketError;

@@ -6,6 +6,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.TransactionLog.LogRecords;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Services.RequestManager.Managers
 {

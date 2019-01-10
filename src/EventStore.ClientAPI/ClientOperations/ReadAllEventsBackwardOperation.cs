@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
-using EventStore.Core.Messages;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {

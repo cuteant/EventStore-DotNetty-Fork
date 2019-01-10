@@ -52,7 +52,7 @@ namespace EventStore.Core.DataStructures
             }
         }
 
-        public TValue Put(TKey key, TValue value)
+        public TValue Put(TKey key, in TValue value)
         {
             lock (_lock)
             {

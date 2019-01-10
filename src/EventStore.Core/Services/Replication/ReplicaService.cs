@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -19,17 +22,17 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Replication
 {
-    public class ReplicaService : IHandle<SystemMessage.StateChangeMessage>,
-                                      IHandle<ReplicationMessage.ReconnectToMaster>,
-                                      IHandle<ReplicationMessage.SubscribeToMaster>,
-                                      IHandle<ReplicationMessage.AckLogPosition>,
-                                      IHandle<StorageMessage.PrepareAck>,
-                                      IHandle<StorageMessage.CommitAck>,
-                                      IHandle<ClientMessage.TcpForwardMessage>
+    public class ReplicaService : DotNettyClientTransport,
+                                    IHandle<SystemMessage.StateChangeMessage>,
+                                    IHandle<ReplicationMessage.ReconnectToMaster>,
+                                    IHandle<ReplicationMessage.SubscribeToMaster>,
+                                    IHandle<ReplicationMessage.AckLogPosition>,
+                                    IHandle<StorageMessage.PrepareAck>,
+                                    IHandle<StorageMessage.CommitAck>,
+                                    IHandle<ClientMessage.TcpForwardMessage>
     {
         private static readonly ILogger Log = TraceLogger.GetLogger<ReplicaService>();
 
-        private readonly TcpClientConnector _connector;
         private readonly IPublisher _publisher;
         private readonly TFChunkDb _db;
         private readonly IEpochManager _epochManager;
@@ -48,7 +51,8 @@ namespace EventStore.Core.Services.Replication
         private VNodeState _state = VNodeState.Initializing;
         private TcpConnectionManager _connection;
 
-        public ReplicaService(IPublisher publisher,
+        public ReplicaService(DotNettyTransportSettings settings,
+                                IPublisher publisher,
                                 TFChunkDb db,
                                 IEpochManager epochManager,
                                 IPublisher networkSendQueue,
@@ -59,6 +63,7 @@ namespace EventStore.Core.Services.Replication
                                 bool sslValidateServer,
                                 TimeSpan heartbeatTimeout,
                                 TimeSpan heartbeatInterval)
+            : base(settings, useSsl, sslTargetHost, sslValidateServer)
         {
             Ensure.NotNull(publisher, nameof(publisher));
             Ensure.NotNull(db, nameof(db));
@@ -80,8 +85,6 @@ namespace EventStore.Core.Services.Replication
             _sslValidateServer = sslValidateServer;
             _heartbeatTimeout = heartbeatTimeout;
             _heartbeatInterval = heartbeatInterval;
-
-            _connector = new TcpClientConnector();
         }
 
         public void Handle(SystemMessage.StateChangeMessage message)
@@ -132,7 +135,7 @@ namespace EventStore.Core.Services.Replication
             _publisher.Publish(new SystemMessage.VNodeConnectionEstablished(manager.RemoteEndPoint, manager.ConnectionId));
         }
 
-        private void OnConnectionClosed(TcpConnectionManager manager, SocketError socketError)
+        private void OnConnectionClosed(TcpConnectionManager manager, DisassociateInfo socketError)
         {
             _publisher.Publish(new SystemMessage.VNodeConnectionLost(manager.RemoteEndPoint, manager.ConnectionId));
         }
@@ -153,22 +156,34 @@ namespace EventStore.Core.Services.Replication
                 _connection.Stop($"Reconnecting from old master [{_connection.RemoteEndPoint}] to new master: [{masterEndPoint}].");
             }
 
-            _connection = new TcpConnectionManager(_useSsl ? "master-secure" : "master-normal",
-                                                   Guid.NewGuid(),
-                                                   _tcpDispatcher,
-                                                   _publisher,
-                                                   masterEndPoint,
-                                                   _connector,
-                                                   _useSsl,
-                                                   _sslTargetHost,
-                                                   _sslValidateServer,
-                                                   _networkSendQueue,
-                                                   _authProvider,
-                                                   _heartbeatInterval,
-                                                   _heartbeatTimeout,
-                                                   OnConnectionEstablished,
-                                                   OnConnectionClosed);
-            _connection.StartReceiving();
+            try
+            {
+                var conn = ConnectAsync(masterEndPoint).ConfigureAwait(false).GetAwaiter().GetResult();
+                _connection = new TcpConnectionManager(_useSsl ? "master-secure" : "master-normal",
+                                                       _tcpDispatcher,
+                                                       _publisher,
+                                                       conn,
+                                                       _networkSendQueue,
+                                                       _authProvider,
+                                                       _heartbeatInterval,
+                                                       _heartbeatTimeout,
+                                                       OnConnectionEstablished,
+                                                       OnConnectionClosed);
+                _connection.OnConnectionEstablished();
+            }
+            catch (InvalidConnectionException exc)
+            {
+                OnConnectionFailed(masterEndPoint, exc);
+            }
+        }
+
+        public void OnConnectionFailed(IPEndPoint remoteEndPoint, InvalidConnectionException exc)
+        {
+            if (Log.IsInformationLevelEnabled())
+            {
+                Log.LogInformation("Connection '{0}' to [{1}] failed: {2}.", _useSsl ? "master-secure" : "master-normal", remoteEndPoint, exc.ToString());
+            }
+            _publisher.Publish(new SystemMessage.VNodeConnectionLost(remoteEndPoint, Guid.Empty));
         }
 
         private static IPEndPoint GetMasterEndPoint(VNodeInfo master, bool useSsl)

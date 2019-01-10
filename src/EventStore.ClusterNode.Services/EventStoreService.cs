@@ -219,12 +219,24 @@ namespace EventStore.ClusterNode
                    .HavingReaderThreads(options.ReaderThreadsCount)
                    .WithConnectionPendingSendBytesThreshold(options.ConnectionPendingSendBytesThreshold)
                    .WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
-                   .WithInitializationThreads(options.InitializationThreads);
+                   .WithInitializationThreads(options.InitializationThreads)
+                   .WithWriteBufferHighWaterMark(options.WriteBufferHighWaterMark)
+                   .WithWriteBufferLowWaterMark(options.WriteBufferLowWaterMark)
+                   .WithSendBufferSize(options.SendBufferSize)
+                   .WithReceiveBufferSize(options.ReceiveBufferSize)
+                   .WithMaxFrameSize(options.MaxFrameSize)
+                   .WithBacklog(options.Backlog)
+                   .WithTcpLinger(options.TcpLinger)
+                   .WithTcpReuseAddr(options.TcpReuseAddr)
+                   .WithServerSocketWorkerPoolSizeMin(options.ServerSocketWorkerPoolSizeMin)
+                   .WithServerSocketWorkerPoolSizeFactor(options.ServerSocketWorkerPoolSizeFactor)
+                   .WithServerSocketWorkerPoolSizeMax(options.ServerSocketWorkerPoolSizeMax)
+                   .WithClientSocketWorkerPoolSizeMin(options.ClientSocketWorkerPoolSizeMin)
+                   .WithClientSocketWorkerPoolSizeFactor(options.ClientSocketWorkerPoolSizeFactor)
+                   .WithClientSocketWorkerPoolSizeMax(options.ClientSocketWorkerPoolSizeMax)
+                   ;
 
-            if (options.GossipSeed.Length > 0)
-            {
-                builder.WithGossipSeeds(options.GossipSeed);
-            }
+            if (options.GossipSeed.Length > 0) { builder.WithGossipSeeds(options.GossipSeed); }
 
             if (options.DiscoverViaDns)
             {
@@ -235,14 +247,8 @@ namespace EventStore.ClusterNode
                 builder.DisableDnsDiscovery();
             }
 
-            if (!options.AddInterfacePrefixes)
-            {
-                builder.DontAddInterfacePrefixes();
-            }
-            if (options.GossipOnSingleNode)
-            {
-                builder.GossipAsSingleNode();
-            }
+            if (!options.AddInterfacePrefixes) { builder.DontAddInterfacePrefixes(); }
+            if (options.GossipOnSingleNode) { builder.GossipAsSingleNode(); }
             foreach (var prefix in options.IntHttpPrefixes)
             {
                 builder.AddInternalHttpPrefix(prefix);
@@ -274,6 +280,15 @@ namespace EventStore.ClusterNode
             if (options.SkipIndexScanOnReads) { builder.SkipIndexScanOnReads(); }
             if (options.ReduceFileCachePressure) { builder.ReduceFileCachePressure(); }
             if (options.StructuredLog) { builder.WithStructuredLogging(options.StructuredLog); }
+
+            if (!options.EnableLibuv) { builder.DisableLibuv(); }
+            if (options.DnsUseIpv6) { builder.WithDnsUseIpv6(); }
+            if (options.EnforceIpFamily) { builder.WithEnforceIpFamily(); }
+            if (!string.IsNullOrWhiteSpace(options.ConnectTimeout)) { builder.WithConnectTimeout(options.ConnectTimeout); }
+            if (!options.EnableBufferPooling) { builder.DisableBufferPooling(); }
+            if (!options.TcpNoDelay) { builder.DisableTcpNoDelay(); }
+            if (!options.TcpKeepAlive) { builder.DisableTcpKeepAlive(); }
+            if (!options.TcpReusePort) { builder.DisableTcpReusePort(); }
 
             if (options.IntSecureTcpPort > 0 || options.ExtSecureTcpPort > 0)
             {
@@ -307,62 +322,62 @@ namespace EventStore.ClusterNode
             return builder.Build(options);//, consumerStrategyFactories);
         }
 
-      //  private static IPersistentSubscriptionConsumerStrategyFactory[] GetPlugInConsumerStrategyFactories(CompositionContainer plugInContainer)
-      //  {
-      //      var allPlugins = plugInContainer.GetExports<IPersistentSubscriptionConsumerStrategyPlugin>();
+        //  private static IPersistentSubscriptionConsumerStrategyFactory[] GetPlugInConsumerStrategyFactories(CompositionContainer plugInContainer)
+        //  {
+        //      var allPlugins = plugInContainer.GetExports<IPersistentSubscriptionConsumerStrategyPlugin>();
 
-      //      var strategyFactories = new List<IPersistentSubscriptionConsumerStrategyFactory>();
+        //      var strategyFactories = new List<IPersistentSubscriptionConsumerStrategyFactory>();
 
-      //      foreach (var potentialPlugin in allPlugins)
-      //      {
-      //          try
-      //          {
-      //              var plugin = potentialPlugin.Value;
-      //              Log.LogInformation("Loaded consumer strategy plugin: {0} version {1}.", plugin.Name, plugin.Version);
-      //              strategyFactories.Add(plugin.GetConsumerStrategyFactory());
-      //          }
-      //          catch (CompositionException ex)
-      //          {
-      //              Log.LogError(ex, "Error loading consumer strategy plugin.");
-      //          }
-      //      }
+        //      foreach (var potentialPlugin in allPlugins)
+        //      {
+        //          try
+        //          {
+        //              var plugin = potentialPlugin.Value;
+        //              Log.LogInformation("Loaded consumer strategy plugin: {0} version {1}.", plugin.Name, plugin.Version);
+        //              strategyFactories.Add(plugin.GetConsumerStrategyFactory());
+        //          }
+        //          catch (CompositionException ex)
+        //          {
+        //              Log.LogError(ex, "Error loading consumer strategy plugin.");
+        //          }
+        //      }
 
-      //      return strategyFactories.ToArray();
-      //  }
+        //      return strategyFactories.ToArray();
+        //  }
 
-      //  private static IAuthenticationProviderFactory GetAuthenticationProviderFactory(string authenticationType, string authenticationConfigFile, CompositionContainer plugInContainer)
-      //  {
-      //      var potentialPlugins = plugInContainer.GetExports<IAuthenticationPlugin>();
+        //  private static IAuthenticationProviderFactory GetAuthenticationProviderFactory(string authenticationType, string authenticationConfigFile, CompositionContainer plugInContainer)
+        //  {
+        //      var potentialPlugins = plugInContainer.GetExports<IAuthenticationPlugin>();
 
-      //      var authenticationTypeToPlugin = new Dictionary<string, Func<IAuthenticationProviderFactory>>
-      //{
-      //  { "internal", () => new InternalAuthenticationProviderFactory() }
-      //};
+        //      var authenticationTypeToPlugin = new Dictionary<string, Func<IAuthenticationProviderFactory>>
+        //{
+        //  { "internal", () => new InternalAuthenticationProviderFactory() }
+        //};
 
-      //      foreach (var potentialPlugin in potentialPlugins)
-      //      {
-      //          try
-      //          {
-      //              var plugin = potentialPlugin.Value;
-      //              var commandLine = plugin.CommandLineName.ToLowerInvariant();
-      //              Log.LogInformation("Loaded authentication plugin: {0} version {1} (Command Line: {2})", plugin.Name, plugin.Version, commandLine);
-      //              authenticationTypeToPlugin.Add(commandLine, () => plugin.GetAuthenticationProviderFactory(authenticationConfigFile));
-      //          }
-      //          catch (CompositionException ex)
-      //          {
-      //              Log.LogError(ex, "Error loading authentication plugin.");
-      //          }
-      //      }
+        //      foreach (var potentialPlugin in potentialPlugins)
+        //      {
+        //          try
+        //          {
+        //              var plugin = potentialPlugin.Value;
+        //              var commandLine = plugin.CommandLineName.ToLowerInvariant();
+        //              Log.LogInformation("Loaded authentication plugin: {0} version {1} (Command Line: {2})", plugin.Name, plugin.Version, commandLine);
+        //              authenticationTypeToPlugin.Add(commandLine, () => plugin.GetAuthenticationProviderFactory(authenticationConfigFile));
+        //          }
+        //          catch (CompositionException ex)
+        //          {
+        //              Log.LogError(ex, "Error loading authentication plugin.");
+        //          }
+        //      }
 
-      //      if (!authenticationTypeToPlugin.TryGetValue(authenticationType.ToLowerInvariant(), out Func<IAuthenticationProviderFactory> factory))
-      //      {
-      //          throw new ApplicationInitializationException(string.Format("The authentication type {0} is not recognised. If this is supposed " +
-      //                      "to be provided by an authentication plugin, confirm the plugin DLL is located in {1}.\n" +
-      //                      "Valid options for authentication are: {2}.", authenticationType, Locations.PluginsDirectory, string.Join(", ", authenticationTypeToPlugin.Keys)));
-      //      }
+        //      if (!authenticationTypeToPlugin.TryGetValue(authenticationType.ToLowerInvariant(), out Func<IAuthenticationProviderFactory> factory))
+        //      {
+        //          throw new ApplicationInitializationException(string.Format("The authentication type {0} is not recognised. If this is supposed " +
+        //                      "to be provided by an authentication plugin, confirm the plugin DLL is located in {1}.\n" +
+        //                      "Valid options for authentication are: {2}.", authenticationType, Locations.PluginsDirectory, string.Join(", ", authenticationTypeToPlugin.Keys)));
+        //      }
 
-      //      return factory();
-      //  }
+        //      return factory();
+        //  }
 
         //private static CompositionContainer FindPlugins()
         //{

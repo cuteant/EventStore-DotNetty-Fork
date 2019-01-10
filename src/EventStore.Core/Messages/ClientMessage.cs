@@ -6,6 +6,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services;
 using EventStore.Core.Settings;
+using EventStore.Transport.Tcp.Messages;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 
 namespace EventStore.Core.Messages

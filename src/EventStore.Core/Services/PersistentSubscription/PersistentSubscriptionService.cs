@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -12,6 +11,7 @@ using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.Services.TimerService;
 using EventStore.Core.Services.UserManagement;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 using ReadStreamResult = EventStore.Core.Data.ReadStreamResult;
 

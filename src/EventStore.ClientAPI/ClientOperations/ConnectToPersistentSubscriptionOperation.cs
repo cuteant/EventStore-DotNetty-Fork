@@ -8,7 +8,7 @@ using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
-using EventStore.Core.Messages;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Security.Principal;
-using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.TransactionLog.LogRecords;
+using EventStore.Transport.Tcp.Messages;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.RequestManager.Managers
 {

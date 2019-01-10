@@ -15,6 +15,8 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using System.Threading;
 using EventStore.Core.Settings;
+using EventStore.Transport.Tcp.Messages;
+using System.Threading.Tasks;
 
 namespace EventStore.Core.Tests.Services.Transport.Tcp
 {
@@ -36,9 +38,9 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
 
             tcpConnectionManager.ProcessPackage(package);
 
-            var data = dummyConnection.ReceivedData.Last();
-            var receivedPackage = TcpPackage.FromArraySegment(data);
-           
+            var data = dummyConnection.ReceivedData;
+            var receivedPackage = data.AsTcpPackage();
+
             Assert.AreEqual(receivedPackage.Command, TcpCommand.BadRequest, "Expected Bad Request but got {0}", receivedPackage.Command);
         }
 
@@ -57,7 +59,8 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var dummyConnection = new DummyTcpConnection();
             var publisher = InMemoryBus.CreateTest();
 
-            publisher.Subscribe(new AdHocHandler<ClientMessage.WriteEvents>(x => {
+            publisher.Subscribe(new AdHocHandler<ClientMessage.WriteEvents>(x =>
+            {
                 publishedWrite = x;
                 waiter.Set();
             }));
@@ -85,14 +88,15 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var evnt = new EventRecord(0, 0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "testStream", 0, DateTime.Now, PrepareFlags.None, "eventType", new byte[messageSize], new byte[0]);
             var record = ResolvedEvent.ForUnresolvedEvent(evnt, null);
             var message = new ClientMessage.ReadEventCompleted(Guid.NewGuid(), "testStream", ReadEventResult.Success, record, StreamMetadata.Empty, false, "");
-            
+
             var dummyConnection = new DummyTcpConnection();
             dummyConnection.PendingSendBytes = _connectionPendingSendBytesThreshold + 1000;
 
             var tcpConnectionManager = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(), new InternalAuthenticationProvider(new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => {
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) =>
+                {
                     mre.Set();
                 }, _connectionPendingSendBytesThreshold);
 
@@ -111,7 +115,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var evnt = new EventRecord(0, 0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "testStream", 0, DateTime.Now, PrepareFlags.None, "eventType", new byte[messageSize], new byte[0]);
             var record = ResolvedEvent.ForUnresolvedEvent(evnt, null);
             var message = new ClientMessage.ReadEventCompleted(Guid.NewGuid(), "testStream", ReadEventResult.Success, record, StreamMetadata.Empty, false, "");
-            
+
             var dummyConnection = new DummyTcpConnection();
             dummyConnection.PendingSendBytes = 0;
 
@@ -122,9 +126,9 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
 
             tcpConnectionManager.SendMessage(message);
 
-            var data = dummyConnection.ReceivedData.Last();
-            var receivedPackage = TcpPackage.FromArraySegment(data);
-           
+            var data = dummyConnection.ReceivedData;
+            var receivedPackage = data.AsTcpPackage();
+
             Assert.AreEqual(receivedPackage.Command, TcpCommand.ReadEventCompleted, "Expected ReadEventCompleted but got {0}", receivedPackage.Command);
         }
 
@@ -137,22 +141,23 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var evnt = new EventRecord(0, 0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "testStream", 0, DateTime.Now, PrepareFlags.None, "eventType", new byte[messageSize], new byte[0]);
             var record = ResolvedEvent.ForUnresolvedEvent(evnt, null);
             var message = new ClientMessage.ReadEventCompleted(Guid.NewGuid(), "testStream", ReadEventResult.Success, record, StreamMetadata.Empty, false, "");
-            
+
             var dummyConnection = new DummyTcpConnection();
             dummyConnection.PendingSendBytes = _connectionPendingSendBytesThreshold + 1000;
 
             var tcpConnectionManager = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(), new InternalAuthenticationProvider(new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => {
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) =>
+                {
                     mre.Set();
                 }, ESConsts.UnrestrictedPendingSendBytes);
 
             tcpConnectionManager.SendMessage(message);
 
-            var data = dummyConnection.ReceivedData.Last();
-            var receivedPackage = TcpPackage.FromArraySegment(data);
-           
+            var data = dummyConnection.ReceivedData;
+            var receivedPackage = data.AsTcpPackage();
+
             Assert.AreEqual(receivedPackage.Command, TcpCommand.ReadEventCompleted, "Expected ReadEventCompleted but got {0}", receivedPackage.Command);
         }
     }
@@ -220,30 +225,39 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             }
         }
 
-        public event Action<ITcpConnection, SocketError> ConnectionClosed;
+
+        public TaskCompletionSource<ITcpPackageListener> ReadHandlerSource { get; } = new TaskCompletionSource<ITcpPackageListener>();
+
+        public event Action<ITcpConnection, DisassociateInfo> ConnectionClosed;
         private string _clientConnectionName;
-
-        public void Close(string reason)
-        {
-            var handler = ConnectionClosed;
-            if (handler != null)
-                handler(this, SocketError.Shutdown);
-        }
-
-        public IEnumerable<ArraySegment<byte>> ReceivedData;
-        public void EnqueueSend(IEnumerable<ArraySegment<byte>> data)
-        {
-            ReceivedData = data;
-        }
 
         public void ReceiveAsync(Action<ITcpConnection, IEnumerable<ArraySegment<byte>>> callback)
         {
-            throw new NotImplementedException();
         }
 
         public void SetClientConnectionName(string clientConnectionName)
         {
             _clientConnectionName = clientConnectionName;
+        }
+
+        public byte[] ReceivedData;
+        public void EnqueueSend(TcpPackage package)
+        {
+            ReceivedData = package.AsByteArray();
+        }
+
+        public void Close(DisassociateInfo info, string reason = null)
+        {
+            var handler = ConnectionClosed;
+            if (handler != null)
+                handler(this, DisassociateInfo.Shutdown);
+        }
+
+        public void Close(in Disassociated disassociated)
+        {
+            var handler = ConnectionClosed;
+            if (handler != null)
+                handler(this, DisassociateInfo.Shutdown);
         }
     }
 }

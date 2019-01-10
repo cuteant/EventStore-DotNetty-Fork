@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using EventStore.ClientAPI.Common.Utils;
 
-namespace EventStore.ClientAPI.Transport.Tcp
+namespace EventStore.Transport.Tcp
 {
-    internal class TcpConnectionBase : IMonitoredTcpConnection
+    partial class DotNettyConnection : IMonitoredTcpConnection
     {
-        public IPEndPoint RemoteEndPoint { get { return _remoteEndPoint; } }
-        public IPEndPoint LocalEndPoint { get { return _localEndPoint; } }
+        /// <summary>Address of the local endpoint</summary>
+        public IPEndPoint LocalEndPoint { get; }
 
-        public bool IsInitialized { get { return _socket != null; } }
-        public bool IsClosed { get { return _isClosed; } }
+        /// <summary>Address of the remote endpoint</summary>
+        public IPEndPoint RemoteEndPoint { get; }
+
+        public bool IsInitialized => _channel.Open;
+        public bool IsClosed
+        {
+            get => c_true == Volatile.Read(ref _closed);
+            private set => Interlocked.Exchange(ref _closed, value ? c_true : c_false);
+        }
         public bool InSend { get { return Interlocked.Read(ref _lastSendStarted) >= 0; } }
         public bool InReceive { get { return Interlocked.Read(ref _lastReceiveStarted) >= 0; } }
         public int PendingSendBytes { get { return _pendingSendBytes; } }
@@ -25,53 +31,25 @@ namespace EventStore.ClientAPI.Transport.Tcp
         public int ReceiveCalls { get { return _recvAsyncs; } }
         public int ReceiveCallbacks { get { return _recvAsyncCallbacks; } }
 
-        public bool IsReadyForSend
-        {
-            get
-            {
-                try
-                {
-                    return !_isClosed && _socket.Poll(0, SelectMode.SelectWrite);
-                }
-                catch (ObjectDisposedException)
-                {
-                    //TODO: why do we get this?
-                    return false;
-                }
-            }
-        }
+        public bool IsReadyForSend => _channel.Active;
 
-        public bool IsReadyForReceive
-        {
-            get
-            {
-                try
-                {
-                    return !_isClosed && _socket.Poll(0, SelectMode.SelectRead);
-                }
-                catch (ObjectDisposedException)
-                {
-                    //TODO: why do we get this?
-                    return false;
-                }
-            }
-        }
+        public bool IsReadyForReceive => _channel.Active;
 
-        public bool IsFaulted
-        {
-            get
-            {
-                try
-                {
-                    return !_isClosed && _socket.Poll(0, SelectMode.SelectError);
-                }
-                catch (ObjectDisposedException)
-                {
-                    //TODO: why do we get this?
-                    return false;
-                }
-            }
-        }
+        public bool IsFaulted => false;
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return !_isClosed && _socket.Poll(0, SelectMode.SelectError);
+        //        }
+        //        catch (ObjectDisposedException)
+        //        {
+        //            //TODO: why do we get this?
+        //            return false;
+        //        }
+        //    }
+        //}
 
         public DateTime? LastSendStarted
         {
@@ -91,13 +69,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
             }
         }
 
-        private Socket _socket;
-        private readonly IPEndPoint _remoteEndPoint;
-        private IPEndPoint _localEndPoint;
+        const int c_true = 1;
+        const int c_false = 0;
 
         private long _lastSendStarted = -1;
         private long _lastReceiveStarted = -1;
-        private volatile bool _isClosed;
+        private int _closed;
 
         private int _pendingSendBytes;
         private int _inSendBytes;
@@ -110,28 +87,14 @@ namespace EventStore.ClientAPI.Transport.Tcp
         private int _recvAsyncs;
         private int _recvAsyncCallbacks;
 
-        public TcpConnectionBase(IPEndPoint remoteEndPoint)
-        {
-            Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
-            _remoteEndPoint = remoteEndPoint;
-
-            TcpConnectionMonitor.Default.Register(this);
-        }
-
-        protected void InitConnectionBase(Socket socket)
-        {
-            Ensure.NotNull(socket, "socket");
-
-            _socket = socket;
-            _localEndPoint = Helper.EatException(() => (IPEndPoint)socket.LocalEndPoint);
-        }
-
-        protected void NotifySendScheduled(int bytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void NotifySendScheduled(int bytes)
         {
             Interlocked.Add(ref _pendingSendBytes, bytes);
         }
 
-        protected void NotifySendStarting(int bytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void NotifySendStarting(int bytes)
         {
             if (Interlocked.CompareExchange(ref _lastSendStarted, DateTime.UtcNow.Ticks, -1) != -1)
                 throw new Exception("Concurrent send detected.");
@@ -140,7 +103,8 @@ namespace EventStore.ClientAPI.Transport.Tcp
             Interlocked.Increment(ref _sentAsyncs);
         }
 
-        protected void NotifySendCompleted(int bytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void NotifySendCompleted(int bytes)
         {
             Interlocked.Exchange(ref _lastSendStarted, -1);
             Interlocked.Add(ref _inSendBytes, -bytes);
@@ -148,14 +112,17 @@ namespace EventStore.ClientAPI.Transport.Tcp
             Interlocked.Increment(ref _sentAsyncCallbacks);
         }
 
-        protected void NotifyReceiveStarting()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void NotifyReceiveStarting()
         {
             if (Interlocked.CompareExchange(ref _lastReceiveStarted, DateTime.UtcNow.Ticks, -1) != -1)
                 throw new Exception("Concurrent receive detected.");
+
             Interlocked.Increment(ref _recvAsyncs);
         }
 
-        protected void NotifyReceiveCompleted(int bytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void NotifyReceiveCompleted(int bytes)
         {
             Interlocked.Exchange(ref _lastReceiveStarted, -1);
             Interlocked.Add(ref _pendingReceivedBytes, bytes);
@@ -163,14 +130,16 @@ namespace EventStore.ClientAPI.Transport.Tcp
             Interlocked.Increment(ref _recvAsyncCallbacks);
         }
 
-        protected void NotifyReceiveDispatched(int bytes)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void NotifyReceiveDispatched(int bytes)
         {
             Interlocked.Add(ref _pendingReceivedBytes, -bytes);
         }
 
-        protected void NotifyClosed()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void NotifyClosed()
         {
-            _isClosed = true;
+            IsClosed = true;
             TcpConnectionMonitor.Default.Unregister(this);
         }
     }

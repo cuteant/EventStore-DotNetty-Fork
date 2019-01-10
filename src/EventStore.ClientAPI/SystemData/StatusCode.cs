@@ -1,5 +1,5 @@
 ﻿using System;
-using EventStore.Core.Messages;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.SystemData
 {

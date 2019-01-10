@@ -5,7 +5,7 @@
   <Import Project="..\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.projitems" Label="Shared" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;netstandard2.0;net471;net451</TargetFrameworks>
     <RootNamespace>EventStore.Transport.Tcp</RootNamespace>
     <AssemblyName>EventStore.Transport.Tcp</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -20,10 +20,12 @@
 
   <ItemGroup>
     <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
+    <PackageReference Include="DotNetty.Handlers.Unofficial" Version="$(DotNettyHandlersUnofficialPackageVersion)" />
+    <PackageReference Include="DotNetty.Transport.Libuv.Unofficial" Version="$(DotNettyTransportLibuvUnofficialPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventStore.BufferManagement\EventStore.BufferManagement.csproj" />
+    <ProjectReference Include="..\EventStore.Core.Messages\EventStore.Core.Messages.csproj" />
   </ItemGroup>
 
   <ItemGroup>

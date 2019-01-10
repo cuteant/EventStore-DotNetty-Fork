@@ -13,6 +13,7 @@ using EventStore.Core.Services.Monitoring.Utils;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Services.Monitoring
 {
@@ -311,41 +312,29 @@ namespace EventStore.Core.Services.Monitoring
                 List<MonitoringMessage.TcpConnectionStats> connStats = new List<MonitoringMessage.TcpConnectionStats>();
                 foreach (var conn in connections)
                 {
-                    if (conn is TcpConnection tcpConn)
+                    bool isExternalConnection;
+                    var isSsl = conn.IsSsl;
+                    if (!isSsl)
                     {
-                        var isExternalConnection = _tcpEndpoint.Port == tcpConn.LocalEndPoint.Port;
-                        connStats.Add(new MonitoringMessage.TcpConnectionStats
-                        {
-                            IsExternalConnection = isExternalConnection,
-                            RemoteEndPoint = tcpConn.RemoteEndPoint.ToString(),
-                            LocalEndPoint = tcpConn.LocalEndPoint.ToString(),
-                            ConnectionId = tcpConn.ConnectionId,
-                            ClientConnectionName = tcpConn.ClientConnectionName,
-                            TotalBytesSent = tcpConn.TotalBytesSent,
-                            TotalBytesReceived = tcpConn.TotalBytesReceived,
-                            PendingSendBytes = tcpConn.PendingSendBytes,
-                            PendingReceivedBytes = tcpConn.PendingReceivedBytes,
-                            IsSslConnection = false
-                        });
+                        isExternalConnection = _tcpEndpoint.Port == conn.LocalEndPoint.Port;
                     }
-
-                    if (conn is TcpConnectionSsl tcpConnSsl)
+                    else
                     {
-                        var isExternalConnection = _tcpSecureEndpoint != null && _tcpSecureEndpoint.Port == tcpConnSsl.LocalEndPoint.Port;
-                        connStats.Add(new MonitoringMessage.TcpConnectionStats
-                        {
-                            IsExternalConnection = isExternalConnection,
-                            RemoteEndPoint = tcpConnSsl.RemoteEndPoint.ToString(),
-                            LocalEndPoint = tcpConnSsl.LocalEndPoint.ToString(),
-                            ConnectionId = tcpConnSsl.ConnectionId,
-                            ClientConnectionName = tcpConnSsl.ClientConnectionName,
-                            TotalBytesSent = tcpConnSsl.TotalBytesSent,
-                            TotalBytesReceived = tcpConnSsl.TotalBytesReceived,
-                            PendingSendBytes = tcpConnSsl.PendingSendBytes,
-                            PendingReceivedBytes = tcpConnSsl.PendingReceivedBytes,
-                            IsSslConnection = true
-                        });
+                        isExternalConnection = _tcpSecureEndpoint != null && _tcpSecureEndpoint.Port == conn.LocalEndPoint.Port;
                     }
+                    connStats.Add(new MonitoringMessage.TcpConnectionStats
+                    {
+                        IsExternalConnection = isExternalConnection,
+                        RemoteEndPoint = conn.RemoteEndPoint.ToString(),
+                        LocalEndPoint = conn.LocalEndPoint.ToString(),
+                        ConnectionId = conn.ConnectionId,
+                        ClientConnectionName = conn.ClientConnectionName,
+                        TotalBytesSent = conn.TotalBytesSent,
+                        TotalBytesReceived = conn.TotalBytesReceived,
+                        PendingSendBytes = conn.PendingSendBytes,
+                        PendingReceivedBytes = conn.PendingReceivedBytes,
+                        IsSslConnection = isSsl
+                    });
                 }
                 message.Envelope.ReplyWith(
                     new MonitoringMessage.GetFreshTcpConnectionStatsCompleted(connStats)

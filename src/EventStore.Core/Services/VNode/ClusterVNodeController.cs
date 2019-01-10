@@ -10,6 +10,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Core.TransactionLog.Chunks;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.VNode

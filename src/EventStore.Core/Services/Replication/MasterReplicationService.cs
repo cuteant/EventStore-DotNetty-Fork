@@ -156,12 +156,12 @@ namespace EventStore.Core.Services.Replication
             var replicaStats = new List<ReplicationMessage.ReplicationStats>();
             foreach (var conn in connections)
             {
-                if (conn is TcpConnection tcpConn)
+                if (!conn.IsSsl)
                 {
-                    var subscription = _subscriptions.FirstOrDefault(x => x.Value.ConnectionId == tcpConn.ConnectionId);
+                    var subscription = _subscriptions.FirstOrDefault(x => x.Value.ConnectionId == conn.ConnectionId);
                     if (subscription.Value != null)
                     {
-                        var stats = new ReplicationMessage.ReplicationStats(subscription.Key, tcpConn.ConnectionId, subscription.Value.ReplicaEndPoint.ToString(), tcpConn.SendQueueSize,
+                        var stats = new ReplicationMessage.ReplicationStats(subscription.Key, conn.ConnectionId, subscription.Value.ReplicaEndPoint.ToString(), conn.SendQueueSize,
                                             conn.TotalBytesSent, conn.TotalBytesReceived, conn.PendingSendBytes, conn.PendingReceivedBytes);
                         replicaStats.Add(stats);
                     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Messages
 {

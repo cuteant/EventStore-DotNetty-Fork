@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -7,7 +8,7 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services;
 using EventStore.Core.Services.AwakeReaderService;
 using EventStore.Core.Services.TimerService;
-using System.Collections.Generic;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Helpers
 {

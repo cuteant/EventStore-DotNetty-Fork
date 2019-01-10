@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventStore.Core.Data;
-using ClientMessage = EventStore.Core.Messages.TcpClientMessageDto;
+using ClientMessage = EventStore.Transport.Tcp.Messages.TcpClientMessageDto;
 
 namespace EventStore.ClientAPI.Embedded
 {

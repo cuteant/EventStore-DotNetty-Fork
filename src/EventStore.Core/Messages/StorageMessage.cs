@@ -423,7 +423,7 @@ namespace EventStore.Core.Messages
             public readonly StreamAccess AccessResult;
 
             public CheckStreamAccessCompleted(Guid correlationId, string eventStreamId, long? transactionId,
-                                              StreamAccessType accessType, StreamAccess accessResult)
+                                              StreamAccessType accessType, in StreamAccess accessResult)
             {
                 CorrelationId = correlationId;
                 EventStreamId = eventStreamId;

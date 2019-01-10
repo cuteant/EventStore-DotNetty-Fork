@@ -8,6 +8,7 @@ using EventStore.Core.Messages;
 using EventStore.Core.Services;
 using EventStore.Core.Services.Storage;
 using EventStore.Core.Services.UserManagement;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks

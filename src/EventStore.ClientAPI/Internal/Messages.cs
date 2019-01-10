@@ -5,6 +5,8 @@ using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.Internal
 {
@@ -93,9 +95,9 @@ namespace EventStore.ClientAPI.Internal
   internal class TcpConnectionClosedMessage : Message
   {
     public readonly TcpPackageConnection Connection;
-    public readonly SocketError Error;
+    public readonly DisassociateInfo Error;
 
-    public TcpConnectionClosedMessage(TcpPackageConnection connection, SocketError error)
+    public TcpConnectionClosedMessage(TcpPackageConnection connection, DisassociateInfo error)
     {
       Ensure.NotNull(connection, nameof(connection));
       Connection = connection;
@@ -424,7 +426,7 @@ namespace EventStore.ClientAPI.Internal
     public readonly TcpPackageConnection Connection;
     public readonly TcpPackage Package;
 
-    public HandleTcpPackageMessage(TcpPackageConnection connection, in TcpPackage package)
+    public HandleTcpPackageMessage(TcpPackageConnection connection, TcpPackage package)
     {
       Connection = connection;
       Package = package;

@@ -4,7 +4,7 @@ using CuteAnt.Collections;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Serialization;
-using EventStore.Core.Messages;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Messages

@@ -5,6 +5,7 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
     <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
@@ -31,8 +32,11 @@ Goals:
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\EventStore.Core\Services\Transport\Tcp\ProtobufExtensions.cs" Link="Transport.Tcp\ProtobufExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
-    <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization.Utf8Json" Version="$(CuteAntExtensionsSerializationUtf8JsonPackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization.Protobuf" Version="$(CuteAntExtensionsSerializationProtobufPackageVersion)" />
     <PackageReference Include="MessagePack.Hyperion" Version="$(MessagePackHyperionPackageVersion)" />
@@ -43,7 +47,7 @@ Goals:
 
   <ItemGroup>
     <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
-    <ProjectReference Include="..\EventStore.Core.Messages\EventStore.Core.Messages.csproj" />
+    <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
   </ItemGroup>
 
 </Project>

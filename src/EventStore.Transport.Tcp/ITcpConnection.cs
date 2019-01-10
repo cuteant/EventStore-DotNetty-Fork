@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
+using System.Threading.Tasks;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Transport.Tcp
 {
     public interface ITcpConnection
     {
-        event Action<ITcpConnection, SocketError> ConnectionClosed;
+        event Action<ITcpConnection, DisassociateInfo> ConnectionClosed;
 
         Guid ConnectionId { get; }
         string ClientConnectionName { get; }
@@ -17,9 +17,12 @@ namespace EventStore.Transport.Tcp
         int PendingSendBytes { get; }
         bool IsClosed { get; }
 
-        void ReceiveAsync(Action<ITcpConnection, IEnumerable<ArraySegment<byte>>> callback);
-        void EnqueueSend(IEnumerable<ArraySegment<byte>> data);
-        void Close(string reason);
+        TaskCompletionSource<ITcpPackageListener> ReadHandlerSource { get; }
+
+        //void ReceiveAsync(Action<ITcpConnection, IEnumerable<ArraySegment<byte>>> callback);
+        void EnqueueSend(TcpPackage package);
+        void Close(DisassociateInfo info, string reason = null);
+        void Close(in Disassociated disassociated);
         void SetClientConnectionName(string clientConnectionName);
     }
 }

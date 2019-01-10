@@ -1,167 +1,120 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.SystemData;
+using EventStore.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
-  internal class TcpPackageConnection
-  {
-    private static readonly TcpClientConnector Connector = new TcpClientConnector();
-
-    public bool IsClosed { get { return _connection.IsClosed; } }
-    public int SendQueueSize { get { return _connection.SendQueueSize; } }
-    public IPEndPoint RemoteEndPoint { get { return _connection.RemoteEndPoint; } }
-    public IPEndPoint LocalEndPoint { get { return _connection.LocalEndPoint; } }
-    public readonly Guid ConnectionId;
-
-    private static readonly ILogger _log = TraceLogger.GetLogger<TcpPackageConnection>();
-    private readonly Action<TcpPackageConnection, TcpPackage> _handlePackage;
-    private readonly Action<TcpPackageConnection, Exception> _onError;
-
-    private readonly LengthPrefixMessageFramer _framer;
-    private readonly ITcpConnection _connection;
-
-    public TcpPackageConnection(IPEndPoint remoteEndPoint,
-                                Guid connectionId,
-                                bool ssl,
-                                string targetHost,
-                                bool validateServer,
-                                TimeSpan timeout,
-                                Action<TcpPackageConnection, TcpPackage> handlePackage,
-                                Action<TcpPackageConnection, Exception> onError,
-                                Action<TcpPackageConnection> connectionEstablished,
-                                Action<TcpPackageConnection, SocketError> connectionClosed)
+    internal class TcpPackageConnection : DotNettyClientTransport, ITcpPackageListener
     {
-      Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
-      Ensure.NotEmptyGuid(connectionId, "connectionId");
-      Ensure.NotNull(handlePackage, "handlePackage");
-      if (ssl)
-        Ensure.NotNullOrEmpty(targetHost, "targetHost");
+        public bool IsClosed { get { return _connection != null ? _connection.IsClosed : true; } }
+        public int SendQueueSize { get { return _connection != null ? _connection.SendQueueSize : 0; } }
+        public IPEndPoint RemoteEndPoint { get { return _remoteEndPoint; } }
+        public IPEndPoint LocalEndPoint { get { return _connection?.LocalEndPoint; } }
+        public Guid ConnectionId { get; private set; }
 
-      ConnectionId = connectionId;
-      _handlePackage = handlePackage;
-      _onError = onError;
+        private static readonly ILogger _log = TraceLogger.GetLogger<TcpPackageConnection>();
+        private readonly IConnectionEventHandler _connEventHandler;
 
-      //Setup callback for incoming messages
-      _framer = new LengthPrefixMessageFramer();
-      _framer.RegisterMessageArrivedCallback(IncomingMessageArrived);
+        private readonly IPEndPoint _remoteEndPoint;
 
-      var connectionCreated = new ManualResetEventSlim();
-      // ReSharper disable ImplicitlyCapturedClosure
-      _connection = Connector.ConnectTo(
-          connectionId,
-          remoteEndPoint,
-          ssl,
-          targetHost,
-          validateServer,
-          timeout,
-          tcpConnection =>
-          {
-            connectionCreated.Wait();
+        private ITcpConnection _connection;
+        private int _isClosed;
+
+        public TcpPackageConnection(
+            DotNettyTransportSettings settings,
+            IPEndPoint remoteEndPoint,
+            bool ssl,
+            string targetHost,
+            bool validateServer,
+            IConnectionEventHandler connEventHandler)
+            : base(settings, ssl, targetHost, validateServer)
+        {
+            Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
+            Ensure.NotNull(connEventHandler, "connEventHandler");
+
+            _remoteEndPoint = remoteEndPoint;
+            _connEventHandler = connEventHandler;
+
+            ConnectionId = Guid.Empty;
+        }
+
+        public async Task ConnectAsync()
+        {
+            try
+            {
+                var conn = await ConnectAsync(_remoteEndPoint).ConfigureAwait(false);
+                conn.ReadHandlerSource.TrySetResult(this);
+
+                ConnectionId = conn.ConnectionId;
+
+                conn.ConnectionClosed += OnConnectionClosed;
+
+                Interlocked.Exchange(ref _connection, conn);
+
+                if (_log.IsDebugLevelEnabled())
+                {
+                    _log.LogDebug("TcpPackageConnection: connected to [{0}, L{1}, {2:B}].", conn.RemoteEndPoint, conn.LocalEndPoint, ConnectionId);
+                }
+                _connEventHandler.OnConnectionEstablished(this);
+            }
+            catch (InvalidConnectionException exc)
+            {
+                if (_log.IsDebugLevelEnabled())
+                {
+                    _log.LogDebug(exc, "TcpPackageConnection: connection to [{0} failed. Error: ", _remoteEndPoint);
+                }
+                Interlocked.Exchange(ref _isClosed, 1);
+                _connEventHandler.OnConnectionClosed(this, DisassociateInfo.InvalidConnection);
+            }
+        }
+
+        private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo error)
+        {
+            if (Interlocked.Exchange(ref _isClosed, 1) == 1) { return; }
             if (_log.IsDebugLevelEnabled())
             {
-              _log.LogDebug("TcpPackageConnection: connected to [{0}, L{1}, {2:B}].", tcpConnection.RemoteEndPoint, tcpConnection.LocalEndPoint, connectionId);
+                _log.LogDebug("TcpPackageConnection: connection [{0}, L{1}, {2:B}] was closed {3}", _connection.RemoteEndPoint, _connection.LocalEndPoint,
+                        ConnectionId, error == DisassociateInfo.Success ? "cleanly." : "with error: " + error + ".");
             }
-            connectionEstablished?.Invoke(this);
-          },
-          (conn, error) =>
-          {
-            connectionCreated.Wait();
-            if (_log.IsDebugLevelEnabled())
+            _connEventHandler.OnConnectionClosed(this, error);
+        }
+
+        void ITcpPackageListener.Notify(TcpPackage package)
+        {
+            _connEventHandler.Handle(this, package);
+        }
+
+        void ITcpPackageListener.HandleBadRequest(in Disassociated disassociated)
+        {
+            _connection.Close(disassociated);
+
+            var message = string.Format("TcpPackageConnection: [{0}, L{1}, {2}] ERROR for {3}. Connection will be closed.",
+                                        RemoteEndPoint, LocalEndPoint, ConnectionId,
+                                        "<invalid package>");
+            _connEventHandler.OnError(this, disassociated.Error);
+            if (_log.IsDebugLevelEnabled()) _log.LogDebug(disassociated.Error, message);
+        }
+
+        public void EnqueueSend(TcpPackage package)
+        {
+            if (_connection == null)
             {
-              _log.LogDebug("TcpPackageConnection: connection to [{0}, L{1}, {2:B}] failed. Error: {3}.", conn.RemoteEndPoint, conn.LocalEndPoint, connectionId, error);
-            }
-            connectionClosed?.Invoke(this, error);
-          },
-          (conn, error) =>
-          {
-            connectionCreated.Wait();
-            if (_log.IsDebugLevelEnabled())
-            {
-              _log.LogDebug("TcpPackageConnection: connection [{0}, L{1}, {2:B}] was closed {3}", conn.RemoteEndPoint, conn.LocalEndPoint,
-                            ConnectionId, error == SocketError.Success ? "cleanly." : "with error: " + error + ".");
+                throw new InvalidOperationException("Failed connection.");
             }
 
-            connectionClosed?.Invoke(this, error);
-          });
-      // ReSharper restore ImplicitlyCapturedClosure
+            _connection.EnqueueSend(package);
+        }
 
-      connectionCreated.Set();
+        public void Close(string reason)
+        {
+            if (null == _connection) { return; }
+
+            _connection.Close(DisassociateInfo.Success, reason);
+        }
     }
-
-    private void OnRawDataReceived(ITcpConnection connection, IEnumerable<ArraySegment<byte>> data)
-    {
-      try
-      {
-        _framer.UnFrameData(data);
-      }
-      catch (PackageFramingException exc)
-      {
-        _log.LogError(exc, "TcpPackageConnection: [{0}, L{1}, {2:B}]. Invalid TCP frame received.", RemoteEndPoint, LocalEndPoint, ConnectionId);
-        Close("Invalid TCP frame received.");
-        return;
-      }
-
-      //NOTE: important to be the last statement in the callback
-      connection.ReceiveAsync(OnRawDataReceived);
-    }
-
-    private void IncomingMessageArrived(ArraySegment<byte> data)
-    {
-      var package = new TcpPackage();
-      var valid = false;
-      try
-      {
-        package = TcpPackage.FromArraySegment(data);
-        valid = true;
-        _handlePackage(this, package);
-      }
-      catch (Exception e)
-      {
-        _connection.Close(string.Format("Error when processing TcpPackage {0}: {1}",
-                                        valid ? package.Command.ToString() : "<invalid package>", e.Message));
-
-        var message = string.Format("TcpPackageConnection: [{0}, L{1}, {2}] ERROR for {3}. Connection will be closed.",
-                                    RemoteEndPoint, LocalEndPoint, ConnectionId,
-                                    valid ? package.Command.ToString() : "<invalid package>");
-        _onError?.Invoke(this, e);
-        if (_log.IsDebugLevelEnabled()) _log.LogDebug(e, message);
-      }
-    }
-
-    public void StartReceiving()
-    {
-      if (_connection == null)
-      {
-        throw new InvalidOperationException("Failed connection.");
-      }
-
-      _connection.ReceiveAsync(OnRawDataReceived);
-    }
-
-    public void EnqueueSend(in TcpPackage package)
-    {
-      if (_connection == null)
-      {
-        throw new InvalidOperationException("Failed connection.");
-      }
-
-      _connection.EnqueueSend(_framer.FrameData(package.AsArraySegment()));
-    }
-
-    public void Close(string reason)
-    {
-      if (_connection == null)
-      {
-        throw new InvalidOperationException("Failed connection.");
-      }
-
-      _connection.Close(reason);
-    }
-  }
 }

@@ -5,7 +5,7 @@ using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services;
-using EventStore.Core.Services.TimerService;
+using EventStore.Transport.Tcp.Messages;
 using System.Threading;
 
 namespace EventStore.Core.Helpers

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {

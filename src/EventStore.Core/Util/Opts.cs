@@ -4,7 +4,7 @@ using EventStore.Core.TransactionLog.Chunks;
 
 namespace EventStore.Core.Util
 {
-    public static class Opts
+    public static partial class Opts
     {
         public const string EnvPrefix = "EVENTSTORE_";
 

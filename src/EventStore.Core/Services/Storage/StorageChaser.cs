@@ -185,7 +185,7 @@ namespace EventStore.Core.Services.Storage
             }
         }
 
-        private void ProcessLogRecord(SeqReadResult result)
+        private void ProcessLogRecord(in SeqReadResult result)
         {
             switch (result.LogRecord.RecordType)
             {

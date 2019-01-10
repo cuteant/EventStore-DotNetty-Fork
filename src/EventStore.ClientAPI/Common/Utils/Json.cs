@@ -9,7 +9,7 @@ namespace EventStore.ClientAPI.Common.Utils
 {
   static class Json
   {
-    private const int c_initialBufferSize = 1024 * 64;
+    private const int c_initialBufferSize = 1024 * 80;
     public const int MinBufferSize = 128;
     public const int TinyBufferSize = 256;
     public const int SmallBufferSize = 512;

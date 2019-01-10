@@ -12,14 +12,14 @@ using EventStore.Core.Messaging;
 using EventStore.Core.Services.TimerService;
 using EventStore.Core.Settings;
 using EventStore.Transport.Tcp;
-using EventStore.Transport.Tcp.Framing;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Transport.Tcp
 {
     /// <summary>Manager for individual TCP connection. It handles connection lifecycle,
     /// heartbeats, message framing and dispatch to the memory bus.</summary>
-    public class TcpConnectionManager : IHandle<TcpMessage.Heartbeat>, IHandle<TcpMessage.HeartbeatTimeout>
+    public class TcpConnectionManager : IHandle<TcpMessage.Heartbeat>, IHandle<TcpMessage.HeartbeatTimeout>, ITcpPackageListener
     {
         public const int ConnectionQueueSizeThreshold = 50000;
         public static readonly TimeSpan ConnectionTimeout = TimeSpan.FromMilliseconds(1000);
@@ -38,14 +38,13 @@ namespace EventStore.Core.Services.Transport.Tcp
         private readonly IEnvelope _tcpEnvelope;
         private readonly IPublisher _publisher;
         private readonly ITcpDispatcher _dispatcher;
-        private readonly IMessageFramer _framer;
         private int _messageNumber;
         private int _isClosed;
         private string _clientConnectionName;
 
         private byte _version;
 
-        private readonly Action<TcpConnectionManager, SocketError> _connectionClosed;
+        private readonly Action<TcpConnectionManager, DisassociateInfo> _connectionClosed;
         private readonly Action<TcpConnectionManager> _connectionEstablished;
 
         private readonly SendToWeakThisEnvelope _weakThisEnvelope;
@@ -66,7 +65,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                                     IAuthenticationProvider authProvider,
                                     TimeSpan heartbeatInterval,
                                     TimeSpan heartbeatTimeout,
-                                    Action<TcpConnectionManager, SocketError> onConnectionClosed,
+                                    Action<TcpConnectionManager, DisassociateInfo> onConnectionClosed,
                                     int connectionPendingSendBytesThreshold)
         {
             Ensure.NotNull(dispatcher, "dispatcher");
@@ -78,14 +77,13 @@ namespace EventStore.Core.Services.Transport.Tcp
             ConnectionId = openedConnection.ConnectionId;
             ConnectionName = connectionName;
 
+            openedConnection.ReadHandlerSource.TrySetResult(this);
+
             _serviceType = serviceType;
             _tcpEnvelope = new SendOverTcpEnvelope(this, networkSendQueue);
             _publisher = publisher;
             _dispatcher = dispatcher;
             _authProvider = authProvider;
-
-            _framer = new LengthPrefixMessageFramer();
-            _framer.RegisterMessageArrivedCallback(OnMessageArrived);
 
             _weakThisEnvelope = new SendToWeakThisEnvelope(this);
             _heartbeatInterval = heartbeatInterval;
@@ -99,7 +97,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _connection.ConnectionClosed += OnConnectionClosed;
             if (_connection.IsClosed)
             {
-                OnConnectionClosed(_connection, SocketError.Success);
+                OnConnectionClosed(_connection, DisassociateInfo.Success);
                 return;
             }
 
@@ -107,39 +105,30 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         public TcpConnectionManager(string connectionName,
-                                    Guid connectionId,
                                     ITcpDispatcher dispatcher,
                                     IPublisher publisher,
-                                    IPEndPoint remoteEndPoint,
-                                    TcpClientConnector connector,
-                                    bool useSsl,
-                                    string sslTargetHost,
-                                    bool sslValidateServer,
+                                    ITcpConnection openedConnection,
                                     IPublisher networkSendQueue,
                                     IAuthenticationProvider authProvider,
                                     TimeSpan heartbeatInterval,
                                     TimeSpan heartbeatTimeout,
                                     Action<TcpConnectionManager> onConnectionEstablished,
-                                    Action<TcpConnectionManager, SocketError> onConnectionClosed)
+                                    Action<TcpConnectionManager, DisassociateInfo> onConnectionClosed)
         {
-            Ensure.NotEmptyGuid(connectionId, "connectionId");
             Ensure.NotNull(dispatcher, "dispatcher");
             Ensure.NotNull(publisher, "publisher");
+            Ensure.NotNull(openedConnection, "openedConnnection");
             Ensure.NotNull(authProvider, "authProvider");
-            Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
-            Ensure.NotNull(connector, "connector");
-            if (useSsl) Ensure.NotNull(sslTargetHost, "sslTargetHost");
 
-            ConnectionId = connectionId;
+            ConnectionId = openedConnection.ConnectionId;
             ConnectionName = connectionName;
+
+            openedConnection.ReadHandlerSource.TrySetResult(this);
 
             _tcpEnvelope = new SendOverTcpEnvelope(this, networkSendQueue);
             _publisher = publisher;
             _dispatcher = dispatcher;
             _authProvider = authProvider;
-
-            _framer = new LengthPrefixMessageFramer();
-            _framer.RegisterMessageArrivedCallback(OnMessageArrived);
 
             _weakThisEnvelope = new SendToWeakThisEnvelope(this);
             _heartbeatInterval = heartbeatInterval;
@@ -149,21 +138,17 @@ namespace EventStore.Core.Services.Transport.Tcp
             _connectionEstablished = onConnectionEstablished;
             _connectionClosed = onConnectionClosed;
 
-            RemoteEndPoint = remoteEndPoint;
-            _connection = useSsl
-                ? connector.ConnectSslTo(ConnectionId, remoteEndPoint, ConnectionTimeout,
-                                         sslTargetHost, sslValidateServer, OnConnectionEstablished, OnConnectionFailed)
-                : connector.ConnectTo(ConnectionId, remoteEndPoint, ConnectionTimeout, OnConnectionEstablished, OnConnectionFailed);
+            RemoteEndPoint = openedConnection.RemoteEndPoint;
+            _connection = openedConnection;
             _connection.ConnectionClosed += OnConnectionClosed;
-            if (_connection.IsClosed)
-                OnConnectionClosed(_connection, SocketError.Success);
+            if (_connection.IsClosed) { OnConnectionClosed(_connection, DisassociateInfo.Success); }
         }
 
-        private void OnConnectionEstablished(ITcpConnection connection)
+        public void OnConnectionEstablished()
         {
             if (Log.IsInformationLevelEnabled())
             {
-                Log.LogInformation("Connection '{0}' ({1:B}) to [{2}] established.", ConnectionName, ConnectionId, connection.RemoteEndPoint);
+                Log.LogInformation("Connection '{0}' ({1:B}) to [{2}] established.", ConnectionName, ConnectionId, RemoteEndPoint);
             }
 
             ScheduleHeartbeat(0);
@@ -172,18 +157,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             handler?.Invoke(this);
         }
 
-        private void OnConnectionFailed(ITcpConnection connection, SocketError socketError)
-        {
-            if (Interlocked.CompareExchange(ref _isClosed, 1, 0) != 0) return;
-            if (Log.IsInformationLevelEnabled())
-            {
-                Log.LogInformation("Connection '{0}' ({1:B}) to [{2}] failed: {3}.", ConnectionName, ConnectionId, connection.RemoteEndPoint, socketError);
-            }
-            var handler = _connectionClosed;
-            handler?.Invoke(this, socketError);
-        }
-
-        private void OnConnectionClosed(ITcpConnection connection, SocketError socketError)
+        private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo socketError)
         {
             if (Interlocked.CompareExchange(ref _isClosed, 1, 0) != 0) return;
             if (Log.IsInformationLevelEnabled())
@@ -195,56 +169,28 @@ namespace EventStore.Core.Services.Transport.Tcp
             handler?.Invoke(this, socketError);
         }
 
-        public void StartReceiving()
-        {
-            _connection.ReceiveAsync(OnRawDataReceived);
-        }
-
-        private void OnRawDataReceived(ITcpConnection connection, IEnumerable<ArraySegment<byte>> data)
+        public void Notify(TcpPackage package)
         {
             Interlocked.Increment(ref _messageNumber);
 
-            try
-            {
-                _framer.UnFrameData(data);
-            }
-            catch (PackageFramingException exc)
-            {
-                SendBadRequestAndClose(Guid.Empty, $"Invalid TCP frame received. Error: {exc.Message}.");
-                return;
-            }
-            _connection.ReceiveAsync(OnRawDataReceived);
-        }
-
-        private void OnMessageArrived(ArraySegment<byte> data)
-        {
-            TcpPackage package;
-            try
-            {
-                package = TcpPackage.FromArraySegment(data);
-            }
-            catch (Exception e)
-            {
-                SendBadRequestAndClose(Guid.Empty, string.Format("Received bad network package. Error: {0}", e));
-                return;
-            }
-
-            OnPackageReceived(package);
-        }
-
-        private void OnPackageReceived(in TcpPackage package)
-        {
             try
             {
                 ProcessPackage(package);
             }
             catch (Exception e)
             {
-                SendBadRequestAndClose(package.CorrelationId, string.Format("Error while processing package. Error: {0}", e));
+                SendBadRequestAndClose(package.CorrelationId, $"Error while processing package. Error: {e}");
             }
         }
+        public void HandleBadRequest(in Disassociated disassociated)
+        {
+            SendPackage(new TcpPackage(TcpCommand.BadRequest, Guid.Empty, Helper.UTF8NoBom.GetBytes(disassociated.ToString())), checkQueueSize: false);
+            Log.LogError("Closing connection '{0}{1}' [{2}, L{3}, {4:B}] due to error. Reason: {5}",
+                        ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId, disassociated);
+            _connection.Close(disassociated);
+        }
 
-        public void ProcessPackage(in TcpPackage package)
+        public void ProcessPackage(TcpPackage package)
         {
             if (_serviceType == TcpServiceType.External && (package.Flags & TcpFlags.TrustedWrite) != 0)
             {
@@ -333,7 +279,8 @@ namespace EventStore.Core.Services.Transport.Tcp
             }
         }
 
-        private void UnwrapAndPublishPackage(in TcpPackage package, IPrincipal user, string login, string password)
+
+        private void UnwrapAndPublishPackage(TcpPackage package, IPrincipal user, string login, string password)
         {
             Message message = null;
             string error = "";
@@ -372,17 +319,17 @@ namespace EventStore.Core.Services.Transport.Tcp
             _tcpEnvelope.ReplyWith(new TcpMessage.Authenticated(correlationId));
         }
 
-        public void SendBadRequestAndClose(Guid correlationId, string message)
+        public void SendBadRequestAndClose(in Guid correlationId, string message)
         {
             Ensure.NotNull(message, nameof(message));
 
             SendPackage(new TcpPackage(TcpCommand.BadRequest, correlationId, Helper.UTF8NoBom.GetBytes(message)), checkQueueSize: false);
             Log.LogError("Closing connection '{0}{1}' [{2}, L{3}, {4:B}] due to error. Reason: {5}",
                         ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId, message);
-            _connection.Close(message);
+            _connection.Close(DisassociateInfo.Unknown, message);
         }
 
-        public void SendBadRequest(Guid correlationId, string message)
+        public void SendBadRequest(in Guid correlationId, string message)
         {
             Ensure.NotNull(message, nameof(message));
 
@@ -397,16 +344,16 @@ namespace EventStore.Core.Services.Transport.Tcp
                             ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId,
                             reason.IsEmpty() ? string.Empty : " Reason: " + reason);
             }
-            _connection.Close(reason);
+            _connection.Close(DisassociateInfo.Success, reason);
         }
 
         public void SendMessage(Message message)
         {
             var package = _dispatcher.WrapMessage(message, _version);
-            if (package != null) { SendPackage(package.Value); }
+            if (package != null) { SendPackage(package); }
         }
 
-        private void SendPackage(in TcpPackage package, bool checkQueueSize = true)
+        private void SendPackage(TcpPackage package, bool checkQueueSize = true)
         {
             if (IsClosed) return;
 
@@ -426,16 +373,14 @@ namespace EventStore.Core.Services.Transport.Tcp
                 }
             }
 
-            var data = package.AsArraySegment();
-            var framed = _framer.FrameData(data);
-            _connection.EnqueueSend(framed);
+            _connection.EnqueueSend(package);
         }
 
         public void Handle(TcpMessage.Heartbeat message)
         {
             if (IsClosed) return;
 
-            var msgNum = _messageNumber;
+            var msgNum = Volatile.Read(ref _messageNumber);
             if (message.MessageNumber != msgNum)
                 ScheduleHeartbeat(msgNum);
             else
@@ -450,7 +395,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
             if (IsClosed) return;
 
-            var msgNum = _messageNumber;
+            var msgNum = Volatile.Read(ref _messageNumber);
             if (message.MessageNumber != msgNum)
                 ScheduleHeartbeat(msgNum);
             else
@@ -482,7 +427,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             private readonly TcpConnectionManager _manager;
             private readonly TcpPackage _package;
 
-            public TcpAuthRequest(TcpConnectionManager manager, in TcpPackage package, string login, string password)
+            public TcpAuthRequest(TcpConnectionManager manager, TcpPackage package, string login, string password)
               : base(login, password)
             {
                 _manager = manager;

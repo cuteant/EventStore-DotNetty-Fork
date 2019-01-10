@@ -1,6 +1,6 @@
-﻿namespace EventStore.ClientAPI.SystemData
+﻿namespace EventStore.Transport.Tcp.Messages
 {
-    internal enum TcpCommand: byte
+    public enum TcpCommand: byte
     {
         HeartbeatRequestCommand = 0x01,
         HeartbeatResponseCommand = 0x02,
@@ -68,7 +68,7 @@
         UpdatePersistentSubscriptionCompleted = 0xCF,
 
         ScavengeDatabase = 0xD0,
-        ScavengeDatabaseCompleted = 0xD1,
+        ScavengeDatabaseResponse = 0xD1,
 
         BadRequest = 0xF0,
         NotHandled = 0xF1,
@@ -77,5 +77,5 @@
         NotAuthenticated = 0xF4,
         IdentifyClient = 0xF5,
         ClientIdentified = 0xF6,
-   }
+    }
 }

@@ -6,6 +6,7 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
+  <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems" Label="Shared" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
@@ -41,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\etc\HdrHistogram\HdrHistogram.csproj" />
-    <ProjectReference Include="..\EventStore.Core.Messages\EventStore.Core.Messages.csproj" />
     <ProjectReference Include="..\EventStore.Native\EventStore.Native.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />

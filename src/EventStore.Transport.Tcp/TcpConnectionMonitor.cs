@@ -84,7 +84,7 @@ namespace EventStore.Transport.Tcp
                                      measurePeriod);
 
 
-            if (Application.IsDefined(Application.DumpStatistics) && Log.IsTraceLevelEnabled())
+            if (/*Application.IsDefined(Application.DumpStatistics) && */Log.IsTraceLevelEnabled())
             {
                 Log.AnalyzeConnections(stats);
             }

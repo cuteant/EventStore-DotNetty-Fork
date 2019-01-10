@@ -1,5 +1,6 @@
 ﻿using System;
 using EventStore.Core.Services.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.Services.Transport.Tcp
@@ -42,7 +43,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var refPkg = new TcpPackage(TcpCommand.BadRequest, TcpFlags.None, corrId, null, null, new byte[] { 1, 2, 3});
             var bytes = refPkg.AsArraySegment();
 
-            var pkg = TcpPackage.FromArraySegment(bytes);
+            var pkg = bytes.AsTcpPackage();
             Assert.AreEqual(TcpCommand.BadRequest, pkg.Command);
             Assert.AreEqual(TcpFlags.None, pkg.Flags);
             Assert.AreEqual(corrId, pkg.CorrelationId);
@@ -62,7 +63,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var refPkg = new TcpPackage(TcpCommand.BadRequest, TcpFlags.None, corrId, null, null, new byte[0]);
             var bytes = refPkg.AsArraySegment();
 
-            var pkg = TcpPackage.FromArraySegment(bytes);
+            var pkg = bytes.AsTcpPackage();
             Assert.AreEqual(TcpCommand.BadRequest, pkg.Command);
             Assert.AreEqual(TcpFlags.None, pkg.Flags);
             Assert.AreEqual(corrId, pkg.CorrelationId);
@@ -79,7 +80,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var refPkg = new TcpPackage(TcpCommand.BadRequest, TcpFlags.Authenticated, corrId, "login", "pa$$", new byte[] { 1, 2, 3 });
             var bytes = refPkg.AsArraySegment();
 
-            var pkg = TcpPackage.FromArraySegment(bytes);
+            var pkg = bytes.AsTcpPackage();
             Assert.AreEqual(TcpCommand.BadRequest, pkg.Command);
             Assert.AreEqual(TcpFlags.Authenticated, pkg.Flags);
             Assert.AreEqual(corrId, pkg.CorrelationId);
@@ -99,7 +100,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var refPkg = new TcpPackage(TcpCommand.BadRequest, TcpFlags.Authenticated, corrId, "login", "pa$$", new byte[0]);
             var bytes = refPkg.AsArraySegment();
 
-            var pkg = TcpPackage.FromArraySegment(bytes);
+            var pkg = bytes.AsTcpPackage();
             Assert.AreEqual(TcpCommand.BadRequest, pkg.Command);
             Assert.AreEqual(TcpFlags.Authenticated, pkg.Flags);
             Assert.AreEqual(corrId, pkg.CorrelationId);

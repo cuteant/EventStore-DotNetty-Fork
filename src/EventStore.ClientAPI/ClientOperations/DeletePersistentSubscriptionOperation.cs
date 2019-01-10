@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
-using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.ClientAPI.ClientOperations
 {

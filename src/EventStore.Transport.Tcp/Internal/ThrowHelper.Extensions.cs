@@ -8,7 +8,8 @@ namespace EventStore.Transport.Tcp
     /// <summary>The convention for this enum is using the argument name as the enum name</summary>
     internal enum ExceptionArgument
     {
-        array,
+        settings,
+        sslTargetHost,
     }
 
     #endregion

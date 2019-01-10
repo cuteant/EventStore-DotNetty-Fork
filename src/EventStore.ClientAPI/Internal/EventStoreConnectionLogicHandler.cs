@@ -9,14 +9,15 @@ using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Internal
 {
-    internal class EventStoreConnectionLogicHandler : IEventStoreConnectionLogicHandler
+    internal class EventStoreConnectionLogicHandler : IEventStoreConnectionLogicHandler, IConnectionEventHandler
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<EventStoreConnectionLogicHandler>();
         private static readonly TimerTickMessage TimerTickMessage = new TimerTickMessage();
@@ -163,19 +164,59 @@ namespace EventStore.ClientAPI.Internal
             if (_state != ConnectionState.Connecting) return;
             if (_connectingPhase != ConnectingPhase.EndPointDiscovery) return;
 
+            var settings = new DotNettyTransportSettings(
+                 enableLibuv: _settings.EnableLibuv,
+                 connectTimeout: _settings.ClientConnectionTimeout,
+                 serverSocketWorkerPoolSize: 2,
+                 clientSocketWorkerPoolSize: ScaledPoolSize(_settings.SocketWorkerPoolSizeMin, _settings.SocketWorkerPoolSizeFactor, _settings.SocketWorkerPoolSizeMax),
+                 maxFrameSize: int.MaxValue,
+                 dnsUseIpv6: false,
+                 tcpReuseAddr: true,
+                 tcpReusePort: true,
+                 tcpKeepAlive: true,
+                 tcpNoDelay: true,
+                 tcpLinger: 0,
+                 backlog: 200,
+                 enforceIpFamily: false,
+                 receiveBufferSize: _settings.ReceiveBufferSize,
+                 sendBufferSize: _settings.SendBufferSize,
+                 writeBufferHighWaterMark: _settings.WriteBufferHighWaterMark,
+                 writeBufferLowWaterMark: _settings.WriteBufferLowWaterMark,
+                 enableBufferPooling: _settings.EnableBufferPooling);
+
             _connectingPhase = ConnectingPhase.ConnectionEstablishing;
             _connection = new TcpPackageConnection(
+                    settings,
                     endPoint,
-                    Guid.NewGuid(),
                     _settings.UseSslConnection,
                     _settings.TargetHost,
                     _settings.ValidateServer,
-                    _settings.ClientConnectionTimeout,
-                    (connection, package) => EnqueueMessage(new HandleTcpPackageMessage(connection, package)),
-                    (connection, exc) => EnqueueMessage(new TcpConnectionErrorMessage(connection, exc)),
-                    connection => EnqueueMessage(new TcpConnectionEstablishedMessage(connection)),
-                    (connection, error) => EnqueueMessage(new TcpConnectionClosedMessage(connection, error)));
-            _connection.StartReceiving();
+                    this);
+            _connection.ConnectAsync().Ignore();
+        }
+        private static int ScaledPoolSize(int floor, double scalar, int ceiling)
+        {
+            return Math.Min(Math.Max((int)(Environment.ProcessorCount * scalar), floor), ceiling);
+        }
+
+        void IConnectionEventHandler.Handle(TcpPackageConnection connection, TcpPackage package)
+        {
+            EnqueueMessage(new HandleTcpPackageMessage(connection, package));
+        }
+
+        void IConnectionEventHandler.OnConnectionEstablished(TcpPackageConnection connection)
+        {
+            EnqueueMessage(new TcpConnectionEstablishedMessage(connection));
+        }
+
+        void IConnectionEventHandler.OnError(TcpPackageConnection connection, Exception exc)
+        {
+            EnqueueMessage(new TcpConnectionErrorMessage(connection, exc));
+        }
+
+        void IConnectionEventHandler.OnConnectionClosed(TcpPackageConnection connection, DisassociateInfo disassociateInfo)
+        {
+            EnqueueMessage(new TcpConnectionClosedMessage(connection, disassociateInfo));
         }
 
         private async Task TcpConnectionErrorAsync(TcpPackageConnection connection, Exception exception)

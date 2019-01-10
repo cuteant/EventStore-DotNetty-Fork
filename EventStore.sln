@@ -63,8 +63,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Transport.Http",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Abstractions", "src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj", "{D8C9244B-CF4D-4EC8-A2DF-50758BB5AD88}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", "src\EventStore.Core.Messages\EventStore.Core.Messages.csproj", "{16A8175A-5E94-44DA-978C-E31606A829AF}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI", "src\EventStore.ClientAPI\EventStore.ClientAPI.csproj", "{DF48930F-1C79-4BEE-92BA-E9EF90D4AA10}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Consumer", "src\EventStore.ClientAPI.Consumer\EventStore.ClientAPI.Consumer.csproj", "{DD38536C-29E6-4C90-ADEB-069C6224A4EA}"
@@ -97,6 +95,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerB", "samples\Es.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Es.ConsumerA", "samples\Es.ConsumerA\Es.ConsumerA.csproj", "{D230F5B4-4F12-4E55-BDF8-2037EDC463F2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", "src\EventStore.Core.Messages\EventStore.Core.Messages.csproj", "{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Async.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.shproj", "{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
@@ -105,6 +107,7 @@ Global
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems*{65e9ed9b-9545-47d8-a39c-da22c323abb2}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
+		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems*{b2be33a0-1eb0-49f7-bd28-72806d4a1df1}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems*{f0dcba0c-1ee9-403c-931c-555776f6c680}*SharedItemsImports = 13
@@ -158,10 +161,6 @@ Global
 		{D8C9244B-CF4D-4EC8-A2DF-50758BB5AD88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8C9244B-CF4D-4EC8-A2DF-50758BB5AD88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8C9244B-CF4D-4EC8-A2DF-50758BB5AD88}.Release|Any CPU.Build.0 = Release|Any CPU
-		{16A8175A-5E94-44DA-978C-E31606A829AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{16A8175A-5E94-44DA-978C-E31606A829AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{16A8175A-5E94-44DA-978C-E31606A829AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{16A8175A-5E94-44DA-978C-E31606A829AF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DF48930F-1C79-4BEE-92BA-E9EF90D4AA10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF48930F-1C79-4BEE-92BA-E9EF90D4AA10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF48930F-1C79-4BEE-92BA-E9EF90D4AA10}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -226,6 +225,10 @@ Global
 		{D230F5B4-4F12-4E55-BDF8-2037EDC463F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D230F5B4-4F12-4E55-BDF8-2037EDC463F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D230F5B4-4F12-4E55-BDF8-2037EDC463F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -251,7 +254,6 @@ Global
 		{40134618-12E0-495F-A40A-1B7DBE644202} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{E4231D0D-F9DF-4E36-A798-ECA33F59E5CA} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{D8C9244B-CF4D-4EC8-A2DF-50758BB5AD88} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
-		{16A8175A-5E94-44DA-978C-E31606A829AF} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{DF48930F-1C79-4BEE-92BA-E9EF90D4AA10} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{DD38536C-29E6-4C90-ADEB-069C6224A4EA} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{5658F604-9227-4714-B128-87EE331AC113} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
@@ -268,6 +270,8 @@ Global
 		{8F2F6172-6E75-4B48-8002-6A1FB49A7692} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{73EAF600-63D6-494E-B8C7-C871A801C263} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{D230F5B4-4F12-4E55-BDF8-2037EDC463F2} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
+		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
+		{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}

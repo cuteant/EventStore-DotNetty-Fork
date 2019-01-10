@@ -2,6 +2,7 @@
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.Storage.ReaderIndex;
+using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Services.RequestManager.Managers
 {

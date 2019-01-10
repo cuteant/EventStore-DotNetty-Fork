@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -23,7 +23,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         Secure
     }
 
-    public class TcpService :
+    public class TcpService : DotNettyServerTransport,
         IHandle<SystemMessage.SystemInit>,
         IHandle<SystemMessage.SystemStart>,
         IHandle<SystemMessage.BecomeShuttingDown>
@@ -32,7 +32,6 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         private readonly IPublisher _publisher;
         private readonly IPEndPoint _serverEndPoint;
-        private readonly TcpServerListener _serverListener;
         private readonly IPublisher _networkSendQueue;
         private readonly TcpServiceType _serviceType;
         private readonly TcpSecurityType _securityType;
@@ -40,36 +39,41 @@ namespace EventStore.Core.Services.Transport.Tcp
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly IAuthenticationProvider _authProvider;
-        private readonly X509Certificate _certificate;
+        private readonly X509Certificate2 _certificate;
         private readonly int _connectionPendingSendBytesThreshold;
 
-        public TcpService(IPublisher publisher,
-                          IPEndPoint serverEndPoint,
-                          IPublisher networkSendQueue,
-                          TcpServiceType serviceType,
-                          TcpSecurityType securityType,
-                          ITcpDispatcher dispatcher,
-                          TimeSpan heartbeatInterval,
-                          TimeSpan heartbeatTimeout,
-                          IAuthenticationProvider authProvider,
-                          X509Certificate certificate,
-                          int connectionPendingSendBytesThreshold)
-            : this(publisher, serverEndPoint, networkSendQueue, serviceType, securityType, (_, __) => dispatcher,
+        public TcpService(
+            DotNettyTransportSettings transportSettings,
+            IPublisher publisher,
+            IPEndPoint serverEndPoint,
+            IPublisher networkSendQueue,
+            TcpServiceType serviceType,
+            TcpSecurityType securityType,
+            ITcpDispatcher dispatcher,
+            TimeSpan heartbeatInterval,
+            TimeSpan heartbeatTimeout,
+            IAuthenticationProvider authProvider,
+            X509Certificate2 certificate,
+            int connectionPendingSendBytesThreshold)
+            : this(transportSettings, publisher, serverEndPoint, networkSendQueue, serviceType, securityType, (_, __) => dispatcher,
                    heartbeatInterval, heartbeatTimeout, authProvider, certificate, connectionPendingSendBytesThreshold)
         {
         }
 
-        public TcpService(IPublisher publisher,
-                          IPEndPoint serverEndPoint,
-                          IPublisher networkSendQueue,
-                          TcpServiceType serviceType,
-                          TcpSecurityType securityType,
-                          Func<Guid, IPEndPoint, ITcpDispatcher> dispatcherFactory,
-                          TimeSpan heartbeatInterval,
-                          TimeSpan heartbeatTimeout,
-                          IAuthenticationProvider authProvider,
-                          X509Certificate certificate,
-                          int connectionPendingSendBytesThreshold)
+        public TcpService(
+            DotNettyTransportSettings transportSettings,
+            IPublisher publisher,
+            IPEndPoint serverEndPoint,
+            IPublisher networkSendQueue,
+            TcpServiceType serviceType,
+            TcpSecurityType securityType,
+            Func<Guid, IPEndPoint, ITcpDispatcher> dispatcherFactory,
+            TimeSpan heartbeatInterval,
+            TimeSpan heartbeatTimeout,
+            IAuthenticationProvider authProvider,
+            X509Certificate2 certificate,
+            int connectionPendingSendBytesThreshold)
+            :base(transportSettings, certificate)
         {
             Ensure.NotNull(publisher, "publisher");
             Ensure.NotNull(serverEndPoint, "serverEndPoint");
@@ -81,7 +85,6 @@ namespace EventStore.Core.Services.Transport.Tcp
 
             _publisher = publisher;
             _serverEndPoint = serverEndPoint;
-            _serverListener = new TcpServerListener(_serverEndPoint);
             _networkSendQueue = networkSendQueue;
             _serviceType = serviceType;
             _securityType = securityType;
@@ -97,7 +100,9 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
             try
             {
-                _serverListener.StartListening(OnConnectionAccepted, _securityType.ToString());
+                Logger.LogInformation("Starting {securityType} TCP listening on TCP endpoint: {serverEndPoint}.", _securityType, _serverEndPoint);
+
+                ListenAsync(_serverEndPoint).GetAwaiter().GetResult();
             }
             catch (Exception e)
             {
@@ -111,14 +116,12 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void Handle(SystemMessage.BecomeShuttingDown message)
         {
-            _serverListener.Stop();
+            Shutdown().Ignore();
         }
 
-        private void OnConnectionAccepted(IPEndPoint endPoint, Socket socket)
+        public override void Notify(in InboundConnection inboundConn)
         {
-            var conn = _securityType == TcpSecurityType.Secure
-                ? TcpConnectionSsl.CreateServerFromSocket(Guid.NewGuid(), endPoint, socket, _certificate, verbose: true)
-                : TcpConnection.CreateAcceptedTcpConnection(Guid.NewGuid(), endPoint, socket, verbose: true);
+            var conn = inboundConn.Connection;
             if (Log.IsInformationLevelEnabled())
             {
                 Log.LogInformation("{0} TCP connection accepted: [{1}, {2}, L{3}, {4:B}].",
@@ -138,8 +141,6 @@ namespace EventStore.Core.Services.Transport.Tcp
                     _heartbeatTimeout,
                     (m, e) => _publisher.Publish(new TcpMessage.ConnectionClosed(m, e)),
                     _connectionPendingSendBytesThreshold); // TODO AN: race condition
-            _publisher.Publish(new TcpMessage.ConnectionEstablished(manager));
-            manager.StartReceiving();
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CuteAnt.Buffers;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
-using EventStore.Core.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
+using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.ClientOperations
@@ -49,7 +48,7 @@ namespace EventStore.ClientAPI.ClientOperations
                             CreateRequestDto().Serialize());
     }
 
-    public virtual InspectionResult InspectPackage(in TcpPackage package)
+    public virtual InspectionResult InspectPackage(TcpPackage package)
     {
       try
       {
@@ -92,21 +91,21 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    public InspectionResult InspectNotAuthenticated(in TcpPackage package)
+    public InspectionResult InspectNotAuthenticated(TcpPackage package)
     {
       string message = string.Empty; try { Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count); } catch { }
       Fail(new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
       return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
     }
 
-    public InspectionResult InspectBadRequest(in TcpPackage package)
+    public InspectionResult InspectBadRequest(TcpPackage package)
     {
       string message = string.Empty; try { Helper.UTF8NoBom.GetString(package.Data.Array, package.Data.Offset, package.Data.Count); } catch { }
       Fail(new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
       return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest - {message}");
     }
 
-    public InspectionResult InspectNotHandled(in TcpPackage package)
+    public InspectionResult InspectNotHandled(TcpPackage package)
     {
       var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
       switch (message.Reason)
@@ -128,7 +127,7 @@ namespace EventStore.ClientAPI.ClientOperations
       }
     }
 
-    public InspectionResult InspectUnexpectedCommand(in TcpPackage package, TcpCommand expectedCommand)
+    public InspectionResult InspectUnexpectedCommand(TcpPackage package, TcpCommand expectedCommand)
     {
       if (package.Command == expectedCommand)
         throw new ArgumentException($"Command should not be {package.Command}.");
