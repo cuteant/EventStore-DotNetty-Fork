@@ -105,8 +105,9 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         private static Message UnwrapPing(TcpPackage package, IEnvelope envelope)
         {
-            var data = new byte[package.Data.Count];
-            Buffer.BlockCopy(package.Data.Array, package.Data.Offset, data, 0, package.Data.Count);
+            var pd = package.Data;
+            var data = new byte[pd.Length];
+            Buffer.BlockCopy(pd, 0, data, 0, pd.Length);
             var pongMessage = new TcpMessage.PongMessage(package.CorrelationId, data);
             envelope.ReplyWith(pongMessage);
             return pongMessage;

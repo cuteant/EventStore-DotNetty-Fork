@@ -18,9 +18,9 @@ namespace EventStore.Transport.Tcp.Messages
         public readonly Guid CorrelationId;
         public readonly string Login;
         public readonly string Password;
-        public readonly ArraySegment<byte> Data;
+        public readonly byte[] Data;
 
-        public int Length => Data != null ? Data.Count + 18 : 18; // ignore login/pwd
+        public int Length => Data != null ? Data.Length + 18 : 18; // ignore login/pwd
 
         public TcpPackage() { }
 
@@ -29,17 +29,7 @@ namespace EventStore.Transport.Tcp.Messages
         {
         }
 
-        public TcpPackage(TcpCommand command, Guid correlationId, in ArraySegment<byte> data)
-            : this(command, TcpFlags.None, correlationId, null, null, data)
-        {
-        }
-
         public TcpPackage(TcpCommand command, TcpFlags flags, Guid correlationId, string login, string password, byte[] data)
-            : this(command, flags, correlationId, login, password, data != null ? new ArraySegment<byte>(data) : default)
-        {
-        }
-
-        public TcpPackage(TcpCommand command, TcpFlags flags, Guid correlationId, string login, string password, in ArraySegment<byte> data)
         {
             if ((flags & TcpFlags.Authenticated) != 0)
             {

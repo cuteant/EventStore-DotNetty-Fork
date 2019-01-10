@@ -43,9 +43,9 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ArraySegment<byte> Serialize<T>(this T protoContract)
+        public static byte[] Serialize<T>(this T protoContract)
         {
-            return new ArraySegment<byte>(MessagePackSerializer.Serialize(protoContract, DefaultResolver));
+            return MessagePackSerializer.Serialize(protoContract, DefaultResolver);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -136,8 +136,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 offset += MessagePackBinary.WriteBytes(ref bytes, offset, s_loginCache.GetOrAdd(value.Login, s_getBytesFunc));
                 offset += MessagePackBinary.WriteBytes(ref bytes, offset, s_loginCache.GetOrAdd(value.Password, s_getBytesFunc));
             }
-            var data = value.Data;
-            offset += MessagePackBinary.WriteBytes(ref bytes, offset, data.Array, data.Offset, data.Count);
+            offset += MessagePackBinary.WriteBytes(ref bytes, offset, value.Data);
 
             return offset - startOffset;
         }

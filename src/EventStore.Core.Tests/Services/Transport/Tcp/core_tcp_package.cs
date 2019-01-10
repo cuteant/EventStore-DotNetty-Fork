@@ -50,10 +50,10 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             Assert.AreEqual(null, pkg.Login);
             Assert.AreEqual(null, pkg.Password);
 
-            Assert.AreEqual(3, pkg.Data.Count);
-            Assert.AreEqual(1, pkg.Data.Array[pkg.Data.Offset + 0]);
-            Assert.AreEqual(2, pkg.Data.Array[pkg.Data.Offset + 1]);
-            Assert.AreEqual(3, pkg.Data.Array[pkg.Data.Offset + 2]);
+            Assert.AreEqual(3, pkg.Data.Length);
+            Assert.AreEqual(1, pkg.Data[0]);
+            Assert.AreEqual(2, pkg.Data[1]);
+            Assert.AreEqual(3, pkg.Data[2]);
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             Assert.AreEqual(null, pkg.Login);
             Assert.AreEqual(null, pkg.Password);
 
-            Assert.AreEqual(0, pkg.Data.Count);
+            Assert.AreEqual(0, pkg.Data.Length);
         }
 
         [Test]
@@ -87,10 +87,10 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             Assert.AreEqual("login", pkg.Login);
             Assert.AreEqual("pa$$", pkg.Password);
 
-            Assert.AreEqual(3, pkg.Data.Count);
-            Assert.AreEqual(1, pkg.Data.Array[pkg.Data.Offset + 0]);
-            Assert.AreEqual(2, pkg.Data.Array[pkg.Data.Offset + 1]);
-            Assert.AreEqual(3, pkg.Data.Array[pkg.Data.Offset + 2]);
+            Assert.AreEqual(3, pkg.Data.Length);
+            Assert.AreEqual(1, pkg.Data[0]);
+            Assert.AreEqual(2, pkg.Data[1]);
+            Assert.AreEqual(3, pkg.Data[2]);
         }
 
         [Test]
@@ -107,7 +107,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             Assert.AreEqual("login", pkg.Login);
             Assert.AreEqual("pa$$", pkg.Password);
 
-            Assert.AreEqual(0, pkg.Data.Count);
+            Assert.AreEqual(0, pkg.Data.Length);
         }
 
         [Test]
