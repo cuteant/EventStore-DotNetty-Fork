@@ -43,7 +43,7 @@ namespace EventStore.Core.Tests.Integration
             lock(_lock){
                 _roleAssignments.Add("master");
             }
-            _expectedNumberOfEvents?.Signal();
+            _expectedNumberOfEvents?.SafeSignal();
         }
 
         private void Handle(SystemMessage.BecomeSlave msg)
@@ -51,7 +51,7 @@ namespace EventStore.Core.Tests.Integration
             lock(_lock){
                 _roleAssignments.Add("slave");
             }
-            _expectedNumberOfEvents?.Signal();
+            _expectedNumberOfEvents?.SafeSignal();
         }
 
         private void Handle(SystemMessage.EpochWritten msg)
@@ -59,7 +59,7 @@ namespace EventStore.Core.Tests.Integration
             lock(_lock){
                 _epochIds.Add(msg.Epoch.EpochId);
             }
-            _expectedNumberOfEvents?.Signal();
+            _expectedNumberOfEvents?.SafeSignal();
         }
 
         [Test]

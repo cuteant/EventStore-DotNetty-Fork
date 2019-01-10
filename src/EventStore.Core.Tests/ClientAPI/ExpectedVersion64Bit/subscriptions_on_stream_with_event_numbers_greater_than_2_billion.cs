@@ -86,7 +86,7 @@ namespace EventStore.Core.Tests.ClientAPI.ExpectedVersion64Bit
             var countdown = new CountdownEvent(3);
             _store.SubscribeToStreamFrom(_catchupStreamOne, 0, CatchUpSubscriptionSettings.Default, (s,e) => {
                 receivedEvents.Add(e);
-                countdown.Signal();
+                countdown.SafeSignal();
                 return Task.CompletedTask;
             });
 

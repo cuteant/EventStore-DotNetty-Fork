@@ -42,7 +42,7 @@ namespace EventStore.Core.Tests.ClientAPI.ExpectedVersion64Bit
             _store.SubscribeToAllFrom(Position.Start, CatchUpSubscriptionSettings.Default, (s,e) => {
                 if(e.Event.EventStreamId == _streamId) {
                     receivedEvents.Add(e);
-                    countdown.Signal();
+                    countdown.SafeSignal();
                 }
                 return Task.CompletedTask;
             }, userCredentials: DefaultData.AdminCredentials);

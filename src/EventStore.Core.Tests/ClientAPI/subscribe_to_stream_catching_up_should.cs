@@ -58,7 +58,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                          return Task.CompletedTask;
                                                        },
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (_, __, ___) => dropped.Signal());
+                                                       subscriptionDropped: (_, __, ___) => dropped.SafeSignal());
 
         Thread.Sleep(100); // give time for first pull phase
         store.SubscribeToStreamAsync(stream, false, (s, x) => Task.CompletedTask, (s, r, e) => { }).Wait();
@@ -85,11 +85,11 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        CatchUpSubscriptionSettings.Default,
                                                        eventAppearedAsync: (_, x) =>
                                                        {
-                                                         appeared.Signal();
+                                                         appeared.SafeSignal();
                                                          return Task.CompletedTask;
                                                        },
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (_, __, ___) => dropped.Signal());
+                                                       subscriptionDropped: (_, __, ___) => dropped.SafeSignal());
 
         store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
 
@@ -121,7 +121,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                CatchUpSubscriptionSettings.Default,
                                                eventAppearedAsync: (_, e) =>
                                                {
-                                                 appeared.Signal();
+                                                 appeared.SafeSignal();
                                                  return Task.CompletedTask;
                                                },
                                                liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
@@ -131,7 +131,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                CatchUpSubscriptionSettings.Default,
                                                eventAppearedAsync: (_, e) =>
                                                {
-                                                 appeared.Signal();
+                                                 appeared.SafeSignal();
                                                  return Task.CompletedTask;
                                                },
                                                liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
@@ -170,7 +170,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        CatchUpSubscriptionSettings.Default,
                                                        eventAppearedAsync: (x, y) => Task.CompletedTask,
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (x, y, z) => dropped.Signal());
+                                                       subscriptionDropped: (x, y, z) => dropped.SafeSignal());
         Assert.IsFalse(dropped.Wait(0));
         subscription.Stop(Timeout);
         Assert.IsTrue(dropped.Wait(Timeout));
@@ -191,7 +191,7 @@ namespace EventStore.Core.Tests.ClientAPI
                                     CatchUpSubscriptionSettings.Default,
                                     (x, y) => { throw new Exception("Error"); },
                                     _ => Log.LogInformationX("Live processing started."),
-                                    (x, y, z) => dropped.Signal());
+                                    (x, y, z) => dropped.SafeSignal());
         Assert.IsTrue(dropped.Wait(Timeout));
       }
     }
@@ -219,11 +219,11 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        eventAppearedAsync: (x, y) =>
                                                        {
                                                          events.Add(y);
-                                                         appeared.Signal();
+                                                         appeared.SafeSignal();
                                                          return Task.CompletedTask;
                                                        },
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (x, y, z) => dropped.Signal());
+                                                       subscriptionDropped: (x, y, z) => dropped.SafeSignal());
         for (int i = 10; i < 20; ++i)
         {
           store.AppendToStreamAsync(stream, i - 1, new EventData(Guid.NewGuid(), "et-" + i.ToString(), false, new byte[3], null)).Wait();
@@ -270,11 +270,11 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        eventAppearedAsync: (x, y) =>
                                                        {
                                                          events.Add(y);
-                                                         appeared.Signal();
+                                                         appeared.SafeSignal();
                                                          return Task.CompletedTask;
                                                        },
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (x, y, z) => dropped.Signal());
+                                                       subscriptionDropped: (x, y, z) => dropped.SafeSignal());
         for (int i = 20; i < 30; ++i)
         {
           store.AppendToStreamAsync(stream, i - 1, new EventData(Guid.NewGuid(), "et-" + i.ToString(), false, new byte[3], null)).Wait();
@@ -325,11 +325,11 @@ namespace EventStore.Core.Tests.ClientAPI
                                                        eventAppearedAsync: (x, y) =>
                                                        {
                                                          events.Add(y);
-                                                         appeared.Signal();
+                                                         appeared.SafeSignal();
                                                          return Task.CompletedTask;
                                                        },
                                                        liveProcessingStarted: _ => Log.LogInformationX("Live processing started."),
-                                                       subscriptionDropped: (x, y, z) => dropped.Signal());
+                                                       subscriptionDropped: (x, y, z) => dropped.SafeSignal());
         if (!appeared.Wait(Timeout))
         {
           Assert.IsFalse(dropped.Wait(0), "Subscription was dropped prematurely.");

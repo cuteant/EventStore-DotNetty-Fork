@@ -46,9 +46,9 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 using (store.SubscribeToStreamAsync(stream, false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
-                }, (s, r, e) => dropped.Signal()).Result)
+                }, (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
                     Assert.IsTrue(appeared.Wait(Timeout), "Appeared countdown event timed out.");
@@ -68,14 +68,14 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 using (store.SubscribeToStreamAsync(stream, false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
-                }, (s, r, e) => dropped.Signal()).Result)
+                }, (s, r, e) => dropped.SafeSignal()).Result)
                 using (store.SubscribeToStreamAsync(stream, false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
-                }, (s, r, e) => dropped.Signal()).Result)
+                }, (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
                     Assert.IsTrue(appeared.Wait(Timeout), "Appeared countdown event timed out.");
@@ -92,7 +92,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 store.ConnectAsync().Wait();
 
                 var dropped = new CountdownEvent(1);
-                using (var subscription = store.SubscribeToStreamAsync(stream, false, (s, x) => Task.CompletedTask, (s, r, e) => dropped.Signal()).Result)
+                using (var subscription = store.SubscribeToStreamAsync(stream, false, (s, x) => Task.CompletedTask, (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     subscription.Unsubscribe();
                 }
@@ -112,10 +112,10 @@ namespace EventStore.Core.Tests.ClientAPI
                 var dropped = new CountdownEvent(1);
                 using (store.SubscribeToStreamAsync(stream, false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
                 },
-                (s, r, e) => dropped.Signal()).Result)
+                (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true).Wait();
                     Assert.IsTrue(appeared.Wait(Timeout), "Appeared countdown event timed out.");

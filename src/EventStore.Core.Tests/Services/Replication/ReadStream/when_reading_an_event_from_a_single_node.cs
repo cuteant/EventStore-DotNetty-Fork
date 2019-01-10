@@ -33,10 +33,10 @@ namespace EventStore.Core.Tests.Replication.ReadStream
             switch (msg.State)
             {
                 case Data.VNodeState.Master:
-                    _expectedNumberOfRoleAssignments.Signal();
+                    _expectedNumberOfRoleAssignments.SafeSignal();
                     break;
                 case Data.VNodeState.Slave:
-                    _expectedNumberOfRoleAssignments.Signal();
+                    _expectedNumberOfRoleAssignments.SafeSignal();
                     break;
             }
         }

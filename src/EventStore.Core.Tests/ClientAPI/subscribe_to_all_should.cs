@@ -57,14 +57,14 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 using (store.SubscribeToAllAsync(false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
-                }, (s, r, e) => dropped.Signal()).Result)
+                }, (s, r, e) => dropped.SafeSignal()).Result)
                 using (store.SubscribeToAllAsync(false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
-                }, (s, r, e) => dropped.Signal()).Result)
+                }, (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     var create = store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent());
                     Assert.IsTrue(create.Wait(Timeout), "StreamCreateAsync timed out.");
@@ -86,10 +86,10 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 using (store.SubscribeToAllAsync(false, (s, x) =>
                 {
-                    appeared.Signal();
+                    appeared.SafeSignal();
                     return Task.CompletedTask;
                 },
-                (s, r, e) => dropped.Signal()).Result)
+                (s, r, e) => dropped.SafeSignal()).Result)
                 {
                     var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
                     Assert.IsTrue(delete.Wait(Timeout), "DeleteStreamAsync timed out.");

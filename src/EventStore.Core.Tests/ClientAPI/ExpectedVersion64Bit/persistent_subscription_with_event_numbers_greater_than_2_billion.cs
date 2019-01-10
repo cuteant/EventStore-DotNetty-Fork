@@ -61,7 +61,7 @@ namespace EventStore.Core.Tests.ClientAPI.ExpectedVersion64Bit
                 var countdown = new CountdownEvent(3);
                 _store.ConnectToPersistentSubscriptionAsync(_streamId, groupId, (s,e) => {
                     receivedEvents.Add(e);
-                    countdown.Signal();
+                    countdown.SafeSignal();
                     return Task.CompletedTask;
                 }).Wait();
 

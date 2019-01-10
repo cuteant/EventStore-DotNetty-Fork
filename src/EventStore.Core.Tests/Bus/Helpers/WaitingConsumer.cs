@@ -39,7 +39,7 @@ namespace EventStore.Core.Tests.Bus.Helpers
             if (executableTestMessage != null)
                 ((Action<ExecutableTestMessage>) (deffered => deffered.Execute()))(executableTestMessage);
 
-            _countdownEvent.Signal();
+            _countdownEvent.SafeSignal();
         }
 
         public void Dispose()

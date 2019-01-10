@@ -33,10 +33,10 @@ namespace EventStore.Core.Tests.Replication.ReadStream
                     switch(x.GetType().Name)
                     {
                         case "SubscriptionConfirmation":
-                            SubscriptionsConfirmed.Signal();
+                            SubscriptionsConfirmed.SafeSignal();
                             break;
                         case "StreamEventAppeared":
-                            EventAppeared.Signal();
+                            EventAppeared.SafeSignal();
                             break;
                         case "SubscriptionDropped":
                             break;

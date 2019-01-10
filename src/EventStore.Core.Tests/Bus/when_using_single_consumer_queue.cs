@@ -49,7 +49,7 @@ namespace EventStore.Core.Tests.Bus
                         // start with second message
                         queue.Enqueue(toSend[(j + 1)%2]);
                     }
-                    endEvent.Signal();
+                    endEvent.SafeSignal();
                 })
                 {
                     IsBackground = true,

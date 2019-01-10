@@ -54,7 +54,7 @@ namespace EventStore.Core.Tests.Services.Storage.Scavenge
           eventAppearedAsync: (x, y) =>
           {
             _result.Add(y);
-            countdown.Signal();
+            countdown.SafeSignal();
             return Task.CompletedTask;
           },
           liveProcessingStarted: _ => Log.LogInformationX("Processing events started."),

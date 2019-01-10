@@ -122,7 +122,7 @@ namespace EventStore.Core.Tests.TransactionLog.Truncation
                                                       Assert.IsInstanceOf<ClientMessage.WriteEventsCompleted>(m);
                                                       var msg = (ClientMessage.WriteEventsCompleted) m;
                                                       Assert.AreEqual(OperationResult.Success, msg.Result);
-                                                      countdown.Signal();
+                                                      countdown.SafeSignal();
                                                   }),
                                                   true,
                                                   "test-stream",

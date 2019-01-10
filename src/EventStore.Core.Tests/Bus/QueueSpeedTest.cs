@@ -203,7 +203,7 @@ namespace EventStore.Core.Tests.Bus
                         }
                     }
 
-                    endEvent.Signal();
+                    endEvent.SafeSignal();
                 }) {IsBackground = true, Name = "Producer #" + i};
                 threads[i].Start();
             }

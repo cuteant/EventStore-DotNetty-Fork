@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.Services.Replication.CommitReplication
 
         public override void When()
         {
-            _publisher.Subscribe(new AdHocHandler<StorageMessage.CommitReplicated>(m => _eventsReplicated.Signal()));
+            _publisher.Subscribe(new AdHocHandler<StorageMessage.CommitReplicated>(m => _eventsReplicated.SafeSignal()));
             BecomeMaster();
             AddPendingPrepare(_logPosition);
             _service.Handle(new StorageMessage.CommitAck(_correlationId, _logPosition, _logPosition, 0, 0, true));

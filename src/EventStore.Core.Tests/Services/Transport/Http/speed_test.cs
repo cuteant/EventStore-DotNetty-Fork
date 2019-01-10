@@ -102,14 +102,14 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                 _http.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs), (x, y) =>
                 {
                     x.Reply(new byte[0], 200, "", "", Helper.UTF8NoBom, null, e => new Exception());
-                    CountdownEvent.Signal();
+                    CountdownEvent.SafeSignal();
                 });
             }
             else
             {
                 _router.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs), (x, y) =>
                 {
-                    CountdownEvent.Signal();
+                    CountdownEvent.SafeSignal();
                     return new RequestParams(TimeSpan.Zero);
                 });
             }
