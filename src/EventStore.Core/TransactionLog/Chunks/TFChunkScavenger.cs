@@ -36,11 +36,11 @@ namespace EventStore.Core.TransactionLog.Chunks
         public TFChunkScavenger(TFChunkDb db, ITFChunkScavengerLog scavengerLog, ITableIndex tableIndex, IReadIndex readIndex, long? maxChunkDataSize = null,
             bool unsafeIgnoreHardDeletes = false, int threads = 1)
         {
-            Ensure.NotNull(db, "db");
-            Ensure.NotNull(scavengerLog, "scavengerLog");
-            Ensure.NotNull(tableIndex, "tableIndex");
-            Ensure.NotNull(readIndex, "readIndex");
-            Ensure.Positive(threads, "threads");
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == scavengerLog) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.scavengerLog); }
+            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (threads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
 
             if (threads > MaxThreadCount)
             {
@@ -78,7 +78,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public Task Scavenge(bool alwaysKeepScavenged, bool mergeChunks, int startFromChunk = 0, CancellationToken ct = default(CancellationToken))
         {
-            Ensure.Nonnegative(startFromChunk, nameof(startFromChunk));
+            if (startFromChunk < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startFromChunk); }
 
             // Note we aren't passing the CancellationToken to the task on purpose so awaiters
             // don't have to handle Exceptions and can wait for the actual completion of the task.
@@ -173,7 +173,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                         if (totalDataSize + chunk.PhysicalDataSize > _maxChunkDataSize)
                         {
                             if (chunksToMerge.Count == 0)
-                                throw new Exception("SCAVENGING: no chunks to merge, unexpectedly...");
+                                ThrowHelper.ThrowException(ExceptionResource.SCAVENGING_no_chunks_to_merge);
 
                             if (chunksToMerge.Count > 1 && MergeChunks(chunksToMerge, ct))
                             {
@@ -206,7 +206,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private void ScavengeChunk(bool alwaysKeepScavenged, TFChunk.TFChunk oldChunk, ThreadLocalScavengeCache threadLocalCache, CancellationToken ct)
         {
-            if (oldChunk == null) throw new ArgumentNullException("oldChunk");
+            if (oldChunk == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.oldChunk); }
 
             var sw = Stopwatch.StartNew();
 
@@ -379,7 +379,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private bool MergeChunks(IList<TFChunk.TFChunk> oldChunks, CancellationToken ct)
         {
-            if (oldChunks.IsEmpty()) throw new ArgumentException("Provided list of chunks to merge is empty.");
+            if (oldChunks.IsEmpty()) ThrowHelper.ThrowArgumentException(ExceptionResource.Provided_list_of_chunks_to_merge_is_empty);
 
             var oldChunksList = string.Join("\n", oldChunks);
 
@@ -726,10 +726,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var writeResult = newChunk.TryAppend(record);
             if (!writeResult.Success)
             {
-                throw new Exception(string.Format(
-                    "Unable to append record during scavenging. Scavenge position: {0}, Record: {1}.",
-                    writeResult.OldPosition,
-                    record));
+                ThrowHelper.ThrowException_UnableToAppendRecordDuringScavenging(writeResult.OldPosition, record);
             }
 
             long logPos = newChunk.ChunkHeader.GetLocalLogPosition(record.LogPosition);

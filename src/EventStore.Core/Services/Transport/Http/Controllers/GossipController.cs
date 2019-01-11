@@ -52,8 +52,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(GossipMessage.SendGossip message, IPEndPoint endPoint)
         {
-            Ensure.NotNull(message, nameof(message));
-            Ensure.NotNull(endPoint, nameof(endPoint));
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             var url = endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/gossip");
             _client.Post(

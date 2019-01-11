@@ -52,7 +52,7 @@ namespace EventStore.Transport.Http
         {
             MediaType result;
             if (!TryParseInternal(componentText, true, out result))
-                throw new Exception("This should never happen!");
+                ThrowHelper.ThrowException_ThisShouldNeverHappen();
             return result;
         }
 
@@ -63,13 +63,13 @@ namespace EventStore.Transport.Http
             if (componentText == null)
             {
                 if (throwExceptions)
-                    throw new ArgumentNullException("componentText");
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.componentText);
                 return false;
             }
             if (componentText == "")
             {
                 if (throwExceptions)
-                    throw new ArgumentException("componentText");
+                    ThrowHelper.ThrowArgumentException_MediaType_ComponentText();
                 return false;
             }
 
@@ -84,7 +84,7 @@ namespace EventStore.Transport.Http
             if (typeParts.Length != 2)
             {
                 if (throwExceptions)
-                    throw new ArgumentException("componentText");
+                    ThrowHelper.ThrowArgumentException_MediaType_ComponentText();
                 return false;
             }
 

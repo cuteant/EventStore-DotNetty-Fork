@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Services.PersistentSubscription.ConsumerStrategy;
 
 namespace EventStore.Core.Services.PersistentSubscription
@@ -264,7 +263,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithMaxRetriesOf(int count)
         {
-            Ensure.Nonnegative(count, "count");
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _maxRetryCount = count;
             return this;
         }
@@ -277,7 +276,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithLiveBufferSizeOf(int count)
         {
-            Ensure.Nonnegative(count, "count");
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _liveBufferSize = count;
             return this;
         }
@@ -290,7 +289,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithReadBatchOf(int count)
         {
-            Ensure.Nonnegative(count, "count");
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _readBatchSize = count;
             return this;
         }
@@ -303,7 +302,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithHistoryBufferSizeOf(int count)
         {
-            Ensure.Nonnegative(count, "count");
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _historyBufferSize = count;
             return this;
         }
@@ -315,7 +314,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithNamedConsumerStrategy(IPersistentSubscriptionConsumerStrategy consumerStrategy)
         {
-            Ensure.NotNull(consumerStrategy, "consumerStrategy");
+            if (null == consumerStrategy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumerStrategy); }
             _consumerStrategy = consumerStrategy;
             return this;
         }

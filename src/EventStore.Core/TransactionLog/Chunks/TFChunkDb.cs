@@ -19,7 +19,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkDb(TFChunkDbConfig config)
         {
-            Ensure.NotNull(config, nameof(config));
+            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
 
             Config = config;
             Manager = new TFChunkManager(Config);
@@ -39,7 +39,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 var versions = Config.FileNamingStrategy.GetAllVersionsFor(chunkNum);
                 if (versions.Length == 0)
-                    throw new CorruptDatabaseException(new ChunkNotFoundException(Config.FileNamingStrategy.GetFilenameFor(chunkNum, 0)));
+                    ThrowHelper.ThrowCorruptDatabaseException_ChunkNotFound(Config, chunkNum);
 
                 var chunkFileName = versions[0];
 
@@ -53,8 +53,8 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void Open(bool verifyHash = true, bool readOnly = false, int threads = 1)
         {
-            Ensure.Positive(threads, "threads");
-            
+            if (threads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
+
             ValidateReaderChecksumsMustBeLess(Config);
             var checkpoint = Config.WriterCheckpoint.Read();
 
@@ -116,7 +116,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 var onBoundary = checkpoint == (Config.ChunkSize * (long) lastChunkNum);
                 if (!onBoundary)
-                    throw new CorruptDatabaseException(new ChunkNotFoundException(Config.FileNamingStrategy.GetFilenameFor(lastChunkNum, 0)));
+                    ThrowHelper.ThrowCorruptDatabaseException_ChunkNotFound(Config, lastChunkNum);
                 if (!readOnly)
                     Manager.AddNewChunk();
             }
@@ -133,10 +133,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     if (lastChunk.ChunkFooter.LogicalDataSize != chunkLocalPos)
                     {
                         lastChunk.Dispose();
-                        throw new CorruptDatabaseException(new BadChunkInDatabaseException(
-                            string.Format("Chunk {0} is corrupted. Expected local chunk position: {1}, "
-                                          + "but Chunk.LogicalDataSize is {2} (Chunk.PhysicalDataSize is {3}). Writer checkpoint: {4}.",
-                                chunkFileName, chunkLocalPos, lastChunk.LogicalDataSize, lastChunk.PhysicalDataSize, checkpoint)));
+                        ThrowHelper.ThrowCorruptDatabaseException_ChunkIsCorrupted(chunkFileName, chunkLocalPos, lastChunk, checkpoint);
                     }
 
                     Manager.AddChunk(lastChunk);
@@ -209,7 +206,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             foreach (var checkpoint in new[] {config.ChaserCheckpoint, config.EpochCheckpoint})
             {
                 if (checkpoint.Read() > current)
-                    throw new CorruptDatabaseException(new ReaderCheckpointHigherThanWriterException(checkpoint.Name));
+                    ThrowHelper.ThrowCorruptDatabaseException_ValidateReaderChecksumsMustBeLess(checkpoint.Name);
             }
         }
 
@@ -220,9 +217,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (fs.Length < ChunkFooter.Size + ChunkHeader.Size)
                 {
-                    throw new CorruptDatabaseException(new BadChunkInDatabaseException(
-                        string.Format("Chunk file '{0}' is bad. It does not have enough size for header and footer. File size is {1} bytes.",
-                            chunkFileName, fs.Length)));
+                    ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsBad(chunkFileName, fs.Length);
                 }
 
                 chunkHeader = ChunkHeader.FromStream(fs);
@@ -238,9 +233,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (fs.Length < ChunkFooter.Size + ChunkHeader.Size)
                 {
-                    throw new CorruptDatabaseException(new BadChunkInDatabaseException(
-                        string.Format("Chunk file '{0}' is bad. It does not have enough size for header and footer. File size is {1} bytes.",
-                            chunkFileName, fs.Length)));
+                    ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsBad(chunkFileName, fs.Length);
                 }
 
                 fs.Seek(-ChunkFooter.Size, SeekOrigin.End);
@@ -264,8 +257,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var allFiles = Config.FileNamingStrategy.GetAllPresentFiles();
             if (allFiles.Length != cnt)
             {
-                throw new CorruptDatabaseException(new ExtraneousFileFoundException(
-                    string.Format("Unexpected files: {0}.", string.Join(", ", allFiles.Except(allowedFiles)))));
+                ThrowHelper.ThrowCorruptDatabaseException_UnexpectedFiles(allFiles, allowedFiles);
             }
         }
 

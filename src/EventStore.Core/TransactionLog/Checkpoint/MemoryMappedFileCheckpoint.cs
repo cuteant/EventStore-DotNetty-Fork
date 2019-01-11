@@ -84,7 +84,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
 
             _fileStream.FlushToDisk();
 //            if (!FileStreamExtensions.FlushFileBuffers(_fileHandle))
-//                throw new Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
+//                throw new 1Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
 
             Interlocked.Exchange(ref _lastFlushed, last);
 

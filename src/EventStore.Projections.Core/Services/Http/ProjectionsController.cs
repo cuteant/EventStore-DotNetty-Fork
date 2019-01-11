@@ -635,7 +635,7 @@ namespace EventStore.Projections.Core.Services.Http
 
         public static T EatException<T>(Func<T> func, T defaultValue = default(T))
         {
-            Ensure.NotNull(func, "func");
+            if (null == func) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
             try
             {
                 return func();

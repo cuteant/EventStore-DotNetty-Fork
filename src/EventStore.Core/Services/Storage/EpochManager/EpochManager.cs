@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.DataStructures;
@@ -37,17 +36,17 @@ namespace EventStore.Core.Services.Storage.EpochManager
                               int maxReaderCount,
                               Func<ITransactionFileReader> readerFactory)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.Nonnegative(cachedEpochCount, nameof(cachedEpochCount));
-            Ensure.NotNull(checkpoint, nameof(checkpoint));
-            Ensure.NotNull(writer, nameof(writer));
-            Ensure.Nonnegative(initialReaderCount, nameof(initialReaderCount));
-            Ensure.Positive(maxReaderCount, nameof(maxReaderCount));
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (cachedEpochCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cachedEpochCount); }
+            if (null == checkpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpoint); }
+            if (null == writer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
+            if (initialReaderCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialReaderCount); }
+            if (maxReaderCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
             if (initialReaderCount > maxReaderCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(initialReaderCount), "initialReaderCount is greater than maxReaderCount.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_InitialReaderCountIsGreaterThanMaxReaderCount();
             }
-            Ensure.NotNull(readerFactory, nameof(readerFactory));
+            if (null == readerFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerFactory); }
 
             _bus = bus;
             CachedEpochCount = cachedEpochCount;
@@ -100,18 +99,18 @@ namespace EventStore.Core.Services.Storage.EpochManager
                         var result = reader.TryReadAt(epochPos);
                         if (!result.Success)
                         {
-                            throw new Exception($"Could not find Epoch record at LogPosition {epochPos}.");
+                            ThrowHelper.ThrowException_CouldNotFindEpochRecordAtLogPosition(epochPos);
                         }
 
                         if (result.LogRecord.RecordType != LogRecordType.System)
                         {
-                            throw new Exception($"LogRecord is not SystemLogRecord: {result.LogRecord}.");
+                            ThrowHelper.ThrowException_LogRecordIsNotSystemLogRecord(result);
                         }
 
                         var sysRec = (SystemLogRecord)result.LogRecord;
                         if (sysRec.SystemRecordType != SystemRecordType.Epoch)
                         {
-                            throw new Exception($"SystemLogRecord is not of Epoch sub-type: {result.LogRecord}.");
+                            ThrowHelper.ThrowException_SystemLogRecordIsNotOfEpochSubType(result);
                         }
 
                         var epoch = sysRec.GetEpochRecord();
@@ -152,13 +151,11 @@ namespace EventStore.Core.Services.Storage.EpochManager
                 if (epochNumber < _minCachedEpochNumber)
                 {
                     if (!throwIfNotFound) { return null; }
-                    throw new ArgumentOutOfRangeException(
-                            nameof(epochNumber),
-                            $"EpochNumber requested should not be cached. Requested: {epochNumber}, min cached: {_minCachedEpochNumber}.");
+                    ThrowHelper.ThrowArgumentOutOfRangeException_EpochNumberRequestedShouldNotBeCached(epochNumber, _minCachedEpochNumber);
                 }
                 if (!_epochs.TryGetValue(epochNumber, out EpochRecord epoch) && throwIfNotFound)
                 {
-                    throw new Exception(string.Format("Concurrency failure, epoch #{0} should not be null.", epochNumber));
+                    ThrowHelper.ThrowException_ConcurrencyFailureEpochIsNull(epochNumber);
                 }
 
                 return epoch;
@@ -167,9 +164,9 @@ namespace EventStore.Core.Services.Storage.EpochManager
 
         public bool IsCorrectEpochAt(long epochPosition, int epochNumber, Guid epochId)
         {
-            Ensure.Nonnegative(epochPosition, nameof(epochPosition));
-            Ensure.Nonnegative(epochNumber, nameof(epochNumber));
-            Ensure.NotEmptyGuid(epochId, nameof(epochId));
+            if (epochPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochPosition); }
+            if (epochNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochNumber); }
+            if (Guid.Empty == epochId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.epochId); }
 
             lock (_locker)
             {
@@ -235,7 +232,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
                 rec = new SystemLogRecord(epoch.EpochPosition, epoch.TimeStamp, SystemRecordType.Epoch, SystemRecordSerialization.Json, epoch.AsSerialized());
                 if (!_writer.Write(rec, out pos))
                 {
-                    throw new Exception($"Second write try failed at {epoch.EpochPosition}.");
+                    ThrowHelper.ThrowException_SecondWriteTryFailed(epoch.EpochPosition);
                 }
             }
             if (Log.IsDebugLevelEnabled()) Log.LogDebug("=== Writing E{0}@{1}:{2:B} (previous epoch at {3}).", epochNumber, epoch.EpochPosition, epochId, lastEpochPosition);
@@ -246,7 +243,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
 
         public void SetLastEpoch(EpochRecord epoch)
         {
-            Ensure.NotNull(epoch, "epoch");
+            if (null == epoch) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
 
             lock (_locker)
             {
@@ -261,11 +258,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
             // If this check fails, then there is something very wrong with epochs, data corruption is possible.
             if (!IsCorrectEpochAt(epoch.EpochPosition, epoch.EpochNumber, epoch.EpochId))
             {
-                throw new Exception(string.Format("Not found epoch at {0} with epoch number: {1} and epoch ID: {2}. "
-                                                  + "SetLastEpoch FAILED! Data corruption risk!",
-                                                  epoch.EpochPosition,
-                                                  epoch.EpochNumber,
-                                                  epoch.EpochId));
+                ThrowHelper.ThrowException_NotFoundEpoch(epoch.EpochPosition, epoch.EpochNumber, epoch.EpochId);
             }
         }
 

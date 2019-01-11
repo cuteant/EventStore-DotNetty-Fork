@@ -50,8 +50,10 @@ namespace EventStore.ClientAPI.Internal
 
         public EventStoreConnectionLogicHandler(IEventStoreConnection esConnection, ConnectionSettings settings)
         {
-            _esConnection = esConnection ?? throw new ArgumentNullException(nameof(esConnection));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            if (null == esConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.esConnection); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            _esConnection = esConnection;
+            _settings = settings;
 
             _operations = new OperationsManager(_esConnection.ConnectionName, settings);
             _subscriptions = new SubscriptionsManager(_esConnection.ConnectionName, settings);
@@ -96,33 +98,29 @@ namespace EventStore.ClientAPI.Internal
 
         private async Task StartConnectionAsync(TaskCompletionSource<object> task, IEndPointDiscoverer endPointDiscoverer)
         {
-            Ensure.NotNull(task, nameof(task));
-            Ensure.NotNull(endPointDiscoverer, nameof(endPointDiscoverer));
+            if (null == task) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.task); }
+            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             LogDebug("StartConnection");
 
             switch (_state)
             {
                 case ConnectionState.Init:
-                    {
-                        _endPointDiscoverer = endPointDiscoverer;
-                        _state = ConnectionState.Connecting;
-                        _connectingPhase = ConnectingPhase.Reconnecting;
-                        DiscoverEndPoint(task);
-                        break;
-                    }
+                    _endPointDiscoverer = endPointDiscoverer;
+                    _state = ConnectionState.Connecting;
+                    _connectingPhase = ConnectingPhase.Reconnecting;
+                    DiscoverEndPoint(task);
+                    break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
-                    {
-                        task.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is already active."));
-                        break;
-                    }
+                    task.SetException(ExConnectionAlreadyActive());
+                    break;
                 case ConnectionState.Closed:
                     task.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}");
+                    ThrowException(_state); break;
             }
         }
 
@@ -139,8 +137,8 @@ namespace EventStore.ClientAPI.Internal
             {
                 if (t.IsFaulted)
                 {
-                    EnqueueMessage(new CloseConnectionMessage("Failed to resolve TCP end point to which to connect.", t.Exception));
-                    completionTask?.SetException(new CannotEstablishConnectionException("Cannot resolve target end point.", t.Exception));
+                    EnqueueMessage(CloseConnectionMessage.Create_FailedToResolveTcpEndpointToWhichToConnect(t.Exception));
+                    completionTask?.SetException(CoreThrowHelper.GetCannotEstablishConnectionException(t.Exception));
                 }
                 else
                 {
@@ -272,7 +270,7 @@ namespace EventStore.ClientAPI.Internal
             if (_state == ConnectionState.Init)
             {
                 await TaskConstants.Completed;
-                throw new Exception();
+                CoreThrowHelper.ThrowException();
             }
             if (_state == ConnectionState.Closed || _connection != connection)
             {
@@ -330,7 +328,7 @@ namespace EventStore.ClientAPI.Internal
 
         private void GoToIdentifyState()
         {
-            Ensure.NotNull(_connection, "_connection");
+            if (null == _connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
             _connectingPhase = ConnectingPhase.Identification;
 
             _identifyInfo = new IdentifyInfo(Guid.NewGuid(), _stopwatch.Elapsed);
@@ -340,7 +338,7 @@ namespace EventStore.ClientAPI.Internal
 
         private void GoToConnectedState()
         {
-            Ensure.NotNull(_connection, "_connection");
+            if (null == _connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
 
             _state = ConnectionState.Connected;
             _connectingPhase = ConnectingPhase.Connected;
@@ -414,13 +412,13 @@ namespace EventStore.ClientAPI.Internal
                         break;
                     }
                 case ConnectionState.Closed: break;
-                default: throw new Exception($"Unknown state: {_state}.");
+                default: ThrowException(_state); break;
             }
         }
 
         private async Task ManageHeartbeatsAsync()
         {
-            if (_connection == null) throw new Exception();
+            if (_connection == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
 
             var timeout = _heartbeatInfo.IsIntervalStage ? _settings.HeartbeatInterval : _settings.HeartbeatTimeout;
             if (_stopwatch.Elapsed - _heartbeatInfo.TimeStamp < timeout)
@@ -455,7 +453,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    operation.Fail(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    operation.Fail(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                     LogDebug("StartOperation enqueue {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, maxRetries, timeout);
@@ -466,11 +464,11 @@ namespace EventStore.ClientAPI.Internal
                     _operations.ScheduleOperation(new OperationItem(operation, maxRetries, timeout), _connection);
                     break;
                 case ConnectionState.Closed:
-                    operation.Fail(new ObjectDisposedException(_esConnection.ConnectionName));
+                    operation.Fail(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessageWrapper msg)
@@ -478,7 +476,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -497,11 +495,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessage msg)
@@ -509,7 +507,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -530,11 +528,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessage2 msg)
@@ -542,7 +540,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -563,11 +561,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionRawMessage msg)
@@ -575,7 +573,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -596,11 +594,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
 
@@ -609,7 +607,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -628,11 +626,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessage msg)
@@ -640,7 +638,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -658,11 +656,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessage2 msg)
@@ -670,7 +668,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -688,11 +686,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionRawMessage msg)
@@ -700,7 +698,7 @@ namespace EventStore.ClientAPI.Internal
             switch (_state)
             {
                 case ConnectionState.Init:
-                    msg.Source.SetException(new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active."));
+                    msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
@@ -718,11 +716,11 @@ namespace EventStore.ClientAPI.Internal
                     }
                     break;
                 case ConnectionState.Closed:
-                    msg.Source.SetException(new ObjectDisposedException(_esConnection.ConnectionName));
+                    msg.Source.SetException(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    throw new Exception($"Unknown state: {_state}.");
+                    ThrowException(_state); break;
             }
         }
 
@@ -771,9 +769,9 @@ namespace EventStore.ClientAPI.Internal
 
             if (package.Command == TcpCommand.BadRequest && package.CorrelationId == Guid.Empty)
             {
-                string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data));
-                var exc = new EventStoreConnectionException($"Bad request received from server. Error: {(string.IsNullOrEmpty(message) ? "<no message>" : message)}");
-                await CloseConnectionAsync("Connection-wide BadRequest received. Too dangerous to continue.", exc).ConfigureAwait(false);
+                const string _closeReason = "Connection-wide BadRequest received. Too dangerous to continue.";
+                var exc = CoreThrowHelper.GetEventStoreConnectionException(package);
+                await CloseConnectionAsync(_closeReason, exc).ConfigureAwait(false);
                 return;
             }
 
@@ -794,7 +792,7 @@ namespace EventStore.ClientAPI.Internal
                         await ReconnectToAsync(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint)).ConfigureAwait(false);
                         _operations.ScheduleOperationRetry(operation);
                         break;
-                    default: throw new Exception($"Unknown InspectionDecision: {result.Decision}");
+                    default: ThrowException(result.Decision); break;
                 }
                 if (_state == ConnectionState.Connected)
                 {
@@ -821,7 +819,7 @@ namespace EventStore.ClientAPI.Internal
                     case InspectionDecision.Subscribed:
                         subscription.IsSubscribed = true;
                         break;
-                    default: throw new Exception($"Unknown InspectionDecision: {result.Decision}");
+                    default: ThrowException(result.Decision); break;
                 }
             }
             else
@@ -852,7 +850,45 @@ namespace EventStore.ClientAPI.Internal
             await EstablishTcpConnectionAsync(endPoints).ConfigureAwait(false);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private ObjectDisposedException EsConnectionDisposed()
+        {
+            return new ObjectDisposedException(_esConnection.ConnectionName);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InvalidOperationException ExConnectionAlreadyActive()
+        {
+            return new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is already active.");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InvalidOperationException ExConnectionIsNotActive()
+        {
+            return new InvalidOperationException($"EventStoreConnection '{_esConnection.ConnectionName}' is not active.");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowException(ConnectionState state)
+        {
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception($"Unknown state: {state}.");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowException(InspectionDecision decision)
+        {
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception($"Unknown InspectionDecision: {decision}");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogDebug(string message, params object[] parameters)
         {
             if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
@@ -861,6 +897,7 @@ namespace EventStore.ClientAPI.Internal
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogInfo(string message, params object[] parameters)
         {
             if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled())

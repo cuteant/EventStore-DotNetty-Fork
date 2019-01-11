@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
       var actualType = typeof(TEvent);
       if (actualType == TypeConstants.ObjectType)
       {
-        if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+        if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
         actualType = @event?.GetType();
       }
       return SendEventAsync(connection, stream, actualType, @event, eventContext, expectedType, userCredentials);
@@ -29,10 +29,10 @@ namespace EventStore.ClientAPI
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      //if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+      //if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
 
@@ -49,8 +49,8 @@ namespace EventStore.ClientAPI
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventAsync(connection, CombineStreamId(stream, topic), @event, eventContext, expectedType, userCredentials);
     }
 
@@ -58,8 +58,8 @@ namespace EventStore.ClientAPI
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventAsync(connection, CombineStreamId(stream, topic), actualType, @event, eventContext, expectedType, userCredentials);
     }
     #endregion
@@ -73,9 +73,9 @@ namespace EventStore.ClientAPI
       var actualType = typeof(TEvent);
       if (actualType == TypeConstants.ObjectType)
       {
-        if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-        if (null == events) { throw new ArgumentNullException(nameof(events)); }
+        if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+        //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+        if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
         //var eventDatas = SerializationManager.SerializeEvents(events, eventContext, expectedType);
         var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
         return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -86,10 +86,10 @@ namespace EventStore.ClientAPI
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      //if (null == events) { throw new ArgumentNullException(nameof(events)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+      //if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
 
@@ -108,9 +108,9 @@ namespace EventStore.ClientAPI
       var actualType = typeof(TEvent);
       if (actualType == TypeConstants.ObjectType)
       {
-        if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-        //if (null == events) { throw new ArgumentNullException(nameof(events)); }
+        if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+        //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+        //if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
         var eventDatas = SerializationManager.SerializeEvents(events, eventContexts, expectedType);
         return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -121,10 +121,10 @@ namespace EventStore.ClientAPI
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      //if (null == events) { throw new ArgumentNullException(nameof(events)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+      //if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
 
@@ -141,16 +141,16 @@ namespace EventStore.ClientAPI
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventsAsync(connection, CombineStreamId(stream, topic), events, eventContext, expectedType, userCredentials);
     }
     public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, IEnumerable<TEvent> events,
       Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, events, eventContext, expectedType, userCredentials);
     }
 
@@ -161,16 +161,16 @@ namespace EventStore.ClientAPI
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventsAsync(connection, CombineStreamId(stream, topic), events, eventContexts, expectedType, userCredentials);
     }
     public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, IList<TEvent> events,
       IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, events, eventContexts, expectedType, userCredentials);
     }
 
@@ -185,10 +185,10 @@ namespace EventStore.ClientAPI
       var actualType = typeof(TEvent);
       if (actualType == TypeConstants.ObjectType)
       {
-        if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-        if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
-        if (null == events) { throw new ArgumentNullException(nameof(events)); }
+        if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+        //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+        if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+        if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
         //var eventDatas = SerializationManager.SerializeEvents(events, eventContext, expectedType);
         var eventDatas = events.Select(_ => SerializationManager.SerializeEvent(_, eventContext, expectedType)).ToArray();
@@ -207,17 +207,17 @@ namespace EventStore.ClientAPI
       ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
-      if (null == events) { throw new ArgumentNullException(nameof(events)); }
+      if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+      if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
       if (events.Count <= batchSize)
       {
         return await SendEventsAsync(connection, stream, actualType, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
       }
 
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
       var expectedVersion = streamAttr != null ? streamAttr.ExpectedVersion : ExpectedVersion.Any;
@@ -235,10 +235,10 @@ namespace EventStore.ClientAPI
       var actualType = typeof(TEvent);
       if (actualType == TypeConstants.ObjectType)
       {
-        if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-        //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-        if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
-        if (null == events) { throw new ArgumentNullException(nameof(events)); }
+        if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+        //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+        if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+        if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
         var eventDatas = SerializationManager.SerializeEvents(events, eventContexts, expectedType);
         if (events.Count <= batchSize)
@@ -256,17 +256,17 @@ namespace EventStore.ClientAPI
       IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (batchSize <= 0) { throw new ArgumentOutOfRangeException(nameof(batchSize)); }
-      if (null == events) { throw new ArgumentNullException(nameof(events)); }
+      if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+      if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
       if (events.Count <= batchSize)
       {
         return await SendEventsAsync(connection, stream, actualType, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
       }
 
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      //if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      //if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
 
       var streamAttr = SerializationManager.GetStreamProvider(actualType, expectedType);
       var expectedVersion = streamAttr != null ? streamAttr.ExpectedVersion : ExpectedVersion.Any;
@@ -282,16 +282,16 @@ namespace EventStore.ClientAPI
       ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return await SendEventsAsync(connection, CombineStreamId(stream, topic), batchSize, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
     }
     public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, int batchSize,
       ICollection<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return await SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, batchSize, events, eventContext, expectedType, userCredentials).ConfigureAwait(false);
     }
 
@@ -302,16 +302,16 @@ namespace EventStore.ClientAPI
       IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return await SendEventsAsync(connection, CombineStreamId(stream, topic), batchSize, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
     }
     public static async Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreConnectionBase connection, string stream, string topic, Type actualType, int batchSize,
       IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return await SendEventsAsync(connection, CombineStreamId(stream, topic), actualType, batchSize, events, eventContexts, expectedType, userCredentials).ConfigureAwait(false);
     }
 

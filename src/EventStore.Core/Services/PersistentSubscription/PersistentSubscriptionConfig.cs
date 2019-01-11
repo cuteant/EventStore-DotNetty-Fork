@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             try
             {
                 var ret = data.ParseJson<PersistentSubscriptionConfig>();
-                if(ret.Version == null) throw new BadConfigDataException("Deserialized but no version present, invalid configuration data.", null);
+                if(ret.Version == null) ThrowHelper.ThrowBadConfigDataException_DeserializedButNoVersionPresent();
 
                 UpdateIfRequired(ret);
 
@@ -29,7 +29,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
             catch (Exception ex)
             {
-                throw new BadConfigDataException("The config data appears to be invalid", ex);
+                ThrowHelper.ThrowBadConfigDataException_TheConfigDataAppearsToBeInvalid(ex); return null;
             }
         }
 

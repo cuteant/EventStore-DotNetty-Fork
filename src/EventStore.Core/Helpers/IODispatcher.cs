@@ -260,7 +260,7 @@ namespace EventStore.Core.Helpers
                                         ""));
                                 break;
                             default:
-                                throw new NotSupportedException();
+                                ThrowHelper.ThrowNotSupportedException(); break;
                         }
                     });
         }

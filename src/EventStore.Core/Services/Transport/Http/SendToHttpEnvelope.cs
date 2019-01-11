@@ -59,10 +59,10 @@ namespace EventStore.Core.Services.Transport.Http
                                   Func<HttpResponseFormatterArgs, Message, object> formatter,
                                   Func<HttpResponseConfiguratorArgs, Message, ResponseConfiguration> configurator)
         {
-            Ensure.NotNull(networkSendQueue, "networkSendQueue");
-            Ensure.NotNull(entity, "entity");
-            Ensure.NotNull(formatter, "formatter");
-            Ensure.NotNull(configurator, "configurator");
+            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (null == entity) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entity); }
+            if (null == formatter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.formatter); }
+            if (null == configurator) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.configurator); }
 
             _networkSendQueue = networkSendQueue;
             _entity = entity;
@@ -72,7 +72,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void ReplyWith<T>(T message) where T : Message
         {
-            Ensure.NotNull(message, "message");
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             var responseConfiguration = _configurator(_entity, message);
             var data = _formatter(_entity, message);
             _networkSendQueue.Publish(new HttpMessage.HttpSend(_entity, responseConfiguration, data, message));

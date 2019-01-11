@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -45,10 +43,10 @@ namespace EventStore.ClientAPI.ClientOperations
                 case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
                 case OperationResult.AccessDenied:
-                    Fail(new AccessDeniedException("Write access denied."));
+                    Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
-                    throw new Exception(string.Format("Unexpected OperationResult: {0}.", response.Result));
+                    CoreThrowHelper.ThrowException_UnexpectedOperationResult( response.Result); return null;
             }
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -53,13 +52,13 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public PersistentSubscription(PersistentSubscriptionParams persistentSubscriptionParams)
         {
-            Ensure.NotNull(persistentSubscriptionParams.StreamReader, "eventLoader");
-            Ensure.NotNull(persistentSubscriptionParams.CheckpointReader, "checkpointReader");
-            Ensure.NotNull(persistentSubscriptionParams.CheckpointWriter, "checkpointWriter");
-            Ensure.NotNull(persistentSubscriptionParams.MessageParker, "messageParker");
-            Ensure.NotNull(persistentSubscriptionParams.SubscriptionId, "subscriptionId");
-            Ensure.NotNull(persistentSubscriptionParams.EventStreamId, "eventStreamId");
-            Ensure.NotNull(persistentSubscriptionParams.GroupName, "groupName");
+            if (null == persistentSubscriptionParams.StreamReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventLoader); }
+            if (null == persistentSubscriptionParams.CheckpointReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointReader); }
+            if (null == persistentSubscriptionParams.CheckpointWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointWriter); }
+            if (null == persistentSubscriptionParams.MessageParker) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.messageParker); }
+            if (null == persistentSubscriptionParams.SubscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == persistentSubscriptionParams.EventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+            if (null == persistentSubscriptionParams.GroupName) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             _nextEventToPullFrom = 0;
             _totalTimeWatch = new Stopwatch();
             _settings = persistentSubscriptionParams;
@@ -439,7 +438,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 return; //not replaying
             }
 
-            Ensure.Positive(stopAt - position, "count");
+            if (stopAt - position <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
 
             var count = (int)Math.Min(stopAt - position, _settings.ReadBatchSize);
             _settings.StreamReader.BeginReadEvents(_settings.ParkedMessageStream, position, count, _settings.ReadBatchSize, true, (events, newposition, isstop) => HandleParkedReadCompleted(events, newposition, isstop, stopAt));

@@ -41,13 +41,13 @@ namespace EventStore.Core.Index
         public static PTableFooter FromStream(Stream stream)
         {
             var type = stream.ReadByte();
-            if (type != (int) FileType.PTableFile)
-                throw new CorruptIndexException("Corrupted PTable.", new InvalidFileException("Wrong type of PTable."));
+            if (type != (int)FileType.PTableFile)
+                ThrowHelper.ThrowCorruptIndexException_CorruptedPTable();
             var version = stream.ReadByte();
             if (version == -1)
-                throw new CorruptIndexException("Couldn't read version of PTable from footer.", new InvalidFileException("Invalid PTable file."));
+                ThrowHelper.ThrowCorruptIndexException_CouldntReadVersionOfPTableFromFooter();
             if(!(version >= PTableVersions.IndexV4))
-                throw new CorruptIndexException("PTable footer with version < 4 found. PTable footers are supported as from version 4.", new InvalidFileException("Invalid PTable file."));
+                ThrowHelper.ThrowCorruptIndexException_PTableFooterWithVersionLess4Found();
 
             byte[] buffer = new byte[4];
             stream.Read(buffer,0,4);

@@ -30,7 +30,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             public TFChunkReadSideUnscavenged(TFChunk chunk) : base(chunk)
             {
                 if (chunk.ChunkHeader.IsScavenged)
-                    throw new ArgumentException("Scavenged TFChunk passed into unscavenged chunk read side.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Scavenged_TFChunk_passed_into_unscavenged_chunk_read_side);
             }
 
             public void Cache()
@@ -142,7 +142,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 _optimizeCache = optimizeCache;
                 if (!chunk.ChunkHeader.IsScavenged)
                 {
-                    throw new ArgumentException($"Chunk provided is not scavenged: {chunk}");
+                    ThrowHelper.ThrowArgumentException_ChunkProvidedIsNotScavenged(chunk);
                 }
             }
 
@@ -220,7 +220,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             {
                 if (depth > 31)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(depth), "Depth too for midpoints.");
+                    ThrowHelper.ThrowArgumentOutOfRangeException_DepthTooForMidpoints();
                 }
 
                 if (Chunk.ChunkFooter.MapCount == 0) // empty chunk
@@ -278,7 +278,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 foreach(var posMap in ReadPosMap(workItem, index, 1)){
                     return posMap;
                 }
-                throw new ArgumentOutOfRangeException("Could not read PosMap at index: "+index);
+                return ThrowHelper.ThrowArgumentOutOfRangeException_CouldNotReadPosMapAtIndex(index);
             }
 
             private IEnumerable<PosMap> ReadPosMap(ReaderWorkItem workItem, long index, int count)
@@ -574,7 +574,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
             protected TFChunkReadSide(TFChunk chunk)
             {
-                Ensure.NotNull(chunk, nameof(chunk));
+                if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
                 Chunk = chunk;
             }
 
@@ -591,23 +591,15 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 length = workItem.Reader.ReadInt32();
                 if (length <= 0)
                 {
-                    throw new InvalidReadException(
-                        string.Format("Log record at actual pos {0} has non-positive length: {1}. "
-                                      + " in chunk {2}.", actualPosition, length, Chunk));
+                    ThrowHelper.ThrowInvalidReadException_LogRecordAtActualPosHasNonPositiveLength(actualPosition, length, Chunk);
                 }
                 if (length > TFConsts.MaxLogRecordSize)
                 {
-                    throw new InvalidReadException(
-                        string.Format("Log record at actual pos {0} has too large length: {1} bytes, "
-                                      + "while limit is {2} bytes. In chunk {3}.",
-                                      actualPosition, length, TFConsts.MaxLogRecordSize, Chunk));
+                    ThrowHelper.ThrowInvalidReadException_LogRecordAtActualPosHasTooLargeLength(actualPosition, length, Chunk);
                 }
                 if (actualPosition + length + 2 * sizeof(int) > Chunk.PhysicalDataSize)
                 {
-                    throw new UnableToReadPastEndOfStreamException(
-                        string.Format("There is not enough space to read full record (length prefix: {0}). "
-                                      + "Actual pre-position: {1}. Something is seriously wrong in chunk {2}.",
-                                      length, actualPosition, Chunk));
+                    ThrowHelper.ThrowUnableToReadPastEndOfStreamException_ThereIsNotEnoughSpaceToReadFullRecordPrefix(length, actualPosition, Chunk);
                 }
 
                 record = LogRecord.ReadFrom(workItem.Reader);
@@ -616,10 +608,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 int suffixLength = workItem.Reader.ReadInt32();
                 if (suffixLength != length)
                 {
-                    throw new Exception(
-                        string.Format("Prefix/suffix length inconsistency: prefix length({0}) != suffix length ({1}).\n"
-                                      + "Actual pre-position: {2}. Something is seriously wrong in chunk {3}.",
-                                      length, suffixLength, actualPosition, Chunk));
+                    ThrowHelper.ThrowException_SuffixLengthInconsistency(length, suffixLength, actualPosition, Chunk);
                 }
 
                 return true;
@@ -641,24 +630,15 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 length = workItem.Reader.ReadInt32();
                 if (length <= 0)
                 {
-                    throw new InvalidReadException(
-                        string.Format("Log record that ends at actual pos {0} has non-positive length: {1}. "
-                                      + "In chunk {2}.",
-                                      actualPosition, length, Chunk));
+                    ThrowHelper.ThrowInvalidReadException_LogRecordThatEndsAtActualPosHasNonPositiveLength(actualPosition, length, Chunk);
                 }
                 if (length > TFConsts.MaxLogRecordSize)
                 {
-                    throw new ArgumentException(
-                        string.Format("Log record that ends at actual pos {0} has too large length: {1} bytes, "
-                                      + "while limit is {2} bytes. In chunk {3}.",
-                                      actualPosition, length, TFConsts.MaxLogRecordSize, Chunk));
+                    ThrowHelper.ThrowArgumentException_LogRecordThatEndsAtActualPosHasTooLargeLength(actualPosition, length, Chunk);
                 }
                 if (actualPosition < length + 2 * sizeof(int)) // no space for record + length prefix and suffix
                 {
-                    throw new UnableToReadPastEndOfStreamException(
-                        string.Format("There is not enough space to read full record (length suffix: {0}). "
-                                      + "Actual post-position: {1}. Something is seriously wrong in chunk {2}.",
-                                      length, actualPosition, Chunk));
+                    ThrowHelper.ThrowUnableToReadPastEndOfStreamException_ThereIsNotEnoughSpaceToReadFullRecordSuffix(length, actualPosition, Chunk);
                 }
 
                 workItem.Stream.Position = realPos - length - 2 * sizeof(int);
@@ -667,10 +647,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 int prefixLength = workItem.Reader.ReadInt32();
                 if (prefixLength != length)
                 {
-                    throw new Exception(
-                            string.Format("Prefix/suffix length inconsistency: prefix length({0}) != suffix length ({1})"
-                                          + "Actual post-position: {2}. Something is seriously wrong in chunk {3}.",
-                                          prefixLength, length, actualPosition, Chunk));
+                    ThrowHelper.ThrowException_PrefixLengthInconsistency(prefixLength, length, actualPosition, Chunk);
                 }
                 record = LogRecord.ReadFrom(workItem.Reader);
 

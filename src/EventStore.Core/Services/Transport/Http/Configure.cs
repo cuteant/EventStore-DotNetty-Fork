@@ -144,7 +144,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case ReadEventResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -183,7 +183,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case ReadStreamResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case ReadStreamResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -247,7 +247,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case ReadAllResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -277,7 +277,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case ReadAllResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -324,7 +324,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case OperationResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
@@ -355,7 +355,7 @@ namespace EventStore.Core.Services.Transport.Http
                     case OperationResult.AccessDenied:
                         return Unauthorized();
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;

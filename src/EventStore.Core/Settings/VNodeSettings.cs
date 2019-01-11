@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using EventStore.Common.Utils;
 using EventStore.Core.Services.Monitoring;
 
 namespace EventStore.Core.Settings
@@ -45,12 +44,12 @@ namespace EventStore.Core.Settings
                                    bool skipInitializeStandardUsersCheck = false,
                                    bool disableScavengeMerging = false)
         {
-            Ensure.NotNull(externalTcpEndPoint, "externalTcpEndPoint");
-            Ensure.NotNull(externalHttpEndPoint, "externalHttpEndPoint");
-            Ensure.NotNull(httpPrefixes, "httpPrefixes");
-            if (externalSecureTcpEndPoint != null)
-                Ensure.NotNull(certificate, "certificate");
-            Ensure.Positive(workerThreads, "workerThreads");
+            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
+            if (null == httpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPrefixes); }
+            if (externalSecureTcpEndPoint != null && null == certificate)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
+            if (workerThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.workerThreads); }
 
             ExternalTcpEndPoint = externalTcpEndPoint;
             ExternalSecureTcpEndPoint = externalSecureTcpEndPoint;

@@ -152,25 +152,28 @@ namespace EventStore.Transport.Tcp
 
             NotifyClosed();
 
-            if (s_logger.IsTraceLevelEnabled())
-            {
-                s_logger.LogTrace("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Received bytes: {5}, Sent bytes: {6}",
-                        GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
-                        TotalBytesReceived, TotalBytesSent);
-                s_logger.LogTrace("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Send calls: {5}, callbacks: {6}",
-                        GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
-                        SendCalls, SendCallbacks);
-                s_logger.LogTrace("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Receive calls: {5}, callbacks: {6}",
-                        GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
-                        ReceiveCalls, ReceiveCallbacks);
-                s_logger.LogTrace("ES {0} closed [{1:HH:mm:ss.fff}: N{2}, L{3}, {4:B}]:Close reason: [{5}] {6}",
-                        GetType().Name, DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
-                        disassociated.Info, disassociated.Reason);
-            }
+            if (s_logger.IsTraceLevelEnabled()) { AnalyzeConnection(disassociated); }
 
             _channel.CloseAsync().Ignore();
 
             ConnectionClosed?.Invoke(this, disassociated.Info);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void AnalyzeConnection(in Disassociated disassociated)
+        {
+            s_logger.AnalyzeConnectionSendAndReceivedBytes(
+                    GetType(), DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
+                    TotalBytesReceived, TotalBytesSent);
+            s_logger.AnalyzeConnectionSendCalls(
+                    GetType(), DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
+                    SendCalls, SendCallbacks);
+            s_logger.AnalyzeConnectionReceiveCalls(
+                    GetType(), DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
+                    ReceiveCalls, ReceiveCallbacks);
+            s_logger.AnalyzeConnectionCloseReason(
+                    GetType(), DateTime.UtcNow, RemoteEndPoint, LocalEndPoint, _connectionId,
+                    disassociated.Info, disassociated.Reason);
         }
 
         /// <inheritdoc/>

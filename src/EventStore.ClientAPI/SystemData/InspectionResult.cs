@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Net;
-using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI.SystemData
 {
-    internal class InspectionResult
+    internal sealed class InspectionResult
     {
         public readonly InspectionDecision Decision;
         public readonly string Description;
@@ -14,11 +13,12 @@ namespace EventStore.ClientAPI.SystemData
         public InspectionResult(InspectionDecision decision, string description, IPEndPoint tcpEndPoint = null, IPEndPoint secureTcpEndPoint = null)
         {
             if (decision == InspectionDecision.Reconnect)
-                Ensure.NotNull(tcpEndPoint, "tcpEndPoint");
+            {
+                if (null == tcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
+            }
             else
             {
-                if (tcpEndPoint != null)
-                    throw new ArgumentException(string.Format("tcpEndPoint is not null for decision {0}.", decision));
+                if (tcpEndPoint != null) { CoreThrowHelper.ThrowArgumentException_TcpEndPointIsNotNullForDecision(decision); }
             }
 
             Decision = decision;

@@ -24,7 +24,7 @@ namespace EventStore.Core
 
         public bool Acquire()
         {
-            if (_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' is already acquired.");
+            if (_acquired) ThrowHelper.ThrowInvalidOperationException_ClusterNodeMutexIsAlreadyAcquired(MutexName);
 
             try
             {
@@ -46,7 +46,7 @@ namespace EventStore.Core
 
         public void Release()
         {
-            if (!_acquired) throw new InvalidOperationException($"Cluster Node mutex '{MutexName}' was not acquired.");
+            if (!_acquired) ThrowHelper.ThrowInvalidOperationException_ClusterNodeMutexWasNotAcquired(MutexName);
             _clusterNodeMutex.ReleaseMutex();
         }
 

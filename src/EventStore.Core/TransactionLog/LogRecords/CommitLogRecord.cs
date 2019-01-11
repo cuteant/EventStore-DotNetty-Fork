@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Utils;
-using EventStore.Core.Helpers;
 
 namespace EventStore.Core.TransactionLog.LogRecords
 {
@@ -23,9 +21,9 @@ namespace EventStore.Core.TransactionLog.LogRecords
                                byte commitRecordVersion = CommitRecordVersion)
             : base(LogRecordType.Commit, commitRecordVersion, logPosition)
         {
-            Ensure.NotEmptyGuid(correlationId, "correlationId");
-            Ensure.Nonnegative(transactionPosition, "TransactionPosition");
-            Ensure.Nonnegative(firstEventNumber, "eventNumber");
+            if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+            if (firstEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.firstEventNumber); }
 
             TransactionPosition = transactionPosition;
             FirstEventNumber = firstEventNumber;
@@ -37,8 +35,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
         internal CommitLogRecord(BinaryReader reader, byte version, long logPosition): base(LogRecordType.Commit, version, logPosition)
         {
             if (version != LogRecordVersion.LogRecordV0 && version != LogRecordVersion.LogRecordV1)
-                throw new ArgumentException(
-                    string.Format("CommitRecord version {0} is incorrect. Supported version: {1}.", version, CommitRecordVersion));
+                ThrowHelper.ThrowArgumentException_CommitRecordVersionIsIncorrect(version);
 
             TransactionPosition = reader.ReadInt64();
             FirstEventNumber = version == LogRecordVersion.LogRecordV0 ? reader.ReadInt32() : reader.ReadInt64();

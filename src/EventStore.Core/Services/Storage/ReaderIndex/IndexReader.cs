@@ -53,9 +53,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public IndexReader(IIndexBackend backend, ITableIndex tableIndex, StreamMetadata metastreamMetadata, int hashCollisionReadLimit, bool skipIndexScanOnRead)
         {
-            Ensure.NotNull(backend, nameof(backend));
-            Ensure.NotNull(tableIndex, nameof(tableIndex));
-            Ensure.NotNull(metastreamMetadata, nameof(metastreamMetadata));
+            if (null == backend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
+            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (null == metastreamMetadata) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metastreamMetadata); }
 
             _backend = backend;
             _tableIndex = tableIndex;
@@ -66,8 +66,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         IndexReadEventResult IIndexReader.ReadEvent(string streamId, long eventNumber)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
-            if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (eventNumber < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber);
             using (var reader = _backend.BorrowReader())
             {
                 return ReadEventInternal(reader, streamId, eventNumber);
@@ -134,8 +134,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         private PrepareLogRecord ReadPrepareInternal(in TFReaderLease reader, string streamId, long eventNumber)
         {
             // we assume that you already did check for stream deletion
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
-            Ensure.Nonnegative(eventNumber, nameof(eventNumber));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
 
             return _skipIndexScanOnRead ? ReadPrepareSkipScan(reader, streamId, eventNumber) :
                                           ReadPrepare(reader, streamId, eventNumber);
@@ -181,7 +181,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (!result.Success) { return null; }
             if (result.LogRecord.RecordType != LogRecordType.Prepare)
             {
-                throw new Exception($"Incorrect type of log record {result.LogRecord.RecordType}, expected Prepare record.");
+                ThrowHelper.ThrowException_IncorrectTypeOfLogRecord(result.LogRecord.RecordType);
             }
             return (PrepareLogRecord)result.LogRecord;
         }
@@ -193,9 +193,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         private IndexReadStreamResult ReadStreamEventsForwardInternal(string streamId, long fromEventNumber, int maxCount, bool skipIndexScanOnRead)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
-            Ensure.Nonnegative(fromEventNumber, nameof(fromEventNumber));
-            Ensure.Positive(maxCount, nameof(maxCount));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (fromEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.fromEventNumber); }
+            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
 
             using (var reader = _backend.BorrowReader())
             {
@@ -269,8 +269,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         private IndexReadStreamResult ReadStreamEventsBackwardInternal(string streamId, long fromEventNumber, int maxCount, bool skipIndexScanOnRead)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
-            Ensure.Positive(maxCount, nameof(maxCount));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
 
             using (var reader = _backend.BorrowReader())
             {
@@ -343,7 +343,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public string GetEventStreamIdByTransactionId(long transactionId)
         {
-            Ensure.Nonnegative(transactionId, nameof(transactionId));
+            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
             using (var reader = _backend.BorrowReader())
             {
                 var res = ReadPrepareInternal(reader, transactionId);
@@ -354,7 +354,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         StreamAccess IIndexReader.CheckStreamAccess(string streamId, StreamAccessType streamAccessType, IPrincipal user)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
             using (var reader = _backend.BorrowReader())
             {
                 return CheckStreamAccessInternal(reader, streamId, streamAccessType, user);
@@ -377,7 +377,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     case StreamAccessType.MetaWrite:
                         return new StreamAccess(false);
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(streamAccessType));
+                        ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streamAccessType); break;
                 }
             }
 
@@ -404,7 +404,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 sysAcl = sysSettings.UserStreamAcl ?? defAcl;
                 acl = meta.Acl ?? sysAcl;
             }
-            string[] roles;
+            string[] roles = null;
             switch (streamAccessType)
             {
                 case StreamAccessType.Read: roles = acl.ReadRoles ?? sysAcl.ReadRoles ?? defAcl.ReadRoles; break;
@@ -412,7 +412,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 case StreamAccessType.Delete: roles = acl.DeleteRoles ?? sysAcl.DeleteRoles ?? defAcl.DeleteRoles; break;
                 case StreamAccessType.MetaRead: roles = acl.MetaReadRoles ?? sysAcl.MetaReadRoles ?? defAcl.MetaReadRoles; break;
                 case StreamAccessType.MetaWrite: roles = acl.MetaWriteRoles ?? sysAcl.MetaWriteRoles ?? defAcl.MetaWriteRoles; break;
-                default: throw new ArgumentOutOfRangeException(nameof(streamAccessType));
+                default: ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streamAccessType); break;
             }
 
             var isPublic = roles.Contains(x => x == SystemRoles.All);
@@ -428,7 +428,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         long IIndexReader.GetStreamLastEventNumber(string streamId)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
             using (var reader = _backend.BorrowReader())
             {
                 return GetStreamLastEventNumberCached(reader, streamId);
@@ -437,7 +437,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         StreamMetadata IIndexReader.GetStreamMetadata(string streamId)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
             using (var reader = _backend.BorrowReader())
             {
                 return GetStreamMetadataCached(reader, streamId);
@@ -479,7 +479,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
 
             var rec = ReadPrepareInternal(reader, latestEntry.Position);
-            if (rec == null) throw new Exception("Could not read latest stream's prepare. That should never happen.");
+            if (rec == null) ThrowHelper.ThrowException(ExceptionResource.Could_not_read_latest_stream_prepare);
 
             int count = 0;
             long startVersion = 0;
@@ -560,7 +560,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             PrepareLogRecord prepare = ReadPrepareInternal(reader, metastreamId, metaEventNumber);
             if (prepare == null)
             {
-                throw new Exception($"ReadPrepareInternal could not find metaevent #{metaEventNumber} on metastream '{metastreamId}'. That should never happen.");
+                ThrowHelper.ThrowException_ReadPrepareInternalCouldNotFindMetaevent(metaEventNumber, metastreamId);
             }
 
             if (prepare.Data.Length == 0 || prepare.Flags.HasNoneOf(PrepareFlags.IsJson))

@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult ReadEvent(this IEventStoreConnectionBase connection,
       string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
                   => await conn.ReadEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -37,7 +37,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice ReadStreamEventsForward(this IEventStoreConnectionBase connection,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.ReadStreamEventsForwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -55,7 +55,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice ReadStreamEventsBackward(this IEventStoreConnectionBase connection,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.ReadStreamEventsBackwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -75,7 +75,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult ReadFirstEvent(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return AsyncContext.Run(
         async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
@@ -96,7 +96,7 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult> ReadFirstEventAsync(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return connection.ReadEventAsync(stream, StreamPosition.Start, resolveLinkTos, userCredentials);
     }
@@ -114,7 +114,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult ReadLastEvent(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
         async (conn, streamId, resolveLinkToEvents, credentials)
           => await conn.ReadLastEventAsync(streamId, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -134,7 +134,7 @@ namespace EventStore.ClientAPI
     public static async Task<EventReadResult> ReadLastEventAsync(this IEventStoreConnectionBase connection,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       var slice = await connection.ReadStreamEventsBackwardAsync(stream, StreamPosition.End, 1, resolveLinkTos, userCredentials)
                                   .ConfigureAwait(false);

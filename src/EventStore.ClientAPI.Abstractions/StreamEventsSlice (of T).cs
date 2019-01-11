@@ -74,7 +74,7 @@ namespace EventStore.ClientAPI
                                    long lastEventNumber,
                                    bool isEndOfStream)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
       Status = status;
       Stream = stream;

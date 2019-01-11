@@ -95,7 +95,7 @@ namespace EventStore.Core.Messaging
                         wrongType.TypeId, string.Join(", ", wrongType.MsgTypes.Select(x => x.Name)));
                 }
 
-                throw new Exception("Incorrect Message Type IDs setup.");
+                ThrowHelper.ThrowException(ExceptionResource.Incorrect_Message_Type_IDs_setup);
             }
 
             DescendantsByTypeId = new int[MaxMsgTypeId + 1][];
@@ -157,7 +157,7 @@ namespace EventStore.Core.Messaging
             if (msgTypeField == null)
             {
                 if (Log.IsInformationLevelEnabled()) Log.LogInformation("Message {0} doesn't have TypeId field!", msgType.Name);
-                throw new Exception($"Message {msgType.Name} doesn't have TypeId field!");
+                ThrowHelper.ThrowException_MessageDoesntHaveTypeIdField(msgType);
             }
             var msgTypeId = (int)msgTypeField.GetValue(null);
             return msgTypeId;

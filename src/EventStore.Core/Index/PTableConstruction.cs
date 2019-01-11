@@ -21,9 +21,9 @@ namespace EventStore.Core.Index
 
         public static PTable FromMemtable(IMemTable table, string filename, int cacheDepth = 16, bool skipIndexVerify = false)
         {
-            Ensure.NotNull(table, "table");
-            Ensure.NotNullOrEmpty(filename, "filename");
-            Ensure.Nonnegative(cacheDepth, "cacheDepth");
+            if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
+            if (string.IsNullOrEmpty(filename)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.filename); }
+            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             int indexEntrySize = GetIndexEntrySize(table.Version);
             long dumpedEntryCount = 0;
@@ -90,9 +90,9 @@ namespace EventStore.Core.Index
 
         public static PTable MergeTo(IList<PTable> tables, string outputFile, Func<string, ulong, ulong> upgradeHash, Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord, byte version, int cacheDepth = 16, bool skipIndexVerify = false)
         {
-            Ensure.NotNull(tables, "tables");
-            Ensure.NotNullOrEmpty(outputFile, "outputFile");
-            Ensure.Nonnegative(cacheDepth, "cacheDepth");
+            if (null == tables) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tables); }
+            if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
+            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             var indexEntrySize = GetIndexEntrySize(version);
 
@@ -317,9 +317,9 @@ namespace EventStore.Core.Index
             Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord, byte version, out long spaceSaved,
             int cacheDepth = 16, bool skipIndexVerify = false, CancellationToken ct = default(CancellationToken))
         {
-            Ensure.NotNull(table, "table");
-            Ensure.NotNullOrEmpty(outputFile, "outputFile");
-            Ensure.Nonnegative(cacheDepth, "cacheDepth");
+            if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
+            if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
+            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             var indexEntrySize = GetIndexEntrySize(version);
             var numIndexEntries = table.Count;
@@ -469,11 +469,9 @@ namespace EventStore.Core.Index
         }
 
         private static List<Midpoint> ComputeMidpoints(BufferedStream bs, FileStream fs, byte version, int indexEntrySize, long numIndexEntries, long requiredMidpointCount,List<Midpoint> midpoints, CancellationToken ct =  default(CancellationToken)){
-            int indexKeySize;
-            if(version == PTableVersions.IndexV4)
-                indexKeySize = IndexKeyV4Size;
-            else
-                throw new InvalidOperationException("Unknown PTable version: "+version);
+            if(version != PTableVersions.IndexV4)
+                ThrowHelper.ThrowInvalidOperationException_UnknownPTableVersion(version);
+            var indexKeySize = IndexKeyV4Size;
 
             midpoints.Clear();
             bs.Flush();

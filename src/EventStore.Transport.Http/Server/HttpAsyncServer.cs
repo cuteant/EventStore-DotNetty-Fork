@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Server
 {
@@ -21,7 +20,7 @@ namespace EventStore.Transport.Http.Server
 
         public HttpAsyncServer(string[] prefixes)
         {
-            Ensure.NotNull(prefixes, "prefixes");
+            if (null == prefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefixes); }
 
             _listenPrefixes = prefixes;
 

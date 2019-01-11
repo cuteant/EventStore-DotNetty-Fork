@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
+using Newtonsoft.Json.Linq;
+using HttpStatusCode = EventStore.ClientAPI.Transport.Http.HttpStatusCode;
 
 namespace EventStore.ClientAPI.UserManagement
 {
@@ -103,15 +103,10 @@ namespace EventStore.ClientAPI.UserManagement
                 userCredentials,
                 response =>
                 {
-                    if (response.HttpStatusCode == expectedCode)
-                        source.SetResult(response.Body);
-                    else
-                        source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
-                            string.Format("Server returned {0} ({1}) for GET on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
-                                url)));
+                if (response.HttpStatusCode == expectedCode)
+                    source.SetResult(response.Body);
+                else
+                    source.SetException(CoreThrowHelper.GetUserCommandFailedException_Get(response, url));
                 },
                 source.SetException);
 
@@ -128,12 +123,7 @@ namespace EventStore.ClientAPI.UserManagement
                     if (response.HttpStatusCode == expectedCode)
                         source.SetResult(response.Body);
                     else
-                        source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
-                            string.Format("Server returned {0} ({1}) for DELETE on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
-                                url)));
+                        source.SetException(CoreThrowHelper.GetUserCommandFailedException_Delete(response, url));
                 },
                 source.SetException);
 
@@ -152,12 +142,7 @@ namespace EventStore.ClientAPI.UserManagement
                     if (response.HttpStatusCode == expectedCode)
                         source.SetResult(null);
                     else
-                        source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
-                            string.Format("Server returned {0} ({1}) for PUT on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
-                                url)));
+                        source.SetException(CoreThrowHelper.GetUserCommandFailedException_Put(response, url));
                 },
                 source.SetException);
 
@@ -176,14 +161,9 @@ namespace EventStore.ClientAPI.UserManagement
                     if (response.HttpStatusCode == expectedCode)
                         source.SetResult(null);
                     else if (response.HttpStatusCode == 409)
-                        source.SetException(new UserCommandConflictException(response.HttpStatusCode, response.StatusDescription));
+                        source.SetException(CoreThrowHelper.GetUserCommandConflictException(response));
                     else
-                        source.SetException(new UserCommandFailedException(
-                            response.HttpStatusCode,
-                            string.Format("Server returned {0} ({1}) for POST on {2}",
-                                response.HttpStatusCode,
-                                response.StatusDescription,
-                                url)));
+                        source.SetException(CoreThrowHelper.GetUserCommandFailedException_Post(response, url));
                 },
                 source.SetException);
 

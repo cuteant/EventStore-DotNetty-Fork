@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.IO;
 using CuteAnt.IO;
 using CuteAnt.Pool;
-using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -64,14 +64,16 @@ namespace EventStore.Core.Data
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Check(JsonToken type, JsonTextReader reader)
         {
-            if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
+            if (reader.TokenType != type) { ThrowHelper.ThrowException_InvalidJson(); }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Check(bool read, JsonTextReader reader)
         {
-            if (!read) { throw new Exception("Invalid JSON"); }
+            if (!read) { ThrowHelper.ThrowException_InvalidJson(); }
         }
 
         public byte[] ToJsonBytes()

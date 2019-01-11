@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.EntityManagement

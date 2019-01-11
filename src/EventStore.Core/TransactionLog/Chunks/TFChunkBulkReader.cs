@@ -17,8 +17,10 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         internal TFChunkBulkReader(TFChunk.TFChunk chunk, Stream streamToUse)
         {
-            _chunk = chunk ?? throw new ArgumentNullException(nameof(chunk));
-            _stream = streamToUse ?? throw new ArgumentNullException(nameof(streamToUse));
+            if (chunk == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
+            if (streamToUse == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamToUse); }
+            _chunk = chunk;
+            _stream = streamToUse;
         }
 
         ~TFChunkBulkReader()
@@ -30,7 +32,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (rawPosition >= _stream.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(rawPosition), string.Format("Raw position {0} is out of bounds.", rawPosition));
+                ThrowHelper.ThrowArgumentOutOfRangeException_RawPositionIsOutOfBounds(rawPosition);
             }
 
             _stream.Position = rawPosition;
@@ -41,7 +43,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var rawPos = dataPosition + ChunkHeader.Size;
             if (rawPos >= _stream.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(dataPosition), string.Format("Data position {0} is out of bounds.", dataPosition));
+                ThrowHelper.ThrowArgumentOutOfRangeException_DataPositionIsOutOfBounds(dataPosition);
             }
 
             _stream.Position = rawPos;
@@ -57,8 +59,8 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public BulkReadResult ReadNextRawBytes(int count, byte[] buffer)
         {
-            Ensure.NotNull(buffer, nameof(buffer));
-            Ensure.Nonnegative(count, nameof(count));
+            if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
             if (count > buffer.Length)
             {
@@ -72,8 +74,8 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public BulkReadResult ReadNextDataBytes(int count, byte[] buffer)
         {
-            Ensure.NotNull(buffer, nameof(buffer));
-            Ensure.Nonnegative(count, nameof(count));
+            if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
+            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
             if (_stream.Position == 0)
             {

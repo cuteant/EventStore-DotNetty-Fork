@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -150,19 +149,17 @@ namespace EventStore.ClientAPI
             double socketWorkerPoolSizeFactor,
             int socketWorkerPoolSizeMax)
         {
-            Ensure.Positive(maxQueueSize, nameof(maxQueueSize));
-            Ensure.Positive(maxConcurrentItems, nameof(maxConcurrentItems));
+            if (maxQueueSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxQueueSize); }
+            if (maxConcurrentItems <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxConcurrentItems); }
             if (maxRetries < -1)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxRetries),
-                    $"{nameof(maxRetries)} value is out of range: {maxRetries}. Allowed range: [-1, infinity].");
+                ThrowHelper.ThrowArgumentOutOfRangeException_ValueIsOutOfRange(ExceptionArgument.maxRetries, maxRetries);
             }
             if (maxReconnections < -1)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxReconnections),
-                    $"{nameof(maxReconnections)} value is out of range: {maxReconnections}. Allowed range: [-1, infinity].");
+                ThrowHelper.ThrowArgumentOutOfRangeException_ValueIsOutOfRange(ExceptionArgument.maxReconnections, maxReconnections);
             }
-            if (useSslConnection) { Ensure.NotNullOrEmpty(targetHost, nameof(targetHost)); }
+            if (useSslConnection && string.IsNullOrEmpty(targetHost)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.targetHost); }
 
             VerboseLogging = verboseLogging;
             MaxQueueSize = maxQueueSize;

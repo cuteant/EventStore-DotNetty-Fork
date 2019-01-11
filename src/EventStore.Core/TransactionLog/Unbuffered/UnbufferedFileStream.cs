@@ -73,9 +73,9 @@ namespace EventStore.Core.TransactionLog.Unbuffered
             var blockSize = NativeFile.GetDriveSectorSize(path);
             blockSize = blockSize > minBlockSize ? blockSize : minBlockSize;
             if (internalWriteBufferSize % blockSize != 0)
-                throw new Exception("write buffer size must be aligned to block size of " + blockSize + " bytes");
+                ThrowHelper.ThrowException_WritebuffersizeMustbealignedtoBlockSize(blockSize);
             if (internalReadBufferSize % blockSize != 0)
-                throw new Exception("read buffer size must be aligned to block size of " + blockSize + " bytes");
+                ThrowHelper.ThrowException_ReadbuffersizeMustbealignedtoBlockSize(blockSize);
 
             var handle = NativeFile.CreateUnbufferedRW(path, acc, share, mode, writeThrough);
             return new UnbufferedFileStream(handle, blockSize, internalWriteBufferSize, internalReadBufferSize);
@@ -156,7 +156,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         {
             long mungedOffset = offset;
             CheckDisposed();
-            if (origin == SeekOrigin.Current) throw new NotImplementedException("only supports seek origin begin/end");
+            if (origin == SeekOrigin.Current) ThrowHelper.ThrowNotImplementedException_OnlySupportsSeekOriginBeginEnd();
             if (origin == SeekOrigin.End) mungedOffset = Length + offset;
             var aligned = GetLowestAlignment(mungedOffset);
             var left = (int) (mungedOffset - aligned);
@@ -187,10 +187,10 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         public override int Read(byte[] buffer, int offset, int count)
         {
             CheckDisposed();
-            if (offset < 0 || buffer.Length < offset) throw new ArgumentException("offset");
-            if (count < 0 || buffer.Length < count) throw new ArgumentException("offset");
+            if (offset < 0 || buffer.Length < offset) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+            if (count < 0 || buffer.Length < count) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
             if (offset + count > buffer.Length)
-                throw new ArgumentException("offset + count must be less than size of array");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.offset_count_must_be_less_than_size_of_array);
             var position = GetLowestAlignment(Position);
             var roffset = (int) (Position - position);
 

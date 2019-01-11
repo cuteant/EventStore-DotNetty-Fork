@@ -87,7 +87,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         private static DiskIo GetOnWindows(ILogger log)
         {
-            Ensure.NotNull(log, nameof(log));
+            if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
 
             IO_COUNTERS counters;
             Process proc = null;

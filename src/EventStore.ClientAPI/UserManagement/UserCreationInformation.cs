@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI.Common.Utils;
-
-namespace EventStore.ClientAPI.UserManagement
+﻿namespace EventStore.ClientAPI.UserManagement
 {
     /// <summary>
     /// Class holding the information needed to create a user.
@@ -36,10 +34,10 @@ namespace EventStore.ClientAPI.UserManagement
         /// <param name="password"></param>
         public UserCreationInformation(string login, string fullName, string[] groups, string password)
         {
-            Ensure.NotNullOrEmpty(login, "login");
-            Ensure.NotNullOrEmpty(fullName, "fullName");
-            Ensure.NotNull(groups, "groups");
-            Ensure.NotNullOrEmpty(password, "password");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
+            if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
+            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (string.IsNullOrEmpty(password)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             LoginName = login;
             FullName = fullName;
             Groups = groups;

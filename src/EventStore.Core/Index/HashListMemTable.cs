@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 
 namespace EventStore.Core.Index
@@ -41,8 +40,8 @@ namespace EventStore.Core.Index
 
         public void AddEntries(IList<IndexEntry> entries)
         {
-            Ensure.NotNull(entries, "entries");
-            Ensure.Positive(entries.Count, "entries.Count");
+            if (null == entries) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entries); }
+            if (entries.Count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.entries_Count); }
 
             var collection = entries.Select(x => new IndexEntry(GetHash(x.Stream), x.Version, x.Position)).ToList();
 
@@ -58,16 +57,16 @@ namespace EventStore.Core.Index
             }
 
             if (!Monitor.TryEnter(list, 10000))
-                throw new UnableToAcquireLockInReasonableTimeException();
+                ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
             try
             {
                 for (int i = 0, n = collection.Count; i < n; ++i)
                 {
                     var entry = collection[i];
                     if (entry.Stream != stream)
-                        throw new Exception("Not all index entries in a bulk have the same stream hash.");
-                    Ensure.Nonnegative(entry.Version, "entry.Version");
-                    Ensure.Nonnegative(entry.Position, "entry.Position");
+                        ThrowHelper.ThrowException_NotAllIndexEntriesInABulkHaveTheSameStreamHash();
+                    if (entry.Version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Version); }
+                    if (entry.Position < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Position); }
                     list.Add(new Entry(entry.Version, entry.Position), 0);
                 }
             }
@@ -80,7 +79,7 @@ namespace EventStore.Core.Index
         public bool TryGetOneValue(ulong stream, long number, out long position)
         {
             if (number < 0)
-                throw new ArgumentOutOfRangeException("number");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.number);
             ulong hash = GetHash(stream);
 
             position = 0;
@@ -88,7 +87,7 @@ namespace EventStore.Core.Index
             SortedList<Entry, byte> list;
             if (_hash.TryGetValue(hash, out list))
             {
-                if (!Monitor.TryEnter(list, 10000)) throw new UnableToAcquireLockInReasonableTimeException();
+                if (!Monitor.TryEnter(list, 10000)) ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
                 try
                 {
                     int endIdx = list.UpperBound(new Entry(number, long.MaxValue));
@@ -119,7 +118,7 @@ namespace EventStore.Core.Index
             if (_hash.TryGetValue(hash, out list))
             {
                 if (!Monitor.TryEnter(list, 10000))
-                    throw new UnableToAcquireLockInReasonableTimeException();
+                    ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
                 try
                 {
                     var latest = list.Keys[list.Count - 1];
@@ -143,7 +142,7 @@ namespace EventStore.Core.Index
             if (_hash.TryGetValue(hash, out list))
             {
                 if (!Monitor.TryEnter(list, 10000))
-                    throw new UnableToAcquireLockInReasonableTimeException();
+                    ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
                 try
                 {
                     var oldest = list.Keys[0];
@@ -185,9 +184,9 @@ namespace EventStore.Core.Index
         public IEnumerable<IndexEntry> GetRange(ulong stream, long startNumber, long endNumber, int? limit = null)
         {
             if (startNumber < 0)
-                throw new ArgumentOutOfRangeException("startNumber");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startNumber);
             if (endNumber < 0)
-                throw new ArgumentOutOfRangeException("endNumber");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endNumber);
 
             ulong hash = GetHash(stream);
             var ret = new List<IndexEntry>();
@@ -195,7 +194,7 @@ namespace EventStore.Core.Index
             SortedList<Entry, byte> list;
             if (_hash.TryGetValue(hash, out list))
             {
-                if (!Monitor.TryEnter(list, 10000)) throw new UnableToAcquireLockInReasonableTimeException();
+                if (!Monitor.TryEnter(list, 10000)) ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
                 try
                 {
                     var endIdx = list.UpperBound(new Entry(endNumber, long.MaxValue));

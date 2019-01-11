@@ -176,12 +176,7 @@ namespace EventStore.ClientAPI.Projections
                             if (response.HttpStatusCode == expectedCode)
                                 source.SetResult(response.Body);
                             else
-                                source.SetException(new ProjectionCommandFailedException(
-                                                            response.HttpStatusCode,
-                                                            string.Format("Server returned {0} ({1}) for GET on {2}",
-                                                                          response.HttpStatusCode,
-                                                                          response.StatusDescription,
-                                                                          url)));
+                                source.SetException(CoreThrowHelper.GetProjectionCommandFailedException_Get(response, url));
                         },
                         source.SetException);
 
@@ -198,12 +193,7 @@ namespace EventStore.ClientAPI.Projections
                                if (response.HttpStatusCode == expectedCode)
                                    source.SetResult(response.Body);
                                else
-                                   source.SetException(new ProjectionCommandFailedException(
-                                                               response.HttpStatusCode,
-                                                               string.Format("Server returned {0} ({1}) for DELETE on {2}",
-                                                                             response.HttpStatusCode,
-                                                                             response.StatusDescription,
-                                                                             url)));
+                                   source.SetException(CoreThrowHelper.GetProjectionCommandFailedException_Delete(response, url));
                            },
                            source.SetException);
 
@@ -222,12 +212,7 @@ namespace EventStore.ClientAPI.Projections
                             if (response.HttpStatusCode == expectedCode)
                                 source.SetResult(null);
                             else
-                                source.SetException(new ProjectionCommandFailedException(
-                                                            response.HttpStatusCode,
-                                                            string.Format("Server returned {0} ({1}) for PUT on {2}",
-                                                                          response.HttpStatusCode,
-                                                                          response.StatusDescription,
-                                                                          url)));
+                                source.SetException(CoreThrowHelper.GetProjectionCommandFailedException_Put(response, url));
                         },
                         source.SetException);
 
@@ -246,14 +231,9 @@ namespace EventStore.ClientAPI.Projections
                              if (response.HttpStatusCode == expectedCode)
                                  source.SetResult(null);
                              else if (response.HttpStatusCode == 409)
-                                 source.SetException(new ProjectionCommandConflictException(response.HttpStatusCode, response.StatusDescription));
+                                 source.SetException(CoreThrowHelper.GetProjectionCommandConflictException(response));
                              else
-                                 source.SetException(new ProjectionCommandFailedException(
-                                                             response.HttpStatusCode,
-                                                             string.Format("Server returned {0} ({1}) for POST on {2}",
-                                                                           response.HttpStatusCode,
-                                                                           response.StatusDescription,
-                                                                           url)));
+                                 source.SetException(CoreThrowHelper.GetProjectionCommandFailedException_Post(response, url));
                          },
                          source.SetException);
 

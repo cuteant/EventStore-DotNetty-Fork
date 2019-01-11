@@ -22,13 +22,13 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public ChunkHeader(byte version, int chunkSize, int chunkStartNumber, int chunkEndNumber, bool isScavenged, Guid chunkId)
         {
-            Ensure.Nonnegative(version, nameof(version));
-            Ensure.Positive(chunkSize, nameof(chunkSize));
-            Ensure.Nonnegative(chunkStartNumber, nameof(chunkStartNumber));
-            Ensure.Nonnegative(chunkEndNumber, nameof(chunkEndNumber));
+            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if (chunkSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.chunkSize); }
+            if (chunkStartNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkStartNumber); }
+            if (chunkEndNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkEndNumber); }
             if (chunkStartNumber > chunkEndNumber)
             {
-                throw new ArgumentOutOfRangeException(nameof(chunkStartNumber), "chunkStartNumber is greater than ChunkEndNumber.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_ChunkStartNumberIsGreaterThanChunkEndNumber();
             }
 
             Version = version;
@@ -65,7 +65,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             var fileType = (FileType)reader.ReadByte();
             if (fileType != FileType.ChunkFile)
-                throw new CorruptDatabaseException(new InvalidFileException());
+                ThrowHelper.ThrowCorruptDatabaseException_InvalidFile();
 
             var version = reader.ReadByte();
             var chunkSize = reader.ReadInt32();
@@ -80,8 +80,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (globalLogicalPosition < ChunkStartPosition || globalLogicalPosition > ChunkEndPosition)
             {
-                throw new Exception(string.Format("globalLogicalPosition {0} is out of chunk logical positions [{1}, {2}].",
-                                                  globalLogicalPosition, ChunkStartPosition, ChunkEndPosition));
+                ThrowHelper.ThrowException_GlobalLogicalPositionIsOutOfChunkLogicalPositions(globalLogicalPosition, ChunkStartPosition, ChunkEndPosition);
             }
             return globalLogicalPosition - ChunkStartPosition;
         }

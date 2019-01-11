@@ -75,13 +75,13 @@ namespace EventStore.Core.Services.Transport.Tcp
             int connectionPendingSendBytesThreshold)
             :base(transportSettings, certificate)
         {
-            Ensure.NotNull(publisher, "publisher");
-            Ensure.NotNull(serverEndPoint, "serverEndPoint");
-            Ensure.NotNull(networkSendQueue, "networkSendQueue");
-            Ensure.NotNull(dispatcherFactory, "dispatcherFactory");
-            Ensure.NotNull(authProvider, "authProvider");
-            if (securityType == TcpSecurityType.Secure)
-                Ensure.NotNull(certificate, "certificate");
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (null == serverEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serverEndPoint); }
+            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (null == dispatcherFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcherFactory); }
+            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (securityType == TcpSecurityType.Secure && certificate == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
 
             _publisher = publisher;
             _serverEndPoint = serverEndPoint;

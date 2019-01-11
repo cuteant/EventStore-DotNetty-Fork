@@ -22,9 +22,9 @@ namespace EventStore.Projections.Core.Services.Processing
             IPublisher publisher, Guid projectionCorrelationId, ProjectionConfig projectionConfig, string name,
             PositionTagger positionTagger, ProjectionNamesBuilder namingBuilder)
         {
-            if (publisher == null) throw new ArgumentNullException("publisher");
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (projectionConfig == null) throw new ArgumentNullException("projectionConfig");
-            if (name == null) throw new ArgumentNullException("name");
+            if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
             if (positionTagger == null) throw new ArgumentNullException("positionTagger");
             if (namingBuilder == null) throw new ArgumentNullException("namingBuilder");
             if (name == "") throw new ArgumentException("name");

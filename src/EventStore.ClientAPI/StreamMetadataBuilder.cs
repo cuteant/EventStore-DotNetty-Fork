@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EventStore.ClientAPI.Common.Utils;
 using Newtonsoft.Json.Linq;
+
 namespace EventStore.ClientAPI
 {
     /// <summary>
@@ -82,7 +82,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMaxCount(long maxCount)
         {
-            Ensure.Positive(maxCount, "maxCount");
+            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
             return this;
         }
@@ -93,7 +93,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMaxAge(TimeSpan maxAge)
         {
-            Ensure.Positive(maxAge.Ticks, "maxAge");
+            if (maxAge.Ticks <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxAge); }
             _maxAge = maxAge;
             return this;
         }
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetTruncateBefore(long truncateBefore)
         {
-            Ensure.Nonnegative(truncateBefore, "truncateBefore");
+            if (truncateBefore < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.truncateBefore); }
             _truncateBefore = truncateBefore;
             return this;
         }
@@ -115,7 +115,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetCacheControl(TimeSpan cacheControl)
         {
-            Ensure.Positive(cacheControl.Ticks, "cacheControl");
+            if (cacheControl.Ticks <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.cacheControl); }
             _cacheControl = cacheControl;
             return this;
         }

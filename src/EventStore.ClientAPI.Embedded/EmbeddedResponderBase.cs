@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Messaging;
 
 namespace EventStore.ClientAPI.Embedded
@@ -26,14 +24,14 @@ namespace EventStore.ClientAPI.Embedded
         {
             try
             {
-                Ensure.NotNull(message, "message");
+                if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
                 var response = message as TResponse;
 
                 if (response != null)
                     InspectResponse(response);
                 else
-                    Fail(new NoResultException(String.Format("Expected response of {0}, received {1} instead.", typeof(TResponse), message.GetType())));
+                    Fail(EmbeddedThrowHelper.GetNoResultException<TResponse>(message));
 
             }
             catch (Exception ex)

@@ -73,13 +73,13 @@ namespace EventStore.Core.Services.Monitoring
                                    IPEndPoint tcpEndpoint,
                                    IPEndPoint tcpSecureEndpoint)
         {
-            Ensure.NotNull(monitoringQueue, nameof(monitoringQueue));
-            Ensure.NotNull(statsCollectionBus, nameof(statsCollectionBus));
-            Ensure.NotNull(mainBus, nameof(mainBus));
-            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
-            Ensure.NotNullOrEmpty(dbPath, nameof(dbPath));
-            Ensure.NotNull(nodeEndpoint, nameof(nodeEndpoint));
-            Ensure.NotNull(tcpEndpoint, nameof(tcpEndpoint));
+            if (null == monitoringQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.monitoringQueue); }
+            if (null == statsCollectionBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsCollectionBus); }
+            if (null == mainBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainBus); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (string.IsNullOrEmpty(dbPath)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dbPath); }
+            if (null == nodeEndpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeEndpoint); }
+            if (null == tcpEndpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndpoint); }
 
             _monitoringQueue = monitoringQueue;
             _statsCollectionBus = statsCollectionBus;
@@ -262,7 +262,7 @@ namespace EventStore.Core.Services.Monitoring
                         break;
                     }
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
         }
 

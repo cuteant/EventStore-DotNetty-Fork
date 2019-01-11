@@ -17,13 +17,13 @@ namespace EventStore.Core.TransactionLog.Chunks
  
         public TFChunkWriter(TFChunkDb db)
         {
-            Ensure.NotNull(db, "db");
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
 
             _db = db;
             _writerCheckpoint = db.Config.WriterCheckpoint;
             _currentChunk = db.Manager.GetChunkFor(_writerCheckpoint.Read());
             if (_currentChunk == null)
-                throw new InvalidOperationException("No chunk given for existing position.");
+                ThrowHelper.ThrowInvalidOperationException_NoChunkGivenForExistingPosition();
         }
 
         public void Open()

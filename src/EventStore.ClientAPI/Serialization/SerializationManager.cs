@@ -78,8 +78,8 @@ namespace EventStore.ClientAPI.Serialization
         /// <param name="deserializerSettings"></param>
         public static void Register(JsonSerializerSettings serializerSettings, JsonSerializerSettings deserializerSettings)
         {
-            if (null == serializerSettings) { throw new ArgumentNullException(nameof(serializerSettings)); }
-            if (null == deserializerSettings) { throw new ArgumentNullException(nameof(deserializerSettings)); }
+            if (null == serializerSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serializerSettings); }
+            if (null == deserializerSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.deserializerSettings); }
 
             _jsonSerializer = new JsonMessageFormatter()
             {
@@ -107,7 +107,7 @@ namespace EventStore.ClientAPI.Serialization
 
         public static void RegisterSerializationProvider(IExternalSerializer serializer, int? insertIndex = null)
         {
-            if (null == serializer) { throw new ArgumentNullException(nameof(serializer)); }
+            if (null == serializer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serializer); }
 
             if (insertIndex.HasValue)
             {
@@ -176,8 +176,8 @@ namespace EventStore.ClientAPI.Serialization
 
         public static void RegisterStreamProvider(Type expectedType, string stream, string eventType = null, string expectedVersion = null)
         {
-            if (null == expectedType) { throw new ArgumentNullException(nameof(expectedType)); }
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+            if (null == expectedType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.expectedType); }
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
             if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType); }
             _typeToStreamProviderDictionary.TryAdd(expectedType, new StreamAttribute(stream, eventType, expectedVersion));
@@ -224,7 +224,7 @@ namespace EventStore.ClientAPI.Serialization
 
         public static void RegisterSerializingToken(Type expectedType, SerializingToken token)
         {
-            if (null == expectedType) { throw new ArgumentNullException(nameof(expectedType)); }
+            if (null == expectedType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.expectedType); }
 
             _typeToSerializationTokenDictionary.TryAdd(expectedType, new SerializingTokenAttribute(token));
         }
@@ -288,14 +288,14 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData SerializeEvent(object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
 
             return SerializeEvent(@event.GetType(), @event, eventContext, expectedType);
         }
         public static EventData SerializeEvent(Type actualType, object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
 
             var streamAttr = GetStreamProvider(actualType, expectedType);
             return SerializeEvent(streamAttr?.EventType, actualType, @event, eventContext, expectedType);
@@ -304,13 +304,13 @@ namespace EventStore.ClientAPI.Serialization
 
         internal static EventData SerializeEvent(StreamAttribute streamAttr, object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            //if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            //if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
 
             return SerializeEvent(streamAttr?.EventType, @event, eventContext, expectedType);
         }
         internal static EventData SerializeEvent(StreamAttribute streamAttr, Type actualType, object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            //if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            //if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
 
             return SerializeEvent(streamAttr?.EventType, actualType, @event, eventContext, expectedType);
         }
@@ -318,14 +318,14 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData SerializeEvent(string eventType, object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
 
             return SerializeEvent(eventType, @event.GetType(), @event, eventContext, expectedType);
         }
         public static EventData SerializeEvent(string eventType, Type actualType, object @event, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-            if (null == @event) { throw new ArgumentNullException(nameof(@event)); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
 
             var token = GetSerializingToken(actualType, expectedType);
             return SerializeEvent(token, eventType, actualType, @event, eventContext, expectedType);
@@ -334,7 +334,7 @@ namespace EventStore.ClientAPI.Serialization
         internal static EventData SerializeEvent(SerializingToken token, string eventType, Type actualType, object @event, Dictionary<string, object> eventContext, Type expectedType)
         {
             if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType); }
-            byte[] data;
+            byte[] data = null;
             switch (token)
             {
                 case SerializingToken.Utf8Json:
@@ -357,7 +357,7 @@ namespace EventStore.ClientAPI.Serialization
                     }
                     else
                     {
-                        throw new InvalidOperationException($"Non-serializable exception of type {actualType.AssemblyQualifiedName}");
+                        CoreThrowHelper.ThrowInvalidOperationException_NonSerializableExceptionOfType(actualType);
                     }
                     break;
                 case SerializingToken.Json:
@@ -381,7 +381,7 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData[] SerializeEvents<TEvent>(IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var actualType = typeof(TEvent);
             if (actualType == TypeConstants.ObjectType)
@@ -395,7 +395,7 @@ namespace EventStore.ClientAPI.Serialization
         }
         public static EventData[] SerializeEvents<TEvent>(Type actualType, IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
 
             var streamAttr = GetStreamProvider(actualType, expectedType);
             return SerializeEvents(streamAttr?.EventType, actualType, events, eventContext, expectedType);
@@ -403,18 +403,18 @@ namespace EventStore.ClientAPI.Serialization
 
         internal static EventData[] SerializeEvents<TEvent>(StreamAttribute streamAttr, IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            //if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            //if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
             return SerializeEvents(streamAttr?.EventType, events, eventContext, expectedType);
         }
         internal static EventData[] SerializeEvents<TEvent>(StreamAttribute streamAttr, Type actualType, IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            //if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            //if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
             return SerializeEvents(streamAttr?.EventType, actualType, events, eventContext, expectedType);
         }
 
         public static EventData[] SerializeEvents<TEvent>(string eventType, IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var actualType = typeof(TEvent);
             if (actualType == TypeConstants.ObjectType)
@@ -429,8 +429,8 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData[] SerializeEvents<TEvent>(string eventType, Type actualType, IEnumerable<TEvent> events, Dictionary<string, object> eventContext = null, Type expectedType = null)
         {
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var token = GetSerializingToken(actualType, expectedType);
             return events.Select(_ => SerializeEvent(token, eventType, actualType, _, eventContext, expectedType)).ToArray();
@@ -441,9 +441,9 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData[] SerializeEvents<TEvent>(IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
-            if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
-            if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (null == eventContexts) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventContexts); }
+            if (events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
 
             var actualType = typeof(TEvent);
             if (actualType == TypeConstants.ObjectType)
@@ -462,7 +462,7 @@ namespace EventStore.ClientAPI.Serialization
         }
         public static EventData[] SerializeEvents<TEvent>(Type actualType, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
 
             var streamAttr = GetStreamProvider(actualType, expectedType);
             return SerializeEvents(streamAttr?.EventType, actualType, events, eventContexts, expectedType);
@@ -470,20 +470,20 @@ namespace EventStore.ClientAPI.Serialization
 
         internal static EventData[] SerializeEvents<TEvent>(StreamAttribute streamAttr, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
             return SerializeEvents(streamAttr.EventType, events, eventContexts, expectedType);
         }
         internal static EventData[] SerializeEvents<TEvent>(StreamAttribute streamAttr, Type actualType, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == streamAttr) { throw new ArgumentNullException(nameof(streamAttr)); }
+            if (null == streamAttr) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr); }
             return SerializeEvents(streamAttr.EventType, actualType, events, eventContexts, expectedType);
         }
 
         public static EventData[] SerializeEvents<TEvent>(string eventType, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
-            if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
-            if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (null == eventContexts) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventContexts); }
+            if (events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
 
             var actualType = typeof(TEvent);
             if (actualType == TypeConstants.ObjectType)
@@ -503,10 +503,10 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventData[] SerializeEvents<TEvent>(string eventType, Type actualType, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, Type expectedType = null)
         {
-            if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-            if (null == events) { throw new ArgumentNullException(nameof(events)); }
-            if (null == eventContexts) { throw new ArgumentNullException(nameof(eventContexts)); }
-            if (events.Count != eventContexts.Count) { throw new ArgumentOutOfRangeException(nameof(eventContexts)); }
+            if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (null == eventContexts) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventContexts); }
+            if (events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
 
             var token = GetSerializingToken(actualType, expectedType);
             var list = new EventData[events.Count];
@@ -524,15 +524,14 @@ namespace EventStore.ClientAPI.Serialization
 
         public static EventMetadata DeserializeMetadata(byte[] metadata)
         {
-            const string _metadataEmpty = "The meta-data of EventRecord is not available.";
             if (null == metadata || metadata.Length == 0)
             {
-                throw new EventMetadataDeserializationException(_metadataEmpty);
+                CoreThrowHelper.ThrowEventMetadataDeserializationException();
             }
             var meta = _jsonFormatter.Deserialize<EventMetadata>(metadata);
             if (null == meta)
             {
-                throw new EventMetadataDeserializationException(_metadataEmpty);
+                CoreThrowHelper.ThrowEventMetadataDeserializationException();
             }
             return meta;
         }
@@ -567,7 +566,7 @@ namespace EventStore.ClientAPI.Serialization
         }
         public static IFullEvent DeserializeEvent(EventMetadata metadata, Type eventType, byte[] data)
         {
-            if (null == metadata) { throw new ArgumentNullException(nameof(metadata)); }
+            if (null == metadata) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metadata); }
 
             DeserializeEvent(metadata, eventType, data, out IEventDescriptor eventDescriptor, out object obj);
             return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
@@ -579,7 +578,7 @@ namespace EventStore.ClientAPI.Serialization
         }
         public static IFullEvent<T> DeserializeEvent<T>(EventMetadata metadata, Type eventType, byte[] data) where T : class
         {
-            if (null == metadata) { throw new ArgumentNullException(nameof(metadata)); }
+            if (null == metadata) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metadata); }
 
             DeserializeEvent(metadata, eventType, data, out IEventDescriptor eventDescriptor, out object obj);
             return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = obj as T };
@@ -618,7 +617,7 @@ namespace EventStore.ClientAPI.Serialization
                         }
                         else
                         {
-                            throw new Exception($"Non-serializable exception of type {type.AssemblyQualifiedName}");
+                            CoreThrowHelper.ThrowInvalidOperationException_NonSerializableExceptionOfType(type); obj = null;
                         }
                         break;
                     case SerializingToken.Json:
@@ -629,7 +628,7 @@ namespace EventStore.ClientAPI.Serialization
             }
             catch (Exception exc)
             {
-                throw new EventDataDeserializationException(exc.Message, exc);
+                CoreThrowHelper.ThrowEventDataDeserializationException(exc); obj = null;
             }
         }
 

@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
     /// <param name="streamMetadata">A byte array containing user-specified metadata.</param>
     public RawStreamMetadataResult(string stream, bool isStreamDeleted, long metastreamVersion, byte[] streamMetadata)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
       Stream = stream;
       IsStreamDeleted = isStreamDeleted;

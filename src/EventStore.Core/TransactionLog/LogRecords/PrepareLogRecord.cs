@@ -98,15 +98,15 @@ namespace EventStore.Core.TransactionLog.LogRecords
                                 byte prepareRecordVersion = PrepareRecordVersion)
             : base(LogRecordType.Prepare, prepareRecordVersion, logPosition)
         {
-            Ensure.NotEmptyGuid(correlationId, "correlationId");
-            Ensure.NotEmptyGuid(eventId, "eventId");
-            Ensure.Nonnegative(transactionPosition, "transactionPosition");
+            if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+            if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
+            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
             if (transactionOffset < -1)
-                throw new ArgumentOutOfRangeException("transactionOffset");
-            Ensure.NotNullOrEmpty(eventStreamId, "eventStreamId");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.transactionOffset);
+            if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
             if (expectedVersion < Core.Data.ExpectedVersion.Any)
-                throw new ArgumentOutOfRangeException("expectedVersion");
-            Ensure.NotNull(data, "data");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.expectedVersion);
+            if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
             Flags = flags;
             TransactionPosition = transactionPosition;
@@ -120,14 +120,13 @@ namespace EventStore.Core.TransactionLog.LogRecords
             EventType = eventType ?? string.Empty;
             Data = data;
             Metadata = metadata ?? NoData;
-            if(InMemorySize > TFConsts.MaxLogRecordSize) throw new Exception("Record too large.");
+            if(InMemorySize > TFConsts.MaxLogRecordSize) ThrowHelper.ThrowException(ExceptionResource.Record_too_large);
         }
 
         internal PrepareLogRecord(BinaryReader reader, byte version, long logPosition): base(LogRecordType.Prepare, version, logPosition)
         {
             if (version != LogRecordVersion.LogRecordV0 && version != LogRecordVersion.LogRecordV1)
-                throw new ArgumentException(string.Format(
-                    "PrepareRecord version {0} is incorrect. Supported version: {1}.", version, PrepareRecordVersion));
+                ThrowHelper.ThrowArgumentException_PrepareRecordVersionIsIncorrect(version);
 
             Flags = (PrepareFlags) reader.ReadUInt16();
             TransactionPosition = reader.ReadInt64();
@@ -150,7 +149,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
             
             var metadataCount = reader.ReadInt32();
             Metadata = metadataCount == 0 ? NoData : reader.ReadBytes(metadataCount);
-            if(InMemorySize > TFConsts.MaxLogRecordSize) throw new Exception("Record too large.");
+            if(InMemorySize > TFConsts.MaxLogRecordSize) ThrowHelper.ThrowException(ExceptionResource.Record_too_large);
         }
 
         public override void WriteTo(BinaryWriter writer)

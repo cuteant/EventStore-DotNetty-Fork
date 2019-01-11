@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Codecs
 {
@@ -22,8 +21,8 @@ namespace EventStore.Transport.Http.Codecs
 
         internal CustomCodec(ICodec codec, string contentType, Encoding encoding, bool hasEventIds, bool hasEventTypes)
         {
-            Ensure.NotNull(codec, "codec");
-            Ensure.NotNull(contentType, "contentType");
+            if (null == codec) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.codec); }
+            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
             _hasEventTypes = hasEventTypes;
             _hasEventIds = hasEventIds;
             _codec = codec;
@@ -31,7 +30,7 @@ namespace EventStore.Transport.Http.Codecs
             _encoding = encoding;
             var parts = contentType.Split(new[] {'/'}, 2);
             if (parts.Length != 2)
-                throw new ArgumentException("contentType");
+                ThrowHelper.ThrowArgumentException_CustomCodec_ContentType();
             _type = parts[0];
             _subtype = parts[1];
         }

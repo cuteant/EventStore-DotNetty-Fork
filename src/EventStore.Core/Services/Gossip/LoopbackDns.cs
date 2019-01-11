@@ -9,7 +9,8 @@ namespace EventStore.Core.Services.Gossip
 
         public KnownEndpointGossipSeedSource(IPEndPoint[] ipEndPoints)
         {
-            _ipEndPoints = ipEndPoints ?? throw new ArgumentNullException(nameof(ipEndPoints));
+            if (ipEndPoints == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ipEndPoints); }
+            _ipEndPoints = ipEndPoints;
         }
 
         //public IAsyncResult BeginGetHostEndpoints(AsyncCallback requestCallback, object state)

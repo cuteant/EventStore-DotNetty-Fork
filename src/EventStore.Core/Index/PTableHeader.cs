@@ -28,10 +28,10 @@ namespace EventStore.Core.Index
         {
             var type = stream.ReadByte();
             if (type != (int) FileType.PTableFile)
-                throw new CorruptIndexException("Corrupted PTable.", new InvalidFileException("Wrong type of PTable."));
+                ThrowHelper.ThrowCorruptIndexException_CorruptedPTable();
             var version = stream.ReadByte();
             if (version == -1)
-                throw new CorruptIndexException("Couldn't read version of PTable from header.", new InvalidFileException("Invalid PTable file."));
+                ThrowHelper.ThrowCorruptIndexException_CouldntReadVersionOfPTableFromHeader();
             return new PTableHeader((byte)version);
         }
     }

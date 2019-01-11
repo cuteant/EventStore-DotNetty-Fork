@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventStore.ClientAPI.Exceptions;
+﻿using System.Threading.Tasks;
 using EventStore.ClientAPI.Messages;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Transport.Tcp.Messages;
@@ -39,13 +37,13 @@ namespace EventStore.ClientAPI.ClientOperations
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
                 case TcpClientMessageDto.ReadAllEventsCompleted.ReadAllResult.Error:
-                    Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
+                    Fail(CoreThrowHelper.GetServerErrorException(response));
                     return new InspectionResult(InspectionDecision.EndOperation, "Error");
                 case TcpClientMessageDto.ReadAllEventsCompleted.ReadAllResult.AccessDenied:
-                    Fail(new AccessDeniedException("Read access denied for $all."));
+                    Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_all));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
-                    throw new Exception(string.Format("Unexpected ReadAllResult: {0}.", response.Result));
+                    CoreThrowHelper.ThrowException_UnexpectedReadAllResult(response.Result); return null;
             }
         }
 

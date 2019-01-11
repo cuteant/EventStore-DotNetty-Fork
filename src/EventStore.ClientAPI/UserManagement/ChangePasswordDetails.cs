@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI.Common.Utils;
-
-namespace EventStore.ClientAPI.UserManagement
+﻿namespace EventStore.ClientAPI.UserManagement
 {
     internal class ChangePasswordDetails
     {
@@ -10,8 +8,8 @@ namespace EventStore.ClientAPI.UserManagement
 
         public ChangePasswordDetails(string currentPassword, string newPassword)
         {
-            Ensure.NotNullOrEmpty(currentPassword, "currentPassword");
-            Ensure.NotNullOrEmpty(newPassword, "newPassword");
+            if (string.IsNullOrEmpty(currentPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.currentPassword); }
+            if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
             CurrentPassword = currentPassword;
             NewPassword = newPassword;
         }

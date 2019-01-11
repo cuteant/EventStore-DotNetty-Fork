@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         public void Add(IDictionary<string, object> statGroup)
         {
-            Ensure.NotNull(statGroup, "statGroup");
+            if (null == statGroup) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statGroup); }
 
             foreach (var stat in statGroup)
                 _stats.Add(stat.Key, stat.Value);
@@ -72,7 +72,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         public static Dictionary<string, object> Group(Dictionary<string, object> input)
         {
-            Ensure.NotNull(input, "input");
+            if (null == input) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
 
             if (input.IsEmpty())
                 return input;

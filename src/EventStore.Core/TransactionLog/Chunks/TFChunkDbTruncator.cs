@@ -13,7 +13,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkDbTruncator(TFChunkDbConfig config)
         {
-            Ensure.NotNull(config, nameof(config));
+            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
             _config = config;
         }
 
@@ -26,7 +26,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var excessiveChunks = _config.FileNamingStrategy.GetAllVersionsFor(oldLastChunkNum + 1);
             if (excessiveChunks.Length > 0)
             {
-                throw new Exception($"During truncation of DB excessive TFChunks were found:\n{string.Join("\n", excessiveChunks)}.");
+                ThrowHelper.ThrowException_DuringTruncationOfDBExcessiveTFChunksWereFound(excessiveChunks);
             }
 
             ChunkHeader newLastChunkHeader = null;
@@ -38,7 +38,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     if (chunkNum != newLastChunkNum)
                     {
-                        throw new Exception($"Could not find any chunk #{chunkNum}.");
+                        ThrowHelper.ThrowException_CouldnotFindAnyChunk(chunkNum);
                     }
 
                     break;
@@ -136,9 +136,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 || truncateChk < chunkHeader.ChunkStartPosition
                 || truncateChk >= chunkHeader.ChunkEndPosition)
             {
-                throw new Exception(
-                    string.Format("Chunk #{0}-{1} ({2}) is not correct unscavenged chunk. TruncatePosition: {3}, ChunkHeader: {4}.",
-                                  chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber, chunkFilename, truncateChk, chunkHeader));
+                ThrowHelper.ThrowException_ChunkIsNotCorrectUnscavengedChunk(chunkHeader, chunkFilename, truncateChk);
             }
 
             File.SetAttributes(chunkFilename, FileAttributes.Normal);

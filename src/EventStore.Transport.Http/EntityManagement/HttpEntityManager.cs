@@ -48,9 +48,9 @@ namespace EventStore.Transport.Http.EntityManagement
             HttpEntity httpEntity, string[] allowedMethods, Action<HttpEntity> onRequestSatisfied, ICodec requestCodec,
             ICodec responseCodec, bool logHttpRequests)
         {
-            Ensure.NotNull(httpEntity, "httpEntity");
-            Ensure.NotNull(allowedMethods, "allowedMethods");
-            Ensure.NotNull(onRequestSatisfied, "onRequestSatisfied");
+            if (null == httpEntity) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEntity); }
+            if (null == allowedMethods) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.allowedMethods); }
+            if (null == onRequestSatisfied) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onRequestSatisfied); }
 
             HttpEntity = httpEntity;
             TimeStamp = DateTime.UtcNow;
@@ -202,8 +202,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ReadRequestAsync(Action<HttpEntityManager, byte[]> onReadSuccess, Action<Exception> onError)
         {
-            Ensure.NotNull(onReadSuccess, "OnReadSuccess");
-            Ensure.NotNull(onError, "onError");
+            if (null == onReadSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             var state = new ManagerOperationState(
                 HttpEntity.Request.InputStream, new MemoryStream(), onReadSuccess, onError);
@@ -237,8 +237,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ContinueReply(byte[] response, Action<Exception> onError, Action onCompleted)
         {
-            Ensure.NotNull(onError, "onError");
-            Ensure.NotNull(onCompleted, "onCompleted");
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (null == onCompleted) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onCompleted); }
 
             _currentOutputStream = HttpEntity.Response.OutputStream;
             ContinueWriteResponseAsync(response, () => { }, onError, onCompleted);
@@ -260,7 +260,7 @@ namespace EventStore.Transport.Http.EntityManagement
             byte[] response, int code, string description, string contentType, Encoding encoding,
             IEnumerable<KeyValuePair<string, string>> headers, Action<Exception> onError)
         {
-            Ensure.NotNull(onError, "onError");
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             if (!BeginReply(code, description, contentType, encoding, headers))
                 return;
@@ -286,8 +286,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ForwardReply(HttpResponseMessage response, Action<Exception> onError)
         {
-            Ensure.NotNull(response, "response");
-            Ensure.NotNull(onError, "onError");
+            if (null == response) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             if (Interlocked.CompareExchange(ref _processing, 1, 0) != 0)
                 return;

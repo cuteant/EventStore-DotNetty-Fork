@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Utils;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.PersistentSubscription;
 
@@ -17,7 +16,7 @@ namespace EventStore.Core.Messages
 
             public GetAllPersistentSubscriptionStats(IEnvelope envelope)
             {
-                Ensure.NotNull(envelope, "envelope");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
             }
         }
@@ -36,7 +35,7 @@ namespace EventStore.Core.Messages
 
             public GetPersistentSubscriptionStats(IEnvelope envelope, string eventStreamId, string groupName)
             {
-                Ensure.NotNull(envelope, "envelope");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 _eventStreamId = eventStreamId;
                 _groupName = groupName;
@@ -55,7 +54,7 @@ namespace EventStore.Core.Messages
 
             public GetStreamPersistentSubscriptionStats(IEnvelope envelope, string eventStreamId)
             {
-                Ensure.NotNull(envelope, "envelope");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 _eventStreamId = eventStreamId;
             }
@@ -143,8 +142,8 @@ namespace EventStore.Core.Messages
                                  bool useMetadata,
                                  bool useGrouping)
             {
-                Ensure.NotNull(envelope, "envelope");
-                Ensure.NotNull(statsSelector, "statsSelector");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (null == statsSelector) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsSelector); }
 
                 Envelope = envelope;
                 StatsSelector = statsSelector;
@@ -177,7 +176,7 @@ namespace EventStore.Core.Messages
 
             public GetFreshTcpConnectionStats(IEnvelope envelope)
             {
-                Ensure.NotNull(envelope, "envelope");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 Envelope = envelope;
             }
@@ -219,7 +218,7 @@ namespace EventStore.Core.Messages
 
             public InternalStatsRequest(IEnvelope envelope)
             {
-                Ensure.NotNull(envelope, "envelope");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 Envelope = envelope;
             }
@@ -234,7 +233,7 @@ namespace EventStore.Core.Messages
 
             public InternalStatsRequestResponse(Dictionary<string, object> stats)
             {
-                Ensure.NotNull(stats, "stats");
+                if (null == stats) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stats); }
 
                 Stats = stats;
             }

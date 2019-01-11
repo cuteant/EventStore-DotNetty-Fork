@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using CuteAnt.AsyncEx;
-using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
@@ -96,7 +94,8 @@ namespace EventStore.ClientAPI
           Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
           : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
-            EventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            EventAppeared = eventAppeared;
 
             _numActionBlocks = settings.NumActionBlocks;
             if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
@@ -132,7 +131,8 @@ namespace EventStore.ClientAPI
           Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
           : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
-            EventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            EventAppearedAsync = eventAppearedAsync;
 
             _numActionBlocks = settings.NumActionBlocks;
             if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
@@ -158,7 +158,8 @@ namespace EventStore.ClientAPI
         private EventStoreCatchUpSubscription(IEventStoreConnection connection, string streamId, UserCredentials userCredentials,
           Action<TSubscription> liveProcessingStarted, Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
         {
-            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _connection = connection;
 
             _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
             _settings = settings;
@@ -226,7 +227,7 @@ namespace EventStore.ClientAPI
             if (Verbose) Log.LogDebug("Waiting on subscription {0} to stop", SubscriptionName);
             if (!_stopped.Wait(timeout))
             {
-                throw new TimeoutException(string.Format("Could not stop {0} in time.", GetType().Name));
+                CoreThrowHelper.ThrowTimeoutException_CouldNotStopSubscriptionsInTime(GetType());
             }
 
             _historicalQueue?.Complete();
@@ -602,7 +603,8 @@ namespace EventStore.ClientAPI
                                                   CatchUpSubscriptionSettings settings)
           : base(connection, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
             IsSubscribedToAll = true;
             _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
             _nextReadPosition = fromPositionExclusive ?? Position.Start;
@@ -617,7 +619,8 @@ namespace EventStore.ClientAPI
                                                   CatchUpSubscriptionSettings settings)
           : base(connection, string.Empty, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
             IsSubscribedToAll = true;
             _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
             _nextReadPosition = fromPositionExclusive ?? Position.Start;
@@ -673,7 +676,7 @@ namespace EventStore.ClientAPI
         {
             foreach (var e in slice.Events)
             {
-                if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
+                if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
                 if (null == _lastHistoricalEventError)
                 {
                     await _historicalQueue.SendAsync(e).ConfigureAwait(false);
@@ -687,7 +690,7 @@ namespace EventStore.ClientAPI
             //{
             //  foreach (var e in slice.Events)
             //  {
-            //    if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
+            //    if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
             //    TryProcess(e);
             //  }
             //}
@@ -695,7 +698,7 @@ namespace EventStore.ClientAPI
             //{
             //  foreach (var e in slice.Events)
             //  {
-            //    if (e.OriginalPosition == null) throw new Exception($"Subscription {SubscriptionName} event came up with no OriginalPosition.");
+            //    if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
             //    await TryProcessAsync(e).ConfigureAwait(false);
             //  }
             //}
@@ -801,7 +804,7 @@ namespace EventStore.ClientAPI
                                                          CatchUpSubscriptionSettings settings)
           : base(connection, streamId, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
 
             _lastProcessedEventNumber = fromEventNumberExclusive ?? -1;
             _nextReadEventNumber = fromEventNumberExclusive ?? 0;
@@ -817,7 +820,7 @@ namespace EventStore.ClientAPI
                                                          CatchUpSubscriptionSettings settings)
           : base(connection, streamId, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            Ensure.NotNullOrEmpty(streamId, nameof(streamId));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
 
             _lastProcessedEventNumber = fromEventNumberExclusive ?? -1;
             _nextReadEventNumber = fromEventNumberExclusive ?? 0;
@@ -836,53 +839,51 @@ namespace EventStore.ClientAPI
 
         protected async Task<bool> ProcessEventsAsync(long? lastEventNumber, TStreamEventsSlice slice)
         {
-            bool done;
+            var done = false;
             switch (slice.Status)
             {
                 case SliceReadStatus.Success:
+                    foreach (var e in slice.Events)
                     {
-                        foreach (var e in slice.Events)
+                        if (null == _lastHistoricalEventError)
                         {
-                            if (null == _lastHistoricalEventError)
-                            {
-                                await _historicalQueue.SendAsync(e).ConfigureAwait(false);
-                            }
-                            else
-                            {
-                                throw _lastHistoricalEventError;
-                            }
+                            await _historicalQueue.SendAsync(e).ConfigureAwait(false);
                         }
-                        //if (EventAppeared != null)
-                        //{
-                        //  foreach (var e in slice.Events)
-                        //  {
-                        //    TryProcess(e);
-                        //  }
-                        //}
-                        //else
-                        //{
-                        //  foreach (var e in slice.Events)
-                        //  {
-                        //    await TryProcessAsync(e).ConfigureAwait(false);
-                        //  }
-                        //}
-                        Interlocked.Exchange(ref _nextReadEventNumber, slice.NextEventNumber);
-                        done = lastEventNumber == null ? slice.IsEndOfStream : slice.NextEventNumber > lastEventNumber;
-                        break;
+                        else
+                        {
+                            throw _lastHistoricalEventError;
+                        }
                     }
+                    //if (EventAppeared != null)
+                    //{
+                    //  foreach (var e in slice.Events)
+                    //  {
+                    //    TryProcess(e);
+                    //  }
+                    //}
+                    //else
+                    //{
+                    //  foreach (var e in slice.Events)
+                    //  {
+                    //    await TryProcessAsync(e).ConfigureAwait(false);
+                    //  }
+                    //}
+                    Interlocked.Exchange(ref _nextReadEventNumber, slice.NextEventNumber);
+                    done = lastEventNumber == null ? slice.IsEndOfStream : slice.NextEventNumber > lastEventNumber;
+                    break;
+
                 case SliceReadStatus.StreamNotFound:
+                    if (lastEventNumber.HasValue && lastEventNumber != -1)
                     {
-                        if (lastEventNumber.HasValue && lastEventNumber != -1)
-                        {
-                            throw new Exception($"Impossible: stream {StreamId} disappeared in the middle of catching up subscription {SubscriptionName}.");
-                        }
-                        done = true;
-                        break;
+                        CoreThrowHelper.ThrowException_StreamDisappearedInTheMiddleOfCatchingUpSubscription(StreamId, SubscriptionName);
                     }
+                    done = true;
+                    break;
+
                 case SliceReadStatus.StreamDeleted:
-                    throw new StreamDeletedException(StreamId);
+                    CoreThrowHelper.ThrowStreamDeletedException(StreamId); return default;
                 default:
-                    throw new ArgumentOutOfRangeException($"Subscription {SubscriptionName} unexpected StreamEventsSlice.Status: {SubscriptionName}.");
+                    CoreThrowHelper.ThrowArgumentOutOfRangeException_UnexpectedStreamEventsSliceStatus(SubscriptionName); break;
             }
 
             if (!done && slice.IsEndOfStream)
@@ -975,8 +976,8 @@ namespace EventStore.ClientAPI
                                                      CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         internal EventStoreStreamCatchUpSubscription(IEventStoreConnection connection,
@@ -989,7 +990,8 @@ namespace EventStore.ClientAPI
                                                      CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         /// <inheritdoc />
@@ -1051,7 +1053,8 @@ namespace EventStore.ClientAPI
                                                CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         internal EventStoreCatchUpSubscription(IEventStoreConnection2 connection,
@@ -1064,7 +1067,8 @@ namespace EventStore.ClientAPI
                                                CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         /// <inheritdoc />
@@ -1126,7 +1130,8 @@ namespace EventStore.ClientAPI
                                                 CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         internal EventStoreCatchUpSubscription2(IEventStoreConnection2 connection,
@@ -1139,7 +1144,8 @@ namespace EventStore.ClientAPI
                                                 CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         /// <inheritdoc />
@@ -1205,7 +1211,8 @@ namespace EventStore.ClientAPI
               fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         internal EventStoreCatchUpSubscription(IEventStoreConnection2 connection,
@@ -1220,7 +1227,8 @@ namespace EventStore.ClientAPI
               fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
-            _innerConnection = connection ?? throw new ArgumentNullException(nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            _innerConnection = connection;
         }
 
         /// <inheritdoc />

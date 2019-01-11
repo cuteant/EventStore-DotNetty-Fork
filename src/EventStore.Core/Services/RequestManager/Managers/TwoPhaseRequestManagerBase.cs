@@ -49,8 +49,8 @@ namespace EventStore.Core.Services.RequestManager.Managers
                                                                        TimeSpan commitTimeout,
                                                                        bool betterOrdering)
         {
-            Ensure.NotNull(publisher, "publisher");
-            Ensure.Positive(prepareCount, "prepareCount");
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (prepareCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareCount); }
 
             Publisher = publisher;
             PublishEnvelope = new PublishEnvelope(publisher);
@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                                           string eventStreamId, IPrincipal user, StreamAccessType accessType)
         {
             if (_initialized)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             _initialized = true;
 
@@ -86,7 +86,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                                     long transactionId, IPrincipal user, StreamAccessType accessType)
         {
             if (_initialized)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             _initialized = true;
 
@@ -149,7 +149,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                 return;
 
             if (_transactionId == -1)
-                throw new Exception("TransactionId was not set, transactionId = -1.");
+                ThrowHelper.ThrowException(ExceptionResource.TransactionId_was_not_set);
 
             if (message.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
             {

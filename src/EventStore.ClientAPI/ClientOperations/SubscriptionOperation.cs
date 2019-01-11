@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -42,16 +43,18 @@ namespace EventStore.ClientAPI.ClientOperations
         /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
         internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
 
-        protected SubscriptionOperation(TaskCompletionSource<TSubscription> source,
-                                        string streamId,
-                                        SubscriptionSettings settings,
-                                        UserCredentials userCredentials,
-                                        Action<TSubscription, TResolvedEvent> eventAppeared,
-                                        Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                        Func<TcpPackageConnection> getConnection)
+        protected SubscriptionOperation(
+            TaskCompletionSource<TSubscription> source,
+            string streamId,
+            SubscriptionSettings settings,
+            UserCredentials userCredentials,
+            Action<TSubscription, TResolvedEvent> eventAppeared,
+            Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+            Func<TcpPackageConnection> getConnection)
           : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
-            _eventAppeared = eventAppeared ?? throw new ArgumentNullException(nameof(eventAppeared));
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            _eventAppeared = eventAppeared;
 
             var numActionBlocks = settings.NumActionBlocks;
             if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
@@ -84,16 +87,18 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        protected SubscriptionOperation(TaskCompletionSource<TSubscription> source,
-                                        string streamId,
-                                        SubscriptionSettings settings,
-                                        UserCredentials userCredentials,
-                                        Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
-                                        Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                        Func<TcpPackageConnection> getConnection)
+        protected SubscriptionOperation(
+            TaskCompletionSource<TSubscription> source,
+            string streamId,
+            SubscriptionSettings settings,
+            UserCredentials userCredentials,
+            Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
+            Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+            Func<TcpPackageConnection> getConnection)
           : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
-            _eventAppearedAsync = eventAppearedAsync ?? throw new ArgumentNullException(nameof(eventAppearedAsync));
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            _eventAppearedAsync = eventAppearedAsync;
 
             var numActionBlocks = settings.NumActionBlocks;
             if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
@@ -126,16 +131,17 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        private SubscriptionOperation(TaskCompletionSource<TSubscription> source,
-                                      string streamId,
-                                      bool resolveLinkTos,
-                                      UserCredentials userCredentials,
-                                      Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-                                      bool verboseLogging,
-                                      Func<TcpPackageConnection> getConnection)
+        private SubscriptionOperation(
+            TaskCompletionSource<TSubscription> source,
+            string streamId,
+            bool resolveLinkTos,
+            UserCredentials userCredentials,
+            Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
+            bool verboseLogging,
+            Func<TcpPackageConnection> getConnection)
         {
-            Ensure.NotNull(source, nameof(source));
-            Ensure.NotNull(getConnection, nameof(getConnection));
+            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (null == getConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getConnection); }
 
             _source = source;
             _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
@@ -153,7 +159,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public bool Subscribe(Guid correlationId, TcpPackageConnection connection)
         {
-            Ensure.NotNull(connection, nameof(connection));
+            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             if (_subscription != null || _unsubscribed != 0) { return false; }
 
@@ -186,89 +192,110 @@ namespace EventStore.ClientAPI.ClientOperations
                 switch (package.Command)
                 {
                     case TcpCommand.SubscriptionDropped:
-                        {
-                            var dto = package.Data.Deserialize<TcpClientMessageDto.SubscriptionDropped>();
-                            switch (dto.Reason)
-                            {
-                                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.Unsubscribed:
-                                    DropSubscription(SubscriptionDropReason.UserInitiated, null);
-                                    break;
-                                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.AccessDenied:
-                                    DropSubscription(SubscriptionDropReason.AccessDenied,
-                                                     new AccessDeniedException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to access denied."));
-                                    break;
-                                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.NotFound:
-                                    DropSubscription(SubscriptionDropReason.NotFound,
-                                                     new ArgumentException($"Subscription to '{(_streamId == string.Empty ? "<all>" : _streamId)}' failed due to not found."));
-                                    break;
-                                default:
-                                    if (_verboseLogging) _log.LogDebug("Subscription dropped by server. Reason: {0}.", dto.Reason);
-                                    DropSubscription(SubscriptionDropReason.Unknown,
-                                                     new CommandNotExpectedException($"Unsubscribe reason: '{dto.Reason}'."));
-                                    break;
-                            }
-                            return new InspectionResult(InspectionDecision.EndOperation, $"SubscriptionDropped: {dto.Reason}");
-                        }
+                        return HandleSubscriptionDroppedCommand(package);
 
                     case TcpCommand.NotAuthenticated:
-                        {
-                            string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data));
-                            DropSubscription(SubscriptionDropReason.NotAuthenticated,
-                                             new NotAuthenticatedException(string.IsNullOrEmpty(message) ? "Authentication error" : message));
-                            return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
-                        }
+                        return HandleNotAuthenticatedCommand(package);
 
                     case TcpCommand.BadRequest:
-                        {
-                            string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data));
-                            DropSubscription(SubscriptionDropReason.ServerError,
-                                             new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
-                            return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest: {message}");
-                        }
+                        return HandleBadRequestCommand(package);
 
                     case TcpCommand.NotHandled:
-                        {
-                            if (_subscription != null)
-                                throw new Exception("NotHandled command appeared while we were already subscribed.");
-
-                            var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
-                            switch (message.Reason)
-                            {
-                                case TcpClientMessageDto.NotHandled.NotHandledReason.NotReady:
-                                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - NotReady");
-
-                                case TcpClientMessageDto.NotHandled.NotHandledReason.TooBusy:
-                                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - TooBusy");
-
-                                case TcpClientMessageDto.NotHandled.NotHandledReason.NotMaster:
-                                    var masterInfo = message.AdditionalInfo.Deserialize<TcpClientMessageDto.NotHandled.MasterInfo>();
-                                    return new InspectionResult(InspectionDecision.Reconnect, "NotHandled - NotMaster",
-                                                                masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
-
-                                default:
-                                    _log.LogError("Unknown NotHandledReason: {0}.", message.Reason);
-                                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
-                            }
-                        }
+                        return HandleNotHandledCommand(package);
 
                     default:
-                        {
-                            DropSubscription(SubscriptionDropReason.ServerError,
-                                             new CommandNotExpectedException(package.Command.ToString()));
-                            return new InspectionResult(InspectionDecision.EndOperation, package.Command.ToString());
-                        }
+                        return HandleOtherCommand(package);
                 }
             }
-            catch (Exception e)
+            catch (Exception e) { return HandleInspectPackageError(e); }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleInspectPackageError(Exception e)
+        {
+            DropSubscription(SubscriptionDropReason.Unknown, e);
+            return new InspectionResult(InspectionDecision.EndOperation, $"Exception - {e.Message}");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleSubscriptionDroppedCommand(TcpPackage package)
+        {
+            var dto = package.Data.Deserialize<TcpClientMessageDto.SubscriptionDropped>();
+            switch (dto.Reason)
             {
-                DropSubscription(SubscriptionDropReason.Unknown, e);
-                return new InspectionResult(InspectionDecision.EndOperation, $"Exception - {e.Message}");
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.Unsubscribed:
+                    DropSubscription(SubscriptionDropReason.UserInitiated, null);
+                    break;
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.AccessDenied:
+                    DropSubscription(SubscriptionDropReason.AccessDenied,
+                                     CoreThrowHelper.GetAccessDeniedException_All(_streamId));
+                    break;
+                case TcpClientMessageDto.SubscriptionDropped.SubscriptionDropReason.NotFound:
+                    DropSubscription(SubscriptionDropReason.NotFound,
+                                     CoreThrowHelper.GetArgumentException_All(_streamId));
+                    break;
+                default:
+                    if (_verboseLogging) _log.LogDebug("Subscription dropped by server. Reason: {0}.", dto.Reason);
+                    DropSubscription(SubscriptionDropReason.Unknown,
+                                     CoreThrowHelper.GetCommandNotExpectedException(dto.Reason));
+                    break;
             }
+            return new InspectionResult(InspectionDecision.EndOperation, $"SubscriptionDropped: {dto.Reason}");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleNotAuthenticatedCommand(TcpPackage package)
+        {
+            DropSubscription(SubscriptionDropReason.NotAuthenticated,
+                             CoreThrowHelper.GetNotAuthenticatedException(package));
+            return new InspectionResult(InspectionDecision.EndOperation, "NotAuthenticated");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleBadRequestCommand(TcpPackage package)
+        {
+            string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data));
+            DropSubscription(SubscriptionDropReason.ServerError,
+                             new ServerErrorException(string.IsNullOrEmpty(message) ? "<no message>" : message));
+            return new InspectionResult(InspectionDecision.EndOperation, $"BadRequest: {message}");
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleNotHandledCommand(TcpPackage package)
+        {
+            if (_subscription != null) { CoreThrowHelper.ThrowException_NotHandledCommandAppeared(); }
+
+            var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
+            switch (message.Reason)
+            {
+                case TcpClientMessageDto.NotHandled.NotHandledReason.NotReady:
+                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - NotReady");
+
+                case TcpClientMessageDto.NotHandled.NotHandledReason.TooBusy:
+                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - TooBusy");
+
+                case TcpClientMessageDto.NotHandled.NotHandledReason.NotMaster:
+                    var masterInfo = message.AdditionalInfo.Deserialize<TcpClientMessageDto.NotHandled.MasterInfo>();
+                    return new InspectionResult(InspectionDecision.Reconnect, "NotHandled - NotMaster",
+                                                masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
+
+                default:
+                    _log.LogError("Unknown NotHandledReason: {0}.", message.Reason);
+                    return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private InspectionResult HandleOtherCommand(TcpPackage package)
+        {
+            DropSubscription(SubscriptionDropReason.ServerError,
+                             CoreThrowHelper.GetCommandNotExpectedException(package.Command));
+            return new InspectionResult(InspectionDecision.EndOperation, package.Command.ToString());
         }
 
         public void ConnectionClosed()
         {
-            DropSubscription(SubscriptionDropReason.ConnectionClosed, new ConnectionClosedException("Connection was closed."));
+            DropSubscription(SubscriptionDropReason.ConnectionClosed, CoreThrowHelper.GetConnectionClosedException());
         }
 
         internal bool TimeOutSubscription()
@@ -311,9 +338,9 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (lastCommitPosition < -1)
             {
-                throw new ArgumentOutOfRangeException(nameof(lastCommitPosition), $"Invalid lastCommitPosition {lastCommitPosition} on subscription confirmation.");
+                CoreThrowHelper.ThrowArgumentOutOfRangeException_InvalidLastCommitPositionOnSubscriptionConfirmation(lastCommitPosition);
             }
-            if (_subscription != null) { throw new Exception("Double confirmation of subscription."); }
+            if (_subscription != null) { CoreThrowHelper.ThrowException_DoubleConfirmationOfSubscription(); }
 
             if (_verboseLogging)
             {
@@ -330,7 +357,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (_unsubscribed != 0) { return; }
 
-            if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
+            if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
             if (_verboseLogging)
             {
@@ -345,7 +372,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (_unsubscribed != 0) { return TaskConstants.Completed; }
 
-            if (_subscription == null) throw new Exception("Subscription not confirmed, but event appeared!");
+            if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
             if (_verboseLogging)
             {

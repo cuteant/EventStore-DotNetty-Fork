@@ -105,7 +105,7 @@ namespace EventStore.Core.Services
                         break;
                     }
                 default:
-                    throw new NotSupportedException("Unknown event type: " + eventType);
+                    ThrowHelper.ThrowNotSupportedException_UnknownEventType(eventType); break;
             }
             return streamId;
         }
@@ -129,7 +129,7 @@ namespace EventStore.Core.Services
                         break;
                     }
                 default:
-                    throw new NotSupportedException("Unknown event type: " + eventType);
+                    ThrowHelper.ThrowNotSupportedException_UnknownEventType(eventType); break;
             }
             return streamId;
         }

@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI
 
     public StreamAttribute(string stream, string eventType = null, string expectedVersion = null)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
       StreamId = stream;
       EventType = eventType;

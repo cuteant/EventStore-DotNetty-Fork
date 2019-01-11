@@ -183,7 +183,7 @@ namespace EventStore.ClientAPI
         public void Acknowledge(IEnumerable<TResolvedEvent> events)
         {
             var ids = events.Select(x => x.OriginalEventId).ToArray();
-            if (ids.Length > 2000) throw new ArgumentOutOfRangeException(nameof(events), "events is limited to 2000 to ack at a time");
+            if (ids.Length > 2000) CoreThrowHelper.ThrowArgumentOutOfRangeException_EventsIsLimitedTo2000ToAckAtATime();
             _subscription.NotifyEventsProcessed(ids);
         }
 
@@ -201,7 +201,7 @@ namespace EventStore.ClientAPI
         public void Acknowledge(IEnumerable<Guid> events)
         {
             var ids = events.ToArray();
-            if (ids.Length > 2000) throw new ArgumentOutOfRangeException(nameof(events), "events is limited to 2000 to ack at a time");
+            if (ids.Length > 2000) CoreThrowHelper.ThrowArgumentOutOfRangeException_EventsIsLimitedTo2000ToAckAtATime();
             _subscription.NotifyEventsProcessed(ids);
         }
         /// <summary>Mark a message failed processing. The server will be take action based upon the action paramter.</summary>
@@ -220,7 +220,7 @@ namespace EventStore.ClientAPI
         public void Fail(IEnumerable<TResolvedEvent> events, PersistentSubscriptionNakEventAction action, string reason)
         {
             var ids = events.Select(x => x.OriginalEventId).ToArray();
-            if (ids.Length > 2000) throw new ArgumentOutOfRangeException(nameof(events), "events is limited to 2000 to ack at a time");
+            if (ids.Length > 2000) CoreThrowHelper.ThrowArgumentOutOfRangeException_EventsIsLimitedTo2000ToAckAtATime();
             _subscription.NotifyEventsFailed(ids, action, reason);
         }
 
@@ -238,7 +238,7 @@ namespace EventStore.ClientAPI
 
             if (!_stopped.Wait(timeout))
             {
-                throw new TimeoutException($"Could not stop {GetType().Name} in time.");
+                CoreThrowHelper.ThrowTimeoutException_CouldNotStopSubscriptionsInTime(GetType());
             }
 
             if (_bufferBlock != null)
@@ -282,7 +282,7 @@ namespace EventStore.ClientAPI
         {
             if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
             {
-                if (_dropData == null) { throw new Exception("Drop reason not specified."); }
+                if (_dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
                 DropSubscription(_dropData.Reason, _dropData.Error);
                 return;
             }
@@ -320,7 +320,7 @@ namespace EventStore.ClientAPI
         {
             if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
             {
-                if (_dropData == null) { throw new Exception("Drop reason not specified."); }
+                if (_dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
                 DropSubscription(_dropData.Reason, _dropData.Error);
                 return;
             }

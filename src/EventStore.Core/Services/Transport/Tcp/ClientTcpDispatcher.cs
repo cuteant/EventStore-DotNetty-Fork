@@ -609,7 +609,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         private static TcpPackage WrapScavengeDatabaseResponse(ClientMessage.ScavengeDatabaseResponse msg)
         {
-            TcpClientMessageDto.ScavengeDatabaseResponse.ScavengeResult result;
+            TcpClientMessageDto.ScavengeDatabaseResponse.ScavengeResult result = default;
             switch (msg.Result)
             {
                 case ClientMessage.ScavengeDatabaseResponse.ScavengeResult.Started:
@@ -622,7 +622,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                     result = TcpClientMessageDto.ScavengeDatabaseResponse.ScavengeResult.InProgress;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
 
             var dto = new TcpClientMessageDto.ScavengeDatabaseResponse(result, msg.ScavengeId);

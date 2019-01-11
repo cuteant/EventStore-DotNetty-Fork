@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security.Principal;
 using System.Threading;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
@@ -36,12 +35,12 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                          bool skipIndexScanOnReads,
                          ICheckpoint replicationCheckpoint)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.NotNull(readerPool, "readerPool");
-            Ensure.NotNull(tableIndex, "tableIndex");
-            Ensure.Nonnegative(streamInfoCacheCapacity, "streamInfoCacheCapacity");
-            Ensure.Positive(metastreamMaxCount, "metastreamMaxCount");
-            Ensure.NotNull(replicationCheckpoint, "replicationCheckpoint");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == readerPool) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerPool); }
+            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (streamInfoCacheCapacity < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.streamInfoCacheCapacity); }
+            if (metastreamMaxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.metastreamMaxCount); }
+            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
 
             var metastreamMetadata = new StreamMetadata(maxCount: metastreamMaxCount);
 

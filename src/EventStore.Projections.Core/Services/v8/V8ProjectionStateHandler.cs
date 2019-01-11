@@ -141,7 +141,7 @@ namespace EventStore.Projections.Core.Services.v8
         public string TransformCatalogEvent(CheckpointTag eventPosition, ResolvedEvent data)
         {
             CheckDisposed();
-            if (data == null) throw new ArgumentNullException("data");
+            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             return _query.TransformCatalogEvent(
                 (data.Data ?? "").Trim(), // trimming data passed to a JS 

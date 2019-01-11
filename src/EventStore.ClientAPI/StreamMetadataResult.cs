@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI.Common.Utils;
-
-namespace EventStore.ClientAPI
+﻿namespace EventStore.ClientAPI
 {
     /// <summary>
     /// Represents stream metadata as a series of properties for system
@@ -34,7 +32,7 @@ namespace EventStore.ClientAPI
         /// <param name="streamMetadata">A <see cref="StreamMetadataResult"/> containing user-specified metadata.</param>
         public StreamMetadataResult(string stream, bool isStreamDeleted, long metastreamVersion, StreamMetadata streamMetadata)
         {
-            Ensure.NotNullOrEmpty(stream, "stream");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
             Stream = stream;
             IsStreamDeleted = isStreamDeleted;

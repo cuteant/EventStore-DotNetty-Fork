@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -22,7 +21,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static FeedElement ToStreamEventForwardFeed(ClientMessage.ReadStreamEventsForwardCompleted msg, Uri requestedUrl, EmbedLevel embedContent)
         {
-            Ensure.NotNull(msg, "msg");
+            if (null == msg) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
 
             string escapedStreamId = Uri.EscapeDataString(msg.EventStreamId);
             var self = HostName.Combine(requestedUrl, "/streams/{0}", escapedStreamId);
@@ -58,7 +57,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static FeedElement ToStreamEventBackwardFeed(ClientMessage.ReadStreamEventsBackwardCompleted msg, Uri requestedUrl, EmbedLevel embedContent, bool headOfStream)
         {
-            Ensure.NotNull(msg, "msg");
+            if (null == msg) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
 
             string escapedStreamId = Uri.EscapeDataString(msg.EventStreamId);
             var self = HostName.Combine(requestedUrl, "/streams/{0}", escapedStreamId);
@@ -329,7 +328,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         private static Tuple<string, long> GetLinkData(string link)
         {
-            Ensure.NotNull(link, "link data cannot be null");
+            if (null == link) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.link); }
             var loc = link.IndexOf("@", StringComparison.Ordinal);
             if (loc == -1) throw new Exception(String.Format("Unable to parse link {0}", link));
             var position = long.Parse(link.Substring(0, loc));

@@ -23,7 +23,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
         {
             if (!Clients.Contains(client))
             {
-                throw new InvalidOperationException("Only added clients can be removed.");
+                ThrowHelper.ThrowInvalidOperationException_OnlyAddedClientsCanBeRemoved();
             }
             var temp = Clients.ToList();
             var indexOf = temp.IndexOf(client);

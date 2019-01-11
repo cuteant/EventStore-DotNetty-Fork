@@ -60,12 +60,12 @@ namespace EventStore.Core.Services.VNode
                                          ClusterVNodeSettings vnodeSettings, ClusterVNode node,
                                          MessageForwardingProxy forwardingProxy, ISubsystem[] subSystems)
         {
-            Ensure.NotNull(outputBus, "outputBus");
-            Ensure.NotNull(nodeInfo, "nodeInfo");
-            Ensure.NotNull(db, "dbConfig");
-            Ensure.NotNull(vnodeSettings, "vnodeSettings");
-            Ensure.NotNull(node, "node");
-            Ensure.NotNull(forwardingProxy, "forwardingProxy");
+            if (null == outputBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputBus); }
+            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == vnodeSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vnodeSettings); }
+            if (null == node) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.node); }
+            if (null == forwardingProxy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
 
             _outputBus = outputBus;
             _nodeInfo = nodeInfo;
@@ -91,7 +91,7 @@ namespace EventStore.Core.Services.VNode
 
         public void SetMainQueue(IQueuedHandler mainQueue)
         {
-            Ensure.NotNull(mainQueue, "mainQueue");
+            if (null == mainQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainQueue); }
 
             _mainQueue = mainQueue;
             _publishEnvelope = new PublishEnvelope(mainQueue);
@@ -313,7 +313,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomePreReplica message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) return;
 
             if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] PRE-REPLICA STATE, WAITING FOR CHASER TO CATCH UP... MASTER IS [{1},{2:B}]",
@@ -325,7 +325,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeCatchingUp message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId)
                 return;
 
@@ -337,7 +337,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeClone message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId)
                 return;
 
@@ -349,7 +349,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeSlave message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId)
                 return;
 
@@ -361,7 +361,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomePreMaster message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId)
                 return;
 
@@ -373,8 +373,8 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeMaster message)
         {
-            if (_state == VNodeState.Master) throw new Exception("We should not BecomeMaster twice in a row.");
-            if (_master == null) throw new Exception("_master == null");
+            if (_state == VNodeState.Master) ThrowHelper.ThrowException(ExceptionResource.We_should_not_BecomeMaster_twice_in_a_row);
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId)
                 return;
 
@@ -691,7 +691,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsMaster(GossipMessage.GossipUpdated message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (message.ClusterInfo.Members.Count(x => x.IsAlive && x.State == VNodeState.Master) > 1)
             {
                 if (Log.IsDebugLevelEnabled())
@@ -708,7 +708,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(GossipMessage.GossipUpdated message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             var master = message.ClusterInfo.Members.FirstOrDefault(x => x.InstanceId == _master.InstanceId);
             if (master == null || !master.IsAlive)
             {
@@ -734,7 +734,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsPreMaster(SystemMessage.ChaserCaughtUp message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) return;
 
             _outputBus.Publish(message);
@@ -743,7 +743,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsPreReplica(SystemMessage.ChaserCaughtUp message)
         {
-            if (_master == null) throw new Exception("_master == null");
+            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) return;
 
             _outputBus.Publish(message);
@@ -830,7 +830,7 @@ namespace EventStore.Core.Services.VNode
 
         private bool IsLegitimateReplicationMessage(ReplicationMessage.IReplicationMessage message)
         {
-            if (message.SubscriptionId == Guid.Empty) throw new Exception("IReplicationMessage with empty SubscriptionId provided.");
+            if (message.SubscriptionId == Guid.Empty) ThrowHelper.ThrowException(ExceptionResource.IReplicationMessage_with_empty_SubscriptionId_provided);
             if (message.SubscriptionId != _subscriptionId)
             {
                 if (Log.IsTraceLevelEnabled())

@@ -22,14 +22,14 @@ namespace EventStore.ClientAPI.Internal
         public void RegisterHandler<T>(Func<T, Task> handler)
           where T : Message
         {
-            Ensure.NotNull(handler, nameof(handler));
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             _handlers.Add(typeof(T), async msg => await handler((T)msg).ConfigureAwait(false));
         }
 
         public void EnqueueMessage(Message message)
         {
-            Ensure.NotNull(message, nameof(message));
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             //_messageBlock.Post(message);
             AsyncContext.Run(s_sendToQueueFunc, _messageBlock, message);
         }
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.Internal
 
         public Task EnqueueMessageAsync(Message message)
         {
-            Ensure.NotNull(message, nameof(message));
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             return _messageBlock.SendAsync(message);
         }
 
@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!_handlers.TryGetValue(message.GetType(), out Func<Message, Task> handler))
             {
-                throw new Exception($"No handler registered for message {message.GetType().Name}");
+                CoreThrowHelper.ThrowException_NoHandlerRegisteredForMessage(message);
             }
             return handler(message);
         }

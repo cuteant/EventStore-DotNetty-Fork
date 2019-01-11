@@ -45,8 +45,7 @@ namespace EventStore.Core.Services.VNode
                 return;
             }
 
-            throw new InvalidOperationException(
-                string.Format("Unhandled message: {0} occured in state: {1}.", message, state));
+            ThrowHelper.ThrowInvalidOperationException_UnhandledMessage(message, state);
         }
 
         private bool TryHandle(VNodeState state,
@@ -112,7 +111,7 @@ namespace EventStore.Core.Services.VNode
                 return;
             }
 
-            throw new Exception(string.Format("Unhandled message: {0} occurred in state: {1}.", message, state));
+            ThrowHelper.ThrowException_UnhandledMessage(message, state);
         }
 
         private static bool TryHandle(VNodeState state, Action<VNodeState, Message>[] handlers, Message message, int msgTypeId)

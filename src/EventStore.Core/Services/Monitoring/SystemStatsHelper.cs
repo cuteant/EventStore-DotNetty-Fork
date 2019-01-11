@@ -25,8 +25,8 @@ namespace EventStore.Core.Services.Monitoring
 
         public SystemStatsHelper(ILogger log, ICheckpoint writerCheckpoint, string dbPath)
         {
-            Ensure.NotNull(log, nameof(log));
-            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
+            if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _log = log;
             _writerCheckpoint = writerCheckpoint;

@@ -34,8 +34,10 @@ namespace EventStore.Projections.Core.Services.Management
 
         public ProjectionManagerResponseReader(IPublisher publisher, IODispatcher ioDispatcher, int numberOfWorkers)
         {
-            _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
-            _ioDispatcher = ioDispatcher ?? throw new ArgumentNullException(nameof(ioDispatcher));
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            _publisher = publisher;
+            _ioDispatcher = ioDispatcher;
             _numberOfWorkers = numberOfWorkers;
         }
 

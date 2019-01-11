@@ -14,7 +14,7 @@ namespace EventStore.Core.Bus
     {
         const int CacheLineSize = 64;
         const int Padding = CacheLineSize;
-        const int MinimalSize = 1 << MinimalSizeLog;
+        internal const int MinimalSize = 1 << MinimalSizeLog;
         const int MinimalSizeLog = MaskShift*2;
         const int MaskShift = 8;
         const int MaskLow = 0x000000FF;
@@ -42,17 +42,16 @@ namespace EventStore.Core.Bus
         {
             if (IntPtr.Size != 8)
             {
-                throw new NotSupportedException(
-                    "This queue is supported only on architectures having IntPtr.Size equal to 8");
+                ThrowHelper.ThrowNotSupportedException_QueueIsSupportedOnlyOnX64();
             }
 
             if (IsPowerOf2(size) == false)
             {
-                throw new ArgumentException("Use only sizes equal power of 2");
+                ThrowHelper.ThrowArgumentException_UseOnlySizesEqualPowerOf2();
             }
             if (size < MinimalSize)
             {
-                throw new ArgumentException("The size should be at least " + MinimalSize);
+                ThrowHelper.ThrowArgumentException_MPSCTheSizeShouldBeAtLeast();
             }
 
             array = new MessageItem[size];

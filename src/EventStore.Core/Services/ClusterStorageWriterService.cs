@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -42,9 +43,10 @@ namespace EventStore.Core.Services
                                                IIndexWriter indexWriter,
                                                IEpochManager epochManager,
                                                Func<long> getLastCommitPosition)
-          : base(bus, subscribeToBus, minFlushDelay, db, writer, indexWriter, epochManager)
+            : base(bus, subscribeToBus, minFlushDelay, db, writer, indexWriter, epochManager)
         {
-            _getLastCommitPosition = getLastCommitPosition ?? throw new ArgumentNullException(nameof(getLastCommitPosition));
+            if (getLastCommitPosition == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
+            _getLastCommitPosition = getLastCommitPosition;
             _framer = new LengthPrefixSuffixFramer(OnLogRecordUnframed, TFConsts.MaxLogRecordSize);
 
             SubscribeToMessage<ReplicationMessage.ReplicaSubscribed>();
@@ -92,8 +94,8 @@ namespace EventStore.Core.Services
             var writerCheck = Db.Config.WriterCheckpoint.ReadNonFlushed();
             if (message.SubscriptionPosition > writerCheck)
             {
-                ReplicationFail("Master [{0},{1:B}] subscribed us at {2} (0x{2:X}), which is greater than our writer checkpoint {3} (0x{3:X}). REPLICATION BUG.",
-                                message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, writerCheck);
+                ReplicationFail(ExceptionResource.Master_subscribed_which_is_greater,
+                                message, writerCheck);
             }
 
             if (message.SubscriptionPosition < writerCheck)
@@ -157,8 +159,8 @@ namespace EventStore.Core.Services
             {
                 if (message.ChunkHeader.ChunkStartNumber != Db.Manager.ChunksCount)
                 {
-                    ReplicationFail("Received request to create a new ongoing chunk #{0}-{1}, but current chunks count is {2}.",
-                                    message.ChunkHeader.ChunkStartNumber, message.ChunkHeader.ChunkEndNumber, Db.Manager.ChunksCount);
+                    ReplicationFail(ExceptionResource.Received_request_to_create_chunk,
+                                    message, Db.Manager.ChunksCount);
                 }
                 Db.Manager.AddNewChunk(message.ChunkHeader, message.FileSize);
             }
@@ -171,7 +173,7 @@ namespace EventStore.Core.Services
         public void Handle(ReplicationMessage.RawChunkBulk message)
         {
             if (_subscriptionId != message.SubscriptionId) return;
-            if (_activeChunk == null) ReplicationFail("Physical chunk bulk received, but we do not have active chunk.");
+            if (_activeChunk == null) ReplicationFail(ExceptionResource.Physical_chunk_bulk_received_but);
 
             if (_activeChunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || _activeChunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
             {
@@ -188,8 +190,8 @@ namespace EventStore.Core.Services
 
             if (!_activeChunk.TryAppendRawData(message.RawBytes))
             {
-                ReplicationFail("Could not append raw bytes to chunk {0}-{1}, raw pos: {2} (0x{2:X}), bytes length: {3} (0x{3:X}). Chunk file size: {4} (0x{4:X}).",
-                                message.ChunkStartNumber, message.ChunkEndNumber, message.RawPosition, message.RawBytes.Length, _activeChunk.FileSize);
+                ReplicationFail(ExceptionResource.Could_not_append_raw_bytes_to_chunk,
+                                message, _activeChunk.FileSize);
             }
 
             _subscriptionPos += message.RawBytes.Length;
@@ -217,7 +219,7 @@ namespace EventStore.Core.Services
             try
             {
                 if (_subscriptionId != message.SubscriptionId) return;
-                if (_activeChunk != null) ReplicationFail("Data chunk bulk received, but we have active chunk for receiving raw chunk bulks.");
+                if (_activeChunk != null) ReplicationFail(ExceptionResource.Data_chunk_bulk_received_but);
 
                 var chunk = Writer.CurrentChunk;
                 if (chunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || chunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
@@ -244,7 +246,7 @@ namespace EventStore.Core.Services
 
                     if (_framer.HasData)
                     {
-                        ReplicationFail("There is some data left in framer when completing chunk.");
+                        ReplicationFail(ExceptionResource.There_is_some_data_left_in_framer_when_completing_chunk);
                     }
 
                     _subscriptionPos = chunk.ChunkHeader.ChunkEndPosition;
@@ -273,7 +275,7 @@ namespace EventStore.Core.Services
             var record = LogRecord.ReadFrom(reader);
             if (!Writer.Write(record, out long newPos))
             {
-                ReplicationFail("First write failed when writing replicated record: {0}.", record);
+                ReplicationFail(ExceptionResource.First_write_failed_when_writing_replicated_record, record);
             }
         }
 
@@ -284,6 +286,36 @@ namespace EventStore.Core.Services
             BlockWriter = true;
             Application.Exit(ExitCode.Error, msg);
             throw new Exception(msg);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ReplicationFail(ExceptionResource resource)
+        {
+            ReplicationFail(ThrowHelper.GetResourceString(resource));
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ReplicationFail(ExceptionResource resource, LogRecord record)
+        {
+            ReplicationFail(ThrowHelper.GetResourceString(resource), record);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ReplicationFail(ExceptionResource resource, ReplicationMessage.CreateChunk message, int chunksCount)
+        {
+            ReplicationFail(ThrowHelper.GetResourceString(resource), message.ChunkHeader.ChunkStartNumber, message.ChunkHeader.ChunkEndNumber, chunksCount);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ReplicationFail(ExceptionResource resource, ReplicationMessage.RawChunkBulk message, int fileSize)
+        {
+            ReplicationFail(ThrowHelper.GetResourceString(resource), message.ChunkStartNumber, message.ChunkEndNumber, message.RawPosition, message.RawBytes.Length, _activeChunk.FileSize);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ReplicationFail(ExceptionResource resource, ReplicationMessage.ReplicaSubscribed message, long writerCheck)
+        {
+            ReplicationFail(ThrowHelper.GetResourceString(resource), message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, writerCheck);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI
@@ -64,7 +63,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder LimitOperationsQueueTo(int limit)
         {
-            Ensure.Positive(limit, nameof(limit));
+            if (limit <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.limit); }
 
             _maxQueueSize = limit;
             return this;
@@ -75,7 +74,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder LimitConcurrentOperationsTo(int limit)
         {
-            Ensure.Positive(limit, nameof(limit));
+            if (limit <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.limit); }
 
             _maxConcurrentItems = limit;
             return this;
@@ -86,7 +85,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder LimitAttemptsForOperationTo(int limit)
         {
-            Ensure.Positive(limit, nameof(limit));
+            if (limit <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.limit); }
 
             _maxRetries = limit - 1;
             return this;
@@ -97,7 +96,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder LimitRetriesForOperationTo(int limit)
         {
-            Ensure.Nonnegative(limit, nameof(limit));
+            if (limit < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.limit); }
 
             _maxRetries = limit;
             return this;
@@ -116,7 +115,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder LimitReconnectionsTo(int limit)
         {
-            Ensure.Nonnegative(limit, nameof(limit));
+            if (limit < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.limit); }
 
             _maxReconnections = limit;
             return this;
@@ -199,7 +198,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public ConnectionSettingsBuilder UseSslConnection(string targetHost, bool validateServer)
         {
-            Ensure.NotNullOrEmpty(targetHost, nameof(targetHost));
+            if (string.IsNullOrEmpty(targetHost)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.targetHost); }
             _useSslConnection = true;
             _targetHost = targetHost;
             _validateServer = validateServer;
@@ -248,7 +247,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentNullException">If <paramref name="clusterDns" /> is null or empty.</exception>
         public ConnectionSettingsBuilder SetClusterDns(string clusterDns)
         {
-            Ensure.NotNullOrEmpty(clusterDns, nameof(clusterDns));
+            if (string.IsNullOrEmpty(clusterDns)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterDns); }
             _clusterDns = clusterDns;
             return this;
         }
@@ -261,8 +260,7 @@ namespace EventStore.ClientAPI
         {
             if (maxDiscoverAttempts <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxDiscoverAttempts),
-                  $"{nameof(maxDiscoverAttempts)} value is out of range: {maxDiscoverAttempts}. Allowed range: [1, infinity].");
+                ThrowHelper.ThrowArgumentOutOfRangeException_SetMaxDiscoverAttempts(maxDiscoverAttempts);
             }
             _maxDiscoverAttempts = maxDiscoverAttempts;
             return this;
@@ -307,7 +305,7 @@ namespace EventStore.ClientAPI
         /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
         public ConnectionSettingsBuilder SetClusterGossipPort(int clusterGossipPort)
         {
-            Ensure.Positive(clusterGossipPort, nameof(clusterGossipPort));
+            if (clusterGossipPort <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterGossipPort); }
             _gossipExternalHttpPort = clusterGossipPort;
             return this;
         }
@@ -329,7 +327,7 @@ namespace EventStore.ClientAPI
         {
             if (gossipSeeds == null || gossipSeeds.Length == 0)
             {
-                throw new ArgumentException("Empty FakeDnsEntries collection.");
+                ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
 
             _gossipSeeds = gossipSeeds.Select(x => new GossipSeed(x)).ToArray();
@@ -344,7 +342,7 @@ namespace EventStore.ClientAPI
         public ConnectionSettingsBuilder SetGossipSeedEndPoints(params GossipSeed[] gossipSeeds)
         {
             if (gossipSeeds == null || gossipSeeds.Length == 0)
-                throw new ArgumentException("Empty FakeDnsEntries collection.");
+                ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             _gossipSeeds = gossipSeeds;
             return this;
         }

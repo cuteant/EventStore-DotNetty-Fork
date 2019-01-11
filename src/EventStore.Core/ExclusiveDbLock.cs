@@ -20,14 +20,14 @@ namespace EventStore.Core
 
         public ExclusiveDbLock(string dbPath)
         {
-            Ensure.NotNullOrEmpty(dbPath, nameof(dbPath));
+            if (string.IsNullOrEmpty(dbPath)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dbPath); }
             MutexName = dbPath.Length <= 250 ? "ESDB:" + dbPath.Replace('\\', '/') : "ESDB-HASHED:" + GetDbPathHash(dbPath);
             MutexName += new string('-', 260 - MutexName.Length);
         }
 
         public bool Acquire()
         {
-            if (_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' is already acquired.");
+            if (_acquired) ThrowHelper.ThrowInvalidOperationException_DBMutexIsAlreadyAcquired(MutexName);
 
             try
             {
@@ -57,7 +57,7 @@ namespace EventStore.Core
 
         public void Release()
         {
-            if (!_acquired) throw new InvalidOperationException($"DB mutex '{MutexName}' was not acquired.");
+            if (!_acquired) ThrowHelper.ThrowInvalidOperationException_DBMutexWasNotAcquired(MutexName);
             _dbMutex.ReleaseMutex();
         }
     }

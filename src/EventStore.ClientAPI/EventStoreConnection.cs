@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 #if NETSTANDARD
@@ -106,8 +105,8 @@ namespace EventStore.ClientAPI
                 {
                     var clusterSettings = new ClusterSettings(uri.Host, connectionSettings.MaxDiscoverAttempts, uri.Port,
                         connectionSettings.GossipTimeout, connectionSettings.NodePreference);
-                    Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-                    Ensure.NotNull(clusterSettings, nameof(clusterSettings));
+                    if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+                    if (null == clusterSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterSettings); }
 
                     var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                         clusterSettings.MaxDiscoverAttempts,
@@ -136,8 +135,8 @@ namespace EventStore.ClientAPI
                     connectionSettings.MaxDiscoverAttempts,
                     connectionSettings.GossipTimeout,
                     connectionSettings.NodePreference);
-                Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-                Ensure.NotNull(clusterSettings, nameof(clusterSettings));
+                if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+                if (null == clusterSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterSettings); }
 
                 var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(
                     clusterSettings.ClusterDns,
@@ -200,8 +199,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, IPEndPoint tcpEndPoint, string connectionName = null)
         {
-            Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-            Ensure.NotNull(tcpEndPoint, nameof(tcpEndPoint));
+            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (null == tcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
             return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
         }
 
@@ -213,8 +212,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, ClusterSettings clusterSettings, string connectionName = null)
         {
-            Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-            Ensure.NotNull(clusterSettings, nameof(clusterSettings));
+            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (null == clusterSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterSettings); }
 
             var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                       clusterSettings.MaxDiscoverAttempts,
@@ -234,8 +233,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, IEndPointDiscoverer endPointDiscoverer, string connectionName = null)
         {
-            Ensure.NotNull(connectionSettings, nameof(connectionSettings));
-            Ensure.NotNull(endPointDiscoverer, nameof(endPointDiscoverer));
+            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             return new EventStoreNodeConnection(connectionSettings, null, endPointDiscoverer, connectionName);
         }

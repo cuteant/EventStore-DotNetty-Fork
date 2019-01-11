@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool definesCatalogTransform)
             : base(Guid.NewGuid())
         {
-            if (publisher == null) throw new ArgumentNullException("publisher");
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (resultWriter == null) throw new ArgumentNullException("resultWriter");
             if (slaves == null) throw new ArgumentNullException("slaves");
             if (spoolProcessingResponseDispatcher == null)

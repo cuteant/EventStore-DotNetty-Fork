@@ -63,7 +63,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             if (_lastCommitPosition >= buildToPosition)
             {
-                throw new Exception($"_lastCommitPosition {_lastCommitPosition} >= buildToPosition {buildToPosition}");
+                ThrowHelper.ThrowException_LastCommitPositionIsGreaterThanOrEqualBuildToPosition(_lastCommitPosition, buildToPosition);
             }
 
             var startTime = DateTime.UtcNow;
@@ -118,7 +118,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                         case LogRecordType.System:
                             break;
                         default:
-                            throw new Exception(string.Format("Unknown RecordType: {0}", result.LogRecord.RecordType));
+                            ThrowHelper.ThrowException_UnknownRecordType(result.LogRecord.RecordType); break;
                     }
 
                     processed += 1;
@@ -198,7 +198,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 {
                     if (prepare.EventStreamId != streamId)
                     {
-                        throw new Exception($"Expected stream: {streamId}, actual: {prepare.EventStreamId}. LogPosition: {commit.LogPosition}");
+                        ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commit.LogPosition);
                     }
                 }
                 eventNumber = prepare.Flags.HasAllOf(PrepareFlags.StreamDelete)
@@ -224,7 +224,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             if (eventNumber != EventNumber.Invalid)
             {
-                if (eventNumber < 0) throw new Exception($"EventNumber {eventNumber} is incorrect.");
+                if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
 
                 if (cacheLastEventNumber)
                 {
@@ -244,7 +244,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var newLastCommitPosition = Math.Max(commit.LogPosition, lastCommitPosition);
             if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
             {
-                throw new Exception("Concurrency error in ReadIndex.Commit: _lastCommitPosition was modified during Commit execution!");
+                ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
             }
 
             for (int i = 0, n = indexEntries.Count; i < n; ++i)
@@ -278,29 +278,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 if (prepare.EventStreamId != streamId)
                 {
-                    var sb = StringBuilderManager.Allocate();
-                    sb.Append($"ERROR: Expected stream: {streamId}, actual: {prepare.EventStreamId}.");
-                    sb.Append(Environment.NewLine);
-                    sb.Append(Environment.NewLine);
-                    sb.Append("Prepares: (" + commitedPrepares.Count + ")");
-                    sb.Append(Environment.NewLine);
-                    for (int i = 0; i < commitedPrepares.Count; i++)
-                    {
-                        var p = commitedPrepares[i];
-                        sb.Append("Stream ID: " + p.EventStreamId);
-                        sb.Append(Environment.NewLine);
-                        sb.Append("LogPosition: " + p.LogPosition);
-                        sb.Append(Environment.NewLine);
-                        sb.Append("Flags: " + p.Flags);
-                        sb.Append(Environment.NewLine);
-                        sb.Append("Type: " + p.EventType);
-                        sb.Append(Environment.NewLine);
-                        sb.Append("MetaData: " + Encoding.UTF8.GetString(p.Metadata));
-                        sb.Append(Environment.NewLine);
-                        sb.Append("Data: " + Encoding.UTF8.GetString(p.Data));
-                        sb.Append(Environment.NewLine);
-                    }
-                    throw new Exception(StringBuilderManager.ReturnAndFree(sb));
+                    ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commitedPrepares);
                 }
 
                 if (prepare.LogPosition < lastCommitPosition || (prepare.LogPosition == lastCommitPosition && !_indexRebuild))
@@ -329,7 +307,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             if (eventNumber != EventNumber.Invalid)
             {
-                if (eventNumber < 0) throw new Exception($"EventNumber {eventNumber} is incorrect.");
+                if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
 
                 if (cacheLastEventNumber)
                 {
@@ -349,7 +327,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var newLastCommitPosition = Math.Max(lastPrepare.LogPosition, lastCommitPosition);
             if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
             {
-                throw new Exception("Concurrency error in ReadIndex.Commit: _lastCommitPosition was modified during Commit execution!");
+                ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
             }
 
             for (int i = 0, n = indexEntries.Count; i < n; ++i)
@@ -398,9 +376,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     Debugger.Break();
                 }
                 else
-                    throw new Exception(
-                            string.Format("Commit invariant violation: new event number {0} does not correspond to current stream version {1}.\n"
-                                          + "Stream ID: {2}.\nCommit: {3}.", newEventNumber, lastEventNumber, streamId, commit));
+                    ThrowHelper.ThrowException_CommitInvariantViolation(newEventNumber, lastEventNumber, streamId, commit);
             }
         }
 
@@ -422,10 +398,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                         }
                         else
                         {
-                            throw new Exception(
-                                    string.Format("Trying to add duplicate event #{0} to stream {1} \nCommit: {2}\n"
-                                                  + "Prepare: {3}\nIndexed prepare: {4}.",
-                                                  indexEntry.Version, prepare.EventStreamId, commit, prepare, indexedPrepare));
+                            ThrowHelper.ThrowException_TryingToAddDuplicateEventToStream(indexEntry.Version, prepare, commit, indexedPrepare);
                         }
                     }
                 }
@@ -457,7 +430,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (!result.Success) { return null; }
             if (result.LogRecord.RecordType != LogRecordType.Prepare)
             {
-                throw new Exception($"Incorrect type of log record {result.LogRecord.RecordType}, expected Prepare record.");
+                ThrowHelper.ThrowException_IncorrectTypeOfLogRecord(result.LogRecord.RecordType);
             }
 
             return (PrepareLogRecord)result.LogRecord;

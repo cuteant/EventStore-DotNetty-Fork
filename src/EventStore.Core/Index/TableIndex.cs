@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CuteAnt.Pool;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog;
@@ -58,27 +57,27 @@ namespace EventStore.Core.Index
         public const string ForceIndexVerifyFilename = ".forceverify";
 
         public TableIndex(string directory,
-                          IHasher lowHasher,
-                          IHasher highHasher,
-                          Func<IMemTable> memTableFactory,
-                          Func<TFReaderLease> tfReaderFactory,
-                          byte ptableVersion,
-                          int maxSizeForMemory = 1000000,
-                          int maxTablesPerLevel = 4,
-                          bool additionalReclaim = false,
-                          bool inMem = false,
-                bool skipIndexVerify = false,
-                          int indexCacheDepth = 16,
-                          int initializationThreads = 1)
+            IHasher lowHasher,
+            IHasher highHasher,
+            Func<IMemTable> memTableFactory,
+            Func<TFReaderLease> tfReaderFactory,
+            byte ptableVersion,
+            int maxSizeForMemory = 1000000,
+            int maxTablesPerLevel = 4,
+            bool additionalReclaim = false,
+            bool inMem = false,
+            bool skipIndexVerify = false,
+            int indexCacheDepth = 16,
+            int initializationThreads = 1)
         {
-            Ensure.NotNullOrEmpty(directory, nameof(directory));
-            Ensure.NotNull(memTableFactory, nameof(memTableFactory));
-            Ensure.NotNull(lowHasher, nameof(lowHasher));
-            Ensure.NotNull(highHasher, nameof(highHasher));
-            Ensure.NotNull(tfReaderFactory, nameof(tfReaderFactory));
-            Ensure.Positive(initializationThreads, "initializationThreads");
-            if (maxTablesPerLevel <= 1) { throw new ArgumentOutOfRangeException(nameof(maxTablesPerLevel)); }
-            if (indexCacheDepth > 28 || indexCacheDepth < 8) throw new ArgumentOutOfRangeException(nameof(indexCacheDepth));
+            if (string.IsNullOrEmpty(directory)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.directory); }
+            if (null == memTableFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.memTableFactory); }
+            if (null == lowHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lowHasher); }
+            if (null == highHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.highHasher); }
+            if (null == tfReaderFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tfReaderFactory); }
+            if (initializationThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
+            if (maxTablesPerLevel <= 1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxTablesPerLevel); }
+            if (indexCacheDepth > 28 || indexCacheDepth < 8) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.indexCacheDepth); }
 
             _directory = directory;
             _memTableFactory = memTableFactory;
@@ -100,10 +99,10 @@ namespace EventStore.Core.Index
 
         public void Initialize(long chaserCheckpoint)
         {
-            Ensure.Nonnegative(chaserCheckpoint, nameof(chaserCheckpoint));
+            if (chaserCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chaserCheckpoint); }
 
             //NOT THREAD SAFE (assumes one thread)
-            if (_initialized) { throw new IOException("TableIndex is already initialized."); }
+            if (_initialized) { ThrowHelper.ThrowIOException_TableIndexIsAlreadyInitialized(); }
             _initialized = true;
 
             if (_inMem)
@@ -131,7 +130,7 @@ namespace EventStore.Core.Index
                 if (_indexMap.CommitCheckpoint >= chaserCheckpoint)
                 {
                     _indexMap.Dispose(TimeSpan.FromMilliseconds(5000));
-                    throw new CorruptIndexException(String.Format("IndexMap's CommitCheckpoint ({0}) is greater than ChaserCheckpoint ({1}).", _indexMap.CommitCheckpoint, chaserCheckpoint));
+                    ThrowHelper.ThrowCorruptIndexException_CommitCheckpointIsGreaterThanChaserCheckpoint(_indexMap.CommitCheckpoint, chaserCheckpoint);
                 }
 
                 //verification should be completed by now
@@ -201,9 +200,9 @@ namespace EventStore.Core.Index
 
         public void Add(long commitPos, string streamId, long version, long position)
         {
-            Ensure.Nonnegative(commitPos, nameof(commitPos));
-            Ensure.Nonnegative(version, nameof(version));
-            Ensure.Nonnegative(position, nameof(position));
+            if (commitPos < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitPos); }
+            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if (position < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.position); }
 
             AddEntries(commitPos, new[] { CreateIndexKey(streamId, version, position) });
         }
@@ -346,7 +345,7 @@ namespace EventStore.Core.Index
         {
             if (!_backgroundRunningEvent.Wait(7000))
             {
-                throw new TimeoutException("Waiting for background tasks took too long.");
+                ThrowHelper.ThrowTimeoutException(ExceptionResource.Waiting_for_background_tasks_took_too_long);
             }
         }
 
@@ -457,7 +456,7 @@ namespace EventStore.Core.Index
 
             if (result.LogRecord.RecordType != TransactionLog.LogRecords.LogRecordType.Prepare)
             {
-                throw new Exception($"Incorrect type of log record {result.LogRecord.RecordType}, expected Prepare record.");
+                ThrowHelper.ThrowException_IncorrectTypeOfLogRecord(result.LogRecord.RecordType);
             }
 
             return new Tuple<string, bool>(((TransactionLog.LogRecords.PrepareLogRecord)result.LogRecord).EventStreamId, true);
@@ -519,12 +518,12 @@ namespace EventStore.Core.Index
                     throw e;
                 }
             }
-            throw new InvalidOperationException("Files are locked.");
+            ThrowHelper.ThrowInvalidOperationException_FilesAreLocked(); position = 0; return false;
         }
 
         private bool TryGetOneValueInternal(ulong stream, long version, out long position)
         {
-            if (version < 0) { throw new ArgumentOutOfRangeException(nameof(version)); }
+            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.version); }
 
             var awaiting = Volatile.Read(ref _awaitingMemTables);
             foreach (var tableItem in awaiting)
@@ -563,7 +562,7 @@ namespace EventStore.Core.Index
                     throw e;
                 }
             }
-            throw new InvalidOperationException("Files are locked.");
+            ThrowHelper.ThrowInvalidOperationException_FilesAreLocked(); entry = default; return false;
         }
 
         private bool TryGetLatestEntryInternal(ulong stream, out IndexEntry entry)
@@ -605,7 +604,7 @@ namespace EventStore.Core.Index
                     throw e;
                 }
             }
-            throw new InvalidOperationException("Files are locked.");
+            ThrowHelper.ThrowInvalidOperationException_FilesAreLocked(); entry = default; return false;
         }
 
         private bool TryGetOldestEntryInternal(ulong stream, out IndexEntry entry)
@@ -647,13 +646,13 @@ namespace EventStore.Core.Index
                     throw e;
                 }
             }
-            throw new InvalidOperationException("Files are locked.");
+            ThrowHelper.ThrowInvalidOperationException_FilesAreLocked(); return null;
         }
 
         private IEnumerable<IndexEntry> GetRangeInternal(ulong hash, long startVersion, long endVersion, int? limit = null)
         {
-            if (startVersion < 0) { throw new ArgumentOutOfRangeException(nameof(startVersion)); }
-            if (endVersion < 0) { throw new ArgumentOutOfRangeException(nameof(endVersion)); }
+            if (startVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startVersion); }
+            if (endVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endVersion); }
 
             var candidates = new List<IEnumerator<IndexEntry>>();
 
@@ -714,7 +713,7 @@ namespace EventStore.Core.Index
         {
             if (!_backgroundRunningEvent.Wait(7000))
             {
-                throw new TimeoutException("Could not finish background thread in reasonable time.");
+                ThrowHelper.ThrowTimeoutException(ExceptionResource.Could_not_finish_background_thread_in_reasonable_time);
             }
             if (_inMem) { return; }
             if (_indexMap == null) { return; }

@@ -22,9 +22,9 @@ namespace EventStore.Core.Data
         public Event(Guid eventId, string eventType, bool isJson, byte[] data, byte[] metadata)
         {
             if (Guid.Empty == eventId)
-                throw new ArgumentException("Empty eventId provided.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Empty_eventId_provided);
             if (string.IsNullOrEmpty(eventType))
-                throw new ArgumentException("Empty eventType provided.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Empty_eventType_provided);
 
             EventId = eventId;
             EventType = eventType;
@@ -37,7 +37,7 @@ namespace EventStore.Core.Data
             size += eventType.Length * 2;
 
             if( size > TFConsts.MaxLogRecordSize - 10000)
-                throw new ArgumentException("Record is too big", "data");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Record_is_too_big, ExceptionArgument.data);
         }
     }
 }

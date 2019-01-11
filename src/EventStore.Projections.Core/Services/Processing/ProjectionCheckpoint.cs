@@ -49,8 +49,8 @@ namespace EventStore.Projections.Core.Services.Processing
             int maximumAllowedWritesInFlight,
             ILogger logger = null)
         {
-            if (publisher == null) throw new ArgumentNullException(nameof(publisher));
-            if (ioDispatcher == null) throw new ArgumentNullException(nameof(ioDispatcher));
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (readyHandler == null) throw new ArgumentNullException(nameof(readyHandler));
             if (positionTagger == null) throw new ArgumentNullException(nameof(positionTagger));
             if (from.CommitPosition < from.PreparePosition) throw new ArgumentException(nameof(from));

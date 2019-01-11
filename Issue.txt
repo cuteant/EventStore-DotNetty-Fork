@@ -35,9 +35,9 @@ Issue.014 ☆ 尽量用接口替换匿名委托
 
 Issue.015 ☆ FileStreamExtensions.FlushSafe 修改为扩展方法
 
-Issue.016 ☆ 
+Issue.016 ☆ string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data))
 
-Issue.017 ☆ 
+Issue.017 ☆ ByteBuffer
 
 Issue.018 ☆ 
 

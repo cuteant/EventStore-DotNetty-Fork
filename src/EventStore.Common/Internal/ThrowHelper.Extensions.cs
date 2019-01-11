@@ -53,7 +53,7 @@ namespace EventStore.Common
             ArgumentException GetException()
             {
                 var argumentName = GetArgumentName(argument);
-                return new ArgumentException(argumentName, $"{argumentName} should be non-empty GUID.");
+                return new ArgumentException($"{argumentName} should be non-empty GUID.", argumentName);
             }
         }
 

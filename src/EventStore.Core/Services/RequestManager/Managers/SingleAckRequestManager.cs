@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using EventStore.Common.Utils;
+using System.Runtime.CompilerServices;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
 
         public SingleAckRequestManager(IPublisher bus, TimeSpan prepareTimeout, bool betterOrdering)
         {
-            Ensure.NotNull(bus, "bus");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
             _bus = bus;
             _prepareTimeout = prepareTimeout;
@@ -50,7 +50,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
         public void Handle(ClientMessage.TransactionStart request)
         {
             if (_initialized)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             _initialized = true;
             _requestType = RequestType.TransactionStart;
@@ -70,7 +70,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
         public void Handle(StorageMessage.CheckStreamAccessCompleted message)
         {
             if (_requestType != RequestType.TransactionStart || _request == null)
-                throw new Exception(string.Format("TransactionStart request manager invariant violation: reqType: {0}, req: {1}.", _requestType, _request));
+                ThrowException_TransactionStartRequestManagerInvariantViolation();
 
             if (message.AccessResult.Granted)
             {
@@ -88,7 +88,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
         public void Handle(ClientMessage.TransactionWrite request)
         {
             if (_initialized)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             _initialized = true;
             _requestType = RequestType.TransactionWrite;
@@ -107,8 +107,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
             if (_completed)
                 return;
             if (message.Flags.HasNoneOf(PrepareFlags.TransactionBegin))
-                throw new Exception(string.Format("Unexpected PrepareAck with flags [{0}] arrived (LogPosition: {1}, InternalCorrId: {2:B}, ClientCorrId: {3:B}).",
-                                                  message.Flags, message.LogPosition, message.CorrelationId, _clientCorrId));
+                ThrowException_UnexpectedPrepareAck(message, _clientCorrId);
             _transactionId = message.LogPosition;
             CompleteSuccessRequest();
         }
@@ -139,7 +138,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
         private void CompleteSuccessRequest()
         {
             _completed = true;
-            Message responseMsg;
+            Message responseMsg = null;
             switch (_requestType)
             {
                 case RequestType.TransactionStart:
@@ -149,7 +148,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                     responseMsg = new ClientMessage.TransactionWriteCompleted(_clientCorrId, _transactionId, OperationResult.Success, null);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
             _responseEnvelope.ReplyWith(responseMsg);
             _bus.Publish(new StorageMessage.RequestCompleted(_internalCorrId, true));
@@ -160,8 +159,8 @@ namespace EventStore.Core.Services.RequestManager.Managers
             Debug.Assert(result != OperationResult.Success);
 
             _completed = true;
-            Message responseMsg;
-            switch(_requestType)
+            Message responseMsg = null;
+            switch (_requestType)
             {
                 case RequestType.TransactionStart:
                     responseMsg = new ClientMessage.TransactionStartCompleted(_clientCorrId, _transactionId, result, error);
@@ -171,10 +170,31 @@ namespace EventStore.Core.Services.RequestManager.Managers
                     responseMsg = new ClientMessage.TransactionWriteCompleted(_clientCorrId, _transactionId, result, error);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
             _responseEnvelope.ReplyWith(responseMsg);
             _bus.Publish(new StorageMessage.RequestCompleted(_internalCorrId, false));
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowException_TransactionStartRequestManagerInvariantViolation()
+        {
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception(string.Format("TransactionStart request manager invariant violation: reqType: {0}, req: {1}.", _requestType, _request));
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowException_UnexpectedPrepareAck(StorageMessage.PrepareAck message, Guid clientCorrId)
+        {
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception(string.Format("Unexpected PrepareAck with flags [{0}] arrived (LogPosition: {1}, InternalCorrId: {2:B}, ClientCorrId: {3:B}).",
+                                                  message.Flags, message.LogPosition, message.CorrelationId, clientCorrId));
+            }
         }
 
         private enum RequestType

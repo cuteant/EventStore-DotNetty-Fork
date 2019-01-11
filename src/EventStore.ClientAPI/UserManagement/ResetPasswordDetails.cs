@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI.Common.Utils;
-
-namespace EventStore.ClientAPI.UserManagement
+﻿namespace EventStore.ClientAPI.UserManagement
 {
     internal class ResetPasswordDetails
     {
@@ -8,7 +6,7 @@ namespace EventStore.ClientAPI.UserManagement
 
         public ResetPasswordDetails(string newPassword)
         {
-            Ensure.NotNullOrEmpty(newPassword, "newPassword");
+            if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
             NewPassword= newPassword;
         }
     }

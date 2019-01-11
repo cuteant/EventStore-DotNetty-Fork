@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -72,7 +71,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
-            Ensure.NotNull(processedEvents, nameof(processedEvents));
+            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
 
             Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
                 ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),
@@ -83,8 +82,8 @@ namespace EventStore.ClientAPI.Embedded
         public void NotifyEventsFailed(
             Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
         {
-            Ensure.NotNull(processedEvents, nameof(processedEvents));
-            Ensure.NotNull(reason, nameof(reason));
+            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
+            if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
 
             Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
                 ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),

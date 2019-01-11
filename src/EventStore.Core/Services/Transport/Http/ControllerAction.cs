@@ -18,10 +18,10 @@ namespace EventStore.Core.Services.Transport.Http
                                 ICodec[] requestCodecs, 
                                 ICodec[] responseCodecs)
         {
-            Ensure.NotNull(uriTemplate, "uriTemplate");
-            Ensure.NotNull(httpMethod, "httpMethod");
-            Ensure.NotNull(requestCodecs, "requestCodecs");
-            Ensure.NotNull(responseCodecs, "responseCodecs");
+            if (null == uriTemplate) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriTemplate); }
+            if (null == httpMethod) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpMethod); }
+            if (null == requestCodecs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.requestCodecs); }
+            if (null == responseCodecs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.responseCodecs); }
 
             UriTemplate = uriTemplate;
             HttpMethod = httpMethod;

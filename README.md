@@ -3,8 +3,8 @@
 This is a fork from EventStore project: https://github.com/eventstore/eventstore
 
 ## ~ Features
-  - Replace .net socket transport with [DotNetty+libuv](https://github.com/cuteant/dotnetty-net40-fork).
-  - Very simple deployment of a Windows service:[ClusterNode.WindowsServices](https://github.com/cuteant/EventStore-NETCore-Fork/tree/dev-netcore/src/EventStore.ClusterNode.WindowsServices) [ClusterNode.DotNetCore.WindowsServices](https://github.com/cuteant/EventStore-NETCore-Fork/tree/dev-netcore/src/EventStore.ClusterNode.DotNetCore.WindowsServices)
+  - Replace .NET socket transport with [DotNetty+libuv](https://github.com/cuteant/dotnetty-net40-fork).
+  - Very simple deployment of a Windows service:[ClusterNode.WindowsServices](https://github.com/cuteant/EventStore-NETCore-Fork/tree/dev-netcore/src/EventStore.ClusterNode.WindowsServices)
   - Using [TPL Dataflow](https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/dataflow-task-parallel-library) for building asynchronous event data processing pipelines.
   - More efficient serialization(see https://github.com/cuteant/CuteAnt.Serialization).
   - Object-Pooling.

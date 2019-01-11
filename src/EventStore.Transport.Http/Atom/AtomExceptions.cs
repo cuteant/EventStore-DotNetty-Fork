@@ -22,16 +22,16 @@ namespace EventStore.Transport.Http.Atom
         }
     }
 
-    public class ThrowHelper
-    {
-        public static void ThrowSpecificationViolation(string message)
-        {
-            throw new AtomSpecificationViolationException(message);
-        }
+    //partial class ThrowHelper
+    //{
+    //    public static void ThrowSpecificationViolation(string message)
+    //    {
+    //        throw new AtomSpecificationViolationException(message);
+    //    }
 
-        public static void ThrowSpecificationViolation(string message, Exception innnerException)
-        {
-            throw new AtomSpecificationViolationException(message, innnerException);
-        }
-    }
+    //    public static void ThrowSpecificationViolation(string message, Exception innnerException)
+    //    {
+    //        throw new AtomSpecificationViolationException(message, innnerException);
+    //    }
+    //}
 }

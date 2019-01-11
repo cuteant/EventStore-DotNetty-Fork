@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messaging;
 using EventStore.Transport.Http;
@@ -18,20 +17,20 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected CommunicationController(IPublisher publisher)
         {
-            Ensure.NotNull(publisher, nameof(publisher));
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
 
             _publisher = publisher;
         }
 
         public void Publish(Message message)
         {
-            Ensure.NotNull(message, nameof(message));
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             _publisher.Publish(message);
         }
 
         public void Subscribe(IHttpService service)
         {
-            Ensure.NotNull(service, nameof(service));
+            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             SubscribeCore(service);
         }
 

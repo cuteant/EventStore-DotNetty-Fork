@@ -35,17 +35,16 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.CommitTimeout:
                         break;
                     case OperationResult.WrongExpectedVersion:
-                        var err = string.Format("Append failed due to WrongExpectedVersion. Stream: {0}, Expected version: {1}", _stream, _expectedVersion);
-                        Fail(new WrongExpectedVersionException(err));
+                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_AppendFailed(_stream, _expectedVersion));
                         break;
                     case OperationResult.StreamDeleted:
-                        Fail(new StreamDeletedException(_stream));
+                        Fail(CoreThrowHelper.GetStreamDeletedException(_stream));
                         break;
                     case OperationResult.InvalidTransaction:
-                        Fail(new InvalidTransactionException());
+                        Fail(CoreThrowHelper.GetInvalidTransactionException());
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -86,10 +85,10 @@ namespace EventStore.ClientAPI.Embedded
                         Succeed(response);
                         break;
                     case OperationResult.InvalidTransaction:
-                        Fail(new InvalidTransactionException());
+                        Fail(CoreThrowHelper.GetInvalidTransactionException());
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -133,17 +132,16 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.ForwardTimeout:
                         break;
                     case OperationResult.WrongExpectedVersion:
-                        var err = $"Delete stream failed due to WrongExpectedVersion. Stream: {_stream}, Expected version: {_expectedVersion}.";
-                        Fail(new WrongExpectedVersionException(err));
+                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_DeleteStreamFailed(_stream, _expectedVersion));
                         break;
                     case OperationResult.StreamDeleted:
-                        Fail(new StreamDeletedException(_stream));
+                        Fail(CoreThrowHelper.GetStreamDeletedException(_stream));
                         break;
                     case OperationResult.InvalidTransaction:
-                        Fail(new InvalidTransactionException());
+                        Fail(CoreThrowHelper.GetInvalidTransactionException());
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -176,7 +174,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadAllResult.AccessDenied:
-                        Fail(new AccessDeniedException("Read access denied for $all."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_all));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadAllResult: {response.Result}.");
@@ -211,7 +209,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadAllResult.AccessDenied:
-                        Fail(new AccessDeniedException("Read access denied for $all."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_all));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadAllResult: {response.Result}.");
@@ -255,10 +253,10 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         return;
                     case ReadEventResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
                         return;
                     default:
-                        throw new Exception($"Unexpected ReadEventResult: {response.Result}.");
+                        EmbeddedThrowHelper.ThrowException_UnexpectedReadEventResult(response.Result); return;
                 }
             }
 
@@ -282,7 +280,7 @@ namespace EventStore.ClientAPI.Embedded
                     case ReadEventResult.StreamDeleted:
                         return EventReadStatus.StreamDeleted;
                     default:
-                        throw new Exception($"Unexpected ReadEventResult: {result}.");
+                        EmbeddedThrowHelper.ThrowException_UnexpectedReadEventResult(result); return default;
                 }
             }
         }
@@ -312,7 +310,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadStreamResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadStreamResult: {response.Result}.");
@@ -372,7 +370,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadStreamResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Read access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadStreamResult: {response.Result}.");
@@ -427,17 +425,16 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.ForwardTimeout:
                         break;
                     case OperationResult.WrongExpectedVersion:
-                        var err = $"Commit transaction failed due to WrongExpectedVersion. TransactionID: {response.TransactionId}.";
-                        Fail(new WrongExpectedVersionException(err));
+                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_CommitTransactionFailed(response.TransactionId));
                         break;
                     case OperationResult.StreamDeleted:
-                        Fail(new StreamDeletedException());
+                        Fail(CoreThrowHelper.GetStreamDeletedException());
                         break;
                     case OperationResult.InvalidTransaction:
-                        Fail(new InvalidTransactionException());
+                        Fail(CoreThrowHelper.GetInvalidTransactionException());
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException("Write access denied."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -476,17 +473,16 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.ForwardTimeout:
                         break;
                     case OperationResult.WrongExpectedVersion:
-                        var err = $"Start transaction failed due to WrongExpectedVersion. Stream: {_stream}, Expected version: {_expectedVersion}.";
-                        Fail(new WrongExpectedVersionException(err));
+                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_StartTransactionFailed(_stream, _expectedVersion));
                         break;
                     case OperationResult.StreamDeleted:
-                        Fail(new StreamDeletedException(_stream));
+                        Fail(CoreThrowHelper.GetStreamDeletedException(_stream));
                         break;
                     case OperationResult.InvalidTransaction:
-                        Fail(new InvalidTransactionException());
+                        Fail(CoreThrowHelper.GetInvalidTransactionException());
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -522,7 +518,7 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.ForwardTimeout:
                         break;
                     case OperationResult.AccessDenied:
-                        Fail(new AccessDeniedException("Write access denied."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied));
                         break;
                     default:
                         throw new Exception($"Unexpected OperationResult: {response.Result}.");
@@ -559,7 +555,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} failed '{response.Reason}'"));
                         break;
                     case CoreClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     case CoreClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.AlreadyExists:
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} already exists"));
@@ -598,13 +594,13 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} failed '{response.Reason}'"));
                         break;
                     case CoreClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     case CoreClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.DoesNotExist:
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} does not exist"));
                         break;
                     default:
-                        throw new Exception($"Unexpected OperationResult: {response.Result}.");
+                        EmbeddedThrowHelper.ThrowException_UnexpectedOperationResult(response.Result); break; ;
                 }
             }
 
@@ -637,13 +633,13 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} failed '{response.Reason}'"));
                         break;
                     case CoreClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.AccessDenied:
-                        Fail(new AccessDeniedException($"Write access denied for stream '{_stream}'."));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                         break;
                     case CoreClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.DoesNotExist:
                         Fail(new InvalidOperationException($"Subscription group {_groupName} on stream {_stream} does not exist"));
                         break;
                     default:
-                        throw new Exception($"Unexpected OperationResult: {response.Result}.");
+                        EmbeddedThrowHelper.ThrowException_UnexpectedOperationResult(response.Result); break;
                 }
             }
 

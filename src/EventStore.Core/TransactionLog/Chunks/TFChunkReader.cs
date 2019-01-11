@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog.Checkpoint;
 
@@ -23,9 +22,9 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkReader(TFChunkDb db, ICheckpoint writerCheckpoint, long initialPosition = 0, bool optimizeReadSideCache = false)
         {
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
-            Ensure.Nonnegative(initialPosition, nameof(initialPosition));
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (initialPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialPosition); }
 
             _db = db;
             _writerCheckpoint = writerCheckpoint;
@@ -68,8 +67,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     if (retries > MaxRetries)
                     {
-                        throw new Exception(
-                            $"Got a file that was being deleted {MaxRetries} times from TFChunkDb, likely a bug there.");
+                        ThrowHelper.ThrowException_GotFileThatWasBeingDeletedTimesFromTFChunkDb(MaxRetries);
                     }
 
                     return TryReadNextInternal(retries + 1);
@@ -103,7 +101,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 // we allow == writerChk, that means read the very last record
                 if (pos > writerChk)
                 {
-                    throw new Exception($"Requested position {pos} is greater than writer checkpoint {writerChk} when requesting to read previous record from TF.");
+                    ThrowHelper.ThrowException_RequestedPositionIsGreaterThanWriterCheckpoint(pos, writerChk);
                 }
 
                 if (pos <= 0)
@@ -131,7 +129,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     if (retries > MaxRetries)
                     {
-                        throw new Exception($"Got a file that was being deleted {MaxRetries} times from TFChunkDb, likely a bug there.");
+                        ThrowHelper.ThrowException_GotFileThatWasBeingDeletedTimesFromTFChunkDb(MaxRetries);
                     }
 
                     return TryReadPrevInternal(retries + 1);
@@ -176,7 +174,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (retries > MaxRetries)
                 {
-                    throw new FileBeingDeletedException("Been told the file was deleted > MaxRetries times. Probably a problem in db.");
+                    ThrowHelper.ThrowFileBeingDeletedException_BeenToldTheFileWasDeletedGreaterThanMaxRetriesTimes();
                 }
 
                 return TryReadAtInternal(position, retries + 1);
@@ -208,7 +206,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (retries > MaxRetries)
                 {
-                    throw new FileBeingDeletedException("Been told the file was deleted > MaxRetries times. Probably a problem in db.");
+                    ThrowHelper.ThrowFileBeingDeletedException_BeenToldTheFileWasDeletedGreaterThanMaxRetriesTimes();
                 }
 
                 return ExistsAtInternal(position, retries + 1);

@@ -37,7 +37,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
         {
             if (!ValidateStrategy(namedConsumerStrategy))
             {
-                throw new ArgumentException(string.Format("The named consumer strategy '{0}' is unknown.", namedConsumerStrategy), "namedConsumerStrategy");
+                ThrowHelper.ThrowArgumentException_TheNamedConsumerStrategyIsUnknown(namedConsumerStrategy);
             }
 
             return _factoryLookup[namedConsumerStrategy].Create(subscriptionId, _mainQueue, _mainBus);

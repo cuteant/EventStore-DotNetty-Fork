@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CuteAnt.Buffers;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -51,9 +50,9 @@ namespace EventStore.Core.Services
 
         public SubscriptionsService(IPublisher bus, IQueuedHandler queuedHandler, IReadIndex readIndex)
         {
-            Ensure.NotNull(bus, nameof(bus));
-            Ensure.NotNull(queuedHandler, nameof(queuedHandler));
-            Ensure.NotNull(readIndex, nameof(readIndex));
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == queuedHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
 
             _bus = bus;
             _busEnvelope = new PublishEnvelope(bus);
@@ -257,7 +256,7 @@ namespace EventStore.Core.Services
                     allReq.RequireMaster, allReq.ValidationTfLastCommitPosition, allReq.User);
             }
 
-            throw new Exception($"Unexpected read request of type {originalRequest.GetType()} for long polling: {originalRequest}.");
+            return ThrowHelper.ThrowException_UnexpectedReadRequest(originalRequest);
         }
 
         public void Handle(StorageMessage.EventCommitted message)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -68,8 +69,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public IndexWriter(IIndexBackend indexBackend, IIndexReader indexReader)
         {
-            Ensure.NotNull(indexBackend, nameof(indexBackend));
-            Ensure.NotNull(indexReader, nameof(indexReader));
+            if (null == indexBackend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexBackend); }
+            if (null == indexReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexReader); }
 
             _indexBackend = indexBackend;
             _indexReader = indexReader;
@@ -93,12 +94,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 try
                 {
                     PrepareLogRecord prepare = GetPrepare(reader, transactionPosition);
-                    if (prepare == null)
-                    {
-                        var message = $"Could not read first prepare of to-be-committed transaction. Transaction pos: {transactionPosition}, commit pos: {commitPosition}.";
-                        Log.LogError(message);
-                        throw new InvalidOperationException(message);
-                    }
+                    if (prepare == null) { FailedReadFirstPrepare(transactionPosition, commitPosition); }
                     streamId = prepare.EventStreamId;
                     expectedVersion = prepare.ExpectedVersion;
                 }
@@ -116,13 +112,25 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             return CheckCommit(streamId, expectedVersion, eventIds);
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void FailedReadFirstPrepare(long transactionPosition, long commitPosition)
+        {
+            var message = $"Could not read first prepare of to-be-committed transaction. Transaction pos: {transactionPosition}, commit pos: {commitPosition}.";
+            Log.LogError(message);
+            throw GetException();
+            InvalidOperationException GetException()
+            {
+                return new InvalidOperationException(message);
+            }
+        }
+
         private static PrepareLogRecord GetPrepare(in TFReaderLease reader, long logPosition)
         {
             var result = reader.TryReadAt(logPosition);
             if (!result.Success) { return null; }
             if (result.LogRecord.RecordType != LogRecordType.Prepare)
             {
-                throw new Exception($"Incorrect type of log record {result.LogRecord.RecordType}, expected Prepare record.");
+                ThrowHelper.ThrowException_IncorrectTypeOfLogRecord(result.LogRecord.RecordType);
             }
 
             return (PrepareLogRecord)result.LogRecord;
@@ -241,7 +249,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 if (prepare.EventStreamId != streamId)
                 {
-                    throw new Exception($"Expected stream: {streamId}, actual: {prepare.EventStreamId}.");
+                    ThrowHelper.ThrowException_ExpectedStream(streamId, prepare);
                 }
 
                 eventNumber = prepare.Flags.HasAnyOf(PrepareFlags.StreamDelete)
@@ -276,7 +284,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 if (prepare.EventStreamId != streamId)
                 {
-                    throw new Exception($"Expected stream: {streamId}, actual: {prepare.EventStreamId}.");
+                    ThrowHelper.ThrowException_ExpectedStream(streamId, prepare);
                 }
 
                 eventNumber = prepare.ExpectedVersion + 1; /* for committed prepare expected version is always explicit */

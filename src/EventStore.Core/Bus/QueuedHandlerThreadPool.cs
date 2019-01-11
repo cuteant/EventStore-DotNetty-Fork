@@ -49,8 +49,8 @@ namespace EventStore.Core.Bus
                                        TimeSpan? threadStopWaitTimeout = null,
                                        string groupName = null)
         {
-            Ensure.NotNull(consumer, nameof(consumer));
-            Ensure.NotNull(name, nameof(name));
+            if (null == consumer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumer); }
+            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
 
             _consumer = consumer;
 
@@ -73,7 +73,7 @@ namespace EventStore.Core.Bus
             _stop = true;
             if (!_stopped.Wait(_threadStopWaitTimeout))
             {
-                throw new TimeoutException($"Unable to stop thread '{Name}'.");
+                ThrowHelper.ThrowTimeoutException_UnableToStopThread(Name);
             }
             TryStopQueueStats();
             _queueMonitor.Unregister(this);
@@ -176,7 +176,7 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            //Ensure.NotNull(message, "message");
+            //if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 #if DEBUG
             _queueStats.Enqueued();
 #endif

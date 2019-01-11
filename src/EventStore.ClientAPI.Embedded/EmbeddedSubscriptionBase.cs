@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Messages;
 using EventStore.Core.Bus;
@@ -30,9 +29,9 @@ namespace EventStore.ClientAPI.Embedded
         protected EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
             string streamId, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool asynchronous)
         {
-            Ensure.NotNull(source, nameof(source));
-            Ensure.NotNull(streamId, nameof(streamId));
-            Ensure.NotNull(publisher, nameof(publisher));
+            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (null == streamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
 
             Publisher = publisher;
             StreamId = streamId;
@@ -58,15 +57,14 @@ namespace EventStore.ClientAPI.Embedded
             {
                 case EventStore.Core.Services.SubscriptionDropReason.AccessDenied:
                     DropSubscription(SubscriptionDropReason.AccessDenied,
-                        ex ?? new AccessDeniedException(string.Format("Subscription to '{0}' failed due to access denied.",
-                            StreamId == string.Empty ? "<all>" : StreamId)));
+                        ex ?? CoreThrowHelper.GetAccessDeniedException_All(StreamId));
                     break;
                 case EventStore.Core.Services.SubscriptionDropReason.Unsubscribed:
                     Unsubscribe();
                     break;
                 case EventStore.Core.Services.SubscriptionDropReason.NotFound:
                     DropSubscription(SubscriptionDropReason.NotFound,
-                        new ArgumentException("Subscription not found"));
+                        ThrowHelper.GetArgumentException(ExceptionResource.SubscriptionNotFound));
                     break;
             }
         }
@@ -83,9 +81,9 @@ namespace EventStore.ClientAPI.Embedded
         public void ConfirmSubscription(long lastCommitPosition, long? lastEventNumber)
         {
             if (lastCommitPosition < -1)
-                throw new ArgumentOutOfRangeException("lastCommitPosition", string.Format("Invalid lastCommitPosition {0} on subscription confirmation.", lastCommitPosition));
+                EmbeddedThrowHelper.ThrowArgumentOutOfRangeException_InvalidLastCommitPosition(lastCommitPosition);
             if (Subscription != null)
-                throw new Exception("Double confirmation of subscription.");
+                EmbeddedThrowHelper.ThrowException_DoubleConfirmationOfSubscription();
 
             Subscription = CreateVolatileSubscription(lastCommitPosition, lastEventNumber);
             _source.SetResult(Subscription);
@@ -105,7 +103,7 @@ namespace EventStore.ClientAPI.Embedded
 
                 if (reason != SubscriptionDropReason.UserInitiated)
                 {
-                    if (exception == null) throw new Exception(string.Format("No exception provided for subscription drop reason '{0}", reason));
+                    if (exception == null) EmbeddedThrowHelper.ThrowException_NoExceptionProvidedForSubscriptionDropReason(reason);
                     _source.TrySetException(exception);
                 }
 

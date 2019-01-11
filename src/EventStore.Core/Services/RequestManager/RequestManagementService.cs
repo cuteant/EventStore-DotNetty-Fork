@@ -47,8 +47,8 @@ namespace EventStore.Core.Services.RequestManager
                                                              TimeSpan commitTimeout,
                                                              bool betterOrdering)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.Nonnegative(prepareCount, "prepareCount");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (prepareCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCount); }
 
             _bus = bus;
             _tickRequestMessage = TimerMessage.Schedule.Create(TimeSpan.FromMilliseconds(1000),
@@ -116,7 +116,7 @@ namespace EventStore.Core.Services.RequestManager
                 _currentTimedRequests.Remove(message.CorrelationId);
             }
             if (!_currentRequests.Remove(message.CorrelationId))
-                throw new InvalidOperationException("Should never complete request twice.");
+                ThrowHelper.ThrowInvalidOperationException_ShouldNeverCompleteRequestTwice();
         }
 
         public void Handle(StorageMessage.CheckStreamAccessCompleted message)

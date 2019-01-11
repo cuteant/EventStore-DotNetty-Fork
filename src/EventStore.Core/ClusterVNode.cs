@@ -36,8 +36,6 @@ using EventStore.Core.Settings;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Chunks;
 using Microsoft.Extensions.Logging;
-using System.Collections;
-using System.Diagnostics;
 
 namespace EventStore.Core
 {
@@ -94,9 +92,9 @@ namespace EventStore.Core
                             InfoController infoController,
                             params ISubsystem[] subsystems)
         {
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(vNodeSettings, nameof(vNodeSettings));
-            Ensure.NotNull(gossipSeedSource, nameof(gossipSeedSource));
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == vNodeSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeSettings); }
+            if (null == gossipSeedSource) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
 
 #if DEBUG
             AddTask(_taskAddedTrigger.Task);
@@ -248,7 +246,7 @@ namespace EventStore.Core
             // AUTHENTICATION INFRASTRUCTURE - delegate to plugins
             _internalAuthenticationProvider = vNodeSettings.AuthenticationProviderFactory.BuildAuthenticationProvider(_mainQueue, _mainBus, _workersHandler, _workerBuses);
 
-            Ensure.NotNull(_internalAuthenticationProvider, "authenticationProvider");
+            if (null == _internalAuthenticationProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authenticationProvider); }
 
             {
                 // EXTERNAL TCP

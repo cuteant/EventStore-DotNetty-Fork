@@ -100,8 +100,8 @@ namespace EventStore.Projections.Core.Services.Processing
             string effectiveProjectionName,
             ITimeProvider timeProvider)
         {
-            if (publisher == null) throw new ArgumentNullException("publisher");
-            if (ioDispatcher == null) throw new ArgumentNullException("ioDispatcher");
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (subscriptionDispatcher == null) throw new ArgumentNullException("subscriptionDispatcher");
 
             _projectionProcessingStrategy = projectionProcessingStrategy;

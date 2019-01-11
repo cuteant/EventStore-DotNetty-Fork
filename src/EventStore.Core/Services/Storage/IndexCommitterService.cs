@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -11,9 +12,6 @@ using EventStore.Core.Services.Monitoring.Stats;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
-using EventStore.Core.Util;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace EventStore.Core.Services.Storage
 {
@@ -56,11 +54,11 @@ namespace EventStore.Core.Services.Storage
 
         public IndexCommitterService(IIndexCommitter indexCommitter, IPublisher publisher, ICheckpoint replicationCheckpoint, ICheckpoint writerCheckpoint, int commitCount)
         {
-            Ensure.NotNull(indexCommitter, "indexCommitter");
-            Ensure.NotNull(publisher, "publisher");
-            Ensure.NotNull(replicationCheckpoint, "replicationCheckpoint");
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
-            Ensure.Positive(commitCount, "commitCount");
+            if (null == indexCommitter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (commitCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitCount); }
 
             _indexCommitter = indexCommitter;
             _publisher = publisher;
@@ -174,7 +172,7 @@ namespace EventStore.Core.Services.Storage
                 newTransaction.AddPendingPrepares(prepares);
                 if(!_pendingTransactions.TryUpdate(transactionPosition, newTransaction, transaction))
                 {
-                    throw new InvalidOperationException("Failed to update pending prepare");
+                    ThrowHelper.ThrowInvalidOperationException_FailedToUpdatePendingPrepare();
                 }
             }
             else
@@ -182,7 +180,7 @@ namespace EventStore.Core.Services.Storage
                 var pendingTransaction = new PendingTransaction(transactionPosition, postPosition, prepares);
                 if(!_pendingTransactions.TryAdd(transactionPosition, pendingTransaction))
                 {
-                    throw new InvalidOperationException("Failed to add pending prepare");
+                    ThrowHelper.ThrowInvalidOperationException_FailedToAddPendingPrepare();
                 }
             }
         }
@@ -195,7 +193,7 @@ namespace EventStore.Core.Services.Storage
                 var newTransaction = new PendingTransaction(commit.TransactionPosition, postPosition, transaction.Prepares, commit);
                 if(!_pendingTransactions.TryUpdate(commit.TransactionPosition, newTransaction, transaction))
                 {
-                    throw new InvalidOperationException("Failed to update pending commit");
+                    ThrowHelper.ThrowInvalidOperationException_FailedToUpdatePendingCommit();
                 }
             }
             else
@@ -203,7 +201,7 @@ namespace EventStore.Core.Services.Storage
                 var pendingTransaction = new PendingTransaction(commit.TransactionPosition, postPosition, commit);
                 if(!_pendingTransactions.TryAdd(commit.TransactionPosition, pendingTransaction))
                 {
-                    throw new InvalidOperationException("Failed to add pending commit");
+                    ThrowHelper.ThrowInvalidOperationException_FailedToAddPendingCommit();
                 }
             }
         }
@@ -363,29 +361,26 @@ namespace EventStore.Core.Services.Storage
             {
                 LinkedListNode<CommitAckNode> commitAckNode;
 
-                if (_commitAckNodes.TryGetValue(message.CorrelationId, out commitAckNode))
+                if (!_commitAckNodes.TryGetValue(message.CorrelationId, out commitAckNode))
                 {
-                    var currentNode = commitAckNode;
-                    // Ensure that we have all nodes at this position
-                    while (currentNode.Next != null && currentNode.Next.Value.LogPosition == currentNode.Value.LogPosition)
-                    {
-                        currentNode = currentNode.Next;
-                    }
-
-                    var result = new List<CommitAckNode>();
-                    do
-                    {
-                        result.Add(currentNode.Value);
-                        currentNode = currentNode.Previous;
-                    } while (currentNode != null);
-
-                    result.Reverse();
-                    return result;
+                    ThrowHelper.ThrowInvalidOperationException_CommitAckNotPresentInNodeList();
                 }
-                else
+                var currentNode = commitAckNode;
+                // Ensure that we have all nodes at this position
+                while (currentNode.Next != null && currentNode.Next.Value.LogPosition == currentNode.Value.LogPosition)
                 {
-                    throw new InvalidOperationException("Commit ack not present in node list.");
+                    currentNode = currentNode.Next;
                 }
+
+                var result = new List<CommitAckNode>();
+                do
+                {
+                    result.Add(currentNode.Value);
+                    currentNode = currentNode.Previous;
+                } while (currentNode != null);
+
+                result.Reverse();
+                return result;
             }
 
             public void ClearCommitAcks()
@@ -406,7 +401,7 @@ namespace EventStore.Core.Services.Storage
                     }
                     else
                     {
-                        throw new InvalidOperationException("Commit ack not present in node list");
+                        ThrowHelper.ThrowInvalidOperationException_CommitAckNotPresentInNodeList();
                     }
                 }
             }
@@ -427,7 +422,7 @@ namespace EventStore.Core.Services.Storage
 
                 public void AddCommitAck(StorageMessage.CommitAck commitAck)
                 {
-                    Ensure.Equal(true, CorrelationId == commitAck.CorrelationId, "correlationId should be equal");
+                    if (CorrelationId != commitAck.CorrelationId) { ThrowHelper.ThrowArgumentException_Equal(true, false, ExceptionArgument.correlationId_should_be_equal); }
 
                     CommitAcks.Add(commitAck);
                     if (commitAck.IsSelf)

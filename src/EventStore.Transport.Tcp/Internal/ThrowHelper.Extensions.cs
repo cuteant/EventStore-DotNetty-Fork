@@ -10,6 +10,7 @@ namespace EventStore.Transport.Tcp
     {
         settings,
         sslTargetHost,
+        func,
     }
 
     #endregion
@@ -34,7 +35,7 @@ namespace EventStore.Transport.Tcp
             ArgumentException GetException()
             {
                 var argumentName = GetArgumentName(argument);
-                return new ArgumentException(argumentName, $"{argumentName} should be non-empty GUID.");
+                return new ArgumentException($"{argumentName} should be non-empty GUID.", argumentName);
             }
         }
 

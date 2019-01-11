@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         public IndexReadEventResult(ReadEventResult result, StreamMetadata metadata, long lastEventNumber, bool originalStreamExists)
         {
             if (result == ReadEventResult.Success)
-                throw new ArgumentException(string.Format("Wrong ReadEventResult provided for failure constructor: {0}.", result), "result");
+                ThrowHelper.ThrowArgumentException_WrongReadEventResultProvided(result);
 
             Result = result;
             Record = null;

@@ -1,5 +1,4 @@
-﻿using EventStore.Common.Utils;
-using MessagePack;
+﻿using MessagePack;
 
 namespace EventStore.Core.Messages
 {
@@ -143,8 +142,8 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public ReplicaSubscriptionRetry(byte[] masterId, byte[] subscriptionId)
             {
-                Ensure.NotNull(masterId, "masterId");
-                Ensure.NotNull(subscriptionId, "subscriptionId");
+                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -170,9 +169,9 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public ReplicaSubscribed(byte[] masterId, byte[] subscriptionId, long subscriptionPosition)
             {
-                Ensure.NotNull(masterId, "masterId");
-                Ensure.NotNull(subscriptionId, "subscriptionId");
-                Ensure.Nonnegative(subscriptionPosition, "subscriptionPosition");
+                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (subscriptionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -226,9 +225,9 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public CreateChunk(byte[] masterId, byte[] subscriptionId, byte[] chunkHeaderBytes, int fileSize, bool isCompletedChunk)
             {
-                Ensure.NotNull(masterId, "masterId");
-                Ensure.NotNull(subscriptionId, "subscriptionId");
-                Ensure.NotNull(chunkHeaderBytes, "chunkHeaderBytes");
+                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (null == chunkHeaderBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeaderBytes); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -275,10 +274,10 @@ namespace EventStore.Core.Messages
                                 byte[] rawBytes,
                                 bool completeChunk)
             {
-                Ensure.NotNull(masterId, "masterId");
-                Ensure.NotNull(subscriptionId, "subscriptionId");
-                Ensure.NotNull(rawBytes, "rawBytes");
-                Ensure.Positive(rawBytes.Length, "rawBytes.Length"); // we should never send empty array, NEVER
+                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (null == rawBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
+                if (rawBytes.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -327,10 +326,10 @@ namespace EventStore.Core.Messages
                                  byte[] dataBytes,
                                  bool completeChunk)
             {
-                Ensure.NotNull(masterId, "masterId");
-                Ensure.NotNull(subscriptionId, "subscriptionId");
-                Ensure.NotNull(dataBytes, "rawBytes");
-                Ensure.Nonnegative(dataBytes.Length, "dataBytes.Length"); // we CAN send empty dataBytes array here, unlike as with completed chunks
+                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (null == dataBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
+                if (dataBytes.Length < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;

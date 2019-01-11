@@ -59,5 +59,159 @@ namespace EventStore.Transport.Http.Internal {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查找类似 An app:service element MUST contain one or more app:workspace elements. 的本地化字符串。
+        /// </summary>
+        internal static string An_appservice_element_MUST_contain_one_or_more_appworkspace_elements {
+            get {
+                return ResourceManager.GetString("An_appservice_element_MUST_contain_one_or_more_appworkspace_elements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:accept element MUST contain value 的本地化字符串。
+        /// </summary>
+        internal static string atomaccept_element_MUST_contain_value {
+            get {
+                return ResourceManager.GetString("atomaccept_element_MUST_contain_value", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:entry elements MUST contain an atom:summary element 的本地化字符串。
+        /// </summary>
+        internal static string atomentry_elements_MUST_contain_an_atomsummary_element {
+            get {
+                return ResourceManager.GetString("atomentry_elements_MUST_contain_an_atomsummary_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:entry elements MUST contain exactly one atom:id element. 的本地化字符串。
+        /// </summary>
+        internal static string atomentry_elements_MUST_contain_exactly_one_atomid_element {
+            get {
+                return ResourceManager.GetString("atomentry_elements_MUST_contain_exactly_one_atomid_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:entry elements MUST contain exactly one atom:title element. 的本地化字符串。
+        /// </summary>
+        internal static string atomentry_elements_MUST_contain_exactly_one_atomtitle_element {
+            get {
+                return ResourceManager.GetString("atomentry_elements_MUST_contain_exactly_one_atomtitle_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:entry elements MUST contain exactly one atom:updated element. 的本地化字符串。
+        /// </summary>
+        internal static string atomentry_elements_MUST_contain_exactly_one_atomupdated_element {
+            get {
+                return ResourceManager.GetString("atomentry_elements_MUST_contain_exactly_one_atomupdated_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:entry elements MUST contain one or more atom:author elements 的本地化字符串。
+        /// </summary>
+        internal static string atomentry_elements_MUST_contain_one_or_more_atomauthor_elements {
+            get {
+                return ResourceManager.GetString("atomentry_elements_MUST_contain_one_or_more_atomauthor_elements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:feed elements MUST contain exactly one atom:id element. 的本地化字符串。
+        /// </summary>
+        internal static string atomfeed_elements_MUST_contain_exactly_one_atomid_element {
+            get {
+                return ResourceManager.GetString("atomfeed_elements_MUST_contain_exactly_one_atomid_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:feed elements MUST contain exactly one atom:title element. 的本地化字符串。
+        /// </summary>
+        internal static string atomfeed_elements_MUST_contain_exactly_one_atomtitle_element {
+            get {
+                return ResourceManager.GetString("atomfeed_elements_MUST_contain_exactly_one_atomtitle_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:feed elements MUST contain exactly one atom:updated element. 的本地化字符串。
+        /// </summary>
+        internal static string atomfeed_elements_MUST_contain_exactly_one_atomupdated_element {
+            get {
+                return ResourceManager.GetString("atomfeed_elements_MUST_contain_exactly_one_atomupdated_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:feed elements MUST contain one or more atom:author elements 的本地化字符串。
+        /// </summary>
+        internal static string atomfeed_elements_MUST_contain_one_or_more_atomauthor_elements {
+            get {
+                return ResourceManager.GetString("atomfeed_elements_MUST_contain_one_or_more_atomauthor_elements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:feed elements SHOULD contain one atom:link element with a rel attribute value of &apos;self&apos;. This is the preferred URI for retrieving Atom Feed Documents representing this Atom feed. 的本地化字符串。
+        /// </summary>
+        internal static string atomfeed_elements_SHOULD_contain_one_atomlink_element_with_a_rel_attribute_value_of_self {
+            get {
+                return ResourceManager.GetString("atomfeed_elements_SHOULD_contain_one_atomlink_element_with_a_rel_attribute_value_" +
+                        "of_self", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 atom:link elements MUST have an href attribute, whose value MUST be a URI reference 的本地化字符串。
+        /// </summary>
+        internal static string atomlink_elements_MUST_have_an_href_attribute {
+            get {
+                return ResourceManager.GetString("atomlink_elements_MUST_have_an_href_attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Person constructs MUST contain exactly one &apos;atom:name&apos; element. 的本地化字符串。
+        /// </summary>
+        internal static string Person_constructs_MUST_contain_exactly_one_atomname_element {
+            get {
+                return ResourceManager.GetString("Person_constructs_MUST_contain_exactly_one_atomname_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The app:collection element MUST contain an &apos;href&apos; attribute, whose value gives the IRI of the Collection. 的本地化字符串。
+        /// </summary>
+        internal static string The_appcollection_element_MUST_contain_an_href_attribute {
+            get {
+                return ResourceManager.GetString("The_appcollection_element_MUST_contain_an_href_attribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The app: collection element MUST contain one atom:title element. 的本地化字符串。
+        /// </summary>
+        internal static string The_appcollection_element_MUST_contain_one_atomtitle_element {
+            get {
+                return ResourceManager.GetString("The_appcollection_element_MUST_contain_one_atomtitle_element", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The app:workspace element MUST contain one &apos;atom:title&apos; element 的本地化字符串。
+        /// </summary>
+        internal static string The_appworkspace_element_MUST_contain_one_atomtitle_element {
+            get {
+                return ResourceManager.GetString("The_appworkspace_element_MUST_contain_one_atomtitle_element", resourceCulture);
+            }
+        }
     }
 }

@@ -21,9 +21,9 @@ namespace EventStore.ClientAPI
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, string topic, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return AsyncContext.Run(
                 async (conn, streamId, expectedVersion, meta, credentials)
@@ -41,7 +41,7 @@ namespace EventStore.ClientAPI
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, long expectedMetastreamVersion, StreamMetadata metadata, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return AsyncContext.Run(
                 async (conn, streamId, expectedVersion, meta, credentials)
@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI
     public static WriteResult SetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, long expectedMetastreamVersion, byte[] metadata, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return AsyncContext.Run(
                 async (conn, streamId, expectedVersion, meta, credentials)
@@ -153,7 +153,7 @@ namespace EventStore.ClientAPI
     public static StreamMetadataResult GetStreamMetadata(this IEventStoreConnectionBase connection,
       string stream, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return AsyncContext.Run(
                 async (conn, streamId, credentials)
@@ -237,7 +237,7 @@ namespace EventStore.ClientAPI
     public static RawStreamMetadataResult GetStreamMetadataAsRawBytes(this IEventStoreConnectionBase connection,
       string stream, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return AsyncContext.Run(
                 async (conn, streamId, credentials)
@@ -261,8 +261,8 @@ namespace EventStore.ClientAPI
     public static Task<WriteResult> SetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
       return connection.SetStreamMetadataAsync(SerializationManager.GetStreamId(actualType, expectedType), expectedMetastreamVersion, metadata, userCredentials);
     }
 
@@ -278,9 +278,9 @@ namespace EventStore.ClientAPI
     public static Task<WriteResult> SetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.SetStreamMetadataAsync(CombineStreamId(SerializationManager.GetStreamId(actualType, expectedType), topic), expectedMetastreamVersion, metadata, userCredentials);
     }
 
@@ -299,7 +299,7 @@ namespace EventStore.ClientAPI
       long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return connection.SetStreamMetadataAsync(SerializationManager.GetStreamId(typeof(TEvent), expectedType), expectedMetastreamVersion, metadata, userCredentials);
     }
 
@@ -315,8 +315,8 @@ namespace EventStore.ClientAPI
       string topic, long expectedMetastreamVersion, StreamMetadata metadata, Type expectedType = null, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.SetStreamMetadataAsync(CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent), expectedType), topic), expectedMetastreamVersion, metadata, userCredentials);
     }
 
@@ -333,9 +333,9 @@ namespace EventStore.ClientAPI
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       string stream, string topic, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.GetStreamMetadataAsync(CombineStreamId(stream, topic), userCredentials);
     }
 
@@ -348,8 +348,8 @@ namespace EventStore.ClientAPI
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, Type expectedType = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
       return connection.GetStreamMetadataAsync(SerializationManager.GetStreamId(actualType, expectedType), userCredentials);
     }
 
@@ -363,9 +363,9 @@ namespace EventStore.ClientAPI
     public static Task<StreamMetadataResult> GetStreamMetadataAsync(this IEventStoreConnectionBase connection,
       Type actualType, string topic, Type expectedType = null, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (null == actualType) { throw new ArgumentNullException(nameof(actualType)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (null == actualType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.actualType); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.GetStreamMetadataAsync(CombineStreamId(SerializationManager.GetStreamId(actualType, expectedType), topic), userCredentials);
     }
 
@@ -381,7 +381,7 @@ namespace EventStore.ClientAPI
     public static Task<StreamMetadataResult> GetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,
       Type expectedType = null, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return connection.GetStreamMetadataAsync(SerializationManager.GetStreamId(typeof(TEvent), expectedType), userCredentials);
     }
 
@@ -394,8 +394,8 @@ namespace EventStore.ClientAPI
     public static Task<StreamMetadataResult> GetStreamMetadataAsync<TEvent>(this IEventStoreConnectionBase connection,
       string topic, Type expectedType = null, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.GetStreamMetadataAsync(CombineStreamId(SerializationManager.GetStreamId(typeof(TEvent), expectedType), topic), userCredentials);
     }
 

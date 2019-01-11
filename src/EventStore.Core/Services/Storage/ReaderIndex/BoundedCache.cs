@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using EventStore.Common.Utils;
 
 namespace EventStore.Core.Services.Storage.ReaderIndex
 {
@@ -22,11 +21,11 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public BoundedCache(int maxCachedEntries, long maxDataSize, Func<TValue, long> valueSize)
         {
-            Ensure.NotNull(valueSize, "valueSize");
+            if (null == valueSize) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.valueSize); }
             if (maxCachedEntries <= 0)
-                throw new ArgumentOutOfRangeException("maxCachedEntries");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxCachedEntries);
             if (maxDataSize <= 0)
-                throw new ArgumentOutOfRangeException("maxDataSize");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxDataSize);
 
             _maxCachedEntries = maxCachedEntries;
             _maxDataSize = maxDataSize;

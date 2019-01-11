@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.UserManagement
@@ -24,7 +23,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <param name="operationTimeout"></param>
         public UsersManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
         {
-            Ensure.NotNull(httpEndPoint, "httpEndPoint");
+            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
             _client = new UsersClient(operationTimeout);
             _httpEndPoint = httpEndPoint;
@@ -38,7 +37,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A task representing the operation.</returns>
         public Task EnableAsync(string login, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             return _client.Enable(_httpEndPoint, login, userCredentials);
         }
 
@@ -50,7 +49,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A task representing the operation.</returns>
         public Task DisableAsync(string login, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             return _client.Disable(_httpEndPoint, login, userCredentials);
         }
 
@@ -62,7 +61,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A task representing the operation.</returns>
         public Task DeleteUserAsync(string login, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             return _client.Delete(_httpEndPoint, login, userCredentials);
         }
 
@@ -94,7 +93,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A <see cref="UserDetails"/> object for the user</returns>
         public Task<UserDetails> GetUserAsync(string login, UserCredentials userCredentials) 
         {
-            Ensure.NotNullOrEmpty(login, "login");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             return _client.GetUser(_httpEndPoint, login, userCredentials);
         }
 
@@ -110,10 +109,10 @@ namespace EventStore.ClientAPI.UserManagement
         public Task CreateUserAsync(string login, string fullName, string[] groups, string password,
             UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
-            Ensure.NotNullOrEmpty(fullName, "fullName");
-            Ensure.NotNull(groups, "groups");
-            Ensure.NotNullOrEmpty(password, "password");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
+            if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
+            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (string.IsNullOrEmpty(password)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             return _client.CreateUser(_httpEndPoint, new UserCreationInformation(login, fullName, groups, password),
                 userCredentials);
         }
@@ -128,9 +127,9 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A task representing the operation.</returns>
         public Task UpdateUserAsync(string login, string fullName, string[] groups, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
-            Ensure.NotNullOrEmpty(fullName, "fullName");
-            Ensure.NotNull(groups, "groups");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
+            if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
+            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             return _client.UpdateUser(_httpEndPoint, login, new UserUpdateInformation(fullName, groups), userCredentials);
         }
 
@@ -145,9 +144,9 @@ namespace EventStore.ClientAPI.UserManagement
         public Task ChangePasswordAsync(string login, string oldPassword, string newPassword,
             UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
-            Ensure.NotNullOrEmpty(oldPassword, "oldPassword");
-            Ensure.NotNullOrEmpty(newPassword, "newPassword");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
+            if (string.IsNullOrEmpty(oldPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.oldPassword); }
+            if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
             return _client.ChangePassword(_httpEndPoint, login, new ChangePasswordDetails(oldPassword, newPassword),
                 userCredentials);
         }
@@ -161,8 +160,8 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A task representing the operation.</returns>
         public Task ResetPasswordAsync(string login, string newPassword, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(login, "login");
-            Ensure.NotNullOrEmpty(newPassword, "newPassword");
+            if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
+            if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
             return _client.ResetPassword(_httpEndPoint, login, new ResetPasswordDetails(newPassword), userCredentials);
         }
     }

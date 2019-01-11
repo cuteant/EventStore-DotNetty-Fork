@@ -33,8 +33,10 @@ namespace EventStore.Projections.Core.Services.Management
             Guid workerId,
             Guid masterProjectionId)
         {
-            _publisher = publisher ?? throw new ArgumentNullException("publisher");
-            _ioDispatcher = ioDispatcher ?? throw new ArgumentNullException("ioDispatcher");
+            if (null == publisher) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (null == ioDispatcher) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            _publisher = publisher;
+            _ioDispatcher = ioDispatcher;
             _workerId = workerId;
             _masterProjectionId = masterProjectionId;
             _streamId = "$projections-$" + masterProjectionId.ToString("N");

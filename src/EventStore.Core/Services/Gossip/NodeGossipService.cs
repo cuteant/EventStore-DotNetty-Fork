@@ -1,11 +1,9 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
 using EventStore.Core.Data;
 using EventStore.Core.Services.Storage.EpochManager;
 using EventStore.Core.TransactionLog.Checkpoint;
-using System.Net;
 
 namespace EventStore.Core.Services.Gossip
 {
@@ -29,10 +27,10 @@ namespace EventStore.Core.Services.Gossip
                                  TimeSpan allowedTimeDifference)
             : base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference)
         {
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
-            Ensure.NotNull(chaserCheckpoint, "chaserCheckpoint");
-            Ensure.NotNull(epochManager, "epochManager");
-            Ensure.NotNull(getLastCommitPosition, "getLastCommitPosition");
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (null == getLastCommitPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
 
             _writerCheckpoint = writerCheckpoint;
             _chaserCheckpoint = chaserCheckpoint;

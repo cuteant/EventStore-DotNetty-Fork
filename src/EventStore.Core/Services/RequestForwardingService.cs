@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -24,9 +23,9 @@ namespace EventStore.Core.Services
 
         public RequestForwardingService(IPublisher bus, MessageForwardingProxy forwardingProxy, TimeSpan tickInterval)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.NotNull(forwardingProxy, "forwardingProxy");
-            Ensure.Nonnegative(tickInterval.Milliseconds, "tickInterval");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == forwardingProxy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
+            if (tickInterval.Milliseconds < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.tickInterval); }
 
             _bus = bus;
             _forwardingProxy = forwardingProxy;

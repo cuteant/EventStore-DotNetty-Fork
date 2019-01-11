@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         public IndexReadStreamResult(long fromEventNumber, int maxCount, ReadStreamResult result, StreamMetadata metadata, long lastEventNumber)
         {
             if (result == ReadStreamResult.Success)
-                throw new ArgumentException(String.Format("Wrong ReadStreamResult provided for failure constructor: {0}.", result), "result");
+                ThrowHelper.ThrowArgumentException_WrongReadStreamResultProvided(result);
 
             FromEventNumber = fromEventNumber;
             MaxCount = maxCount;
@@ -43,7 +43,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                      long lastEventNumber, 
                                      bool isEndOfStream)
         {
-            Ensure.NotNull(records, "records");
+            if (null == records) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.records); }
 
             FromEventNumber = fromEventNumber;
             MaxCount = maxCount;

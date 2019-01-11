@@ -40,9 +40,9 @@ namespace EventStore.Core.Services.Transport.Http
         public HttpService(ServiceAccessibility accessibility, IPublisher inputBus, IUriRouter uriRouter,
                            MultiQueuedHandler multiQueuedHandler, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort, params string[] prefixes)
         {
-            Ensure.NotNull(inputBus, "inputBus");
-            Ensure.NotNull(uriRouter, "uriRouter");
-            Ensure.NotNull(prefixes, "prefixes");
+            if (null == inputBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputBus); }
+            if (null == uriRouter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriRouter); }
+            if (null == prefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefixes); }
 
             _accessibility = accessibility;
             _inputBus = inputBus;
@@ -61,8 +61,8 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static void CreateAndSubscribePipeline(IBus bus, HttpAuthenticationProvider[] httpAuthenticationProviders)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.NotNull(httpAuthenticationProviders, "httpAuthenticationProviders");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == httpAuthenticationProviders) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpAuthenticationProviders); }
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
             var requestAuthenticationManager = new IncomingHttpRequestAuthenticationManager(httpAuthenticationProviders);
@@ -124,22 +124,22 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void SetupController(IHttpController controller)
         {
-            Ensure.NotNull(controller, "controller");
+            if (null == controller) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.controller); }
             controller.Subscribe(this);
         }
 
         public void RegisterCustomAction(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
-            Ensure.NotNull(action, "action");
-            Ensure.NotNull(handler, "handler");
+            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             _uriRouter.RegisterAction(action, handler);
         }
 
         public void RegisterAction(ControllerAction action, Action<HttpEntityManager, UriTemplateMatch> handler)
         {
-            Ensure.NotNull(action, "action");
-            Ensure.NotNull(handler, "handler");
+            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             _uriRouter.RegisterAction(action, (man, match) =>
             {

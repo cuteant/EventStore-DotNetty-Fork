@@ -49,21 +49,21 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
 
             if (node == null)
             {
-                throw new ApplicationException("ClientRemoved was called for a client the consumer strategy didn't have.");
+                ThrowHelper.ThrowApplicationException_ClientRemovedWasCalledForClientTheConsumerStrategy();
             }
 
             if (node.State == Node.NodeState.Disconnected)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             node.State = Node.NodeState.Disconnected;
 
             AssignmentCount -= node.AssignmentCount;
             if (AssignmentCount < 0)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             TotalCapacity -= node.MaximumInFlightMessages;
             if (TotalCapacity < 0)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             for (int i = 0; i < Assignments.Length; i++)
             {

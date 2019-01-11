@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -35,7 +34,7 @@ namespace EventStore.Core.Services
 
         public HttpSendService(HttpMessagePipe httpPipe, bool forwardRequests)
         {
-            Ensure.NotNull(httpPipe, "httpPipe");
+            if (null == httpPipe) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPipe); }
             _httpPipe = httpPipe;
             _forwardRequests = forwardRequests;
         }
@@ -60,7 +59,7 @@ namespace EventStore.Core.Services
                     _masterInfo = null;
                     break;
                 default:
-                    throw new Exception($"Unknown node state: {message.State}.");
+                    ThrowHelper.ThrowException_UnknownNodeState(message.State); break;
             }
         }
 
@@ -83,14 +82,14 @@ namespace EventStore.Core.Services
         {
             if (message.Message is HttpMessage.DeniedToHandle deniedToHandle)
             {
-                int code;
+                int code = 0;
                 switch (deniedToHandle.Reason)
                 {
                     case DenialReason.ServerTooBusy:
                         code = HttpStatusCode.ServiceUnavailable;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        ThrowHelper.ThrowArgumentOutOfRangeException(); break;
                 }
                 var start = _watch.ElapsedTicks;
                 message.HttpEntityManager.ReplyStatus(

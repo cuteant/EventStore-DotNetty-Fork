@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 using Microsoft.Extensions.Logging;
@@ -28,8 +27,8 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
         /// <param name="operationTimeout"></param>
         public PersistentSubscriptionsManager(ILogger log, EndPoint httpEndPoint, TimeSpan operationTimeout, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
         {
-            Ensure.NotNull(log, nameof (log));
-            Ensure.NotNull(httpEndPoint, nameof (httpEndPoint));
+            if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
+            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
             this._client = new PersistentSubscriptionsClient(log, operationTimeout);
             this._httpEndPoint = httpEndPoint;
             this._httpSchema = httpSchema;
@@ -46,8 +45,8 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
         public Task<PersistentSubscriptionDetails> Describe(string stream, string subscriptionName,
             UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(stream, "stream");
-            Ensure.NotNullOrEmpty(subscriptionName, "subscriptionName");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(subscriptionName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionName); }
             return _client.Describe(_httpEndPoint, stream, subscriptionName, userCredentials, _httpSchema);
         }
 
@@ -60,8 +59,8 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
         /// <returns>A task representing the operation.</returns>
         public Task ReplayParkedMessages(string stream, string subscriptionName, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(stream, "stream");
-            Ensure.NotNullOrEmpty(subscriptionName, "subscriptionName");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(subscriptionName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionName); }
             return _client.ReplayParkedMessages(_httpEndPoint, stream, subscriptionName, userCredentials, _httpSchema);
         }
 
@@ -74,7 +73,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
         public Task<List<PersistentSubscriptionDetails>> List(string stream,
             UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(stream, "stream");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             return _client.List(_httpEndPoint, stream, userCredentials, _httpSchema);
         }
 

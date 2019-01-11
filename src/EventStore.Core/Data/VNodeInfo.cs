@@ -20,11 +20,11 @@ namespace EventStore.Core.Data
                          IPEndPoint externalTcp, IPEndPoint externalSecureTcp,
                          IPEndPoint internalHttp, IPEndPoint externalHttp)
         {
-            Ensure.NotEmptyGuid(instanceId, "instanceId");
-            Ensure.NotNull(internalTcp, "internalTcp");
-            Ensure.NotNull(externalTcp, "externalTcp");
-            Ensure.NotNull(internalHttp, "internalHttp");
-            Ensure.NotNull(externalHttp, "externalHttp");
+            if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
+            if (null == internalTcp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcp); }
+            if (null == externalTcp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcp); }
+            if (null == internalHttp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttp); }
+            if (null == externalHttp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttp); }
 
             DebugIndex = debugIndex;
             InstanceId = instanceId;

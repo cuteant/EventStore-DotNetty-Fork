@@ -1,6 +1,4 @@
-﻿using EventStore.ClientAPI.Common.Utils;
-
-namespace EventStore.ClientAPI.UserManagement
+﻿namespace EventStore.ClientAPI.UserManagement
 {
     internal class UserUpdateInformation
     {
@@ -10,8 +8,8 @@ namespace EventStore.ClientAPI.UserManagement
 
         public UserUpdateInformation(string fullName, string[] groups)
         {
-            Ensure.NotNullOrEmpty(fullName, "fullName");
-            Ensure.NotNull(groups, "fullName");
+            if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
+            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             FullName = fullName;
             Groups = groups;
         }

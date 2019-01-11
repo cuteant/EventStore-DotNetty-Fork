@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CuteAnt.Buffers;
 using CuteAnt.IO;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -84,12 +83,12 @@ namespace EventStore.Core.Services.Storage
             IIndexWriter indexWriter,
             IEpochManager epochManager)
         {
-            Ensure.NotNull(bus, nameof(bus));
-            Ensure.NotNull(subscribeToBus, nameof(subscribeToBus));
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(writer, nameof(writer));
-            Ensure.NotNull(indexWriter, nameof(indexWriter));
-            Ensure.NotNull(epochManager, nameof(epochManager));
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == subscribeToBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscribeToBus); }
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == writer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
+            if (null == indexWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexWriter); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
 
             Bus = bus;
             _subscribeToBus = subscribeToBus;
@@ -208,7 +207,7 @@ namespace EventStore.Core.Services.Storage
                 return;
             if (_vnodeState != VNodeState.Master)
             {
-                throw new Exception($"New Epoch request not in master state. State: {_vnodeState}.");
+                ThrowHelper.ThrowException_NewEpochRequestNotInMasterState(_vnodeState);
             }
 
             EpochManager.WriteNewEpoch();
@@ -220,7 +219,7 @@ namespace EventStore.Core.Services.Storage
             // if we are in states, that doesn't need to wait for chaser, ignore
             if (_vnodeState != VNodeState.PreMaster && _vnodeState != VNodeState.PreReplica)
             {
-                throw new Exception(string.Format("{0} appeared in {1} state.", message.GetType().Name, _vnodeState));
+                ThrowHelper.ThrowException_WaitForChaserToCatchUpAppearedIn(message, _vnodeState);
             }
 
             if (Writer.Checkpoint.Read() != Writer.Checkpoint.ReadNonFlushed()) { Writer.Flush(); }
@@ -614,7 +613,7 @@ namespace EventStore.Core.Services.Storage
                     envelope.ReplyWith(new StorageMessage.InvalidTransaction(correlationId));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
         }
 
@@ -642,7 +641,7 @@ namespace EventStore.Core.Services.Storage
                 writtenPos = newPos;
                 if (!Writer.Write(record, out newPos))
                 {
-                    throw new Exception($"Second write try failed when first writing prepare at {prepare.LogPosition}, then at {writtenPos}.");
+                    ThrowHelper.ThrowException_SecondWriteTryFailedWhenFirstWritingPrepare(prepare.LogPosition, writtenPos);
                 }
             }
             return new WriteResult(writtenPos, newPos, record);
@@ -663,7 +662,7 @@ namespace EventStore.Core.Services.Storage
                 long writtenPos = newPos;
                 if (!Writer.Write(record, out newPos))
                 {
-                    throw new Exception($"Second write try failed when first writing commit at {commit.LogPosition}, then at {writtenPos}.");
+                    ThrowHelper.ThrowException_SecondWriteTryFailedWhenFirstWritingCommit(commit.LogPosition, writtenPos);
                 }
                 return record;
             }

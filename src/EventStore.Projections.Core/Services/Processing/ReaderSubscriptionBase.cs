@@ -41,7 +41,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool stopOnEof,
             int? stopAfterNEvents)
         {
-            if (publisher == null) throw new ArgumentNullException("publisher");
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (readerStrategy == null) throw new ArgumentNullException("readerStrategy");
             if (timeProvider == null) throw new ArgumentNullException("timeProvider");
             if (checkpointProcessedEventsThreshold > 0 && stopAfterNEvents > 0)

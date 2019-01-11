@@ -52,8 +52,8 @@ namespace EventStore.ClientAPI.Internal
         /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
         internal EventStoreNodeConnection(ConnectionSettings settings, ClusterSettings clusterSettings, IEndPointDiscoverer endPointDiscoverer, string connectionName)
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(endPointDiscoverer, nameof(endPointDiscoverer));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             _connectionName = connectionName ?? $"ES-{Guid.NewGuid()}";
             _settings = settings;
@@ -102,7 +102,7 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<DeleteResult> DeleteStreamAsync(string stream, long expectedVersion, bool hardDelete, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
             var source = TaskUtility.CreateTaskCompletionSource<DeleteResult>();
             EnqueueOperation(new DeleteStreamOperation(source, _settings.RequireMaster,
@@ -133,8 +133,8 @@ namespace EventStore.ClientAPI.Internal
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(events, nameof(events));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
@@ -147,8 +147,8 @@ namespace EventStore.ClientAPI.Internal
             UserCredentials userCredentials = null)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(events, nameof(events));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskUtility.CreateTaskCompletionSource<ConditionalWriteResult>();
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
@@ -163,7 +163,7 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<EventStoreTransaction> StartTransactionAsync(string stream, long expectedVersion, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreTransaction>();
             EnqueueOperation(new StartTransactionOperation(source, _settings.RequireMaster,
@@ -173,15 +173,15 @@ namespace EventStore.ClientAPI.Internal
 
         public EventStoreTransaction ContinueTransaction(long transactionId, UserCredentials userCredentials = null)
         {
-            Ensure.Nonnegative(transactionId, nameof(transactionId));
+            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
             return new EventStoreTransaction(transactionId, userCredentials, this);
         }
 
         async Task IEventStoreTransactionConnection.TransactionalWriteAsync(EventStoreTransaction transaction, IEnumerable<EventData> events, UserCredentials userCredentials)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            Ensure.NotNull(transaction, nameof(transaction));
-            Ensure.NotNull(events, nameof(events));
+            if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskUtility.CreateTaskCompletionSource<object>();
             EnqueueOperation(new TransactionalWriteOperation(source, _settings.RequireMaster,
@@ -192,7 +192,7 @@ namespace EventStore.ClientAPI.Internal
 
         async Task<WriteResult> IEventStoreTransactionConnection.CommitTransactionAsync(EventStoreTransaction transaction, UserCredentials userCredentials)
         {
-            Ensure.NotNull(transaction, nameof(transaction));
+            if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
             var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
             EnqueueOperation(new CommitTransactionOperation(source, _settings.RequireMaster,
@@ -206,8 +206,8 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<EventReadResult> ReadEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var source = TaskUtility.CreateTaskCompletionSource<EventReadResult>();
             var operation = new ReadRawEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                       _settings.RequireMaster, userCredentials);
@@ -217,10 +217,10 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice> ReadStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.Nonnegative(start, nameof(start));
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsForwardOperation(source, stream, start, count,
                                                                     resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -230,9 +230,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice> ReadStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsBackwardOperation(source, stream, start, count,
                                                                      resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -242,8 +242,8 @@ namespace EventStore.ClientAPI.Internal
 
         public Task<AllEventsSlice> ReadAllEventsForwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            Ensure.Positive(maxCount, nameof(maxCount));
-            if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
             var operation = new ReadAllEventsForwardOperation(source, position, maxCount,
                                                               resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -253,8 +253,8 @@ namespace EventStore.ClientAPI.Internal
 
         public Task<AllEventsSlice> ReadAllEventsBackwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            Ensure.Positive(maxCount, nameof(maxCount));
-            if (maxCount > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
             var operation = new ReadAllEventsBackwardOperation(source, position, maxCount,
                                                                resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -269,8 +269,8 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var source = TaskUtility.CreateTaskCompletionSource<EventReadResult<object>>();
             var operation = new ReadEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                    _settings.RequireMaster, userCredentials);
@@ -280,7 +280,7 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
         {
-            if (eventNumber < -1) throw new ArgumentOutOfRangeException(nameof(eventNumber));
+            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var source = TaskUtility.CreateTaskCompletionSource<EventReadResult<TEvent>>();
             var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
@@ -295,10 +295,10 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.Nonnegative(start, nameof(start));
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsForwardOperation(source, stream, start, count,
                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -307,10 +307,10 @@ namespace EventStore.ClientAPI.Internal
         }
         public async Task<StreamEventsSlice2> InternalGetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.Nonnegative(start, nameof(start));
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice2>();
             var operation = new ReadStreamEventsForwardOperation2(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -320,9 +320,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.Nonnegative(start, nameof(start));
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();
@@ -338,9 +338,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsBackwardOperation(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -350,8 +350,8 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.Positive(count, nameof(count));
-            if (count > ClientApiConstants.MaxReadSize) throw new ArgumentException($"Count should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
+            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();
@@ -389,9 +389,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
@@ -404,9 +404,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
@@ -419,9 +419,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage2(source, stream, settings, userCredentials,
@@ -434,9 +434,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(addHandlers, nameof(addHandlers));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addHandlers(handlerCollection);
@@ -461,8 +461,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
@@ -483,8 +483,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
@@ -510,9 +510,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
@@ -525,9 +525,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
@@ -545,9 +545,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppeared, liveProcessingStarted,
@@ -559,9 +559,9 @@ namespace EventStore.ClientAPI.Internal
           Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -573,9 +573,9 @@ namespace EventStore.ClientAPI.Internal
           Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(addHandlers, nameof(addHandlers));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addHandlers(handlerCollection);
@@ -601,8 +601,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
           where TEvent : class
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription<TEvent>(this, topic, lastCheckpoint,
                                                       userCredentials, eventAppeared, liveProcessingStarted,
@@ -616,8 +616,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
           where TEvent : class
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription<TEvent>(this, topic, lastCheckpoint,
                                                       userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -634,9 +634,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreStreamCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppeared, liveProcessingStarted,
@@ -649,9 +649,9 @@ namespace EventStore.ClientAPI.Internal
           Func<EventStoreStreamCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreStreamCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -670,8 +670,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
@@ -684,8 +684,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
@@ -704,8 +704,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
-            Ensure.NotNull(settings, nameof(settings));
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var catchUpSubscription =
                     new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppeared, liveProcessingStarted,
@@ -720,8 +720,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
-            Ensure.NotNull(settings, nameof(settings));
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var catchUpSubscription =
                     new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -741,10 +741,10 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
                 eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
@@ -757,10 +757,10 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
                 eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
@@ -772,10 +772,10 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(addHandlers, nameof(addHandlers));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addHandlers(handlerCollection);
@@ -800,9 +800,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
@@ -816,9 +816,9 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null) where TEvent : class
         {
-            Ensure.NotNullOrEmpty(subscriptionId, nameof(subscriptionId));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
@@ -837,10 +837,10 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppeared, nameof(eventAppeared));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
                 eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
@@ -853,10 +853,10 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-            Ensure.NotNull(settings, nameof(settings));
-            Ensure.NotNull(eventAppearedAsync, nameof(eventAppearedAsync));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
                 eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
@@ -870,9 +870,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task CreatePersistentSubscriptionAsync(string stream, string groupName, PersistentSubscriptionSettings settings, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-            Ensure.NotNull(settings, nameof(settings));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionCreateResult>();
             EnqueueOperation(new CreatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -880,9 +880,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task UpdatePersistentSubscriptionAsync(string stream, string groupName, PersistentSubscriptionSettings settings, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(groupName, nameof(groupName));
-            Ensure.NotNull(settings, nameof(settings));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
+            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionUpdateResult>();
             EnqueueOperation(new UpdatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -890,8 +890,8 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task DeletePersistentSubscriptionAsync(string stream, string groupName, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-            Ensure.NotNullOrEmpty(groupName, nameof(groupName));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionDeleteResult>();
             EnqueueOperation(new DeletePersistentSubscriptionOperation(source, stream, groupName, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -931,10 +931,10 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<WriteResult> SetStreamMetadataAsync(string stream, long expectedMetastreamVersion, byte[] metadata, UserCredentials userCredentials = null)
         {
-            if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (SystemStreams.IsMetastream(stream))
             {
-                throw new ArgumentException($"Setting metadata for metastream '{stream}' is not supported.", nameof(stream));
+                CoreThrowHelper.ThrowArgumentException_SettingMetadataForMetastreamIsNotSupported(stream);
             }
 
             var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
@@ -974,7 +974,7 @@ namespace EventStore.ClientAPI.Internal
                 switch (res.Status)
                 {
                     case EventReadStatus.Success:
-                        if (res.Event == null) throw new Exception("Event is null while operation result is Success.");
+                        if (res.Event == null) CoreThrowHelper.ThrowException_EventIsNullWhileOperationResultIsSuccess();
                         var evnt = res.Event.Value.OriginalEvent;
                         if (evnt == null) return new RawStreamMetadataResult(stream, false, -1, Empty.ByteArray);
                         return new RawStreamMetadataResult(stream, false, evnt.EventNumber, evnt.Data);
@@ -984,7 +984,7 @@ namespace EventStore.ClientAPI.Internal
                     case EventReadStatus.StreamDeleted:
                         return new RawStreamMetadataResult(stream, true, long.MaxValue, Empty.ByteArray);
                     default:
-                        throw new ArgumentOutOfRangeException($"Unexpected ReadEventResult: {res.Status}.");
+                        CoreThrowHelper.ThrowArgumentOutOfRangeException_UnexpectedReadEventResult(res.Status); return default;
                 }
             });
         }

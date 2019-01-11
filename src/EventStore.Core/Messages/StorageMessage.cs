@@ -74,9 +74,9 @@ namespace EventStore.Core.Messages
 
             public WriteDelete(Guid correlationId, IEnvelope envelope, string eventStreamId, long expectedVersion, bool hardDelete, DateTime liveUntil)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.NotNull(envelope, "envelope");
-                Ensure.NotNull(eventStreamId, "eventStreamId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
 
                 CorrelationId = correlationId;
                 Envelope = envelope;
@@ -119,9 +119,9 @@ namespace EventStore.Core.Messages
 
             public WriteTransactionStart(Guid correlationId, IEnvelope envelope, string eventStreamId, long expectedVersion, DateTime liveUntil)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.NotNull(envelope, "envelope");
-                Ensure.NotNull(eventStreamId, "eventStreamId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
 
                 CorrelationId = correlationId;
                 Envelope = envelope;
@@ -183,8 +183,8 @@ namespace EventStore.Core.Messages
 
             public PrepareAck(Guid correlationId, long logPosition, PrepareFlags flags)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.Nonnegative(logPosition, "logPosition");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
 
                 CorrelationId = correlationId;
                 LogPosition = logPosition;
@@ -205,13 +205,13 @@ namespace EventStore.Core.Messages
             public readonly bool IsSelf;
             public CommitAck(Guid correlationId, long logPosition, long transactionPosition, long firstEventNumber, long lastEventNumber, bool isSelf = false)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.Nonnegative(logPosition, "logPosition");
-                Ensure.Nonnegative(transactionPosition, "transactionPosition");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
                 if (firstEventNumber < -1)
-                    throw new ArgumentOutOfRangeException("firstEventNumber", string.Format("FirstEventNumber: {0}", firstEventNumber));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
-                    throw new ArgumentOutOfRangeException("lastEventNumber", string.Format("LastEventNumber {0}, FirstEventNumber {1}.", lastEventNumber, firstEventNumber));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
 
                 CorrelationId = correlationId;
                 LogPosition = logPosition;
@@ -235,13 +235,13 @@ namespace EventStore.Core.Messages
             
             public CommitReplicated(Guid correlationId, long logPosition, long transactionPosition, long firstEventNumber, long lastEventNumber)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.Nonnegative(logPosition, "logPosition");
-                Ensure.Nonnegative(transactionPosition, "transactionPosition");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
                 if (firstEventNumber < -1)
-                    throw new ArgumentOutOfRangeException("firstEventNumber", string.Format("FirstEventNumber: {0}", firstEventNumber));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
-                    throw new ArgumentOutOfRangeException("lastEventNumber", string.Format("LastEventNumber {0}, FirstEventNumber {1}.", lastEventNumber, firstEventNumber));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
                 CorrelationId = correlationId;
                 LogPosition = logPosition;
                 TransactionPosition = transactionPosition;
@@ -290,9 +290,9 @@ namespace EventStore.Core.Messages
 
             public AlreadyCommitted(Guid correlationId, string eventStreamId, long firstEventNumber, long lastEventNumber)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.NotNullOrEmpty(eventStreamId, "eventStreamId");
-                Ensure.Nonnegative(firstEventNumber, "FirstEventNumber");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+                if (FirstEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.FirstEventNumber); }
 
 
                 CorrelationId = correlationId;
@@ -331,7 +331,7 @@ namespace EventStore.Core.Messages
 
             public WrongExpectedVersion(Guid correlationId, long currentVersion)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 CorrelationId = correlationId;
                 CurrentVersion = currentVersion;
             }
@@ -346,7 +346,7 @@ namespace EventStore.Core.Messages
 
             public StreamDeleted(Guid correlationId)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 CorrelationId = correlationId;
             }
         }
@@ -362,7 +362,7 @@ namespace EventStore.Core.Messages
 
             public RequestCompleted(Guid correlationId, bool success, long currentVersion = -1)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 CorrelationId = correlationId;
                 Success = success;
                 CurrentVersion = currentVersion;
@@ -402,7 +402,7 @@ namespace EventStore.Core.Messages
                 : base(correlationId, correlationId, envelope, user)
             {
                 if (eventStreamId == null && transactionId == null)
-                    throw new ArgumentException("Neither eventStreamId nor transactionId is specified.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Neither_eventStreamId_nor_transactionId);
                 EventStreamId = eventStreamId;
                 TransactionId = transactionId;
                 var hash = String.IsNullOrEmpty(EventStreamId) ? TransactionId.GetHashCode() : EventStreamId.GetHashCode();
@@ -441,8 +441,8 @@ namespace EventStore.Core.Messages
             public int QueueId { get; }
             public BatchLogExpiredMessages(Guid correlationId,int queueId)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
-                Ensure.Nonnegative(queueId, "queueId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
+                if (queueId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.queueId); }
                 CorrelationId = correlationId;
                 QueueId = queueId;
             }

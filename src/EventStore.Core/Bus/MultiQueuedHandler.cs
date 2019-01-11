@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 
@@ -19,8 +18,8 @@ namespace EventStore.Core.Bus
                                   Func<int, IQueuedHandler> queueFactory,
                                   Func<Message, int> queueHash = null)
         {
-            Ensure.Positive(queueCount, nameof(queueCount));
-            Ensure.NotNull(queueFactory, nameof(queueFactory));
+            if (queueCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queueCount); }
+            if (null == queueFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queueFactory); }
 
             Queues = new IQueuedHandler[queueCount];
             for (int i = 0; i < Queues.Length; ++i)
@@ -33,13 +32,13 @@ namespace EventStore.Core.Bus
 
         public MultiQueuedHandler(params QueuedHandler[] queues) : this(queues, null)
         {
-            Ensure.Positive(queues.Length, "queues.Length");
+            if (queues.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
         }
 
         public MultiQueuedHandler(IQueuedHandler[] queues, Func<Message, int> queueHash)
         {
-            Ensure.NotNull(queues, nameof(queues));
-            Ensure.Positive(queues.Length, "queues.Length");
+            if (null == queues) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queues); }
+            if (queues.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
 
             Queues = queues;
             _queueHash = queueHash ?? NextQueueHash;

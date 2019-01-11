@@ -16,7 +16,7 @@ namespace EventStore.ClientAPI.SystemData
                 case TcpClientMessageDto.ReadStreamEventsCompleted.ReadStreamResult.StreamDeleted:
                     return SliceReadStatus.StreamDeleted;
                 default:
-                    throw new ArgumentOutOfRangeException("code");
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.code); return default;
             }
         }
     }

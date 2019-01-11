@@ -59,7 +59,7 @@ namespace EventStore.Core.Cluster
                                           int nodePriority)
         {
             if (state == VNodeState.Manager)
-                throw new ArgumentException(string.Format("Wrong State for VNode: {0}", state), "state");
+                ThrowHelper.ThrowArgumentException_WrongStateForVNode(state);
             return new MemberInfo(instanceId, timeStamp, state, isAlive,
                                   internalTcpEndPoint, internalSecureTcpEndPoint,
                                   externalTcpEndPoint, externalSecureTcpEndPoint,
@@ -75,10 +75,10 @@ namespace EventStore.Core.Cluster
                            long lastCommitPosition, long writerCheckpoint, long chaserCheckpoint,
                            long epochPosition, int epochNumber, Guid epochId, int nodePriority)
         {
-            Ensure.NotNull(internalTcpEndPoint, "internalTcpEndPoint");
-            Ensure.NotNull(externalTcpEndPoint, "externalTcpEndPoint");
-            Ensure.NotNull(internalHttpEndPoint, "internalHttpEndPoint");
-            Ensure.NotNull(externalHttpEndPoint, "externalHttpEndPoint");
+            if (null == internalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
+            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (null == internalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
+            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
 
             InstanceId = instanceId;
 

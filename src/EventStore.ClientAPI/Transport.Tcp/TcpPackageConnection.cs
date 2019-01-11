@@ -2,7 +2,6 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.Transport.Tcp;
 using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
@@ -34,8 +33,8 @@ namespace EventStore.ClientAPI.Transport.Tcp
             IConnectionEventHandler connEventHandler)
             : base(settings, ssl, targetHost, validateServer)
         {
-            Ensure.NotNull(remoteEndPoint, "remoteEndPoint");
-            Ensure.NotNull(connEventHandler, "connEventHandler");
+            if (null == remoteEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.remoteEndPoint); }
+            if (null == connEventHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connEventHandler); }
 
             _remoteEndPoint = remoteEndPoint;
             _connEventHandler = connEventHandler;
@@ -102,10 +101,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
         public void EnqueueSend(TcpPackage package)
         {
-            if (_connection == null)
-            {
-                throw new InvalidOperationException("Failed connection.");
-            }
+            if (_connection == null) { CoreThrowHelper.ThrowInvalidOperationException_FailedConnection(); }
 
             _connection.EnqueueSend(package);
         }

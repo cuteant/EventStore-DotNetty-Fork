@@ -97,11 +97,13 @@ namespace EventStore.Projections.Core.Services.Management
         public ProjectionManager(IPublisher inputQueue, IPublisher publisher, IDictionary<Guid, IPublisher> queueMap,
           ITimeProvider timeProvider, ProjectionType runProjections, IODispatcher ioDispatcher, TimeSpan projectionQueryExpiry, bool initializeSystemProjections = true)
         {
+            if (inputQueue == null) throw new ArgumentNullException(nameof(inputQueue));
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (queueMap == null) throw new ArgumentNullException(nameof(queueMap));
             if (queueMap.Count == 0) throw new ArgumentException("At least one queue is required", nameof(queueMap));
 
-            _inputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
-            _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
+            _inputQueue = inputQueue;
+            _publisher = publisher;
             _queues = queueMap.Select(v => Tuple.Create(v.Key, v.Value)).ToArray();
             _workers = _queues.Select(v => v.Item1).ToArray();
 

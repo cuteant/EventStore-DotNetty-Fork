@@ -1,7 +1,6 @@
 ﻿using System;
 using EventStore.Common.Options;
 using EventStore.Core.Bus;
-using EventStore.Common.Utils;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
@@ -43,7 +42,7 @@ namespace EventStore.Projections.Core
             bool faultOutOfOrderProjections)
         {
             _runProjections = runProjections;
-            Ensure.NotNull(db, "db");
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
 
             _coreOutput = new InMemoryBus("Core Output");
 

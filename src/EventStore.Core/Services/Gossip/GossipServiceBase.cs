@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -50,9 +49,9 @@ namespace EventStore.Core.Services.Gossip
                                     TimeSpan gossipInterval,
                                     TimeSpan allowedTimeDifference)
         {
-            Ensure.NotNull(bus, nameof(bus));
-            Ensure.NotNull(gossipSeedSource, nameof(gossipSeedSource));
-            Ensure.NotNull(nodeInfo, nameof(nodeInfo));
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == gossipSeedSource) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
+            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
 
             _bus = bus;
             _publishEnvelope = new PublishEnvelope(bus);

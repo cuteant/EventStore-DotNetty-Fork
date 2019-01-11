@@ -61,11 +61,11 @@ namespace EventStore.Core.Services.Storage
                              IIndexCommitterService indexCommitterService,
                              IEpochManager epochManager)
         {
-            Ensure.NotNull(masterBus, "masterBus");
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
-            Ensure.NotNull(chaser, "chaser");
-            Ensure.NotNull(indexCommitterService, "indexCommitterService");
-            Ensure.NotNull(epochManager, "epochManager");
+            if (null == masterBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterBus); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (null == chaser) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaser); }
+            if (null == indexCommitterService) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitterService); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
 
             _masterBus = masterBus;
             _writerCheckpoint = writerCheckpoint;
@@ -209,7 +209,7 @@ namespace EventStore.Core.Services.Storage
                     break;
                 }
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
 
             if (result.Eof && result.LogRecord.RecordType != LogRecordType.Commit && _commitsAfterEof)

@@ -58,9 +58,9 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         internal PersistentSubscriptionService(IQueuedHandler queuedHandler, IReadIndex readIndex, IODispatcher ioDispatcher, IPublisher bus, PersistentSubscriptionConsumerStrategyRegistry consumerStrategyRegistry)
         {
-            Ensure.NotNull(queuedHandler, nameof(queuedHandler));
-            Ensure.NotNull(readIndex, nameof(readIndex));
-            Ensure.NotNull(ioDispatcher, nameof(ioDispatcher));
+            if (null == queuedHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (null == ioDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher); }
 
             _queuedHandler = queuedHandler;
             _readIndex = readIndex;
@@ -674,7 +674,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     continueWith();
                     break;
                 default:
-                    throw new Exception(readStreamEventsBackwardCompleted.Result + " is an unexpected result writing subscription configuration.");
+                    ThrowHelper.ThrowException_UnexpectedReadStreamResultWritingSubscriptionConfiguration(readStreamEventsBackwardCompleted.Result); break;
             }
         }
 
@@ -704,7 +704,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     SaveConfiguration(continueWith);
                     break;
                 default:
-                    throw new Exception(obj.Result + " is an unexpected result writing persistent subscription configuration.");
+                    ThrowHelper.ThrowException_UnexpectedOperationResultWritingPersistentSubscriptionConfiguration(obj.Result); break;
             }
         }
 

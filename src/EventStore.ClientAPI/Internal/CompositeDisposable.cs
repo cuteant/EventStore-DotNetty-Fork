@@ -36,8 +36,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is less than zero.</exception>
         public CompositeDisposable(int capacity)
         {
-            if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity));
+            if (capacity < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity); }
 
             _disposables = new List<IDisposable>(capacity);
         }
@@ -61,16 +60,14 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentException">Any of the disposables in the <paramref name="disposables"/> collection is null.</exception>
         public CompositeDisposable(IEnumerable<IDisposable> disposables)
         {
-            if (disposables == null)
-                throw new ArgumentNullException(nameof(disposables));
+            if (disposables == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.disposables); }
 
             _disposables = new List<IDisposable>(disposables);
-            
+
             //
             // Doing this on the list to avoid duplicate enumeration of disposables.
             //
-            if (_disposables.Contains(null))
-                throw new ArgumentException("Disposables collection can not contain null values.", nameof(disposables));
+            if (_disposables.Contains(null)) { CoreThrowHelper.ThrowArgumentException_DisposablesCollectionCanNotContainNullValues(); }
             
             _count = _disposables.Count;
         }
@@ -78,13 +75,7 @@ namespace EventStore.ClientAPI.Internal
         /// <summary>
         /// Gets the number of disposables contained in the CompositeDisposable.
         /// </summary>
-        public int Count
-        {
-            get
-            {
-                return _count;
-            }
-        }
+        public int Count => _count;
 
         /// <summary>
         /// Adds a disposable to the CompositeDisposable or disposes the disposable if the CompositeDisposable is disposed.
@@ -93,8 +84,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public void Add(IDisposable item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             var shouldDispose = false;
             lock (_gate)
@@ -118,8 +108,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public bool Remove(IDisposable item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             var shouldDispose = false;
 
@@ -211,8 +200,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public bool Contains(IDisposable item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             lock (_gate)
             {
@@ -229,10 +217,8 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is less than zero. -or - <paramref name="arrayIndex"/> is larger than or equal to the array length.</exception>
         public void CopyTo(IDisposable[] array, int arrayIndex)
         {
-            if (array == null)
-                throw new ArgumentNullException(nameof(array));
-            if (arrayIndex < 0 || arrayIndex >= array.Length)
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            if (array == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array); }
+            if (arrayIndex < 0 || arrayIndex >= array.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex); }
 
             lock (_gate)
             {
@@ -276,9 +262,6 @@ namespace EventStore.ClientAPI.Internal
         /// <summary>
         /// Gets a value that indicates whether the object is disposed.
         /// </summary>
-        public bool IsDisposed
-        {
-            get { return _disposed; }
-        }
+        public bool IsDisposed => _disposed;
     }
 }

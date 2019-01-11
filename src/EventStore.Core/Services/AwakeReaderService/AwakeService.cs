@@ -29,7 +29,7 @@ namespace EventStore.Core.Services.AwakeReaderService
         private void BeginReplyBatch()
         {
             if (_batchedReplies.Count > 0)
-                throw new Exception();
+                ThrowHelper.ThrowException();
             _processedEvents = 0;
         }
 

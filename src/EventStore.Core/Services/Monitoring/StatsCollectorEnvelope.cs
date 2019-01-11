@@ -1,5 +1,4 @@
-﻿using EventStore.Common.Utils;
-using EventStore.Core.Messages;
+﻿using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
 
@@ -11,8 +10,8 @@ namespace EventStore.Core.Services.Monitoring
 
         public StatsCollectorEnvelope(StatsContainer statsContainer)
         {
+            if (null == statsContainer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsContainer); }
             _statsContainer = statsContainer;
-            Ensure.NotNull(statsContainer, "statsContainer");
         }
 
         public void ReplyWith<T>(T message) where T : Message

@@ -67,7 +67,7 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition ForwardTo(IPublisher publisher)
         {
-            Ensure.NotNull(publisher, "publisher");
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             return Do(publisher.Publish);
         }
     }

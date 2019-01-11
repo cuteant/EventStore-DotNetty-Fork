@@ -29,10 +29,10 @@ namespace EventStore.Core.Index
 
         private IndexMap(int version, List<List<PTable>> tables, long prepareCheckpoint, long commitCheckpoint, int maxTablesPerLevel)
         {
-            Ensure.Nonnegative(version, "version");
-            if (prepareCheckpoint < -1) throw new ArgumentOutOfRangeException(nameof(prepareCheckpoint));
-            if (commitCheckpoint < -1) throw new ArgumentOutOfRangeException(nameof(commitCheckpoint));
-            if (maxTablesPerLevel <= 1) throw new ArgumentOutOfRangeException(nameof(maxTablesPerLevel));
+            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if (prepareCheckpoint < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.prepareCheckpoint);
+            if (commitCheckpoint < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.commitCheckpoint);
+            if (maxTablesPerLevel <= 1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxTablesPerLevel);
 
             Version = version;
 
@@ -60,7 +60,7 @@ namespace EventStore.Core.Index
         {
             if (_map.SelectMany(level => level).Any(item => item == null))
             {
-                throw new CorruptIndexException("Internal indexmap structure corruption.");
+                ThrowHelper.ThrowCorruptIndexException_InternalIndexmapStructureCorruption();
             }
         }
         
@@ -158,7 +158,7 @@ namespace EventStore.Core.Index
 
                     if (!loadPTables && reader.ReadLine() != null)
                     {
-                        throw new CorruptIndexException($"Negative prepare/commit checkpoint in non-empty IndexMap: {checkpoints}.");
+                        ThrowHelper.ThrowCorruptIndexException_NegativePrepareCommitCheckpointInNonEmptyIndexMap(checkpoints);
                     }
 
                     return new IndexMap(version, tables, prepareCheckpoint, commitCheckpoint, maxTablesPerLevel);
@@ -172,11 +172,11 @@ namespace EventStore.Core.Index
             string text;
             if ((text = reader.ReadLine()) == null)
             {
-                throw new CorruptIndexException("IndexMap file is empty.");
+                ThrowHelper.ThrowCorruptIndexException_IndexMapFileIsEmpty();
             }
             if (text.Length != 32 || !text.All(x => char.IsDigit(x) || (x >= 'A' && x <= 'F')))
             {
-                throw new CorruptIndexException(string.Format("Corrupted IndexMap MD5 hash. Hash ({0}): {1}.", text.Length, text));
+                ThrowHelper.ThrowCorruptIndexException_CorruptedIndexMapMD5Hash(text);
             }
 
             // check expected and real hashes are the same
@@ -187,21 +187,13 @@ namespace EventStore.Core.Index
             }
             if (expectedHash.Length != realHash.Length)
             {
-                throw new CorruptIndexException(
-                        string.Format("Hash validation error (different hash sizes).\n"
-                                      + "Expected hash ({0}): {1}, real hash ({2}): {3}.",
-                                      expectedHash.Length, BitConverter.ToString(expectedHash),
-                                      realHash.Length, BitConverter.ToString(realHash)));
+                ThrowHelper.ThrowCorruptIndexException_HashValidationErrorDifferentHasheSizes(expectedHash, realHash);
             }
             for (int i = 0; i < realHash.Length; ++i)
             {
                 if (expectedHash[i] != realHash[i])
                 {
-                    throw new CorruptIndexException(
-                            string.Format("Hash validation error (different hashes).\n"
-                                          + "Expected hash ({0}): {1}, real hash ({2}): {3}.",
-                                          expectedHash.Length, BitConverter.ToString(expectedHash),
-                                          realHash.Length, BitConverter.ToString(realHash)));
+                    ThrowHelper.ThrowCorruptIndexException_HashValidationErrorDifferentHashes(expectedHash, realHash);
                 }
             }
         }
@@ -211,7 +203,7 @@ namespace EventStore.Core.Index
             string text;
             if ((text = reader.ReadLine()) == null)
             {
-                throw new CorruptIndexException("Corrupted version.");
+                ThrowHelper.ThrowCorruptIndexException_CorruptedVersion();
             }
             return int.Parse(text);
         }
@@ -222,7 +214,7 @@ namespace EventStore.Core.Index
             string text;
             if ((text = reader.ReadLine()) == null)
             {
-                throw new CorruptIndexException("Corrupted commit checkpoint.");
+                ThrowHelper.ThrowCorruptIndexException_CorruptedCommitCheckpoint();
             }
 
             try
@@ -230,17 +222,17 @@ namespace EventStore.Core.Index
                 var checkpoints = text.Split('/');
                 if (!long.TryParse(checkpoints[0], out long prepareCheckpoint) || prepareCheckpoint < -1)
                 {
-                    throw new CorruptIndexException(string.Format("Invalid prepare checkpoint: {0}.", checkpoints[0]));
+                    ThrowHelper.ThrowCorruptIndexException_InvalidPrepareCheckpoint(checkpoints[0]);
                 }
                 if (!long.TryParse(checkpoints[1], out long commitCheckpoint) || commitCheckpoint < -1)
                 {
-                    throw new CorruptIndexException(string.Format("Invalid commit checkpoint: {0}.", checkpoints[1]));
+                    ThrowHelper.ThrowCorruptIndexException_InvalidCommitCheckpoint(checkpoints[1]);
                 }
                 return new TFPos(commitCheckpoint, prepareCheckpoint);
             }
             catch (Exception exc)
             {
-                throw new CorruptIndexException("Corrupted prepare/commit checkpoints pair.", exc);
+                ThrowHelper.ThrowCorruptIndexException_CorruptedPrepareCommitCheckpointsPair(exc); return default;
             }
         }
 
@@ -267,8 +259,7 @@ namespace EventStore.Core.Index
                     void LocalAction(string indexMapEntry)
                     {
                         if (checkpoints.PreparePosition < 0 || checkpoints.CommitPosition < 0)
-                            throw new CorruptIndexException(
-                                string.Format("Negative prepare/commit checkpoint in non-empty IndexMap: {0}.", checkpoints));
+                            ThrowHelper.ThrowCorruptIndexException_NegativePrepareCommitCheckpointInNonEmptyIndexMap(checkpoints);
 
                         PTable ptable = null;
                         var pieces = indexMapEntry.Split(',');
@@ -304,7 +295,7 @@ namespace EventStore.Core.Index
                         {
                             if (tables[i][j] == null)
                             {
-                                throw new CorruptIndexException($"indexmap is missing contiguous level,position {i},{j}");
+                                ThrowHelper.ThrowCorruptIndexException_IndexmapIsMissingContiguousLevelPosition(i, j);
                             }
                         }
                     }
@@ -328,7 +319,7 @@ namespace EventStore.Core.Index
                     }
                 }
 
-                throw new CorruptIndexException("Error while loading IndexMap.", exc);
+                ThrowHelper.ThrowCorruptIndexException_ErrorWhileLoadingIndexMap(exc);
             }
 
             return tables;
@@ -422,8 +413,8 @@ namespace EventStore.Core.Index
                                      int indexCacheDepth = 16,
                                      bool skipIndexVerify = false)
         {
-            Ensure.Nonnegative(prepareCheckpoint, nameof(prepareCheckpoint));
-            Ensure.Nonnegative(commitCheckpoint, nameof(commitCheckpoint));
+            if (prepareCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCheckpoint); }
+            if (commitCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitCheckpoint); }
 
             var tables = CopyFrom(_map);
             AddTableToTables(tables, 0, tableToAdd);
@@ -483,7 +474,7 @@ namespace EventStore.Core.Index
                 }
             }
 
-            throw new ArgumentException("Unable to find table in map.", nameof(toScavenge));
+            ThrowHelper.ThrowArgumentException(ExceptionResource.Unable_to_find_table_in_map, ExceptionArgument.toScavenge); return null;
         }
 
         public void Dispose(TimeSpan timeout)

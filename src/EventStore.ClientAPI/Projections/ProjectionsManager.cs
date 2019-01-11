@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 
@@ -26,7 +25,7 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="operationTimeout"></param>
         public ProjectionsManager(EndPoint httpEndPoint, TimeSpan operationTimeout, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
         {
-            Ensure.NotNull(httpEndPoint, nameof(httpEndPoint));
+            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
             _client = new ProjectionsClient(operationTimeout);
             _httpEndPoint = httpEndPoint;
@@ -41,7 +40,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task EnableAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Enable(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -53,7 +52,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task DisableAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Disable(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -65,7 +64,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task AbortAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Abort(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -76,7 +75,7 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="userCredentials">Credentials for a user with permission to create a query.</param>
         public Task CreateOneTimeAsync(string query, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(query, nameof(query));
+            if (string.IsNullOrEmpty(query)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query); }
             return _client.CreateOneTime(_httpEndPoint, query, userCredentials, _httpSchema);
         }
 
@@ -88,8 +87,8 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="userCredentials">Credentials for a user with permission to create a query.</param>
         public Task CreateTransientAsync(string name, string query, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(query, nameof(query));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(query)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query); }
             return _client.CreateTransient(_httpEndPoint, name, query, userCredentials, _httpSchema);
         }
 
@@ -113,8 +112,8 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="userCredentials">Credentials for a user with permission to create a query.</param>
         public Task CreateContinuousAsync(string name, string query, bool trackEmittedStreams, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(query, nameof(query));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(query)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query); }
 
             return _client.CreateContinuous(_httpEndPoint, name, query, trackEmittedStreams, userCredentials, _httpSchema);
         }
@@ -190,7 +189,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection status.</returns>
         public Task<string> GetStatusAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.GetStatus(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -202,7 +201,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection state.</returns>
         public Task<string> GetStateAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.GetState(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -215,8 +214,8 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection state.</returns>
         public Task<string> GetPartitionStateAsync(string name, string partitionId, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(partitionId, nameof(partitionId));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(partitionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partitionId); }
             return _client.GetPartitionStateAsync(_httpEndPoint, name, partitionId, userCredentials, _httpSchema);
         }
 
@@ -228,7 +227,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection state.</returns>
         public Task<string> GetResultAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.GetResult(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -241,8 +240,8 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection state.</returns>
         public Task<string> GetPartitionResultAsync(string name, string partitionId, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(partitionId, nameof(partitionId));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(partitionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partitionId); }
             return _client.GetPartitionResultAsync(_httpEndPoint, name, partitionId, userCredentials, _httpSchema);
         }
 
@@ -254,7 +253,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing projection statistics.</returns>
         public Task<string> GetStatisticsAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.GetStatistics(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -266,7 +265,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>String of JSON containing query status.</returns>
         public Task<string> GetQueryAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.GetQuery(_httpEndPoint, name, userCredentials, _httpSchema);
         }
 
@@ -278,8 +277,8 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="userCredentials">Credentials for the operation.</param>
         public Task UpdateQueryAsync(string name, string query, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(query, nameof(query));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(query)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query); }
 
             return _client.UpdateQuery(_httpEndPoint, name, query, userCredentials, _httpSchema);
         }
@@ -293,8 +292,8 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="emitEnabled">Allow projection to send events to other streams</param>
         public Task UpdateQueryAsync(string name, string query, bool? emitEnabled = null, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
-            Ensure.NotNullOrEmpty(query, nameof(query));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (string.IsNullOrEmpty(query)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query); }
 
             return _client.UpdateQuery(_httpEndPoint, name, query, userCredentials, _httpSchema, emitEnabled);
         }
@@ -307,7 +306,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task DeleteAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Delete(_httpEndPoint, name, false, userCredentials, _httpSchema);
         }
 
@@ -320,7 +319,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task DeleteAsync(string name, bool deleteEmittedStreams, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, nameof(name));
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Delete(_httpEndPoint, name, deleteEmittedStreams, userCredentials, _httpSchema);
         }
 
@@ -332,7 +331,7 @@ namespace EventStore.ClientAPI.Projections
         /// <returns>A task representing the operation.</returns>
         public Task ResetAsync(string name, UserCredentials userCredentials = null)
         {
-            Ensure.NotNullOrEmpty(name, "name");
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Reset(_httpEndPoint, name, userCredentials, _httpSchema);
         }
     }

@@ -20,8 +20,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public HttpEntity(HttpListenerRequest request, HttpListenerResponse response, IPrincipal user, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort)
         {
-            Ensure.NotNull(request, "request");
-            Ensure.NotNull(response, "response");
+            if (null == request) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
+            if (null == response) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
 
             _logHttpRequests = logHttpRequests;
             RequestedUrl = BuildRequestedUrl(request.Url, request.Headers, advertiseAsAddress, advertiseAsPort);

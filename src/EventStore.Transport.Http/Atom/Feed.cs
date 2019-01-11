@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using EventStore.Common.Utils;
 using Newtonsoft.Json;
 
 namespace EventStore.Transport.Http.Atom
@@ -30,13 +29,13 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetTitle(string title)
         {
-            Ensure.NotNull(title, "title");
+            if (null == title) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.title); }
             Title = title;
         }
 
         public void SetId(string id)
         {
-            Ensure.NotNull(id, "id");
+            if (null == id) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.id); }
             Id = id;
         }
 
@@ -47,7 +46,7 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetAuthor(string name)
         {
-            Ensure.NotNull(name, "name");
+            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             Author = new PersonElement(name);
         }
 
@@ -68,13 +67,13 @@ namespace EventStore.Transport.Http.Atom
 
         public void AddLink(string relation, string uri, string contentType = null)
         {
-            Ensure.NotNull(uri, "uri");
+            if (null == uri) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uri); }
             Links.Add(new LinkElement(uri, relation, contentType));
         }
 
         public void AddEntry(EntryElement entry)
         {
-            Ensure.NotNull(entry, "entry");
+            if (null == entry) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entry); }
             Entries.Add(entry);
         }
 
@@ -91,16 +90,15 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Title))
-                ThrowHelper.ThrowSpecificationViolation("atom:feed elements MUST contain exactly one atom:title element.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_exactly_one_atomtitle_element);
             if (string.IsNullOrEmpty(Id))
-                ThrowHelper.ThrowSpecificationViolation("atom:feed elements MUST contain exactly one atom:id element.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_exactly_one_atomid_element);
             if (string.IsNullOrEmpty(Updated))
-                ThrowHelper.ThrowSpecificationViolation("atom:feed elements MUST contain exactly one atom:updated element.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_exactly_one_atomupdated_element);
             if (Author == null)
-                ThrowHelper.ThrowSpecificationViolation("atom:feed elements MUST contain one or more atom:author elements");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_one_or_more_atomauthor_elements);
             if (Links.Count == 0)
-                ThrowHelper.ThrowSpecificationViolation("atom:feed elements SHOULD contain one atom:link element with a " 
-                                                        + "rel attribute value of 'self'. This is the preferred URI for retrieving Atom Feed Documents representing this Atom feed.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_SHOULD_contain_one_atomlink_element_with_a_rel_attribute_value_of_self);
 
             writer.WriteStartElement("feed", AtomSpecs.AtomV1Namespace);
 
@@ -139,13 +137,13 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetTitle(string title)
         {
-            Ensure.NotNull(title, "title");
+            if (null == title) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.title); }
             Title = title;
         }
 
         public void SetId(string id)
         {
-            Ensure.NotNull(id, "id");
+            if (null == id) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.id); }
             Id = id;
         }
 
@@ -156,19 +154,19 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetAuthor(string name)
         {
-            Ensure.NotNull(name, "name");
+            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             Author = new PersonElement(name);
         }
 
         public void SetSummary(string summary)
         {
-            Ensure.NotNull(summary, "summary");
+            if (null == summary) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.summary); }
             Summary = summary;
         }
 
         public void AddLink(string relation, string uri, string type = null)
         {
-            Ensure.NotNull(uri, "uri");
+            if (null == uri) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uri); }
             Links.Add(new LinkElement(uri, relation, type));
         }
 
@@ -199,15 +197,15 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer, bool usePrefix)
         {
             if (string.IsNullOrEmpty(Title))
-                 ThrowHelper.ThrowSpecificationViolation("atom:entry elements MUST contain exactly one atom:title element.");
+                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_exactly_one_atomtitle_element);
             if (string.IsNullOrEmpty(Id))
-                 ThrowHelper.ThrowSpecificationViolation("atom:entry elements MUST contain exactly one atom:id element.");
+                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_exactly_one_atomid_element);
             if (string.IsNullOrEmpty(Updated))
-                 ThrowHelper.ThrowSpecificationViolation("atom:entry elements MUST contain exactly one atom:updated element.");
+                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_exactly_one_atomupdated_element);
             if (Author == null)
-                 ThrowHelper.ThrowSpecificationViolation("atom:entry elements MUST contain one or more atom:author elements");
+                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_one_or_more_atomauthor_elements);
             if (string.IsNullOrEmpty(Summary))
-                ThrowHelper.ThrowSpecificationViolation("atom:entry elements MUST contain an atom:summary element");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_an_atomsummary_element);
 
             if (usePrefix)
                 writer.WriteStartElement("atom", "entry", AtomSpecs.AtomV1Namespace);
@@ -299,7 +297,7 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Uri))
-                ThrowHelper.ThrowSpecificationViolation("atom:link elements MUST have an href attribute, whose value MUST be a URI reference");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomlink_elements_MUST_have_an_href_attribute);
 
             writer.WriteStartElement("link", AtomSpecs.AtomV1Namespace);
             writer.WriteAttributeString("href", Uri);
@@ -337,7 +335,7 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Name))
-                ThrowHelper.ThrowSpecificationViolation("Person constructs MUST contain exactly one 'atom:name' element.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.Person_constructs_MUST_contain_exactly_one_atomname_element);
 
             writer.WriteStartElement("author", AtomSpecs.AtomV1Namespace);
             writer.WriteElementString("name", AtomSpecs.AtomV1Namespace, Name);

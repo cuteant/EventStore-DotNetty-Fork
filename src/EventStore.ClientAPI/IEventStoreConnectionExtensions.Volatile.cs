@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -47,7 +47,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -70,7 +70,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.SubscribeToStreamAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -92,7 +92,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.SubscribeToStreamAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -117,7 +117,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.SubscribeToStreamAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.SubscribeToStreamAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -160,7 +160,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return connection.SubscribeToAllAsync(settings, eventAppeared, subscriptionDropped, userCredentials)
                        .ConfigureAwait(false).GetAwaiter().GetResult();
@@ -181,7 +181,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return connection.SubscribeToAllAsync(settings, eventAppearedAsync, subscriptionDropped, userCredentials)
                        .ConfigureAwait(false).GetAwaiter().GetResult();
@@ -201,7 +201,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return connection.SubscribeToAllAsync(settings, eventAppeared, subscriptionDropped, userCredentials)
                        .ConfigureAwait(false).GetAwaiter().GetResult();
     }
@@ -220,7 +220,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return connection.SubscribeToAllAsync(settings, eventAppearedAsync, subscriptionDropped, userCredentials)
                        .ConfigureAwait(false).GetAwaiter().GetResult();
     }
@@ -243,7 +243,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.SubscribeToAllAsync(settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -262,7 +262,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return connection.SubscribeToAllAsync(settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -287,7 +287,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -310,7 +310,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -333,7 +333,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -355,7 +355,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -383,9 +383,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -410,9 +410,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
@@ -436,9 +436,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -461,9 +461,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return AsyncContext.Run(
         async (conn, streamId, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync(streamId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -488,7 +488,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
@@ -510,7 +510,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
@@ -531,7 +531,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -551,7 +551,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync<TEnent>(null, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -577,7 +577,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, innerTopic, settings, eAppeared, subDropped, credentials)
@@ -600,7 +600,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, bool verboseLogging = false) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos, VerboseLogging = verboseLogging };
       return AsyncContext.Run(
         async (conn, innerTopic, settings, eAppeared, subDropped, credentials)
@@ -623,7 +623,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, innerTopic, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync<TEnent>(innerTopic, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -645,7 +645,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEnent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, innerTopic, settings, eAppeared, subDropped, credentials)
           => await conn.VolatileSubscribeAsync<TEnent>(innerTopic, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -671,7 +671,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(stream, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -690,7 +690,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(stream, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -715,9 +715,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -738,9 +738,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -761,9 +761,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -783,9 +783,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -806,7 +806,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -824,7 +824,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -842,7 +842,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.VolatileSubscribeAsync<TEvent>(null, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -859,7 +859,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.VolatileSubscribeAsync<TEvent>(null, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -881,7 +881,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync<TEvent>(topic, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -900,7 +900,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync<TEvent>(topic, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -924,7 +924,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(stream, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
@@ -943,7 +943,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.VolatileSubscribeAsync(stream, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
 
@@ -961,7 +961,7 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(stream, settings, addHandlers, subscriptionDropped, userCredentials);
     }
@@ -985,9 +985,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
@@ -1007,9 +1007,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
 
@@ -1028,9 +1028,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new SubscriptionSettings { ResolveLinkTos = resolveLinkTos };
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, addHandlers, subscriptionDropped, userCredentials);
     }
@@ -1050,9 +1050,9 @@ namespace EventStore.ClientAPI
       Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.VolatileSubscribeAsync(CombineStreamId(stream, topic), settings, addHandlers, subscriptionDropped, userCredentials);
     }
 

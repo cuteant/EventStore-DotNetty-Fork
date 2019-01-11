@@ -31,9 +31,9 @@ namespace EventStore.Transport.Http.Client
 
         public void Get(string url, IEnumerable<KeyValuePair<string,string>> headers, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            Ensure.NotNull(url, "url");
-            Ensure.NotNull(onSuccess, "onSuccess");
-            Ensure.NotNull(onException, "onException");
+            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Get, url, headers, onSuccess, onException);
         }
@@ -46,31 +46,31 @@ namespace EventStore.Transport.Http.Client
         public void Post(string url, string body, string contentType, IEnumerable<KeyValuePair<string,string>> headers, 
                          Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            Ensure.NotNull(url, "url");
-            Ensure.NotNull(body, "body");
-            Ensure.NotNull(contentType, "contentType");
-            Ensure.NotNull(onSuccess, "onSuccess");
-            Ensure.NotNull(onException, "onException");
+            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Post, url, body, contentType, headers, onSuccess, onException);
         }
 
         public void Delete(string url, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            Ensure.NotNull(url, "url");
-            Ensure.NotNull(onSuccess, "onSuccess");
-            Ensure.NotNull(onException, "onException");
+            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Delete, url, null, onSuccess, onException);
         }
 
         public void Put(string url, string body, string contentType, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            Ensure.NotNull(url, "url");
-            Ensure.NotNull(body, "body");
-            Ensure.NotNull(contentType, "contentType");
-            Ensure.NotNull(onSuccess, "onSuccess");
-            Ensure.NotNull(onException, "onException");
+            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Put, url, body, contentType, null, onSuccess, onException);
         }

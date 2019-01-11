@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BulkReader_is_null_for_subscription" xml:space="preserve">
+    <value>BulkReader is null for subscription.</value>
+  </data>
+  <data name="Concurrency_Error_In_ReadIndex_Commit" xml:space="preserve">
+    <value>Concurrency error in ReadIndex.Commit: _lastCommitPosition was modified during Commit execution!</value>
+  </data>
+  <data name="ConnectionIsNull" xml:space="preserve">
+    <value>_connection == null</value>
+  </data>
+  <data name="Could_not_append_raw_bytes_to_chunk" xml:space="preserve">
+    <value>Could not append raw bytes to chunk {0}-{1}, raw pos: {2} (0x{2:X}), bytes length: {3} (0x{3:X}). Chunk file size: {4} (0x{4:X}).</value>
+  </data>
+  <data name="Could_not_begin_restart_session" xml:space="preserve">
+    <value>Could not begin restart session.  Unable to determine file locker.</value>
+  </data>
+  <data name="Could_not_list_processes_locking_resource" xml:space="preserve">
+    <value>Could not list processes locking resource.</value>
+  </data>
+  <data name="Could_not_list_processes_locking_resource_F" xml:space="preserve">
+    <value>Could not list processes locking resource. Failed to get size of result.</value>
+  </data>
+  <data name="Could_not_read_latest_stream_prepare" xml:space="preserve">
+    <value>Could not read latest stream's prepare. That should never happen.</value>
+  </data>
+  <data name="Could_not_register_resource" xml:space="preserve">
+    <value>Could not register resource.</value>
+  </data>
+  <data name="Count_of_file_streams_reduced_below_zero" xml:space="preserve">
+    <value>Count of file streams reduced below zero.</value>
+  </data>
+  <data name="Count_of_memory_streams_reduced_below_zero" xml:space="preserve">
+    <value>Count of memory streams reduced below zero.</value>
+  </data>
+  <data name="Data_chunk_bulk_received_but" xml:space="preserve">
+    <value>Data chunk bulk received, but we have active chunk for receiving raw chunk bulks.</value>
+  </data>
+  <data name="First_write_failed_when_writing_replicated_record" xml:space="preserve">
+    <value>First write failed when writing replicated record: {0}.</value>
+  </data>
+  <data name="Incorrect_Message_Type_IDs_setup" xml:space="preserve">
+    <value>Incorrect Message Type IDs setup.</value>
+  </data>
+  <data name="IReplicationMessage_with_empty_SubscriptionId_provided" xml:space="preserve">
+    <value>IReplicationMessage with empty SubscriptionId provided.</value>
+  </data>
+  <data name="Master_subscribed_which_is_greater" xml:space="preserve">
+    <value>Master [{0},{1:B}] subscribed us at {2} (0x{2:X}), which is greater than our writer checkpoint {3} (0x{3:X}). REPLICATION BUG.</value>
+  </data>
+  <data name="MemStream_readers_are_in_use_when_writing_scavenged_chunk" xml:space="preserve">
+    <value>MemStream readers are in use when writing scavenged chunk.</value>
+  </data>
+  <data name="Not_enough_memory_streams_during_inMem_TFChunk_mode" xml:space="preserve">
+    <value>Not enough memory streams during in-mem TFChunk mode.</value>
+  </data>
+  <data name="No_chunks_in_DB" xml:space="preserve">
+    <value>No chunks in DB.</value>
+  </data>
+  <data name="No_transaction_ID_specified" xml:space="preserve">
+    <value>No transaction ID specified.</value>
+  </data>
+  <data name="Physical_chunk_bulk_received_but" xml:space="preserve">
+    <value>Physical chunk bulk received, but we do not have active chunk.</value>
+  </data>
+  <data name="Received_request_to_create_chunk" xml:space="preserve">
+    <value>Received request to create a new ongoing chunk #{0}-{1}, but current chunks count is {2}.</value>
+  </data>
+  <data name="Record_too_large" xml:space="preserve">
+    <value>Record too large.</value>
+  </data>
+  <data name="SCAVENGING_no_chunks_to_merge" xml:space="preserve">
+    <value>SCAVENGING: no chunks to merge, unexpectedly...</value>
+  </data>
+  <data name="StateIsNotReplica" xml:space="preserve">
+    <value>!_state.IsReplica()</value>
+  </data>
+  <data name="There_is_some_data_left_in_framer_when_completing_chunk" xml:space="preserve">
+    <value>There is some data left in framer when completing chunk.</value>
+  </data>
+  <data name="Too_many_retrials_to_acquire_reader" xml:space="preserve">
+    <value>Too many retrials to acquire reader for subscriber.</value>
+  </data>
+  <data name="TransactionId_was_not_set" xml:space="preserve">
+    <value>TransactionId was not set, transactionId = -1.</value>
+  </data>
+  <data name="Unable_to_acquire_reader_work_item" xml:space="preserve">
+    <value>Unable to acquire reader work item. Max internal streams limit reached.</value>
+  </data>
+  <data name="Unable_to_acquire_work_item" xml:space="preserve">
+    <value>Unable to acquire work item.</value>
+  </data>
+  <data name="We_should_not_BecomeMaster_twice_in_a_row" xml:space="preserve">
+    <value>We should not BecomeMaster twice in a row.</value>
+  </data>
+  <data name="YouCanOnlyRunUnbufferedModeOnV3OrHigherChunkFiles" xml:space="preserve">
+    <value>You can only run unbuffered mode on v3 or higher chunk files. Please run scavenge on your database to upgrade your transaction file to v3.</value>
+  </data>
+  <data name="NewPositionIsLessThanOldPosition" xml:space="preserve">
+    <value>New position is less than old position.</value>
+  </data>
+  <data name="offset_count_must_be_less_than_size_of_array" xml:space="preserve">
+    <value>offset + count must be less than size of array</value>
+  </data>
+  <data name="Provided_list_of_chunks_to_merge_is_empty" xml:space="preserve">
+    <value>Provided list of chunks to merge is empty.</value>
+  </data>
+  <data name="Duplicate_route" xml:space="preserve">
+    <value>Duplicate route.</value>
+  </data>
+  <data name="Empty_eventId_provided" xml:space="preserve">
+    <value>Empty eventId provided.</value>
+  </data>
+  <data name="Empty_eventType_provided" xml:space="preserve">
+    <value>Empty eventType provided.</value>
+  </data>
+  <data name="Invalid_constructor_used_for_successful_write" xml:space="preserve">
+    <value>Invalid constructor used for successful write.</value>
+  </data>
+  <data name="Neither_eventStreamId_nor_transactionId" xml:space="preserve">
+    <value>Neither eventStreamId nor transactionId is specified.</value>
+  </data>
+  <data name="Record_is_too_big" xml:space="preserve">
+    <value>Record is too big</value>
+  </data>
+  <data name="Scavenged_TFChunk_passed_into_unscavenged_chunk_read_side" xml:space="preserve">
+    <value>Scavenged TFChunk passed into unscavenged chunk read side.</value>
+  </data>
+  <data name="Unable_to_find_table_in_map" xml:space="preserve">
+    <value>Unable to find table in map.</value>
+  </data>
+  <data name="Could_not_finish_background_thread_in_reasonable_time" xml:space="preserve">
+    <value>Could not finish background thread in reasonable time.</value>
+  </data>
+  <data name="Waiting_for_background_tasks_took_too_long" xml:space="preserve">
+    <value>Waiting for background tasks took too long.</value>
+  </data>
+</root>

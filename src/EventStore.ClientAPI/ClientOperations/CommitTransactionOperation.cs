@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventStore.ClientAPI.Exceptions;
+﻿using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -39,20 +37,19 @@ namespace EventStore.ClientAPI.ClientOperations
                 case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
                 case OperationResult.WrongExpectedVersion:
-                    var err = string.Format("Commit transaction failed due to WrongExpectedVersion. TransactionID: {0}.", _transactionId);
-                    Fail(new WrongExpectedVersionException(err));
+                    Fail(CoreThrowHelper.GetWrongExpectedVersionException_CommitTransactionFailed(_transactionId));
                     return new InspectionResult(InspectionDecision.EndOperation, "WrongExpectedVersion");
                 case OperationResult.StreamDeleted:
-                    Fail(new StreamDeletedException());
+                    Fail(CoreThrowHelper.GetStreamDeletedException());
                     return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
                 case OperationResult.InvalidTransaction:
-                    Fail(new InvalidTransactionException());
+                    Fail(CoreThrowHelper.GetInvalidTransactionException());
                     return new InspectionResult(InspectionDecision.EndOperation, "InvalidTransaction");
                 case OperationResult.AccessDenied:
-                    Fail(new AccessDeniedException("Write access denied."));
+                    Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
-                    throw new Exception(string.Format("Unexpected OperationResult: {0}.", response.Result));
+                    CoreThrowHelper.ThrowException_UnexpectedOperationResult(response.Result); return null;
             }
         }
 

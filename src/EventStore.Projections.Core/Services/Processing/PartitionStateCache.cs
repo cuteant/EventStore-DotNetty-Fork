@@ -40,8 +40,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void CacheAndLockPartitionState(string partition, PartitionState data, CheckpointTag at)
         {
-            if (partition == null) throw new ArgumentNullException("partition");
-            if (data == null) throw new ArgumentNullException("data");
+            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
             EnsureCanLockPartitionAt(partition, at);
 
             _partitionStates[partition] = Tuple.Create(data, at);
@@ -54,8 +54,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void CachePartitionState(string partition, PartitionState data)
         {
-            if (partition == null) throw new ArgumentNullException("partition");
-            if (data == null) throw new ArgumentNullException("data");
+            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             _partitionStates[partition] = Tuple.Create(data, _zeroPosition);
             _cachedItemCount = _partitionStates.Count;
@@ -66,7 +66,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionState TryGetAndLockPartitionState(string partition, CheckpointTag lockAt)
         {
-            if (partition == null) throw new ArgumentNullException("partition");
+            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             Tuple<PartitionState, CheckpointTag> stateData;
             if (!_partitionStates.TryGetValue(partition, out stateData))
                 return null;
@@ -88,7 +88,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionState TryGetPartitionState(string partition)
         {
-            if (partition == null) throw new ArgumentNullException("partition");
+            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             Tuple<PartitionState, CheckpointTag> stateData;
             if (!_partitionStates.TryGetValue(partition, out stateData))
                 return null;
@@ -141,7 +141,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void EnsureCanLockPartitionAt(string partition, CheckpointTag at)
         {
-            if (partition == null) throw new ArgumentNullException("partition");
+            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             if (at == null && partition != "")
                 throw new InvalidOperationException("Only the root partition can be locked forever");
             if (partition == "" && at != null)

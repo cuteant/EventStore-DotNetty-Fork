@@ -75,13 +75,13 @@ namespace EventStore.Core.Services
                                 Func<long> getLastCommitPosition,
                                 int nodePriority)
         {
-            Ensure.NotNull(publisher, "publisher");
-            Ensure.NotNull(nodeInfo, "nodeInfo");
-            Ensure.Positive(clusterSize, "clusterSize");
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
-            Ensure.NotNull(chaserCheckpoint, "chaserCheckpoint");
-            Ensure.NotNull(epochManager, "epochManager");
-            Ensure.NotNull(getLastCommitPosition, "getLastCommitPosition");
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (clusterSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (null == getLastCommitPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
 
             _publisher = publisher;
             _nodeInfo = nodeInfo;

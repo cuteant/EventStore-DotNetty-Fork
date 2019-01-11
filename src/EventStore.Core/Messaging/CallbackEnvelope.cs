@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 
 namespace EventStore.Core.Messaging
 {
@@ -9,8 +8,8 @@ namespace EventStore.Core.Messaging
 
         public CallbackEnvelope(Action<Message> callback)
         {
+            if (null == callback) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.callback); }
             _callback = callback;
-            Ensure.NotNull(callback, "callback");
         }
 
         public void ReplyWith<T>(T message) where T : Message

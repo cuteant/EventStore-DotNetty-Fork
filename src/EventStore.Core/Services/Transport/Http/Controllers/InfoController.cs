@@ -32,7 +32,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Subscribe(IHttpService service)
         {
-            Ensure.NotNull(service, "service");
+            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             service.RegisterAction(new ControllerAction("/info", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetInfo);
             service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetOptions);
         }

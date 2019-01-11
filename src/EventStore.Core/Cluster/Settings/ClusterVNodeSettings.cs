@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Data;
 using EventStore.Core.Services.Monitoring;
@@ -150,29 +149,29 @@ namespace EventStore.Core.Cluster.Settings
                                     bool faultOutOfOrderProjections = false,
                                     bool structuredLog = false)
         {
-            Ensure.NotEmptyGuid(instanceId, "instanceId");
-            Ensure.NotNull(internalTcpEndPoint, "internalTcpEndPoint");
-            Ensure.NotNull(externalTcpEndPoint, "externalTcpEndPoint");
-            Ensure.NotNull(internalHttpEndPoint, "internalHttpEndPoint");
-            Ensure.NotNull(externalHttpEndPoint, "externalHttpEndPoint");
-            Ensure.NotNull(intHttpPrefixes, "intHttpPrefixes");
-            Ensure.NotNull(extHttpPrefixes, "extHttpPrefixes");
-            if (internalSecureTcpEndPoint != null || externalSecureTcpEndPoint != null)
-                Ensure.NotNull(certificate, "certificate");
-            Ensure.Positive(workerThreads, "workerThreads");
-            Ensure.NotNull(clusterDns, "clusterDns");
-            Ensure.NotNull(gossipSeeds, "gossipSeeds");
-            Ensure.Positive(clusterNodeCount, "clusterNodeCount");
-            Ensure.Positive(prepareAckCount, "prepareAckCount");
-            Ensure.Positive(commitAckCount, "commitAckCount");
-            Ensure.Positive(initializationThreads, "initializationThreads");
-            Ensure.NotNull(gossipAdvertiseInfo, "gossipAdvertiseInfo");
+            if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
+            if (null == internalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
+            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (null == internalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
+            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
+            if (null == intHttpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.intHttpPrefixes); }
+            if (null == extHttpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.extHttpPrefixes); }
+            if ((internalSecureTcpEndPoint != null || externalSecureTcpEndPoint != null) && null == certificate)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
+            if (workerThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.workerThreads); }
+            if (null == clusterDns) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterDns); }
+            if (null == gossipSeeds) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeeds); }
+            if (clusterNodeCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterNodeCount); }
+            if (prepareAckCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareAckCount); }
+            if (commitAckCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitAckCount); }
+            if (initializationThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
+            if (null == gossipAdvertiseInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipAdvertiseInfo); }
 
             if (discoverViaDns && string.IsNullOrWhiteSpace(clusterDns))
                 throw new ArgumentException("Either DNS Discovery must be disabled (and seeds specified), or a cluster DNS name must be provided.");
 
-            if (useSsl)
-                Ensure.NotNull(sslTargetHost, "sslTargetHost");
+            if (useSsl && null == sslTargetHost)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sslTargetHost);
 
             NodeInfo = new VNodeInfo(instanceId, debugIndex,
                                      internalTcpEndPoint, internalSecureTcpEndPoint,

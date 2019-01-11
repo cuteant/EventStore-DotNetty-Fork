@@ -2,8 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.TransactionLog.Chunks
@@ -27,13 +25,13 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkManager(TFChunkDbConfig config)
         {
-            Ensure.NotNull(config, nameof(config));
+            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
             _config = config;
         }
 
         public void EnableCaching()
         {
-            if (_chunksCount == 0) { throw new Exception("No chunks in DB."); }
+            if (_chunksCount == 0) { ThrowHelper.ThrowException(ExceptionResource.No_chunks_in_DB); }
 
             lock (_chunksLocker)
             {
@@ -131,15 +129,14 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk AddNewChunk(ChunkHeader chunkHeader, int fileSize)
         {
-            Ensure.NotNull(chunkHeader, nameof(chunkHeader));
-            Ensure.Positive(fileSize, nameof(fileSize));
+            if (null == chunkHeader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
+            if (fileSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
 
             lock (_chunksLocker)
             {
                 if (chunkHeader.ChunkStartNumber != _chunksCount)
                 {
-                    throw new Exception(string.Format("Received request to create a new ongoing chunk #{0}-{1}, but current chunks count is {2}.",
-                                                      chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber, _chunksCount));
+                    ThrowHelper.ThrowException_ReceivedRequestToCreateAnewOngoingChunk(chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber, _chunksCount);
                 }
 
                 var chunkName = _config.FileNamingStrategy.GetFilenameFor(chunkHeader.ChunkStartNumber, 0);
@@ -158,7 +155,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void AddChunk(TFChunk.TFChunk chunk)
         {
-            Ensure.NotNull(chunk, nameof(chunk));
+            if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
 
             lock (_chunksLocker)
             {
@@ -174,10 +171,10 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk SwitchChunk(TFChunk.TFChunk chunk, bool verifyHash, bool removeChunksWithGreaterNumbers)
         {
-            Ensure.NotNull(chunk, nameof(chunk));
+            if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
             if (!chunk.IsReadOnly)
             {
-                throw new ArgumentException($"Passed TFChunk is not completed: {chunk.FileName}.");
+                ThrowHelper.ThrowArgumentException_PassedTFChunkIsNotCompleted(chunk);
             }
 
             var chunkHeader = chunk.ChunkHeader;
@@ -203,7 +200,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 catch (TimeoutException exc)
                 {
-                    throw new Exception($"The chunk that is being switched {chunk} is used by someone else.", exc);
+                    ThrowHelper.ThrowException_TheChunkThatIsBeingSwitched(chunk, exc);
                 }
                 var newFileName = _config.FileNamingStrategy.DetermineBestVersionFilenameFor(chunkHeader.ChunkStartNumber);
                 if (infoEnabled) Log.LogInformation("File {0} will be moved to file {1}", Path.GetFileName(oldFileName), Path.GetFileName(newFileName));
@@ -233,7 +230,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     RemoveChunks(chunkHeader.ChunkEndNumber + 1, oldChunksCount - 1, "Excessive");
                     if (_chunks[_chunksCount] != null)
                     {
-                        throw new Exception($"Excessive chunk #{_chunksCount} found after raw replication switch.");
+                        ThrowHelper.ThrowException_ExcessiveChunkFoundAfterRawReplicationSwitch(_chunksCount);
                     }
                 }
 
@@ -320,13 +317,13 @@ namespace EventStore.Core.TransactionLog.Chunks
             var chunkNum = (int)(logPosition / _config.ChunkSize);
             if (chunkNum < 0 || chunkNum >= _chunksCount)
             {
-                throw new ArgumentOutOfRangeException(nameof(logPosition), $"LogPosition {logPosition} does not have corresponding chunk in DB.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_LogPositionDoesNotHaveCorrespondingChunkInDB(logPosition);
             }
 
             var chunk = _chunks[chunkNum];
             if (chunk == null)
             {
-                throw new Exception($"Requested chunk for LogPosition {logPosition}, which is not present in TFChunkManager.");
+                ThrowHelper.ThrowException_RequestedChunkForLogPositionWhichIsNotPresentInTFChunkManager(logPosition);
             }
 
             return chunk;
@@ -336,13 +333,13 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (chunkNum < 0 || chunkNum >= _chunksCount)
             {
-                throw new ArgumentOutOfRangeException("chunkNum", $"Chunk #{chunkNum} is not present in DB.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_ChunkIsNotPresentInDB(chunkNum);
             }
 
             var chunk = _chunks[chunkNum];
             if (chunk == null)
             {
-                throw new Exception($"Requested chunk #{chunkNum}, which is not present in TFChunkManager.");
+                ThrowHelper.ThrowException_RequestedChunkWhichIsNotPresentInTFChunkManager(chunkNum);
             }
 
             return chunk;

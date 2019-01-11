@@ -43,9 +43,9 @@ namespace EventStore.Core.Services.Storage
 
         public StorageReaderWorker(IPublisher publisher, IReadIndex readIndex, ICheckpoint writerCheckpoint, int queueId)
         {
-            Ensure.NotNull(publisher, nameof(publisher));
-            Ensure.NotNull(readIndex, nameof(readIndex));
-            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _publisher = publisher;
             _readIndex = readIndex;
@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.Storage
                         msg.Envelope.ReplyWith(res);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(string.Format("Unknown ReadStreamResult: {0}", res.Result));
+                        ThrowHelper.ThrowArgumentOutOfRangeException_UnknownReadStreamResult(res.Result); break;
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace EventStore.Core.Services.Storage
                         msg.Envelope.ReplyWith(res);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException($"Unknown ReadAllResult: {res.Result}");
+                        ThrowHelper.ThrowArgumentOutOfRangeException_UnknownReadAllResult(res.Result); break;
                 }
             }
         }
@@ -227,7 +227,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     if (msg.MaxCount > MaxPageSize)
                     {
-                        throw new ArgumentException($"Read size too big, should be less than {MaxPageSize} items");
+                        ThrowHelper.ThrowArgumentException_ReadSizeTooBig(MaxPageSize);
                     }
                     if (msg.ValidationStreamVersion.HasValue &&
                         _readIndex.GetStreamLastEventNumber(msg.EventStreamId) == msg.ValidationStreamVersion)
@@ -272,7 +272,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     if (msg.MaxCount > MaxPageSize)
                     {
-                        throw new ArgumentException($"Read size too big, should be less than {MaxPageSize} items");
+                        ThrowHelper.ThrowArgumentException_ReadSizeTooBig(MaxPageSize);
                     }
                     if (msg.ValidationStreamVersion.HasValue &&
                         _readIndex.GetStreamLastEventNumber(msg.EventStreamId) == msg.ValidationStreamVersion)
@@ -319,7 +319,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     if (msg.MaxCount > MaxPageSize)
                     {
-                        throw new ArgumentException($"Read size too big, should be less than {MaxPageSize} items");
+                        ThrowHelper.ThrowArgumentException_ReadSizeTooBig(MaxPageSize);
                     }
                     if (pos == TFPos.HeadOfTf)
                     {
@@ -371,7 +371,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     if (msg.MaxCount > MaxPageSize)
                     {
-                        throw new ArgumentException($"Read size too big, should be less than {MaxPageSize} items");
+                        ThrowHelper.ThrowArgumentException_ReadSizeTooBig(MaxPageSize);
                     }
 
                     if (pos == TFPos.HeadOfTf)
@@ -421,11 +421,11 @@ namespace EventStore.Core.Services.Storage
             {
                 if (msg.EventStreamId == null)
                 {
-                    if (msg.TransactionId == null) throw new Exception("No transaction ID specified.");
+                    if (msg.TransactionId == null) ThrowHelper.ThrowException(ExceptionResource.No_transaction_ID_specified);
                     streamId = _readIndex.GetEventStreamIdByTransactionId(msg.TransactionId.Value);
                     if (streamId == null)
                     {
-                        throw new Exception($"No transaction with ID {msg.TransactionId} found.");
+                        ThrowHelper.ThrowException_NoTransactionWithID(msg);
                     }
                 }
                 var result = _readIndex.CheckStreamAccess(streamId, msg.AccessType, msg.User);
@@ -478,14 +478,7 @@ namespace EventStore.Core.Services.Storage
             {
                 if (result.Records[index].EventNumber != result.Records[index - 1].EventNumber + 1)
                 {
-                    throw new Exception(
-                            string.Format("Invalid order of events has been detected in read index for the event stream '{0}'. "
-                                          + "The event {1} at position {2} goes after the event {3} at position {4}",
-                                          msg.EventStreamId,
-                                          result.Records[index].EventNumber,
-                                          result.Records[index].LogPosition,
-                                          result.Records[index - 1].EventNumber,
-                                          result.Records[index - 1].LogPosition));
+                    ThrowHelper.ThrowException_InvalidOrderOfEventsHasBeenDetectedInReadIndex(msg, result, index);
                 }
             }
         }
@@ -496,13 +489,7 @@ namespace EventStore.Core.Services.Storage
             {
                 if (result.Records[index].EventNumber != result.Records[index - 1].EventNumber - 1)
                 {
-                    throw new Exception(string.Format("Invalid order of events has been detected in read index for the event stream '{0}'. "
-                                                      + "The event {1} at position {2} goes after the event {3} at position {4}",
-                                                      msg.EventStreamId,
-                                                      result.Records[index].EventNumber,
-                                                      result.Records[index].LogPosition,
-                                                      result.Records[index - 1].EventNumber,
-                                                      result.Records[index - 1].LogPosition));
+                    ThrowHelper.ThrowException_InvalidOrderOfEventsHasBeenDetectedInReadIndex(msg, result, index);
                 }
             }
         }

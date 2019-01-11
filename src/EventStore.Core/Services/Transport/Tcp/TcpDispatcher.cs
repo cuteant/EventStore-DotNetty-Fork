@@ -61,7 +61,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public TcpPackage WrapMessage(Message message, byte version)
         {
             if (message == null)
-                throw new ArgumentNullException("message");
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message);
 
             try
             {
@@ -81,7 +81,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public Message UnwrapPackage(TcpPackage package, IEnvelope envelope, IPrincipal user, string login, string pass, TcpConnectionManager connection, byte version)
         {
             if (envelope == null)
-                throw new ArgumentNullException("envelope");
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
 
             var unwrapper = _unwrappers[version][(byte)package.Command];
             if (unwrapper == null) 

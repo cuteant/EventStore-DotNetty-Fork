@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using EventStore.Common.Utils;
 using System.Linq;
 
 namespace EventStore.Core.TransactionLog.FileNamingStrategy
@@ -14,8 +13,8 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public VersionedPatternFileNamingStrategy(string path, string prefix)
         {
-            Ensure.NotNull(path, "path");
-            Ensure.NotNull(prefix, "prefix");
+            if (null == path) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.path); }
+            if (null == prefix) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefix); }
             _path = path;
             _prefix = prefix;
 
@@ -24,8 +23,8 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public string GetFilenameFor(int index, int version)
         {
-            Ensure.Nonnegative(index, "index");
-            Ensure.Nonnegative(version, "version");
+            if (index < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.index); }
+            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
 
             return Path.Combine(_path, string.Format("{0}{1:000000}.{2:000000}", _prefix, index, version));
         }
@@ -35,9 +34,9 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
             var allVersions = GetAllVersionsFor(index);
             if (allVersions.Length == 0)
                 return GetFilenameFor(index, 0);
-            int lastVersion;
-            if (!int.TryParse(allVersions[0].Substring(allVersions[0].LastIndexOf('.') + 1), out lastVersion))
-                throw new Exception(string.Format("Could not determine version from filename '{0}'.", allVersions[0]));
+            int lastVersion; var firstVersion = allVersions[0];
+            if (!int.TryParse(firstVersion.Substring(firstVersion.LastIndexOf('.') + 1), out lastVersion))
+                ThrowHelper.ThrowException_CouldnotDetermineVersionFromFilename(firstVersion);
             return GetFilenameFor(index, lastVersion + 1);
         }
 

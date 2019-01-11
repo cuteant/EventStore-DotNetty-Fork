@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
 using EventStore.Core.Bus;
@@ -65,13 +61,12 @@ namespace EventStore.Core.Services.Replication
                                 TimeSpan heartbeatInterval)
             : base(settings, useSsl, sslTargetHost, sslValidateServer)
         {
-            Ensure.NotNull(publisher, nameof(publisher));
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(epochManager, nameof(epochManager));
-            Ensure.NotNull(networkSendQueue, nameof(networkSendQueue));
-            Ensure.NotNull(authProvider, nameof(authProvider));
-            Ensure.NotNull(nodeInfo, nameof(nodeInfo));
-            if (useSsl) Ensure.NotNull(sslTargetHost, nameof(sslTargetHost));
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
 
             _publisher = publisher;
             _db = db;
@@ -117,7 +112,7 @@ namespace EventStore.Core.Services.Replication
                         break;
                     }
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }
         }
 
@@ -188,7 +183,7 @@ namespace EventStore.Core.Services.Replication
 
         private static IPEndPoint GetMasterEndPoint(VNodeInfo master, bool useSsl)
         {
-            Ensure.NotNull(master, "master");
+            if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
             if (useSsl && master.InternalSecureTcp == null)
             {
                 Log.LogError("Internal secure connections are required, but no internal secure TCP end point is specified for master [{0}]!", master);
@@ -201,7 +196,7 @@ namespace EventStore.Core.Services.Replication
         {
             if (_state != VNodeState.PreReplica)
             {
-                throw new Exception($"_state is {_state}, but is expected to be {VNodeState.PreReplica}");
+                ThrowHelper.ThrowException_StateIsExpectedToBeVNodeStatePreReplica(_state);
             }
 
             var logPosition = _db.Config.WriterCheckpoint.ReadNonFlushed();
@@ -216,7 +211,7 @@ namespace EventStore.Core.Services.Replication
             }
 
             var chunk = _db.Manager.GetChunkFor(logPosition);
-            if (chunk == null) throw new Exception($"Chunk was null during subscribing at {logPosition} (0x{logPosition:X}).");
+            if (chunk == null) ThrowHelper.ThrowException_ChunkWasNullDuringSubscribing(logPosition);
             SendTcpMessage(_connection,
                            new ReplicationMessage.SubscribeReplica(
                                    logPosition, chunk.ChunkHeader.ChunkId, epochs, _nodeInfo.InternalTcp,
@@ -225,8 +220,8 @@ namespace EventStore.Core.Services.Replication
 
         public void Handle(ReplicationMessage.AckLogPosition message)
         {
-            if (!_state.IsReplica()) throw new Exception("!_state.IsReplica()");
-            if (_connection == null) throw new Exception("_connection == null");
+            if (!_state.IsReplica()) ThrowHelper.ThrowException(ExceptionResource.StateIsNotReplica);
+            if (_connection == null) ThrowHelper.ThrowException(ExceptionResource.ConnectionIsNull);
             SendTcpMessage(_connection, message);
         }
 
@@ -272,7 +267,7 @@ namespace EventStore.Core.Services.Replication
                     }
 
                 default:
-                    throw new Exception($"Unexpected state: {_state}");
+                    ThrowHelper.ThrowException_UnexpectedState(_state); break;
             }
         }
 

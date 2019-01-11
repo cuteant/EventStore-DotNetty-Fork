@@ -11,7 +11,7 @@ namespace EventStore.Core.TransactionLog
         public RecordWriteResult(bool success, long oldPosition, long newPosition)
         {
             if (newPosition < oldPosition)
-                throw new ArgumentException("New position is less than old position.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.NewPositionIsLessThanOldPosition);
 
             Success = success;
             OldPosition = oldPosition;

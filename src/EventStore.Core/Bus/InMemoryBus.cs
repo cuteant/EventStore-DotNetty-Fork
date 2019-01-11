@@ -48,7 +48,7 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<IMessageHandler> handlers;
             if (!_typeHash.TryGetValue(typeof(T), out handlers))
@@ -64,7 +64,7 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<IMessageHandler> handlers;
             if (_typeHash.TryGetValue(typeof(T), out handlers))
@@ -164,11 +164,11 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<Type> descendants;
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out descendants))
-                throw new Exception(string.Format("No descendants for message of type '{0}'.", typeof(T).Name));
+                ThrowHelper.ThrowException_NoDescendantsForMessage<T>();
 
             foreach (var descendant in descendants)
             {
@@ -187,11 +187,11 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<Type> descendants;
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out descendants))
-                throw new Exception(string.Format("No descendants for message of type '{0}'.", typeof(T).Name));
+                ThrowHelper.ThrowException_NoDescendantsForMessage<T>();
 
             foreach (var descendant in descendants)
             {
@@ -213,7 +213,7 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            Ensure.NotNull(message, "message");
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             PublishByType(message, message.GetType());
         }
 
@@ -288,7 +288,7 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof (T)];
             for (int i = 0; i < descendants.Length; ++i)
@@ -303,7 +303,7 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            Ensure.NotNull(handler, "handler");
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof(T)];
             for (int i = 0; i < descendants.Length; ++i)
@@ -323,7 +323,7 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            //if (message == null) throw new ArgumentNullException("message");
+            //if (message == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message);
 
             var handlers = _handlers[message.MsgTypeId];
             for (int i = 0, n = handlers.Count; i < n; ++i)

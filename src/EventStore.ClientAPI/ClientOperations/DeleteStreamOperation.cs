@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using EventStore.ClientAPI.Exceptions;
+﻿using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -44,20 +42,19 @@ namespace EventStore.ClientAPI.ClientOperations
                 case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
                 case OperationResult.WrongExpectedVersion:
-                    var err = string.Format("Delete stream failed due to WrongExpectedVersion. Stream: {0}, Expected version: {1}.", _stream, _expectedVersion);
-                    Fail(new WrongExpectedVersionException(err));
+                    Fail(CoreThrowHelper.GetWrongExpectedVersionException_DeleteStreamFailed(_stream, _expectedVersion));
                     return new InspectionResult(InspectionDecision.EndOperation, "WrongExpectedVersion");
                 case OperationResult.StreamDeleted:
-                    Fail(new StreamDeletedException(_stream));
+                    Fail(CoreThrowHelper.GetStreamDeletedException(_stream));
                     return new InspectionResult(InspectionDecision.EndOperation, "StreamDeleted");
                 case OperationResult.InvalidTransaction:
-                    Fail(new InvalidTransactionException());
+                    Fail(CoreThrowHelper.GetInvalidTransactionException());
                     return new InspectionResult(InspectionDecision.EndOperation, "InvalidTransaction");
                 case OperationResult.AccessDenied:
-                    Fail(new AccessDeniedException(string.Format("Write access denied for stream '{0}'.", _stream)));
+                    Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied_for_stream, _stream));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
-                    throw new Exception(string.Format("Unexpected OperationResult: {0}.", response.Result));
+                    CoreThrowHelper.ThrowException_UnexpectedOperationResult(response.Result); return null;
             }
         }
 

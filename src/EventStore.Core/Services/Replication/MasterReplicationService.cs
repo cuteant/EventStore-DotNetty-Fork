@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Exceptions;
@@ -66,7 +66,7 @@ namespace EventStore.Core.Services.Replication
         private bool _noQuorumNotified;
         private ManualResetEventSlim _flushSignal = new ManualResetEventSlim();
         private readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
-        public Task Task { get {return _tcs.Task;} }
+        public Task Task { get { return _tcs.Task; } }
 
         public MasterReplicationService(IPublisher publisher,
                                            Guid instanceId,
@@ -75,12 +75,12 @@ namespace EventStore.Core.Services.Replication
                                            IEpochManager epochManager,
                                            int clusterSize)
         {
-            Ensure.NotNull(publisher, nameof(publisher));
-            Ensure.NotEmptyGuid(instanceId, nameof(instanceId));
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(tcpSendPublisher, nameof(tcpSendPublisher));
-            Ensure.NotNull(epochManager, nameof(epochManager));
-            Ensure.Positive(clusterSize, nameof(clusterSize));
+            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == tcpSendPublisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpSendPublisher); }
+            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (clusterSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
 
             _publisher = publisher;
             _instanceId = instanceId;
@@ -202,13 +202,7 @@ namespace EventStore.Core.Services.Replication
             {
                 if (logPosition > 0)
                 {
-                    // slave has some data, but doesn't have any epoch
-                    // for now we'll just report error and close connection
-                    var msg = string.Format("Replica [{0},S:{1},{2}] has positive LogPosition {3} (0x{3:X}), but does not have epochs.",
-                                            replicaEndPoint, subscriptionId,
-                                            string.Join(", ", epochs.Select(x => x.AsString())), logPosition);
-                    if (Log.IsInformationLevelEnabled()) Log.LogInformation(msg);
-                    throw new Exception(msg);
+                    ReplicaHasPositiveLogPositionButDoesNotHaveEpochs(logPosition, epochs, replicaEndPoint, subscriptionId);
                 }
                 return 0;
             }
@@ -251,19 +245,46 @@ namespace EventStore.Core.Services.Replication
             }
             if (nextEpoch == null)
             {
-                var msg = string.Format("Replica [{0},S:{1},{2}(0x{2:X}),epochs:\n{3}]\n provided epochs which are not in "
-                                        + "EpochManager (possibly too old, known epochs:\n{4}).\nMaster LogPosition: {5} (0x{5:X}). "
-                                        + "We do not support this case as of now.\n"
-                                        + "CommonEpoch: {6}, AfterCommonEpoch: {7}",
-                                        replicaEndPoint, subscriptionId, logPosition,
-                                        string.Join("\n", epochs.Select(x => x.AsString())),
-                                        string.Join("\n", _epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString())), masterCheckpoint,
-                                        commonEpoch.AsString(), afterCommonEpoch == null ? "<none>" : afterCommonEpoch.AsString());
-                Log.LogError(msg);
-                throw new Exception(msg);
+                ReplicaEpochsProvidedEpochsWhichAreNotInEpochManager(logPosition, epochs, replicaEndPoint, subscriptionId,
+                    _epochManager, masterCheckpoint, afterCommonEpoch, commonEpoch);
             }
 
             return Math.Min(replicaPosition, nextEpoch.EpochPosition);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ReplicaHasPositiveLogPositionButDoesNotHaveEpochs(long logPosition, Epoch[] epochs, IPEndPoint replicaEndPoint, Guid subscriptionId)
+        {
+            // slave has some data, but doesn't have any epoch
+            // for now we'll just report error and close connection
+            var msg = string.Format("Replica [{0},S:{1},{2}] has positive LogPosition {3} (0x{3:X}), but does not have epochs.",
+                                    replicaEndPoint, subscriptionId,
+                                    string.Join(", ", epochs.Select(x => x.AsString())), logPosition);
+            if (Log.IsInformationLevelEnabled()) Log.LogInformation(msg);
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception(msg);
+            }
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ReplicaEpochsProvidedEpochsWhichAreNotInEpochManager(long logPosition, Epoch[] epochs, IPEndPoint replicaEndPoint, Guid subscriptionId,
+            IEpochManager epochManager, long masterCheckpoint, Epoch afterCommonEpoch, Epoch commonEpoch)
+        {
+            var msg = string.Format("Replica [{0},S:{1},{2}(0x{2:X}),epochs:\n{3}]\n provided epochs which are not in "
+                                    + "EpochManager (possibly too old, known epochs:\n{4}).\nMaster LogPosition: {5} (0x{5:X}). "
+                                    + "We do not support this case as of now.\n"
+                                    + "CommonEpoch: {6}, AfterCommonEpoch: {7}",
+                                    replicaEndPoint, subscriptionId, logPosition,
+                                    string.Join("\n", epochs.Select(x => x.AsString())),
+                                    string.Join("\n", epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString())), masterCheckpoint,
+                                    commonEpoch.AsString(), afterCommonEpoch == null ? "<none>" : afterCommonEpoch.AsString());
+            Log.LogError(msg);
+            throw GetException();
+            Exception GetException()
+            {
+                return new Exception(msg);
+            }
         }
 
         private long SetSubscriptionPosition(ReplicaSubscription sub,
@@ -275,7 +296,7 @@ namespace EventStore.Core.Services.Replication
         {
             if (trial >= 10)
             {
-                throw new Exception("Too many retrials to acquire reader for subscriber.");
+                ThrowHelper.ThrowException(ExceptionResource.Too_many_retrials_to_acquire_reader);
             }
 
             try
@@ -340,61 +361,64 @@ namespace EventStore.Core.Services.Replication
 
         private void MainLoop()
         {
-            try{
-            _queueStats.Start();
-            QueueMonitor.Default.Register(this);
-
-            _db.Config.WriterCheckpoint.Flushed += OnWriterFlushed;
-
-            while (!_stop)
+            try
             {
-                try
+                _queueStats.Start();
+                QueueMonitor.Default.Register(this);
+
+                _db.Config.WriterCheckpoint.Flushed += OnWriterFlushed;
+
+                while (!_stop)
                 {
-
-                    _queueStats.EnterBusy();
-
-                    _queueStats.ProcessingStarted(typeof(SendReplicationData), _subscriptions.Count);
-
-                    _flushSignal.Reset(); // Reset the flush signal as we're about to read anyway. This could be closer to the actual read but no harm from too many checks.
-
-                    var dataFound = ManageSubscriptions();
-                    ManageNoQuorumDetection();
-                    var newSubscriptions = _newSubscriptions;
-                    _newSubscriptions = false;
-                    ManageRoleAssignments(force: newSubscriptions);
-
-                    _queueStats.ProcessingEnded(_subscriptions.Count);
-
-                    if (!dataFound)
+                    try
                     {
-                        _queueStats.EnterIdle();
 
-                        _flushSignal.Wait(TimeSpan.FromMilliseconds(500));
+                        _queueStats.EnterBusy();
+
+                        _queueStats.ProcessingStarted(typeof(SendReplicationData), _subscriptions.Count);
+
+                        _flushSignal.Reset(); // Reset the flush signal as we're about to read anyway. This could be closer to the actual read but no harm from too many checks.
+
+                        var dataFound = ManageSubscriptions();
+                        ManageNoQuorumDetection();
+                        var newSubscriptions = _newSubscriptions;
+                        _newSubscriptions = false;
+                        ManageRoleAssignments(force: newSubscriptions);
+
+                        _queueStats.ProcessingEnded(_subscriptions.Count);
+
+                        if (!dataFound)
+                        {
+                            _queueStats.EnterIdle();
+
+                            _flushSignal.Wait(TimeSpan.FromMilliseconds(500));
+                        }
+                    }
+                    catch (Exception exc)
+                    {
+                        if (Log.IsInformationLevelEnabled()) Log.LogInformation(exc, "Error during master replication iteration.");
+#if DEBUG
+                        throw;
+#endif
                     }
                 }
-                catch (Exception exc)
+
+                foreach (var subscription in _subscriptions.Values)
                 {
-                    if (Log.IsInformationLevelEnabled()) Log.LogInformation(exc, "Error during master replication iteration.");
-#if DEBUG
-                    throw;
-#endif
+                    subscription.Dispose();
                 }
-            }
 
-            foreach (var subscription in _subscriptions.Values)
+                _db.Config.WriterCheckpoint.Flushed -= OnWriterFlushed;
+
+                _publisher.Publish(new SystemMessage.ServiceShutdown(Name));
+            }
+            catch (Exception ex)
             {
-                subscription.Dispose();
-            }
-
-            _db.Config.WriterCheckpoint.Flushed -= OnWriterFlushed;
-
-            _publisher.Publish(new SystemMessage.ServiceShutdown(Name));
-            }
-            catch(Exception ex){
                 _tcs.TrySetException(ex);
                 throw;
             }
-            finally{
+            finally
+            {
                 _queueStats.Stop();
                 QueueMonitor.Default.Unregister(this);
             }
@@ -429,7 +453,7 @@ namespace EventStore.Core.Services.Replication
                     continue;
                 }
 
-                if (subscription.BulkReader == null) throw new Exception("BulkReader is null for subscription.");
+                if (subscription.BulkReader == null) ThrowHelper.ThrowException(ExceptionResource.BulkReader_is_null_for_subscription);
 
                 try
                 {
@@ -456,10 +480,10 @@ namespace EventStore.Core.Services.Replication
         private bool TrySendLogBulk(ReplicaSubscription subscription, long masterCheckpoint)
         {
             /*
-            if (subscription == null) throw new Exception("subscription == null");
-            if (subscription.BulkReader == null) throw new Exception("subscription.BulkReader == null");
-            if (subscription.BulkReader.Chunk == null) throw new Exception("subscription.BulkReader.Chunk == null");
-            if (subscription.DataBuffer == null) throw new Exception("subscription.DataBuffer == null");
+            if (subscription == null) throw new 1Exception("subscription == null");
+            if (subscription.BulkReader == null) throw new 1Exception("subscription.BulkReader == null");
+            if (subscription.BulkReader.Chunk == null) throw new 1Exception("subscription.BulkReader.Chunk == null");
+            if (subscription.DataBuffer == null) throw new 1Exception("subscription.DataBuffer == null");
             */
 
             var bulkReader = subscription.BulkReader;
@@ -497,8 +521,7 @@ namespace EventStore.Core.Services.Replication
                 {
                     if (chunkHeader.GetLocalLogPosition(subscription.LogPosition) != bulkResult.OldPosition)
                     {
-                        throw new Exception(string.Format("Replication invariant failure. SubscriptionPosition {0}, bulkResult.OldPosition {1}",
-                                                          subscription.LogPosition, bulkResult.OldPosition));
+                        ThrowHelper.ThrowException_ReplicationInvariantFailure(subscription.LogPosition, bulkResult.OldPosition);
                     }
                     var msg = new ReplicationMessage.DataChunkBulk(
                         _instanceId, subscription.SubscriptionId, chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber,

@@ -83,7 +83,7 @@ namespace EventStore.ClientAPI.Resilience
           log.LogError($@"The persistent subscription to {subscription.StreamId} could not be found. {Environment.NewLine}{message}");
           break;
         default:
-          throw new ArgumentOutOfRangeException(nameof(subscription.DropReason), subscription.DropReason, null);
+          ConsumerThrowHelper.ThrowArgumentOutOfRangeException(subscription.DropReason); break;
       }
     }
 

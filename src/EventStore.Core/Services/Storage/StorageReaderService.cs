@@ -25,11 +25,11 @@ namespace EventStore.Core.Services.Storage
 
         public StorageReaderService(IPublisher bus, ISubscriber subscriber, IReadIndex readIndex, int threadCount, ICheckpoint writerCheckpoint)
         {
-            Ensure.NotNull(bus, "bus");
-            Ensure.NotNull(subscriber, "subscriber");
-            Ensure.NotNull(readIndex, "readIndex");
-            Ensure.Positive(threadCount, "threadCount");
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
+            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (null == subscriber) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriber); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (threadCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threadCount); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _bus = bus;
             _readIndex = readIndex;

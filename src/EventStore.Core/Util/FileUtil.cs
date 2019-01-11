@@ -10,7 +10,7 @@ namespace EventStore.Core.Util
             var dir = new DirectoryInfo(sourceDirName);
 
             if (!dir.Exists)
-                throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirName);
+                ThrowHelper.ThrowDirectoryNotFoundException(sourceDirName);
 
             var subdirs = copySubDirs ? dir.GetDirectories() : null;
 

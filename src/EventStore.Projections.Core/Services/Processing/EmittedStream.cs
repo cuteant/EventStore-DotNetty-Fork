@@ -152,8 +152,8 @@ namespace EventStore.Projections.Core.Services.Processing
             if (writerConfiguration == null) throw new ArgumentNullException(nameof(writerConfiguration));
             if (positionTagger == null) throw new ArgumentNullException(nameof(positionTagger));
             if (fromCheckpointPosition == null) throw new ArgumentNullException(nameof(fromCheckpointPosition));
-            if (publisher == null) throw new ArgumentNullException(nameof(publisher));
-            if (ioDispatcher == null) throw new ArgumentNullException(nameof(ioDispatcher));
+            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (readyHandler == null) throw new ArgumentNullException(nameof(readyHandler));
 
             _streamId = streamId;

@@ -10,7 +10,7 @@ namespace EventStore.ClientAPI.Common.Utils.Threading
         {
             if (await Task.WhenAny(task, Task.Delay(timeout)) != task)
             {
-                throw new OperationTimedOutException(string.Format("The operation did not complete within the specified time of {0}", timeout));
+                CoreThrowHelper.ThrowOperationTimedOutException(timeout);
             }
 
             return await task;

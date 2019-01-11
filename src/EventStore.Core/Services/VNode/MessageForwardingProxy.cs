@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using EventStore.Common.Utils;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Services.VNode
@@ -57,8 +56,8 @@ namespace EventStore.Core.Services.VNode
 
             public Forwarding(Guid clientCorrId, IEnvelope envelope, TimeSpan timeoutTimestamp, Message timeoutMessage)
             {
-                Ensure.NotNull(envelope, "envelope");
-                Ensure.NotNull(timeoutMessage, "timeoutMessage");
+                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (null == timeoutMessage) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeoutMessage); }
 
                 ClientCorrId = clientCorrId;
                 Envelope = envelope;

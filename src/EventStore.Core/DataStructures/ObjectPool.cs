@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using EventStore.Common.Utils;
 using System.Collections.Concurrent;
 
 namespace EventStore.Core.DataStructures
@@ -15,7 +14,7 @@ namespace EventStore.Core.DataStructures
         public ObjectPoolDisposingException(string poolName, Exception innerException)
             : base(string.Format("Object pool '{0}' is disposing/disposed while Get operation is requested.", poolName), innerException)
         {
-            Ensure.NotNullOrEmpty(poolName, "poolName");
+            if (string.IsNullOrEmpty(poolName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.poolName); }
         }
     }
 
@@ -29,8 +28,8 @@ namespace EventStore.Core.DataStructures
         public ObjectPoolMaxLimitReachedException(string poolName, int maxLimit, Exception innerException)
             : base(string.Format("Object pool '{0}' has reached its max limit for items: {1}.", poolName, maxLimit), innerException)
         {
-            Ensure.NotNullOrEmpty(poolName, "poolName");
-            Ensure.Nonnegative(maxLimit, "maxLimit");
+            if (string.IsNullOrEmpty(poolName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.poolName); }
+            if (maxLimit < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxLimit); }
         }
     }
 
@@ -55,12 +54,12 @@ namespace EventStore.Core.DataStructures
                           Action<T> dispose = null,
                           Action<ObjectPool<T>> onPoolDisposed = null)
         {
-            Ensure.NotNullOrEmpty(objectPoolName, "objectPoolName");
-            Ensure.Nonnegative(initialCount, "initialCount");
-            Ensure.Nonnegative(maxCount, "maxCount");
+            if (string.IsNullOrEmpty(objectPoolName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.objectPoolName); }
+            if (initialCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialCount); }
+            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             if (initialCount > maxCount)
-                throw new ArgumentOutOfRangeException("initialCount", "initialCount is greater than maxCount.");
-            Ensure.NotNull(factory, "factory");
+                ThrowHelper.ThrowArgumentOutOfRangeException_InitialCountIsGreaterThanMaxCount();
+            if (null == factory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.factory); }
 
             ObjectPoolName = objectPoolName;
             _maxCount = maxCount;
@@ -133,7 +132,7 @@ namespace EventStore.Core.DataStructures
             }
 
             if (count < 0)
-                throw new Exception("Somehow we managed to decrease count of pool items below zero.");
+                ThrowHelper.ThrowException_SomehowWeManagedToDecreaseCountOfPoolItemsBelowZero();
             if (count == 0) // we are the last who should "turn the light off" 
                 OnPoolDisposed();
         }

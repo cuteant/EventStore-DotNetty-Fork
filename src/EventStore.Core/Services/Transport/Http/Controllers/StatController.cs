@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Transport.Http;
@@ -23,7 +22,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected override void SubscribeCore(IHttpService service)
         {
-            Ensure.NotNull(service, "service");
+            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
 
             service.RegisterAction(new ControllerAction("/stats", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetFreshStats);
             service.RegisterAction(new ControllerAction("/stats/replication", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetReplicationStats);
@@ -83,7 +82,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
             return dict =>
             {
-                Ensure.NotNull(dict, "dictionary");
+                if (null == dict) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dict); }
 
                 foreach (string groupName in groups)
                 {

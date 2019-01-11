@@ -170,7 +170,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             {
                 if (_entry.List == null)
                 {
-                    throw new InvalidOperationException("The message can only be accepted once.");
+                    ThrowHelper.ThrowInvalidOperationException_TheMessageCanOnlyBeAcceptedOnce();
                 }
                 _entry.List.Remove(_entry);
             }

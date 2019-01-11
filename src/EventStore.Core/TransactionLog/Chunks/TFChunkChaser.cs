@@ -1,5 +1,4 @@
-﻿using EventStore.Common.Utils;
-using EventStore.Core.TransactionLog.Checkpoint;
+﻿using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
 
 namespace EventStore.Core.TransactionLog.Chunks
@@ -13,9 +12,9 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkChaser(TFChunkDb db, ICheckpoint writerCheckpoint, ICheckpoint chaserCheckpoint, bool optimizeReadSideCache)
         {
-            Ensure.NotNull(db, nameof(db));
-            Ensure.NotNull(writerCheckpoint, nameof(writerCheckpoint));
-            Ensure.NotNull(chaserCheckpoint, nameof(chaserCheckpoint));
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
 
             _chaserCheckpoint = chaserCheckpoint;
             _reader = new TFChunkReader(db, writerCheckpoint, _chaserCheckpoint.Read(), optimizeReadSideCache);

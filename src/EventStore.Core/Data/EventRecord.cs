@@ -28,7 +28,7 @@ namespace EventStore.Core.Data
 
         public EventRecord(long eventNumber, PrepareLogRecord prepare)
         {
-            Ensure.Nonnegative(eventNumber, "eventNumber");
+            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
 
             EventNumber = eventNumber;
             LogPosition = prepare.LogPosition;
@@ -60,14 +60,14 @@ namespace EventStore.Core.Data
                            byte[] data, 
                            byte[] metadata)
         {
-            Ensure.Nonnegative(logPosition, "logPosition");
-            Ensure.Nonnegative(transactionPosition, "transactionPosition");
+            if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
             if (transactionOffset < -1)
-                throw new ArgumentOutOfRangeException("transactionOffset");
-            Ensure.NotNull(eventStreamId, "eventStreamId");
-            Ensure.Nonnegative(eventNumber, "eventNumber");
-            Ensure.NotEmptyGuid(eventId, "eventId");
-            Ensure.NotNull(data, "data");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.transactionOffset);
+            if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
+            if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
+            if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
             EventNumber = eventNumber;
             LogPosition = logPosition;

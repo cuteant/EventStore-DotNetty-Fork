@@ -4,59 +4,60 @@ using CuteAnt.Extensions.Serialization;
 
 namespace EventStore.ClientAPI
 {
-  internal sealed class DefaultEventDescriptor : IEventDescriptor
-  {
-    private readonly Dictionary<string, object> _eventContext;
-    private static readonly IObjectTypeDeserializer _objectTypeDeserializer = JsonObjectTypeDeserializer.Instance;
-
-    public DefaultEventDescriptor(Dictionary<string, object> context)
+    internal sealed class DefaultEventDescriptor : IEventDescriptor
     {
-      _eventContext = context ?? throw new ArgumentNullException(nameof(context));
+        private readonly Dictionary<string, object> _eventContext;
+        private static readonly IObjectTypeDeserializer _objectTypeDeserializer = JsonObjectTypeDeserializer.Instance;
+
+        public DefaultEventDescriptor(Dictionary<string, object> context)
+        {
+            if (null == context) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.context); }
+            _eventContext = context;
+        }
+
+        public T GetValue<T>(string key)
+        {
+            return _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
+        }
+
+        public T GetValue<T>(string key, T defaultValue)
+        {
+            return _objectTypeDeserializer.Deserialize<T>(_eventContext, key, defaultValue);
+        }
+
+        public bool TryGetValue<T>(string key, out T value)
+        {
+            try
+            {
+                value = _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
+                return true;
+            }
+            catch
+            {
+                value = default(T);
+                return false;
+            }
+        }
     }
 
-    public T GetValue<T>(string key)
+    internal sealed class NullEventDescriptor : IEventDescriptor
     {
-      return _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
-    }
+        internal static readonly IEventDescriptor Instance = new NullEventDescriptor();
 
-    public T GetValue<T>(string key, T defaultValue)
-    {
-      return _objectTypeDeserializer.Deserialize<T>(_eventContext, key, defaultValue);
-    }
+        public T GetValue<T>(string key)
+        {
+            CoreThrowHelper.ThrowKeyNotFoundException(key); return default;
+        }
 
-    public bool TryGetValue<T>(string key, out T value)
-    {
-      try
-      {
-        value = _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
-        return true;
-      }
-      catch
-      {
-        value = default(T);
-        return false;
-      }
-    }
-  }
+        public T GetValue<T>(string key, T defaultValue)
+        {
+            return default(T);
+        }
 
-  internal sealed class NullEventDescriptor : IEventDescriptor
-  {
-    internal static readonly IEventDescriptor Instance = new NullEventDescriptor();
-
-    public T GetValue<T>(string key)
-    {
-      throw new KeyNotFoundException($"The key was not present: {key}");
+        public bool TryGetValue<T>(string key, out T value)
+        {
+            value = default(T);
+            return false;
+        }
     }
-
-    public T GetValue<T>(string key, T defaultValue)
-    {
-      return default(T);
-    }
-
-    public bool TryGetValue<T>(string key, out T value)
-    {
-      value = default(T);
-      return false;
-    }
-  }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
@@ -31,9 +30,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public AllReader(IIndexBackend backend, IIndexCommitter indexCommitter, ICheckpoint replicationCheckpoint)
         {
-            Ensure.NotNull(backend, "backend");
-            Ensure.NotNull(indexCommitter, "indexCommitter");
-            Ensure.NotNull(replicationCheckpoint, "replicationCheckpoint");
+            if (null == backend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
+            if (null == indexCommitter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
+            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
             _backend = backend;
             _indexCommitter = indexCommitter;
             _replicationCheckpoint = replicationCheckpoint;
@@ -138,7 +137,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                 break;
                             }
                         default:
-                            throw new Exception(string.Format("Unexpected log record type: {0}.", result.LogRecord.RecordType));
+                            ThrowHelper.ThrowException_UnexpectedLogRecordType(result.LogRecord.RecordType); break;
                     }
                 }
                 return new IndexReadAllResult(records, pos, nextPos, prevPos);
@@ -258,7 +257,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                             }
 
                         default:
-                            throw new Exception(string.Format("Unexpected log record type: {0}.", result.LogRecord.RecordType));
+                            ThrowHelper.ThrowException_UnexpectedLogRecordType(result.LogRecord.RecordType); break;
                     }
                 }
                 return new IndexReadAllResult(records, pos, nextPos, prevPos);

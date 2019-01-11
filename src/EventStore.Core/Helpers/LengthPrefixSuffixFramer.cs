@@ -27,8 +27,8 @@ namespace EventStore.Core.Helpers
 
         public LengthPrefixSuffixFramer(Action<BinaryReader> packageHandler, int maxPackageSize = TFConsts.MaxLogRecordSize)
         {
-            Ensure.NotNull(packageHandler, nameof(packageHandler));
-            Ensure.Positive(maxPackageSize, nameof(maxPackageSize));
+            if (null == packageHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.packageHandler); }
+            if (maxPackageSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxPackageSize); }
 
             _maxPackageSize = maxPackageSize;
             _packageHandler = packageHandler;
@@ -46,7 +46,7 @@ namespace EventStore.Core.Helpers
 
         public void UnFrameData(IEnumerable<ArraySegment<byte>> data)
         {
-            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             foreach (ArraySegment<byte> buffer in data)
             {
@@ -76,8 +76,7 @@ namespace EventStore.Core.Helpers
                         if (_packageLength <= 0 || _packageLength > _maxPackageSize)
                         {
                             Log.LogError($"FRAMING ERROR! Data:\n{Helper.FormatBinaryDump(bytes)}");
-                            throw new PackageFramingException(string.Format("Package size is out of bounds: {0} (max: {1}).",
-                                                                            _packageLength, _maxPackageSize));
+                            ThrowHelper.ThrowPackageFramingException(_packageLength, _maxPackageSize);
                         }
                         _packageLength += PrefixLength; // we need to read suffix as well
                     }
@@ -98,7 +97,7 @@ namespace EventStore.Core.Helpers
                                          | (buf[_packageLength - 1] << 24);
                         if (_packageLength - PrefixLength != suffixLength)
                         {
-                            throw new Exception($"Prefix length: {_packageLength - PrefixLength} is not equal to suffix length: {suffixLength}.");
+                            ThrowHelper.ThrowException_PrefixLengthIsNotEqualToSuffixLength(_packageLength ,PrefixLength, suffixLength);
                         }
 #endif
                         _memStream.SetLength(_packageLength - PrefixLength); // remove suffix length

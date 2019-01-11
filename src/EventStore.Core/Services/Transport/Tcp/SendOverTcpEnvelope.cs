@@ -12,8 +12,8 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public SendOverTcpEnvelope(TcpConnectionManager manager, IPublisher networkSendQueue)
         {
-            Ensure.NotNull(manager, "manager");
-            Ensure.NotNull(networkSendQueue, "networkSendQueue");
+            if (null == manager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.manager); }
+            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
             _networkSendQueue = networkSendQueue;
             _manager = manager;
         }

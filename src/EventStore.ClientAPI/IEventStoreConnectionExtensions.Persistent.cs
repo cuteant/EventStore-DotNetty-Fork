@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
     public static void CreatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       try
       {
@@ -49,8 +49,8 @@ namespace EventStore.ClientAPI
     public static void CreatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       CreatePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, subscriptionSettings, userCredentials);
     }
 
@@ -92,7 +92,7 @@ namespace EventStore.ClientAPI
     public static void UpdatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       try
       {
@@ -122,8 +122,8 @@ namespace EventStore.ClientAPI
     public static void UpdatePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings subscriptionSettings, UserCredentials userCredentials = null)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       UpdatePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, subscriptionSettings, userCredentials);
     }
 
@@ -164,7 +164,7 @@ namespace EventStore.ClientAPI
     public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string groupName, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       try
       {
@@ -193,8 +193,8 @@ namespace EventStore.ClientAPI
     public static void DeletePersistentSubscription(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, UserCredentials userCredentials = null)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       DeletePersistentSubscription(connection, CombineStreamId(stream, topic), groupName, userCredentials);
     }
 
@@ -236,9 +236,9 @@ namespace EventStore.ClientAPI
     public static Task CreatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.CreatePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, settings, credentials);
     }
 
@@ -251,7 +251,7 @@ namespace EventStore.ClientAPI
     public static Task CreatePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
       string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.CreatePersistentSubscriptionAsync<TEvent>(null, groupName, settings, credentials);
     }
 
@@ -270,9 +270,9 @@ namespace EventStore.ClientAPI
     public static Task UpdatePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.UpdatePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, settings, credentials);
     }
 
@@ -285,7 +285,7 @@ namespace EventStore.ClientAPI
     public static Task UpdatePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
       string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.UpdatePersistentSubscriptionAsync<TEvent>(null, groupName, settings, credentials);
     }
 
@@ -304,9 +304,9 @@ namespace EventStore.ClientAPI
     public static Task DeletePersistentSubscriptionAsync(this IEventStoreConnectionBase connection,
       string stream, string topic, string groupName, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return connection.DeletePersistentSubscriptionAsync(CombineStreamId(stream, topic), groupName, userCredentials);
     }
 
@@ -318,7 +318,7 @@ namespace EventStore.ClientAPI
     public static Task DeletePersistentSubscriptionAsync<TEvent>(this IEventStoreBus bus,
       string groupName, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.DeletePersistentSubscriptionAsync<TEvent>(null, groupName, userCredentials);
     }
 
@@ -350,7 +350,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
 
       return AsyncContext.Run(
@@ -382,7 +382,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -464,7 +464,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.ConnectToPersistentSubscriptionAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -492,7 +492,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.ConnectToPersistentSubscriptionAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -574,7 +574,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -602,7 +602,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -681,7 +681,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, (s, e, r) => eventAppeared(s, e), subscriptionDropped, userCredentials);
     }
@@ -707,7 +707,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscriptionBase, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       return connection.ConnectToPersistentSubscriptionAsync(stream, groupName, settings, (s, e, r) => eventAppearedAsync(s, e), subscriptionDropped, userCredentials);
     }
@@ -742,7 +742,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -775,7 +775,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -804,7 +804,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -833,7 +833,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -870,9 +870,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
@@ -907,9 +907,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
@@ -941,9 +941,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -974,9 +974,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -1011,7 +1011,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
@@ -1043,7 +1043,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
@@ -1073,7 +1073,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, subId, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -1101,7 +1101,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, subId, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync<TEvent>(null, subId, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -1137,7 +1137,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -1170,7 +1170,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var subscriptionSettings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
@@ -1200,7 +1200,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -1229,7 +1229,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamWrapper, settings, eAppeared, subDropped, credentials)
           => await conn.PersistentSubscribeAsync<TEvent>(streamWrapper.Item1, streamWrapper.Item2, settings, eAppeared, subDropped, credentials).ConfigureAwait(false),
@@ -1266,7 +1266,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -1296,7 +1296,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -1331,9 +1331,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -1364,9 +1364,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -1394,9 +1394,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -1423,9 +1423,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -1456,7 +1456,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync<TEvent>(null, subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -1484,7 +1484,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync<TEvent>(null, subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -1510,7 +1510,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.PersistentSubscribeAsync<TEvent>(null, subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
 
@@ -1535,7 +1535,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.PersistentSubscribeAsync<TEvent>(null, subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
 
@@ -1568,7 +1568,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync<TEvent>(topic, subscriptionId, settings, eventAppeared, subscriptionDropped, userCredentials);
     }
@@ -1598,7 +1598,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync<TEvent>(topic, subscriptionId, settings, eventAppearedAsync, subscriptionDropped, userCredentials);
     }
@@ -1632,7 +1632,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
@@ -1659,7 +1659,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
 
@@ -1687,7 +1687,7 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
     }
@@ -1721,9 +1721,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
@@ -1751,9 +1751,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, _ => addHandlers(new HandlerAdder(_)), subscriptionDropped, userCredentials);
     }
 
@@ -1782,9 +1782,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
     }
@@ -1812,9 +1812,9 @@ namespace EventStore.ClientAPI
       Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.PersistentSubscribeAsync(CombineStreamId(stream, topic), subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
     }
 

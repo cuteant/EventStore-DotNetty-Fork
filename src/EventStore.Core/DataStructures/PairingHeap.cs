@@ -25,13 +25,13 @@ namespace EventStore.Core.DataStructures
         public PairingHeap(IComparer<T> comparer): this(null, comparer)
         {
             if (comparer == null)
-                throw new ArgumentNullException("comparer");
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.comparer);
         }
 
         public PairingHeap(Func<T, T, bool> compare): this(null, compare)
         {
             if (compare == null)
-                throw new ArgumentNullException("compare");
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.compare);
         }
 
         public PairingHeap(IEnumerable<T> items): this(items, null as IComparer<T>)
@@ -88,14 +88,14 @@ namespace EventStore.Core.DataStructures
         public T FindMin()
         {
             if (Count == 0)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             return _root.Item;
         }
 
         public T DeleteMin()
         {
             if (Count == 0)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
 
             var oldRoot = _root;
             var res = _root.Item;
@@ -174,9 +174,9 @@ namespace EventStore.Core.DataStructures
             public ObjectPool(int count, Func<TItem> creator)
             {
                 if (count < 0)
-                    throw new ArgumentOutOfRangeException();
+                    ThrowHelper.ThrowArgumentOutOfRangeException();
                 if (creator == null)
-                    throw new ArgumentNullException("creator");
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.creator);
 
                 _count = count;
                 _creator = creator;

@@ -38,17 +38,17 @@ namespace EventStore.Core.TransactionLog.Chunks
                                bool optimizeReadSideCache = false,
                                bool reduceFileCachePressure = false)
         {
-            Ensure.NotNullOrEmpty(path, "path");
-            Ensure.NotNull(fileNamingStrategy, "fileNamingStrategy");
-            Ensure.Positive(chunkSize, "chunkSize");
-            Ensure.Nonnegative(maxChunksCacheSize, "maxChunksCacheSize");
-            Ensure.NotNull(writerCheckpoint, "writerCheckpoint");
-            Ensure.NotNull(chaserCheckpoint, "chaserCheckpoint");
-            Ensure.NotNull(epochCheckpoint, "epochCheckpoint");
-            Ensure.NotNull(truncateCheckpoint, "truncateCheckpoint");
-            Ensure.NotNull(replicationCheckpoint, "replicationCheckpoint");
-            Ensure.Positive(initialReaderCount, "initialReaderCount");
-            
+            if (string.IsNullOrEmpty(path)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.path); }
+            if (null == fileNamingStrategy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fileNamingStrategy); }
+            if (chunkSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.chunkSize); }
+            if (maxChunksCacheSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxChunksCacheSize); }
+            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (null == epochCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochCheckpoint); }
+            if (null == truncateCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.truncateCheckpoint); }
+            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
+            if (initialReaderCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initialReaderCount); }
+
             Path = path;
             ChunkSize = chunkSize;
             MaxChunksCacheSize = maxChunksCacheSize;

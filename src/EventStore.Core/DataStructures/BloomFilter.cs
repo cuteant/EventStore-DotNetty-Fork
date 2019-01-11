@@ -22,9 +22,9 @@ namespace EventStore.Core.DataStructures
         private static IHasher hasher1 = new XXHashUnsafe(), hasher2 = new Murmur3AUnsafe();
 
         public BloomFilter(int n, double p){
-            Ensure.Positive(n,"n");
-            if(p<=0.0 || p>=0.5)
-                throw new ArgumentOutOfRangeException("p", "p should be between 0 and 0.5 exclusive");
+            if (n <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.n); }
+            if (p<=0.0 || p>=0.5)
+                ThrowHelper.ThrowArgumentOutOfRangeException_ShouldBeBetween0And05Exclusive();
 
             //calculate number of hash functions to use
             k = (int) Math.Ceiling(- Math.Log(p) / Math.Log(2));
@@ -35,7 +35,7 @@ namespace EventStore.Core.DataStructures
             long buckets = m / LONG_SIZE;
             if(m % LONG_SIZE != 0) buckets++;
             if(m > Int32.MaxValue) {
-                throw new ArgumentOutOfRangeException("p", "calculated number of bits, m, is too large: "+m+". please choose a larger value of p.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_CalculatedNumberOfBitsIsTooLarge(m);
             }
             this.m = (int) m;
             bits = new ulong[ buckets ];

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Tcp
 {
@@ -99,7 +98,7 @@ namespace EventStore.Transport.Tcp
 
             if (connection.IsFaulted)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("# {0} is faulted", connection);
+                if (Log.IsInformationLevelEnabled()) Log.ConnectionIsFaulted(connection);
                 return;
             }
 
@@ -145,8 +144,7 @@ namespace EventStore.Transport.Tcp
 
             if (missingReceiveCallback && connectionData.LastMissingReceiveCallBack)
             {
-                Log.LogError("# {0} {1}ms since last Receive started. No completion callback received, but socket status is READY_FOR_RECEIVE",
-                          connection, sinceLastReceive);
+                Log.ConnectionMissingReceiveCallback(connection, sinceLastReceive);
             }
             connectionData.LastMissingReceiveCallBack = missingReceiveCallback;
         }
@@ -165,9 +163,7 @@ namespace EventStore.Transport.Tcp
             if (missingSendCallback && connectionData.LastMissingSendCallBack)
             {
                 // _anySendBlockedOnLastRun = true;
-                Log.LogError(
-                    "# {0} {1}ms since last send started. No completion callback received, but socket status is READY_FOR_SEND. In send: {2}",
-                    connection, sinceLastSend, inSendBytes);
+                Log.ConnectionMissingSendCallback(connection, sinceLastSend, inSendBytes);
             }
             connectionData.LastMissingSendCallBack = missingSendCallback;
         }
@@ -177,7 +173,7 @@ namespace EventStore.Transport.Tcp
             int pendingSendBytes = connection.PendingSendBytes;
             if (pendingSendBytes > 128 * 1024)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("# {0} {1}kb pending send", connection, pendingSendBytes / 1024);
+                if (Log.IsInformationLevelEnabled()) Log.ConnectionPendingSend(connection, pendingSendBytes);
             }
         }
 
@@ -186,7 +182,7 @@ namespace EventStore.Transport.Tcp
             int pendingReceivedBytes = connection.PendingReceivedBytes;
             if (pendingReceivedBytes > 128 * 1024)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("# {0} {1}kb are not dispatched", connection, pendingReceivedBytes / 1024);
+                if (Log.IsInformationLevelEnabled()) Log.ConnectionPendingReceived(connection, pendingReceivedBytes);
             }
         }
 

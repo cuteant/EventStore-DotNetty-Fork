@@ -40,10 +40,7 @@ namespace EventStore.Core.Services.VNode
             //                                            : (s, m) => { existingHandler(s, m); handler(s, m); };
 
             if (stateHandlers.ContainsKey(typeof(TActualMessage)))
-                throw new InvalidOperationException(
-                    string.Format("Handler already defined for state {0} and message {1}",
-                                  state,
-                                  typeof (TActualMessage).FullName));
+                ThrowHelper.ThrowInvalidOperationException_HandlerAlreadyDefinedForStateAndMessage<TActualMessage>(state);
             stateHandlers[typeof(TActualMessage)] = handler;
         }
 
@@ -55,7 +52,7 @@ namespace EventStore.Core.Services.VNode
             //                                ? handler
             //                                : (s, m) => { existingHandler(s, m); handler(s, m); };
             if (_defaultHandlers[stateNum] != null)
-                throw new InvalidOperationException(string.Format("Default handler already defined for state {0}", state));
+                ThrowHelper.ThrowInvalidOperationException_DefaultHandlerAlreadyDefinedForState(state);
             _defaultHandlers[stateNum] = handler;
         }
 
@@ -77,7 +74,7 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition InAllStatesExcept(VNodeState[] states)
         {
-            Ensure.Positive(states.Length, "states.Length");
+            if (states.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.states_Length); }
 
             var s = Enum.GetValues(typeof (VNodeState)).Cast<VNodeState>().Except(states).ToArray();
             return new VNodeFSMStatesDefinition(this, s);

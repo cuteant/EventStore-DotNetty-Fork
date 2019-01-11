@@ -84,7 +84,7 @@ namespace EventStore.Projections.Core.Messages
             public GetState(Guid correlationId, Guid projectionId, string partition, Guid workerId)
                 : base(projectionId, workerId)
             {
-                if (partition == null) throw new ArgumentNullException("partition");
+                if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                 _correlationId = correlationId;
                 _partition = partition;
             }
@@ -115,7 +115,7 @@ namespace EventStore.Projections.Core.Messages
             public GetResult(Guid correlationId, Guid projectionId, string partition, Guid workerId)
                 : base(projectionId, workerId)
             {
-                if (partition == null) throw new ArgumentNullException("partition");
+                if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                 _correlationId = correlationId;
                 _partition = partition;
             }
@@ -218,10 +218,10 @@ namespace EventStore.Projections.Core.Messages
                 string query)
                 : base(projectionId, workerId)
             {
-                if (name == null) throw new ArgumentNullException("name");
+                if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
                 if (config == null) throw new ArgumentNullException("config");
                 if (handlerType == null) throw new ArgumentNullException("handlerType");
-                if (query == null) throw new ArgumentNullException("query");
+                if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
                 if (masterMasterWorkerId == Guid.Empty)
                     throw new ArgumentException("Must not be empty", "masterMasterWorkerId");
                 _name = name;
@@ -296,11 +296,11 @@ namespace EventStore.Projections.Core.Messages
                 string query)
                 : base(projectionId, workerId)
             {
-                if (name == null) throw new ArgumentNullException("name");
+                if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
                 if (config == null) throw new ArgumentNullException("config");
                 if (sourceDefinition == null) throw new ArgumentNullException("sourceDefinition");
                 if (handlerType == null) throw new ArgumentNullException("handlerType");
-                if (query == null) throw new ArgumentNullException("query");
+                if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
                 _name = name;
                 _version = version;
                 _config = config;

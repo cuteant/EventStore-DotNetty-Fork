@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI.Transport.Http
 {
@@ -17,8 +16,8 @@ namespace EventStore.ClientAPI.Transport.Http
 
         public AsyncStreamCopier(Stream input, Stream output, T state)
         {
-            Ensure.NotNull(input, "input");
-            Ensure.NotNull(output, "output");
+            if (null == input) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
+            if (null == output) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
 
             _input = input;
             _output = output;

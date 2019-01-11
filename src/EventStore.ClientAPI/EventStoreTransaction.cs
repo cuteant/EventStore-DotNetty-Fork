@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 
@@ -20,8 +21,20 @@ namespace EventStore.ClientAPI
 
         private readonly UserCredentials _userCredentials;
         private readonly IEventStoreTransactionConnection _connection;
-        private bool _isRolledBack;
-        private bool _isCommitted;
+        private int _isRolledBack;
+        private bool IsRolledBack
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Consts.True == Volatile.Read(ref _isRolledBack);
+            set => Interlocked.Exchange(ref _isRolledBack, value ? Consts.True : Consts.False);
+        }
+        private int _isCommitted;
+        private bool IsCommitted
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Consts.True == Volatile.Read(ref _isCommitted);
+            set => Interlocked.Exchange(ref _isCommitted, value ? Consts.True : Consts.False);
+        }
 
         /// <summary>
         /// Constructs a new <see cref="EventStoreTransaction"/>
@@ -31,7 +44,7 @@ namespace EventStore.ClientAPI
         /// <param name="connection">The connection the transaction is hooked to.</param>
         internal EventStoreTransaction(long transactionId, UserCredentials userCredentials, IEventStoreTransactionConnection connection)
         {
-            Ensure.Nonnegative(transactionId, "transactionId");
+            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
 
             TransactionId = transactionId;
             _userCredentials = userCredentials;
@@ -44,9 +57,9 @@ namespace EventStore.ClientAPI
         /// <returns>A <see cref="Task"/> that returns expected version for following write requests</returns>
         public Task<WriteResult> CommitAsync()
         {
-            if (_isRolledBack) throw new InvalidOperationException("Cannot commit a rolledback transaction");
-            if (_isCommitted) throw new InvalidOperationException("Transaction is already committed");
-            _isCommitted = true;
+            if (IsRolledBack) CoreThrowHelper.ThrowInvalidOperationException_CannotCommitARolledbackTransaction();
+            if (IsCommitted) CoreThrowHelper.ThrowInvalidOperationException_TransactionIsAlreadyCommitted();
+            IsCommitted = true;
             return _connection.CommitTransactionAsync(this, _userCredentials);
         }
 
@@ -67,8 +80,8 @@ namespace EventStore.ClientAPI
         /// <returns>A <see cref="Task"/> allowing the caller to control the async operation.</returns>
         public Task WriteAsync(IEnumerable<EventData> events)
         {
-            if (_isRolledBack) throw new InvalidOperationException("Cannot write to a rolled-back transaction");
-            if (_isCommitted) throw new InvalidOperationException("Transaction is already committed");
+            if (IsRolledBack) CoreThrowHelper.ThrowInvalidOperationException_CannotWriteToARolledbackTransaction();
+            if (IsCommitted) CoreThrowHelper.ThrowInvalidOperationException_TransactionIsAlreadyCommitted();
             return _connection.TransactionalWriteAsync(this, events);
         }
 
@@ -77,17 +90,16 @@ namespace EventStore.ClientAPI
         /// </summary>
         public void Rollback()
         {
-            if (_isCommitted) throw new InvalidOperationException("Transaction is already committed");
-            _isRolledBack = true;
-        } 
+            if (IsCommitted) CoreThrowHelper.ThrowInvalidOperationException_TransactionIsAlreadyCommitted();
+            IsRolledBack = true;
+        }
 
         /// <summary>
         /// Disposes this transaction rolling it back if not already committed
         /// </summary>
         public void Dispose()
         {
-            if (!_isCommitted)
-                _isRolledBack = true;
+            if (!IsCommitted) { IsRolledBack = true; }
         }
     }
 }

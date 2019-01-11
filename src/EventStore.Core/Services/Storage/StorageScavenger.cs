@@ -2,7 +2,6 @@
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
@@ -30,10 +29,10 @@ namespace EventStore.Core.Services.Storage
 
         public StorageScavenger(TFChunkDb db, ITableIndex tableIndex, IReadIndex readIndex, ITFChunkScavengerLogManager logManager, bool alwaysKeepScavenged, bool mergeChunks, bool unsafeIgnoreHardDeletes)
         {
-            Ensure.NotNull(db, "db");
-            Ensure.NotNull(logManager, "logManager");
-            Ensure.NotNull(tableIndex, "tableIndex");
-            Ensure.NotNull(readIndex, "readIndex");
+            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (null == logManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.logManager); }
+            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
 
             _db = db;
             _tableIndex = tableIndex;

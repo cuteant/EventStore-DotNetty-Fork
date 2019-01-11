@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI.Transport.Http
 {
@@ -14,9 +13,9 @@ namespace EventStore.ClientAPI.Transport.Http
 
         public ClientOperationState(HttpRequestMessage request, Action<HttpResponse> onSuccess, Action<Exception> onError)
         {
-            Ensure.NotNull(request, "request");
-            Ensure.NotNull(onSuccess, "onSuccess");
-            Ensure.NotNull(onError, "onError");
+            if (null == request) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
+            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             Request = request;
             OnSuccess = onSuccess;

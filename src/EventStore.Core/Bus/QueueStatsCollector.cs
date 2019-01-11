@@ -47,7 +47,7 @@ namespace EventStore.Core.Bus
 #endif
         public QueueStatsCollector(string name, string groupName = null)
         {
-            Ensure.NotNull(name, "name");
+            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
 
             Name = name;
             GroupName = groupName;
@@ -277,7 +277,7 @@ namespace EventStore.Core.Bus
                         if (isDebugEnabled) { _logger.LogDebug("Waiting for STOP state..."); }
                         counter++;
                         if (counter > 150 * multiplier)
-                            throw new ApplicationException("Infinite WaitStop() loop?");
+                            ThrowHelper.ThrowApplicationException_InfiniteWaitStop();
                     }
                 }
             }
@@ -305,7 +305,7 @@ namespace EventStore.Core.Bus
                             if (debugEnabled) _logger.LogDebug("Waiting for IDLE state...");
                             counter++;
                             if (counter > 150 * multiplier)
-                                throw new ApplicationException("Infinite WaitIdle() loop?");
+                                ThrowHelper.ThrowApplicationException_InfiniteWaitIdle();
                         }
                     }
                     Thread.Sleep(10);

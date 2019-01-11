@@ -45,16 +45,15 @@ namespace EventStore.Core.TransactionLog.LogRecords
         internal SystemLogRecord(BinaryReader reader, byte version, long logPosition): base(LogRecordType.System, version, logPosition)
         {
             if (version != SystemRecordVersion)
-                throw new ArgumentException(string.Format(
-                    "SystemRecord version {0} is incorrect. Supported version: {1}.", version, SystemRecordVersion));
+                ThrowHelper.ThrowArgumentException_SystemRecordVersionIsIncorrect(version);
 
             TimeStamp = new DateTime(reader.ReadInt64());
             SystemRecordType = (SystemRecordType) reader.ReadByte();
             if (SystemRecordType == SystemRecordType.Invalid)
-                throw new ArgumentException(string.Format("Invalid SystemRecordType {0} at LogPosition {1}.", SystemRecordType, LogPosition));
+                ThrowHelper.ThrowArgumentException_InvalidSystemRecordType(SystemRecordType, LogPosition);
             SystemRecordSerialization = (SystemRecordSerialization) reader.ReadByte();
             if (SystemRecordSerialization == SystemRecordSerialization.Invalid)
-                throw new ArgumentException(string.Format("Invalid SystemRecordSerialization {0} at LogPosition {1}.", SystemRecordSerialization, LogPosition));
+                ThrowHelper.ThrowArgumentException_InvalidSystemRecordSerialization(SystemRecordSerialization, LogPosition);
             Reserved = reader.ReadInt64();
 
             var dataCount = reader.ReadInt32();
@@ -64,20 +63,15 @@ namespace EventStore.Core.TransactionLog.LogRecords
         public EpochRecord GetEpochRecord()
         {
             if (SystemRecordType != SystemRecordType.Epoch)
-                throw new ArgumentException(
-                    string.Format("Unexpected type of system record. Requested: {0}, actual: {1}.", SystemRecordType.Epoch, SystemRecordType));
+                ThrowHelper.ThrowArgumentException_UnexpectedTypeOfSystemRecord(SystemRecordType);
 
             switch (SystemRecordSerialization)
             {
                 case SystemRecordSerialization.Json:
-                {
                     var dto = Data.ParseJson<EpochRecord.EpochRecordDto>();
                     return new EpochRecord(dto);
-                }
                 default:
-                    throw new ArgumentOutOfRangeException(
-                            string.Format("Unexpected SystemRecordSerialization type: {0}", SystemRecordSerialization),
-                            "SystemRecordSerialization");
+                    ThrowHelper.ThrowArgumentOutOfRangeException_UnexpectedSystemRecordSerializationType(SystemRecordSerialization); return null;
             }
         }
 

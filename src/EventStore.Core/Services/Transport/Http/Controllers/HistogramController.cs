@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using CuteAnt.Pool;
-using EventStore.Common.Utils;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
@@ -15,7 +14,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Subscribe(IHttpService service)
         {
-            Ensure.NotNull(service, nameof(service));
+            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             service.RegisterAction(new ControllerAction("/histogram/{name}", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetHistogram);
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.Atom
 {
@@ -18,7 +17,7 @@ namespace EventStore.Transport.Http.Atom
 
         public void AddWorkspace(WorkspaceElement workspace)
         {
-            Ensure.NotNull(workspace, "workspace");
+            if (null == workspace) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.workspace); }
             Workspaces.Add(workspace);
         }
  
@@ -35,7 +34,7 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (Workspaces.Count == 0)
-                ThrowHelper.ThrowSpecificationViolation("An app:service element MUST contain one or more app:workspace elements.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.An_appservice_element_MUST_contain_one_or_more_appworkspace_elements);
 
             writer.WriteStartElement("service", AtomSpecs.AtomPubV1Namespace);
             writer.WriteAttributeString("xmlns", "atom", null, AtomSpecs.AtomV1Namespace);
@@ -57,13 +56,13 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetTitle(string title)
         {
-            Ensure.NotNull(title, "title");
+            if (null == title) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.title); }
             Title = title;
         }
 
         public void AddCollection(CollectionElement collection)
         {
-            Ensure.NotNull(collection, "collection");
+            if (null == collection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection); }
             Collections.Add(collection);
         }
 
@@ -80,7 +79,7 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Title))
-                ThrowHelper.ThrowSpecificationViolation("The app:workspace element MUST contain one 'atom:title' element");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.The_appworkspace_element_MUST_contain_one_atomtitle_element);
 
             writer.WriteStartElement("workspace");
 
@@ -105,19 +104,19 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetTitle(string title)
         {
-            Ensure.NotNull(title, "title");
+            if (null == title) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.title); }
             Title = title;
         }
 
         public void SetUri(string uri)
         {
-            Ensure.NotNull(uri, "uri");
+            if (null == uri) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uri); }
             Uri = uri;
         }
 
         public void AddAcceptType(string type)
         {
-            Ensure.NotNull(type, "type");
+            if (null == type) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.type); }
             Accepts.Add(new AcceptElement(type));
         }
 
@@ -134,10 +133,9 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Title))
-                ThrowHelper.ThrowSpecificationViolation("The app: collection element MUST contain one atom:title element.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.The_appcollection_element_MUST_contain_one_atomtitle_element);
             if (string.IsNullOrEmpty(Uri))
-                ThrowHelper.ThrowSpecificationViolation("The app:collection element MUST contain an 'href' attribute, " +
-                                                        "whose value gives the IRI of the Collection.");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.The_appcollection_element_MUST_contain_an_href_attribute);
 
             writer.WriteStartElement("collection");
             writer.WriteAttributeString("href", Uri);
@@ -170,7 +168,7 @@ namespace EventStore.Transport.Http.Atom
         public void WriteXml(XmlWriter writer)
         {
             if (string.IsNullOrEmpty(Type))
-                ThrowHelper.ThrowSpecificationViolation("atom:accept element MUST contain value");
+                ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomaccept_element_MUST_contain_value);
             writer.WriteElementString("accept", Type);
         }
     }

@@ -22,13 +22,13 @@ namespace EventStore.Core.DataStructures
         private Func<object,bool> _onPut, _onRemove; //_onPut is not called if a key-value pair already exists in the cache
         public LRUCache(int maxCount)
         {
-            Ensure.Nonnegative(maxCount, "maxCount");
+            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
         }
 
         public LRUCache(int maxCount,Func<object,bool> onPut, Func<object,bool> onRemove)
         {
-            Ensure.Nonnegative(maxCount, "maxCount");
+            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
             _onPut = onPut;
             _onRemove = onRemove;

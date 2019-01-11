@@ -42,7 +42,7 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition InAllStatesExcept(params VNodeState[] states)
         {
-            Ensure.Positive(states.Length, "states.Length");
+            if (states.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.states_Length); }
             return FSM.InAllStatesExcept(states);
         }
 

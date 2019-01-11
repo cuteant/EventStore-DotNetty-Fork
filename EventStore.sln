@@ -19,8 +19,6 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Logging.
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Reflection.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.shproj", "{C7F8DBE6-77B7-494D-AF00-018F7579548C}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventStore.Common.Utils.Sources", "src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.shproj", "{4F157224-1369-4D82-B673-CC185D24F1F0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D45F5E4-81DA-4123-8AE9-51165CEFE4A0}"
 	ProjectSection(SolutionItems) = preProject
 		clean.cmd = clean.cmd
@@ -98,6 +96,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", "src\EventStore.Core.Messages\EventStore.Core.Messages.csproj", "{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Async.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.shproj", "{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EventStore.Common.Utils.Sources", "src\EventStore.Common.Utils.Sources\EventStore.Common.Utils.Sources.shproj", "{4F157224-1369-4D82-B673-CC185D24F1F0}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -237,7 +237,6 @@ Global
 		{09EE4F0D-5D90-46FC-809B-D788B4278E0E} = {E89F2D25-67E8-491D-A506-4CCD748F297D}
 		{8DBB7DC8-2B90-4A8C-A60D-D41466174BDE} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{C7F8DBE6-77B7-494D-AF00-018F7579548C} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
-		{4F157224-1369-4D82-B673-CC185D24F1F0} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{90BCC560-AA2B-4146-858A-9E524B696F75} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{65E9ED9B-9545-47D8-A39C-DA22C323ABB2} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{B38B6795-2812-4CD5-92F6-935734090816} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
@@ -272,6 +271,7 @@ Global
 		{D230F5B4-4F12-4E55-BDF8-2037EDC463F2} = {201CB597-F20D-4E30-9B7D-34EDF1B4C660}
 		{ECF4DCA4-5D2D-42CF-B027-1C88CAB12E3F} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{4F157224-1369-4D82-B673-CC185D24F1F0} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}

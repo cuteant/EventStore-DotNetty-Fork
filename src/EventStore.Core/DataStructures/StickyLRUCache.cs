@@ -21,7 +21,7 @@ namespace EventStore.Core.DataStructures
 
         public StickyLRUCache(int maxCount)
         {
-            Ensure.Nonnegative(maxCount, "maxCount");
+            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
 
             _maxCount = maxCount;
         }

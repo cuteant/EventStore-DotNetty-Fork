@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Bus
@@ -10,7 +9,7 @@ namespace EventStore.Core.Bus
 
         public AdHocHandler(Action<T> handle)
         {
-            Ensure.NotNull(handle, "handle");
+            if (null == handle) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handle); }
             _handle = handle;
         }
 

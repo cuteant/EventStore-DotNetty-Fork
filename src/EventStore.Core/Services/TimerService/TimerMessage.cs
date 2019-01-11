@@ -25,11 +25,11 @@ namespace EventStore.Core.Services.TimerService
             private Schedule(TimeSpan triggerAfter, IEnvelope envelope, Message replyMessage, Action replyAction)
             {
                 if (envelope == null)
-                    throw new ArgumentNullException("envelope");
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
                 if (replyMessage == null)
-                    throw new ArgumentNullException("replyMessage");
-                if (replyAction == null) 
-                    throw new ArgumentNullException("replyAction");
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replyMessage);
+                if (replyAction == null)
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replyAction);
 
                 TriggerAfter = triggerAfter;
                 Envelope = envelope;

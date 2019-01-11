@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Utils;
 
 namespace EventStore.Transport.Http.EntityManagement
 {
@@ -17,10 +16,10 @@ namespace EventStore.Transport.Http.EntityManagement
                                      Action<HttpEntityManager, byte[]> onReadSuccess, 
                                      Action<Exception> onError)
         {
-            Ensure.NotNull(inputStream, "inputStream");
-            Ensure.NotNull(outputStream, "outputStream");
-            Ensure.NotNull(onReadSuccess, "onReadSuccess");
-            Ensure.NotNull(onError, "onError");
+            if (null == inputStream) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputStream); }
+            if (null == outputStream) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputStream); }
+            if (null == onReadSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
+            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             InputStream = inputStream;
             OutputStream = outputStream;

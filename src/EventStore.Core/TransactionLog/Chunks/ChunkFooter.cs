@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using EventStore.Common.Utils;
 using EventStore.Core.TransactionLog.Chunks.TFChunk;
 
 namespace EventStore.Core.TransactionLog.Chunks
@@ -23,17 +22,17 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public ChunkFooter(bool isCompleted, bool isMap12Bytes, int physicalDataSize, long logicalDataSize, int mapSize, byte[] md5Hash)
         {
-            Ensure.Nonnegative(physicalDataSize, nameof(physicalDataSize));
-            Ensure.Nonnegative(logicalDataSize, nameof(logicalDataSize));
+            if (physicalDataSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.physicalDataSize); }
+            if (logicalDataSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logicalDataSize); }
             if (logicalDataSize < physicalDataSize)
             {
-                throw new ArgumentOutOfRangeException(nameof(logicalDataSize), $"LogicalDataSize {logicalDataSize} is less than PhysicalDataSize {physicalDataSize}");
+                ThrowHelper.ThrowArgumentOutOfRangeException_LogicalDataSizeIsLessThanPhysicalDataSize(logicalDataSize, physicalDataSize);
             }
-            Ensure.Nonnegative(mapSize, nameof(mapSize));
-            Ensure.NotNull(md5Hash, nameof(md5Hash));
+            if (mapSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.mapSize); }
+            if (null == md5Hash) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5Hash); }
             if (md5Hash.Length != ChecksumSize)
             {
-                throw new ArgumentException("MD5Hash is of wrong length.", nameof(md5Hash));
+                ThrowHelper.ThrowArgumentException_MD5HashIsOfWrongLength();
             }
 
             IsCompleted = isCompleted;
@@ -47,7 +46,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var posMapSize = isMap12Bytes ? PosMap.FullSize : PosMap.DeprecatedSize;
             if (MapSize % posMapSize != 0)
             {
-                throw new Exception($"Wrong MapSize {MapSize} -- not divisible by PosMap.Size {posMapSize}.");
+                ThrowHelper.ThrowException_WrongMapSize(MapSize, posMapSize);
             }
 
             MapCount = mapSize / posMapSize;

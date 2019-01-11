@@ -65,7 +65,7 @@ namespace EventStore.Transport.Http
         private void BeginProcessing()
         {
             if (_processing != 1)
-                throw new InvalidOperationException();
+                ThrowHelper.ThrowInvalidOperationException();
             ContinueWriteOrStop();
         }
 

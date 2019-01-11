@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 using Microsoft.Extensions.Logging;
@@ -82,10 +81,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
                 if (response.HttpStatusCode == expectedCode)
                     source.SetResult(response.Body);
                 else
-                    source.SetException(new PersistentSubscriptionCommandFailedException(
-                        response.HttpStatusCode,
-                        string.Format("Server returned {0} ({1}) for GET on {2}", response.HttpStatusCode,
-                            response.StatusDescription, url)));
+                    source.SetException(CoreThrowHelper.GetPersistentSubscriptionCommandFailedException_Get(response, url));
             }, new Action<Exception>(source.SetException), "");
             return source.Task;
         }
@@ -103,10 +99,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
                 if (response.HttpStatusCode == expectedCode)
                     source.SetResult(null);
                 else
-                    source.SetException(new PersistentSubscriptionCommandFailedException(
-                        response.HttpStatusCode,
-                        string.Format("Server returned {0} ({1}) for POST on {2}", response.HttpStatusCode,
-                            response.StatusDescription, url)));
+                    source.SetException(CoreThrowHelper.GetPersistentSubscriptionCommandFailedException_Post(response, url));
             }, new Action<Exception>(source.SetException));
             return source.Task;
         }

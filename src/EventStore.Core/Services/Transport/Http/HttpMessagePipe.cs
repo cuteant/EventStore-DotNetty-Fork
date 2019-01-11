@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net;
-using EventStore.Common.Utils;
 using EventStore.Core.Messaging;
 
 namespace EventStore.Core.Services.Transport.Http
@@ -12,14 +11,14 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void RegisterSender<T>(ISender<T> sender) where T : Message
         {
-            Ensure.NotNull(sender, "sender");
+            if (null == sender) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
             _senders.TryAdd(typeof (T), new MessageSender<T>(sender));
         }
 
         public void Push(Message message, IPEndPoint endPoint)
         {
-            Ensure.NotNull(message, "message");
-            Ensure.NotNull(endPoint, "endPoint");
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             var type = message.GetType();
             IMessageSender sender;
@@ -46,14 +45,14 @@ namespace EventStore.Core.Services.Transport.Http
 
         public MessageSender(ISender<T> sender)
         {
-            Ensure.NotNull(sender, "sender");
+            if (null == sender) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
             _sender = sender;
         }
 
         public void Send(Message message, IPEndPoint endPoint)
         {
-            Ensure.NotNull(message, "message");
-            Ensure.NotNull(endPoint, "endPoint");
+            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _sender.Send((T) message, endPoint);
         }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
-using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.Messaging;
 using EventStore.Core.TransactionLog.LogRecords;
@@ -43,7 +42,7 @@ namespace EventStore.Core.Messages
 
             public ServiceInitialized(string serviceName)
             {
-                Ensure.NotNullOrEmpty(serviceName, "serviceName");
+                if (string.IsNullOrEmpty(serviceName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serviceName); }
                 ServiceName = serviceName;
             }
         }
@@ -57,7 +56,7 @@ namespace EventStore.Core.Messages
 
             public SubSystemInitialized(string subSystemName)
             {
-                Ensure.NotNullOrEmpty(subSystemName, "subSystemName");
+                if (string.IsNullOrEmpty(subSystemName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subSystemName); }
                 SubSystemName = subSystemName;
             }
         }
@@ -78,7 +77,7 @@ namespace EventStore.Core.Messages
 
             protected StateChangeMessage(Guid correlationId, VNodeState state)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 CorrelationId = correlationId;
                 State = state;
             }
@@ -115,7 +114,7 @@ namespace EventStore.Core.Messages
             public BecomeShuttingDown(Guid correlationId, bool exitProcess, bool shutdownHttp): base(correlationId, VNodeState.ShuttingDown)
             {
                 ShutdownHttp = shutdownHttp;
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 ExitProcess = exitProcess;
             }
         }
@@ -151,7 +150,7 @@ namespace EventStore.Core.Messages
             protected ReplicaStateMessage(Guid correlationId, VNodeState state, VNodeInfo master)
                 : base(correlationId, state)
             {
-                Ensure.NotNull(master, "master");
+                if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
                 Master = master;
             }
         }
@@ -205,8 +204,8 @@ namespace EventStore.Core.Messages
 
             public ServiceShutdown(string serviceName)
             {
-                if (String.IsNullOrEmpty(serviceName)) 
-                    throw new ArgumentNullException("serviceName");
+                if (String.IsNullOrEmpty(serviceName))
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serviceName);
                 ServiceName = serviceName;
             }
         }
@@ -227,8 +226,8 @@ namespace EventStore.Core.Messages
 
             public VNodeConnectionLost(IPEndPoint vNodeEndPoint, Guid connectionId)
             {
-                Ensure.NotNull(vNodeEndPoint, "vNodeEndPoint");
-                Ensure.NotEmptyGuid(connectionId, "connectionId");
+                if (null == vNodeEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
+                if (Guid.Empty == connectionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.connectionId); }
 
                 VNodeEndPoint = vNodeEndPoint;
                 ConnectionId = connectionId;
@@ -245,8 +244,8 @@ namespace EventStore.Core.Messages
 
             public VNodeConnectionEstablished(IPEndPoint vNodeEndPoint, Guid connectionId)
             {
-                Ensure.NotNull(vNodeEndPoint, "vNodeEndPoint");
-                Ensure.NotEmptyGuid(connectionId, "connectionId");
+                if (null == vNodeEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
+                if (Guid.Empty == connectionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.connectionId); }
 
                 VNodeEndPoint = vNodeEndPoint;
                 ConnectionId = connectionId;
@@ -263,7 +262,7 @@ namespace EventStore.Core.Messages
 
             public WaitForChaserToCatchUp(Guid correlationId, TimeSpan totalTimeWasted)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
 
                 CorrelationId = correlationId;
                 TotalTimeWasted = totalTimeWasted;
@@ -279,7 +278,7 @@ namespace EventStore.Core.Messages
 
             public ChaserCaughtUp(Guid correlationId)
             {
-                Ensure.NotEmptyGuid(correlationId, "correlationId");
+                if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 CorrelationId = correlationId;
             }
         }
@@ -305,7 +304,7 @@ namespace EventStore.Core.Messages
 
             public EpochWritten(EpochRecord epoch)
             {
-                Ensure.NotNull(epoch,"epoch");
+                if (null == epoch) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
                 Epoch = epoch;
             }            
         }           

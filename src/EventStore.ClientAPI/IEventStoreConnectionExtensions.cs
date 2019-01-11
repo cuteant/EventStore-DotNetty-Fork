@@ -16,7 +16,7 @@ namespace EventStore.ClientAPI
     /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>
     public static void Connect(this IEventStoreConnectionBase connection)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       AsyncContext.Run(conn => conn.ConnectAsync(), connection);
     }
@@ -31,7 +31,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     public static void SetSystemSettings(this IEventStoreConnectionBase connection, SystemSettings sysSettings, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
       AsyncContext.Run(
         async (conn, settings, credentials)
@@ -52,7 +52,7 @@ namespace EventStore.ClientAPI
     public static DeleteResult DeleteStream(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, version, credentials)
                   => await conn.DeleteStreamAsync(streamId, version, credentials).ConfigureAwait(false),
@@ -71,7 +71,7 @@ namespace EventStore.ClientAPI
     public static DeleteResult DeleteStream(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, bool hardDelete, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, version, hardDel, credentials)
                   => await conn.DeleteStreamAsync(streamId, version, hardDel, credentials).ConfigureAwait(false),
@@ -94,7 +94,7 @@ namespace EventStore.ClientAPI
     public static EventStoreTransaction StartTransaction(this IEventStoreConnectionBase connection,
       string stream, long expectedVersion, UserCredentials userCredentials = null)
     {
-      if (null == connection) { throw new ArgumentNullException(nameof(connection)); }
+      if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
       return AsyncContext.Run(
                 async (conn, streamId, version, credentials)
                   => await conn.StartTransactionAsync(streamId, version, credentials).ConfigureAwait(false),

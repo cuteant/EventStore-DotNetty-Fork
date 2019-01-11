@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using CuteAnt.IO;
 using CuteAnt.Pool;
-using EventStore.Common.Utils;
 using EventStore.Core.Services;
-using EventStore.Core.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -30,19 +29,19 @@ namespace EventStore.Core.Data
         {
             if (maxCount <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxCount), $"{SystemMetadata.MaxCount} should be positive value.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_StreamMetadata_MaxCount();
             }
             if (maxAge <= TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxAge), $"{SystemMetadata.MaxAge} should be positive time span.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_StreamMetadata_MaxAge();
             }
             if (truncateBefore < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(truncateBefore), $"{SystemMetadata.TruncateBefore} should be non-negative value.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_StreamMetadata_TruncateBefore();
             }
             if (cacheControl <= TimeSpan.Zero)
             {
-                throw new ArgumentOutOfRangeException(nameof(cacheControl), $"{SystemMetadata.CacheControl} should be positive time span.");
+                ThrowHelper.ThrowArgumentOutOfRangeException_StreamMetadata_CacheControl();
             }
 
             MaxCount = maxCount;
@@ -201,17 +200,19 @@ namespace EventStore.Core.Data
                 return roles.ToArray();
             }
 
-            throw new Exception("Invalid JSON");
+            ThrowHelper.ThrowException_InvalidJson(); return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Check(JsonToken type, JsonTextReader reader)
         {
-            if (reader.TokenType != type) { throw new Exception("Invalid JSON"); }
+            if (reader.TokenType != type) { ThrowHelper.ThrowException_InvalidJson(); }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void Check(bool read, JsonTextReader reader)
         {
-            if (!read) { throw new Exception("Invalid JSON"); }
+            if (!read) { ThrowHelper.ThrowException_InvalidJson(); }
         }
 
         public byte[] ToJsonBytes()

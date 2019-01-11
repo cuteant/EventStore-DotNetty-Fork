@@ -20,8 +20,8 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void RegisterAction(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
-            Ensure.NotNull(action, "action");
-            Ensure.NotNull(handler, "handler");
+            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             var segments = new Uri("http://fake" + action.UriTemplate, UriKind.Absolute).Segments;
             RouterNode node = _root;
@@ -41,7 +41,7 @@ namespace EventStore.Core.Services.Transport.Http
                 node = child;
             }
             if (node.LeafRoutes.Contains(x => x.Action.Equals(action)))
-                throw new ArgumentException("Duplicate route.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Duplicate_route);
             node.LeafRoutes.Add(new HttpRoute(action, handler));
         }
 
@@ -108,7 +108,7 @@ namespace EventStore.Core.Services.Transport.Http
         public void RegisterAction(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
             if (_actions.Contains(x => x.Action.Equals(action)))
-                throw new ArgumentException("Duplicate route.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Duplicate_route);
             _actions.Add(new HttpRoute(action, handler));
         }
 

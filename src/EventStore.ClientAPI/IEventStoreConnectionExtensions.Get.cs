@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetEvent(this IEventStoreBus bus,
       string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -35,7 +35,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<TEvent> GetEvent<TEvent>(this IEventStoreBus bus,
       long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync<TEvent>(null, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -57,9 +57,8 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetEvent(this IEventStoreBus bus,
       string stream, string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return AsyncContext.Run(
                 async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -76,7 +75,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<TEvent> GetEvent<TEvent>(this IEventStoreBus bus,
       string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, innerTopic, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync<TEvent>(innerTopic, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -98,7 +97,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<object> GetStreamEventsForward(this IEventStoreBus bus,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -115,7 +114,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<TEvent> GetStreamEventsForward<TEvent>(this IEventStoreBus bus,
       long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync<TEvent>(null, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -138,9 +137,9 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<object> GetStreamEventsForward(this IEventStoreBus bus,
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -158,7 +157,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<TEvent> GetStreamEventsForward<TEvent>(this IEventStoreBus bus,
       string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, innerTopic, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync<TEvent>(innerTopic, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -180,7 +179,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<object> GetStreamEventsBackward(this IEventStoreBus bus,
       string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -197,7 +196,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<TEvent> GetStreamEventsBackward<TEvent>(this IEventStoreBus bus,
       long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync<TEvent>(null, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -220,9 +219,9 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<object> GetStreamEventsBackward(this IEventStoreBus bus,
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -240,7 +239,7 @@ namespace EventStore.ClientAPI
     public static StreamEventsSlice<TEvent> GetStreamEventsBackward<TEvent>(this IEventStoreBus bus,
       string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
                 async (conn, innerTopic, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync<TEvent>(innerTopic, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -260,7 +259,7 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(this IEventStoreBus bus,
       long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetEventAsync<TEvent>(null, eventNumber, resolveLinkTos, userCredentials);
     }
 
@@ -279,9 +278,9 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult<object>> GetEventAsync(this IEventStoreBus bus,
       string stream, string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.GetEventAsync(CombineStreamId(stream, topic), eventNumber, resolveLinkTos, userCredentials);
     }
 
@@ -299,7 +298,7 @@ namespace EventStore.ClientAPI
     public static Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(this IEventStoreBus bus,
       long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetStreamEventsForwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
     }
 
@@ -319,9 +318,9 @@ namespace EventStore.ClientAPI
     public static Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(this IEventStoreBus bus,
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.GetStreamEventsForwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
     }
 
@@ -339,7 +338,7 @@ namespace EventStore.ClientAPI
     public static Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(this IEventStoreBus bus,
       long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetStreamEventsBackwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
     }
 
@@ -359,9 +358,9 @@ namespace EventStore.ClientAPI
     public static Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(this IEventStoreBus bus,
       string stream, string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       return bus.GetStreamEventsBackwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
     }
 
@@ -378,7 +377,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetFirstEvent(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       return AsyncContext.Run(
         async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
@@ -396,9 +395,9 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetFirstEvent(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return AsyncContext.Run(
         async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
@@ -415,7 +414,7 @@ namespace EventStore.ClientAPI
       bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       return AsyncContext.Run(
         async (conn, eventNum, resolveLinkToEvents, credentials)
@@ -433,7 +432,7 @@ namespace EventStore.ClientAPI
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       return AsyncContext.Run(
         async (conn, innerTopic, eventNum, resolveLinkToEvents, credentials)
@@ -454,7 +453,7 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult<object>> GetFirstEventAsync(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       return bus.GetEventAsync(stream, StreamPosition.Start, resolveLinkTos, userCredentials);
     }
@@ -469,9 +468,9 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult<object>> GetFirstEventAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return bus.GetEventAsync(CombineStreamId(stream, topic), StreamPosition.Start, resolveLinkTos, userCredentials);
     }
@@ -485,7 +484,7 @@ namespace EventStore.ClientAPI
       bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       return bus.GetEventAsync<TEvent>(StreamPosition.Start, resolveLinkTos, userCredentials);
     }
@@ -500,8 +499,8 @@ namespace EventStore.ClientAPI
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return bus.GetEventAsync<TEvent>(topic, StreamPosition.Start, resolveLinkTos, userCredentials);
     }
@@ -519,7 +518,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetLastEvent(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamId, resolveLinkToEvents, credentials)
           => await conn.GetLastEventAsync(streamId, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -536,7 +535,7 @@ namespace EventStore.ClientAPI
     public static EventReadResult<object> GetLastEvent(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, streamId, innerTopic, resolveLinkToEvents, credentials)
           => await conn.GetLastEventAsync(streamId, innerTopic, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -552,7 +551,7 @@ namespace EventStore.ClientAPI
       bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, resolveLinkToEvents, credentials)
           => await conn.GetLastEventAsync<TEvent>(null, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -569,7 +568,7 @@ namespace EventStore.ClientAPI
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
         async (conn, innerTopic, resolveLinkToEvents, credentials)
           => await conn.GetLastEventAsync<TEvent>(innerTopic, resolveLinkToEvents, credentials).ConfigureAwait(false),
@@ -590,8 +589,8 @@ namespace EventStore.ClientAPI
     public static Task<EventReadResult<object>> GetLastEventAsync(this IEventStoreBus bus,
       string stream, string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (string.IsNullOrEmpty(stream)) { throw new ArgumentNullException(nameof(stream)); }
-      if (string.IsNullOrEmpty(topic)) { throw new ArgumentNullException(nameof(topic)); }
+      if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+      if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
       return GetLastEventAsync(bus, CombineStreamId(stream, topic), resolveLinkTos, userCredentials);
     }
@@ -605,7 +604,7 @@ namespace EventStore.ClientAPI
     public static async Task<EventReadResult<object>> GetLastEventAsync(this IEventStoreBus bus,
       string stream, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       var slice = await bus.GetStreamEventsBackwardAsync(stream, StreamPosition.End, 1, resolveLinkTos, userCredentials)
                            .ConfigureAwait(false);
@@ -657,7 +656,7 @@ namespace EventStore.ClientAPI
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
       where TEvent : class
     {
-      if (null == bus) { throw new ArgumentNullException(nameof(bus)); }
+      if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
       var slice = string.IsNullOrEmpty(topic)
                 ? await bus.GetStreamEventsBackwardAsync<TEvent>(StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false)
