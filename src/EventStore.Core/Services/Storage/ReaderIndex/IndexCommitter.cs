@@ -243,6 +243,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
             }
 
+            if(!_indexRebuild)
             for (int i = 0, n = indexEntries.Count; i < n; ++i)
             {
                 _bus.Publish(
@@ -326,6 +327,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
             }
 
+            if(!_indexRebuild)
             for (int i = 0, n = indexEntries.Count; i < n; ++i)
             {
                 _bus.Publish(
