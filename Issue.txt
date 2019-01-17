@@ -39,7 +39,7 @@ Issue.016 ☆ string message = Helper.EatException(() => Helper.UTF8NoBom.GetStr
 
 Issue.017 ☆ ByteBuffer
 
-Issue.018 ☆ 
+Issue.018 ☆ ClusterNodeMutex
 
 Issue.019 ☆ 
 

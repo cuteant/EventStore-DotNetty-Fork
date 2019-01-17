@@ -12,8 +12,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public MultiStreamPositionTagger(int phase, string[] streams): base(phase)
         {
-            if (streams == null) throw new ArgumentNullException("streams");
-            if (streams.Length == 0) throw new ArgumentException("streams");
+            if (null == streams) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streams); }
+            if (streams.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
             _streams = new HashSet<string>(streams, StringComparer.Ordinal);
         }
 

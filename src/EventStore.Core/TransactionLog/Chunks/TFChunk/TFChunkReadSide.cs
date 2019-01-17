@@ -184,8 +184,8 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                     }
                 }
 
-                if(bf == null){
-                    s_logger.LogWarning("Could not create bloom filter for chunk: {0}, map count: {1}", Chunk.FileName, mapCount);
+                if (bf == null){
+                    if (s_logger.IsWarningLevelEnabled()) s_logger.Could_not_create_bloom_filter_for_chunk(Chunk.FileName, mapCount);
                     return null;
                 }
 

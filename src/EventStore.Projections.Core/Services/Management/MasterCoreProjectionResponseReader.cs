@@ -100,7 +100,7 @@ namespace EventStore.Projections.Core.Services.Management
                                     }
                                 }
                             },
-                            () => Log.LogWarning("Read forward of stream {0} timed out. Retrying", _streamId));
+                            () => { if (Log.IsWarningLevelEnabled()) Log.ReadForwardOfStreamTimedOut(_streamId); });
                 } while (!eof);
                 _lastAwakeCorrelationId = Guid.NewGuid();
                 yield return
@@ -113,7 +113,7 @@ namespace EventStore.Projections.Core.Services.Management
         private void PublishCommand(in ResolvedEvent resolvedEvent)
         {
             var command = resolvedEvent.Event.EventType;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Response received: {0}", command);
+            if (Log.IsDebugLevelEnabled()) Log.ResponseReceived(command);
             switch (command)
             {
                 case "$measured":

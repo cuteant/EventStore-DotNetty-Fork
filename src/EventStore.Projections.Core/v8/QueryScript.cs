@@ -73,7 +73,7 @@ namespace EventStore.Projections.Core.v8
                         DoEmit(commandBody);
                         break;
                     default:
-                        if (Log.IsDebugLevelEnabled()) Log.LogDebug("Ignoring unknown reverse command: '{0}'", commandName);
+                        if (Log.IsDebugLevelEnabled()) Log.IgnoringUnknownReverseCommand(commandName);
                         break;
                 }
             }
@@ -136,7 +136,7 @@ namespace EventStore.Projections.Core.v8
                 default:
                     if (Log.IsDebugLevelEnabled())
                     {
-                        Log.LogDebug($"Unknown command handler registered. Command name: {commandName}");
+                        Log.UnknownCommandHandlerRegistered(commandName);
                     }
 
                     break;
@@ -278,14 +278,14 @@ namespace EventStore.Projections.Core.v8
         public void SetState(string state)
         {
             if (_setState == null)
-                throw new InvalidOperationException("'set_state' command handler has not been registered");
+                ThrowHelper.ThrowInvalidOperationException(ExceptionResource.Set_StateCommandHandlerHasNotBeenRegistered);
             _setState(state);
         }
 
         public void SetSharedState(string state)
         {
             if (_setSharedState == null)
-                throw new InvalidOperationException("'set_shared_state' command handler has not been registered");
+                ThrowHelper.ThrowInvalidOperationException(ExceptionResource.Set_Shared_StateCommandHandlerHasNotBeenRegistered);
             _setSharedState(state);
         }
 

@@ -69,10 +69,7 @@ namespace EventStore.ClientAPI
                     var hander = GetHandlerLocal(eventType);
                     if (hander != null) { return hander; }
                     _handlers.Add(eventType, s_emptyHandler);
-                    if (s_logger.IsWarningLevelEnabled())
-                    {
-                        s_logger.LogWarning($"No handler found for event type {eventType.Name}, the default hander has been used.");
-                    }
+                    if (s_logger.IsWarningLevelEnabled()) { s_logger.NoHandlerFoundForEventTypeTheDefaultHanderHasBeenUsed(eventType); }
                     return s_emptyHandler;
                 }
             }
@@ -87,8 +84,7 @@ namespace EventStore.ClientAPI
                         _noMatching.Add(eventType);
                     }
                 }
-                var msg = $"No handler found for event type {eventType.Name}";
-                s_logger.LogError(msg);
+                s_logger.NoHandlerFoundForEventType(eventType);
                 CoreThrowHelper.ThrowEventStoreHandlerException(eventType); return null;
             }
 

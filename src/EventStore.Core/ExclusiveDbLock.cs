@@ -35,13 +35,7 @@ namespace EventStore.Core
             }
             catch (AbandonedMutexException exc)
             {
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation(exc,
-                                      "DB mutex '{0}' is said to be abandoned. "
-                                      + "Probably previous instance of server was terminated abruptly.",
-                                      MutexName);
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.DB_mutex_is_said_to_be_abandoned(MutexName, exc); }
             }
 
             return _acquired;

@@ -128,7 +128,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error on regular stats collection.");
+                Log.ErrorOnRegularStatsCollection(ex);
             }
         }
 
@@ -142,7 +142,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error while collecting stats");
+                Log.ErrorWhileCollectingStats(ex);
                 statsContainer = null;
             }
 
@@ -156,17 +156,10 @@ namespace EventStore.Core.Services.Monitoring
             if (header != _lastWrittenCsvHeader)
             {
                 _lastWrittenCsvHeader = header;
-                if (infoEnabled)
-                {
-                    RegularLog.LogInformation(Environment.NewLine);
-                    RegularLog.LogInformation(header);
-                }
+                if (infoEnabled) { RegularLog.LogCsvStatsHeader(header); }
             }
 
-            if (infoEnabled)
-            {
-                RegularLog.LogInformation(StatsCsvEncoder.GetLine(rawStats));
-            }
+            if (infoEnabled) { RegularLog.LogCsvStats(rawStats); }
         }
 
         private void SaveStatsToStream(Dictionary<string, object> rawStats)
@@ -238,7 +231,7 @@ namespace EventStore.Core.Services.Monitoring
                 case OperationResult.Success:
                 case OperationResult.WrongExpectedVersion: // already created
                     {
-                        if (Log.IsTraceLevelEnabled()) Log.LogTrace("Created stats stream '{0}', code = {1}", _nodeStatsStream, message.Result);
+                        if (Log.IsTraceLevelEnabled()) Log.CreatedStatsStream(_nodeStatsStream, message.Result);
                         _statsStreamCreated = true;
                         break;
                     }
@@ -246,7 +239,7 @@ namespace EventStore.Core.Services.Monitoring
                 case OperationResult.CommitTimeout:
                 case OperationResult.ForwardTimeout:
                     {
-                        if (Log.IsDebugLevelEnabled()) Log.LogDebug("Failed to create stats stream '{0}'. Reason : {1}({2}). Retrying...", _nodeStatsStream, message.Result, message.Message);
+                        if (Log.IsDebugLevelEnabled()) Log.Failed_to_create_stats_stream(_nodeStatsStream, message);
                         SetStatsStreamMetadata();
                         break;
                     }
@@ -258,7 +251,7 @@ namespace EventStore.Core.Services.Monitoring
                 case OperationResult.StreamDeleted:
                 case OperationResult.InvalidTransaction: // should not happen at all
                     {
-                        Log.LogError("Monitoring service got unexpected response code when trying to create stats stream ({0}).", message.Result);
+                        Log.MonitoringServiceGotUnexpectedResponseCodeWhenTryingToCreateStatsStream(message.Result);
                         break;
                     }
                 default:
@@ -292,7 +285,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error on getting fresh stats");
+                Log.ErrorOnGettingFreshStats(ex);
             }
         }
 
@@ -342,7 +335,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error on getting fresh tcp connection stats");
+                Log.ErrorOnGettingFreshTcpConnectionStats(ex);
             }
         }
 

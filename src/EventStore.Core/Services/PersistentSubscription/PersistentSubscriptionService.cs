@@ -87,14 +87,14 @@ namespace EventStore.Core.Services.PersistentSubscription
             _state = message.State;
 
             if (message.State == VNodeState.Master) return;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Persistent subscriptions received state change to {_state}. Stopping listening.");
+            if (Log.IsDebugLevelEnabled()) Log.Persistent_subscriptions_received_state_change_to(_state);
             ShutdownSubscriptions();
             Stop();
         }
 
         public void Handle(SystemMessage.BecomeMaster message)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Persistent subscriptions Became Master so now handling subscriptions");
+            if (Log.IsDebugLevelEnabled()) Log.Persistent_subscriptions_Became_Master_so_now_handling_subscriptions();
             InitToEmpty();
             _handleTick = true;
             _bus.Publish(_tickRequestMessage);
@@ -138,7 +138,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Creating persistent subscription {key}");
+            if (Log.IsDebugLevelEnabled()) Log.Creating_persistent_subscription(key);
             //TODO revisit for permissions. maybe make admin only?
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
@@ -188,7 +188,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                                     message.NamedConsumerStrategy,
                                     ToTimeout(message.MessageTimeoutMilliseconds)
                                     );
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New persistent subscription {0}.", key);
+            if (Log.IsDebugLevelEnabled()) Log.New_persistent_subscription(key);
             _config.Updated = DateTime.Now;
             _config.UpdatedBy = message.User.Identity.Name;
             _config.Entries.Add(new PersistentSubscriptionEntry
@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Updating persistent subscription {key}");
+            if (Log.IsDebugLevelEnabled()) Log.Updating_persistent_subscription(key);
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -339,7 +339,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Deleting persistent subscription {key}");
+            if (Log.IsDebugLevelEnabled()) Log.Deleting_persistent_subscription(key);
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -409,7 +409,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(TcpMessage.ConnectionClosed message)
         {
             //TODO CC make a map for this
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug($"Persistent subscription lost connection from {message.Connection.RemoteEndPoint}");
+            if (Log.IsDebugLevelEnabled()) Log.Persistent_subscription_lost_connection_from(message);
             if (_subscriptionsById == null) return; //havn't built yet.
             foreach (var subscription in _subscriptionsById.Values)
             {
@@ -444,7 +444,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 message.Envelope.ReplyWith(new ClientMessage.SubscriptionDropped(message.CorrelationId, SubscriptionDropReason.SubscriberMaxCountReached));
                 return;
             }
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("New connection to persistent subscription {0} by {1}", key, message.ConnectionId);
+            if (Log.IsDebugLevelEnabled()) Log.New_connection_to_persistent_subscription(key, message.ConnectionId);
             var lastEventNumber = _readIndex.GetStreamLastEventNumber(message.EventStreamId);
             var lastCommitPos = _readIndex.LastCommitPosition;
             var subscribedMessage = new ClientMessage.PersistentSubscriptionConfirmation(key, message.CorrelationId, lastCommitPos, lastEventNumber);
@@ -500,7 +500,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
+                    Log.ErrorWhileResolvingLinkForEventRecord(eventRecord, exc);
                 }
 
                 return ResolvedEvent.ForFailedResolvedLink(eventRecord, ReadEventResult.Error, commitPosition);
@@ -572,7 +572,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(ClientMessage.ReplayAllParkedMessages message)
         {
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Replaying parked messages for persistent subscription {0}", key);
+            if (Log.IsDebugLevelEnabled()) Log.Replaying_parked_messages_for_persistent_subscription(key);
             var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
             if (!streamAccess.Granted)
@@ -642,7 +642,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                         {
                             if (!_consumerStrategyRegistry.ValidateStrategy(entry.NamedConsumerStrategy))
                             {
-                                Log.LogError("A persistent subscription exists with an invalid consumer strategy '{0}'. Ignoring it.", entry.NamedConsumerStrategy);
+                                Log.APersistentSubscriptionExistsWithAnInvalidConsumerStrategy(entry.NamedConsumerStrategy);
                                 continue;
                             }
 
@@ -666,7 +666,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     }
                     catch (Exception ex)
                     {
-                        Log.LogError(ex, "There was an error loading configuration from storage.");
+                        Log.ThereWasAnErrorLoadingConfigurationFromStorage(ex);
                     }
                     break;
                 case ReadStreamResult.NoStream:
@@ -680,7 +680,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void SaveConfiguration(Action continueWith)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Saving persistent subscription configuration");
+            if (Log.IsDebugLevelEnabled()) Log.Saving_persistent_subscription_configuration();
             var data = _config.GetSerializedForm();
             var ev = new Event(Guid.NewGuid(), "PersistentConfig1", true, data, new byte[0]);
             var metadata = new StreamMetadata(maxCount: 2);
@@ -700,7 +700,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     break;
                 case OperationResult.CommitTimeout:
                 case OperationResult.PrepareTimeout:
-                    if (Log.IsInformationLevelEnabled()) Log.LogInformation("Timeout while trying to save persistent subscription configuration. Retrying");
+                    if (Log.IsInformationLevelEnabled()) Log.TimeoutWhileTryingToSavePersistentSubscriptionConfiguration();
                     SaveConfiguration(continueWith);
                     break;
                 default:

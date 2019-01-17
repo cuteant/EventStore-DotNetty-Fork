@@ -80,7 +80,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.stream_pos
         [Test]
         public void empty_stream_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(()=> { new StreamPositionTagger(0, ""); });
+            Assert.Throws<ArgumentNullException>(()=> { new StreamPositionTagger(0, ""); });
         }
 
         [Test]

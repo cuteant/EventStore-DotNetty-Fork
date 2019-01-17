@@ -109,10 +109,7 @@ namespace EventStore.Transport.Tcp
                         case SocketError.OperationAborted:
                         case SocketError.ConnectionAborted:
                         case SocketError.ConnectionReset:
-                            if (Logger.IsInformationLevelEnabled())
-                            {
-                                Logger.DotNettyExceptionCaught(se, context);
-                            }
+                            if (Logger.IsInformationLevelEnabled()) { Logger.DotNettyExceptionCaught(se, context); }
                             NotifyDisassociated(new Disassociated(DisassociateInfo.Shutdown, new ClosedConnectionException(se.Message, se)));
                             break;
 
@@ -137,10 +134,7 @@ namespace EventStore.Transport.Tcp
                         case ErrorCode.ECANCELED:    // operation canceled
                         case ErrorCode.ECONNABORTED: // software caused connection abort
                         case ErrorCode.ECONNRESET:   // connection reset by peer
-                            if (Logger.IsInformationLevelEnabled())
-                            {
-                                Logger.DotNettyExceptionCaught(exc, context);
-                            }
+                            if (Logger.IsInformationLevelEnabled()) { Logger.DotNettyExceptionCaught(exc, context); }
                             NotifyDisassociated(new Disassociated(DisassociateInfo.Shutdown, new ClosedConnectionException(exc.Description, exc)));
                             break;
 

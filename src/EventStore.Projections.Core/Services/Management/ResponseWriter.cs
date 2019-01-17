@@ -36,7 +36,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         public void Reset()
         {
-            if (_logger.IsDebugLevelEnabled()) _logger.LogDebug("PROJECTIONS: Resetting Master Writer");
+            if (_logger.IsDebugLevelEnabled()) _logger.ProjectionsResettingMasterWriter();
             _cancellationScope.Cancel();
             _cancellationScope = new IODispatcherAsync.CancellationScope();
             Items.Clear();
@@ -46,9 +46,9 @@ namespace EventStore.Projections.Core.Services.Management
         public void PublishCommand(string command, object body)
         {
             //TODO: PROJECTIONS: Remove before release
-            if (!Logging.FilteredMessages.Contains(command) && _logger.IsDebugLevelEnabled())
+            if (_logger.IsDebugLevelEnabled() && !Logging.FilteredMessages.Contains(command))
             {
-                _logger.LogDebug("PROJECTIONS: Scheduling the writing of {0} to {1}. Current status of Writer: Busy: {2}", command, ProjectionNamesBuilder._projectionsMasterStream, Busy);
+                _logger.ProjectionsSchedulingTheWritingOf(command, Busy);
             }
             Items.Add(new Item { Command = command, Body = body });
             if (!Busy)
@@ -77,12 +77,9 @@ namespace EventStore.Projections.Core.Services.Management
                         foreach (var evt in events)
                         {
                             //TODO: PROJECTIONS: Remove before release
-                            if (!Logging.FilteredMessages.Contains(evt.EventType))
+                            if (debugEnabled && !Logging.FilteredMessages.Contains(evt.EventType))
                             {
-                                if (debugEnabled)
-                                {
-                                    _logger.LogDebug("PROJECTIONS: Finished writing events to {0}: {1}", ProjectionNamesBuilder._projectionsMasterStream, evt.EventType);
-                                }
+                                _logger.ProjectionsFinishedWritingEventsTo(evt.EventType);
                             }
                         }
                     }
@@ -90,12 +87,9 @@ namespace EventStore.Projections.Core.Services.Management
                     {
                         if (debugEnabled)
                         {
-                            var message = String.Format("PROJECTIONS: Failed writing events to {0} because of {1}: {2}",
-                                ProjectionNamesBuilder._projectionsMasterStream,
-                                completed.Result, String.Join(",", events.Select(x => String.Format("{0}-{1}", x.EventType, Helper.UTF8NoBom.GetString(x.Data)))));
-                            _logger.LogDebug(message); //Can't do anything about it, log and move on
-                                                       //throw new Exception(message);
+                            _logger.ProjectionsFailedWritingEventsTo(completed.Result, events); //Can't do anything about it, log and move on
                         }
+                        //throw new Exception(message);
                     }
 
                     if (Items.Count > 0) { EmitEvents(); }

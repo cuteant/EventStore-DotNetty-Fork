@@ -51,9 +51,9 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
-            if (readyHandler == null) throw new ArgumentNullException(nameof(readyHandler));
-            if (positionTagger == null) throw new ArgumentNullException(nameof(positionTagger));
-            if (from.CommitPosition < from.PreparePosition) throw new ArgumentException(nameof(from));
+            if (null == readyHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readyHandler); }
+            if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.positionTagger); }
+            if (from.CommitPosition < from.PreparePosition) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.from); }
             //NOTE: fromCommit can be equal fromPrepare on 0 position.  Is it possible anytime later? Ignoring for now.
             _maximumAllowedWritesInFlight = maximumAllowedWritesInFlight;
             _publisher = publisher;
@@ -137,7 +137,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void EmitEventsToStream(string streamId, EmittedEventEnvelope[] emittedEvents)
         {
-            if (string.IsNullOrEmpty(streamId)) { throw new ArgumentNullException(nameof(streamId)); }
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
             EmittedStream stream;
             if (!_emittedStreams.TryGetValue(streamId, out stream))
             {

@@ -28,7 +28,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                     "OK",
                                     entity.ResponseCodec.ContentType,
                                     null,
-                                    e => Log.LogError(e, "Error while writing HTTP response (ping)"));
+                                    e => Log.ErrorWhileWritingHttpResponsePing(e));
         }
     }
 }

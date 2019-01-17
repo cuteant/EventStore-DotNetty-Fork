@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
+using EventStore.Core.Services.Histograms;
 using EventStore.Core.Services.Monitoring.Stats;
 using EventStore.Core.Services.Storage.EpochManager;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
-using EventStore.Core.Services.Histograms;
-using EventStore.Core.Util;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Storage
 {
@@ -118,17 +118,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogCritical(exc, "Error in StorageChaser. Terminating...");
-                _queueStats.EnterIdle();
-                _queueStats.ProcessingStarted<FaultedChaserState>(0);
-                _tcs.TrySetException(exc);
-                Application.Exit(ExitCode.Error, "Error in StorageChaser. Terminating...\nError: " + exc.Message);
-                while (!_stop)
-                {
-                    Thread.Sleep(100);
-                }
-
-                _queueStats.ProcessingEnded(0);
+                OnChaseTransactionLogError(exc);
             }
             finally{
                 _queueStats.Stop();
@@ -138,6 +128,21 @@ namespace EventStore.Core.Services.Storage
             _writerCheckpoint.Flushed -= OnWriterFlushed;
             _chaser.Close();
             _masterBus.Publish(new SystemMessage.ServiceShutdown(Name));
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void OnChaseTransactionLogError(Exception exc)
+        {
+            Log.Error_in_StorageChaser(exc);
+            _queueStats.EnterIdle();
+            _queueStats.ProcessingStarted<FaultedChaserState>(0);
+            _tcs.TrySetException(exc);
+            Application.Exit(ExitCode.Error, "Error in StorageChaser. Terminating...\nError: " + exc.Message);
+            while (!_stop)
+            {
+                Thread.Sleep(100);
+            }
+
+            _queueStats.ProcessingEnded(0);
         }
 
         private void OnWriterFlushed(long obj)

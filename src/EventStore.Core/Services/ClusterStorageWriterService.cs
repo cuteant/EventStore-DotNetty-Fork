@@ -85,11 +85,7 @@ namespace EventStore.Core.Services
             _ackedSubscriptionPos = _subscriptionPos = message.SubscriptionPosition;
 
             var infoEnabled = Log.IsInformationLevelEnabled();
-            if (infoEnabled)
-            {
-                Log.LogInformation(string.Format("=== SUBSCRIBED to [{0},{1:B}] at {2} (0x{2:X}). SubscriptionId: {3:B}.",
-                         message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, message.SubscriptionId));
-            }
+            if (infoEnabled) { Log.SubscribedToMasterAt(message); }
 
             var writerCheck = Db.Config.WriterCheckpoint.ReadNonFlushed();
             if (message.SubscriptionPosition > writerCheck)
@@ -100,27 +96,23 @@ namespace EventStore.Core.Services
 
             if (message.SubscriptionPosition < writerCheck)
             {
-                if (infoEnabled)
-                {
-                    Log.LogInformation(string.Format("Master [{0},{1:B}] subscribed us at {2} (0x{2:X}), which is less than our writer checkpoint {3} (0x{3:X}). TRUNCATION IS NEEDED.",
-                           message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, writerCheck));
-                }
+                if (infoEnabled) { Log.MasterSubscribedUsAtWhichIsLessThanOurWriterCheckpoint(message, writerCheck); }
 
                 var lastCommitPosition = _getLastCommitPosition();
                 if (infoEnabled)
                 {
                     if (message.SubscriptionPosition > lastCommitPosition)
-                        Log.LogInformation("ONLINE TRUNCATION IS NEEDED. NOT IMPLEMENTED. OFFLINE TRUNCATION WILL BE PERFORMED. SHUTTING DOWN NODE.");
+                        Log.OnlineTruncationIsNeededNotImplementedOfflineTruncationWillBePerformed();
                     else
-                        Log.LogInformation(string.Format("OFFLINE TRUNCATION IS NEEDED (SubscribedAt {0} (0x{0:X}) <= LastCommitPosition {1} (0x{1:X})). SHUTTING DOWN NODE.", message.SubscriptionPosition, lastCommitPosition));
+                        Log.OfflineTruncationIsNeededShuttingDownNode(message.SubscriptionPosition, lastCommitPosition);
                 }
 
                 EpochRecord lastEpoch = EpochManager.GetLastEpoch();
                 if (AreAnyCommittedRecordsTruncatedWithLastEpoch(message.SubscriptionPosition, lastEpoch, lastCommitPosition))
                 {
-                    Log.LogError(string.Format("Master [{0},{1:B}] subscribed us at {2} (0x{2:X}), which is less than our last epoch and LastCommitPosition {3} (0x{3:X}) >= lastEpoch.EpochPosition {4} (0x{4:X}). That might be bad, especially if the LastCommitPosition is way beyond EpochPosition.",
-                                message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, lastCommitPosition, lastEpoch.EpochPosition));
-                    Log.LogError("ATTEMPT TO TRUNCATE EPOCH WITH COMMITTED RECORDS. THIS MAY BE BAD, BUT IT IS OK IF JUST-ELECTED MASTER FAILS IMMEDIATELY AFTER ITS ELECTION.");
+                    Log.MasterSubscribedUsAtWhichIsLessThanOurLastEpochAndLastcommitposition(
+                        message.MasterEndPoint, message.MasterId, message.SubscriptionPosition, lastCommitPosition, lastEpoch.EpochPosition);
+                    Log.AttemptToTruncateEpochWithCommittedRecords();
                 }
 
                 Db.Config.TruncateCheckpoint.Write(message.SubscriptionPosition);
@@ -177,14 +169,12 @@ namespace EventStore.Core.Services
 
             if (_activeChunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || _activeChunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
             {
-                Log.LogError("Received RawChunkBulk for TFChunk {0}-{1}, but active chunk is {2}.",
-                          message.ChunkStartNumber, message.ChunkEndNumber, _activeChunk);
+                Log.ReceivedRawChunkBulkForTFChunkButActiveChunkIs(message.ChunkStartNumber, message.ChunkEndNumber, _activeChunk);
                 return;
             }
             if (_activeChunk.RawWriterPosition != message.RawPosition)
             {
-                Log.LogError(string.Format("Received RawChunkBulk at raw pos {0} (0x{0:X}) while current writer raw pos is {1} (0x{1:X}).",
-                          message.RawPosition, _activeChunk.RawWriterPosition));
+                Log.ReceivedRawchunkbulkAtRawPosWhileCurrentWriterRawPosIs(message.RawPosition, _activeChunk.RawWriterPosition);
                 return;
             }
 
@@ -198,7 +188,7 @@ namespace EventStore.Core.Services
 
             if (message.CompleteChunk)
             {
-                if (Log.IsTraceLevelEnabled()) Log.LogTrace("Completing raw chunk {0}-{1}...", message.ChunkStartNumber, message.ChunkEndNumber);
+                if (Log.IsTraceLevelEnabled()) Log.CompletingRawChu1nk(message.ChunkStartNumber, message.ChunkEndNumber);
                 Writer.CompleteReplicatedRawChunk(_activeChunk);
 
                 _subscriptionPos = _activeChunk.ChunkHeader.ChunkEndPosition;
@@ -224,15 +214,14 @@ namespace EventStore.Core.Services
                 var chunk = Writer.CurrentChunk;
                 if (chunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || chunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
                 {
-                    Log.LogError("Received DataChunkBulk for TFChunk {0}-{1}, but active chunk is {2}-{3}.",
+                    Log.ReceivedDataChunkBulkForTFChunkButActiveChunkIs(
                               message.ChunkStartNumber, message.ChunkEndNumber, chunk.ChunkHeader.ChunkStartNumber, chunk.ChunkHeader.ChunkEndNumber);
                     return;
                 }
 
                 if (_subscriptionPos != message.SubscriptionPosition)
                 {
-                    Log.LogError(string.Format("Received DataChunkBulk at SubscriptionPosition {0} (0x{0:X}) while current SubscriptionPosition is {1} (0x{1:X}).",
-                              message.SubscriptionPosition, _subscriptionPos));
+                    Log.ReceivedDatachunkbulkAtSubscriptionpositionWhileCurrentSubscriptionpositionIs(message.SubscriptionPosition, _subscriptionPos);
                     return;
                 }
 
@@ -241,7 +230,7 @@ namespace EventStore.Core.Services
 
                 if (message.CompleteChunk)
                 {
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("Completing data chunk {0}-{1}...", message.ChunkStartNumber, message.ChunkEndNumber);
+                    if (Log.IsTraceLevelEnabled()) Log.CompletingDataChunk(message.ChunkStartNumber, message.ChunkEndNumber);
                     Writer.CompleteChunk();
 
                     if (_framer.HasData)
@@ -255,7 +244,7 @@ namespace EventStore.Core.Services
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally

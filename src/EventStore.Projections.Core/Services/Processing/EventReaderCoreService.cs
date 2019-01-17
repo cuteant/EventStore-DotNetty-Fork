@@ -268,7 +268,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (!_faultOutOfOrderProjections && message.Reason.Contains("was expected in the stream"))
             {
                 // Log without fault the projection
-                _logger.LogTrace(message.Reason);
+                if (_logger.IsTraceLevelEnabled()) _logger.LogTrace(message.Reason);
                 return;
             }
 
@@ -303,25 +303,25 @@ namespace EventStore.Projections.Core.Services.Processing
             var infoEnabled = _logger.IsInformationLevelEnabled();
             if (_subscriptions.Count > 0)
             {
-                if (infoEnabled) _logger.LogInformation("_subscriptions is not empty after all the projections have been killed");
+                if (infoEnabled) _logger.SubscriptionsIsNotEmptyAfterAllTheProjectionsHaveBeenKilled();
                 _subscriptions.Clear();
             }
 
             if (_eventReaders.Count > 0)
             {
-                if (infoEnabled) _logger.LogInformation("_eventReaders is not empty after all the projections have been killed");
+                if (infoEnabled) _logger.EventReadersIsNotEmptyAfterAllTheProjectionsHaveBeenKilled();
                 _eventReaders.Clear();
             }
 
             if (_subscriptionEventReaders.Count > 0)
             {
-                if (infoEnabled) _logger.LogInformation("_subscriptionEventReaders is not empty after all the projections have been killed");
+                if (infoEnabled) _logger.SubscriptionEventReadersIsNotEmptyAfterAllTheProjectionsHaveBeenKilled();
                 _subscriptionEventReaders.Clear();
             }
 
             if (_eventReaderSubscriptions.Count > 0)
             {
-                if (infoEnabled) _logger.LogInformation("_eventReaderSubscriptions is not empty after all the projections have been killed");
+                if (infoEnabled) _logger.EventReaderSubscriptionsIsNotEmptyAfterAllTheProjectionsHaveBeenKilled();
                 _eventReaderSubscriptions.Clear();
             }
 

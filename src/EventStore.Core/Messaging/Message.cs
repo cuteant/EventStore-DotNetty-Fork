@@ -122,7 +122,7 @@ namespace EventStore.Core.Messaging
                 DescendantsByType.Add(typeIdMap.Key, DescendantsByTypeId[typeIdMap.Value]);
             }
 
-            if (Log.IsTraceLevelEnabled()) { Log.LogTrace("MessageHierarchy initialization took {0}.", sw.Elapsed); }
+            if (Log.IsTraceLevelEnabled()) { Log.MessageHierarchyInitializationTook(sw.Elapsed); }
         }
 
         static Type[] LoadAvailableTypes(Assembly assembly)
@@ -137,12 +137,11 @@ namespace EventStore.Core.Messaging
                 {
                     if (ex.LoaderExceptions.Length > 0)
                     {
-                        Log.LogInformation("The exception(s) occured when scanning for message types: ",
-                            string.Join(",", ex.LoaderExceptions.Select(x => x.Message)));
+                        Log.TheExceptionsOccuredWhenScanningForMessageTypes(ex);
                     }
                     else
                     {
-                        Log.LogInformation(ex, "Exception while scanning for message types");
+                        Log.Exception_while_scanning_for_message_types(ex);
                     }
                 }
                 return ex.Types;
@@ -156,7 +155,7 @@ namespace EventStore.Core.Messaging
             var msgTypeField = msgType.GetFields(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(x => x.Name == "TypeId");
             if (msgTypeField == null)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("Message {0} doesn't have TypeId field!", msgType.Name);
+                if (Log.IsInformationLevelEnabled()) Log.Message_doesnot_have_TypeId_field(msgType);
                 ThrowHelper.ThrowException_MessageDoesntHaveTypeIdField(msgType);
             }
             var msgTypeId = (int)msgTypeField.GetValue(null);

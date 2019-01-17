@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -111,22 +112,27 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                _queueStats.EnterIdle();
-                _queueStats.ProcessingStarted<FaultedIndexCommitterServiceState>(0);
-                Log.LogCritical(exc, "Error in IndexCommitterService. Terminating...");
-                _tcs.TrySetException(exc);
-                Application.Exit(ExitCode.Error, "Error in IndexCommitterService. Terminating...\nError: " + exc.Message);
-                while (!_stop)
-                {
-                    Thread.Sleep(100);
-                }
-               _queueStats.ProcessingEnded(0);
+                OnHandleReplicatedQueueError(exc);
             }
             finally{
                 _queueStats.Stop();
                 QueueMonitor.Default.Unregister(this);
             }
             _publisher.Publish(new SystemMessage.ServiceShutdown(Name));
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void OnHandleReplicatedQueueError(Exception exc)
+        {
+            _queueStats.EnterIdle();
+            _queueStats.ProcessingStarted<FaultedIndexCommitterServiceState>(0);
+            Log.Error_in_IndexCommitterService(exc);
+            _tcs.TrySetException(exc);
+            Application.Exit(ExitCode.Error, "Error in IndexCommitterService. Terminating...\nError: " + exc.Message);
+            while (!_stop)
+            {
+                Thread.Sleep(100);
+            }
+            _queueStats.ProcessingEnded(0);
         }
 
         private void ProcessCommitReplicated(StorageMessage.CommitAck message)

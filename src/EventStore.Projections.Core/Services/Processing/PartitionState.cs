@@ -56,8 +56,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionState(string state, string result, CheckpointTag causedBy)
         {
-            if (state == null) throw new ArgumentNullException("state");
-            if (causedBy == null) throw new ArgumentNullException("causedBy");
+            if (null == state) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.state); }
+            if (null == causedBy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.causedBy); }
 
             _state = state;
             _result = result;

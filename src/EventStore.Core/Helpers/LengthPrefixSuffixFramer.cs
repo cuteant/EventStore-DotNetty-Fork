@@ -75,7 +75,7 @@ namespace EventStore.Core.Helpers
                     {
                         if (_packageLength <= 0 || _packageLength > _maxPackageSize)
                         {
-                            Log.LogError($"FRAMING ERROR! Data:\n{Helper.FormatBinaryDump(bytes)}");
+                            Log.FramingError(bytes);
                             ThrowHelper.ThrowPackageFramingException(_packageLength, _maxPackageSize);
                         }
                         _packageLength += PrefixLength; // we need to read suffix as well

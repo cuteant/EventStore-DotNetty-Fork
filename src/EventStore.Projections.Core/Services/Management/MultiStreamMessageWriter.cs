@@ -27,7 +27,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         public void Reset()
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Resetting Worker Writer");
+            if (Log.IsDebugLevelEnabled()) Log.ResettingWorkerWriter();
             _cancellationScope.Cancel();
             _cancellationScope = new IODispatcherAsync.CancellationScope();
             _queues.Clear();
@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Services.Management
             //TODO: PROJECTIONS: Remove before release
             if (!Logging.FilteredMessages.Contains(command) && Log.IsDebugLevelEnabled())
             {
-                Log.LogDebug("PROJECTIONS: Scheduling the writing of {0} to {1}. Current status of Writer: Busy: {2}", command, "$projections-$" + workerId, queue.Busy);
+                Log.ProjectionsSchedulingTheWritingOf(command, workerId, queue.Busy);
             }
             queue.Items.Add(new Queue.Item { Command = command, Body = body });
             if (!queue.Busy)
@@ -71,23 +71,20 @@ namespace EventStore.Projections.Core.Services.Management
                     {
                         foreach (var evt in events)
                         {
-                      // TODO: PROJECTIONS: Remove before release
-                      if (!Logging.FilteredMessages.Contains(evt.EventType))
+                            // TODO: PROJECTIONS: Remove before release
+                            if (Log.IsDebugLevelEnabled() && !Logging.FilteredMessages.Contains(evt.EventType))
                             {
-                                if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished writing events to {0}: {1}", streamId, evt.EventType);
+                                Log.ProjectionsFinishedWritingEventsTo(streamId, evt.EventType);
                             }
                         }
                     }
                     else
                     {
-                        var message = String.Format("PROJECTIONS: Failed writing events to {0} because of {1}: {2}",
-                                streamId,
-                                completed.Result, String.Join(",", events.Select(x => String.Format("{0}", x.EventType))));
                         if (Log.IsDebugLevelEnabled())
                         {
-                            Log.LogDebug(message); //Can't do anything about it, log and move on
-                                                   //throw new Exception(message);
-                  }
+                            Log.ProjectionsFailedWritingEventsTo(streamId, completed.Result, events); //Can't do anything about it, log and move on
+                        }
+                        //throw 1new 1Exception(message);
                     }
 
                     if (queue.Items.Count > 0)

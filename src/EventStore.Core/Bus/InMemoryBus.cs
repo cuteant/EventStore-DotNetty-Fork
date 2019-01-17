@@ -103,6 +103,7 @@ namespace EventStore.Core.Bus
             List<IMessageHandler> handlers;
             if (_typeHash.TryGetValue(type, out handlers))
             {
+                var traceEnabled = Log.IsTraceLevelEnabled();
                 for (int i = 0, n = handlers.Count; i < n; ++i)
                 {
                     var handler = handlers[i];
@@ -113,8 +114,8 @@ namespace EventStore.Core.Bus
                         handler.TryHandle(message);
 
                         var elapsed = DateTime.UtcNow - start;
-                        if (elapsed > _slowMsgThreshold)
-                            Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.", Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
+                        if (traceEnabled && elapsed > _slowMsgThreshold)
+                            Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                     }
                     else
                     {
@@ -223,6 +224,7 @@ namespace EventStore.Core.Bus
             if (!_typeHash.TryGetValue(type, out handlers)) 
                 return;
 
+            var traceEnabled = Log.IsTraceLevelEnabled();
             for (int i = 0, n = handlers.Count; i < n; ++i)
             {
                 var handler = handlers[i];
@@ -233,10 +235,9 @@ namespace EventStore.Core.Bus
                     handler.TryHandle(message);
 
                     var elapsed = DateTime.UtcNow - start;
-                    if (elapsed > _slowMsgThreshold)
+                    if (traceEnabled && elapsed > _slowMsgThreshold)
                     {
-                        Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
-                                  Name, message.GetType().Name, (int) elapsed.TotalMilliseconds, handler.HandlerName);
+                        Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                     }
                 }
                 else
@@ -326,6 +327,7 @@ namespace EventStore.Core.Bus
             //if (message == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message);
 
             var handlers = _handlers[message.MsgTypeId];
+            var traceEnabled = Log.IsTraceLevelEnabled();
             for (int i = 0, n = handlers.Count; i < n; ++i)
             {
                 var handler = handlers[i];
@@ -338,11 +340,9 @@ namespace EventStore.Core.Bus
                     var elapsed = DateTime.UtcNow - start;
                     if (elapsed > _slowMsgThreshold)
                     {
-                        Log.LogTrace("SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
-                                  Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
+                        if (traceEnabled) Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                         if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(message is SystemMessage.SystemInit))
-                            Log.LogError("---!!! VERY SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.",
-                                      Name, message.GetType().Name, (int)elapsed.TotalMilliseconds, handler.HandlerName);
+                            Log.Very_slow_bus_msg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                     }
                 }
                 else

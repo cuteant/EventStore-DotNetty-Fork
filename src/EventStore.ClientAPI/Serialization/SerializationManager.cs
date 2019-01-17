@@ -139,7 +139,7 @@ namespace EventStore.ClientAPI.Serialization
                 }
                 catch (Exception exception)
                 {
-                    s_logger.LogError(exception, $"Failed to create instance of type: {typeInfo.FullName}");
+                    s_logger.FailedToCreateInstanceOfType(typeInfo, exception);
                 }
             });
         }

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using System.Security.Principal;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using EventStore.Common.Utils;
 using EventStore.Core.Authentication;
@@ -146,10 +145,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void OnConnectionEstablished()
         {
-            if (Log.IsInformationLevelEnabled())
-            {
-                Log.LogInformation("Connection '{0}' ({1:B}) to [{2}] established.", ConnectionName, ConnectionId, RemoteEndPoint);
-            }
+            if (Log.IsInformationLevelEnabled()) { Log.OnConnectionEstablished(ConnectionName, ConnectionId, RemoteEndPoint); }
 
             ScheduleHeartbeat(0);
 
@@ -157,16 +153,12 @@ namespace EventStore.Core.Services.Transport.Tcp
             handler?.Invoke(this);
         }
 
-        private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo socketError)
+        private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo disassociateInfo)
         {
             if (Interlocked.CompareExchange(ref _isClosed, 1, 0) != 0) return;
-            if (Log.IsInformationLevelEnabled())
-            {
-                Log.LogInformation("Connection '{0}{1}' [{2}, {3:B}] closed: {4}.",
-                       ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, connection.RemoteEndPoint, ConnectionId, socketError);
-            }
+            if (Log.IsInformationLevelEnabled()) { Log.OnConnectionClosed(ConnectionName, ClientConnectionName, connection.RemoteEndPoint, ConnectionId, disassociateInfo); }
             var handler = _connectionClosed;
-            handler?.Invoke(this, socketError);
+            handler?.Invoke(this, disassociateInfo);
         }
 
         public void Notify(TcpPackage package)
@@ -185,8 +177,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public void HandleBadRequest(in Disassociated disassociated)
         {
             SendPackage(new TcpPackage(TcpCommand.BadRequest, Guid.Empty, Helper.UTF8NoBom.GetBytes(disassociated.ToString())), checkQueueSize: false);
-            Log.LogError("Closing connection '{0}{1}' [{2}, L{3}, {4:B}] due to error. Reason: {5}",
-                        ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId, disassociated);
+            Log.ClosingConnectionDueToError(this, disassociated);
             _connection.Close(disassociated);
         }
 
@@ -209,11 +200,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                         try
                         {
                             var message = (ClientMessage.IdentifyClient)_dispatcher.UnwrapPackage(package, _tcpEnvelope, null, null, null, this, _version);
-                            if (Log.IsInformationLevelEnabled())
-                            {
-                                Log.LogInformation("Connection '{0}' ({1:B}) identified by client. Client connection name: '{2}', Client version: {3}.",
-                                    ConnectionName, ConnectionId, message.ConnectionName, (ClientVersion)message.Version);
-                            }
+                            if (Log.IsInformationLevelEnabled()) { Log.ConnectionIdentifiedByClient(this, message); }
                             _version = (byte)message.Version;
                             _clientConnectionName = message.ConnectionName;
                             _connection.SetClientConnectionName(_clientConnectionName);
@@ -221,7 +208,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                         }
                         catch (Exception ex)
                         {
-                            Log.LogError(ex, "Error identifying client: ");
+                            Log.ErrorIdentifyingClient(ex);
                         }
                         break;
                     }
@@ -229,9 +216,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                     {
                         var reason = string.Empty;
                         try { reason = Helper.UTF8NoBom.GetString(package.Data); } catch { }
-                        Log.LogError("Bad request received from '{0}{1}' [{2}, L{3}, {4:B}], will stop server. CorrelationId: {5:B}, Error: {6}.",
-                                      ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint,
-                                      LocalEndPoint, ConnectionId, package.CorrelationId, reason.IsEmptyString() ? "<reason missing>" : reason);
+                        Log.BadRequestReceivedFromWillStopServer(this, package.CorrelationId, reason);
                         break;
                     }
                 case TcpCommand.Authenticate:
@@ -324,8 +309,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
             SendPackage(new TcpPackage(TcpCommand.BadRequest, correlationId, Helper.UTF8NoBom.GetBytes(message)), checkQueueSize: false);
-            Log.LogError("Closing connection '{0}{1}' [{2}, L{3}, {4:B}] due to error. Reason: {5}",
-                        ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId, message);
+            Log.ClosingConnectionDueToError(this, message);
             _connection.Close(DisassociateInfo.Unknown, message);
         }
 
@@ -338,13 +322,16 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void Stop(string reason = null)
         {
-            if (Log.IsTraceLevelEnabled())
-            {
-                Log.LogTrace("Closing connection '{0}{1}' [{2}, L{3}, {4:B}] cleanly.{5}",
-                            ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId,
-                            reason.IsEmpty() ? string.Empty : " Reason: " + reason);
-            }
+            if (Log.IsTraceLevelEnabled()) { LogClosingConnection(reason); }
             _connection.Close(DisassociateInfo.Success, reason);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void LogClosingConnection(string reason)
+        {
+            Log.LogTrace("Closing connection '{connectionName}{clientConnectionName}' [{remoteEndPoint}, L{localEndPoint}, {connectionId:B}] cleanly.{reason}",
+                      ConnectionName, ClientConnectionName.IsEmptyString() ? string.Empty : ":" + ClientConnectionName, RemoteEndPoint, LocalEndPoint, ConnectionId,
+                      reason.IsEmpty() ? string.Empty : " Reason: " + reason);
         }
 
         public void SendMessage(Message message)

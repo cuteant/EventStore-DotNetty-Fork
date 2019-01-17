@@ -57,8 +57,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Read Event operation has expired for Stream: {0}, Event Number: {1}. Operation Expired at {2}", msg.EventStreamId, msg.EventNumber, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.Read_Event_operation_has_expired_for_Stream(msg);
                 return;
             }
             msg.Envelope.ReplyWith(ReadEvent(msg));
@@ -68,8 +68,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Read Stream Events Forward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.ReadStreamEventsForwardOperationHasExpiredForStream(msg);
                 return;
             }
             using (HistogramService.Measure(_readerStreamRangeHistogram))
@@ -106,8 +106,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Read Stream Events Backward operation has expired for Stream: {0}, From Event Number: {1}, Max Count: {2}. Operation Expired at {3}", msg.EventStreamId, msg.FromEventNumber, msg.MaxCount, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.Read_Stream_Events_Backward_operation_has_expired_for_Stream(msg);
                 return;
             }
             msg.Envelope.ReplyWith(ReadStreamEventsBackward(msg));
@@ -117,8 +117,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Read All Stream Events Forward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.Read_All_Stream_Events_Forward_operation_has_expired_for_C(msg);
                 return;
             }
             using (HistogramService.Measure(_readerAllRangeHistogram))
@@ -164,8 +164,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Read All Stream Events Backward operation has expired for C:{0}/P:{1}. Operation Expired at {2}", msg.CommitPosition, msg.PreparePosition, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.Read_All_Stream_Events_Backward_operation_has_expired_for_C(msg);
                 return;
             }
             msg.Envelope.ReplyWith(ReadAllEventsBackward(msg));
@@ -175,8 +175,8 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
-                if(LogExpiredMessage(msg.Expires))
-                    Log.LogDebug("Check Stream Access operation has expired for Stream: {0}. Operation Expired at {1}", msg.EventStreamId, msg.Expires);
+                if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
+                    Log.Check_Stream_Access_operation_has_expired_for_Stream(msg);
                 return;
             }
             msg.Envelope.ReplyWith(CheckStreamAccess(msg));
@@ -212,7 +212,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error during processing ReadEvent request.");
+                    Log.ErrorDuringProcessingReadEventRequest(exc);
                     return NoData(msg, ReadEventResult.Error, exc.Message);
                 }
             }
@@ -257,7 +257,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error during processing ReadStreamEventsForward request.");
+                    Log.ErrorDuringProcessingReadStreamEventsForwardRequest(exc);
                     return NoData(msg, ReadStreamResult.Error, lastCommitPosition, error: exc.Message);
                 }
             }
@@ -303,7 +303,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error during processing ReadStreamEventsBackward request.");
+                    Log.ErrorDuringProcessingReadStreamEventsBackwardRequest(exc);
                     return NoData(msg, ReadStreamResult.Error, lastCommitPosition, error: exc.Message);
                 }
             }
@@ -355,7 +355,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error during processing ReadAllEventsForward request.");
+                    Log.ErrorDuringProcessingReadAllEventsForwardRequest(exc);
                     return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, exc.Message);
                 }
             }
@@ -408,7 +408,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error during processing ReadAllEventsBackward request.");
+                    Log.ErrorDuringProcessingReadAllEventsBackwardRequest(exc);
                     return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, exc.Message);
                 }
             }
@@ -433,7 +433,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error during processing CheckStreamAccess({0}, {1}) request.", msg.EventStreamId, msg.TransactionId);
+                Log.ErrorDuringProcessingCheckstreamaccessRequest(msg, exc);
                 return new StorageMessage.CheckStreamAccessCompleted(msg.CorrelationId, streamId, msg.TransactionId,
                                                                      msg.AccessType, new StreamAccess(false));
             }
@@ -538,7 +538,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error while resolving link for event record: {0}", eventRecord.ToString());
+                    Log.ErrorWhileResolvingLinkForEventRecord(eventRecord, exc);
                 }
                 // return unresolved link
                 return ResolvedEvent.ForFailedResolvedLink(eventRecord, ReadEventResult.Error, commitPosition);
@@ -573,11 +573,11 @@ namespace EventStore.Core.Services.Storage
             if(!_batchLoggingEnabled) return;
             if(_expiredBatchCount == 0){
                 _batchLoggingEnabled = false;
-                Log.LogWarning("StorageReaderWorker #{0}: Batch logging disabled, read load is back to normal", _queueId);
+                if (Log.IsWarningLevelEnabled()) Log.Batch_logging_disabled_read_load_is_back_to_normal(_queueId);
                 return;
             }
 
-            Log.LogWarning("StorageReaderWorker #{0}: {1} read operations have expired", _queueId, _expiredBatchCount);
+            if (Log.IsWarningLevelEnabled()) Log.Read_operations_have_expired(_queueId, _expiredBatchCount);
             _expiredBatchCount = 0;
             _publisher.Publish(
                 TimerMessage.Schedule.Create(TimeSpan.FromSeconds(2),
@@ -598,7 +598,7 @@ namespace EventStore.Core.Services.Storage
                 if(_expiredBatchCount >= 50){
                     if(expire - _lastExpireTime.Value <= TimeSpan.FromSeconds(1)){ //heuristic to match approximately >= 50 expired messages / second
                         _batchLoggingEnabled = true;
-                        Log.LogWarning("StorageReaderWorker #{0}: Batch logging enabled, high rate of expired read messages detected", _queueId);
+                        if (Log.IsWarningLevelEnabled()) Log.Batch_logging_enabled_high_rate_of_expired_read_messages_detected(_queueId);
                         _publisher.Publish(
                             TimerMessage.Schedule.Create(TimeSpan.FromSeconds(2),
                                                     new PublishEnvelope(_publisher),

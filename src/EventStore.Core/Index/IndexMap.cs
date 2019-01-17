@@ -367,14 +367,12 @@ namespace EventStore.Core.Index
             }
 
             int trial = 0;
-            var debugEnabled = Log.IsDebugLevelEnabled();
             int maxTrials = 5;
             while (trial < maxTrials)
             {
                 void errorHandler(Exception ex)
                 {
-                    Log.LogError("Failed trial to replace indexmap {0} with {1}.", filename, tmpIndexMap);
-                    Log.LogError("Exception: {0}", ex.ToString());
+                    Log.FailedTrialToReplaceIndexmap(filename, tmpIndexMap, ex);
                     trial += 1;
                 };
                 try

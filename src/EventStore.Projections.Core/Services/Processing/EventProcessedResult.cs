@@ -21,7 +21,7 @@ namespace EventStore.Projections.Core.Services.Processing
             Guid causedBy, string correlationId, bool isPartitionTombstone = false)
         {
             if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
-            if (checkpointTag == null) throw new ArgumentNullException("checkpointTag");
+            if (null == checkpointTag) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointTag); }
             _emittedEvents = emittedEvents;
             _causedBy = causedBy;
             _correlationId = correlationId;

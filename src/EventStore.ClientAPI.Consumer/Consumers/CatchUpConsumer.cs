@@ -66,14 +66,14 @@ namespace EventStore.ClientAPI.Consumers
                         if (RegisterEventHandlers != null)
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
                         else
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterHandlers,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
@@ -83,14 +83,14 @@ namespace EventStore.ClientAPI.Consumers
                         if (RegisterEventHandlers != null)
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
                         else
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterHandlers,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
@@ -103,14 +103,14 @@ namespace EventStore.ClientAPI.Consumers
                         if (_eventAppearedAsync != null)
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
                         else
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppeared,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
@@ -120,14 +120,14 @@ namespace EventStore.ClientAPI.Consumers
                         if (_eventAppearedAsync != null)
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }
                         else
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppeared,
-                                    _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                                    _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                                     Subscription.Credentials);
                         }

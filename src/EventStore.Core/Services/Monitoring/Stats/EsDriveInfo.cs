@@ -50,7 +50,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             catch (Exception ex)
             {
-                if (log.IsDebugLevelEnabled()) log.LogDebug("Error while reading drive info for path {0}. Message: {1}.", path, ex.Message);
+                if (log.IsDebugLevelEnabled()) log.Error_while_reading_drive_info_for_path(path, ex);
                 return null;
             }
         }
@@ -88,7 +88,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             catch (Exception ex)
             {
-                if (log.IsDebugLevelEnabled()) log.LogDebug(ex, "Could not get drive name for directory '{0}' on Unix.", directory);
+                if (log.IsDebugLevelEnabled()) log.Could_not_get_drive_name_for_directory(ex, directory);
                 return null;
             }
         }

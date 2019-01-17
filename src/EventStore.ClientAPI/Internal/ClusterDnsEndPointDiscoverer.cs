@@ -60,25 +60,16 @@ namespace EventStore.ClientAPI.Internal
                     var endPoints = await DiscoverEndPoint(failedTcpEndPoint).ConfigureAwait(false);
                     if (endPoints != null)
                     {
-                        if (infoEnabled)
-                        {
-                            _log.LogInformation("Discovering attempt {0}{1} successful: best candidate is {2}.", attempt, maxDiscoverAttemptsStr, endPoints);
-                        }
+                        if (infoEnabled) { _log.DiscoveringAttemptSuccessful(attempt, maxDiscoverAttemptsStr, endPoints.Value); }
 
                         return endPoints.Value;
                     }
 
-                    if (infoEnabled)
-                    {
-                        _log.LogInformation("Discovering attempt {0}{1} failed: no candidate found.", attempt, maxDiscoverAttemptsStr);
-                    }
+                    if (infoEnabled) { _log.DiscoveringAttemptFailed(attempt, maxDiscoverAttemptsStr); }
                 }
                 catch (Exception exc)
                 {
-                    if (infoEnabled)
-                    {
-                        _log.LogInformation("Discovering attempt {0}{1} failed with error: {2}.", attempt, maxDiscoverAttemptsStr, exc);
-                    }
+                    if (infoEnabled) { _log.DiscoveringAttemptFailed(attempt, maxDiscoverAttemptsStr, exc); }
                 }
 
                 //Thread.Sleep(500);
@@ -209,25 +200,25 @@ namespace EventStore.ClientAPI.Internal
                 {
                     if (response.HttpStatusCode != HttpStatusCode.OK)
                     {
-                  //_log.Info("[{0}] responded with {1} ({2})", endPoint, response.HttpStatusCode, response.StatusDescription);
-                  completed.Set();
+                        //_log.Info("[{0}] responded with {1} ({2})", endPoint, response.HttpStatusCode, response.StatusDescription);
+                        completed.Set();
                         return;
                     }
                     try
                     {
                         result = response.Body.ParseJson<ClusterMessages.ClusterInfoDto>();
-                  //_log.Debug("ClusterDnsEndPointDiscoverer: Got gossip from [{0}]:\n{1}.", endPoint, string.Join("\n", result.Members.Select(x => x.ToString())));
-              }
+                        //_log.Debug("ClusterDnsEndPointDiscoverer: Got gossip from [{0}]:\n{1}.", endPoint, string.Join("\n", result.Members.Select(x => x.ToString())));
+                    }
                     catch (Exception)
                     {
-                  //_log.Info("Failed to get cluster info from [{0}]: deserialization error: {1}.", endPoint, e.Message);
-              }
+                        //_log.Info("Failed to get cluster info from [{0}]: deserialization error: {1}.", endPoint, e.Message);
+                    }
                     completed.Set();
                 },
                 e =>
                 {
-              //_log.Info("Failed to get cluster info from [{0}]: request failed, error: {1}.", endPoint, e.Message);
-              completed.Set();
+                    //_log.Info("Failed to get cluster info from [{0}]: request failed, error: {1}.", endPoint, e.Message);
+                    completed.Set();
                 }, endPoint.HostHeader);
 
             completed.Wait();
@@ -238,10 +229,10 @@ namespace EventStore.ClientAPI.Internal
         {
             var notAllowedStates = new[]
             {
-        ClusterMessages.VNodeState.Manager,
-        ClusterMessages.VNodeState.ShuttingDown,
-        ClusterMessages.VNodeState.Shutdown
-      };
+                ClusterMessages.VNodeState.Manager,
+                ClusterMessages.VNodeState.ShuttingDown,
+                ClusterMessages.VNodeState.Shutdown
+            };
 
             var nodes = members.Where(x => x.IsAlive)
                                .Where(x => !notAllowedStates.Contains(x.State))
@@ -273,7 +264,7 @@ namespace EventStore.ClientAPI.Internal
                                  : null;
             if (_log.IsInformationLevelEnabled())
             {
-                _log.LogInformation("Discovering: found best choice [{0},{1}] ({2}).", normTcp, secTcp == null ? "n/a" : secTcp.ToString(), node.State);
+                _log.DiscoveringFoundBestChoice(normTcp, secTcp, node.State);
             }
             return new NodeEndPoints(normTcp, secTcp);
         }

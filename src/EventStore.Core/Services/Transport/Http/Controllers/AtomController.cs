@@ -173,7 +173,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                       responseStatusCode, responseMessage,
                                       manager.ResponseCodec.ContentType,
                                       null,
-                                      e => Log.LogError(e, "Error while writing HTTP response"));
+                                      e => Log.ErrorWhileWritingHttpResponse(e));
                         return String.Empty;
                     },
                     (args, message) => new ResponseConfiguration(HttpStatusCode.OK, manager.ResponseCodec.ContentType, manager.ResponseCodec.Encoding));
@@ -780,10 +780,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                                       stream, expectedVersion, events, manager.User);
                     Publish(msg);
                 },
-                e =>
-                {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while reading request (POST entry): {0}.", e.Message);
-                });
+                e => { if (Log.IsDebugLevelEnabled()) Log.Error_while_reading_request_POST_entry(e); });
         }
 
         private void GetStreamEvent(HttpEntityManager manager, string stream, long eventNumber,

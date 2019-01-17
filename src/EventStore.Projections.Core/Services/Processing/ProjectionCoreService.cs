@@ -104,7 +104,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
             if (_projections.Count > 0)
             {
-                if (_logger.IsInformationLevelEnabled()) _logger.LogInformation("_projections is not empty after all the projections have been killed");
+                if (_logger.IsInformationLevelEnabled()) _logger.ProjectionsIsNotEmptyAfterAllTheProjectionsHaveBeenKilled();
                 _projections.Clear();
             }
         }

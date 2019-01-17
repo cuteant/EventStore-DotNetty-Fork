@@ -123,7 +123,7 @@ namespace EventStore.Projections.Core.Services.v8
             CheckpointTag eventPosition, string category, ResolvedEvent @event)
         {
             CheckDisposed();
-            if (@event == null) throw new ArgumentNullException("event");
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
             var partition = _query.GetPartition(
                 @event.Data.Trim(), // trimming data passed to a JS 
                 new string[]

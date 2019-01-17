@@ -1535,9 +1535,9 @@ namespace EventStore.Core
                     if (dbPath == Locations.DefaultDataDirectory)
                     {
                         var infoEnabled = log.IsInformationLevelEnabled();
-                        if (infoEnabled) log.LogInformation("Access to path {0} denied. The Event Store database will be created in {1}", dbPath, Locations.FallbackDefaultDataDirectory);
+                        if (infoEnabled) log.Access_to_path_denied(dbPath);
                         dbPath = Locations.FallbackDefaultDataDirectory;
-                        if (infoEnabled) log.LogInformation("Defaulting DB Path to {0}", dbPath);
+                        if (infoEnabled) log.Defaulting_DB_Path_to(dbPath);
 
                         if (!Directory.Exists(dbPath)) // mono crashes without this check
                         {

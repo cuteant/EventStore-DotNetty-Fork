@@ -20,7 +20,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionStateUpdateManager(ProjectionNamesBuilder namingBuilder)
         {
-            if (namingBuilder == null) throw new ArgumentNullException("namingBuilder");
+            if (null == namingBuilder) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.namingBuilder); }
             _namingBuilder = namingBuilder;
         }
 

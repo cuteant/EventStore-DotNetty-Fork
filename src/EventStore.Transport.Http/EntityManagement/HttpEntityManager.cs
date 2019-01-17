@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -88,7 +89,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (ProtocolViolationException e)
             {
-                Log.LogError(e, "Attempt to set invalid HTTP status code occurred.");
+                Log.AttemptToSetInvalidHttpStatusCodeOccurred(e);
             }
         }
 
@@ -104,7 +105,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (ArgumentException e)
             {
-                Log.LogError(e, "Description string '{0}' did not pass validation. Status description was not set.", desc);
+                Log.DescriptionStringDidnotPassValidation(desc, e);
             }
         }
 
@@ -120,11 +121,11 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (InvalidOperationException e)
             {
-                if(Log.IsDebugLevelEnabled()) Log.LogDebug("Error during setting content type on HTTP response: {0}.", e.Message);
+                if(Log.IsDebugLevelEnabled()) Log.ErrorDuringSettingContentTypeOnHttpResponse(e);
             }
             catch (ArgumentOutOfRangeException e)
             {
-                Log.LogError(e, "Invalid response type.");
+                Log.InvalidResponseType(e);
             }
         }
 
@@ -140,11 +141,11 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (InvalidOperationException e)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error during setting content length on HTTP response: {0}.", e.Message);
+                if (Log.IsDebugLevelEnabled()) Log.ErrorDuringSettingContentLengthOnHttpResponse(e);
             }
             catch (ArgumentOutOfRangeException e)
             {
-                Log.LogError(e, "Attempt to set invalid value '{0}' as content length.", length);
+                Log.AttemptToSetInvalidContentLength(length, e);
             }
         }
 
@@ -165,7 +166,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (Exception e)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Failed to set required response headers: {0}.", e.Message);
+                if (Log.IsDebugLevelEnabled()) Log.FailedToSetRequiredResponseHeaders(e);
             }
         }
 
@@ -177,7 +178,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (Exception e)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Failed to set Content-Encoding header: {0}.", e.Message);
+                if (Log.IsDebugLevelEnabled()) Log.FailedToSetContentEncodingHeader(e);
             }
         }
 
@@ -196,7 +197,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (Exception e)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Failed to set additional response headers: {0}.", e.Message);
+                if (Log.IsDebugLevelEnabled()) Log.FailedToSetAdditionalResponseHeaders(e);
             }
         }
 
@@ -248,7 +249,7 @@ namespace EventStore.Transport.Http.EntityManagement
         {
             IOStreams.SafelyDispose(_currentOutputStream);
             _currentOutputStream = null;
-            CloseConnection(e => Log.LogDebug(message + "\nException: " + e.Message));
+            CloseConnection(e => { if (Log.IsDebugLevelEnabled()) Log.CloseConnectionError(message, e); });
         }
 
         public void EndReply()
@@ -267,14 +268,14 @@ namespace EventStore.Transport.Http.EntityManagement
 
             if (response == null || response.Length == 0)
             {
-                LogResponse(new byte[0]);
+                if (_logHttpRequests) LogResponse(new byte[0]);
                 SetResponseLength(0);
                 HttpEntity.Response.OutputStream.Close();
                 CloseConnection(onError);
             }
             else
             {
-                LogResponse(response);
+                if (_logHttpRequests) LogResponse(response);
                 if (!string.IsNullOrEmpty(_responseContentEncoding))
                     response = CompressResponse(response, _responseContentEncoding);
                 SetResponseLength(response.Length);
@@ -350,7 +351,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             catch (Exception e)
             {
-                Log.LogError(e, "Failed to set up forwarded response parameters for '{0}'.", RequestedUrl);
+                Log.FailedToSetupForwardedResponseParameters(RequestedUrl, e);
             }
         }
 
@@ -389,7 +390,7 @@ namespace EventStore.Transport.Http.EntityManagement
             if (copier.Error != null)
             {
                 state.Dispose();
-                CloseConnection(exc => Log.LogDebug("Close connection error (after crash in read request): {0}", exc.Message));
+                CloseConnection(exc => { if (Log.IsDebugLevelEnabled()) Log.CloseConnectionErrorAfterCrashInReadRequest(exc); });
 
                 state.OnError(copier.Error);
                 return;
@@ -404,7 +405,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 request = new byte[memory.Length];
                 Buffer.BlockCopy(memory.GetBuffer(), 0, request, 0, (int) memory.Length);
             }
-            LogRequest(request);
+            if (_logHttpRequests) LogRequest(request);
             state.OnReadSuccess(this, request);
         }
 
@@ -430,7 +431,7 @@ namespace EventStore.Transport.Http.EntityManagement
             }
             return logBuilder.ToString();
         }
-
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogRequest(byte[] body)
         {
             if (_logHttpRequests)
@@ -448,7 +449,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 if (Log.IsDebugLevelEnabled()) Log.LogDebug(logBuilder.ToString());
             }
         }
-
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogResponse(byte[] body)
         {
             if (_logHttpRequests)

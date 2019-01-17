@@ -115,7 +115,7 @@ namespace EventStore.Core.Index
 
             if (ShouldForceIndexVerify() && Log.IsDebugLevelEnabled())
             {
-                Log.LogDebug("Forcing verification of index files...");
+                Log.Forcing_verification_of_index_files();
             }
 
             CreateIfDoesNotExist(_directory);
@@ -138,7 +138,7 @@ namespace EventStore.Core.Index
             }
             catch (CorruptIndexException exc)
             {
-                Log.LogError(exc, "ReadIndex is corrupted...");
+                Log.ReadindexIsCorrupted(exc);
                 LogIndexMapContent(indexmapFile);
                 DumpAndCopyIndex();
                 File.SetAttributes(indexmapFile, FileAttributes.Normal);
@@ -166,11 +166,11 @@ namespace EventStore.Core.Index
         {
             try
             {
-                Log.LogError($"IndexMap '{indexmapFile}' content:\n {Helper.FormatBinaryDump(File.ReadAllBytes(indexmapFile))}");
+                Log.IndexMapAndContent(indexmapFile);
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Unexpected error while dumping IndexMap '{0}'.", indexmapFile);
+                Log.UnexpectedErrorWhileDumpingIndexmap(indexmapFile, exc);
             }
         }
 
@@ -181,12 +181,12 @@ namespace EventStore.Core.Index
             {
                 dumpPath = Path.Combine(Path.GetDirectoryName(_directory),
                                         $"index-backup-{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss.fff}");
-                Log.LogError("Making backup of index folder for inspection to {0}...", dumpPath);
+                Log.MakingBackupOfIndexFolderForInspectionTo(dumpPath);
                 FileUtils.DirectoryCopy(_directory, dumpPath, copySubDirs: true);
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Unexpected error while copying index to backup dir '{0}'", dumpPath);
+                Log.UnexpectedErrorWhileCopyingIndexToBackupDir(dumpPath, exc);
             }
         }
 
@@ -229,7 +229,7 @@ namespace EventStore.Core.Index
                     newTables.AddRange(_awaitingMemTables.Select(
                         (x, i) => i == 0 ? new TableItem(x.Table, prepareCheckpoint, commitPos) : x));
 
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("Switching MemTable, currently: {0} awaiting tables.", newTables.Count);
+                    if (Log.IsTraceLevelEnabled()) Log.SwitchingMemTableCurrentlyAwaitingTables(newTables.Count);
 
                     Interlocked.Exchange(ref _awaitingMemTables, newTables);
                     if (_inMem) { return; }
@@ -264,7 +264,7 @@ namespace EventStore.Core.Index
                     //ISearchTable table;
                     lock (_awaitingTablesLock)
                     {
-                        Log.LogTrace("Awaiting tables queue size is: {0}.", _awaitingMemTables.Count);
+                        if (Log.IsTraceLevelEnabled()) Log.AwaitingTablesQueueSizeIs(_awaitingMemTables.Count);
                         if (_awaitingMemTables.Count == 1)
                         {
 
@@ -314,7 +314,7 @@ namespace EventStore.Core.Index
                         if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable)
                             ((PTable) corrTable.Table).MarkForDestruction();
 
-                        Log.LogTrace("There are now {0} awaiting tables.", memTables.Count);
+                        if (Log.IsTraceLevelEnabled()) Log.ThereAreNowAwaitingTables(memTables.Count);
                         _awaitingMemTables = memTables;
                     }
 
@@ -323,12 +323,11 @@ namespace EventStore.Core.Index
             }
             catch (FileBeingDeletedException exc)
             {
-                Log.LogError(exc,
-                    "Could not acquire chunk in TableIndex.ReadOffQueue. It is OK if node is shutting down.");
+                Log.CouldNotAcquireChunkInTableIndexReadOffQueue(exc);
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error in TableIndex.ReadOffQueue");
+                Log.ErrorInTableIndexReadOffQueue(exc);
                 throw;
             }
             finally
@@ -356,7 +355,7 @@ namespace EventStore.Core.Index
 
             try
             {
-                Log.LogInformation("Starting scavenge of TableIndex.");
+                if (Log.IsInformationLevelEnabled()) Log.Starting_scavenge_of_TableIndex();
                 ScavengeInternal(log, ct);
             }
             finally
@@ -372,7 +371,7 @@ namespace EventStore.Core.Index
                     TryProcessAwaitingTables();
                 }
 
-                Log.LogInformation("Completed scavenge of TableIndex.  Elapsed: {0}", sw.Elapsed);
+                if (Log.IsInformationLevelEnabled()) Log.Completed_scavenge_of_TableIndex(sw.Elapsed);
             }
         }
 
@@ -429,6 +428,7 @@ namespace EventStore.Core.Index
 
         private void GetExclusiveBackgroundTask(CancellationToken ct)
         {
+            var infoEnabled = Log.IsInformationLevelEnabled();
             while (true)
             {
                 lock (_awaitingTablesLock)
@@ -441,7 +441,7 @@ namespace EventStore.Core.Index
                     }
                 }
 
-                Log.LogInformation("Waiting for TableIndex background task to complete before starting scavenge.");
+                if (infoEnabled) Log.WaitingForTableindexBackgroundTaskToCompleteBeforeStartingScavenge();
                 _backgroundRunningEvent.Wait(ct);
             }
         }
@@ -477,7 +477,7 @@ namespace EventStore.Core.Index
                 var memtable = awaitingMemTables[i].Table as IMemTable;
                 if (memtable == null || !memtable.MarkForConversion()) { continue; }
 
-                if (traceEnabled) Log.LogTrace("Putting awaiting file as PTable instead of MemTable [{0}].", memtable.Id);
+                if (traceEnabled) Log.PuttingAwaitingFileAsPTableInsteadOfMemTable(memtable.Id);
 
                 var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
                 var swapped = false;
@@ -510,7 +510,7 @@ namespace EventStore.Core.Index
                 }
                 catch (FileBeingDeletedException)
                 {
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                    if (Log.IsTraceLevelEnabled()) Log.FileBeingDeleted();
                 }
                 catch (MaybeCorruptIndexException e)
                 {
@@ -554,7 +554,7 @@ namespace EventStore.Core.Index
                 }
                 catch (FileBeingDeletedException)
                 {
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                    if (Log.IsTraceLevelEnabled()) Log.FileBeingDeleted();
                 }
                 catch (MaybeCorruptIndexException e)
                 {
@@ -596,7 +596,7 @@ namespace EventStore.Core.Index
                 }
                 catch (FileBeingDeletedException)
                 {
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                    if (Log.IsTraceLevelEnabled()) Log.FileBeingDeleted();
                 }
                 catch (MaybeCorruptIndexException e)
                 {
@@ -638,7 +638,7 @@ namespace EventStore.Core.Index
                 }
                 catch (FileBeingDeletedException)
                 {
-                    if (Log.IsTraceLevelEnabled()) Log.LogTrace("File being deleted.");
+                    if (Log.IsTraceLevelEnabled()) Log.FileBeingDeleted();
                 }
                 catch (MaybeCorruptIndexException e)
                 {
@@ -770,7 +770,7 @@ namespace EventStore.Core.Index
 
         private void ForceIndexVerifyOnNextStartup()
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Forcing index verification on next startup");
+            if (Log.IsDebugLevelEnabled()) Log.Forcing_index_verification_on_next_startup();
             string path = Path.Combine(_directory, ForceIndexVerifyFilename);
             try
             {
@@ -780,7 +780,7 @@ namespace EventStore.Core.Index
             }
             catch
             {
-                Log.LogError("Could not create force index verification file at: " + path);
+                Log.CouldNotCreateForceIndexVerificationFileAt(path);
             }
 
             return;
@@ -804,7 +804,7 @@ namespace EventStore.Core.Index
             }
             catch
             {
-                Log.LogError("Could not delete force index verification file at: " + path);
+                Log.CouldNotDeleteForceIndexVerificationFileAt(path);
             }
         }
     }

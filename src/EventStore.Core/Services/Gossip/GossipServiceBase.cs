@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -83,7 +84,7 @@ namespace EventStore.Core.Services.Gossip
             }
             catch (Exception ex)
             {
-                Log.LogError(ex, "Error while retrieving cluster members through DNS.");
+                Log.ErrorWhileRetrievingClusterMembersThroughDNS(ex);
                 _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
             }
         }
@@ -97,7 +98,7 @@ namespace EventStore.Core.Services.Gossip
         //    }
         //    catch (Exception ex)
         //    {
-        //        Log.LogError(ex, "Error while retrieving cluster members through DNS.");
+        //        Log.ErrorWhileRetrievingClusterMembersThroughDNS(ex);
         //        _bus.Publish(TimerMessage.Schedule.Create(DnsRetryTimeout, _publishEnvelope, new GossipMessage.RetrieveGossipSeedSources()));
         //    }
         //}
@@ -110,7 +111,7 @@ namespace EventStore.Core.Services.Gossip
 
             var oldCluster = _cluster;
             _cluster = MergeClusters(_cluster, dnsCluster, null, x => x);
-            LogClusterChange(oldCluster, _cluster, null);
+            if (Log.IsTraceLevelEnabled()) LogClusterChange(oldCluster, _cluster, null);
 
             _state = GossipState.Working;
             Handle(new GossipMessage.Gossip(0)); // start gossiping
@@ -155,7 +156,7 @@ namespace EventStore.Core.Services.Gossip
 
             message.Envelope.ReplyWith(new GossipMessage.SendGossip(_cluster, NodeInfo.InternalHttp));
 
-            if (_cluster.HasChangedSince(oldCluster))
+            if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"gossip received from [{message.Server}]");
             }
@@ -170,7 +171,7 @@ namespace EventStore.Core.Services.Gossip
             _cluster = UpdateCluster(_cluster, x => x.InstanceId == NodeInfo.InstanceId ? GetUpdatedMe(x) : x);
 
             //if (_cluster.HasChangedSince(oldCluster))
-            //LogClusterChange(oldCluster, _cluster, _nodeInfo.InternalHttp);
+            //if (Log.IsTraceLevelEnabled()) LogClusterChange(oldCluster, _cluster, _nodeInfo.InternalHttp);
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
 
@@ -182,18 +183,14 @@ namespace EventStore.Core.Services.Gossip
             var traceEnabled = Log.IsTraceLevelEnabled();
             if (CurrentMaster != null && node.InstanceId == CurrentMaster.InstanceId)
             {
-                if (traceEnabled)
-                {
-                    Log.LogTrace("Looks like master [{0}, {1:B}] is DEAD (Gossip send failed), though we wait for TCP to decide.",
-                              message.Recipient, node.InstanceId);
-                }
+                if (traceEnabled) { Log.LooksLikeMasterIsDEADGossipSendFailed(message, node.InstanceId); }
                 return;
             }
-            if (traceEnabled) { Log.LogTrace("Looks like node [{0}] is DEAD (Gossip send failed).", message.Recipient); }
+            if (traceEnabled) { Log.LooksLikeNodeIsDEADGossipSendFailed(message); }
 
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.Recipient) ? x.Updated(isAlive: false) : x);
-            if (_cluster.HasChangedSince(oldCluster))
+            if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"gossip send failed to [{message.Recipient}]");
             }
@@ -206,11 +203,11 @@ namespace EventStore.Core.Services.Gossip
             var node = _cluster.Members.FirstOrDefault(x => x.Is(message.VNodeEndPoint));
             if (node == null || !node.IsAlive) { return; }
 
-            if (Log.IsTraceLevelEnabled()) Log.LogTrace("Looks like node [{0}] is DEAD (TCP connection lost).", message.VNodeEndPoint);
+            if (Log.IsTraceLevelEnabled()) Log.LooksLikeNodeIsDeadTCPConnectionLost(message);
 
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.VNodeEndPoint) ? x.Updated(isAlive: false) : x);
-            if (_cluster.HasChangedSince(oldCluster))
+            if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"TCP connection lost to [{message.VNodeEndPoint}]");
             }
@@ -221,7 +218,7 @@ namespace EventStore.Core.Services.Gossip
         {
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.VNodeEndPoint) ? x.Updated(isAlive: true) : x);
-            if (_cluster.HasChangedSince(oldCluster))
+            if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"TCP connection established to [{message.VNodeEndPoint}]");
             }
@@ -241,9 +238,7 @@ namespace EventStore.Core.Services.Gossip
                 {
                     if ((DateTime.UtcNow - member.TimeStamp).Duration() > AllowedTimeDifference)
                     {
-                        Log.LogError(
-                            "Time difference between us and [{0}] is too great! UTC now: {1:yyyy-MM-dd HH:mm:ss.fff}, peer's time stamp: {2:yyyy-MM-dd HH:mm:ss.fff}.",
-                            peerEndPoint, DateTime.UtcNow, member.TimeStamp);
+                        Log.TimeDifferenceBetweenUsAndPeerendpointIsTooGreat(peerEndPoint, member.TimeStamp);
                     }
                     mems[member.InternalHttpEndPoint] = member;
                 }
@@ -289,6 +284,7 @@ namespace EventStore.Core.Services.Gossip
             return new ClusterInfo(newMembers);
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void LogClusterChange(ClusterInfo oldCluster, ClusterInfo newCluster, string source)
         {
             if (!Log.IsTraceLevelEnabled()) { return; }

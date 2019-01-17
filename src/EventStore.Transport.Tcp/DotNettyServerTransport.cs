@@ -120,9 +120,20 @@ namespace EventStore.Transport.Tcp
         {
             if (_listenAddress == null) { return; }
 
-            _serverChannel.CloseAsync().Ignore();
-            var ch = await _serverBootstrap.BindAsync(_listenAddress);
-            Interlocked.Exchange(ref _serverChannel, ch);
+            try
+            {
+                await _serverChannel.CloseAsync().ConfigureAwait(false);
+                Interlocked.Exchange(ref _serverChannel, null);
+
+                var ch = await _serverBootstrap.BindAsync(_listenAddress).ConfigureAwait(false);
+                ConnectionGroup.TryAdd(ch);
+                ch.Configuration.AutoRead = true;
+                Interlocked.Exchange(ref _serverChannel, ch);
+            }
+            catch
+            {
+                // TODO
+            }
         }
 
         private ServerBootstrap ServerFactory()

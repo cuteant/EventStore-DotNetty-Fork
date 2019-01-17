@@ -87,107 +87,102 @@ namespace EventStore.Core.Bus
 
         private void ReadFromQueue(object o)
         {
-        try{
-            _queueStats.Start();
-            Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
-
-            var traceEnabled = Log.IsTraceLevelEnabled();
-            var batch = new Message[128];
-            while (!_stop)
+            try
             {
-                Message msg = null;
-                try
+                _queueStats.Start();
+                Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
+
+                var traceEnabled = Log.IsTraceLevelEnabled();
+                var batch = new Message[128];
+                while (!_stop)
                 {
-                    if (_queue.TryDequeue(batch, out QueueBatchDequeueResult dequeueResult) == false)
+                    Message msg = null;
+                    try
                     {
-                        _starving = true;
-
-                        _queueStats.EnterIdle();
-                        _msgAddEvent.Wait(100);
-                        _msgAddEvent.Reset();
-
-                        _starving = false;
-                    }
-                    else
-                    {
-                        var estimatedQueueCount = dequeueResult.EstimateCurrentQueueCount;
-
-                        for (var i = 0; i < dequeueResult.DequeueCount; i++)
+                        if (_queue.TryDequeue(batch, out QueueBatchDequeueResult dequeueResult) == false)
                         {
-                            try
+                            _starving = true;
+
+                            _queueStats.EnterIdle();
+                            _msgAddEvent.Wait(100);
+                            _msgAddEvent.Reset();
+
+                            _starving = false;
+                        }
+                        else
+                        {
+                            var estimatedQueueCount = dequeueResult.EstimateCurrentQueueCount;
+
+                            for (var i = 0; i < dequeueResult.DequeueCount; i++)
                             {
-                                msg = batch[i];
+                                try
+                                {
+                                    msg = batch[i];
 
 
-                                _queueStats.EnterBusy();
+                                    _queueStats.EnterBusy();
 #if DEBUG
-                                _queueStats.Dequeued(msg);
+                                    _queueStats.Dequeued(msg);
 #endif
 
-                                _queueStats.ProcessingStarted(msg.GetType(), estimatedQueueCount);
+                                    _queueStats.ProcessingStarted(msg.GetType(), estimatedQueueCount);
 
-                                if (_watchSlowMsg)
-                                {
-                                    var start = DateTime.UtcNow;
-
-                                    _consumer.Handle(msg);
-
-                                    var elapsed = DateTime.UtcNow - start;
-                                    if (elapsed > _slowMsgThreshold)
+                                    if (_watchSlowMsg)
                                     {
-                                        if (Log.IsTraceLevelEnabled())
+                                        var start = DateTime.UtcNow;
+
+                                        _consumer.Handle(msg);
+
+                                        var elapsed = DateTime.UtcNow - start;
+                                        if (elapsed > _slowMsgThreshold)
                                         {
-                                            Log.LogTrace("SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                                Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds,
-                                                estimatedQueueCount,
-                                                _queue.EstimageCurrentQueueCount());
-                                        }
-                                        if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                        {
-                                            Log.LogError("---!!! VERY SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                                Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds,
-                                                estimatedQueueCount, _queue.EstimageCurrentQueueCount());
+                                            if (traceEnabled) { Log.ShowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, estimatedQueueCount, _queue.EstimageCurrentQueueCount()); }
+                                            if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
+                                            {
+                                                Log.VerySlowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, estimatedQueueCount, _queue.EstimageCurrentQueueCount());
+                                            }
                                         }
                                     }
+                                    else
+                                    {
+                                        _consumer.Handle(msg);
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    _consumer.Handle(msg);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, Name);
+                                    Log.ErrorWhileProcessingMessageInQueuedHandler(msg, Name, ex);
 #if DEBUG
-                                throw;
+                                    throw;
 #endif
-                            }
+                                }
 
-                            estimatedQueueCount -= 1;
-                            _queueStats.ProcessingEnded(1);
+                                estimatedQueueCount -= 1;
+                                _queueStats.ProcessingEnded(1);
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, Name);
+                    catch (Exception ex)
+                    {
+                        Log.ErrorWhileProcessingMessageInQueuedHandler(msg, Name, ex);
 #if DEBUG
-                    throw;
+                        throw;
 #endif
+                    }
                 }
             }
-        }
-        catch(Exception ex){
-            _tcs.TrySetException(ex);
-            throw;
-        }
-        finally{
-            _queueStats.Stop();
+            catch (Exception ex)
+            {
+                _tcs.TrySetException(ex);
+                throw;
+            }
+            finally
+            {
+                _queueStats.Stop();
 
-            _stopped.Set();
-            _queueMonitor.Unregister(this);
-            Thread.EndThreadAffinity();
-        }
+                _stopped.Set();
+                _queueMonitor.Unregister(this);
+                Thread.EndThreadAffinity();
+            }
 
         }
 

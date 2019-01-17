@@ -117,4 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CannotDeleteAProjectionThatHasnotBeenStoppedOrFaulted" xml:space="preserve">
+    <value>Cannot delete a projection that hasn't been stopped or faulted.</value>
+  </data>
+  <data name="Set_Shared_StateCommandHandlerHasNotBeenRegistered" xml:space="preserve">
+    <value>'set_shared_state' command handler has not been registered</value>
+  </data>
+  <data name="Set_StateCommandHandlerHasNotBeenRegistered" xml:space="preserve">
+    <value>'set_state' command handler has not been registered</value>
+  </data>
 </root>

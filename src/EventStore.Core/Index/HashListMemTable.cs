@@ -159,7 +159,7 @@ namespace EventStore.Core.Index
 
         public IEnumerable<IndexEntry> IterateAllInOrder()
         {
-            //Log.LogTrace("Sorting array in HashListMemTable.IterateAllInOrder...");
+            //Log.Log1Trace("Sorting array in HashListMemTable.IterateAllInOrder...");
 
             var keys = _hash.Keys.ToArray();
             Array.Sort(keys, new ReverseComparer<ulong>());
@@ -173,7 +173,7 @@ namespace EventStore.Core.Index
                     yield return new IndexEntry(key, x.EvNum, x.LogPos);
                 }
             }
-            //Log.LogTrace("Sorting array in HashListMemTable.IterateAllInOrder... DONE!");
+            //Log.Log1Trace("Sorting array in HashListMemTable.IterateAllInOrder... DONE!");
         }
 
         public void Clear()

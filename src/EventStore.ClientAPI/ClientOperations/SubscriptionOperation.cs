@@ -235,7 +235,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                      CoreThrowHelper.GetArgumentException_All(_streamId));
                     break;
                 default:
-                    if (_verboseLogging) _log.LogDebug("Subscription dropped by server. Reason: {0}.", dto.Reason);
+                    if (_verboseLogging) _log.SubscriptionDroppedByServerReason(dto.Reason);
                     DropSubscription(SubscriptionDropReason.Unknown,
                                      CoreThrowHelper.GetCommandNotExpectedException(dto.Reason));
                     break;
@@ -280,7 +280,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                 masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 
                 default:
-                    _log.LogError("Unknown NotHandledReason: {0}.", message.Reason);
+                    _log.UnknownNotHandledReason(message.Reason);
                     return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
             }
         }
@@ -310,11 +310,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (Interlocked.CompareExchange(ref _unsubscribed, 1, 0) == 0)
             {
-                if (_verboseLogging)
-                {
-                    _log.LogDebug("Subscription {0:B} to {1}: closing subscription, reason: {2}, exception: {3}...",
-                                  _correlationId, _streamId == string.Empty ? "<all>" : _streamId, reason, exc);
-                }
+                if (_verboseLogging) { _log.ClosingSubscription(_correlationId, _streamId, reason, exc); }
 
                 if (reason != SubscriptionDropReason.UserInitiated)
                 {
@@ -344,8 +340,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
             if (_verboseLogging)
             {
-                _log.LogDebug("Subscription {0:B} to {1}: subscribed at CommitPosition: {2}, EventNumber: {3}.",
-                              _correlationId, _streamId == string.Empty ? "<all>" : _streamId, lastCommitPosition, lastEventNumber);
+                _log.SubscribedAtCommitPosition(_correlationId, _streamId, lastCommitPosition, lastEventNumber);
             }
             _subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
             _source.SetResult(_subscription);
@@ -359,12 +354,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
             if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
-            if (_verboseLogging)
-            {
-                _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
-                              _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
-                              e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
-            }
+            if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
             EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
         }
 
@@ -374,12 +364,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
             if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
-            if (_verboseLogging)
-            {
-                _log.LogDebug("Subscription {0:B} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
-                              _correlationId, _streamId == string.Empty ? "<all>" : _streamId,
-                              e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
-            }
+            if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
             return EnqueueMessageAsync((true, e, SubscriptionDropReason.Unknown, null));
         }
 
@@ -439,7 +424,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
             catch (Exception exc)
             {
-                _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+                _log.ExceptionDuringExecutingUserCallback(exc);
             }
         }
 
@@ -472,7 +457,7 @@ namespace EventStore.ClientAPI.ClientOperations
             }
             catch (Exception exc)
             {
-                _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+                _log.ExceptionDuringExecutingUserCallback(exc);
             }
         }
     }

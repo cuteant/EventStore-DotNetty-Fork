@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
-using EventStore.ClientAPI.Common.Utils;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using EventStore.Transport.Tcp;
@@ -17,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Internal
 {
-    internal class EventStoreConnectionLogicHandler : IEventStoreConnectionLogicHandler, IConnectionEventHandler
+    internal partial class EventStoreConnectionLogicHandler : IEventStoreConnectionLogicHandler, IConnectionEventHandler
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<EventStoreConnectionLogicHandler>();
         private static readonly TimerTickMessage TimerTickMessage = new TimerTickMessage();
@@ -26,6 +24,8 @@ namespace EventStore.ClientAPI.Internal
 
         private readonly IEventStoreConnection _esConnection;
         private readonly ConnectionSettings _settings;
+        private readonly bool _verboseDebug;
+        private readonly bool _verboseInfo;
         private readonly byte ClientVersion = 1;
 
         private readonly SimpleQueuedHandler _queue = new SimpleQueuedHandler();
@@ -54,6 +54,8 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             _esConnection = esConnection;
             _settings = settings;
+            _verboseDebug = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
+            _verboseInfo = _settings.VerboseLogging && s_logger.IsInformationLevelEnabled();
 
             _operations = new OperationsManager(_esConnection.ConnectionName, settings);
             _subscriptions = new SubscriptionsManager(_esConnection.ConnectionName, settings);
@@ -86,13 +88,13 @@ namespace EventStore.ClientAPI.Internal
 
         public void EnqueueMessage(Message message)
         {
-            if (_settings.VerboseLogging && message != TimerTickMessage) { LogDebug("enqueueing message {0}.", message); }
+            if (_verboseDebug && message != TimerTickMessage) { LogEnqueueingMessage(message); }
             _queue.EnqueueMessage(message);
         }
 
         public Task EnqueueMessageAsync(Message message)
         {
-            if (_settings.VerboseLogging && message != TimerTickMessage) { LogDebug("enqueueing message {0}.", message); }
+            if (_verboseDebug && message != TimerTickMessage) { LogEnqueueingMessage(message); }
             return _queue.EnqueueMessageAsync(message);
         }
 
@@ -101,7 +103,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == task) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.task); }
             if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
-            LogDebug("StartConnection");
+            if (_verboseDebug) LogStartConnection();
 
             switch (_state)
             {
@@ -126,7 +128,7 @@ namespace EventStore.ClientAPI.Internal
 
         private void DiscoverEndPoint(TaskCompletionSource<object> completionTask)
         {
-            LogDebug("DiscoverEndPoint");
+            if (_verboseDebug) LogDiscoverEndPoint();
 
             if (_state != ConnectionState.Connecting) return;
             if (_connectingPhase != ConnectingPhase.Reconnecting) return;
@@ -157,7 +159,7 @@ namespace EventStore.ClientAPI.Internal
                 return;
             }
 
-            LogDebug("EstablishTcpConnection to [{0}]", endPoint);
+            if (_verboseDebug) LogEstablishTcpConnectionTo(endPoint);
 
             if (_state != ConnectionState.Connecting) return;
             if (_connectingPhase != ConnectingPhase.EndPointDiscovery) return;
@@ -222,7 +224,7 @@ namespace EventStore.ClientAPI.Internal
             if (_connection != connection) return;
             if (_state == ConnectionState.Closed) return;
 
-            LogDebug("TcpConnectionError connId {0:B}, exc {1}.", connection.ConnectionId, exception);
+            if (_verboseDebug) LogTcpConnectionError(connection.ConnectionId, exception);
             await CloseConnectionAsync("TCP connection error occurred.", exception).ConfigureAwait(false);
         }
 
@@ -231,11 +233,11 @@ namespace EventStore.ClientAPI.Internal
             if (_state == ConnectionState.Closed)
             {
                 await TaskConstants.Completed;
-                LogDebug("CloseConnection IGNORED because is ESConnection is CLOSED, reason {0}, exception {1}.", reason, exception);
+                if (_verboseDebug) LogCloseConnectionIgnoredBecauseIsESConnectionIsClosed(reason, exception);
                 return;
             }
 
-            LogDebug("CloseConnection, reason {0}, exception {1}.", reason, exception);
+            if (_verboseDebug) LogCloseConnectionReason(reason, exception);
 
             _state = ConnectionState.Closed;
 
@@ -244,7 +246,7 @@ namespace EventStore.ClientAPI.Internal
             _subscriptions.CleanUp();
             await CloseTcpConnection(reason).ConfigureAwait(false);
 
-            LogInfo("Closed. Reason: {0}.", reason);
+            if (_verboseInfo) LogClosedReason(reason);
 
             if (exception != null) { RaiseErrorOccurred(exception); }
 
@@ -255,11 +257,11 @@ namespace EventStore.ClientAPI.Internal
         {
             if (_connection == null)
             {
-                LogDebug("CloseTcpConnection IGNORED because _connection == null");
+                if (_verboseDebug) LogCloseTcpConnectionIgnoredBecauseConnectionIsNull();
                 return;
             }
 
-            LogDebug("CloseTcpConnection");
+            if (_verboseDebug) LogCloseTcpConnection();
             _connection.Close(reason);
             await TcpConnectionClosedAsync(_connection).ConfigureAwait(false);
             _connection = null;
@@ -274,16 +276,14 @@ namespace EventStore.ClientAPI.Internal
             }
             if (_state == ConnectionState.Closed || _connection != connection)
             {
-                LogDebug("IGNORED (_state: {0}, _conn.ID: {1:B}, conn.ID: {2:B}): TCP connection to [{3}, L{4}] closed.",
-                         _state, _connection == null ? Guid.Empty : _connection.ConnectionId, connection.ConnectionId,
-                         connection.RemoteEndPoint, connection.LocalEndPoint);
+                if (_verboseDebug) LogIgnoredBecauseTcpConnectionClosed(connection);
                 return;
             }
 
             _state = ConnectionState.Connecting;
             _connectingPhase = ConnectingPhase.Reconnecting;
 
-            LogDebug("TCP connection to [{0}, L{1}, {2:B}] closed.", connection.RemoteEndPoint, connection.LocalEndPoint, connection.ConnectionId);
+            if (_verboseDebug) LogTcpConnectionClosed(connection);
 
             _subscriptions.PurgeSubscribedAndDroppedSubscriptions(_connection.ConnectionId);
             _reconnInfo = new ReconnectionInfo(_reconnInfo.ReconnectionAttempt, _stopwatch.Elapsed);
@@ -299,13 +299,11 @@ namespace EventStore.ClientAPI.Internal
             if (_state != ConnectionState.Connecting || _connection != connection || connection.IsClosed)
             {
                 await TaskConstants.Completed;
-                LogDebug("IGNORED (_state {0}, _conn.Id {1:B}, conn.Id {2:B}, conn.closed {3}): TCP connection to [{4}, L{5}] established.",
-                         _state, _connection == null ? Guid.Empty : _connection.ConnectionId, connection.ConnectionId,
-                         connection.IsClosed, connection.RemoteEndPoint, connection.LocalEndPoint);
+                if (_verboseDebug) LogIgnoredBecauseTcpConnectionEstablished(connection);
                 return;
             }
 
-            LogDebug("TCP connection to [{0}, L{1}, {2:B}] established.", connection.RemoteEndPoint, connection.LocalEndPoint, connection.ConnectionId);
+            if (_verboseDebug) LogTcpConnectionEstablished(connection);
             _heartbeatInfo = new HeartbeatInfo(_packageNumber, true, _stopwatch.Elapsed);
 
             if (_settings.DefaultUserCredentials != null)
@@ -364,7 +362,7 @@ namespace EventStore.ClientAPI.Internal
                     {
                         if (_connectingPhase == ConnectingPhase.Reconnecting && _stopwatch.Elapsed - _reconnInfo.TimeStamp >= _settings.ReconnectionDelay)
                         {
-                            LogDebug("TimerTick checking reconnection...");
+                            if (_verboseDebug) LogTimerTickCheckingReconnection();
 
                             _reconnInfo = new ReconnectionInfo(_reconnInfo.ReconnectionAttempt + 1, _stopwatch.Elapsed);
                             if (_settings.MaxReconnections >= 0 && _reconnInfo.ReconnectionAttempt > _settings.MaxReconnections)
@@ -386,7 +384,7 @@ namespace EventStore.ClientAPI.Internal
                         if (_connectingPhase == ConnectingPhase.Identification && _stopwatch.Elapsed - _identifyInfo.TimeStamp >= _settings.OperationTimeout)
                         {
                             const string msg = "Timed out waiting for client to be identified";
-                            LogDebug(msg);
+                            if (_verboseDebug) LogTimedoutWaitingForClientToBeIdentified();
                             await CloseTcpConnection(msg).ConfigureAwait(false);
                         }
                         if (_connectingPhase > ConnectingPhase.ConnectionEstablishing)
@@ -421,8 +419,7 @@ namespace EventStore.ClientAPI.Internal
             if (_connection == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
 
             var timeout = _heartbeatInfo.IsIntervalStage ? _settings.HeartbeatInterval : _settings.HeartbeatTimeout;
-            if (_stopwatch.Elapsed - _heartbeatInfo.TimeStamp < timeout)
-                return;
+            if (_stopwatch.Elapsed - _heartbeatInfo.TimeStamp < timeout) { return; }
 
             var packageNumber = _packageNumber;
             if (_heartbeatInfo.LastPackageNumber != packageNumber)
@@ -436,16 +433,21 @@ namespace EventStore.ClientAPI.Internal
                 // TcpMessage.Heartbeat analog
                 _connection.EnqueueSend(new TcpPackage(TcpCommand.HeartbeatRequestCommand, Guid.NewGuid(), null));
                 _heartbeatInfo = new HeartbeatInfo(_heartbeatInfo.LastPackageNumber, false, _stopwatch.Elapsed);
+                return;
             }
-            else
-            {
-                // TcpMessage.HeartbeatTimeout analog
-                var msg = string.Format("EventStoreConnection '{0}': closing TCP connection [{1}, {2}, {3}] due to HEARTBEAT TIMEOUT at pkgNum {4}.",
-                                        _esConnection.ConnectionName, _connection.RemoteEndPoint, _connection.LocalEndPoint,
-                                        _connection.ConnectionId, packageNumber);
-                if (s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
-                await CloseTcpConnection(msg).ConfigureAwait(false);
-            }
+            // TcpMessage.HeartbeatTimeout analog
+            await CloseTcpConnection(packageNumber).ConfigureAwait(false);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private async Task CloseTcpConnection(int packageNumber)
+        {
+            // TcpMessage.HeartbeatTimeout analog
+            var msg = string.Format("EventStoreConnection '{0}': closing TCP connection [{1}, {2}, {3}] due to HEARTBEAT TIMEOUT at pkgNum {4}.",
+                                    _esConnection.ConnectionName, _connection.RemoteEndPoint, _connection.LocalEndPoint,
+                                    _connection.ConnectionId, packageNumber);
+            if (s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
+            await CloseTcpConnection(msg).ConfigureAwait(false);
         }
 
         private async Task StartOperationAsync(IClientOperation operation, int maxRetries, TimeSpan timeout)
@@ -456,11 +458,11 @@ namespace EventStore.ClientAPI.Internal
                     operation.Fail(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
-                    LogDebug("StartOperation enqueue {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, maxRetries, timeout);
+                    if (_verboseDebug) LogStartOperationEnqueue(operation, maxRetries, timeout);
                     _operations.EnqueueOperation(new OperationItem(operation, maxRetries, timeout));
                     break;
                 case ConnectionState.Connected:
-                    LogDebug("StartOperation schedule {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, maxRetries, timeout);
+                    if (_verboseDebug) LogStartOperationSchedule(operation, maxRetries, timeout);
                     _operations.ScheduleOperation(new OperationItem(operation, maxRetries, timeout), _connection);
                     break;
                 case ConnectionState.Closed:
@@ -483,7 +485,7 @@ namespace EventStore.ClientAPI.Internal
                     var volatileSubscriptionOperationWrapperType = typeof(SubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
                     var volatileSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IVolatileSubscriptionOperationWrapper>(volatileSubscriptionOperationWrapperType);
                     var operation = volatileSubscriptionOperationWrapper.Create(msg, _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -516,7 +518,7 @@ namespace EventStore.ClientAPI.Internal
                                                               msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
                                   : new SubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                               msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -549,7 +551,7 @@ namespace EventStore.ClientAPI.Internal
                                                                msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
                                   : new SubscriptionOperation2(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                                msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -582,7 +584,7 @@ namespace EventStore.ClientAPI.Internal
                                                                       msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
                                   : new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                                       msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -614,7 +616,7 @@ namespace EventStore.ClientAPI.Internal
                     var persistentSubscriptionOperationWrapperType = typeof(PersistentSubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
                     var persistentSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IPersistentSubscriptionOperationWrapper>(persistentSubscriptionOperationWrapperType);
                     var operation = persistentSubscriptionOperationWrapper.Create(msg, _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -644,7 +646,7 @@ namespace EventStore.ClientAPI.Internal
                 case ConnectionState.Connected:
                     var operation = new PersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                                         msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -674,7 +676,7 @@ namespace EventStore.ClientAPI.Internal
                 case ConnectionState.Connected:
                     var operation = new PersistentSubscriptionOperation2(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                                          msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -704,7 +706,7 @@ namespace EventStore.ClientAPI.Internal
                 case ConnectionState.Connected:
                     var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                                                  msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
-                    LogDebug("StartSubscription {4} {0}, {1}, {2}, {3}.", operation.GetType().Name, operation, msg.MaxRetries, msg.Timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                    if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
                     if (_state == ConnectionState.Connecting)
                     {
@@ -728,11 +730,11 @@ namespace EventStore.ClientAPI.Internal
         {
             if (_connection != connection || _state == ConnectionState.Closed || _state == ConnectionState.Init)
             {
-                LogDebug("IGNORED: HandleTcpPackage connId {0}, package {1}, {2}.", connection.ConnectionId, package.Command, package.CorrelationId);
+                if (_verboseDebug) LogIgnoredTcpPackage(connection.ConnectionId, package.Command, package.CorrelationId);
                 return;
             }
 
-            LogDebug("HandleTcpPackage connId {0}, package {1}, {2}.", _connection.ConnectionId, package.Command, package.CorrelationId);
+            if (_verboseDebug) LogHandleTcpPackage(_connection.ConnectionId, package.Command, package.CorrelationId);
             _packageNumber += 1;
 
             if (package.Command == TcpCommand.HeartbeatResponseCommand) { return; }
@@ -778,7 +780,7 @@ namespace EventStore.ClientAPI.Internal
             if (_operations.TryGetActiveOperation(package.CorrelationId, out OperationItem operation))
             {
                 var result = operation.Operation.InspectPackage(package);
-                LogDebug("HandleTcpPackage OPERATION DECISION {0} ({1}), {2}", result.Decision, result.Description, operation);
+                if (_verboseDebug) LogHandleTcpPackageOPERATIONDECISION(result, operation);
                 switch (result.Decision)
                 {
                     case InspectionDecision.DoNothing: break;
@@ -802,7 +804,7 @@ namespace EventStore.ClientAPI.Internal
             else if (_subscriptions.TryGetActiveSubscription(package.CorrelationId, out SubscriptionItem subscription))
             {
                 var result = await subscription.Operation.InspectPackageAsync(package);
-                LogDebug("HandleTcpPackage SUBSCRIPTION DECISION {0} ({1}), {2}", result.Decision, result.Description, subscription);
+                if (_verboseDebug) LogHandleTcpPackageSUBSCRIPTIONDECISION(result, subscription);
                 switch (result.Decision)
                 {
                     case InspectionDecision.DoNothing: break;
@@ -824,7 +826,7 @@ namespace EventStore.ClientAPI.Internal
             }
             else
             {
-                LogDebug("HandleTcpPackage UNMAPPED PACKAGE with CorrelationId {0:B}, Command: {1}", package.CorrelationId, package.Command);
+                if (_verboseDebug) LogHandleTcpPackageUNMAPPEDPACKAGE(package.CorrelationId, package.Command);
             }
         }
 
@@ -842,7 +844,7 @@ namespace EventStore.ClientAPI.Internal
             if (_state != ConnectionState.Connected || _connection.RemoteEndPoint.Equals(endPoint)) { return; }
 
             var msg = $"EventStoreConnection '{_esConnection.ConnectionName}': going to reconnect to [{endPoint}]. Current endpoint: [{_connection.RemoteEndPoint}, L{_connection.LocalEndPoint}].";
-            if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
+            if (_verboseInfo) { s_logger.LogInformation(msg); }
             await CloseTcpConnection(msg).ConfigureAwait(false);
 
             _state = ConnectionState.Connecting;
@@ -885,24 +887,6 @@ namespace EventStore.ClientAPI.Internal
             Exception GetException()
             {
                 return new Exception($"Unknown InspectionDecision: {decision}");
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void LogDebug(string message, params object[] parameters)
-        {
-            if (_settings.VerboseLogging && s_logger.IsDebugLevelEnabled())
-            {
-                s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void LogInfo(string message, params object[] parameters)
-        {
-            if (_settings.VerboseLogging && s_logger.IsInformationLevelEnabled())
-            {
-                s_logger.LogInformation("EventStoreConnection '{0}': {1}.", _esConnection.ConnectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
             }
         }
 

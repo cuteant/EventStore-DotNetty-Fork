@@ -31,11 +31,11 @@ namespace EventStore.Projections.Core.Services.Processing
             ReaderSubscriptionDispatcher subscriptionDispatcher,
             ITimeProvider timeProvider)
         {
-            if (inputQueue == null) throw new ArgumentNullException("inputQueue");
-            //if (runAs == null) throw new ArgumentNullException("runAs");
+            if (null == inputQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputQueue); }
+            //if (null == runAs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.runAs); }
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
-            if (timeProvider == null) throw new ArgumentNullException("timeProvider");
+            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
 
             var namingBuilder = new ProjectionNamesBuilder(_name, GetSourceDefinition());
 

@@ -91,7 +91,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
             [Test]
             public void zero_max_events_throws_argument_exception()
             {
-                Assert.Throws<ArgumentException>(()=> { new FeedReader(
+                Assert.Throws<ArgumentOutOfRangeException>(()=> { new FeedReader(
                     _subscriptionDispatcher, SystemAccount.Principal, _testQueryDefinition,
                     CheckpointTag.FromPosition(0, 0, -1), 0, Guid.NewGuid(), new NoopEnvelope(), new RealTimeProvider());
                 });
@@ -100,7 +100,7 @@ namespace EventStore.Projections.Core.Tests.Services.feed_reader
             [Test]
             public void negative_max_events_throws_argument_exception()
             {
-                Assert.Throws<ArgumentException>(()=> { new FeedReader(
+                Assert.Throws<ArgumentOutOfRangeException>(()=> { new FeedReader(
                     _subscriptionDispatcher, SystemAccount.Principal, _testQueryDefinition,
                     CheckpointTag.FromPosition(0, 0, -1), -1, Guid.NewGuid(), new NoopEnvelope(), new RealTimeProvider());
                 });

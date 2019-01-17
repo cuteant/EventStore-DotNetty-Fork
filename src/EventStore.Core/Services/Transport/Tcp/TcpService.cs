@@ -73,7 +73,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             IAuthenticationProvider authProvider,
             X509Certificate2 certificate,
             int connectionPendingSendBytesThreshold)
-            :base(transportSettings, certificate)
+            : base(transportSettings, certificate)
         {
             if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             if (null == serverEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serverEndPoint); }
@@ -100,7 +100,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         {
             try
             {
-                Logger.LogInformation("Starting {securityType} TCP listening on TCP endpoint: {serverEndPoint}.", _securityType, _serverEndPoint);
+                if (Logger.IsInformationLevelEnabled()) Logger.StartingTcpListeningOnTcpEndpoint(_securityType, _serverEndPoint);
 
                 ListenAsync(_serverEndPoint).GetAwaiter().GetResult();
             }
@@ -122,11 +122,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public override void Notify(in InboundConnection inboundConn)
         {
             var conn = inboundConn.Connection;
-            if (Log.IsInformationLevelEnabled())
-            {
-                Log.LogInformation("{0} TCP connection accepted: [{1}, {2}, L{3}, {4:B}].",
-                         _serviceType, _securityType, conn.RemoteEndPoint, conn.LocalEndPoint, conn.ConnectionId);
-            }
+            if (Log.IsInformationLevelEnabled()) { Log.OnTcpConnectionAccepted(_serviceType, _securityType, conn); }
 
             var dispatcher = _dispatcherFactory(conn.ConnectionId, _serverEndPoint);
             var manager = new TcpConnectionManager(

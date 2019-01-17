@@ -89,93 +89,91 @@ namespace EventStore.Core.Bus
 
         private void ReadFromQueue(object o)
         {
-        try{
-            _queueStats.Start();
-            Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
-
-            const int spinmax = 5000;
-            var iterationsCount = 0;
-            var traceEnabled = Log.IsTraceLevelEnabled();
-            var spinner = new SpinWait();
-            while (!_stop)
+            try
             {
-                Message msg = null;
-                try
+                _queueStats.Start();
+                Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
+
+                const int spinmax = 5000;
+                var iterationsCount = 0;
+                var traceEnabled = Log.IsTraceLevelEnabled();
+                var spinner = new SpinWait();
+                while (!_stop)
                 {
-                    if (!_queue.TryDequeue(out msg))
+                    Message msg = null;
+                    try
                     {
-                        _queueStats.EnterIdle();
-
-                        iterationsCount += 1;
-                        if (iterationsCount < spinmax)
+                        if (!_queue.TryDequeue(out msg))
                         {
-                            //do nothing... spin
-                        }
-                        else
-                        {
-                            //Thread.Sleep(1);
-                            spinner.SpinOnce();
-                        }
-                    }
-                    else
-                    {
-                        _queueStats.EnterBusy();
-#if DEBUG
-                        _queueStats.Dequeued(msg);
-#endif
+                            _queueStats.EnterIdle();
 
-                        var cnt = _queue.Count;
-                        _queueStats.ProcessingStarted(msg.GetType(), cnt);
-
-                        if (_watchSlowMsg)
-                        {
-                            var start = DateTime.UtcNow;
-
-                            _consumer.Handle(msg);
-
-                            var elapsed = DateTime.UtcNow - start;
-                            if (elapsed > _slowMsgThreshold)
+                            iterationsCount += 1;
+                            if (iterationsCount < spinmax)
                             {
-                                if (traceEnabled)
-                                {
-                                    Log.LogTrace("SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                              Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                                }
-                                if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                {
-                                    Log.LogError("---!!! VERY SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                              Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                                }
+                                //do nothing... spin
+                            }
+                            else
+                            {
+                                //Thread.Sleep(1);
+                                spinner.SpinOnce();
                             }
                         }
                         else
                         {
-                            _consumer.Handle(msg);
-                        }
+                            _queueStats.EnterBusy();
+#if DEBUG
+                            _queueStats.Dequeued(msg);
+#endif
 
-                        _queueStats.ProcessingEnded(1);
+                            var cnt = _queue.Count;
+                            _queueStats.ProcessingStarted(msg.GetType(), cnt);
+
+                            if (_watchSlowMsg)
+                            {
+                                var start = DateTime.UtcNow;
+
+                                _consumer.Handle(msg);
+
+                                var elapsed = DateTime.UtcNow - start;
+                                if (elapsed > _slowMsgThreshold)
+                                {
+                                    if (traceEnabled) { Log.ShowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count); }
+                                    if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
+                                    {
+                                        Log.VerySlowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                _consumer.Handle(msg);
+                            }
+
+                            _queueStats.ProcessingEnded(1);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorWhileProcessingMessageInQueuedHandler(msg, Name, ex);
+#if DEBUG
+                        throw;
+#endif
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, Name);
-#if DEBUG
-                    throw;
-#endif
-                }
             }
-        }
-        catch(Exception ex){
-            _tcs.TrySetException(ex);
-            throw;
-        }
-        finally{
-            _queueStats.Stop();
+            catch (Exception ex)
+            {
+                _tcs.TrySetException(ex);
+                throw;
+            }
+            finally
+            {
+                _queueStats.Stop();
 
-            _stopped.Set();
-            _queueMonitor.Unregister(this);
-            Thread.EndThreadAffinity();
-        }
+                _stopped.Set();
+                _queueMonitor.Unregister(this);
+                Thread.EndThreadAffinity();
+            }
 
         }
 

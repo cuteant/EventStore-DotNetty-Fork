@@ -93,9 +93,8 @@ namespace EventStore.Projections.Core.Services.Processing
         private CheckpointTag(int phase, string stream, long sequenceNumber)
         {
             Phase = phase;
-            if (stream == null) throw new ArgumentNullException(nameof(stream));
-            if (stream == "") throw new ArgumentException(nameof(stream));
-            if (sequenceNumber < 0 && sequenceNumber != ExpectedVersion.NoStream) throw new ArgumentException(nameof(sequenceNumber));
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (sequenceNumber < 0 && sequenceNumber != ExpectedVersion.NoStream) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.sequenceNumber); }
             Position = new TFPos(Int64.MinValue, Int64.MinValue);
             Streams = new Dictionary<string, long>(StringComparer.Ordinal) { { stream, sequenceNumber } };
             Mode_ = CalculateMode();

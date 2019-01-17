@@ -235,7 +235,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
                     ThrowHelper.ThrowException_SecondWriteTryFailed(epoch.EpochPosition);
                 }
             }
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("=== Writing E{0}@{1}:{2:B} (previous epoch at {3}).", epochNumber, epoch.EpochPosition, epochId, lastEpochPosition);
+            if (Log.IsDebugLevelEnabled()) Log.Writing_Epoch_previous_epoch_at(epochNumber, epoch.EpochPosition, epochId, lastEpochPosition);
 
             _bus.Publish(new SystemMessage.EpochWritten(epoch));
             return epoch;
@@ -277,11 +277,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
                 _checkpoint.Write(epoch.EpochPosition);
                 _checkpoint.Flush();
 
-                if (Log.IsDebugLevelEnabled())
-                {
-                    Log.LogDebug("=== Update Last Epoch E{0}@{1}:{2:B} (previous epoch at {3}).",
-                                 epoch.EpochNumber, epoch.EpochPosition, epoch.EpochId, epoch.PrevEpochPosition);
-                }
+                if (Log.IsDebugLevelEnabled()) { Log.Update_Last_Epoch(epoch); }
             }
         }
 

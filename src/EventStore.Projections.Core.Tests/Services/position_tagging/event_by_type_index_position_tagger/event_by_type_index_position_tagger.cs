@@ -131,7 +131,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.event_by_t
         [Test]
         public void empty_streams_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(()=> { new EventByTypeIndexPositionTagger(0, new string[] {}); });
+            Assert.Throws<ArgumentOutOfRangeException>(()=> { new EventByTypeIndexPositionTagger(0, new string[] {}); });
         }
 
         [Test]

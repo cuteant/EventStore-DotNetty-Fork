@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using EventStore.ClientAPI.ClientOperations;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
 
@@ -44,12 +42,12 @@ namespace EventStore.ClientAPI.Internal
         }
     }
 
-    internal class SubscriptionsManager
+    internal partial class SubscriptionsManager
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<SubscriptionsManager>();
         private readonly string _connectionName;
         private readonly ConnectionSettings _settings;
-        private readonly bool verboseLogging;
+        private readonly bool _verboseLogging;
         private readonly Dictionary<Guid, SubscriptionItem> _activeSubscriptions = new Dictionary<Guid, SubscriptionItem>();
         private readonly Queue<SubscriptionItem> _waitingSubscriptions = new Queue<SubscriptionItem>();
         private readonly List<SubscriptionItem> _retryPendingSubscriptions = new List<SubscriptionItem>();
@@ -60,7 +58,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             _connectionName = connectionName;
             _settings = settings;
-            verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
+            _verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
         }
 
         public bool TryGetActiveSubscription(Guid correlationId, out SubscriptionItem subscription)
@@ -111,8 +109,7 @@ namespace EventStore.ClientAPI.Internal
                 }
                 else if (subscription.Timeout > TimeSpan.Zero && DateTime.UtcNow - subscription.LastUpdated > _settings.OperationTimeout)
                 {
-                    var err = $"EventStoreConnection '{_connectionName}': subscription never got confirmation from server.\n UTC now: {DateTime.UtcNow:HH:mm:ss.fff}, operation: {subscription}.";
-                    s_logger.LogError(err);
+                    LogSubscriptionNeverGotConfirmationFromServer(subscription);
 
                     if (_settings.FailOnNoServerResponse)
                     {
@@ -154,7 +151,7 @@ namespace EventStore.ClientAPI.Internal
         public bool RemoveSubscription(SubscriptionItem subscription)
         {
             var res = _activeSubscriptions.Remove(subscription.CorrelationId);
-            LogDebug("RemoveSubscription {0}, result {1}.", subscription, res);
+            if (_verboseLogging) LogRemoveSubscription(subscription, res);
             return res;
         }
 
@@ -162,19 +159,19 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!RemoveSubscription(subscription))
             {
-                LogDebug("RemoveSubscription failed when trying to retry {0}.", subscription);
+                if (_verboseLogging) LogRemoveSubscriptionFailedWhenTryingToRetry(subscription);
                 return;
             }
 
             if (subscription.MaxRetries >= 0 && subscription.RetryCount >= subscription.MaxRetries)
             {
-                LogDebug("RETRIES LIMIT REACHED when trying to retry {0}.", subscription);
+                if (_verboseLogging) LogRetriesLimitReachedWhenTryingToRetry(subscription);
                 subscription.Operation.DropSubscription(SubscriptionDropReason.SubscribingError,
                                                         CoreThrowHelper.GetRetriesLimitReachedException(subscription));
                 return;
             }
 
-            LogDebug("retrying subscription {0}.", subscription);
+            if (_verboseLogging) LogRetryingSubscription(subscription);
             _retryPendingSubscriptions.Add(subscription);
         }
 
@@ -189,7 +186,7 @@ namespace EventStore.ClientAPI.Internal
 
             if (subscription.IsSubscribed)
             {
-                LogDebug("StartSubscription REMOVING due to already subscribed {0}.", subscription);
+                if (_verboseLogging) LogStartSubscriptionRemovingDueToAlreadySubscribed(subscription);
                 RemoveSubscription(subscription);
                 return;
             }
@@ -202,22 +199,18 @@ namespace EventStore.ClientAPI.Internal
 
             if (!subscription.Operation.Subscribe(subscription.CorrelationId, connection))
             {
-                LogDebug("StartSubscription REMOVING AS COULD NOT SUBSCRIBE {0}.", subscription);
+                if (_verboseLogging) LogStartSubscriptionRemovingAsCouldNotSubscribe(subscription);
                 RemoveSubscription(subscription);
             }
             else
             {
-                LogDebug("StartSubscription SUBSCRIBING {0}.", subscription);
+                if (_verboseLogging) LogStartSubscriptionSubscribing(subscription);
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void LogDebug(string message, params object[] parameters)
         {
-            if (verboseLogging)
-            {
-                s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
-            }
+            s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
         }
     }
 }

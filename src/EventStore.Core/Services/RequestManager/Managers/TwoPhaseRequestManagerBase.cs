@@ -138,7 +138,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
 
         public void Handle(StorageMessage.AlreadyCommitted message)
         {
-            if (Log.IsTraceLevelEnabled()) Log.LogTrace("IDEMPOTENT WRITE TO STREAM ClientCorrelationID {0}, {1}.", _clientCorrId, message);
+            if (Log.IsTraceLevelEnabled()) Log.IdempotentWriteToStreamClientcorrelationid(_clientCorrId, message);
             CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, -1, -1);
             //TODO GFY WE NEED TO GET THE LOG POSITION HERE WHEN ITS AN IDEMPOTENT WRITE
         }

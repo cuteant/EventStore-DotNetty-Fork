@@ -287,7 +287,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection
         [Test]
         public void an_empty_name_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
                 IProjectionStateHandler projectionStateHandler = new FakeProjectionStateHandler();
                 var version = new ProjectionVersion(1, 0, 0);
                 new ContinuousProjectionProcessingStrategy(

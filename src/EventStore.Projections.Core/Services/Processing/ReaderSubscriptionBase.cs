@@ -42,8 +42,8 @@ namespace EventStore.Projections.Core.Services.Processing
             int? stopAfterNEvents)
         {
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (readerStrategy == null) throw new ArgumentNullException("readerStrategy");
-            if (timeProvider == null) throw new ArgumentNullException("timeProvider");
+            if (null == readerStrategy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerStrategy); }
+            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
             if (checkpointProcessedEventsThreshold > 0 && stopAfterNEvents > 0)
                 throw new ArgumentException("checkpointProcessedEventsThreshold > 0 && stopAfterNEvents > 0");
 

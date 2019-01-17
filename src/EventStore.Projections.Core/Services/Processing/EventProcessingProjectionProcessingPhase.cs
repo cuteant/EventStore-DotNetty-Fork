@@ -147,7 +147,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     var result = InternalTransformCatalogEvent(message);
                     return result;
                 case PhaseState.Stopped:
-                    _logger.LogError("Ignoring committed catalog event in stopped state");
+                    _logger.IgnoringCommittedCatalogEventInStoppedState();
                     return null;
                 default:
                     throw new NotSupportedException();
@@ -163,7 +163,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     var result = InternalProcessCommittedEvent(partition, message);
                     return result;
                 case PhaseState.Stopped:
-                    _logger.LogError("Ignoring committed event in stopped state");
+                    _logger.IgnoringCommittedEventInStoppedState();
                     return null;
                 default:
                     throw new NotSupportedException();
@@ -178,7 +178,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     var result = InternalProcessPartitionDeleted(partition, deletedPosition);
                     return result;
                 case PhaseState.Stopped:
-                    _logger.LogError("Ignoring committed event in stopped state");
+                    _logger.IgnoringCommittedEventInStoppedState();
                     return null;
                 default:
                     throw new NotSupportedException();
@@ -430,7 +430,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (!(_state == PhaseState.Running || _state == PhaseState.Starting))
             {
-                if (_logger.IsDebugLevelEnabled()) _logger.LogDebug("Starting a checkpoint in non-runnable state");
+                if (_logger.IsDebugLevelEnabled()) _logger.StartingACheckpointInNonRunnableState();
                 return;
             }
             if (_projectionStateHandler is IProjectionCheckpointHandler checkpointHandler)

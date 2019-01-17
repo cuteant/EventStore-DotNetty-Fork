@@ -151,7 +151,7 @@ namespace EventStore.Core.Services.Transport.Http
             }
             catch (Exception e)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation(e, "Failed to load xml. Invalid format");
+                if (Log.IsInformationLevelEnabled()) Log.FailedToLoadXmlInvalidFormat(e);
                 return null;
             }
         }

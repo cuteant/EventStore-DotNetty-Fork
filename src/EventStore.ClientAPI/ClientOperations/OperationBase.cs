@@ -131,7 +131,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                 masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 
                 default:
-                    Log.LogError("Unknown NotHandledReason: {0}.", message.Reason);
+                    Log.UnknownNotHandledReason(message.Reason);
                     return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
             }
         }

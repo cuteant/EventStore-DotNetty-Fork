@@ -136,10 +136,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             });
             manager.ReadTextRequestAsync(
                 OnPostRequestRead,
-                e =>
-                {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while reading request: {0}.", e.Message);
-                });
+                e => { if (Log.IsDebugLevelEnabled()) Log.Error_while_reading_request(e); });
         }
 
         private void OnPostRequestRead(HttpEntityManager manager, string body)

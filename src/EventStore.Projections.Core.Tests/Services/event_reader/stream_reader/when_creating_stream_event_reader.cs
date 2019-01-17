@@ -46,7 +46,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
         [Test]
         public void empty_stream_name_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             new StreamEventReader(_bus, Guid.NewGuid(), null, "", 0, new RealTimeProvider(), false,
                 produceStreamDeletes: false);
             });
@@ -55,7 +55,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.stream_reader
         [Test]
         public void negative_event_sequence_number_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
             new StreamEventReader(_bus, Guid.NewGuid(), null, "", -1, new RealTimeProvider(), false,
                 produceStreamDeletes: false);
             });

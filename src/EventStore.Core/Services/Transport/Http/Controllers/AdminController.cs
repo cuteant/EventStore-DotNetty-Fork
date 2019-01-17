@@ -32,7 +32,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             if (entity.User != null && (entity.User.IsInRole(SystemRoles.Admins) || entity.User.IsInRole(SystemRoles.Operations)))
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("Request shut down of node because shutdown command has been received.");
+                if (Log.IsInformationLevelEnabled()) Log.RequestShutDownOfNodeBecauseShutdownCommandHasBeenReceived();
                 Publish(new ClientMessage.RequestShutdown(exitProcess: true, shutdownHttp: true));
                 entity.ReplyStatus(HttpStatusCode.OK, "OK", LogReplyError);
             }
@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 }
             }
 
-            Log.LogInformation("Request scavenging because /admin/scavenge?startFromChunk={0}&threads={1} request has been received.", startFromChunk, threads);
+            if (Log.IsInformationLevelEnabled()) Log.RequestScavengingBecauseRequestHasBeenReceived(startFromChunk, threads);
 
             var envelope = new SendToHttpEnvelope(_networkSendQueue, entity, (e, message) =>
                 {
@@ -99,7 +99,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             var scavengeId = match.BoundVariables["scavengeId"];
 
-            Log.LogInformation("Stopping scavenge because /admin/scavenge/{0} DELETE request has been received.", scavengeId);
+            if (Log.IsInformationLevelEnabled()) Log.StoppingScavengeBecauseDeleteRequestHasBeenReceived(scavengeId);
 
             var envelope = new SendToHttpEnvelope(_networkSendQueue, entity, (e, message) =>
                 {
@@ -128,7 +128,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private void LogReplyError(Exception exc)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while closing HTTP connection (admin controller): {0}.", exc.Message);
+            if (Log.IsDebugLevelEnabled()) Log.Error_while_closing_HTTP_connection_admin_controller(exc);
         }
     }
 }

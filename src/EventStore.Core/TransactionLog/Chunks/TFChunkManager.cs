@@ -181,10 +181,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var oldFileName = chunk.FileName;
 
             var infoEnabled = Log.IsInformationLevelEnabled();
-            if (infoEnabled)
-            {
-                Log.LogInformation("Switching chunk #{0}-{1} ({2})...", chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber, Path.GetFileName(oldFileName));
-            }
+            if (infoEnabled) { Log.SwitchingChunk(chunkHeader.ChunkStartNumber, chunkHeader.ChunkEndNumber, oldFileName); }
             TFChunk.TFChunk newChunk;
 
             if (_config.InMemDb)
@@ -203,13 +200,15 @@ namespace EventStore.Core.TransactionLog.Chunks
                     ThrowHelper.ThrowException_TheChunkThatIsBeingSwitched(chunk, exc);
                 }
                 var newFileName = _config.FileNamingStrategy.DetermineBestVersionFilenameFor(chunkHeader.ChunkStartNumber);
-                if (infoEnabled) Log.LogInformation("File {0} will be moved to file {1}", Path.GetFileName(oldFileName), Path.GetFileName(newFileName));
-                try{
+                if (infoEnabled) Log.ChunkFileWillBeMovedToFile(oldFileName, newFileName);
+                try
+                {
                     File.Move(oldFileName, newFileName);
                 }
-                catch(IOException){
-                    ProcessUtil.PrintWhoIsLocking(oldFileName,Log);
-                    ProcessUtil.PrintWhoIsLocking(newFileName,Log);
+                catch (IOException)
+                {
+                    ProcessUtil.PrintWhoIsLocking(oldFileName, Log);
+                    ProcessUtil.PrintWhoIsLocking(newFileName, Log);
                     throw;
                 }
                 newChunk = TFChunk.TFChunk.FromCompletedFile(newFileName, verifyHash, _config.Unbuffered, _config.InitialReaderCount, _config.OptimizeReadSideCache, _config.ReduceFileCachePressure);
@@ -219,7 +218,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (!ReplaceChunksWith(newChunk, "Old"))
                 {
-                    if (infoEnabled) Log.LogInformation("Chunk {0} will be not switched, marking for remove...", newChunk);
+                    if (infoEnabled) Log.ChunkWillBeNotSwitchedMarkingForRemove(newChunk);
                     newChunk.MarkForDeletion();
                 }
 
@@ -273,7 +272,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     oldChunk.MarkForDeletion();
 
-                    if (infoEnabled) Log.LogInformation("{0} chunk #{1} is marked for deletion.", chunkExplanation, oldChunk);
+                    if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, oldChunk);
                 }
                 lastRemovedChunk = oldChunk;
             }
@@ -290,7 +289,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 if (oldChunk != null && !ReferenceEquals(lastRemovedChunk, oldChunk))
                 {
                     oldChunk.MarkForDeletion();
-                    if (infoEnabled) Log.LogInformation("{0} chunk {1} is marked for deletion.", chunkExplanation, oldChunk);
+                    if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, oldChunk);
                 }
                 lastRemovedChunk = oldChunk;
             }

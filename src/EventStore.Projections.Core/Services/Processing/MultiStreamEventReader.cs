@@ -48,9 +48,9 @@ namespace EventStore.Projections.Core.Services.Processing
           bool stopOnEof = false, int? stopAfterNEvents = null)
           : base(publisher, eventReaderCorrelationId, readAs, stopOnEof)
         {
-            if (streams == null) throw new ArgumentNullException(nameof(streams));
-            if (timeProvider == null) throw new ArgumentNullException(nameof(timeProvider));
-            if (streams.Length == 0) throw new ArgumentException(nameof(streams));
+            if (null == streams) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streams); }
+            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
+            if (streams.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
 
             _streams = new HashSet<string>(streams, StringComparer.Ordinal);
             _eofs = new ConcurrentDictionary<string, bool>(_streams.ToDictionary(v => v, v => false), StringComparer.Ordinal);

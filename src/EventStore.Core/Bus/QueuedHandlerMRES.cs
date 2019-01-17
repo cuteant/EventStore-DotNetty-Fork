@@ -40,7 +40,7 @@ namespace EventStore.Core.Bus
         private readonly QueueStatsCollector _queueStats;
         private readonly TaskCompletionSource<object> _tcs = new TaskCompletionSource<object>();
 
-        
+
         public QueuedHandlerMRES(IHandle<Message> consumer,
                                  string name,
                                  bool watchSlowMsg = true,
@@ -89,79 +89,80 @@ namespace EventStore.Core.Bus
 
         private void ReadFromQueue(object o)
         {
-        try{
-            _queueStats.Start();
-            Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
-            
-            while (!_stop)
+            try
             {
-                Message msg = null;
-                try
+                _queueStats.Start();
+                Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
+                var traceEnabled = Log.IsTraceLevelEnabled();
+                while (!_stop)
                 {
-                    if (!_queue.TryDequeue(out msg))
+                    Message msg = null;
+                    try
                     {
-                        _starving = true;
-
-                        _queueStats.EnterIdle();
-                        _msgAddEvent.Wait(100);
-                        _msgAddEvent.Reset();
-
-                        _starving = false;
-                    }
-                    else
-                    {
-                        _queueStats.EnterBusy();
-#if DEBUG
-                        _queueStats.Dequeued(msg);
-#endif
-
-                        var cnt = _queue.Count;
-                        _queueStats.ProcessingStarted(msg.GetType(), cnt);
-
-                        if (_watchSlowMsg)
+                        if (!_queue.TryDequeue(out msg))
                         {
-                            var start = DateTime.UtcNow;
+                            _starving = true;
 
-                            _consumer.Handle(msg);
+                            _queueStats.EnterIdle();
+                            _msgAddEvent.Wait(100);
+                            _msgAddEvent.Reset();
 
-                            var elapsed = DateTime.UtcNow - start;
-                            if (elapsed > _slowMsgThreshold)
-                            {
-                                Log.LogTrace("SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
-                                          Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                                if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                    Log.LogError("---!!! VERY SLOW QUEUE MSG [{queue}]: {message} - {elapsed}ms. Q: {prevQueueCount}/{curQueueCount}.",
-                                              Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
-                            }
+                            _starving = false;
                         }
                         else
                         {
-                            _consumer.Handle(msg);
-                        }
+                            _queueStats.EnterBusy();
+#if DEBUG
+                            _queueStats.Dequeued(msg);
+#endif
 
-                        _queueStats.ProcessingEnded(1);
+                            var cnt = _queue.Count;
+                            _queueStats.ProcessingStarted(msg.GetType(), cnt);
+
+                            if (_watchSlowMsg)
+                            {
+                                var start = DateTime.UtcNow;
+
+                                _consumer.Handle(msg);
+
+                                var elapsed = DateTime.UtcNow - start;
+                                if (elapsed > _slowMsgThreshold)
+                                {
+                                    if (traceEnabled) Log.ShowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
+                                    if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
+                                        Log.VerySlowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
+                                }
+                            }
+                            else
+                            {
+                                _consumer.Handle(msg);
+                            }
+
+                            _queueStats.ProcessingEnded(1);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorWhileProcessingMessageInQueuedHandler(msg, Name, ex);
+#if DEBUG
+                        throw;
+#endif
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.LogError(ex, "Error while processing message {message} in queued handler '{queue}'.", msg, Name);
-#if DEBUG
-                    throw;
-#endif
-                }
             }
-        }
-        catch (Exception ex) {
-            _tcs.TrySetException(ex);
-            throw;
-        }
-        finally{
-            _queueStats.Stop();
+            catch (Exception ex)
+            {
+                _tcs.TrySetException(ex);
+                throw;
+            }
+            finally
+            {
+                _queueStats.Stop();
 
-            _stopped.Set();
-            _queueMonitor.Unregister(this);
-            Thread.EndThreadAffinity();
-        }
+                _stopped.Set();
+                _queueMonitor.Unregister(this);
+                Thread.EndThreadAffinity();
+            }
 
         }
 

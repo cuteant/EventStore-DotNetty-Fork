@@ -75,7 +75,7 @@ namespace EventStore.Projections.Core.Tests.Services.projections_manager.managed
         [Test]
         public void empty_handler_type_throws_argument_null_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             ProjectionManagementMessage.Command.Post message = new ProjectionManagementMessage.Command.Post(
                 new NoopEnvelope(), ProjectionMode.OneTime, "name", ProjectionManagementMessage.RunAs.Anonymous, "",
                 @"log(1);", enabled: true, checkpointsEnabled: false, emitEnabled: false, trackEmittedStreams: false);

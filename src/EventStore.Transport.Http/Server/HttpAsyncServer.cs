@@ -44,7 +44,7 @@ namespace EventStore.Transport.Http.Server
         {
             try
             {
-                if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Starting HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
+                if (Logger.IsInformationLevelEnabled()) Logger.StartingHttpServerOn(_listener);
                 try
                 {
                     _listener.Start();
@@ -56,14 +56,14 @@ namespace EventStore.Transport.Http.Server
                         if (_listenPrefixes.Length > 0)
                             TryAddAcl(_listenPrefixes[0]);
                         CreateListener(_listenPrefixes);
-                        if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Retrying HTTP server on [{0}]...", string.Join(",", _listener.Prefixes));
+                        if (Logger.IsInformationLevelEnabled()) Logger.RetryingHttpServerOn(_listener);
                         _listener.Start();
                     }
                 }
 
                 _listener.BeginGetContext(ContextAcquired, null);
 
-                if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("HTTP server is up and listening on [{0}]", string.Join(",", _listener.Prefixes));
+                if (Logger.IsInformationLevelEnabled()) Logger.HttpServerIsUpAndListeningOn(_listener);
 
                 return true;
             }
@@ -78,7 +78,7 @@ namespace EventStore.Transport.Http.Server
         {
 #if DESKTOPCLR
             var args = string.Format("http add urlacl url={0} user=\"{1}\\{2}\"", address, Environment.UserDomainName, Environment.UserName);
-            if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Attempting to add permissions for " + address + " using netsh " + args);
+            if (Logger.IsInformationLevelEnabled()) Logger.AttemptingToAddPermissionsUsingNetsh(address, args);
             var startInfo = new ProcessStartInfo("netsh", args)
             {
                 Verb = "runas",
@@ -114,7 +114,7 @@ namespace EventStore.Transport.Http.Server
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Error while shutting down http server");
+                Logger.ErrorWhileShuttingDownHttpServer(e);
             }
         }
 
@@ -143,7 +143,7 @@ namespace EventStore.Transport.Http.Server
             }
             catch (Exception e)
             {
-                if (Logger.IsDebugLevelEnabled()) Logger.LogDebug(e, "EndGetContext exception. Status : {0}.", IsListening ? "listening" : "stopped");
+                if (Logger.IsDebugLevelEnabled()) Logger.EndGetContextException(e, IsListening);
             }
 
             if (success)
@@ -162,7 +162,7 @@ namespace EventStore.Transport.Http.Server
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "ProcessRequest error");
+                    Logger.ProcessRequestError(ex);
                 }
 
             try
@@ -183,7 +183,7 @@ namespace EventStore.Transport.Http.Server
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "BeginGetContext error. Status : {0}.", IsListening ? "listening" : "stopped");
+                Logger.BeginGetContextError(e, IsListening);
             }
         }
 

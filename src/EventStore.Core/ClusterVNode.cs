@@ -164,11 +164,7 @@ namespace EventStore.Core
             var truncPos = db.Config.TruncateCheckpoint.Read();
             if (truncPos != -1)
             {
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation(string.Format("Truncate checkpoint is present. Truncate: {0} (0x{0:X}), Writer: {1} (0x{1:X}), Chaser: {2} (0x{2:X}), Epoch: {3} (0x{3:X})",
-                             truncPos, db.Config.WriterCheckpoint.Read(), db.Config.ChaserCheckpoint.Read(), db.Config.EpochCheckpoint.Read()));
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.Truncate_checkpoint_is_present(truncPos, db); }
                 var truncator = new TFChunkDbTruncator(db.Config);
                 truncator.TruncateDb(truncPos);
             }
@@ -648,16 +644,20 @@ namespace EventStore.Core
             _shutdownEvent.Set();
         }
 
-        public void AddTasks(IEnumerable<Task> tasks){
+        public void AddTasks(IEnumerable<Task> tasks)
+        {
 #if DEBUG
-            foreach(var task in tasks){
+            foreach (var task in tasks)
+            {
                 AddTask(task);
             }
 #endif
         }
-        public void AddTask(Task task){
+        public void AddTask(Task task)
+        {
 #if DEBUG
-            lock(_taskAddLock){
+            lock (_taskAddLock)
+            {
                 _tasks.Add(task);
 
                 //keep reference to old trigger task

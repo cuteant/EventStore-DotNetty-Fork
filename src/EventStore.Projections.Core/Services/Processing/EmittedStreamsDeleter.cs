@@ -84,21 +84,21 @@ namespace EventStore.Projections.Core.Services.Processing
                     {
                         if (x.Result == OperationResult.Success || x.Result == OperationResult.StreamDeleted)
                         {
-                            Log.LogInformation("PROJECTIONS: Projection Stream '{0}' deleted", _emittedStreamsCheckpointStreamId);
+                            if (Log.IsInformationLevelEnabled()) Log.ProjectionsProjectionStreamDeleted(_emittedStreamsCheckpointStreamId);
                         }
                         else
                         {
-                            Log.LogError("PROJECTIONS: Failed to delete projection stream '{0}'. Reason: {1}", _emittedStreamsCheckpointStreamId, x.Result);
+                            Log.FailedToDeleteProjectionStream(_emittedStreamsCheckpointStreamId, x.Result);
                         }
                         _ioDispatcher.DeleteStream(_emittedStreamsId, ExpectedVersion.Any, false, SystemAccount.Principal, y =>
-              {
+                        {
                           if (y.Result == OperationResult.Success || y.Result == OperationResult.StreamDeleted)
                           {
-                              Log.LogInformation("PROJECTIONS: Projection Stream '{0}' deleted", _emittedStreamsId);
+                              if (Log.IsInformationLevelEnabled()) Log.ProjectionsProjectionStreamDeleted(_emittedStreamsId);
                           }
                           else
                           {
-                              Log.LogError("PROJECTIONS: Failed to delete projection stream '{0}'. Reason: {1}", _emittedStreamsId, y.Result);
+                              Log.FailedToDeleteProjectionStream(_emittedStreamsId, y.Result);
                           }
                           onEmittedStreamsDeleted();
                       });
@@ -129,12 +129,12 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 if (_retryCount == 0)
                 {
-                    Log.LogError("PROJECTIONS: Retry limit reached, could not delete stream: {0}. Manual intervention is required and you may need to delete this stream manually", streamId);
+                    Log.RetryLimitReachedCouldNotDeleteStream(streamId);
                     _retryCount = RetryLimit;
                     DeleteEmittedStreamsFrom(eventNumber + 1, onEmittedStreamsDeleted);
                     return;
                 }
-                Log.LogError("PROJECTIONS: Failed to delete emitted stream {0}, Retrying ({1}/{2}). Reason: {3}", streamId, (RetryLimit - _retryCount) + 1, RetryLimit, deleteStreamCompleted.Result);
+                Log.FailedToDeleteEmittedStream(streamId, (RetryLimit - _retryCount) + 1, RetryLimit, deleteStreamCompleted.Result);
                 _retryCount--;
                 DeleteEmittedStreamsFrom(eventNumber, onEmittedStreamsDeleted);
             }
@@ -148,11 +148,11 @@ namespace EventStore.Projections.Core.Services.Processing
                 {
                     if (x.Result == OperationResult.Success)
                     {
-                        Log.LogDebug("PROJECTIONS: Emitted Stream Deletion Checkpoint written at {0}", eventNumber);
+                        Log.EmittedStreamDeletionCheckpointWrittenAt(eventNumber);
                     }
                     else
                     {
-                        Log.LogDebug("PROJECTIONS: Emitted Stream Deletion Checkpoint Failed to be written at {0}", eventNumber);
+                        Log.EmittedStreamDeletionCheckpointFailedToBeWrittenAt(eventNumber);
                     }
                 }
             });

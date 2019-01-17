@@ -148,13 +148,13 @@ namespace EventStore.Projections.Core.Services.Processing
             PositionTagger positionTagger, CheckpointTag fromCheckpointPosition, IPublisher publisher, IODispatcher ioDispatcher,
             IEmittedStreamContainer readyHandler, bool noCheckpoints = false)
         {
-            if (string.IsNullOrEmpty(streamId)) throw new ArgumentNullException(nameof(streamId));
-            if (writerConfiguration == null) throw new ArgumentNullException(nameof(writerConfiguration));
-            if (positionTagger == null) throw new ArgumentNullException(nameof(positionTagger));
-            if (fromCheckpointPosition == null) throw new ArgumentNullException(nameof(fromCheckpointPosition));
+            if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (null == writerConfiguration) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerConfiguration); }
+            if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.upositionTaggerrl); }
+            if (null == fromCheckpointPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fromCheckpointPosition); }
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
-            if (readyHandler == null) throw new ArgumentNullException(nameof(readyHandler));
+            if (null == readyHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readyHandler); }
 
             _streamId = streamId;
             _metadataStreamId = SystemStreams.MetastreamOf(streamId);
@@ -175,7 +175,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void EmitEvents(EmittedEvent[] events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             CheckpointTag groupCausedBy = null;
             foreach (var @event in events)
             {
@@ -246,7 +246,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             if (_logger.IsInformationLevelEnabled())
             {
-                _logger.LogInformation("Failed to write events to stream {0}. Error: {1}", _streamId, Enum.GetName(typeof(OperationResult), message.Result));
+                _logger.FailedToWriteEventsToStream(_streamId, message.Result);
             }
             switch (message.Result)
             {
@@ -504,7 +504,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             if (_logger.IsInformationLevelEnabled())
             {
-                _logger.LogInformation("Failed to write events to stream {0}. Error: {1}", _metadataStreamId, Enum.GetName(typeof(OperationResult), message.Result));
+                _logger.FailedToWriteEventsToStream(_metadataStreamId, message.Result);
             }
             switch (message.Result)
             {

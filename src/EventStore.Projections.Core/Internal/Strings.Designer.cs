@@ -59,5 +59,32 @@ namespace EventStore.Projections.Core.Internal {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Cannot delete a projection that hasn&apos;t been stopped or faulted. 的本地化字符串。
+        /// </summary>
+        internal static string CannotDeleteAProjectionThatHasnotBeenStoppedOrFaulted {
+            get {
+                return ResourceManager.GetString("CannotDeleteAProjectionThatHasnotBeenStoppedOrFaulted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &apos;set_shared_state&apos; command handler has not been registered 的本地化字符串。
+        /// </summary>
+        internal static string Set_Shared_StateCommandHandlerHasNotBeenRegistered {
+            get {
+                return ResourceManager.GetString("Set_Shared_StateCommandHandlerHasNotBeenRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &apos;set_state&apos; command handler has not been registered 的本地化字符串。
+        /// </summary>
+        internal static string Set_StateCommandHandlerHasNotBeenRegistered {
+            get {
+                return ResourceManager.GetString("Set_StateCommandHandlerHasNotBeenRegistered", resourceCulture);
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace EventStore.Core.Bus
             var stats = _queues.Keys.OrderBy(x => x.Name).Select(queue => queue.GetStatistics()).ToArray();
             if (Log.IsTraceLevelEnabled() && Application.IsDefined(Application.DumpStatistics))
             {
-                Log.LogTrace(Environment.NewLine + string.Join(Environment.NewLine, stats.Select(x => x.ToString())));
+                Log.DumpStatistics(stats);
             }
             return stats;
         }

@@ -35,7 +35,7 @@ namespace EventStore.Projections.Core.Services.Processing
             ReaderSubscriptionDispatcher subscriptionDispatcher)
             : base(name, projectionVersion, projectionConfig, sourceDefinition, logger, subscriptionDispatcher)
         {
-            if (string.IsNullOrEmpty(handlerType)) throw new ArgumentNullException("handlerType");
+            if (string.IsNullOrEmpty(handlerType)) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handlerType);
             if (string.IsNullOrEmpty(query)) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
 
             _stateHandler = stateHandler;

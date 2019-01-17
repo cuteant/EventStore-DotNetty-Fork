@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EventStore.Common.Utils;
@@ -25,7 +25,8 @@ namespace EventStore.Core.TransactionLog.Chunks
             Manager = new TFChunkManager(Config);
         }
 
-        readonly struct ChunkInfo {
+        readonly struct ChunkInfo
+        {
             public readonly int ChunkStartNumber;
             public readonly string ChunkFileName;
             public ChunkInfo(string chunkFileName, int chunkStartNumber) { ChunkFileName = chunkFileName; ChunkStartNumber = chunkStartNumber; }
@@ -33,7 +34,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         IEnumerable<ChunkInfo> GetAllLatestChunkVersions(long checkpoint)
         {
-            var lastChunkNum = (int) (checkpoint / Config.ChunkSize);
+            var lastChunkNum = (int)(checkpoint / Config.ChunkSize);
 
             for (int chunkNum = 0; chunkNum < lastChunkNum;)
             {
@@ -64,12 +65,12 @@ namespace EventStore.Core.TransactionLog.Chunks
                 return;
             }
 
-            var lastChunkNum = (int) (checkpoint / Config.ChunkSize);
+            var lastChunkNum = (int)(checkpoint / Config.ChunkSize);
             var lastChunkVersions = Config.FileNamingStrategy.GetAllVersionsFor(lastChunkNum);
 
             try
             {
-                Parallel.ForEach(GetAllLatestChunkVersions(checkpoint), 
+                Parallel.ForEach(GetAllLatestChunkVersions(checkpoint),
                     new ParallelOptions { MaxDegreeOfParallelism = threads }, LocalAction);
                 void LocalAction(ChunkInfo chunkInfo)
                 {
@@ -114,7 +115,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             if (lastChunkVersions.Length == 0)
             {
-                var onBoundary = checkpoint == (Config.ChunkSize * (long) lastChunkNum);
+                var onBoundary = checkpoint == (Config.ChunkSize * (long)lastChunkNum);
                 if (!onBoundary)
                     ThrowHelper.ThrowCorruptDatabaseException_ChunkNotFound(Config, lastChunkNum);
                 if (!readOnly)
@@ -139,9 +140,10 @@ namespace EventStore.Core.TransactionLog.Chunks
                     Manager.AddChunk(lastChunk);
                     if (!readOnly)
                     {
-                        Log.LogInformation("Moving WriterCheckpoint from {checkpoint} to {chunkEndPosition}, as it points to the scavenged chunk. "
-                                 + "If that was not caused by replication of scavenged chunks, that could be a bug.",
-                            checkpoint, lastChunk.ChunkHeader.ChunkEndPosition);
+                        if (Log.IsInformationLevelEnabled())
+                        {
+                            Log.MovingWritercheckpointAsItPointsToTheScavengedChunk(checkpoint, lastChunk.ChunkHeader.ChunkEndPosition);
+                        }
                         Config.WriterCheckpoint.Write(lastChunk.ChunkHeader.ChunkEndPosition);
                         Config.WriterCheckpoint.Flush();
                         Manager.AddNewChunk();
@@ -149,7 +151,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 else
                 {
-                    var lastChunk = TFChunk.TFChunk.FromOngoingFile(chunkFileName, (int) chunkLocalPos, checkSize: false, unbuffered: Config.Unbuffered,
+                    var lastChunk = TFChunk.TFChunk.FromOngoingFile(chunkFileName, (int)chunkLocalPos, checkSize: false, unbuffered: Config.Unbuffered,
                         writethrough: Config.WriteThrough, initialReaderCount: Config.InitialReaderCount,
                         reduceFileCachePressure: Config.ReduceFileCachePressure);
                     Manager.AddChunk(lastChunk);
@@ -179,16 +181,11 @@ namespace EventStore.Core.TransactionLog.Chunks
                         }
                         catch (FileBeingDeletedException exc)
                         {
-                            Log.LogTrace("{exceptionType} exception was thrown while doing background validation of chunk {chunk}.",
-                                exc.GetType().Name, chunk);
-                            Log.LogTrace("That's probably OK, especially if truncation was request at the same time: {e}.",
-                                exc.Message);
+                            if (Log.IsTraceLevelEnabled()) Log.ExceptionWasThrownWhileDoingBackgroundValidationOfChunk(exc, chunk);
                         }
                         catch (Exception exc)
                         {
-                            Log.LogCritical(exc, "Verification of chunk {chunk} failed, terminating server...", chunk);
-                            var msg = string.Format("Verification of chunk {0} failed, terminating server...", chunk);
-                            Application.Exit(ExitCode.Error, msg);
+                            VerificationOfChunkFailed(exc, chunk);
                             return;
                         }
 
@@ -200,10 +197,18 @@ namespace EventStore.Core.TransactionLog.Chunks
             Manager.EnableCaching();
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void VerificationOfChunkFailed(Exception exc, TFChunk.TFChunk chunk)
+        {
+            var msg = string.Format("Verification of chunk {0} failed, terminating server...", chunk);
+            Log.LogCritical(exc, msg);
+            Application.Exit(ExitCode.Error, msg);
+        }
+
         private void ValidateReaderChecksumsMustBeLess(TFChunkDbConfig config)
         {
             var current = config.WriterCheckpoint.Read();
-            foreach (var checkpoint in new[] {config.ChaserCheckpoint, config.EpochCheckpoint})
+            foreach (var checkpoint in new[] { config.ChaserCheckpoint, config.EpochCheckpoint })
             {
                 if (checkpoint.Read() > current)
                     ThrowHelper.ThrowCorruptDatabaseException_ValidateReaderChecksumsMustBeLess(checkpoint.Name);
@@ -263,6 +268,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private void RemoveOldChunksVersions(int lastChunkNum)
         {
+            var traceEnabled = Log.IsTraceLevelEnabled();
             for (int chunkNum = 0; chunkNum <= lastChunkNum;)
             {
                 var chunk = Manager.GetChunk(chunkNum);
@@ -271,7 +277,9 @@ namespace EventStore.Core.TransactionLog.Chunks
                     var files = Config.FileNamingStrategy.GetAllVersionsFor(i);
                     for (int j = (i == chunk.ChunkHeader.ChunkStartNumber ? 1 : 0); j < files.Length; ++j)
                     {
-                        RemoveFile("Removing excess chunk version: {chunk}...", files[j]);
+                        var filename = files[j];
+                        if (traceEnabled) Log.Removing_excess_chunk_version(filename);
+                        RemoveFile(filename);
                     }
                 }
 
@@ -282,22 +290,23 @@ namespace EventStore.Core.TransactionLog.Chunks
         private void CleanUpTempFiles()
         {
             var tempFiles = Config.FileNamingStrategy.GetAllTempFiles();
+            var traceEnabled = Log.IsTraceLevelEnabled();
             foreach (string tempFile in tempFiles)
             {
                 try
                 {
-                    RemoveFile("Deleting temporary file {file}...", tempFile);
+                    if (traceEnabled) Log.Deleting_temporary_file(tempFile);
+                    RemoveFile(tempFile);
                 }
                 catch (Exception exc)
                 {
-                    Log.LogError(exc, "Error while trying to delete remaining temp file: '{tempFile}'.", tempFile);
+                    Log.ErrorWhileTryingToDeleteRemainingTempFile(tempFile, exc);
                 }
             }
         }
 
-        private void RemoveFile(string reason, string file)
+        private void RemoveFile(string file)
         {
-            Log.LogTrace(reason, file);
             File.SetAttributes(file, FileAttributes.Normal);
             File.Delete(file);
         }

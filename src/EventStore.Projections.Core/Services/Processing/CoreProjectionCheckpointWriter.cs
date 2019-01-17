@@ -61,7 +61,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 if (_logger.IsTraceLevelEnabled())
                 {
-                    _logger.LogTrace("Checkpoint has been written for projection {0} at sequence number {1} (current)", _name, firstWrittenEventNumber);
+                    _logger.CheckpointHasBeenWrittenForProjection(_name, firstWrittenEventNumber);
                 }
                 _lastWrittenCheckpointEventNumber = firstWrittenEventNumber;
 
@@ -70,11 +70,9 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             else
             {
-                var infoEnabled = _logger.IsInformationLevelEnabled();
-                if (infoEnabled)
+                if (_logger.IsInformationLevelEnabled())
                 {
-                    _logger.LogInformation("Failed to write projection checkpoint to stream {0}. Error: {1}",
-                        eventStreamId, Enum.GetName(typeof(OperationResult), operationResult));
+                    _logger.FailedToWriteProjectionCheckpointToStream(eventStreamId, operationResult);
                 }
                 switch (operationResult)
                 {
@@ -104,8 +102,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (_logger.IsTraceLevelEnabled())
             {
-                _logger.LogTrace(
-                    "Writing checkpoint for {0} at {1} with expected version number {2}", _name, _requestedCheckpointPosition, _lastWrittenCheckpointEventNumber);
+                _logger.WritingCheckpointForAtWithExpectedVersionNumber(_name, _requestedCheckpointPosition, _lastWrittenCheckpointEventNumber);
             }
             if (_lastWrittenCheckpointEventNumber == ExpectedVersion.NoStream)
                 PublishWriteStreamMetadata();

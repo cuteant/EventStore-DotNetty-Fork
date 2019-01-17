@@ -133,10 +133,9 @@ namespace EventStore.Core.Services.Replication
                 if (!_subscriptions.TryAdd(subscription.SubscriptionId, subscription))
                 {
                     _subscriptions.TryGetValue(subscription.SubscriptionId, out ReplicaSubscription existingSubscr);
-                    Log.LogError("There is already a subscription with SubscriptionID {0:B}: {1}.", subscription.SubscriptionId, existingSubscr);
-                    Log.LogError("Subscription we tried to add: {0}.", existingSubscr);
-                    subscription.SendBadRequestAndClose(message.CorrelationId, string.Format("There is already a subscription with SubscriptionID {0:B}: {1}.\nSubscription we tried to add: {2}",
-                                            subscription.SubscriptionId, existingSubscr, subscription));
+                    Log.ThereIsAlreadyASubscriptionWithSubscriptionid(subscription.SubscriptionId, existingSubscr);
+                    subscription.SendBadRequestAndClose(message.CorrelationId,
+                        $"There is already a subscription with SubscriptionID {subscription.SubscriptionId:B}: {existingSubscr}.\nSubscription we tried to add: {subscription}");
                     subscription.Dispose();
                 }
             }
@@ -175,12 +174,7 @@ namespace EventStore.Core.Services.Replication
             try
             {
                 var epochs = lastEpochs ?? new Epoch[0];
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation(string.Format("SUBSCRIBE REQUEST from [{0},C:{1:B},S:{2:B},{3}(0x{3:X}),{4}]...",
-                             replica.ReplicaEndPoint, replica.ConnectionId, replica.SubscriptionId, logPosition,
-                             string.Join(", ", epochs.Select(x => EpochRecordExtensions.AsString((Epoch)x)))));
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.SubscribeRequestFrom(replica, logPosition, epochs); }
 
                 var epochCorrectedLogPos = GetValidLogPosition(logPosition, epochs, replica.ReplicaEndPoint, replica.SubscriptionId);
                 var subscriptionPos = SetSubscriptionPosition(replica, epochCorrectedLogPos, chunkId,
@@ -190,8 +184,8 @@ namespace EventStore.Core.Services.Replication
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception while subscribing replica. Connection will be dropped.");
-                replica.SendBadRequestAndClose(correlationId, string.Format("Exception while subscribing replica. Connection will be dropped. Error: {0}", exc.Message));
+                Log.ExceptionWhileSubscribingReplicaConnectionWillBeDropped(exc);
+                replica.SendBadRequestAndClose(correlationId, $"Exception while subscribing replica. Connection will be dropped. Error: {exc.Message}");
                 return false;
             }
         }
@@ -222,10 +216,7 @@ namespace EventStore.Core.Services.Replication
             }
             if (commonEpoch == null)
             {
-                Log.LogError(string.Format("No common epoch found for replica [{0},S{1},{2}(0x{2:X}),{3}]. Subscribing at 0. Master LogPosition: {4} (0x{4:X}), known epochs: {5}.",
-                          replicaEndPoint, subscriptionId, logPosition,
-                          string.Join(", ", epochs.Select(x => x.AsString())),
-                          masterCheckpoint, string.Join(", ", _epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString()))));
+                Log.NoCommonEpochFoundForReplica(replicaEndPoint, subscriptionId, logPosition, epochs, masterCheckpoint, _epochManager);
                 return 0;
             }
 
@@ -310,13 +301,8 @@ namespace EventStore.Core.Services.Replication
                     var chunkStartPos = chunk.ChunkHeader.ChunkStartPosition;
                     if (verbose && Log.IsInformationLevelEnabled())
                     {
-                        Log.LogInformation(string.Format("Subscribed replica [{0}, S:{1}] for raw send at {2} (0x{2:X}) (requested {3} (0x{3:X})).",
-                                 sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos, logPosition));
-                        if (chunkStartPos != logPosition)
-                        {
-                            Log.LogInformation(string.Format("Forcing replica [{0}, S:{1}] to recreate chunk from position {2} (0x{2:X})...",
-                                     sub.ReplicaEndPoint, sub.SubscriptionId, chunkStartPos));
-                        }
+                        Log.SubscribedReplicaForRawSendAt(sub, chunkStartPos, logPosition);
+                        if (chunkStartPos != logPosition) { Log.ForcingReplicaToRecreateChunkFromPosition(sub, chunkStartPos); }
                     }
 
                     sub.LogPosition = chunkStartPos;
@@ -334,10 +320,7 @@ namespace EventStore.Core.Services.Replication
                 }
                 else
                 {
-                    if (verbose && Log.IsInformationLevelEnabled())
-                    {
-                        Log.LogInformation(string.Format("Subscribed replica [{0},S:{1}] for data send at {2} (0x{2:X}).", sub.ReplicaEndPoint, sub.SubscriptionId, logPosition));
-                    }
+                    if (verbose && Log.IsInformationLevelEnabled()) { Log.SubscribedReplicaForDataSendAt(sub, logPosition); }
 
                     sub.LogPosition = logPosition;
                     sub.RawSend = false;
@@ -396,7 +379,7 @@ namespace EventStore.Core.Services.Replication
                     }
                     catch (Exception exc)
                     {
-                        if (Log.IsInformationLevelEnabled()) Log.LogInformation(exc, "Error during master replication iteration.");
+                        if (Log.IsInformationLevelEnabled()) Log.ErrorDuringMasterReplicationIteration(exc);
 #if DEBUG
                         throw;
 #endif
@@ -471,7 +454,7 @@ namespace EventStore.Core.Services.Replication
                 }
                 catch (Exception exc)
                 {
-                    if (Log.IsInformationLevelEnabled()) Log.LogInformation(exc, "Error during replication send to replica: {0}.", subscription);
+                    if (Log.IsInformationLevelEnabled()) Log.ErrorDuringReplicationSendToReplica(subscription, exc);
                 }
             }
             return dataFound;
@@ -663,18 +646,18 @@ namespace EventStore.Core.Services.Replication
             return _queueStats.GetStatistics(_subscriptions.Count);
         }
 
-        private enum ReplicaState
+        internal enum ReplicaState
         {
             CatchingUp,
             Clone,
             Slave
         }
 
-        private class SendReplicationData
+        private sealed class SendReplicationData
         {
         }
 
-        private class ReplicaSubscription : IDisposable
+        internal sealed class ReplicaSubscription : IDisposable
         {
             public readonly byte[] DataBuffer = new byte[BulkSize];
 

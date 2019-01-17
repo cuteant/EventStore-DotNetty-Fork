@@ -16,8 +16,8 @@ namespace EventStore.Projections.Core.Services.Processing
             int phase, string[] eventTypes, bool includeStreamDeletedNotification = false)
             : base(phase)
         {
-            if (eventTypes == null) throw new ArgumentNullException("eventTypes");
-            if (eventTypes.Length == 0) throw new ArgumentException("eventTypes");
+            if (null == eventTypes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventTypes); }
+            if (eventTypes.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventTypes); }
             _eventTypes = new HashSet<string>(eventTypes, StringComparer.Ordinal);
             if (includeStreamDeletedNotification)
                 _eventTypes.Add("$deleted");

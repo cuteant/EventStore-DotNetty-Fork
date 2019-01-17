@@ -88,9 +88,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
             }
             catch (Exception ex)
             {
-                _log.LogTrace(
-                    "Could not create performance counter: category='{0}', counter='{1}', instance='{2}'. Error: {3}",
-                    category, counter, instance ?? string.Empty, ex.Message);
+                if (_log.IsTraceLevelEnabled()) _log.CouldNotCreatePerformanceCounter(category, counter, instance, ex);
                 return null;
             }
         }
@@ -130,7 +128,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
             }
             catch (InvalidOperationException)
             {
-                _log.LogTrace("Unable to get performance counter category '{0}' instances.", categoryName);
+                if (_log.IsTraceLevelEnabled()) _log.UnableToGetPerformanceCounterCategoryInstances(categoryName);
             }
 
             return null;

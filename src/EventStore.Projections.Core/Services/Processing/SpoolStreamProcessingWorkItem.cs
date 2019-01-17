@@ -41,10 +41,9 @@ namespace EventStore.Projections.Core.Services.Processing
             : base(Guid.NewGuid())
         {
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (resultWriter == null) throw new ArgumentNullException("resultWriter");
-            if (slaves == null) throw new ArgumentNullException("slaves");
-            if (spoolProcessingResponseDispatcher == null)
-                throw new ArgumentNullException("spoolProcessingResponseDispatcher");
+            if (null == resultWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resultWriter); }
+            if (null == slaves) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.slaves); }
+            if (null == spoolProcessingResponseDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.spoolProcessingResponseDispatcher); }
             _container = container;
             _publisher = publisher;
             _resultWriter = resultWriter;

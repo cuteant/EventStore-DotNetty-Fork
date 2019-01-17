@@ -14,7 +14,7 @@ namespace EventStore.ClientAPI
     #region --- class EventStoreCatchUpSubscription ---
 
     /// <summary>Base class representing catch-up subscriptions.</summary>
-    public abstract class EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>
+    public abstract partial class EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>
       where TSubscription : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>
       where TResolvedEvent : IResolvedEvent//, new()
     {
@@ -210,7 +210,7 @@ namespace EventStore.ClientAPI
 
         internal Task StartAsync()
         {
-            if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: starting...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+            if (Verbose) LogCatchupSubscriptionStarting();
             return RunSubscriptionAsync();
         }
 
@@ -224,7 +224,7 @@ namespace EventStore.ClientAPI
         public void Stop(TimeSpan timeout)
         {
             Stop();
-            if (Verbose) Log.LogDebug("Waiting on subscription {0} to stop", SubscriptionName);
+            if (Verbose) LogWaitingOnSubscriptionToStop();
             if (!_stopped.Wait(timeout))
             {
                 CoreThrowHelper.ThrowTimeoutException_CouldNotStopSubscriptionsInTime(GetType());
@@ -248,11 +248,7 @@ namespace EventStore.ClientAPI
         /// <summary>Attempts to stop the subscription without blocking for completion of stop.</summary>
         public void Stop()
         {
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: requesting stop...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
-                Log.LogDebug("Catch-up Subscription {0} to {1}: unhooking from connection.Connected.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
-            }
+            if (Verbose) { LogCatchupSubscriptionRequestingStop(); }
             _connection.Connected -= OnReconnect;
 
             ShouldStop = true;
@@ -265,11 +261,7 @@ namespace EventStore.ClientAPI
 
         private void OnReconnect(object sender, ClientConnectionEventArgs clientConnectionEventArgs)
         {
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: recovering after reconnection.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
-                Log.LogDebug("Catch-up Subscription {0} to {1}: unhooking from connection.Connected.", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
-            }
+            if (Verbose) { LogCatchupSubscriptionRecoveringAfterReconnection(); }
             _connection.Connected -= OnReconnect;
             RunSubscriptionAsync();
         }
@@ -286,7 +278,7 @@ namespace EventStore.ClientAPI
 
         private async Task LoadHistoricalEventsAsync()
         {
-            if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: running...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+            if (Verbose) LogWaitingOnSubscriptionRunning();
 
             _stopped.Reset();
             var link = Interlocked.Exchange(ref _liveLinks, null);
@@ -301,7 +293,7 @@ namespace EventStore.ClientAPI
 
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: pulling events...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) LogWaitingOnSubscriptionPullingEvents();
 
                 try
                 {
@@ -334,7 +326,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: pulling events (if left)...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) LogWaitingOnSubscriptionPullingEventsIfLeft();
 
                 await ReadEventsTillAsync(_settings.ResolveLinkTos, _userCredentials, _subscription.LastCommitPosition, _subscription.LastEventNumber).ConfigureAwait(false);
                 StartLiveProcessing();
@@ -365,11 +357,11 @@ namespace EventStore.ClientAPI
                 return;
             }
 
-            if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: processing live events...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+            if (Verbose) LogProcessingLiveEvents();
 
             _liveProcessingStarted?.Invoke(this as TSubscription);
 
-            if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: hooking to connection.Connected", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+            if (Verbose) LogHookingToConnectionConnected();
             _connection.Connected += OnReconnect;
 
             var links = new CompositeDisposable();
@@ -387,13 +379,7 @@ namespace EventStore.ClientAPI
 
         protected async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, TResolvedEvent e)
         {
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: event appeared ({2}, {3}, {4} @ {5}).",
-                          SubscriptionName,
-                          IsSubscribedToAll ? "<all>" : StreamId,
-                          e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalPosition);
-            }
+            if (Verbose) { LogEventAppeared(e); }
 
             if (InputCount >= MaxPushQueueSize)
             {
@@ -454,7 +440,7 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+                if (Verbose) LogExceptionOccurredInSubscription(exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
         }
@@ -480,7 +466,7 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+                if (Verbose) LogExceptionOccurredInSubscription(exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
         }
@@ -498,7 +484,7 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+                if (Verbose) LogExceptionOccurredInSubscription(exc);
                 Interlocked.Exchange(ref _lastHistoricalEventError, exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
@@ -517,7 +503,7 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1} Exception occurred in subscription {1}", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, exc);
+                if (Verbose) LogExceptionOccurredInSubscription(exc);
                 Interlocked.Exchange(ref _lastHistoricalEventError, exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
@@ -531,13 +517,7 @@ namespace EventStore.ClientAPI
         {
             if (Interlocked.CompareExchange(ref _isDropped, c_on, c_off) == c_off)
             {
-                if (Verbose)
-                {
-                    Log.LogDebug("Catch-up Subscription {0} to {1}: dropping subscription, reason: {2} {3}.",
-                              SubscriptionName,
-                              IsSubscribedToAll ? "<all>" : StreamId,
-                              reason, error == null ? string.Empty : error.ToString());
-                }
+                if (Verbose) { LogDroppingSubscription(reason, error); }
 
                 _subscription?.Unsubscribe();
                 _subscriptionDropped?.Invoke(this as TSubscription, reason, error);
@@ -569,7 +549,7 @@ namespace EventStore.ClientAPI
     #region --- class EventStoreAllCatchUpSubscription ---
 
     /// <summary>A catch-up subscription to all events in Event Store.</summary>
-    public class EventStoreAllCatchUpSubscription : EventStoreCatchUpSubscription<EventStoreAllCatchUpSubscription, ResolvedEvent>
+    public partial class EventStoreAllCatchUpSubscription : EventStoreCatchUpSubscription<EventStoreAllCatchUpSubscription, ResolvedEvent>
     {
         static EventStoreAllCatchUpSubscription()
         {
@@ -643,11 +623,7 @@ namespace EventStore.ClientAPI
         private async Task<bool> ReadEventsCallbackAsync(AllEventsSlice slice, long? lastCommitPosition)
         {
             bool shouldStopOrDone = ShouldStop || await ProcessEventsAsync(lastCommitPosition, slice).ConfigureAwait(false);
-            if (shouldStopOrDone && Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadPosition = {2}.",
-                    SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadPosition);
-            }
+            if (shouldStopOrDone && Verbose) { LogFinishedReadingEvents(); }
             return shouldStopOrDone;
         }
 
@@ -655,7 +631,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
                 var subscription = await _innerConnection.SubscribeToAllAsync(
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -737,14 +713,7 @@ namespace EventStore.ClientAPI
                 _lastProcessedPosition = e.OriginalPosition.Value;
                 processed = true;
             }
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
-                            SubscriptionName,
-                            IsSubscribedToAll ? "<all>" : StreamId,
-                            processed ? "processed" : "skipping",
-                            e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
-            }
+            if (Verbose) { LogProcessEvent(processed, e); }
         }
 
         /// <inheritdoc />
@@ -765,14 +734,7 @@ namespace EventStore.ClientAPI
                 _lastProcessedPosition = e.OriginalPosition.Value;
                 processed = true;
             }
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
-                            SubscriptionName,
-                            IsSubscribedToAll ? "<all>" : StreamId,
-                            processed ? "processed" : "skipping",
-                            e.OriginalEvent.EventStreamId, e.OriginalEvent.EventNumber, e.OriginalEvent.EventType, e.OriginalPosition);
-            }
+            if (Verbose) { LogProcessEvent(processed, e); }
         }
     }
 
@@ -781,7 +743,7 @@ namespace EventStore.ClientAPI
     #region --- class EventStoreStreamCatchUpSubscriptionBase ---
 
     /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
-    public abstract class EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent> : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>, IStreamCheckpointer
+    public abstract partial class EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent> : EventStoreCatchUpSubscription<TSubscription, TResolvedEvent>, IStreamCheckpointer
       where TSubscription : EventStoreStreamCatchUpSubscriptionBase<TSubscription, TStreamEventsSlice, TResolvedEvent>
       where TStreamEventsSlice : IStreamEventsSlice<TResolvedEvent>
       where TResolvedEvent : IResolvedEvent//, new()
@@ -829,11 +791,7 @@ namespace EventStore.ClientAPI
         protected async Task<bool> ReadEventsCallbackAsync(TStreamEventsSlice slice, long? lastEventNumber)
         {
             bool shouldStopOrDone = ShouldStop || await ProcessEventsAsync(lastEventNumber, slice).ConfigureAwait(false);
-            if (shouldStopOrDone && Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: finished reading events, nextReadEventNumber = {2}.",
-                    SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId, _nextReadEventNumber);
-            }
+            if (shouldStopOrDone && Verbose) { LogFinishedReadingEvents(); }
             return shouldStopOrDone;
         }
 
@@ -915,13 +873,7 @@ namespace EventStore.ClientAPI
                 Interlocked.Exchange(ref _lastProcessedEventNumber, e.OriginalEventNumber);
                 processed = true;
             }
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
-                            SubscriptionName,
-                            IsSubscribedToAll ? "<all>" : StreamId, processed ? "processed" : "skipping",
-                            e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalEventNumber);
-            }
+            if (Verbose) { LogProcessEvent(processed, e); }
         }
 
         /// <inheritdoc />
@@ -943,13 +895,7 @@ namespace EventStore.ClientAPI
                 Interlocked.Exchange(ref _lastProcessedEventNumber, e.OriginalEventNumber);
                 processed = true;
             }
-            if (Verbose)
-            {
-                Log.LogDebug("Catch-up Subscription {0} to {1}: {2} event ({3}, {4}, {5} @ {6}).",
-                            SubscriptionName,
-                            IsSubscribedToAll ? "<all>" : StreamId, processed ? "processed" : "skipping",
-                            e.OriginalStreamId, e.OriginalEventNumber, e.OriginalEventType, e.OriginalEventNumber);
-            }
+            if (Verbose) { LogProcessEvent(processed, e); }
         }
     }
 
@@ -1012,7 +958,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
                 var subscription = await _innerConnection.SubscribeToStreamAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -1089,7 +1035,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
                 var subscription = await _innerConnection.VolatileSubscribeAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -1166,7 +1112,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
                 var subscription = await _innerConnection.InternalVolatileSubscribeAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -1251,7 +1197,7 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
-                if (Verbose) Log.LogDebug("Catch-up Subscription {0} to {1}: subscribing...", SubscriptionName, IsSubscribedToAll ? "<all>" : StreamId);
+                if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
                 var subscription = string.IsNullOrWhiteSpace(_topic)
                     ? await _innerConnection.VolatileSubscribeAsync<TEvent>(

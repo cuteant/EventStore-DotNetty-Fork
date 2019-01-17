@@ -55,18 +55,12 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
                 Interlocked.Exchange(ref _connection, conn);
 
-                if (_log.IsDebugLevelEnabled())
-                {
-                    _log.LogDebug("TcpPackageConnection: connected to [{0}, L{1}, {2:B}].", conn.RemoteEndPoint, conn.LocalEndPoint, ConnectionId);
-                }
+                if (_log.IsDebugLevelEnabled()) { _log.ConnectToEstablished(conn); }
                 _connEventHandler.OnConnectionEstablished(this);
             }
             catch (InvalidConnectionException exc)
             {
-                if (_log.IsDebugLevelEnabled())
-                {
-                    _log.LogDebug(exc, "TcpPackageConnection: connection to [{0} failed. Error: ", _remoteEndPoint);
-                }
+                if (_log.IsDebugLevelEnabled()) { _log.ConnectToFailed(exc, _remoteEndPoint); }
                 Interlocked.Exchange(ref _isClosed, 1);
                 _connEventHandler.OnConnectionClosed(this, DisassociateInfo.InvalidConnection);
             }
@@ -75,11 +69,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
         private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo error)
         {
             if (Interlocked.Exchange(ref _isClosed, 1) == 1) { return; }
-            if (_log.IsDebugLevelEnabled())
-            {
-                _log.LogDebug("TcpPackageConnection: connection [{0}, L{1}, {2:B}] was closed {3}", _connection.RemoteEndPoint, _connection.LocalEndPoint,
-                        ConnectionId, error == DisassociateInfo.Success ? "cleanly." : "with error: " + error + ".");
-            }
+            if (_log.IsDebugLevelEnabled()) { _log.ConnectionWasClosed(connection, error); }
             _connEventHandler.OnConnectionClosed(this, error);
         }
 
@@ -91,12 +81,9 @@ namespace EventStore.ClientAPI.Transport.Tcp
         void ITcpPackageListener.HandleBadRequest(in Disassociated disassociated)
         {
             _connection.Close(disassociated);
-
-            var message = string.Format("TcpPackageConnection: [{0}, L{1}, {2}] ERROR for {3}. Connection will be closed.",
-                                        RemoteEndPoint, LocalEndPoint, ConnectionId,
-                                        "<invalid package>");
             _connEventHandler.OnError(this, disassociated.Error);
-            if (_log.IsDebugLevelEnabled()) _log.LogDebug(disassociated.Error, message);
+
+            if (_log.IsDebugLevelEnabled()) _log.ConnectionWillBeClosed(disassociated, RemoteEndPoint, LocalEndPoint, ConnectionId);
         }
 
         public void EnqueueSend(TcpPackage package)

@@ -54,7 +54,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         public void Init(long buildToPosition)
         {
             var infoEnabled = Log.IsInformationLevelEnabled();
-            if (infoEnabled) Log.LogInformation("TableIndex initialization...");
+            if (infoEnabled) Log.TableIndexInitialization();
 
             _tableIndex.Initialize(buildToPosition);
             _persistedPreparePos = _tableIndex.PrepareCheckpoint;
@@ -70,7 +70,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var lastTime = DateTime.UtcNow;
             var reportPeriod = TimeSpan.FromSeconds(5);
 
-            if (infoEnabled) Log.LogInformation("ReadIndex building...");
+            if (infoEnabled) Log.ReadIndexBuilding();
 
             _indexRebuild = true;
             var debugEnabled = Log.IsDebugLevelEnabled();
@@ -124,15 +124,11 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     processed += 1;
                     if (DateTime.UtcNow - lastTime > reportPeriod || processed % 100000 == 0)
                     {
-                        if (debugEnabled)
-                        {
-                            Log.LogDebug("ReadIndex Rebuilding: processed {0} records ({1:0.0}%).",
-                                    processed, (result.RecordPostPosition - startPosition) * 100.0 / (buildToPosition - startPosition));
-                        }
+                        if (debugEnabled) { Log.ReadIndexRebuilding(processed, result.RecordPostPosition, startPosition, buildToPosition); }
                         lastTime = DateTime.UtcNow;
                     }
                 }
-                if (debugEnabled) Log.LogDebug("ReadIndex rebuilding done: total processed {0} records, time elapsed: {1}.", processed, DateTime.UtcNow - startTime);
+                if (debugEnabled) Log.ReadIndex_rebuilding_done(processed, startTime);
                 _bus.Publish(new StorageMessage.TfEofAtNonCommitRecord());
                 _backend.SetSystemSettings(GetSystemSettings());
             }
@@ -148,7 +144,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
             catch (TimeoutException exc)
             {
-                Log.LogError(exc, "Timeout exception when trying to close TableIndex.");
+                Log.TimeoutExceptionWhenTryingToCloseTableindex(exc);
                 throw;
             }
         }
@@ -161,7 +157,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (commit.LogPosition < lastCommitPosition || (commit.LogPosition == lastCommitPosition && !_indexRebuild))
                 return eventNumber;
 
-            foreach(var prepare in GetTransactionPrepares(commit.TransactionPosition, commit.LogPosition))
+            foreach (var prepare in GetTransactionPrepares(commit.TransactionPosition, commit.LogPosition))
             {
                 if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data))
                     continue;
@@ -419,7 +415,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error deserializing SystemSettings record.");
+                Log.ErrorDeserializingSystemsettingsRecord(exc);
             }
             return null;
         }

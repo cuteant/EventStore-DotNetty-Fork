@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -74,7 +75,7 @@ namespace EventStore.Core.Services.VNode
             _subSystems = subSystems;
             if (vnodeSettings.ClusterNodeCount == 1)
             {
-                _serviceShutdownsToExpect =   1 /* StorageChaser */
+                _serviceShutdownsToExpect = 1 /* StorageChaser */
                                             + 1 /* StorageReader */
                                             + 1 /* StorageWriter */
                                             + 1 /* IndexCommitterService */
@@ -290,20 +291,20 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.SystemInit message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] SYSTEM INIT...", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeSystemInit(_nodeInfo);
             _outputBus.Publish(message);
         }
 
         private void Handle(SystemMessage.SystemStart message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] SYSTEM START...", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeSystemStart(_nodeInfo);
             _outputBus.Publish(message);
             _fsm.Handle(new SystemMessage.BecomeUnknown(Guid.NewGuid()));
         }
 
         private void Handle(SystemMessage.BecomeUnknown message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS UNKNOWN...", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeIsUnknown(_nodeInfo);
 
             _state = VNodeState.Unknown;
             _master = null;
@@ -314,10 +315,9 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomePreReplica message)
         {
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId) return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] PRE-REPLICA STATE, WAITING FOR CHASER TO CATCH UP... MASTER IS [{1},{2:B}]",
-                     _nodeInfo.InternalHttp, _master.InternalHttp, _master.InstanceId);
+            if (Log.IsInformationLevelEnabled()) Log.PreReplicaStateWaitingForChaserToCatchUp(_nodeInfo, _master);
             _state = VNodeState.PreReplica;
             _outputBus.Publish(message);
             _mainQueue.Publish(new SystemMessage.WaitForChaserToCatchUp(_stateCorrelationId, TimeSpan.Zero));
@@ -326,11 +326,9 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomeCatchingUp message)
         {
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId)
-                return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS CATCHING UP... MASTER IS [{1},{2:B}]",
-                     _nodeInfo.InternalHttp, _master.InternalHttp, _master.InstanceId);
+            if (Log.IsInformationLevelEnabled()) Log.VnodeIsCatchingUpMasterIs(_nodeInfo, _master);
             _state = VNodeState.CatchingUp;
             _outputBus.Publish(message);
         }
@@ -338,11 +336,9 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomeClone message)
         {
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId)
-                return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS CLONE... MASTER IS [{1},{2:B}]",
-                     _nodeInfo.InternalHttp, _master.InternalHttp, _master.InstanceId);
+            if (Log.IsInformationLevelEnabled()) Log.VnodeIsCloneMasterIs(_nodeInfo, _master);
             _state = VNodeState.Clone;
             _outputBus.Publish(message);
         }
@@ -350,11 +346,9 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomeSlave message)
         {
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId)
-                return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS SLAVE... MASTER IS [{1},{2:B}]",
-                     _nodeInfo.InternalHttp, _master.InternalHttp, _master.InstanceId);
+            if (Log.IsInformationLevelEnabled()) Log.VnodeIsSlaveMasterIs(_nodeInfo, _master);
             _state = VNodeState.Slave;
             _outputBus.Publish(message);
         }
@@ -362,10 +356,9 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomePreMaster message)
         {
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId)
-                return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] PRE-MASTER STATE, WAITING FOR CHASER TO CATCH UP...", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.PreMasterStateWaitingForChaserToCatchUp(_nodeInfo);
             _state = VNodeState.PreMaster;
             _outputBus.Publish(message);
             _mainQueue.Publish(new SystemMessage.WaitForChaserToCatchUp(_stateCorrelationId, TimeSpan.Zero));
@@ -375,20 +368,18 @@ namespace EventStore.Core.Services.VNode
         {
             if (_state == VNodeState.Master) ThrowHelper.ThrowException(ExceptionResource.We_should_not_BecomeMaster_twice_in_a_row);
             if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
-            if (_stateCorrelationId != message.CorrelationId)
-                return;
+            if (_stateCorrelationId != message.CorrelationId) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS MASTER... SPARTA!", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeIsMasterSparta(_nodeInfo);
             _state = VNodeState.Master;
             _outputBus.Publish(message);
         }
 
         private void Handle(SystemMessage.BecomeShuttingDown message)
         {
-            if (_state == VNodeState.ShuttingDown || _state == VNodeState.Shutdown)
-                return;
+            if (_state == VNodeState.ShuttingDown || _state == VNodeState.Shutdown) { return; }
 
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS SHUTTING DOWN...", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeIsShuttingDown(_nodeInfo);
             _master = null;
             _stateCorrelationId = message.CorrelationId;
             _exitProcessOnShutdown = message.ExitProcess;
@@ -399,7 +390,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeShutdown message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] IS SHUT DOWN.", _nodeInfo.InternalHttp);
+            if (Log.IsInformationLevelEnabled()) Log.VNodeIsShutDown(_nodeInfo);
             _state = VNodeState.Shutdown;
             try
             {
@@ -407,7 +398,7 @@ namespace EventStore.Core.Services.VNode
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error when publishing {0}.", message);
+                Log.ErrorWhenPublishing(message, exc);
             }
             try
             {
@@ -416,7 +407,7 @@ namespace EventStore.Core.Services.VNode
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Error when stopping workers/main queue.");
+                Log.ErrorWhenStoppingWorkersOrMainQueue(exc);
             }
             if (_exitProcessOnShutdown)
             {
@@ -429,7 +420,8 @@ namespace EventStore.Core.Services.VNode
             if (_master != null && _master.InstanceId == message.Master.InstanceId)
             {
                 //if the master hasn't changed, we skip state changes through PreMaster or PreReplica
-                if (_master.InstanceId == _nodeInfo.InstanceId && _state == VNodeState.Master){
+                if (_master.InstanceId == _nodeInfo.InstanceId && _state == VNodeState.Master)
+                {
                     //transitioning from master to master, we just write a new epoch
                     _fsm.Handle(new SystemMessage.WriteEpoch());
                 }
@@ -448,7 +440,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.ServiceInitialized message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] Service '{1}' initialized.", _nodeInfo.InternalHttp, message.ServiceName);
+            if (Log.IsInformationLevelEnabled()) Log.ServiceInitializ1ed(_nodeInfo, message);
             _serviceInitsToExpect -= 1;
             _outputBus.Publish(message);
             if (_serviceInitsToExpect == 0)
@@ -457,8 +449,10 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(UserManagementMessage.UserManagementServiceInitialized message)
         {
-            if (_subSystems != null){
-                foreach (var subsystem in _subSystems){
+            if (_subSystems != null)
+            {
+                foreach (var subsystem in _subSystems)
+                {
                     _node.AddTasks(subsystem.Start());
                 }
             }
@@ -480,7 +474,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.SubSystemInitialized message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] Sub System '{1}' initialized.", _nodeInfo.InternalHttp, message.SubSystemName);
+            if (Log.IsInformationLevelEnabled()) Log.SubSystemInitialized(_nodeInfo, message);
             _subSystemInitsToExpect -= 1;
             if (_subSystemInitsToExpect == 0)
             {
@@ -696,9 +690,7 @@ namespace EventStore.Core.Services.VNode
             {
                 if (Log.IsDebugLevelEnabled())
                 {
-                    Log.LogDebug("There are FEW MASTERS according to gossip, need to start elections. MASTER: [{0}]", _master);
-                    Log.LogDebug("GOSSIP:");
-                    Log.LogDebug("{0}", message.ClusterInfo);
+                    Log.ThereAreFewMastersAccordingToGossipNeedToStartElections(_master, message);
                 }
                 _mainQueue.Publish(new ElectionMessage.StartElections());
             }
@@ -712,7 +704,7 @@ namespace EventStore.Core.Services.VNode
             var master = message.ClusterInfo.Members.FirstOrDefault(x => x.InstanceId == _master.InstanceId);
             if (master == null || !master.IsAlive)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("There is NO MASTER or MASTER is DEAD according to GOSSIP. Starting new elections. MASTER: [{0}].", _master);
+                if (Log.IsDebugLevelEnabled()) Log.ThereIsNoMasterOrMasterIsDeadAccordingToGossip(_master);
                 _mainQueue.Publish(new ElectionMessage.StartElections());
             }
 
@@ -721,7 +713,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.NoQuorumMessage message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("=== NO QUORUM EMERGED WITHIN TIMEOUT... RETIRING...");
+            if (Log.IsInformationLevelEnabled()) Log.NoQuorumEmergedWithinTimeoutRetiring();
             _fsm.Handle(new SystemMessage.BecomeUnknown(Guid.NewGuid()));
         }
 
@@ -800,13 +792,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (IsLegitimateReplicationMessage(message))
             {
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation("========== [{0}] SLAVE ASSIGNMENT RECEIVED FROM [{1},{2},{3:B}].",
-                           _nodeInfo.InternalHttp,
-                           _master.InternalTcp, _master.InternalSecureTcp == null ? "n/a" : _master.InternalSecureTcp.ToString(),
-                           message.MasterId);
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.SlaveAssignmentReceivedFrom(_nodeInfo, _master, message.MasterId); }
                 _outputBus.Publish(message);
                 _fsm.Handle(new SystemMessage.BecomeSlave(_stateCorrelationId, _master));
             }
@@ -816,13 +802,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (IsLegitimateReplicationMessage(message))
             {
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation("========== [{0}] CLONE ASSIGNMENT RECEIVED FROM [{1},{2},{3:B}].",
-                           _nodeInfo.InternalHttp,
-                           _master.InternalTcp, _master.InternalSecureTcp == null ? "n/a" : _master.InternalSecureTcp.ToString(),
-                           message.MasterId);
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.CloneAssignmentReceivedFrom(_nodeInfo, _master, message.MasterId); }
                 _outputBus.Publish(message);
                 _fsm.Handle(new SystemMessage.BecomeClone(_stateCorrelationId, _master));
             }
@@ -833,23 +813,25 @@ namespace EventStore.Core.Services.VNode
             if (message.SubscriptionId == Guid.Empty) ThrowHelper.ThrowException(ExceptionResource.IReplicationMessage_with_empty_SubscriptionId_provided);
             if (message.SubscriptionId != _subscriptionId)
             {
-                if (Log.IsTraceLevelEnabled())
-                {
-                    Log.LogTrace("Ignoring {0} because SubscriptionId {1:B} is wrong. Current SubscriptionId is {2:B}.",
-                              message.GetType().Name, message.SubscriptionId, _subscriptionId);
-                }
+                if (Log.IsTraceLevelEnabled()) { Log.IgnoringBecauseSubscriptionIdIsWrong(message, _subscriptionId); }
                 return false;
             }
             if (_master == null || _master.InstanceId != message.MasterId)
             {
-                var msg = string.Format("{0} message passed SubscriptionId check, but master is either null or wrong. "
-                                        + "Message.Master: [{1:B}], VNode Master: {2}.",
-                                        message.GetType().Name, message.MasterId, _master);
-                Log.LogCritical(msg);
-                Application.Exit(ExitCode.Error, msg);
+                FailedWhenMasterIsNull(message);
                 return false;
             }
             return true;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void FailedWhenMasterIsNull(ReplicationMessage.IReplicationMessage message)
+        {
+            var msg = string.Format("{0} message passed SubscriptionId check, but master is either null or wrong. "
+                                    + "Message.Master: [{1:B}], VNode Master: {2}.",
+                                    message.GetType().Name, message.MasterId, _master);
+            Log.LogCritical(msg);
+            Application.Exit(ExitCode.Error, msg);
         }
 
         private void Handle(ClientMessage.RequestShutdown message)
@@ -860,11 +842,11 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.ServiceShutdown message)
         {
-            if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] Service '{1}' has shut down.", _nodeInfo.InternalHttp, message.ServiceName);
+            if (Log.IsInformationLevelEnabled()) Log.ServiceHasShutDown(_nodeInfo, message);
             _serviceShutdownsToExpect -= 1;
             if (_serviceShutdownsToExpect == 0)
             {
-                if (Log.IsInformationLevelEnabled()) Log.LogInformation("========== [{0}] All Services Shutdown.", _nodeInfo.InternalHttp);
+                if (Log.IsInformationLevelEnabled()) Log.AllServicesShutdown(_nodeInfo);
                 Shutdown();
             }
             _outputBus.Publish(message);
@@ -874,7 +856,7 @@ namespace EventStore.Core.Services.VNode
         {
             Debug.Assert(_state == VNodeState.ShuttingDown);
 
-            Log.LogError("========== [{0}] Shutdown Timeout.", _nodeInfo.InternalHttp);
+            Log.VNodeShutdownTimeout(_nodeInfo);
             Shutdown();
             _outputBus.Publish(message);
         }

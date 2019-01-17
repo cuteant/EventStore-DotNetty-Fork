@@ -2,10 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using EventStore.ClientAPI.ClientOperations;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
 
@@ -47,7 +45,7 @@ namespace EventStore.ClientAPI.Internal
         }
     }
 
-    internal class OperationsManager
+    internal partial class OperationsManager
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<OperationsManager>();
         private static readonly IComparer<OperationItem> SeqNoComparer = new OperationItemSeqNoComparer();
@@ -56,7 +54,7 @@ namespace EventStore.ClientAPI.Internal
 
         private readonly string _connectionName;
         private readonly ConnectionSettings _settings;
-        private readonly bool verboseLogging;
+        private readonly bool _verboseLogging;
         private readonly Dictionary<Guid, OperationItem> _activeOperations = new Dictionary<Guid, OperationItem>();
         private readonly ConcurrentQueue<OperationItem> _waitingOperations = new ConcurrentQueue<OperationItem>();
         private readonly List<OperationItem> _retryPendingOperations = new List<OperationItem>();
@@ -69,7 +67,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             _connectionName = connectionName;
             _settings = settings;
-            verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
+            _verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
         }
 
         public bool TryGetActiveOperation(Guid correlationId, out OperationItem operation)
@@ -98,7 +96,6 @@ namespace EventStore.ClientAPI.Internal
 
             var retryOperations = new List<OperationItem>();
             var removeOperations = new List<OperationItem>();
-            var debugEnabled = s_logger.IsDebugLevelEnabled();
             foreach (var operation in _activeOperations.Values)
             {
                 if (operation.ConnectionId != connection.ConnectionId)
@@ -107,8 +104,7 @@ namespace EventStore.ClientAPI.Internal
                 }
                 else if (operation.Timeout > TimeSpan.Zero && DateTime.UtcNow - operation.LastUpdated > _settings.OperationTimeout)
                 {
-                    var err = $"EventStoreConnection '{_connectionName}': operation never got response from server.\n UTC now: {DateTime.UtcNow:HH:mm:ss.fff}, operation: {operation}.";
-                    if (debugEnabled) s_logger.LogDebug(err);
+                    if (_verboseLogging) LogOperationNeverGotResponseFromServer(operation);
 
                     if (_settings.FailOnNoServerResponse)
                     {
@@ -139,7 +135,7 @@ namespace EventStore.ClientAPI.Internal
                     var oldCorrId = operation.CorrelationId;
                     operation.CorrelationId = Guid.NewGuid();
                     operation.RetryCount += 1;
-                    LogDebug("retrying, old corrId {0}, operation {1}.", oldCorrId, operation);
+                    if (_verboseLogging) LogRetrying(oldCorrId, operation);
                     ScheduleOperation(operation, connection);
                 }
                 _retryPendingOperations.Clear();
@@ -152,7 +148,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!RemoveOperation(operation)) { return; }
 
-            LogDebug("ScheduleOperationRetry for {0}", operation);
+            if (_verboseLogging) LogScheduleOperationRetryFor(operation);
             if (operation.MaxRetries >= 0 && operation.RetryCount >= operation.MaxRetries)
             {
                 operation.Operation.Fail(CoreThrowHelper.GetRetriesLimitReachedException(operation));
@@ -165,10 +161,10 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!_activeOperations.Remove(operation.CorrelationId))
             {
-                LogDebug("RemoveOperation FAILED for {0}", operation);
+                if (_verboseLogging) LogRemoveOperationFailedFor(operation);
                 return false;
             }
-            LogDebug("RemoveOperation SUCCEEDED for {0}", operation);
+            if (_verboseLogging) LogRemoveOperationSucceededFor(operation);
             _totalOperationCount = _activeOperations.Count + _waitingOperations.Count;
             return true;
         }
@@ -207,8 +203,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (operation.CreatedTime > cutoffDate) { return false; }
 
-            var err = $"EventStoreConnection '{_connectionName}': request expired.\nUTC now: {DateTime.UtcNow:HH:mm:ss.fff}, operation: {operation}.";
-            if (s_logger.IsDebugLevelEnabled()) { s_logger.LogDebug(err); }
+            if (_verboseLogging) { LogRequestExpired(operation); }
             operation.Operation.Fail(CoreThrowHelper.GetOperationExpiredException(_connectionName, operation));
             return true;
         }
@@ -220,13 +215,13 @@ namespace EventStore.ClientAPI.Internal
             _activeOperations.Add(operation.CorrelationId, operation);
 
             var package = operation.Operation.CreateNetworkPackage(operation.CorrelationId);
-            LogDebug("ExecuteOperation package {0}, {1}, {2}.", package.Command, package.CorrelationId, operation);
+            if (_verboseLogging) LogExecuteOperationPackage(package, operation);
             connection.EnqueueSend(package);
         }
 
         public void EnqueueOperation(OperationItem operation)
         {
-            LogDebug("EnqueueOperation WAITING for {0}.", operation);
+            if (_verboseLogging) LogEnqueueOperationWaiting(operation);
             _waitingOperations.Enqueue(operation);
         }
 
@@ -237,13 +232,9 @@ namespace EventStore.ClientAPI.Internal
             TryScheduleWaitingOperations(connection);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogDebug(string message, params object[] parameters)
         {
-            if (verboseLogging)
-            {
-                s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
-            }
+            s_logger.LogDebug("EventStoreConnection '{0}': {1}.", _connectionName, parameters.Length == 0 ? message : string.Format(message, parameters));
         }
 
         internal class OperationItemSeqNoComparer : IComparer<OperationItem>

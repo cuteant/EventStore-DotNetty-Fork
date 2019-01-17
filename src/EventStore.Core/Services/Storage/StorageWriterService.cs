@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace EventStore.Core.Services.Storage
         private long _maxFlushDelay;
         private const string _writerFlushHistogram = "writer-flush";
         private readonly List<Task> _tasks = new List<Task>();
-        public IEnumerable<Task> Tasks {get {return _tasks;}}
+        public IEnumerable<Task> Tasks { get { return _tasks; } }
 
         public StorageWriterService(IPublisher bus,
             ISubscriber subscribeToBus,
@@ -148,19 +149,13 @@ namespace EventStore.Core.Services.Storage
         {
             if (BlockWriter && !(message is SystemMessage.StateChangeMessage))
             {
-                if (Log.IsTraceLevelEnabled())
-                {
-                    Log.LogTrace("Blocking message {0} in StorageWriterService. Message:", message.GetType().Name);
-                    Log.LogTrace("{0}", message);
-                }
+                if (Log.IsTraceLevelEnabled()) { Log.BlockingMessageInStorageWriterService(message); }
                 return;
             }
 
             if (_vnodeState != VNodeState.Master && message is StorageMessage.IMasterWriteMessage)
             {
-                var msg = $"{message.GetType().Name} appeared in StorageWriter during state {_vnodeState}.";
-                Log.LogCritical(msg);
-                Application.Exit(ExitCode.Error, msg);
+                MessageAppearedInStorageWriter(message);
                 return;
             }
 
@@ -170,10 +165,24 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                BlockWriter = true;
-                Log.LogCritical(exc, "Unexpected error in StorageWriterService. Terminating the process...");
-                Application.Exit(ExitCode.Error, $"Unexpected error in StorageWriterService: {exc.Message}");
+                UnexpectedErrorInStorageWriterService(exc);
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void MessageAppearedInStorageWriter(Message message)
+        {
+            var msg = $"{message.GetType().Name} appeared in StorageWriter during state {_vnodeState}.";
+            Log.LogCritical(msg);
+            Application.Exit(ExitCode.Error, msg);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void UnexpectedErrorInStorageWriterService(Exception exc)
+        {
+            BlockWriter = true;
+            Log.Unexpected_error_in_StorageWriterService(exc);
+            Application.Exit(ExitCode.Error, $"Unexpected error in StorageWriterService: {exc.Message}");
         }
 
         void IHandle<SystemMessage.SystemInit>.Handle(SystemMessage.SystemInit message)
@@ -203,7 +212,7 @@ namespace EventStore.Core.Services.Storage
 
         void IHandle<SystemMessage.WriteEpoch>.Handle(SystemMessage.WriteEpoch message)
         {
-            if(_vnodeState == VNodeState.PreMaster)
+            if (_vnodeState == VNodeState.PreMaster)
                 return;
             if (_vnodeState != VNodeState.Master)
             {
@@ -242,7 +251,7 @@ namespace EventStore.Core.Services.Storage
             var totalTime = message.TotalTimeWasted + sw.Elapsed;
             if (Log.IsDebugLevelEnabled() && (totalTime < TimeSpan.FromSeconds(5) || (int)totalTime.TotalSeconds % 30 == 0)) // too verbose otherwise
             {
-                Log.LogDebug("Still waiting for chaser to catch up already for {0}...", totalTime);
+                Log.Still_waiting_for_chaser_to_catch_up_already_for(totalTime);
             }
 
             Bus.Publish(new SystemMessage.WaitForChaserToCatchUp(message.CorrelationId, totalTime));
@@ -312,7 +321,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally
@@ -416,7 +425,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally
@@ -445,7 +454,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally
@@ -491,7 +500,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally
@@ -519,7 +528,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally
@@ -532,10 +541,7 @@ namespace EventStore.Core.Services.Storage
         {
             if (transactionInfo.TransactionOffset < -1 || transactionInfo.EventStreamId.IsEmptyString())
             {
-                Log.LogError("Invalid transaction info found for transaction ID {0}. Possibly wrong transactionId provided. TransactionOffset: {1}, EventStreamId: {2}",
-                    transactionId,
-                    transactionInfo.TransactionOffset,
-                    transactionInfo.EventStreamId.IsEmptyString() ? "<null>" : transactionInfo.EventStreamId);
+                Log.InvalidTransactionInfoFoundForTransactionId(transactionId, transactionInfo);
                 return false;
             }
             return true;
@@ -579,7 +585,7 @@ namespace EventStore.Core.Services.Storage
             }
             catch (Exception exc)
             {
-                Log.LogError(exc, "Exception in writer.");
+                Log.ExceptionInStorageWriter(exc);
                 throw;
             }
             finally

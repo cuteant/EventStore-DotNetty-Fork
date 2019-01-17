@@ -140,7 +140,7 @@ namespace EventStore.ClientAPI.Embedded
             }
             catch (Exception exc)
             {
-                _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+                _log.ExceptionDuringExecutingUserCallback(exc);
             }
         }
         protected abstract void OnEventAppeared(ResolvedEvent resolvedEvent, int? retryCount);
@@ -160,7 +160,7 @@ namespace EventStore.ClientAPI.Embedded
             }
             catch (Exception exc)
             {
-                _log.LogError(exc, "Exception during executing user callback: {0}.", exc.Message);
+                _log.ExceptionDuringExecutingUserCallback(exc);
             }
         }
         protected abstract Task OnEventAppearedAsync(ResolvedEvent resolvedEvent, int? retryCount);

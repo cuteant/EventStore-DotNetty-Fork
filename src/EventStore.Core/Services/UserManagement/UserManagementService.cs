@@ -513,7 +513,7 @@ namespace EventStore.Core.Services.UserManagement
                         CreateAdminUser();
                         break;
                     default:
-                        _log.LogError("'admin' user account could not be created");
+                        _log.AdminUserAccountCouldNotBeCreated();
                         NotifyInitialized();
                         break;
                     case OperationResult.Success:
@@ -522,27 +522,27 @@ namespace EventStore.Core.Services.UserManagement
                       switch (completed.Result)
                       {
                           case OperationResult.Success:
-                              if (_log.IsInformationLevelEnabled()) _log.LogInformation("'admin' user account has been created.");
+                              if (_log.IsInformationLevelEnabled()) _log.AdminUserAccountHasBeenCreated();
                               WriteUsersStreamEvent("admin", x =>
                         {
                             if (x.Result == OperationResult.Success)
                             {
-                                if (_log.IsInformationLevelEnabled()) _log.LogInformation("'admin' user added to $users.");
+                                if (_log.IsInformationLevelEnabled()) _log.AdminUserAddedToUsers();
                             }
                             else
                             {
-                                _log.LogError(string.Format("unable to add 'admin' to $users. {0}", x.Result));
+                                _log.UnableToAddAdminToUsers(x.Result);
                             }
                             NotifyInitialized();
                         });
                               break;
                           case OperationResult.CommitTimeout:
                           case OperationResult.PrepareTimeout:
-                              _log.LogError("'admin' user account creation timed out retrying.");
+                              _log.AdminUserAccountCreationTimedOutRetrying();
                               CreateAdminUser();
                               break;
                           default:
-                              _log.LogError("'admin' user account could not be created.");
+                              _log.AdminUserAccountCouldNotBeCreated();
                               NotifyInitialized();
                               break;
                       }
@@ -566,7 +566,7 @@ namespace EventStore.Core.Services.UserManagement
                         CreateOperationsUser();
                         break;
                     default:
-                        _log.LogError("'ops' user account could not be created");
+                        _log.OpsUserAccountCouldNotBeCreated();
                         NotifyInitialized();
                         break;
                     case OperationResult.Success:
@@ -575,27 +575,27 @@ namespace EventStore.Core.Services.UserManagement
                       switch (completed.Result)
                       {
                           case OperationResult.Success:
-                              if (_log.IsInformationLevelEnabled()) _log.LogInformation("'ops' user account has been created.");
+                              if (_log.IsInformationLevelEnabled()) _log.OpsUserAccountHasBeenCreated();
                               WriteUsersStreamEvent("ops", x =>
-                        {
-                            if (x.Result == OperationResult.Success)
-                            {
-                                if (_log.IsInformationLevelEnabled()) _log.LogInformation("'ops' user added to $users.");
-                            }
-                            else
-                            {
-                                _log.LogError($"unable to add 'ops' to $users. {x.Result}");
-                            }
-                            NotifyInitialized();
-                        });
+                              {
+                                  if (x.Result == OperationResult.Success)
+                                  {
+                                      if (_log.IsInformationLevelEnabled()) _log.OpsUserAddedToUsers();
+                                  }
+                                  else
+                                  {
+                                      _log.UnableToAddOpsToUsers(x.Result);
+                                  }
+                                  NotifyInitialized();
+                              });
                               break;
                           case OperationResult.CommitTimeout:
                           case OperationResult.PrepareTimeout:
-                              _log.LogError("'ops' user account creation timed out retrying.");
+                              _log.OpsUserAccountCreationTimedOutRetrying();
                               CreateOperationsUser();
                               break;
                           default:
-                              _log.LogError("'ops' user account could not be created.");
+                              _log.OpsUserAccountCouldNotBeCreated();
                               NotifyInitialized();
                               break;
                       }

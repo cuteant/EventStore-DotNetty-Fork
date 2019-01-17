@@ -174,10 +174,7 @@ namespace EventStore.Core.Services.Replication
 
         public void OnConnectionFailed(IPEndPoint remoteEndPoint, InvalidConnectionException exc)
         {
-            if (Log.IsInformationLevelEnabled())
-            {
-                Log.LogInformation("Connection '{0}' to [{1}] failed: {2}.", _useSsl ? "master-secure" : "master-normal", remoteEndPoint, exc.ToString());
-            }
+            if (Log.IsInformationLevelEnabled()) { Log.ConnectionToMasterFailed(_useSsl, remoteEndPoint, exc); }
             _publisher.Publish(new SystemMessage.VNodeConnectionLost(remoteEndPoint, Guid.Empty));
         }
 
@@ -186,7 +183,7 @@ namespace EventStore.Core.Services.Replication
             if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
             if (useSsl && master.InternalSecureTcp == null)
             {
-                Log.LogError("Internal secure connections are required, but no internal secure TCP end point is specified for master [{0}]!", master);
+                Log.InternalSecureConnectionsAreRequired(master);
             }
 
             return useSsl ? master.InternalSecureTcp ?? master.InternalTcp : master.InternalTcp;
@@ -204,10 +201,7 @@ namespace EventStore.Core.Services.Replication
 
             if (Log.IsInformationLevelEnabled())
             {
-                Log.LogInformation(string.Format(
-                  "Subscribing at LogPosition: {0} (0x{0:X}) to MASTER [{1}, {2:B}] as replica with SubscriptionId: {3:B}, ConnectionId: {4:B}, LocalEndPoint: [{5}], Epochs:\n{6}...\n.",
-                  logPosition, _connection.RemoteEndPoint, message.MasterId, message.SubscriptionId, _connection.ConnectionId,
-                  _connection.LocalEndPoint, string.Join("\n", epochs.Select(x => x.AsString()))));
+                Log.SubscribingAtLogpositionToMasterAsReplicaWithSubscriptionid(logPosition, _connection, message, epochs);
             }
 
             var chunk = _db.Manager.GetChunkFor(logPosition);

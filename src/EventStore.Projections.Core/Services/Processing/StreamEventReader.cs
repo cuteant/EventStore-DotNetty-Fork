@@ -40,9 +40,8 @@ namespace EventStore.Projections.Core.Services.Processing
             bool stopOnEof = false)
             : base(publisher, eventReaderCorrelationId, readAs, stopOnEof)
         {
-            if (fromSequenceNumber < 0) throw new ArgumentException("fromSequenceNumber");
-            if (streamName == null) throw new ArgumentNullException("streamName");
-            if (string.IsNullOrEmpty(streamName)) throw new ArgumentException("streamName");
+            if (fromSequenceNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.fromSequenceNumber); }
+            if (string.IsNullOrEmpty(streamName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamName); }
             _streamName = streamName;
             _fromSequenceNumber = fromSequenceNumber;
             _timeProvider = timeProvider;

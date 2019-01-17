@@ -67,7 +67,7 @@ namespace EventStore.Projections.Core.Tests.Services.event_reader.multi_stream_r
         [Test]
         public void empty_streams_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
             new MultiStreamEventReader(
                 _ioDispatcher, _bus, Guid.NewGuid(), null, 0, new string[0], _ab12Tag, false, _timeProvider);
             });

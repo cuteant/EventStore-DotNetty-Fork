@@ -75,14 +75,14 @@ namespace EventStore.ClientAPI.Consumers
                 if (_resolvedEventAppearedAsync != null)
                 {
                     esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppearedAsync,
-                            _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                            _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                             async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                             Subscription.Credentials);
                 }
                 else
                 {
                     esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppeared,
-                            _ => s_logger.LogInformation($"Caught up on {_.StreamId} at {DateTime.Now}"),
+                            _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
                             async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
                             Subscription.Credentials);
                 }

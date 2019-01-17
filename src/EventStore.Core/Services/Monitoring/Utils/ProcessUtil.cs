@@ -151,14 +151,14 @@ namespace EventStore.Core
             if (!Runtime.IsWindows) return;
             try
             {
-                logger.LogError("Trying to retrieve list of processes having a file handle open on {path} (requires admin privileges)", path);
+                logger.TryingToRetrieveListOfProcessesHavingAFileHandleOpen(path);
                 var processes = ProcessUtil.WhoIsLocking(path);
                 var processList = processes.Count == 0 ? "None" : string.Join(Environment.NewLine, processes.Select(x => string.Format("[{0}] {1}", x.Id, x.MainModule.FileName)));
-                logger.LogError("Processes locking {path}:" + Environment.NewLine + "{processList}", path, processList);
+                logger.ProcessesLocking(path, processList);
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Could not retrieve list of processes using file handle {path}", path);
+                logger.CouldNotRetrieveListOfProcessesUsingFileHandle(path, e);
             }
         }
     }

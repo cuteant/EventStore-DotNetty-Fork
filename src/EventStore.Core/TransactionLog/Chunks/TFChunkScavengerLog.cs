@@ -46,10 +46,11 @@ namespace EventStore.Core.TransactionLog.Chunks
             var metadata = new StreamMetadata(maxAge: _scavengeHistoryMaxAge);
             var metaStreamEvent = new Event(metadataEventId, SystemEventTypes.StreamMetadata, isJson: true,
                 data: metadata.ToJsonBytes(), metadata: null);
-            _ioDispatcher.WriteEvent(metaStreamId, ExpectedVersion.Any, metaStreamEvent, SystemAccount.Principal, m => {
+            _ioDispatcher.WriteEvent(metaStreamId, ExpectedVersion.Any, metaStreamEvent, SystemAccount.Principal, m =>
+            {
                 if (m.Result != OperationResult.Success)
                 {
-                    Log.LogError("Failed to write the $maxAge of {days} days metadata for the {stream} stream. Reason: {reason}", _scavengeHistoryMaxAge.TotalDays, _streamName, m.Result);
+                    Log.FailedToWriteTheMaxageOfDaysMetadataForTheStream(_scavengeHistoryMaxAge.TotalDays, _streamName, m.Result);
                 }
             });
 
@@ -193,7 +194,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 else
                 {
-                    Log.LogError("Failed to write an event to the {stream} stream. Retry limit of {retryCount} reached. Reason: {reason}", streamId, _retryAttempts, msg.Result);
+                    Log.FailedToWriteAnEventToTheStreamRetryLimitOfReached(streamId, _retryAttempts, msg.Result);
                 }
             }
         }
@@ -214,12 +215,12 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (retryCount > 0)
                 {
-                    Log.LogError("Failed to write an event to the {stream} stream. Retrying {retry}/{retryCount}. Reason: {reason}", SystemStreams.ScavengesStream, (_retryAttempts - retryCount) + 1, _retryAttempts, msg.Result);
+                    Log.FailedToWriteAnEventToTheStreamRetrying(SystemStreams.ScavengesStream, (_retryAttempts - retryCount) + 1, _retryAttempts, msg.Result);
                     WriteScavengeIndexEvent(linkToEvent, --retryCount);
                 }
                 else
                 {
-                    Log.LogError("Failed to write an event to the {stream} stream. Retry limit of {retryCount} reached. Reason: {reason}", SystemStreams.ScavengesStream, _retryAttempts, msg.Result);
+                    Log.FailedToWriteAnEventToTheStreamRetryLimitOfReached(SystemStreams.ScavengesStream, _retryAttempts, msg.Result);
                 }
             }
         }
@@ -230,12 +231,12 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (retryCount > 0)
                 {
-                    Log.LogError("Failed to write an event to the {stream} stream. Retrying {retry}/{retryCount}. Reason: {reason}", streamId, (_retryAttempts - retryCount) + 1, _retryAttempts, msg.Result);
+                    Log.FailedToWriteAnEventToTheStreamRetrying(streamId, (_retryAttempts - retryCount) + 1, _retryAttempts, msg.Result);
                     WriteScavengeDetailEvent(streamId, eventToWrite, --retryCount);
                 }
                 else
                 {
-                    Log.LogError("Failed to write an event to the {stream} stream. Retry limit of {retryCount} reached. Reason: {reason}", streamId, _retryAttempts, msg.Result);
+                    Log.FailedToWriteAnEventToTheStreamRetryLimitOfReached(streamId, _retryAttempts, msg.Result);
                 }
             }
             else

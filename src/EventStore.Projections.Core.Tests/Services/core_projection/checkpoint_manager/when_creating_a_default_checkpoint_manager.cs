@@ -85,7 +85,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
         [Test]
         public void empty_projection_checkpoint_stream_id_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             _manager = new DefaultCheckpointManager(
                 _bus, _projectionCorrelationId, new ProjectionVersion(1, 0, 0), null, _ioDispatcher, _config, "",
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,
@@ -96,7 +96,7 @@ namespace EventStore.Projections.Core.Tests.Services.core_projection.checkpoint_
         [Test]
         public void empty_projection_name_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(() => {
+            Assert.Throws<ArgumentNullException>(() => {
             _manager = new DefaultCheckpointManager(
                 _bus, _projectionCorrelationId, new ProjectionVersion(1, 0, 0), null, _ioDispatcher, _config, "",
                 new StreamPositionTagger(0, "stream"), _namingBuilder, _checkpointsEnabled, _producesResults,

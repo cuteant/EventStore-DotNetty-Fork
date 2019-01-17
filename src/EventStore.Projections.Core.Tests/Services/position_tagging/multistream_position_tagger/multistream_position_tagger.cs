@@ -96,7 +96,7 @@ namespace EventStore.Projections.Core.Tests.Services.position_tagging.multistrea
         [Test]
         public void empty_streams_throws_argument_exception()
         {
-            Assert.Throws<ArgumentException>(()=> { new MultiStreamPositionTagger(0, new string[] {}); });
+            Assert.Throws<ArgumentOutOfRangeException>(()=> { new MultiStreamPositionTagger(0, new string[] {}); });
         }
 
         [Test]

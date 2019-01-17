@@ -147,15 +147,15 @@ namespace EventStore.Projections.Core.Services.Processing
                     }
                 }, () =>
                 {
-                    _logger.LogWarning("Read backward of stream {0} timed out. Retrying", _namingBuilder.GetOrderStreamName());
+                    if (_logger.IsWarningLevelEnabled()) _logger.ReadBackwardOfStreamTimedOut(_namingBuilder.GetOrderStreamName());
                     BeginLoadPrerecordedEventsChunk(checkpointTag, fromEventNumber);
                 }, Guid.NewGuid());
         }
 
         private void EnqueuePrerecordedEvent(EventRecord @event, CheckpointTag tag)
         {
-            if (@event == null) throw new ArgumentNullException("event");
-            if (tag == null) throw new ArgumentNullException("tag");
+            if (null == @event) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.@event); }
+            if (null == tag) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tag); }
             if (@event.EventType != "$>")
                 throw new ArgumentException("linkto ($>) event expected", "event");
 
@@ -194,7 +194,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _ioDispatcher.ReadBackward(
                 streamId, eventNumber, 1, true, SystemAccount.Principal, action, () =>
                 {
-                    _logger.LogWarning("Read backward of stream {0} timed out. Retrying", streamId);
+                    if (_logger.IsWarningLevelEnabled()) _logger.ReadBackwardOfStreamTimedOut(streamId);
                     ReadPrerecordedEventStream(streamId, eventNumber, action);
                 }, Guid.NewGuid());
         }

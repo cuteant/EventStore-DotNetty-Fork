@@ -141,7 +141,7 @@ namespace EventStore.Core.Services
             if (_state == ElectionsState.Shutdown) return;
             if (_state == ElectionsState.ElectingLeader) return;
 
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: STARTING ELECTIONS.");
+            if (Log.IsDebugLevelEnabled()) Log.Elections_starting_elections();
             ShiftToLeaderElection(_lastAttemptedView + 1);
             _publisher.Publish(TimerMessage.Schedule.Create(SendViewChangeProofInterval,
                                                             _publisherEnvelope,
@@ -155,13 +155,13 @@ namespace EventStore.Core.Services
             // we are still on the same view, but we selected master
             if (_state != ElectionsState.ElectingLeader && _master != null) return;
 
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) TIMED OUT! (S={1}, M={2}).", message.View, _state, _master);
+            if (Log.IsDebugLevelEnabled()) Log.Elections_timed_out(message.View, _state, _master);
             ShiftToLeaderElection(_lastAttemptedView + 1);
         }
 
         private void ShiftToLeaderElection(int view)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) SHIFT TO LEADER ELECTION.", view);
+            if (Log.IsDebugLevelEnabled()) Log.Elections_shift_to_leader_election(view);
 
             _state = ElectionsState.ElectingLeader;
             _vcReceived.Clear();
@@ -195,7 +195,7 @@ namespace EventStore.Core.Services
 
             if (message.AttemptedView <= _lastInstalledView) return;
 
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) VIEWCHANGE FROM [{1}, {2:B}].", message.AttemptedView, message.ServerInternalHttp, message.ServerId);
+            if (Log.IsDebugLevelEnabled()) Log.Elections_viewchange_from(message);
 
             if (message.AttemptedView > _lastAttemptedView)
             {
@@ -204,7 +204,7 @@ namespace EventStore.Core.Services
 
             if (_vcReceived.Add(message.ServerId) && _vcReceived.Count == _clusterSize / 2 + 1)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) MAJORITY OF VIEWCHANGE.", message.AttemptedView);
+                if (Log.IsDebugLevelEnabled()) Log.ElectionsMajority_of_viewchange(message.AttemptedView);
                 if (AmILeaderOf(_lastAttemptedView)) { ShiftToPreparePhase(); }
             }
         }
@@ -235,21 +235,13 @@ namespace EventStore.Core.Services
 
             if (AmILeaderOf(_lastAttemptedView))
             {
-                if (Log.IsDebugLevelEnabled())
-                {
-                    Log.LogDebug("ELECTIONS: (IV={0}) VIEWCHANGEPROOF FROM [{1}, {2:B}]. JUMPING TO LEADER STATE.",
-                            message.InstalledView, message.ServerInternalHttp, message.ServerId);
-                }
+                if (Log.IsDebugLevelEnabled()) { Log.ElectionsViewchangeproof_From_jumping_to_lead1er_state(message); }
 
                 ShiftToPreparePhase();
             }
             else
             {
-                if (Log.IsDebugLevelEnabled())
-                {
-                    Log.LogDebug("ELECTIONS: (IV={0}) VIEWCHANGEPROOF FROM [{1}, {2:B}]. JUMPING TO NON-LEADER STATE.",
-                            message.InstalledView, message.ServerInternalHttp, message.ServerId);
-                }
+                if (Log.IsDebugLevelEnabled()) { Log.ElectionsViewchangeproof_From_jumping_to_non_leader_state(message); }
 
                 ShiftToRegNonLeader();
             }
@@ -263,7 +255,7 @@ namespace EventStore.Core.Services
 
         private void ShiftToPreparePhase()
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) SHIFT TO PREPARE PHASE.", _lastAttemptedView);
+            if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToPreparePhase(_lastAttemptedView);
 
             _lastInstalledView = _lastAttemptedView;
             _prepareOkReceived.Clear();
@@ -279,7 +271,7 @@ namespace EventStore.Core.Services
             if (message.View != _lastAttemptedView) return;
             if (_servers.All(x => x.InstanceId != message.ServerId)) return; // unknown instance
 
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) PREPARE FROM [{1}, {2:B}].", _lastAttemptedView, message.ServerInternalHttp, message.ServerId);
+            if (Log.IsDebugLevelEnabled()) Log.ElectionsPrepareFrom(_lastAttemptedView, message);
 
             if (_state == ElectionsState.ElectingLeader) // install the view
             {
@@ -301,7 +293,7 @@ namespace EventStore.Core.Services
 
         private void ShiftToRegNonLeader()
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) SHIFT TO REG_NONLEADER.", _lastAttemptedView);
+            if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToReg_Nonleader(_lastAttemptedView);
 
             _state = ElectionsState.NonLeader;
             _lastInstalledView = _lastAttemptedView;
@@ -313,13 +305,7 @@ namespace EventStore.Core.Services
             if (_state != ElectionsState.ElectingLeader) return;
             if (msg.View != _lastAttemptedView) return;
 
-            if (Log.IsDebugLevelEnabled())
-            {
-                Log.LogDebug("ELECTIONS: (V={0}) PREPARE_OK FROM {1}.", msg.View,
-                        FormatNodeInfo(msg.ServerInternalHttp, msg.ServerId,
-                                       msg.LastCommitPosition, msg.WriterCheckpoint, msg.ChaserCheckpoint,
-                                       msg.EpochNumber, msg.EpochPosition, msg.EpochId));
-            }
+            if (Log.IsDebugLevelEnabled()) { Log.ElectionsPrepare_okFrom(msg); }
 
             if (!_prepareOkReceived.ContainsKey(msg.ServerId))
             {
@@ -333,7 +319,7 @@ namespace EventStore.Core.Services
 
         private void ShiftToRegLeader()
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("ELECTIONS: (V={0}) SHIFT TO REG_LEADER.", _lastAttemptedView);
+            if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToRegLeader(_lastAttemptedView);
 
             _state = ElectionsState.Leader;
             SendProposal();
@@ -347,7 +333,7 @@ namespace EventStore.Core.Services
             var master = GetBestMasterCandidate();
             if (master == null)
             {
-                if (Log.IsTraceLevelEnabled()) Log.LogTrace("ELECTIONS: (V={0}) NO MASTER CANDIDATE WHEN TRYING TO SEND PROPOSAL.", _lastAttemptedView);
+                if (Log.IsTraceLevelEnabled()) Log.NomasterCandidateWhenTryingToSendProposal(_lastAttemptedView);
                 return;
             }
 
@@ -355,8 +341,7 @@ namespace EventStore.Core.Services
 
             if (Log.IsDebugLevelEnabled())
             {
-                Log.LogDebug("ELECTIONS: (V={0}) SENDING PROPOSAL CANDIDATE: {1}, ME: {2}.",
-                        _lastAttemptedView, FormatNodeInfo(master), FormatNodeInfo(GetOwnInfo()));
+                Log.ElectionsSendingProposalCandidate(_lastAttemptedView, master, this);
             }
 
             var proposal = new ElectionMessage.Proposal(_nodeInfo.InstanceId, _nodeInfo.InternalHttp,
@@ -419,10 +404,7 @@ namespace EventStore.Core.Services
 
                 if (Log.IsDebugLevelEnabled())
                 {
-                    Log.LogDebug("ELECTIONS: (V={0}) NOT LEGITIMATE MASTER PROPOSAL FROM [{1},{2:B}] M={3}. "
-                            + "PREVIOUS MASTER IS ALIVE: [{4},{5:B}].",
-                            view, proposingServerEndPoint, proposingServerId, FormatNodeInfo(candidate),
-                            master.InternalHttpEndPoint, master.InstanceId);
+                    Log.ElectionsNotLegitimateMasterProposalFrom(view, proposingServerEndPoint, proposingServerId, candidate, master);
                 }
 
                 return false;
@@ -435,8 +417,7 @@ namespace EventStore.Core.Services
             {
                 if (Log.IsDebugLevelEnabled())
                 {
-                    Log.LogDebug("ELECTIONS: (V={0}) NOT LEGITIMATE MASTER PROPOSAL FROM [{1},{2:B}] M={3}. ME={4}.",
-                            view, proposingServerEndPoint, proposingServerId, FormatNodeInfo(candidate), FormatNodeInfo(ownInfo));
+                    Log.ElectionsNotLegitimateMasterProposalFrom(view, proposingServerEndPoint, proposingServerId, candidate, ownInfo);
                 }
 
                 return false;
@@ -476,8 +457,7 @@ namespace EventStore.Core.Services
 
             if (Log.IsDebugLevelEnabled())
             {
-                Log.LogDebug("ELECTIONS: (V={0}) PROPOSAL FROM [{1},{2:B}] M={3}. ME={4}.", _lastAttemptedView,
-                        message.ServerInternalHttp, message.ServerId, FormatNodeInfo(candidate), FormatNodeInfo(GetOwnInfo()));
+                Log.ElectionsProposalFrom(_lastAttemptedView, message, candidate, this);
             }
 
             if (_masterProposal == null)
@@ -505,11 +485,7 @@ namespace EventStore.Core.Services
             if (_masterProposal == null) return;
             if (_masterProposal.InstanceId != message.MasterId) return;
 
-            if (Log.IsDebugLevelEnabled())
-            {
-                Log.LogDebug("ELECTIONS: (V={0}) ACCEPT FROM [{1},{2:B}] M=[{3},{4:B}]).", message.View,
-                        message.ServerInternalHttp, message.ServerId, message.MasterInternalHttp, message.MasterId);
-            }
+            if (Log.IsDebugLevelEnabled()) { Log.ElectionsAcceptFrom(message); }
 
             if (_acceptsReceived.Add(message.ServerId) && _acceptsReceived.Count == _clusterSize / 2 + 1)
             {
@@ -517,18 +493,14 @@ namespace EventStore.Core.Services
                 if (master != null)
                 {
                     _master = _masterProposal.InstanceId;
-                    if (Log.IsInformationLevelEnabled())
-                    {
-                        Log.LogInformation("ELECTIONS: (V={0}) DONE. ELECTED MASTER = {1}. ME={2}.", message.View,
-                                 FormatNodeInfo(_masterProposal), FormatNodeInfo(GetOwnInfo()));
-                        _lastElectedMaster = _master;
-                    }
+                    if (Log.IsInformationLevelEnabled()) { Log.Elections_done_elected_master(message.View, _masterProposal, this); }
+                    _lastElectedMaster = _master;
                     _publisher.Publish(new ElectionMessage.ElectionsDone(message.View, master));
                 }
             }
         }
 
-        private MasterCandidate GetOwnInfo()
+        internal MasterCandidate GetOwnInfo()
         {
             var lastEpoch = _epochManager.GetLastEpoch();
             var writerCheckpoint = _writerCheckpoint.Read();
@@ -541,16 +513,16 @@ namespace EventStore.Core.Services
                                        lastCommitPosition, writerCheckpoint, chaserCheckpoint, _nodePriority);
         }
 
-        private static string FormatNodeInfo(MasterCandidate candidate)
+        internal static string FormatNodeInfo(MasterCandidate candidate)
         {
             return FormatNodeInfo(candidate.InternalHttp, candidate.InstanceId,
                                   candidate.LastCommitPosition, candidate.WriterCheckpoint, candidate.ChaserCheckpoint,
                                   candidate.EpochNumber, candidate.EpochPosition, candidate.EpochId);
         }
 
-        private static string FormatNodeInfo(IPEndPoint serverEndPoint, Guid serverId,
-                                               long lastCommitPosition, long writerCheckpoint, long chaserCheckpoint,
-                                               int epochNumber, long epochPosition, Guid epochId)
+        internal static string FormatNodeInfo(IPEndPoint serverEndPoint, Guid serverId,
+                                              long lastCommitPosition, long writerCheckpoint, long chaserCheckpoint,
+                                              int epochNumber, long epochPosition, Guid epochId)
         {
             return string.Format("[{0},{1:B}](L={2},W={3},C={4},E{5}@{6}:{7:B})",
                                  serverEndPoint, serverId,
@@ -558,7 +530,7 @@ namespace EventStore.Core.Services
                                  epochNumber, epochPosition, epochId);
         }
 
-        private class MasterCandidate
+        internal class MasterCandidate
         {
             public readonly Guid InstanceId;
             public readonly IPEndPoint InternalHttp;

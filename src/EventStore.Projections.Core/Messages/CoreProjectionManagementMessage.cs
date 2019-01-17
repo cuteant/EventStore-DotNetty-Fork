@@ -219,11 +219,10 @@ namespace EventStore.Projections.Core.Messages
                 : base(projectionId, workerId)
             {
                 if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
-                if (config == null) throw new ArgumentNullException("config");
-                if (handlerType == null) throw new ArgumentNullException("handlerType");
+                if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
+                if (null == handlerType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handlerType); }
                 if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
-                if (masterMasterWorkerId == Guid.Empty)
-                    throw new ArgumentException("Must not be empty", "masterMasterWorkerId");
+                if (masterMasterWorkerId == Guid.Empty) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterMasterWorkerId); }
                 _name = name;
                 _version = version;
                 _config = config;
@@ -297,9 +296,9 @@ namespace EventStore.Projections.Core.Messages
                 : base(projectionId, workerId)
             {
                 if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
-                if (config == null) throw new ArgumentNullException("config");
-                if (sourceDefinition == null) throw new ArgumentNullException("sourceDefinition");
-                if (handlerType == null) throw new ArgumentNullException("handlerType");
+                if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
+                if (null == sourceDefinition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sourceDefinition); }
+                if (null == handlerType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handlerType); }
                 if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
                 _name = name;
                 _version = version;

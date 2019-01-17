@@ -229,10 +229,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="TimeoutException"></exception>
         public void Stop(TimeSpan timeout)
         {
-            if (_verbose)
-            {
-                _log.LogDebug("Persistent Subscription to {0}: requesting stop...", _streamId);
-            }
+            if (_verbose) { _log.PersistentSubscriptionRequestingStop(_streamId); }
 
             EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
 
@@ -301,12 +298,7 @@ namespace EventStore.ClientAPI
                 {
                     _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
                 }
-                if (_verbose)
-                {
-                    _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
-                              _streamId,
-                              resolvedEvent.OriginalStreamId, resolvedEvent.OriginalEventNumber, resolvedEvent.OriginalEventType, resolvedEvent.OriginalEventNumber);
-                }
+                if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
             }
             catch (Exception exc)
             {
@@ -339,12 +331,7 @@ namespace EventStore.ClientAPI
                 {
                     _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
                 }
-                if (_verbose)
-                {
-                    _log.LogDebug("Persistent Subscription to {0}: processed event ({1}, {2}, {3} @ {4}).",
-                              _streamId,
-                              resolvedEvent.OriginalStreamId, resolvedEvent.OriginalEventNumber, resolvedEvent.OriginalEventType, resolvedEvent.OriginalEventNumber);
-                }
+                if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
             }
             catch (Exception exc)
             {
@@ -358,11 +345,7 @@ namespace EventStore.ClientAPI
         {
             if (Interlocked.CompareExchange(ref _isDropped, 1, 0) == 0)
             {
-                if (_verbose)
-                {
-                    _log.LogDebug("Persistent Subscription to {0}: dropping subscription, reason: {1} {2}.",
-                              _streamId, reason, error == null ? string.Empty : error.ToString());
-                }
+                if (_verbose) { _log.PersistentDroppingSubscriptionReason(_streamId, reason, error); }
 
                 _subscription?.Unsubscribe();
                 _subscriptionDropped?.Invoke(this as TSubscription, reason, error);

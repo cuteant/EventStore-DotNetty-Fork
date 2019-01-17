@@ -111,7 +111,7 @@ namespace EventStore.Projections.Core.Services.Http
                     {
                         new KeyValuePair<string, string>(
                     "Location", new Uri(match.BaseUri, "/web/projections.htm").AbsoluteUri)
-                    }, x => Log.LogDebug(x, "Reply Text Content Failed."));
+                    }, x => { if (Log.IsDebugLevelEnabled()) Log.ReplyTextContentFailed(x); });
         }
 
         private void OnProjectionsGetAny(HttpEntityManager http, UriTemplateMatch match)
@@ -219,7 +219,7 @@ namespace EventStore.Projections.Core.Services.Http
                         config.CheckpointUnhandledBytesThreshold, config.PendingEventsThreshold,
                         config.MaxWriteBatchLength, config.MaxAllowedWritesInFlight, GetRunAs(http, match));
                     Publish(message);
-                }, ex => Log.LogDebug(ex, "Failed to update projection configuration. Error: "));
+                }, ex => { if (Log.IsDebugLevelEnabled()) Log.FailedToUpdateProjectionConfiguration(ex); });
         }
 
         private void OnProjectionCommandDisable(HttpEntityManager http, UriTemplateMatch match)
@@ -362,7 +362,7 @@ namespace EventStore.Projections.Core.Services.Http
                                 fromPosition.Tag,
                                 bodyParsed.MaxEvents ?? 10));
                     },
-                x => Log.LogDebug(x, "Read Request Body Failed."));
+                x => { if (Log.IsDebugLevelEnabled()) Log.ReadRequestBodyFailed(x); });
         }
 
         private void ProjectionsGet(HttpEntityManager http, UriTemplateMatch match, ProjectionMode? mode)
@@ -413,7 +413,7 @@ namespace EventStore.Projections.Core.Services.Http
                                 envelope, mode, name, runAs, handlerType, s, enabled: enabled,
                                 checkpointsEnabled: checkpointsEnabled, emitEnabled: emitEnabled, trackEmittedStreams: trackEmittedStreams, enableRunAs: true);
                         Publish(postMessage);
-                    }, x => Log.LogDebug(x, "Reply Text Body Failed."));
+                    }, x => { if (Log.IsDebugLevelEnabled()) Log.ReplyTextBodyFailed(x); });
         }
 
         private ResponseConfiguration StateConfigurator(ICodec codec, ProjectionManagementMessage.ProjectionState state)

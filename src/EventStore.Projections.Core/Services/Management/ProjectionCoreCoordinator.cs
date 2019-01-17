@@ -102,7 +102,7 @@ namespace EventStore.Projections.Core.Services.Management
                         _activeSubComponents = 0;
                     }
 
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Starting Projections Core Coordinator. (Node State : {0})", _currentState);
+                    if (Log.IsDebugLevelEnabled()) Log.StartingProjectionsCoreCoordinator(_currentState);
                     Start();
                 }
             }
@@ -110,7 +110,7 @@ namespace EventStore.Projections.Core.Services.Management
             {
                 if (_started)
                 {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Stopping Projections Core Coordinator. (Node State : {0})", _currentState);
+                    if (Log.IsDebugLevelEnabled()) Log.StoppingProjectionsCoreCoordinator(_currentState);
                     Stop();
                 }
             }
@@ -170,7 +170,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             _pendingSubComponentsStarts--;
             _activeSubComponents++;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: SubComponent Started: {0}", message.SubComponent);
+            if (Log.IsDebugLevelEnabled()) Log.SubComponentStarted(message.SubComponent);
 
             if (_newInstanceWaiting)
                 StartWhenConditionsAreMet();
@@ -179,7 +179,7 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(ProjectionCoreServiceMessage.SubComponentStopped message)
         {
             _activeSubComponents--;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: SubComponent Stopped: {0}", message.SubComponent);
+            if (Log.IsDebugLevelEnabled()) Log.SubComponentStopped(message.SubComponent);
 
             if (_newInstanceWaiting)
                 StartWhenConditionsAreMet();

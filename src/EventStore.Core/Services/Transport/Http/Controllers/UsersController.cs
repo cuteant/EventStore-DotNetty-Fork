@@ -92,7 +92,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     var message = new UserManagementMessage.Create(
                         envelope, http.User, data.LoginName, data.FullName, data.Groups, data.Password);
                     Publish(message);
-                }, x => Log.LogDebug(x, "Reply Text Content Failed."));
+                }, x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private void PutUser(HttpEntityManager http, UriTemplateMatch match)
@@ -107,7 +107,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     var data = http.RequestCodec.From<PutUserData>(s);
                     var message = new UserManagementMessage.Update(envelope, http.User, login, data.FullName, data.Groups);
                     Publish(message);
-                }, x => Log.LogDebug(x, "Reply Text Content Failed."));
+                }, x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private void DeleteUser(HttpEntityManager http, UriTemplateMatch match)
@@ -148,7 +148,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     var data = http.RequestCodec.From<ResetPasswordData>(s);
                     var message = new UserManagementMessage.ResetPassword(envelope, http.User, login, data.NewPassword);
                     Publish(message);
-                }, x => Log.LogDebug(x, "Reply Text Content Failed."));
+                }, x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private void PostCommandChangePassword(HttpEntityManager http, UriTemplateMatch match)
@@ -165,7 +165,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         Publish(message);
 
                     },
-                x => Log.LogDebug(x, "Reply Text Content Failed."));
+                x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private SendToHttpEnvelope<T> CreateReplyEnvelope<T>(

@@ -1,5 +1,4 @@
-﻿#if DESKTOPCLR
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Threading;
@@ -32,13 +31,7 @@ namespace EventStore.Core
             }
             catch (AbandonedMutexException exc)
             {
-                if (Log.IsInformationLevelEnabled())
-                {
-                    Log.LogInformation(exc,
-                                      "Cluster Node mutex '{0}' is said to be abandoned. "
-                                      + "Probably previous instance of server was terminated abruptly.",
-                                      MutexName);
-                }
+                if (Log.IsInformationLevelEnabled()) { Log.Cluster_Node_mutex_is_said_to_be_abando1ned(MutexName, exc); }
             }
 
             return _acquired;
@@ -55,7 +48,11 @@ namespace EventStore.Core
             var mutexName = $"ESCLUSTERNODE:{pid}";
             try
             {
+#if DESKTOPCLR
                 using (Mutex.OpenExisting(mutexName, MutexRights.ReadPermissions))
+#else
+                using (Mutex.OpenExisting(mutexName))
+#endif
                 {
                     return true;
                 }
@@ -68,11 +65,10 @@ namespace EventStore.Core
             {
                 if (Log.IsTraceLevelEnabled())
                 {
-                    Log.LogTrace(exc, "Exception while trying to open Cluster Node mutex '{0}': {1}.", mutexName, exc.Message);
+                    Log.ExceptionWhileTryingToOpenClusterNodeMutex(exc, mutexName);
                 }
             }
             return false;
         }
     }
 }
-#endif

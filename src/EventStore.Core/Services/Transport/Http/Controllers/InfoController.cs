@@ -57,7 +57,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             "OK",
             entity.ResponseCodec.ContentType,
             null,
-            e => Log.LogError(e, "Error while writing HTTP response (info)"));
+            e => Log.ErrorWhileWritingHttpResponseInfo(e));
         }
 
         private void OnGetOptions(HttpEntityManager entity, UriTemplateMatch match)
@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                         "OK",
                                         entity.ResponseCodec.ContentType,
                                         null,
-                                        e => Log.LogError(e, "error while writing HTTP response (options)"));
+                                        e => Log.ErrorWhileWritingHttpResponseOptions(e));
             }
             else
             {
@@ -77,9 +77,9 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             }
         }
 
-        private void LogReplyError(Exception exc)
+        private static void LogReplyError(Exception exc)
         {
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while replying (info controller): {0}.", exc.Message);
+            if (Log.IsDebugLevelEnabled()) Log.Error_while_replying_info_controller(exc);
         }
 
         public class OptionStructure

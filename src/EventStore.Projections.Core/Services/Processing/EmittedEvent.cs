@@ -19,7 +19,7 @@ namespace EventStore.Projections.Core.Services.Processing
             string streamId, Guid eventId,
             string eventType, CheckpointTag causedByTag, CheckpointTag expectedTag, Action<long> onCommitted = null)
         {
-            if (causedByTag == null) throw new ArgumentNullException("causedByTag");
+            if (null == causedByTag) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.causedByTag); }
             StreamId = streamId;
             EventId = eventId;
             EventType = eventType;

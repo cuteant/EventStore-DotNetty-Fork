@@ -11,7 +11,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public ResultEventEmitter(ProjectionNamesBuilder namesBuilder)
         {
-            if (namesBuilder == null) throw new ArgumentNullException("namesBuilder");
+            if (null == namesBuilder) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.namesBuilder); }
             _namesBuilder = namesBuilder;
         }
 

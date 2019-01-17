@@ -87,9 +87,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 var debugEnabled = Log.IsDebugLevelEnabled();
                 if (!checkpoint.HasValue)
                 {
-                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: no checkpoint found.");
-
-                    if (debugEnabled) Log.LogDebug($"Start from = {_settings.StartFrom}");
+                    if (debugEnabled) Log.SubscriptionNoCheckpointFound(_settings);
                     _nextEventToPullFrom = _settings.StartFrom >= 0 ? _settings.StartFrom : 0;
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, _settings.StartFrom >= 0);
                     TryReadingNewBatch();
@@ -97,7 +95,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 else
                 {
                     _nextEventToPullFrom = checkpoint.Value + 1;
-                    if (debugEnabled) Log.LogDebug($"Subscription {_settings.SubscriptionId}: read checkpoint {checkpoint.Value}");
+                    if (debugEnabled) Log.SubscriptionReadCheckpoint(_settings.SubscriptionId, checkpoint.Value);
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, true);
                     TryReadingNewBatch();
                 }
@@ -158,7 +156,8 @@ namespace EventStore.Core.Services.PersistentSubscription
                 }
                 if (isEndOfStream)
                 {
-                    if(_streamBuffer.TryMoveToLive()){
+                    if (_streamBuffer.TryMoveToLive())
+                    {
                         SetLive();
                         return;
                     }
@@ -339,7 +338,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 var infoEnabled = Log.IsInformationLevelEnabled();
                 foreach (var id in processedEventIds)
                 {
-                    if (infoEnabled) Log.LogInformation("Message NAK'ed id {0} action to take {1} reason '{2}'", id, action, reason ?? "");
+                    if (infoEnabled) Log.Message_NAKed_id_action_to_take(id, action, reason);
                     HandleNackedMessage(action, id, reason);
                 }
                 RemoveProcessingMessages(correlationId, processedEventIds);
@@ -390,16 +389,11 @@ namespace EventStore.Core.Services.PersistentSubscription
                 {
                     if (count < 5)
                     {
-                        if (Log.IsInformationLevelEnabled())
-                        {
-                            Log.LogInformation("Unable to park message {0}/{1} operation failed {2} retrying",
-                                        e.OriginalStreamId, e.OriginalEventNumber, result);
-                        }
+                        if (Log.IsInformationLevelEnabled()) { Log.Unable_to_park_message_operation_failed(e, result); }
                         ParkMessage(e, reason, count + 1);
                         return;
                     }
-                    Log.LogError("Unable to park message {0}/{1} operation failed {2} after retries. Possible message loss", e.OriginalStreamId,
-                          e.OriginalEventNumber, result);
+                    Log.UnableToParkMessageOperationFailedAfterRetriesPossibleMessageLoss(e, result);
                 }
                 lock (_lock)
                 {
@@ -425,7 +419,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     {
                         _state ^= PersistentSubscriptionState.ReplayingParkedMessages;
                         return; //nothing to do.
-            }
+                    }
                     TryReadingParkedMessagesFrom(0, end.Value + 1);
                 });
             }
@@ -458,7 +452,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                         break;
                     }
 
-                    if (debugEnabled) Log.LogDebug("Retrying event {0} {1}/{2} on subscription {3}", ev.OriginalEvent.EventId, ev.OriginalStreamId, ev.OriginalEventNumber, _settings.SubscriptionId);
+                    if (debugEnabled) Log.RetryingEventOnSubscription(ev, _settings.SubscriptionId);
                     _streamBuffer.AddRetry(new OutstandingMessage(ev.OriginalEvent.EventId, null, ev, 0));
                 }
 
@@ -483,10 +477,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
             if (result == StartMessageResult.SkippedDuplicate && Log.IsWarningLevelEnabled())
             {
-                Log.LogWarning("Skipping message {0}/{1} with duplicate eventId {2}",
-                    message.ResolvedEvent.OriginalStreamId,
-                    message.ResolvedEvent.OriginalEventNumber,
-                    message.EventId);
+                Log.Skipping_message_with_duplicate_eventId(message);
             }
         }
 
@@ -541,10 +532,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void RetryMessage(in ResolvedEvent @event, int count)
         {
-            if (Log.IsDebugLevelEnabled())
-            {
-                Log.LogDebug("Retrying message {0} {1}/{2}", SubscriptionId, @event.OriginalStreamId, @event.OriginalEventNumber);
-            }
+            if (Log.IsDebugLevelEnabled()) { Log.RetryingMessage(SubscriptionId, @event); }
             _outstandingMessages.Remove(@event.OriginalEvent.EventId);
             _pushClients.RemoveProcessingMessage(@event.OriginalEvent.EventId);
             _streamBuffer.AddRetry(new OutstandingMessage(@event.OriginalEvent.EventId, null, @event, count + 1));

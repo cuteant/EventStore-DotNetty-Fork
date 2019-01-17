@@ -11,8 +11,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public StreamPositionTagger(int phase, string stream): base(phase)
         {
-            if (stream == null) throw new ArgumentNullException("stream");
-            if (string.IsNullOrEmpty(stream)) throw new ArgumentException("stream");
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             _stream = stream;
         }
 

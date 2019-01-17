@@ -102,7 +102,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
-            if (subscriptionDispatcher == null) throw new ArgumentNullException("subscriptionDispatcher");
+            if (null == subscriptionDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionDispatcher); }
 
             _projectionProcessingStrategy = projectionProcessingStrategy;
             _projectionCorrelationId = projectionCorrelationId;
@@ -339,9 +339,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(CoreProjectionProcessingMessage.RestartRequested message)
         {
-            if(_logger.IsInformationLevelEnabled()) _logger.LogInformation(
-                "Projection '{0}'({1}) restart has been requested due to: '{2}'", _name, _projectionCorrelationId,
-                message.Reason);
+            if(_logger.IsInformationLevelEnabled()) _logger.ProjectionRestartHasBeenRequestedDueTo(_name, _projectionCorrelationId, message.Reason);
             if (_state != State.Running)
             {
                 SetFaulted(

@@ -58,9 +58,9 @@ namespace EventStore.Projections.Core.Services.Processing
             bool stopOnEof = false)
             : base(publisher, eventReaderCorrelationId, readAs, stopOnEof)
         {
-            if (eventTypes == null) throw new ArgumentNullException(nameof(eventTypes));
-            if (timeProvider == null) throw new ArgumentNullException(nameof(timeProvider));
-            if (eventTypes.Length == 0) throw new ArgumentException("empty", nameof(eventTypes));
+            if (null == eventTypes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventTypes); }
+            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
+            if (eventTypes.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventTypes); }
 
             _includeDeletedStreamNotification = includeDeletedStreamNotification;
             _timeProvider = timeProvider;

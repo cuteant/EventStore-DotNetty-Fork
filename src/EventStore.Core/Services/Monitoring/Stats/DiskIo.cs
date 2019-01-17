@@ -45,7 +45,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             catch (Exception exc)
             {
-                if (Log.IsDebugLevelEnabled()) Log.LogDebug("Getting disk IO error: {0}.", exc.Message);
+                if (Log.IsDebugLevelEnabled()) Log.GettingDiskIOError(exc);
                 return null;
             }
         }
@@ -78,7 +78,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             catch (Exception ex)
             {
-                if (log.IsInformationLevelEnabled()) log.LogInformation(ex, "Could not parse Linux stats.");
+                if (log.IsInformationLevelEnabled()) log.Could_not_parse_Linux_stats(ex);
                 return null;
             }
 
@@ -98,7 +98,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             catch (Exception ex)
             {
-                if (log.IsInformationLevelEnabled()) log.LogInformation(ex, "Error while reading disk IO on Windows.");
+                if (log.IsInformationLevelEnabled()) log.Error_while_reading_disk_IO_on_Windows(ex);
                 return null;
             }
             finally

@@ -75,7 +75,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _projectionCheckpointStreamId, _nextStateIndexToRequest, recordsToRequest, false,
                 SystemAccount.Principal, OnLoadStateReadRequestCompleted, 
                 () => {
-                    _logger.LogWarning("Read forward of stream {0} timed out. Retrying.", _projectionCheckpointStreamId);
+                    if (_logger.IsWarningLevelEnabled()) _logger.ReadForwardOfStreamTimedOut(_projectionCheckpointStreamId);
                     RequestLoadState();
                 }, _readRequestId);
         }

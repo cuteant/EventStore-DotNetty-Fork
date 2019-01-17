@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.CompilerServices;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Cluster;
@@ -65,17 +66,14 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     if (response.HttpStatusCode != HttpStatusCode.OK)
                     {
                         Publish(new GossipMessage.GossipSendFailed(
-                            string.Format("Received HTTP status code {0}.", response.HttpStatusCode), endPoint));
+                            $"Received HTTP status code {response.HttpStatusCode}.", endPoint));
                         return;
                     }
 
                     var clusterInfo = Codec.Json.From<ClusterInfoDto>(response.Body);
                     if (clusterInfo == null)
                     {
-                        var msg = $"Received as RESPONSE invalid ClusterInfo from [{url}]. Content-Type: {response.ContentType}, Body:\n{response.Body}.";
-                        Log.LogError($"Received as RESPONSE invalid ClusterInfo from [{url}]. Content-Type: {response.ContentType}.");
-                        Log.LogError($"Received as RESPONSE invalid ClusterInfo from [{url}]. Body: {response.Body}.");
-                        Publish(new GossipMessage.GossipSendFailed(msg, endPoint));
+                        OnClusterInfoDtoParseError(response, url, endPoint);
                         return;
                     }
 
@@ -83,15 +81,19 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 },
                 error => Publish(new GossipMessage.GossipSendFailed(error.Message, endPoint)));
         }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void OnClusterInfoDtoParseError(HttpResponse response, string url, IPEndPoint endPoint)
+        {
+            Log.ReceivedAsResponseInvalidClusterinfo(url, response);
+            var msg = $"Received as RESPONSE invalid ClusterInfo from [{url}]. Content-Type: {response.ContentType}, Body:\n{response.Body}.";
+            Publish(new GossipMessage.GossipSendFailed(msg, endPoint));
+        }
 
         private void OnPostGossip(HttpEntityManager entity, UriTemplateMatch match)
         {
             entity.ReadTextRequestAsync(
                 OnPostGossipRequestRead,
-                e =>
-                {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while reading request (gossip): {0}", e.Message);
-                });
+                e => { if (Log.IsDebugLevelEnabled()) Log.Error_while_reading_request_gossip(e); });
         }
 
         private void OnPostGossipRequestRead(HttpEntityManager manager, string body)
@@ -99,10 +101,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var clusterInfoDto = manager.RequestCodec.From<ClusterInfoDto>(body);
             if (clusterInfoDto == null)
             {
-                var msg = $"Received as POST invalid ClusterInfo from [{manager.RequestedUrl}]. Content-Type: {manager.RequestCodec.ContentType}, Body:\n{body}.";
-                Log.LogError($"Received as POST invalid ClusterInfo from [{manager.RequestedUrl}]. Content-Type: {manager.RequestCodec.ContentType}.");
-                Log.LogError($"Received as POST invalid ClusterInfo from [{manager.RequestedUrl}]. Body: {body}.");
-                SendBadRequest(manager, msg);
+                OnClusterInfoDtoParseError(manager, body);
                 return;
             }
             var sendToHttpEnvelope = new SendToHttpEnvelope(_networkSendQueue,
@@ -111,6 +110,13 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                                                             (e, m) => Configure.Ok(e.ResponseCodec.ContentType));
             var serverEndPoint = TryGetServerEndPoint(clusterInfoDto);
             Publish(new GossipMessage.GossipReceived(sendToHttpEnvelope, new ClusterInfo(clusterInfoDto), serverEndPoint));
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void OnClusterInfoDtoParseError(HttpEntityManager manager, string body)
+        {
+            Log.ReceivedAsPostInvalidClusterinfo(manager, body);
+            var msg = $"Received as POST invalid ClusterInfo from [{manager.RequestedUrl}]. Content-Type: {manager.RequestCodec.ContentType}, Body:\n{body}.";
+            SendBadRequest(manager, msg);
         }
 
         private static IPEndPoint TryGetServerEndPoint(ClusterInfoDto clusterInfoDto)

@@ -580,7 +580,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     _checkpointManager.RecordEventOrder(resolvedEvent, orderCheckpointTag, completed);
                     break;
                 case PhaseState.Stopped:
-                    _logger.LogError("Should not receive events in stopped state anymore");
+                    _logger.ShouldNotReceiveEventsInStoppedStateAnymore();
                     completed(); // allow collecting events for debugging
                     break;
             }

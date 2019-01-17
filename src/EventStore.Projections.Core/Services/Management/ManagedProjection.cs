@@ -146,8 +146,11 @@ namespace EventStore.Projections.Core.Services.Management
             Guid slaveMasterWorkerId = default(Guid),
             Guid slaveMasterCorrelationId = default(Guid))
         {
-            if (id == Guid.Empty) throw new ArgumentException(nameof(id));
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+            if (id == Guid.Empty) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.id); }
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (null == output) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
+            if (null == getStateDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getStateDispatcher); }
+            if (null == getResultDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getResultDispatcher); }
             _workerId = workerId;
             _id = id;
             _projectionId = projectionId;
@@ -157,13 +160,13 @@ namespace EventStore.Projections.Core.Services.Management
             _streamDispatcher = streamDispatcher;
             _writeDispatcher = writeDispatcher;
             _readDispatcher = readDispatcher;
-            _output = output ?? throw new ArgumentNullException("output");
+            _output = output;
             _timeProvider = timeProvider;
             _isSlave = isSlave;
             _slaveMasterWorkerId = slaveMasterWorkerId;
             _slaveMasterCorrelationId = slaveMasterCorrelationId;
-            _getStateDispatcher = getStateDispatcher ?? throw new ArgumentNullException("getStateDispatcher");
-            _getResultDispatcher = getResultDispatcher ?? throw new ArgumentNullException("getResultDispatcher");
+            _getStateDispatcher = getStateDispatcher;
+            _getResultDispatcher = getResultDispatcher;
             _lastAccessed = _timeProvider.Now;
             _ioDispatcher = ioDispatcher;
             _projectionsQueryExpiry = projectionQueryExpiry;
@@ -431,7 +434,7 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(ProjectionManagementMessage.Command.Delete message)
         {
             if ((_state != ManagedProjectionState.Stopped && _state != ManagedProjectionState.Faulted) && Mode != ProjectionMode.Transient)
-                throw new InvalidOperationException("Cannot delete a projection that hasn't been stopped or faulted.");
+                ThrowHelper.ThrowInvalidOperationException(ExceptionResource.CannotDeleteAProjectionThatHasnotBeenStoppedOrFaulted);
             _lastAccessed = _timeProvider.Now;
 
             PersistedProjectionState.DeleteCheckpointStream = message.DeleteCheckpointStream;
@@ -557,7 +560,7 @@ namespace EventStore.Projections.Core.Services.Management
                     // NOTE: workaround for stop not working on creating state (just ignore them)
                     return;
                 }
-                _logger.LogWarning("Transient projection {0} has expired and will be deleted. Last accessed at {1}", _name, _lastAccessed);
+                if (_logger.IsWarningLevelEnabled()) _logger.TransientProjectionHasExpiredAndWillBeDeleted(_name, _lastAccessed);
                 Handle(
                     new ProjectionManagementMessage.Command.Delete(
                         new NoopEnvelope(),
@@ -676,9 +679,7 @@ namespace EventStore.Projections.Core.Services.Management
 
             if (_logger.IsTraceLevelEnabled())
             {
-                _logger.LogTrace(
-                    "Projection manager did not find any projection configuration records in the {0} stream.  Projection stays in CREATING state",
-                    completed.EventStreamId);
+                _logger.ProjectionManagerDidNotFindAnyProjectionConfigurationRecordsInTheStream(completed.EventStreamId);
             }
         }
 
@@ -721,9 +722,8 @@ namespace EventStore.Projections.Core.Services.Management
             var handlerType = persistedState.HandlerType;
             var query = persistedState.Query;
 
-            if (handlerType == null) throw new ArgumentNullException("persistedState", "HandlerType");
-            if (query == null) throw new ArgumentNullException("persistedState", "Query");
-            if (handlerType == "") throw new ArgumentException("HandlerType", "persistedState");
+            if (string.IsNullOrEmpty(handlerType)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.persistedState_handlerType); }
+            if (null == query) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.persistedState_Query); }
 
             if (_state != ManagedProjectionState.Creating && _state != ManagedProjectionState.Loading)
                 throw new InvalidOperationException("LoadPersistedState is now allowed in this state");
@@ -773,12 +773,12 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_writing)
             {
-                _logger.LogError("Projection definition write completed in non writing state. ({0})", _name);
+                _logger.ProjectionDefinitionWriteCompletedInNonWritingState(_name);
             }
             var infoEnabled = _logger.IsInformationLevelEnabled();
             if (message.Result == OperationResult.Success)
             {
-                if (infoEnabled) _logger.LogInformation("'{0}' projection source has been written", _name);
+                if (infoEnabled) _logger.ProjectionSourceHasBeenWritten(_name);
                 _pendingWritePersistedState = false;
                 var writtenEventNumber = message.FirstEventNumber;
                 if (writtenEventNumber != (PersistedProjectionState.Version ?? writtenEventNumber))
@@ -789,17 +789,13 @@ namespace EventStore.Projections.Core.Services.Management
             }
             if (infoEnabled)
             {
-                _logger.LogInformation(
-                  "Projection '{0}' source has not been written to {1}. Error: {2}",
-                  _name,
-                  eventStreamId,
-                  Enum.GetName(typeof(OperationResult), message.Result));
+                _logger.ProjectionSourceHasNotBeenWrittenTo(_name, eventStreamId, message.Result);
             }
             if (message.Result == OperationResult.CommitTimeout || message.Result == OperationResult.ForwardTimeout
                 || message.Result == OperationResult.PrepareTimeout
                 || message.Result == OperationResult.WrongExpectedVersion)
             {
-                if (infoEnabled) _logger.LogInformation("Retrying write projection source for {0}", _name);
+                if (infoEnabled) _logger.RetryingWriteProjectionSourceFor(_name);
                 WritePersistedState(eventToRetry);
             }
             else
@@ -826,17 +822,11 @@ namespace EventStore.Projections.Core.Services.Management
             var infoEnabled = _logger.IsInformationLevelEnabled();
             if (message.Result == OperationResult.Success || message.Result == OperationResult.StreamDeleted)
             {
-                if (infoEnabled) _logger.LogInformation("PROJECTIONS: Projection Stream '{0}' deleted", streamId);
+                if (infoEnabled) _logger.ProjectionsProjectionStreamDeleted(streamId);
                 completed();
                 return;
             }
-            if (infoEnabled)
-            {
-                _logger.LogInformation(
-                  "PROJECTIONS: Projection stream '{0}' could not be deleted. Error: {1}",
-                  streamId,
-                  Enum.GetName(typeof(OperationResult), message.Result));
-            }
+            if (infoEnabled) { _logger.ProjectionStreamCouldNotBeDeleted(streamId, message.Result); }
             if (message.Result == OperationResult.CommitTimeout ||
                 message.Result == OperationResult.ForwardTimeout)
             {
@@ -848,7 +838,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private void Prepare(ProjectionConfig config, Message message)
         {
-            if (config == null) throw new ArgumentNullException("config");
+            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
             if (_state >= ManagedProjectionState.Preparing)
             {
                 DisposeCoreProjection();
@@ -999,7 +989,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         public void Fault(string reason)
         {
-            _logger.LogError("The '{0}' projection faulted due to '{1}'", _name, reason);
+            _logger.TheProjectionFaultedDueTo(_name, reason);
             SetState(ManagedProjectionState.Faulted);
             _faultedReason = reason;
         }

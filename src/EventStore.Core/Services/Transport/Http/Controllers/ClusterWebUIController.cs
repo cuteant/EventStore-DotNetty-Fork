@@ -44,10 +44,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
               "OK",
               "application/json",
               null,
-              ex =>
-              {
-                  if (Log.IsInformationLevelEnabled()) Log.LogInformation(ex, "Failed to prepare main menu");
-              });
+              ex => { if (Log.IsInformationLevelEnabled()) Log.FailedToPrepareMainMenu(ex); });
         }
 
         private static void RegisterRedirectAction(IHttpService service, string fromUrl, string toUrl)

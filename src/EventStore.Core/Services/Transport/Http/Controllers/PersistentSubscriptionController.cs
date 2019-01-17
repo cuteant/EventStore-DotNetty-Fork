@@ -296,10 +296,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         "");
                     Publish(message);
                 },
-                x =>
-                {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug(x, "Reply Text Content Failed.");
-                });
+                x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private void PostSubscription(HttpEntityManager http, UriTemplateMatch match)
@@ -364,10 +361,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                         "");
                     Publish(message);
                 },
-                x =>
-                {
-                    if (Log.IsDebugLevelEnabled()) Log.LogDebug(x, "Reply Text Content Failed.");
-                });
+                x => { if (Log.IsDebugLevelEnabled()) Log.Reply_Text_Content_Failed(x); });
         }
 
         private SubscriptionConfigData ParseConfig(SubscriptionConfigData config)

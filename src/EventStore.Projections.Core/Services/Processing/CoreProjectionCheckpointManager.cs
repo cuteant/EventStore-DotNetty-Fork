@@ -47,11 +47,10 @@ namespace EventStore.Projections.Core.Services.Processing
             bool usePersistentCheckpoints)
         {
             if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (projectionConfig == null) throw new ArgumentNullException("projectionConfig");
-            if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
-            if (positionTagger == null) throw new ArgumentNullException("positionTagger");
-            if (namingBuilder == null) throw new ArgumentNullException("namingBuilder");
-            if (name == "") throw new ArgumentException("name");
+            if (null == projectionConfig) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.projectionConfig); }
+            if (string.IsNullOrEmpty(name)) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
+            if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.positionTagger); }
+            if (null == namingBuilder) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.namingBuilder); }
 
             _lastProcessedEventPosition = new PositionTracker(positionTagger);
             _zeroTag = positionTagger.MakeZeroCheckpointTag();
@@ -322,7 +321,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private bool StartCheckpoint(PositionTracker lastProcessedEventPosition, PartitionState projectionState)
         {
             Contract.Requires(_closingCheckpoint == null);
-            if (projectionState == null) throw new ArgumentNullException("projectionState");
+            if (null == projectionState) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.projectionState); }
 
             CheckpointTag requestedCheckpointPosition = lastProcessedEventPosition.LastTag;
             if (requestedCheckpointPosition == _lastCompletedCheckpointPosition)

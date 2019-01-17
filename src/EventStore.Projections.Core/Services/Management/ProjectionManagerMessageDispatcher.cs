@@ -52,7 +52,7 @@ namespace EventStore.Projections.Core.Services.Management
             }
             else
             {
-                if (_logger.IsInformationLevelEnabled()) _logger.LogInformation($"Cannot find a worker with ID: {workerId}");
+                if (_logger.IsInformationLevelEnabled()) _logger.CannotFindAWorkerWithId(workerId);
             }
         }
 

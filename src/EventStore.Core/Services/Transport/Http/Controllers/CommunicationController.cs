@@ -40,10 +40,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             httpEntityManager.ReplyStatus(HttpStatusCode.BadRequest,
                                           reason,
-                                          e =>
-                                          {
-                                              if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while closing HTTP connection (bad request): {0}.", e.Message);
-                                          });
+                                          e => { if (Log.IsDebugLevelEnabled()) Log.Error_while_closing_HTTP_connection_bad_request(e); });
             return new RequestParams(done: true);
         }
 
@@ -51,10 +48,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             httpEntityManager.ReplyStatus(HttpStatusCode.RequestEntityTooLarge,
                                           "Too large events received. Limit is 4mb",
-                                          e =>
-                                          {
-                                              if (Log.IsDebugLevelEnabled()) Log.LogDebug("Too large events received over HTTP");
-                                          });
+                                          e => { if (Log.IsDebugLevelEnabled()) Log.Too_large_events_received_over_HTTP(); });
             return new RequestParams(done: true);
         }
 
@@ -62,10 +56,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             httpEntityManager.ReplyStatus(HttpStatusCode.OK,
                                           "OK",
-                                          e =>
-                                          {
-                                              if (Log.IsDebugLevelEnabled()) Log.LogDebug("Error while closing HTTP connection (ok): {0}.", e.Message);
-                                          });
+                                          e => { if (Log.IsDebugLevelEnabled()) Log.Error_while_closing_HTTP_connection_ok(e); });
             return new RequestParams(done: true);
         }
 

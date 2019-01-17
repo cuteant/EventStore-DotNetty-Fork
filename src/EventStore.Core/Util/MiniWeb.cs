@@ -23,7 +23,7 @@ namespace EventStore.Core.Util
 
         public MiniWeb(string localWebRootPath, string fileSystemRoot)
         {
-            if (Logger.IsInformationLevelEnabled()) Logger.LogInformation("Starting MiniWeb for {0} ==> {1}", localWebRootPath, fileSystemRoot);
+            if (Logger.IsInformationLevelEnabled()) Logger.Starting_MiniWeb_for(localWebRootPath, fileSystemRoot);
             _localWebRootPath = localWebRootPath;
             _fileSystemRoot = fileSystemRoot;
         }
@@ -31,7 +31,7 @@ namespace EventStore.Core.Util
         public void RegisterControllerActions(IHttpService service)
         {
             var pattern = _localWebRootPath + "/{*remaining_path}";
-            if (Logger.IsTraceLevelEnabled()) Logger.LogTrace("Binding MiniWeb to {0}", pattern);
+            if (Logger.IsTraceLevelEnabled()) Logger.BindingMiniWeb(pattern);
             service.RegisterAction(new ControllerAction(pattern, HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.ManualEncoding }), OnStaticContent);
         }
 
@@ -49,7 +49,7 @@ namespace EventStore.Core.Util
                 contentLocalPath = contentLocalPath.Substring(_localWebRootPath.Length);
             }
 
-            //_logger.LogTrace("{0} requested from MiniWeb", contentLocalPath);
+            //if (Logger.IsTraceLevelEnabled()) Logger.RequestedFromMiniWeb(contentLocalPath);
             try
             {
                 var extensionToContentType = new Dictionary<string, string>(StringComparer.Ordinal)
@@ -76,13 +76,10 @@ namespace EventStore.Core.Util
                 || !extensionToContentType.TryGetValue(extension.ToLowerInvariant(), out string contentType)
                 || !File.Exists(fullPath))
                 {
-                    if (Logger.IsInformationLevelEnabled())
-                    {
-                        Logger.LogInformation("Replying 404 for {0} ==> {1}", contentLocalPath, fullPath);
-                    }
+                    if (Logger.IsInformationLevelEnabled()) { Logger.Replying_404_for(contentLocalPath, fullPath); }
                     http.ReplyTextContent(
                         "Not Found", 404, "Not Found", "text/plain", null,
-                        ex => Logger.LogInformation(ex, "Error while replying from MiniWeb"));
+                        ex => { if (Logger.IsInformationLevelEnabled()) Logger.Error_while_replying_from_MiniWeb(ex); });
                 }
                 else
                 {
@@ -95,7 +92,7 @@ namespace EventStore.Core.Util
                                        config.ContentType,
                                        config.Encoding,
                                        config.Headers,
-                                       ex => Logger.LogInformation(ex, "Error while replying from MiniWeb"));
+                                       ex => { if (Logger.IsInformationLevelEnabled()) Logger.Error_while_replying_from_MiniWeb(ex); });
                 }
             }
             catch (Exception ex)

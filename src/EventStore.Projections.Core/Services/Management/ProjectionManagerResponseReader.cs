@@ -46,11 +46,11 @@ namespace EventStore.Projections.Core.Services.Management
             var debugEnabled = Log.IsDebugLevelEnabled();
             if (_cancellationScope != null)
             {
-                if (debugEnabled) Log.LogDebug("PROJECTIONS: There was an active cancellation scope, cancelling now");
+                if (debugEnabled) Log.ThereWasAnActiveCancellationScopeCancellingNow();
                 _cancellationScope.Cancel();
             }
             _cancellationScope = new IODispatcherAsync.CancellationScope();
-            if (debugEnabled) Log.LogDebug("PROJECTIONS: Starting Projection Manager Response Reader (reads from $projections-$master)");
+            if (debugEnabled) Log.StartingProjectionManagerResponseReader();
             _numberOfStartedWorkers = 0;
             PerformStartReader(message.EpochId).Run();
         }
@@ -104,7 +104,7 @@ namespace EventStore.Projections.Core.Services.Management
                 throw new Exception($"Cannot start response reader. Write result: {writeResult.Result}");
             }
 
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("PROJECTIONS: Finished Starting Projection Manager Response Reader (reads from $projections-$master)");
+            if (Log.IsDebugLevelEnabled()) Log.FinishedStartingProjectionManagerResponseReader();
 
 
             ReadForward();
@@ -122,7 +122,7 @@ namespace EventStore.Projections.Core.Services.Management
                     SystemAccount.Principal,
                     ReadForwardCompleted,
                     () => {
-                        Log.LogWarning("Read forward of stream {0} timed out. Retrying", ProjectionNamesBuilder._projectionsMasterStream);
+                        if (Log.IsWarningLevelEnabled()) Log.ReadForwardOfStreamTimedOut(ProjectionNamesBuilder._projectionsMasterStream);
                         ReadForward();
                     },
                     _correlationId)
@@ -164,7 +164,7 @@ namespace EventStore.Projections.Core.Services.Management
             }
             else
             {
-                Log.LogError("Failed reading stream {0}. Read result: {1}, Error: '{2}'", ProjectionNamesBuilder._projectionsMasterStream, completed.Result, completed.Error);
+                Log.FailedReadingStream(completed);
                 ReadForward();
             }
         }
@@ -172,7 +172,7 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(ProjectionManagementMessage.Internal.ReadTimeout timeout)
         {
             if (timeout.CorrelationId != _correlationId) return;
-            if (Log.IsDebugLevelEnabled()) Log.LogDebug("Read forward of stream {0} timed out. Retrying", ProjectionNamesBuilder._projectionsMasterStream);
+            if (Log.IsDebugLevelEnabled()) Log.ReadForwardOfProjectionsMasterStreamTimedOut();
             ReadForward();
         }
 
@@ -193,9 +193,9 @@ namespace EventStore.Projections.Core.Services.Management
         {
             var command = resolvedEvent.Event.EventType;
             //TODO: PROJECTIONS: Remove before release
-            if (!Logging.FilteredMessages.Contains(x => x == command) && Log.IsDebugLevelEnabled())
+            if (Log.IsDebugLevelEnabled() && !Logging.FilteredMessages.Contains(x => x == command))
             {
-                Log.LogDebug("PROJECTIONS: Response received: {0}@{1}", resolvedEvent.OriginalEventNumber, command);
+                Log.ProjectionsResponseReceived(resolvedEvent.OriginalEventNumber, command);
             }
             switch (command)
             {

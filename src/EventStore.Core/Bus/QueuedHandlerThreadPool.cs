@@ -86,9 +86,11 @@ namespace EventStore.Core.Bus
             _queueMonitor.Unregister(this);
         }
 
-        private void TryStopQueueStats(){
-            if(Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0){
-                if(Interlocked.CompareExchange(ref _queueStatsState, 2, 1) == 1)
+        private void TryStopQueueStats()
+        {
+            if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
+            {
+                if (Interlocked.CompareExchange(ref _queueStatsState, 2, 1) == 1)
                     _queueStats.Stop();
                 Interlocked.CompareExchange(ref _isRunning, 0, 1);
             }
@@ -96,81 +98,79 @@ namespace EventStore.Core.Bus
 
         private void ReadFromQueue(object o)
         {
-        try{
-            if(Interlocked.CompareExchange(ref _queueStatsState, 1, 0) == 0)
-                _queueStats.Start();
-
-            var proceed = true;
-            var traceEnabled = Log.IsTraceLevelEnabled();
-
-            while (proceed)
+            try
             {
-                _stopped.Reset();
-                _queueStats.EnterBusy();
+                if (Interlocked.CompareExchange(ref _queueStatsState, 1, 0) == 0)
+                    _queueStats.Start();
 
-                while (!_stop && _queue.TryDequeue(out Message msg))
+                var proceed = true;
+                var traceEnabled = Log.IsTraceLevelEnabled();
+
+                while (proceed)
                 {
-#if DEBUG
-                    _queueStats.Dequeued(msg);
-#endif
-                    try
+                    _stopped.Reset();
+                    _queueStats.EnterBusy();
+
+                    while (!_stop && _queue.TryDequeue(out Message msg))
                     {
-                        var queueCnt = _queue.Count;
-                        _queueStats.ProcessingStarted(msg.GetType(), queueCnt);
-
-                        if (_watchSlowMsg)
+#if DEBUG
+                        _queueStats.Dequeued(msg);
+#endif
+                        try
                         {
-                            var start = DateTime.UtcNow;
+                            var queueCnt = _queue.Count;
+                            _queueStats.ProcessingStarted(msg.GetType(), queueCnt);
 
-                            _consumer.Handle(msg);
-
-                            var elapsed = DateTime.UtcNow - start;
-                            if (elapsed > _slowMsgThreshold)
+                            if (_watchSlowMsg)
                             {
-                                if (traceEnabled)
+                                var start = DateTime.UtcNow;
+
+                                _consumer.Handle(msg);
+
+                                var elapsed = DateTime.UtcNow - start;
+                                if (elapsed > _slowMsgThreshold)
                                 {
-                                    Log.LogTrace("SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                              _queueStats.Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, queueCnt, _queue.Count);
-                                }
-                                if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
-                                {
-                                    Log.LogError("---!!! VERY SLOW QUEUE MSG [{0}]: {1} - {2}ms. Q: {3}/{4}.",
-                                              _queueStats.Name, _queueStats.InProgressMessage.Name, (int)elapsed.TotalMilliseconds, queueCnt, _queue.Count);
+                                    if (traceEnabled) { Log.ShowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, queueCnt, _queue.Count); }
+                                    if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
+                                    {
+                                        Log.VerySlowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, queueCnt, _queue.Count);
+                                    }
                                 }
                             }
+                            else
+                            {
+                                _consumer.Handle(msg);
+                            }
+
+                            _queueStats.ProcessingEnded(1);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            _consumer.Handle(msg);
-                        }
-
-                        _queueStats.ProcessingEnded(1);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.LogError(ex, "Error while processing message {0} in queued handler '{1}'.", msg, _queueStats.Name);
+                            Log.ErrorWhileProcessingMessageInQueuedHandler(msg, _queueStats.Name, ex);
 #if DEBUG
-                        throw;
+                            throw;
 #endif
+                        }
                     }
+
+                    _queueStats.EnterIdle();
+                    Interlocked.CompareExchange(ref _isRunning, 0, 1);
+                    if (_stop)
+                    {
+                        TryStopQueueStats();
+                    }
+
+                    _stopped.Set();
+
+                    // try to reacquire lock if needed
+                    proceed = !_stop && _queue.Count > 0 && Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0;
                 }
-
-                _queueStats.EnterIdle();
-                Interlocked.CompareExchange(ref _isRunning, 0, 1);
-                if(_stop){
-                    TryStopQueueStats();
-                }
-
-                _stopped.Set();
-
-                // try to reacquire lock if needed
-                proceed = !_stop && _queue.Count > 0 && Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0;
             }
-        }
-        catch(Exception ex){
-            _tcs.TrySetException(ex);
-            throw;
-        }
+            catch (Exception ex)
+            {
+                _tcs.TrySetException(ex);
+                throw;
+            }
 
         }
 

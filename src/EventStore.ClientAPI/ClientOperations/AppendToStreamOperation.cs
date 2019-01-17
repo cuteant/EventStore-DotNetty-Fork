@@ -44,7 +44,7 @@ namespace EventStore.ClientAPI.ClientOperations
                 case OperationResult.Success:
                     if (_wasCommitTimeout)
                     {
-                        if (Log.IsDebugLevelEnabled()) Log.LogDebug("IDEMPOTENT WRITE SUCCEEDED FOR {0}.", this);
+                        if (Log.IsDebugLevelEnabled()) Log.IdempotentWriteSucceededFor(this);
                     }
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");

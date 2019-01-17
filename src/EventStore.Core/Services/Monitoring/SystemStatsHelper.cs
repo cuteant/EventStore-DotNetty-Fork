@@ -135,12 +135,12 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (InvalidOperationException)
             {
-                if (_log.IsInformationLevelEnabled()) _log.LogInformation("Received error reading counters. Attempting to rebuild.");
+                if (_log.IsInformationLevelEnabled()) _log.Received_error_reading_counters();
                 _perfCounter = new PerfCounterHelper(_log);
                 _giveup = count > 10;
                 if (_giveup)
                 {
-                    _log.LogError("Maximum rebuild attempts reached. Giving up on rebuilds.");
+                    _log.MaximumRebuildAttemptsReachedGivingUpOnRebuilds();
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                if (_log.IsDebugLevelEnabled()) _log.LogDebug(ex, "Could not get free mem on linux, received memory info raw string: [{0}]", meminfo);
+                if (_log.IsDebugLevelEnabled()) _log.Could_not_get_free_mem_on_linux(ex, meminfo);
                 return -1;
             }
         }
@@ -203,7 +203,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                if (_log.IsDebugLevelEnabled()) _log.LogDebug(ex, "Could not get free memory on BSD.");
+                if (_log.IsDebugLevelEnabled()) _log.Could_not_get_free_memory_on_BSD(ex);
                 return -1;
             }
         }
@@ -233,7 +233,7 @@ namespace EventStore.Core.Services.Monitoring
             }
             catch (Exception ex)
             {
-                if (_log.IsDebugLevelEnabled()) _log.LogDebug(ex, "Could not get free memory on OSX.");
+                if (_log.IsDebugLevelEnabled()) _log.Could_not_get_free_memory_on_OSX(ex);
                 return -1;
             }
         }

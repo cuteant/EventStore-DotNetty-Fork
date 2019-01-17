@@ -71,10 +71,7 @@ namespace EventStore.Core.Services
             }
             else
             {
-                if (Log.IsDebugLevelEnabled())
-                {
-                    Log.LogDebug("Dropping HTTP send message due to TTL being over. {1} To : {0}", message.EndPoint, message.Message.GetType().Name.ToString());
-                }
+                if (Log.IsDebugLevelEnabled()) { Log.Dropping_HTTP_send_message_due_to_TTL_being_over(message); }
             }
         }
 
@@ -95,9 +92,9 @@ namespace EventStore.Core.Services
                 message.HttpEntityManager.ReplyStatus(
                     code,
                     deniedToHandle.Details,
-                    exc => Log.LogDebug("Error occurred while replying to HTTP with message {0}: {1}.", message.Message, exc.Message));
+                    exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
                 HistogramService.SetValue(_httpSendHistogram,
-                   (long)((((double)_watch.ElapsedTicks - start) / Stopwatch.Frequency) * 1000000000));
+                    (long)((((double)_watch.ElapsedTicks - start) / Stopwatch.Frequency) * 1000000000));
             }
             else
             {
@@ -112,7 +109,7 @@ namespace EventStore.Core.Services
                         config.Description,
                         config.ContentType,
                         config.Headers,
-                        exc => Log.LogDebug("Error occurred while replying to HTTP with message {0}: {1}.", message.Message, exc.Message));
+                        exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
                 }
                 else
                 {
@@ -122,7 +119,7 @@ namespace EventStore.Core.Services
                         config.Description,
                         config.ContentType,
                         config.Headers,
-                        exc => Log.LogDebug("Error occurred while replying to HTTP with message {0}: {1}.", message.Message, exc.Message));
+                        exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
                 }
                 HistogramService.SetValue(_httpSendHistogram,
                    (long)((((double)_watch.ElapsedTicks - start) / Stopwatch.Frequency) * 1000000000));
@@ -144,11 +141,11 @@ namespace EventStore.Core.Services
             var response = message.Data;
             message.HttpEntityManager.ContinueReplyTextContent(
                 response,
-                exc => Log.LogDebug("Error occurred while replying to HTTP with message {0}: {1}.", message, exc.Message),
+                exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); },
                 () =>
                 {
-              //if (message.Envelope != null)
-              message.Envelope?.ReplyWith(new HttpMessage.HttpCompleted(message.CorrelationId, message.HttpEntityManager));
+                    //if (message.Envelope != null)
+                    message.Envelope?.ReplyWith(new HttpMessage.HttpCompleted(message.CorrelationId, message.HttpEntityManager));
                 });
         }
 
@@ -231,7 +228,7 @@ namespace EventStore.Core.Services
                 request.Content = streamContent;
 
                 MediaTypeHeaderValue contentType;
-                if(MediaTypeHeaderValue.TryParse(srcReq.ContentType, out contentType))
+                if (MediaTypeHeaderValue.TryParse(srcReq.ContentType, out contentType))
                 {
                     streamContent.Headers.ContentType = contentType;
                 }
@@ -260,13 +257,12 @@ namespace EventStore.Core.Services
                        }
                        catch (Exception ex)
                        {
-                           state.Item3.LogDebug("Error in SendAsync for forwarded request for '{0}': {1}.",
-                                     manager1.RequestedUrl, ex.InnerException.Message);
+                           if (state.Item3.IsDebugLevelEnabled()) state.Item3.Error_in_SendAsync_for_forwarded_request_for(manager1.RequestedUrl, ex);
                            state.Item2.Invoke(manager1);
                            return;
                        }
 
-                       manager1.ForwardReply(response, exc => state.Item3.LogDebug("Error forwarding response for '{0}': {1}.", manager1.RequestedUrl, exc.Message));
+                       manager1.ForwardReply(response, exc => { if (state.Item3.IsDebugLevelEnabled()) state.Item3.Error_forwarding_response_for(manager1.RequestedUrl, exc); });
                    }, Tuple.Create(manager, s_forwardReplyFailed, Log));
         }
     }
