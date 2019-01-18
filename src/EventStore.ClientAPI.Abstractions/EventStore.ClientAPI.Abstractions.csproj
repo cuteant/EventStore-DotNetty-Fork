@@ -9,7 +9,11 @@
     <AssemblyName>EventStore.ClientAPI.Abstractions</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
-  
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);CLIENTAPI</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Label="NuGet">
     <PackageId>EasyEventStore.Abstractions</PackageId>
     <Title>EasyEventStore.Abstractions</Title>

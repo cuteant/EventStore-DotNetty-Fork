@@ -34,7 +34,7 @@ namespace EventStore.ClientAPI.Consumers
         }
 
         public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
-          Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> resolvedEventAppearedAsync)
+            Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> resolvedEventAppearedAsync)
         {
             if (null == resolvedEventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppearedAsync); }
             Initialize(bus, subscription);
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.Consumers
         }
 
         public void Initialize(IEventStoreBus bus, PersistentSubscription<TEvent> subscription,
-          Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> resolvedEventAppeared)
+            Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> resolvedEventAppeared)
         {
             if (null == resolvedEventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppeared); }
             Initialize(bus, subscription);

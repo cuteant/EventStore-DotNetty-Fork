@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using EventStore.ClientAPI.Common.MatchHandler;
 
 namespace EventStore.ClientAPI
 {
@@ -13,6 +14,8 @@ namespace EventStore.ClientAPI
         arrayIndex,
         query,
         limit,
+        compiler,
+        handlesType,
         @event,
         name,
         context,
@@ -134,6 +137,10 @@ namespace EventStore.ClientAPI
     /// <summary>The convention for this enum is using the resource name as the enum name</summary>
     internal enum ExceptionResource
     {
+        ArgumentNull_Compiler,
+        ArgumentNull_Type,
+        InvalidOperation_MatchBuilder_Built,
+        InvalidOperation_MatchBuilder_MatchAnyAdded,
         YouDoNotHaveAccessToTheStream,
         SubscriptionNotFound,
         Write_access_denied_for_stream,
@@ -258,6 +265,16 @@ namespace EventStore.ClientAPI
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowArgumentException_PartialActionBuilder(int MaxNumberOfArguments)
+        {
+            throw GetException();
+            ArgumentException GetException()
+            {
+                return new ArgumentException($"Too many arguments. Max {MaxNumberOfArguments} arguments allowed.", "handlerAndArgs");
+            }
+        }
+
         #endregion
 
         #region -- ArgumentOutOfRangeException --
@@ -353,6 +370,17 @@ namespace EventStore.ClientAPI
             ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException(nameof(minDelay), minDelay, "ExponentialBackoff min delay must be greater than max delay.");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowArgumentOutOfRangeException_MatchExpressionBuilder_Add(HandlerKind kind)
+        {
+            throw GetException();
+            ArgumentOutOfRangeException GetException()
+            {
+                return new ArgumentOutOfRangeException(
+                    $"This should not happen. The value {typeof(HandlerKind)}.{kind} is a new enum value that has been added without updating the code in this method.");
             }
         }
 

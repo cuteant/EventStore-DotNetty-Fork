@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArgumentNull_Compiler" xml:space="preserve">
+    <value>Compiler cannot be null</value>
+  </data>
+  <data name="ArgumentNull_Type" xml:space="preserve">
+    <value>Type cannot be null</value>
+  </data>
+  <data name="InvalidOperation_MatchBuilder_Built" xml:space="preserve">
+    <value>The partial action has been built. No handler can be added after that.</value>
+  </data>
+  <data name="InvalidOperation_MatchBuilder_MatchAnyAdded" xml:space="preserve">
+    <value>A handler that catches all messages has been added. No handler can be added after that.</value>
+  </data>
   <data name="Read_access_denied_for_all" xml:space="preserve">
     <value>Read access denied for $all.</value>
   </data>

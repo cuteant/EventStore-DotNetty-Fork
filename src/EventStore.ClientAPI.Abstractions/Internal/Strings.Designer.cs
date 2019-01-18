@@ -61,6 +61,42 @@ namespace EventStore.ClientAPI.Internal {
         }
         
         /// <summary>
+        ///   查找类似 Compiler cannot be null 的本地化字符串。
+        /// </summary>
+        internal static string ArgumentNull_Compiler {
+            get {
+                return ResourceManager.GetString("ArgumentNull_Compiler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Type cannot be null 的本地化字符串。
+        /// </summary>
+        internal static string ArgumentNull_Type {
+            get {
+                return ResourceManager.GetString("ArgumentNull_Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The partial action has been built. No handler can be added after that. 的本地化字符串。
+        /// </summary>
+        internal static string InvalidOperation_MatchBuilder_Built {
+            get {
+                return ResourceManager.GetString("InvalidOperation_MatchBuilder_Built", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 A handler that catches all messages has been added. No handler can be added after that. 的本地化字符串。
+        /// </summary>
+        internal static string InvalidOperation_MatchBuilder_MatchAnyAdded {
+            get {
+                return ResourceManager.GetString("InvalidOperation_MatchBuilder_MatchAnyAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Read access denied for $all. 的本地化字符串。
         /// </summary>
         internal static string Read_access_denied_for_all {

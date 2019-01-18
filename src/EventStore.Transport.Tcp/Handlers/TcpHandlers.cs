@@ -52,12 +52,12 @@ namespace EventStore.Transport.Tcp
             base.ChannelInactive(context);
         }
 
-        public override void Read(IChannelHandlerContext context)
-        {
-            //var connection = Volatile.Read(ref _connection);
-            //_connection.NotifyReceiveStarting();
-            base.Read(context);
-        }
+        //public override void Read(IChannelHandlerContext context)
+        //{
+        //    //var connection = Volatile.Read(ref _connection);
+        //    //_connection.NotifyReceiveStarting();
+        //    base.Read(context);
+        //}
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {

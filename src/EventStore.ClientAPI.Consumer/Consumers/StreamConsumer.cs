@@ -5,8 +5,8 @@ namespace EventStore.ClientAPI.Consumers
 {
     /// <summary>The abstract base class which supports the different consumer types.</summary>
     public abstract class StreamConsumer<TSubscription, TSettings> : StreamConsumerBase<TSubscription, TSettings>
-      where TSubscription : class, ISubscription<TSettings>
-      where TSettings : SubscriptionSettings
+        where TSubscription : class, ISubscription<TSettings>
+        where TSettings : SubscriptionSettings
     {
         protected Action<IHandlerRegistration> RegisterEventHandlers { get; private set; }
         protected Action<IConsumerRegistration> RegisterHandlers { get; private set; }

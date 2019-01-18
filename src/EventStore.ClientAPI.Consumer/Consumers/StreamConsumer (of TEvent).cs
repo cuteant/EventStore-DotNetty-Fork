@@ -5,9 +5,9 @@ namespace EventStore.ClientAPI.Consumers
 {
     /// <summary>The abstract base class which supports the different consumer types.</summary>
     public abstract class StreamConsumer<TSubscription, TSettings, TEvent> : StreamConsumerBase<TSubscription, TSettings>
-      where TSubscription : class, ISubscription<TSettings>
-      where TSettings : SubscriptionSettings
-      where TEvent : class
+        where TSubscription : class, ISubscription<TSettings>
+        where TSettings : SubscriptionSettings
+        where TEvent : class
     {
         /// <summary>Initializes the external serializer. Called once when the serialization manager creates 
         /// an instance of this type</summary>

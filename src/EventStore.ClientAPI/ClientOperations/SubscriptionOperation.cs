@@ -16,8 +16,8 @@ using Microsoft.Extensions.Logging;
 namespace EventStore.ClientAPI.ClientOperations
 {
     internal abstract class SubscriptionOperation<TSubscription, TResolvedEvent> : ISubscriptionOperation
-      where TSubscription : EventStoreSubscription
-      where TResolvedEvent : IResolvedEvent
+        where TSubscription : EventStoreSubscription
+        where TResolvedEvent : IResolvedEvent
     {
         private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.SubscriptionOperation");
 
@@ -32,9 +32,9 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _verboseLogging;
         protected readonly Func<TcpPackageConnection> _getConnection;
         private readonly int _maxQueueSize = 2000;
-        private readonly BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _bufferBlock;
-        private readonly List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>> _actionBlocks;
-        private readonly ITargetBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> _targetBlock;
+        private readonly BufferBlock<ResolvedEventWrapper> _bufferBlock;
+        private readonly List<ActionBlock<ResolvedEventWrapper>> _actionBlocks;
+        private readonly ITargetBlock<ResolvedEventWrapper> _targetBlock;
         private readonly IDisposable _links;
         protected TSubscription _subscription;
         private int _unsubscribed;
@@ -51,7 +51,7 @@ namespace EventStore.ClientAPI.ClientOperations
             Action<TSubscription, TResolvedEvent> eventAppeared,
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
             Func<TcpPackageConnection> getConnection)
-          : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
+            : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             _eventAppeared = eventAppeared;
@@ -62,17 +62,17 @@ namespace EventStore.ClientAPI.ClientOperations
                 // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
                 numActionBlocks = 1;
             }
-            _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+            _actionBlocks = new List<ActionBlock<ResolvedEventWrapper>>(numActionBlocks);
             for (var idx = 0; idx < numActionBlocks; idx++)
             {
-                _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+                _actionBlocks.Add(new ActionBlock<ResolvedEventWrapper>(
                     e => ProcessItem(e),
                     settings.ToExecutionDataflowBlockOptions(true)));
             }
             if (numActionBlocks > 1)
             {
                 var links = new CompositeDisposable();
-                _bufferBlock = new BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+                _bufferBlock = new BufferBlock<ResolvedEventWrapper>(settings.ToBufferBlockOptions());
                 for (var idx = 0; idx < numActionBlocks; idx++)
                 {
                     var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -95,7 +95,7 @@ namespace EventStore.ClientAPI.ClientOperations
             Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
             Func<TcpPackageConnection> getConnection)
-          : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
+            : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             _eventAppearedAsync = eventAppearedAsync;
@@ -106,17 +106,17 @@ namespace EventStore.ClientAPI.ClientOperations
                 // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
                 numActionBlocks = 1;
             }
-            _actionBlocks = new List<ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>>(numActionBlocks);
+            _actionBlocks = new List<ActionBlock<ResolvedEventWrapper>>(numActionBlocks);
             for (var idx = 0; idx < numActionBlocks; idx++)
             {
-                _actionBlocks.Add(new ActionBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(
+                _actionBlocks.Add(new ActionBlock<ResolvedEventWrapper>(
                   e => ProcessItemAsync(e),
                   settings.ToExecutionDataflowBlockOptions()));
             }
             if (numActionBlocks > 1)
             {
                 var links = new CompositeDisposable();
-                _bufferBlock = new BufferBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>(settings.ToBufferBlockOptions());
+                _bufferBlock = new BufferBlock<ResolvedEventWrapper>(settings.ToBufferBlockOptions());
                 for (var idx = 0; idx < numActionBlocks; idx++)
                 {
                     var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
@@ -325,7 +325,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
                 if (_subscription != null)
                 {
-                    EnqueueMessage((false, default(TResolvedEvent), reason, exc));
+                    EnqueueMessage(new ResolvedEventWrapper(reason, exc));
                 }
             }
         }
@@ -355,7 +355,7 @@ namespace EventStore.ClientAPI.ClientOperations
             if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
             if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
-            EnqueueMessage((true, e, SubscriptionDropReason.Unknown, null));
+            EnqueueMessage(new ResolvedEventWrapper(e));
         }
 
         protected Task EventAppearedAsync(in TResolvedEvent e)
@@ -365,10 +365,10 @@ namespace EventStore.ClientAPI.ClientOperations
             if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
             if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
-            return EnqueueMessageAsync((true, e, SubscriptionDropReason.Unknown, null));
+            return EnqueueMessageAsync(new ResolvedEventWrapper(e));
         }
 
-        private void EnqueueMessage((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private void EnqueueMessage(ResolvedEventWrapper item)
         {
             //_targetBlock.Post(item);
             AsyncContext.Run(s_sendToQueueFunc, _targetBlock, item);
@@ -378,15 +378,15 @@ namespace EventStore.ClientAPI.ClientOperations
             }
         }
 
-        private static readonly Func<ITargetBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)>, (bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc), Task<bool>> s_sendToQueueFunc = SendToQueueAsync;
+        private static readonly Func<ITargetBlock<ResolvedEventWrapper>, ResolvedEventWrapper, Task<bool>> s_sendToQueueFunc = SendToQueueAsync;
         private static async Task<bool> SendToQueueAsync(
-            ITargetBlock<(bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc)> targetBlock,
-            (bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) message)
+            ITargetBlock<ResolvedEventWrapper> targetBlock,
+            ResolvedEventWrapper message)
         {
             return await targetBlock.SendAsync(message).ConfigureAwait(false);
         }
 
-        private async Task EnqueueMessageAsync((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private async Task EnqueueMessageAsync(ResolvedEventWrapper item)
         {
             await _targetBlock.SendAsync(item).ConfigureAwait(false);
             if (InputCount > _maxQueueSize)
@@ -400,13 +400,13 @@ namespace EventStore.ClientAPI.ClientOperations
             _eventAppeared(_subscription, resolvedEvent);
         }
 
-        private void ProcessItem((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private void ProcessItem(ResolvedEventWrapper item)
         {
             try
             {
-                if (item.isResolvedEvent)
+                if (item.IsResolvedEvent)
                 {
-                    ProcessResolvedEvent(item.resolvedEvent);
+                    ProcessResolvedEvent(item.ResolvedEvent);
                 }
                 else
                 {
@@ -419,7 +419,7 @@ namespace EventStore.ClientAPI.ClientOperations
                     {
                         _actionBlocks[0]?.Complete();
                     }
-                    _subscriptionDropped(_subscription, item.dropReason, item.exc);
+                    _subscriptionDropped(_subscription, item.DropReason, item.Error);
                 }
             }
             catch (Exception exc)
@@ -433,13 +433,13 @@ namespace EventStore.ClientAPI.ClientOperations
             return _eventAppearedAsync(_subscription, resolvedEvent);
         }
 
-        private async Task ProcessItemAsync((bool isResolvedEvent, TResolvedEvent resolvedEvent, SubscriptionDropReason dropReason, Exception exc) item)
+        private async Task ProcessItemAsync(ResolvedEventWrapper item)
         {
             try
             {
-                if (item.isResolvedEvent)
+                if (item.IsResolvedEvent)
                 {
-                    await ProcessResolvedEventAsync(item.resolvedEvent).ConfigureAwait(false);
+                    await ProcessResolvedEventAsync(item.ResolvedEvent).ConfigureAwait(false);
                 }
                 else
                 {
@@ -452,12 +452,36 @@ namespace EventStore.ClientAPI.ClientOperations
                     {
                         _actionBlocks[0]?.Complete();
                     }
-                    _subscriptionDropped(_subscription, item.dropReason, item.exc);
+                    _subscriptionDropped(_subscription, item.DropReason, item.Error);
                 }
             }
             catch (Exception exc)
             {
                 _log.ExceptionDuringExecutingUserCallback(exc);
+            }
+        }
+
+        sealed class ResolvedEventWrapper
+        {
+            public readonly bool IsResolvedEvent;
+            public readonly TResolvedEvent ResolvedEvent;
+            public readonly SubscriptionDropReason DropReason;
+            public readonly Exception Error;
+
+            public ResolvedEventWrapper(TResolvedEvent resolvedEvent)
+            {
+                IsResolvedEvent = true;
+                ResolvedEvent = resolvedEvent;
+                DropReason = SubscriptionDropReason.Unknown;
+                Error = null;
+            }
+
+            public ResolvedEventWrapper(SubscriptionDropReason dropReason, Exception exc)
+            {
+                IsResolvedEvent = false;
+                ResolvedEvent = default;
+                DropReason = dropReason;
+                Error = exc;
             }
         }
     }

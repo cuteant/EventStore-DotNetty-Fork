@@ -33,13 +33,13 @@ Issue.013 ☆ 序列化优化（内部）
 
 Issue.014 ☆ 尽量用接口替换匿名委托
 
-Issue.015 ☆ FileStreamExtensions.FlushSafe 修改为扩展方法
+Issue.015 ☆ 
 
-Issue.016 ☆ string message = Helper.EatException(() => Helper.UTF8NoBom.GetString(package.Data))
+Issue.016 ☆ 
 
-Issue.017 ☆ ByteBuffer
+Issue.017 ☆ 
 
-Issue.018 ☆ ClusterNodeMutex
+Issue.018 ☆ 
 
 Issue.019 ☆ 
 

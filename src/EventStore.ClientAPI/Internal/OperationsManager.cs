@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Internal
 {
-    internal class OperationItem
+    internal sealed class OperationItem
     {
         private static long _nextSeqNo = -1;
         public readonly long SeqNo = Interlocked.Increment(ref _nextSeqNo);

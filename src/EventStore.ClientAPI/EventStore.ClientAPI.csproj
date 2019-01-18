@@ -31,7 +31,7 @@ Goals:
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\EventStore.Core\Services\Transport\Tcp\ProtobufExtensions.cs" Link="Transport.Tcp\ProtobufExtensions.cs" />
+    <Compile Include="..\EventStore.Core\Services\Transport\Tcp\MessagePackExtensions.cs" Link="Transport.Tcp\MessagePackExtensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +47,24 @@ Goals:
   <ItemGroup>
     <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Update="Common\MatchHandler\PartialHandlerArgumentsCapture.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PartialHandlerArgumentsCapture.cs</LastGenOutput>
+    </None>
+    <Compile Update="Common\MatchHandler\PartialHandlerArgumentsCapture.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PartialHandlerArgumentsCapture.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

@@ -16,11 +16,11 @@ using EventStore.Common.Utils;
 namespace EventStore.Core.Services.Transport.Tcp
 #endif
 {
-    public static class ProtobufExtensions
+    public static class MessagePackExtensions
     {
         private static readonly IFormatterResolver DefaultResolver;
 
-        static ProtobufExtensions()
+        static MessagePackExtensions()
         {
             try
             {
