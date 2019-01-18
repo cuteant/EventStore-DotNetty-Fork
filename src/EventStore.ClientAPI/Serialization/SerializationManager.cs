@@ -6,7 +6,6 @@ using CuteAnt;
 using CuteAnt.Collections;
 using CuteAnt.Extensions.Serialization;
 using CuteAnt.Reflection;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.Internal;
 using MessagePack;
 using MessagePack.Formatters;
@@ -30,13 +29,17 @@ namespace EventStore.ClientAPI.Serialization
 
         private static readonly CachedReadConcurrentDictionary<Type, SerializingTokenAttribute> _typeToSerializationTokenDictionary;
 
+        private static readonly IJsonFormatterResolver _defaultResolver = Utf8JsonStandardResolver.Default;
+
         private static readonly JsonSerializerSettings _metadataSettings;
         private static readonly IJsonMessageFormatter _jsonFormatter;
 
         private static IMessageFormatter _jsonSerializer;
         private static IMessageFormatter _utf8JsonSerializer;
-        private static IMessageFormatter _messagePackSerializer;
-        private static IMessageFormatter _lz4MessagePackSerializer;
+        private static IMessageFormatter _msgPackSerializer;
+        private static IMessageFormatter _typelessMsgPackSerializer;
+        private static IMessageFormatter _lz4MsgPackSerializer;
+        private static IMessageFormatter _lz4TypelessMsgPackSerializer;
         private static IMessageFormatter _protobufSerializer;
 
         #endregion
@@ -64,8 +67,10 @@ namespace EventStore.ClientAPI.Serialization
 
             _jsonSerializer = JsonMessageFormatter.DefaultInstance;
             _utf8JsonSerializer = Utf8JsonMessageFormatter.DefaultInstance;
-            _messagePackSerializer = MessagePackMessageFormatter.DefaultInstance;
-            _lz4MessagePackSerializer = LZ4MessagePackMessageFormatter.DefaultInstance;
+            _msgPackSerializer = MessagePackMessageFormatter.DefaultInstance;
+            _typelessMsgPackSerializer = TypelessMessagePackMessageFormatter.DefaultInstance;
+            _lz4MsgPackSerializer = LZ4MessagePackMessageFormatter.DefaultInstance;
+            _lz4TypelessMsgPackSerializer = LZ4TypelessMessagePackMessageFormatter.DefaultInstance;
             _protobufSerializer = ProtoBufMessageFormatter.DefaultInstance;
         }
 
@@ -341,10 +346,16 @@ namespace EventStore.ClientAPI.Serialization
                     data = _utf8JsonSerializer.SerializeObject(@event);
                     break;
                 case SerializingToken.MessagePack:
-                    data = _messagePackSerializer.SerializeObject(@event);
+                    data = _msgPackSerializer.SerializeObject(@event);
+                    break;
+                case SerializingToken.TypelessMessagePack:
+                    data = _typelessMsgPackSerializer.SerializeObject(@event);
                     break;
                 case SerializingToken.Lz4MessagePack:
-                    data = _lz4MessagePackSerializer.SerializeObject(@event);
+                    data = _lz4MsgPackSerializer.SerializeObject(@event);
+                    break;
+                case SerializingToken.Lz4TypelessMessagePack:
+                    data = _lz4TypelessMsgPackSerializer.SerializeObject(@event);
                     break;
                 case SerializingToken.Protobuf:
                     data = _protobufSerializer.SerializeObject(@event);
@@ -367,12 +378,12 @@ namespace EventStore.ClientAPI.Serialization
             }
             return new EventData(
                 Guid.NewGuid(), eventType, SerializingToken.Json == token, data,
-                _jsonFormatter.SerializeObject(new EventMetadata
+                Utf8Json.JsonSerializer.Serialize(new EventMetadata
                 {
                     EventType = RuntimeTypeNameFormatter.Serialize(actualType),
                     Token = token,
                     Context = eventContext
-                }));
+                }, _defaultResolver));
         }
 
         #endregion
@@ -528,7 +539,7 @@ namespace EventStore.ClientAPI.Serialization
             {
                 CoreThrowHelper.ThrowEventMetadataDeserializationException();
             }
-            var meta = _jsonFormatter.Deserialize<EventMetadata>(metadata);
+            var meta = Utf8Json.JsonSerializer.Deserialize<EventMetadata>(metadata, _defaultResolver);
             if (null == meta)
             {
                 CoreThrowHelper.ThrowEventMetadataDeserializationException();
@@ -602,10 +613,16 @@ namespace EventStore.ClientAPI.Serialization
                         obj = _utf8JsonSerializer.Deserialize(type, data);
                         break;
                     case SerializingToken.MessagePack:
-                        obj = _messagePackSerializer.Deserialize(type, data);
+                        obj = _msgPackSerializer.Deserialize(type, data);
+                        break;
+                    case SerializingToken.TypelessMessagePack:
+                        obj = _typelessMsgPackSerializer.Deserialize(type, data);
                         break;
                     case SerializingToken.Lz4MessagePack:
-                        obj = _lz4MessagePackSerializer.Deserialize(type, data);
+                        obj = _lz4MsgPackSerializer.Deserialize(type, data);
+                        break;
+                    case SerializingToken.Lz4TypelessMessagePack:
+                        obj = _lz4TypelessMsgPackSerializer.Deserialize(type, data);
                         break;
                     case SerializingToken.Protobuf:
                         obj = _protobufSerializer.Deserialize(type, data);
