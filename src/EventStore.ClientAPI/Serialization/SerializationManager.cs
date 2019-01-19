@@ -31,9 +31,6 @@ namespace EventStore.ClientAPI.Serialization
 
         private static readonly IJsonFormatterResolver _defaultResolver = Utf8JsonStandardResolver.Default;
 
-        private static readonly JsonSerializerSettings _metadataSettings;
-        private static readonly IJsonMessageFormatter _jsonFormatter;
-
         private static IMessageFormatter _jsonSerializer;
         private static IMessageFormatter _utf8JsonSerializer;
         private static IMessageFormatter _msgPackSerializer;
@@ -49,21 +46,13 @@ namespace EventStore.ClientAPI.Serialization
         static SerializationManager()
         {
             // Preserve object references
-            MessagePackStandardResolver.Register(
-              HyperionResolver.Instance, HyperionExceptionResolver.Instance, HyperionExpressionResolver.Instance);
+            //MessagePackStandardResolver.Register(
+            //  HyperionResolver.Instance, HyperionExceptionResolver.Instance, HyperionExpressionResolver.Instance);
 
             _externalSerializers = new List<IExternalSerializer>();
             _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IExternalSerializer>();
             _typeToStreamProviderDictionary = new CachedReadConcurrentDictionary<Type, StreamAttribute>();
             _typeToSerializationTokenDictionary = new CachedReadConcurrentDictionary<Type, SerializingTokenAttribute>();
-
-            _metadataSettings = JsonConvertX.CreateSerializerSettings(Formatting.Indented);
-            _metadataSettings.Converters.Add(JsonConvertX.DefaultStringEnumCamelCaseConverter);
-            _jsonFormatter = new JsonMessageFormatter()
-            {
-                DefaultSerializerSettings = _metadataSettings,
-                DefaultDeserializerSettings = _metadataSettings
-            };
 
             _jsonSerializer = JsonMessageFormatter.DefaultInstance;
             _utf8JsonSerializer = Utf8JsonMessageFormatter.DefaultInstance;
@@ -339,10 +328,12 @@ namespace EventStore.ClientAPI.Serialization
         internal static EventData SerializeEvent(SerializingToken token, string eventType, Type actualType, object @event, Dictionary<string, object> eventContext, Type expectedType)
         {
             if (string.IsNullOrWhiteSpace(eventType)) { eventType = RuntimeTypeNameFormatter.Serialize(expectedType ?? actualType); }
+            var isJson = false;
             byte[] data = null;
             switch (token)
             {
                 case SerializingToken.Utf8Json:
+                    isJson = true;
                     data = _utf8JsonSerializer.SerializeObject(@event);
                     break;
                 case SerializingToken.MessagePack:
@@ -373,11 +364,12 @@ namespace EventStore.ClientAPI.Serialization
                     break;
                 case SerializingToken.Json:
                 default:
+                    isJson = true;
                     data = _jsonSerializer.Serialize(@event);
                     break;
             }
             return new EventData(
-                Guid.NewGuid(), eventType, SerializingToken.Json == token, data,
+                Guid.NewGuid(), eventType, isJson, data,
                 Utf8Json.JsonSerializer.Serialize(new EventMetadata
                 {
                     EventType = RuntimeTypeNameFormatter.Serialize(actualType),

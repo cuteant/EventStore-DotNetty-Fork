@@ -25,6 +25,9 @@ namespace EventStore.Core.Services.Transport.Tcp
             try
             {
                 MessagePackStandardResolver.Register(TcpPackageFormatter.Instance);
+#if CLIENTAPI
+                MessagePackStandardResolver.Register(HyperionExceptionResolver2.Instance, HyperionExpressionResolver.Instance, HyperionResolver.Instance);
+#endif
             }
             catch { }
             DefaultResolver = MessagePackStandardResolver.Default;

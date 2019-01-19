@@ -27,6 +27,7 @@ namespace EventStore.ClientAPI
 
         public bool TryGetValue<T>(string key, out T value)
         {
+            // TODO use IObjectTypeDeserializer.TryDeserialize
             try
             {
                 value = _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
@@ -34,7 +35,7 @@ namespace EventStore.ClientAPI
             }
             catch
             {
-                value = default(T);
+                value = default;
                 return false;
             }
         }
@@ -51,12 +52,12 @@ namespace EventStore.ClientAPI
 
         public T GetValue<T>(string key, T defaultValue)
         {
-            return default(T);
+            return default;
         }
 
         public bool TryGetValue<T>(string key, out T value)
         {
-            value = default(T);
+            value = default;
             return false;
         }
     }

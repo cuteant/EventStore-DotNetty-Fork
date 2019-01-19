@@ -6,7 +6,7 @@ namespace EventStore.ClientAPI.Subscriptions
 {
     /// <summary>Represents a subscription to EventStore incl. StreamId, SubscriptionId and RetryPolicy.</summary>
     public abstract class Subscription<TSubscription, TSettings, TEvent> : ISubscription<TSettings>, ISubscription
-        where TSubscription : Subscription<TSubscription, TSettings>
+        where TSubscription : Subscription<TSubscription, TSettings, TEvent>
         where TSettings : SubscriptionSettings
         where TEvent : class
     {

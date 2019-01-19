@@ -237,7 +237,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             var interfaceType = consumerInfo.InterfaceType;
             var concreteConsumer = GetConcreteConsumer(consumerInfo.ConcreteType);
             var topics = GetTopAttributeValues(consumerInfo, consumeMethod);
-            var isGenericType = interfaceType.GetTypeInfo().IsConstructedGenericType;
+            var isGenericType = interfaceType.GetTypeInfo().IsGenericType;
 
             #region IAutoSubscriberConsume<>
 
@@ -269,18 +269,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer();
                         volatileConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
+                            ConsumerExpressionBuilder.CompileConsumerRegistration((IAutoSubscriberConsumerRegistration)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer();
                         catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
+                            ConsumerExpressionBuilder.CompileConsumerRegistration((IAutoSubscriberConsumerRegistration)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer();
                         persistentConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IConsumerRegistration>), concreteConsumer) as Action<IConsumerRegistration>);
+                            ConsumerExpressionBuilder.CompileConsumerRegistration((IAutoSubscriberConsumerRegistration)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
@@ -296,18 +296,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer();
                         volatileConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
+                            ConsumerExpressionBuilder.CompileHandlerRegistration((IAutoSubscriberHandlerRegistration)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer();
                         catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
+                            ConsumerExpressionBuilder.CompileHandlerRegistration((IAutoSubscriberHandlerRegistration)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer();
                         persistentConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<IHandlerRegistration>), concreteConsumer) as Action<IHandlerRegistration>);
+                            ConsumerExpressionBuilder.CompileHandlerRegistration((IAutoSubscriberHandlerRegistration)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
@@ -321,7 +321,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new CatchUpConsumer();
                 catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Action<EventStoreCatchUpSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStoreCatchUpSubscription, ResolvedEvent<object>>);
+                    ConsumerExpressionBuilder.CompileCatchUpConsumer((IAutoSubscriberCatchUpConsume)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -333,7 +333,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new CatchUpConsumer();
                 catchUpConsumer.Initialize(Bus, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task>);
+                    ConsumerExpressionBuilder.CompileAsyncCatchUpConsumer((IAutoSubscriberCatchUpConsumeAsync)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -367,7 +367,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new PersistentConsumer();
                 catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?>), concreteConsumer) as Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?>);
+                    ConsumerExpressionBuilder.CompilePersistentConsumer((IAutoSubscriberPersistentConsume)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -379,7 +379,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new PersistentConsumer();
                 catchUpConsumer.Initialize(Bus, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task>), concreteConsumer) as Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task>);
+                    ConsumerExpressionBuilder.CompileAsyncPersistentConsumer((IAutoSubscriberPersistentConsumeAsync)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -413,7 +413,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new VolatileConsumer();
                 catchUpConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Action<EventStoreSubscription, ResolvedEvent<object>>), concreteConsumer) as Action<EventStoreSubscription, ResolvedEvent<object>>);
+                    ConsumerExpressionBuilder.CompileVolatileConsumer((IAutoSubscriberVolatileConsume)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -425,7 +425,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 var catchUpConsumer = new VolatileConsumer();
                 catchUpConsumer.Initialize(Bus, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                    consumeMethod.CreateDelegate(typeof(Func<EventStoreSubscription, ResolvedEvent<object>, Task>), concreteConsumer) as Func<EventStoreSubscription, ResolvedEvent<object>, Task>);
+                    ConsumerExpressionBuilder.CompileAsyncVolatileConsumer((IAutoSubscriberVolatileConsumeAsync)concreteConsumer, consumeMethod));
                 return catchUpConsumer;
             }
 
@@ -597,7 +597,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
                 subscriptionInfos = isGenericType
                     ? concreteType.GetInterfaces()
-                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType && !i.GetGenericArguments()[0].IsGenericParameter)
+                      .Where(i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == interfaceType && !i.GetGenericArguments()[0].IsGenericParameter)
                       .Select(i => new AutoSubscriberConsumerInfo(concreteType, i, consumeMethodName, i.GetGenericArguments()[0]))
                       .ToArray()
                     : concreteType.GetInterfaces()
@@ -778,18 +778,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer<T>();
                         volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<T>), concreteConsumer) as Action<T>);
+                            ConsumerExpressionBuilder.CompileConsumer((IAutoSubscriberConsume<T>)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer<T>();
                         catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<T>), concreteConsumer) as Action<T>);
+                            ConsumerExpressionBuilder.CompileConsumer((IAutoSubscriberConsume<T>)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer<T>();
                         persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<T>), concreteConsumer) as Action<T>);
+                            ConsumerExpressionBuilder.CompileConsumer((IAutoSubscriberConsume<T>)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
@@ -805,18 +805,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer<T>();
                         volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<T, Task>), concreteConsumer) as Func<T, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncConsumer((IAutoSubscriberConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer<T>();
                         catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<T, Task>), concreteConsumer) as Func<T, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncConsumer((IAutoSubscriberConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer<T>();
                         persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<T, Task>), concreteConsumer) as Func<T, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncConsumer((IAutoSubscriberConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
@@ -832,18 +832,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer<T>();
                         volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<EventStoreSubscription, ResolvedEvent<T>>), concreteConsumer) as Action<EventStoreSubscription, ResolvedEvent<T>>);
+                            ConsumerExpressionBuilder.CompileVolatileConsumer((IAutoSubscriberVolatileConsume<T>)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer<T>();
                         catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>>), concreteConsumer) as Action<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>>);
+                            ConsumerExpressionBuilder.CompileCatchUpConsumer((IAutoSubscriberCatchUpConsume<T>)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer<T>();
                         persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?>), concreteConsumer) as Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?>);
+                            ConsumerExpressionBuilder.CompilePersistentConsumer((IAutoSubscriberPersistentConsume<T>)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
@@ -859,18 +859,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     case SubscriptionType.Volatile:
                         var volatileConsumer = new VolatileConsumer<T>();
                         volatileConsumer.Initialize(Connection, GetVolatileSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<EventStoreSubscription, ResolvedEvent<T>, Task>), concreteConsumer) as Func<EventStoreSubscription, ResolvedEvent<T>, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncVolatileConsumer((IAutoSubscriberVolatileConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return volatileConsumer;
                     case SubscriptionType.CatchUp:
                         var catchUpConsumer = new CatchUpConsumer<T>();
                         catchUpConsumer.Initialize(Connection, GetCatchUpSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>, Task>), concreteConsumer) as Func<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncCatchUpConsumer((IAutoSubscriberCatchUpConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return catchUpConsumer;
                     case SubscriptionType.Persistent:
                     default:
                         var persistentConsumer = new PersistentConsumer<T>();
                         persistentConsumer.Initialize(Connection, GetPersistentSubscription(consumerInfo, consumeMethod, topic),
-                            consumeMethod.CreateDelegate(typeof(Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?, Task>), concreteConsumer) as Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?, Task>);
+                            ConsumerExpressionBuilder.CompileAsyncPersistentConsumer((IAutoSubscriberPersistentConsumeAsync<T>)concreteConsumer, consumeMethod));
                         return persistentConsumer;
                 }
             }
