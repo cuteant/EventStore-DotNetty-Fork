@@ -639,7 +639,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                _subscription = subscription;
+                Interlocked.Exchange(ref _subscription, subscription);
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -966,7 +966,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                _subscription = subscription;
+                Interlocked.Exchange(ref _subscription, subscription);
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1043,7 +1043,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                _subscription = subscription;
+                Interlocked.Exchange(ref _subscription, subscription);
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1120,7 +1120,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                _subscription = subscription;
+                Interlocked.Exchange(ref _subscription, subscription);
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1211,7 +1211,7 @@ namespace EventStore.ClientAPI
                             subscriptionDropped: ServerSubscriptionDropped,
                             userCredentials: _userCredentials).ConfigureAwait(false);
 
-                _subscription = subscription;
+                Interlocked.Exchange(ref _subscription, subscription);
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else

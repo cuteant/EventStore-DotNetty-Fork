@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Running;
 
 namespace EventStore.ClientAPI.Benchmarks
@@ -14,14 +15,13 @@ namespace EventStore.ClientAPI.Benchmarks
         {
             //BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
 
-            Stopwatch sw = new Stopwatch();
-            var benchmark = new MatchHandlerBenchmark();
-            benchmark.GlobalSetup();
-
+            var mb = new MatchHandlerBenchmark();
+            mb.GlobalSetup();
+            var sw = new Stopwatch();
             sw.Start();
             for (int i = 0; i < 100000; i++)
             {
-                benchmark.EventStoreHandler();
+                mb.EventStoreHandler();
             }
             sw.Stop();
             Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
@@ -29,12 +29,44 @@ namespace EventStore.ClientAPI.Benchmarks
             sw.Restart();
             for (int i = 0; i < 100000; i++)
             {
-                benchmark.AkkaMatchHandler();
+                mb.SimpleMatcher();
             }
             sw.Stop();
             Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
 
-            Console.WriteLine("按任意键");
+            sw.Restart();
+            for (int i = 0; i < 100000; i++)
+            {
+                mb.AkkaMatchHandler();
+            }
+            sw.Stop();
+            Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
+
+            sw.Restart();
+            for (int i = 0; i < 100000; i++)
+            {
+                mb.EsPackageHandler();
+            }
+            sw.Stop();
+            Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
+
+            sw.Restart();
+            for (int i = 0; i < 100000; i++)
+            {
+                mb.EsPackageHandler2();
+            }
+            sw.Stop();
+            Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
+
+            sw.Restart();
+            for (int i = 0; i < 100000; i++)
+            {
+                mb.ActionMatcher();
+            }
+            sw.Stop();
+            Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
+
+            Console.WriteLine("按任意键退出");
             Console.ReadKey();
         }
     }

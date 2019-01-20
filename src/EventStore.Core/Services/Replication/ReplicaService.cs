@@ -42,7 +42,7 @@ namespace EventStore.Core.Services.Replication
         private readonly TimeSpan _heartbeatTimeout;
         private readonly TimeSpan _heartbeatInterval;
 
-        private readonly InternalTcpDispatcher _tcpDispatcher = new InternalTcpDispatcher();
+        private readonly InternalTcpDispatcher _tcpDispatcher;
 
         private VNodeState _state = VNodeState.Initializing;
         private TcpConnectionManager _connection;
@@ -67,6 +67,8 @@ namespace EventStore.Core.Services.Replication
             if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
             if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
             if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+
+            _tcpDispatcher = new InternalTcpDispatcher(); _tcpDispatcher.Build();
 
             _publisher = publisher;
             _db = db;

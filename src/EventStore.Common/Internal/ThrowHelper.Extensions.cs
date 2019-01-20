@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using EventStore.Common.MatchHandler;
 #if DESKTOPCLR
 using System.Runtime.InteropServices;
 #endif
@@ -98,16 +97,6 @@ namespace EventStore.Common
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowArgumentException_PartialActionBuilder(int MaxNumberOfArguments)
-        {
-            throw GetException();
-            ArgumentException GetException()
-            {
-                return new ArgumentException($"Too many arguments. Max {MaxNumberOfArguments} arguments allowed.", "handlerAndArgs");
-            }
-        }
-
         #endregion
 
         #region -- ArgumentOutOfRangeException --
@@ -131,17 +120,6 @@ namespace EventStore.Common
             {
                 var argumentName = GetArgumentName(argument);
                 return new ArgumentOutOfRangeException(argumentName, $"{argumentName} should be non negative.");
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowArgumentOutOfRangeException_MatchExpressionBuilder_Add(HandlerKind kind)
-        {
-            throw GetException();
-            ArgumentOutOfRangeException GetException()
-            {
-                return new ArgumentOutOfRangeException(
-                    $"This should not happen. The value {typeof(HandlerKind)}.{kind} is a new enum value that has been added without updating the code in this method.");
             }
         }
 

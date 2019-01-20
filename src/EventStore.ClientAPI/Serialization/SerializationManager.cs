@@ -13,6 +13,7 @@ using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Utf8Json;
+using EventStore.ClientAPI.Transport.Tcp;
 
 namespace EventStore.ClientAPI.Serialization
 {
@@ -46,8 +47,12 @@ namespace EventStore.ClientAPI.Serialization
         static SerializationManager()
         {
             // Preserve object references
-            //MessagePackStandardResolver.Register(
-            //  HyperionResolver.Instance, HyperionExceptionResolver.Instance, HyperionExpressionResolver.Instance);
+            //try
+            //{
+            //    MessagePackStandardResolver.Register(TcpPackageFormatter.Instance);
+            //    MessagePackStandardResolver.Register(HyperionExceptionResolver2.Instance, HyperionExpressionResolver.Instance, HyperionResolver.Instance);
+            //}
+            //catch { }
 
             _externalSerializers = new List<IExternalSerializer>();
             _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IExternalSerializer>();
@@ -142,7 +147,7 @@ namespace EventStore.ClientAPI.Serialization
 
         #region ** TryLookupExternalSerializer **
 
-        private static bool TryLookupExternalSerializer(Type t, out IExternalSerializer serializer)
+        internal static bool TryLookupExternalSerializer(Type t, out IExternalSerializer serializer)
         {
             // essentially a no-op if there are no external serializers registered
             if (_externalSerializers.Count == 0)

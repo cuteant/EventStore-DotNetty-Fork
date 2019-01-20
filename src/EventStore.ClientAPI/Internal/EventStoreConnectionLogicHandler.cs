@@ -83,6 +83,8 @@ namespace EventStore.ClientAPI.Internal
 
             _queue.RegisterHandler<TimerTickMessage>(msg => TimerTickAsync());
 
+            _queue.Build();
+
             _timer = new Timer(_ => EnqueueMessage(TimerTickMessage), null, Consts.TimerPeriod, Consts.TimerPeriod);
         }
 

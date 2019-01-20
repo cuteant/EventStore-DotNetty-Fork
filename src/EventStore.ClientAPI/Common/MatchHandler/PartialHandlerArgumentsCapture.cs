@@ -1,4 +1,4 @@
-﻿// --- auto generated: 2019/1/17 17:57:16 --- //
+﻿// --- auto generated: 2019/1/20 14:47:58 --- //
 //-----------------------------------------------------------------------
 // <copyright file="PartialHandlerArgumentsCapture.cs" company="Akka.NET Project">
 //     Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>

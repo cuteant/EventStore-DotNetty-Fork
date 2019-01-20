@@ -1,0 +1,88 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+
+<# var count = 10; #>
+
+#if CLIENTAPI
+namespace EventStore.ClientAPI.Common.Utils
+#else
+namespace EventStore.Common.Utils
+#endif
+{
+<# for (int i = 1; i <= count; i++) {
+    var types = string.Join(", ", Enumerable.Range(1, i).Select(x => "TArg" + x));
+    var arguments = string.Join(", ", Enumerable.Range(1, i).Select(x => "arg" + x));
+    var typeAndArguments = string.Join(", ", Enumerable.Range(1, i).Select(x => "TArg" + x + " arg" + x));
+    var gParameters = string.Join(", ", Enumerable.Range(1, i).Select(x => "Parameter" + x));
+#>
+    /// <summary>Pattern matcher</summary>
+    /// <typeparam name="TIn">Argument type</typeparam>
+<# for (var t = 1; t <= i; t++) { #>
+    /// <typeparam name="TArg<#= t #>">Argument type</typeparam>
+<# } #>
+    public sealed class ActionMatchBuilder<TIn, <#= types #>> : ActionMatchBuilderBase<Action<TIn, <#= types #>>, TIn>
+    {
+<# for (var t = 1; t <= i; t++) { #>
+        private ParameterExpression _parameter<#= t #>;
+        /// <summary>Expression representing matching parameter</summary>
+        private ParameterExpression Parameter<#= t #> => _parameter<#= t #> ?? (_parameter<#= t #> = Expression.Parameter(typeof(TArg<#= t #>), "arg<#= t #>"));
+<# } #>
+
+        private ParameterExpression[] _parameters;
+        protected override ParameterExpression[] Parameters => _parameters ?? (_parameters = new[] 
+            { 
+                Parameter, <#= gParameters #>
+            });
+
+        /// <summary>Adds context-based matching case</summary>
+        /// <typeparam name="TCtx">Context type</typeparam>
+        public void Match<TCtx>(Action<TCtx, <#= types #>> handler) where TCtx : class
+        {
+            Match(binder: _ => _ as TCtx, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+        }
+
+        /// <summary>Adds context-based matching case</summary>
+        /// <typeparam name="TCtx">Context type</typeparam>
+        public void Match<TCtx>(Expression<Action<TCtx, <#= types #>>> processor) where TCtx : class
+        {
+            Match(binder: _ => _ as TCtx, processor: processor);
+        }
+
+        /// <summary>Adds context-based matching case</summary>
+        /// <typeparam name="TCtx">Context type</typeparam>
+        public void Match<TCtx>(Expression<Func<TIn, TCtx>> binder, Expression<Action<TCtx, <#= types #>>> processor) where TCtx : class
+        {
+            var bindResult = Expression.Variable(typeof(TCtx), "binded");
+            var caseExpr = Expression.Block(
+                new[] { bindResult },
+                Expression.Assign(bindResult, Expression.Invoke(binder, Parameter)),
+                Expression.IfThen(
+                    Expression.NotEqual(Expression.Convert(bindResult, typeof(object)), Expression.Constant(null)),
+                    Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
+                ));
+            CaseExpressionsList.Add(caseExpr);
+        }
+
+        public void MatchAny(Action<TIn, <#= types #>> handler)
+        {
+            if (FinalExpr != null) { return; }
+            FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+        }
+
+        /// <summary>Performs match on the given value</summary>
+        public void Match(TIn value, <#= typeAndArguments #>) => MatcherFunc(value, <#= arguments #>);
+
+        /// <summary>Converts matcher into Action&lt;T&gt; instance</summary>
+        public static implicit operator Action<TIn, <#= types #>>(ActionMatchBuilder<TIn, <#= types #>> matcher) => matcher.MatcherFunc;
+    }
+<# } #>
+}

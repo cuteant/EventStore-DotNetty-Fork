@@ -32,6 +32,16 @@ Goals:
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Common\Utils\ActionMatchBuilder.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ActionMatchBuilder.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Common\Utils\FuncMatchBuilder.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FuncMatchBuilder.tt</DependentUpon>
+    </Compile>
     <Compile Update="Internal\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -44,5 +54,20 @@ Goals:
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Common\Utils\ActionMatchBuilder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ActionMatchBuilder.cs</LastGenOutput>
+    </None>
+    <None Update="Common\Utils\FuncMatchBuilder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FuncMatchBuilder.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

@@ -18,24 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\EventStore.ClientAPI.Abstractions\Common\MatchHandler\HandlerKind.cs" Link="MatchHandler\HandlerKind.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\Argument.cs" Link="MatchHandler\Argument.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\CachedMatchCompiler.cs" Link="MatchHandler\CachedMatchCompiler.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\CompiledMatchHandlerWithArguments.cs" Link="MatchHandler\CompiledMatchHandlerWithArguments.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\ILambdaExpressionCompiler.cs" Link="MatchHandler\ILambdaExpressionCompiler.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\IMatchCompiler.cs" Link="MatchHandler\IMatchCompiler.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\IMatchExpressionBuilder.cs" Link="MatchHandler\IMatchExpressionBuilder.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\IPartialActionBuilder.cs" Link="MatchHandler\IPartialActionBuilder.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\LambdaExpressionCompiler.cs" Link="MatchHandler\LambdaExpressionCompiler.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\MatchBuilder.cs" Link="MatchHandler\MatchBuilder.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\MatchBuilderSignature.cs" Link="MatchHandler\MatchBuilderSignature.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\MatchExpressionBuilder.cs" Link="MatchHandler\MatchExpressionBuilder.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\MatchExpressionBuilderResult.cs" Link="MatchHandler\MatchExpressionBuilderResult.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\PartialAction.cs" Link="MatchHandler\PartialAction.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\PartialActionBuilder.cs" Link="MatchHandler\PartialActionBuilder.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\PartialHandlerArgumentsCapture.cs" Link="MatchHandler\PartialHandlerArgumentsCapture.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\PredicateAndHandler.cs" Link="MatchHandler\PredicateAndHandler.cs" />
-    <Compile Include="..\EventStore.ClientAPI\Common\MatchHandler\TypeHandler.cs" Link="MatchHandler\TypeHandler.cs" />
+    <Compile Include="..\EventStore.ClientAPI.Abstractions\Common\Utils\ActionMatchBuilder.cs" Link="Utils\ActionMatchBuilder.cs" />
+    <Compile Include="..\EventStore.ClientAPI.Abstractions\Common\Utils\FuncMatchBuilder.cs" Link="Utils\FuncMatchBuilder.cs" />
+    <Compile Include="..\EventStore.ClientAPI.Abstractions\Common\Utils\SimpleMatchBuilder.cs" Link="Utils\SimpleMatchBuilder.cs" />
   </ItemGroup>
 
   <ItemGroup>

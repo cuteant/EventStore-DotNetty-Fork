@@ -309,7 +309,7 @@ namespace EventStore.Core
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorWhileUnwrappingTcppackageWithCommand(this ILogger logger, TcpCommand command, Exception exc)
         {
-            s_errorWhileUnwrappingTcppackageWithCommand(logger, command, null);
+            s_errorWhileUnwrappingTcppackageWithCommand(logger, command, exc);
         }
 
         private static readonly Action<ILogger, Message, Exception> s_errorWhileWrappingMessage =
@@ -318,7 +318,7 @@ namespace EventStore.Core
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorWhileWrappingMessage(this ILogger logger, Message message, Exception exc)
         {
-            s_errorWhileWrappingMessage(logger, message, null);
+            s_errorWhileWrappingMessage(logger, message, exc);
         }
 
         private static readonly Action<ILogger, string, string, IPEndPoint, IPEndPoint, Guid, string, Exception> s_closingConnectionDueToError =

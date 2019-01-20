@@ -62,7 +62,7 @@ namespace EventStore.ClientAPI
         private BufferBlock<TPersistentSubscriptionResolvedEvent> _bufferBlock;
         private List<ActionBlock<TPersistentSubscriptionResolvedEvent>> _actionBlocks;
         private ITargetBlock<TPersistentSubscriptionResolvedEvent> _targetBlock;
-        private ConnectToPersistentSubscriptionSettings _settings;
+        private readonly ConnectToPersistentSubscriptionSettings _settings;
         private IDisposable _links;
         private DropData _dropData;
 
@@ -119,47 +119,49 @@ namespace EventStore.ClientAPI
         {
             _stopped.Reset();
 
-            _subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _settings, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _connSettings)
-                                  .ConfigureAwait(false);
-
             var numActionBlocks = _settings.NumActionBlocks;
             if (SubscriptionSettings.Unbounded == _settings.BoundedCapacityPerBlock)
             {
                 // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
                 numActionBlocks = 1;
             }
-            _actionBlocks = new List<ActionBlock<TPersistentSubscriptionResolvedEvent>>(numActionBlocks);
+            var actionBlocks = new List<ActionBlock<TPersistentSubscriptionResolvedEvent>>(numActionBlocks);
+            Interlocked.Exchange(ref _actionBlocks, actionBlocks);
             if (_eventAppeared != null)
             {
                 for (var idx = 0; idx < numActionBlocks; idx++)
                 {
-                    _actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
+                    actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
                 }
             }
             else
             {
                 for (var idx = 0; idx < numActionBlocks; idx++)
                 {
-                    _actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
+                    actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
                 }
             }
             if (numActionBlocks > 1)
             {
                 var links = new CompositeDisposable();
-                _bufferBlock = new BufferBlock<TPersistentSubscriptionResolvedEvent>(_settings.ToBufferBlockOptions());
+                var bufferBlock = new BufferBlock<TPersistentSubscriptionResolvedEvent>(_settings.ToBufferBlockOptions());
+                Interlocked.Exchange(ref _bufferBlock, bufferBlock);
                 for (var idx = 0; idx < numActionBlocks; idx++)
                 {
                     var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
-                    links.Add(_bufferBlock.LinkTo(_actionBlocks[idx], linkOptions));
+                    links.Add(bufferBlock.LinkTo(actionBlocks[idx], linkOptions));
                 }
                 _links = links;
-                _targetBlock = _bufferBlock;
+                Interlocked.Exchange(ref _targetBlock, bufferBlock);
             }
             else
             {
-                _targetBlock = _actionBlocks[0];
+                Interlocked.Exchange(ref _targetBlock, actionBlocks[0]);
             }
 
+            var subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _settings, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _connSettings)
+                                  .ConfigureAwait(false);
+            Interlocked.Exchange(ref _subscription, subscription);
             return this as TSubscription;
         }
 

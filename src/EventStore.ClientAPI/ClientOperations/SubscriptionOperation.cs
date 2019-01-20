@@ -370,8 +370,8 @@ namespace EventStore.ClientAPI.ClientOperations
 
         private void EnqueueMessage(ResolvedEventWrapper item)
         {
-            //_targetBlock.Post(item);
-            AsyncContext.Run(s_sendToQueueFunc, _targetBlock, item);
+            _targetBlock.Post(item);
+            //AsyncContext.Run(s_sendToQueueFunc, _targetBlock, item);
             if (InputCount > _maxQueueSize)
             {
                 DropSubscription(SubscriptionDropReason.ProcessingQueueOverflow, new Exception("client buffer too big"));

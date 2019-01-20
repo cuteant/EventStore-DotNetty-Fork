@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Principal;
+using EventStore.Common.Utils;
 using EventStore.Core.Messaging;
 using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
@@ -12,7 +12,9 @@ namespace EventStore.Core.Services.Transport.Tcp
         private static readonly ILogger Log = TraceLogger.GetLogger<TcpDispatcher>();
 
         private readonly Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, Message>[][] _unwrappers;
-        private readonly IDictionary<Type, Func<Message, TcpPackage>>[] _wrappers;
+        private readonly int _lastVersion;
+        private readonly SimpleMatchBuilder<Message, TcpPackage>[] _wrapperBuilders;
+        private readonly Func<Message, TcpPackage>[] _wrapperFuncs;
 
         protected TcpDispatcher()
         {
@@ -20,14 +22,23 @@ namespace EventStore.Core.Services.Transport.Tcp
             _unwrappers[0] = new Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, Message>[255];
             _unwrappers[1] = new Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, Message>[255];
 
-            _wrappers = new Dictionary<Type, Func<Message, TcpPackage>>[2];
-            _wrappers[0] = new Dictionary<Type, Func<Message, TcpPackage>>();
-            _wrappers[1] = new Dictionary<Type, Func<Message, TcpPackage>>();
+            _wrapperFuncs = new Func<Message, TcpPackage>[2];
+            _wrapperBuilders = new SimpleMatchBuilder<Message, TcpPackage>[2];
+            _wrapperBuilders[0] = new SimpleMatchBuilder<Message, TcpPackage>();
+            _wrapperBuilders[1] = new SimpleMatchBuilder<Message, TcpPackage>();
+            _lastVersion = _wrapperFuncs.Length - 1;
+        }
+
+        public virtual ITcpDispatcher Build()
+        {
+            _wrapperFuncs[0] = _wrapperBuilders[0].Build();
+            _wrapperFuncs[1] = _wrapperBuilders[1].Build();
+            return this;
         }
 
         protected void AddWrapper<T>(Func<T, TcpPackage> wrapper, ClientVersion version) where T : Message
         {
-            _wrappers[(byte)version][typeof(T)] = x => wrapper((T)x);
+            _wrapperBuilders[(byte)version].Match(handler: wrapper);
         }
 
         protected void AddUnwrapper<T>(TcpCommand command, Func<TcpPackage, IEnvelope, T> unwrapper, ClientVersion version) where T : Message
@@ -65,11 +76,16 @@ namespace EventStore.Core.Services.Transport.Tcp
 
             try
             {
-                Func<Message, TcpPackage> wrapper;
-                if (_wrappers[version].TryGetValue(message.GetType(), out wrapper))
-                    return wrapper(message);
-                if (_wrappers[_wrappers.Length - 1].TryGetValue(message.GetType(), out wrapper))
-                    return wrapper(message);
+                return _wrapperFuncs[version](message);
+            }
+            catch (MatchException)
+            {
+                try
+                {
+                    return _wrapperFuncs[_lastVersion](message);
+                }
+                catch (MatchException) { }
+                catch (Exception e) { Log.ErrorWhileWrappingMessage(message, e); }
             }
             catch (Exception exc)
             {

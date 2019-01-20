@@ -73,7 +73,7 @@ namespace EventStore.ClientAPI.Tests
 
             var eventData = SerializationManager.SerializeEvent(token, eventType, typeof(TestMessage), testMessage, null, null);
             Assert.Equal(eventType, eventData.Type);
-            Assert.Equal(token == SerializingToken.Json, eventData.IsJson);
+            Assert.Equal(token == SerializingToken.Json || token == SerializingToken.Utf8Json, eventData.IsJson);
 
             var metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
             Assert.Equal(token, metadata.Token);
