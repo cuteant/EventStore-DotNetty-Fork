@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
@@ -748,13 +749,26 @@ namespace EventStore.ClientAPI
       where TStreamEventsSlice : IStreamEventsSlice<TResolvedEvent>
       where TResolvedEvent : IResolvedEvent//, new()
     {
-        protected long _nextReadEventNumber;
-        protected long _lastProcessedEventNumber;
+        private long _nextReadEventNumber;
+        private long _lastProcessedEventNumber;
         private long _processingEventNumber;
 
         /// <summary>The last event number processed on the subscription.</summary>
-        public long LastProcessedEventNumber => _lastProcessedEventNumber;
-        public long ProcessingEventNumber => _processingEventNumber;
+        public long LastProcessedEventNumber
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _lastProcessedEventNumber);
+        }
+        public long ProcessingEventNumber
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _processingEventNumber);
+        }
+        protected long NextReadEventNumber
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _nextReadEventNumber);
+        }
 
         internal EventStoreStreamCatchUpSubscriptionBase(IEventStoreConnection connection,
                                                          string streamId,
@@ -858,7 +872,7 @@ namespace EventStore.ClientAPI
         protected override void TryProcess(in TResolvedEvent e)
         {
             bool processed = false;
-            if (e.OriginalEventNumber > _lastProcessedEventNumber)
+            if (e.OriginalEventNumber > LastProcessedEventNumber)
             {
                 Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
                 try
@@ -880,7 +894,7 @@ namespace EventStore.ClientAPI
         protected override async Task TryProcessAsync(TResolvedEvent e)
         {
             bool processed = false;
-            if (e.OriginalEventNumber > _lastProcessedEventNumber)
+            if (e.OriginalEventNumber > LastProcessedEventNumber)
             {
                 Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
                 try
@@ -949,7 +963,7 @@ namespace EventStore.ClientAPI
             bool shouldStopOrDone;
             do
             {
-                var slice = await _innerConnection.ReadStreamEventsForwardAsync(StreamId, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+                var slice = await _innerConnection.ReadStreamEventsForwardAsync(StreamId, NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
                 shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastEventNumber).ConfigureAwait(false);
             } while (!shouldStopOrDone);
         }
@@ -1026,7 +1040,7 @@ namespace EventStore.ClientAPI
             bool shouldStopOrDone;
             do
             {
-                var slice = await _innerConnection.GetStreamEventsForwardAsync(StreamId, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+                var slice = await _innerConnection.GetStreamEventsForwardAsync(StreamId, NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
                 shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastEventNumber).ConfigureAwait(false);
             } while (!shouldStopOrDone);
         }
@@ -1103,7 +1117,7 @@ namespace EventStore.ClientAPI
             bool shouldStopOrDone;
             do
             {
-                var slice = await _innerConnection.InternalGetStreamEventsForwardAsync(StreamId, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+                var slice = await _innerConnection.InternalGetStreamEventsForwardAsync(StreamId, NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
                 shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastEventNumber).ConfigureAwait(false);
             } while (!shouldStopOrDone);
         }
@@ -1187,8 +1201,8 @@ namespace EventStore.ClientAPI
             do
             {
                 var slice = string.IsNullOrWhiteSpace(_topic)
-                          ? await _innerConnection.GetStreamEventsForwardAsync<TEvent>(_nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false)
-                          : await _innerConnection.GetStreamEventsForwardAsync<TEvent>(_topic, _nextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
+                          ? await _innerConnection.GetStreamEventsForwardAsync<TEvent>(NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false)
+                          : await _innerConnection.GetStreamEventsForwardAsync<TEvent>(_topic, NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
                 shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastEventNumber).ConfigureAwait(false);
             } while (!shouldStopOrDone);
         }

@@ -342,8 +342,9 @@ namespace EventStore.ClientAPI.ClientOperations
             {
                 _log.SubscribedAtCommitPosition(_correlationId, _streamId, lastCommitPosition, lastEventNumber);
             }
-            _subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
-            _source.SetResult(_subscription);
+            var subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
+            Interlocked.Exchange(ref _subscription, subscription);
+            _source.SetResult(subscription);
         }
 
         protected abstract TSubscription CreateSubscriptionObject(long lastCommitPosition, long? lastEventNumber);

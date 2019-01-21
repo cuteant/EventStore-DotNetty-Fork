@@ -95,7 +95,7 @@ namespace EventStore.ClientAPI.Internal
                 var bestNode = TryDetermineBestNode(gossip.Members, _nodePreference);
                 if (bestNode != null)
                 {
-                    _oldGossip = gossip.Members;
+                    Interlocked.Exchange(ref _oldGossip, gossip.Members);
                     return bestNode;
                 }
             }

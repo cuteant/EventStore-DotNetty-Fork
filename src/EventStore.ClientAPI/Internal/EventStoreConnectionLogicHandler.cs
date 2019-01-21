@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using EventStore.Transport.Tcp;
@@ -30,23 +32,72 @@ namespace EventStore.ClientAPI.Internal
 
         private readonly SimpleQueuedHandler _queue = new SimpleQueuedHandler();
         private readonly Timer _timer;
-        private IEndPointDiscoverer _endPointDiscoverer;
 
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private ReconnectionInfo _reconnInfo;
-        private HeartbeatInfo _heartbeatInfo;
-        private AuthInfo _authInfo;
-        private IdentifyInfo _identifyInfo;
-        private TimeSpan _lastTimeoutsTimeStamp;
         private readonly OperationsManager _operations;
         private readonly SubscriptionsManager _subscriptions;
 
-        private ConnectionState _state = ConnectionState.Init;
-        private ConnectingPhase _connectingPhase = ConnectingPhase.Invalid;
+        private IEndPointDiscoverer _endPointDiscoverer;
+
+        private TimeSpan _lastTimeoutsTimeStamp;
+        private int _packageNumber;
         private int _wasConnected;
 
-        private int _packageNumber;
         private TcpPackageConnection _connection;
+        private TcpPackageConnection InternalConnection
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _connection);
+            set => Interlocked.Exchange(ref _connection, value);
+        }
+
+        private ReconnectionInfo _reconnInfo = ReconnectionInfo.Default;
+        private ReconnectionInfo InternalReconnectionInfo
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _reconnInfo);
+            set => Interlocked.Exchange(ref _reconnInfo, value);
+        }
+
+        private HeartbeatInfo _heartbeatInfo = HeartbeatInfo.Default;
+        private HeartbeatInfo InternalHeartbeatInfo
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _heartbeatInfo);
+            set => Interlocked.Exchange(ref _heartbeatInfo, value);
+        }
+
+        private AuthInfo _authInfo = AuthInfo.Default;
+        private AuthInfo InternalAuthInfo
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _authInfo);
+            set => Interlocked.Exchange(ref _authInfo, value);
+        }
+
+        private IdentifyInfo _identifyInfo = IdentifyInfo.Default;
+        private IdentifyInfo InternalIdentifyInfo
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _identifyInfo);
+            set => Interlocked.Exchange(ref _identifyInfo, value);
+        }
+
+        private int _state = ConnectionState.Init;
+        private int InternalState
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _state);
+            set => Interlocked.Exchange(ref _state, value);
+        }
+
+        private int _connectingPhase = ConnectingPhase.Invalid;
+        private int InternalConnectingPhase
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref _connectingPhase);
+            set => Interlocked.Exchange(ref _connectingPhase, value);
+        }
 
         public EventStoreConnectionLogicHandler(IEventStoreConnection esConnection, ConnectionSettings settings)
         {
@@ -107,12 +158,12 @@ namespace EventStore.ClientAPI.Internal
 
             if (_verboseDebug) LogStartConnection();
 
-            switch (_state)
+            switch (InternalState)
             {
                 case ConnectionState.Init:
-                    _endPointDiscoverer = endPointDiscoverer;
-                    _state = ConnectionState.Connecting;
-                    _connectingPhase = ConnectingPhase.Reconnecting;
+                    Interlocked.Exchange(ref _endPointDiscoverer, endPointDiscoverer);
+                    InternalState = ConnectionState.Connecting;
+                    InternalConnectingPhase = ConnectingPhase.Reconnecting;
                     DiscoverEndPoint(task);
                     break;
                 case ConnectionState.Connecting:
@@ -124,7 +175,7 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(InternalState); break;
             }
         }
 
@@ -132,12 +183,13 @@ namespace EventStore.ClientAPI.Internal
         {
             if (_verboseDebug) LogDiscoverEndPoint();
 
-            if (_state != ConnectionState.Connecting) return;
-            if (_connectingPhase != ConnectingPhase.Reconnecting) return;
+            if (InternalState != ConnectionState.Connecting) return;
+            if (InternalConnectingPhase != ConnectingPhase.Reconnecting) return;
 
-            _connectingPhase = ConnectingPhase.EndPointDiscovery;
+            InternalConnectingPhase = ConnectingPhase.EndPointDiscovery;
 
-            _endPointDiscoverer.DiscoverAsync(_connection?.RemoteEndPoint).ContinueWith(t =>
+            var endPointDiscoverer = Volatile.Read(ref _endPointDiscoverer);
+            endPointDiscoverer.DiscoverAsync(InternalConnection?.RemoteEndPoint).ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
@@ -163,8 +215,8 @@ namespace EventStore.ClientAPI.Internal
 
             if (_verboseDebug) LogEstablishTcpConnectionTo(endPoint);
 
-            if (_state != ConnectionState.Connecting) return;
-            if (_connectingPhase != ConnectingPhase.EndPointDiscovery) return;
+            if (InternalState != ConnectionState.Connecting) return;
+            if (InternalConnectingPhase != ConnectingPhase.EndPointDiscovery) return;
 
             var settings = new DotNettyTransportSettings(
                  enableLibuv: _settings.EnableLibuv,
@@ -186,15 +238,16 @@ namespace EventStore.ClientAPI.Internal
                  writeBufferLowWaterMark: _settings.WriteBufferLowWaterMark,
                  enableBufferPooling: _settings.EnableBufferPooling);
 
-            _connectingPhase = ConnectingPhase.ConnectionEstablishing;
-            _connection = new TcpPackageConnection(
+            InternalConnectingPhase = ConnectingPhase.ConnectionEstablishing;
+            var connection = new TcpPackageConnection(
                     settings,
                     endPoint,
                     _settings.UseSslConnection,
                     _settings.TargetHost,
                     _settings.ValidateServer,
                     this);
-            _connection.ConnectAsync().Ignore();
+            InternalConnection = connection;
+            connection.ConnectAsync().Ignore();
         }
         private static int ScaledPoolSize(int floor, double scalar, int ceiling)
         {
@@ -223,8 +276,8 @@ namespace EventStore.ClientAPI.Internal
 
         private async Task TcpConnectionErrorAsync(TcpPackageConnection connection, Exception exception)
         {
-            if (_connection != connection) return;
-            if (_state == ConnectionState.Closed) return;
+            if (InternalConnection != connection) return;
+            if (InternalState == ConnectionState.Closed) return;
 
             if (_verboseDebug) LogTcpConnectionError(connection.ConnectionId, exception);
             await CloseConnectionAsync("TCP connection error occurred.", exception).ConfigureAwait(false);
@@ -232,7 +285,7 @@ namespace EventStore.ClientAPI.Internal
 
         private async Task CloseConnectionAsync(string reason, Exception exception = null)
         {
-            if (_state == ConnectionState.Closed)
+            if (InternalState == ConnectionState.Closed)
             {
                 await TaskConstants.Completed;
                 if (_verboseDebug) LogCloseConnectionIgnoredBecauseIsESConnectionIsClosed(reason, exception);
@@ -241,7 +294,7 @@ namespace EventStore.ClientAPI.Internal
 
             if (_verboseDebug) LogCloseConnectionReason(reason, exception);
 
-            _state = ConnectionState.Closed;
+            InternalState = ConnectionState.Closed;
 
             _timer.Dispose();
             _operations.CleanUp();
@@ -257,68 +310,74 @@ namespace EventStore.ClientAPI.Internal
 
         private async Task CloseTcpConnection(string reason)
         {
-            if (_connection == null)
+            var innerConn = InternalConnection;
+            if (innerConn == null)
             {
                 if (_verboseDebug) LogCloseTcpConnectionIgnoredBecauseConnectionIsNull();
                 return;
             }
 
             if (_verboseDebug) LogCloseTcpConnection();
-            _connection.Close(reason);
-            await TcpConnectionClosedAsync(_connection).ConfigureAwait(false);
-            _connection = null;
+            innerConn.Close(reason);
+            await TcpConnectionClosedAsync(innerConn).ConfigureAwait(false);
+            InternalConnection = null;
         }
 
-        private async Task TcpConnectionClosedAsync(TcpPackageConnection connection)
+        private async Task TcpConnectionClosedAsync(TcpPackageConnection conn)
         {
-            if (_state == ConnectionState.Init)
+            var state = InternalState;
+            if (state == ConnectionState.Init)
             {
                 await TaskConstants.Completed;
                 CoreThrowHelper.ThrowException();
             }
-            if (_state == ConnectionState.Closed || _connection != connection)
+            var innerConn = InternalConnection;
+            if (state == ConnectionState.Closed || innerConn != conn)
             {
-                if (_verboseDebug) LogIgnoredBecauseTcpConnectionClosed(connection);
+                if (_verboseDebug) LogIgnoredBecauseTcpConnectionClosed(conn);
                 return;
             }
 
-            _state = ConnectionState.Connecting;
-            _connectingPhase = ConnectingPhase.Reconnecting;
+            InternalState = ConnectionState.Connecting;
+            InternalConnectingPhase = ConnectingPhase.Reconnecting;
 
-            if (_verboseDebug) LogTcpConnectionClosed(connection);
+            if (_verboseDebug) LogTcpConnectionClosed(conn);
 
-            _subscriptions.PurgeSubscribedAndDroppedSubscriptions(_connection.ConnectionId);
-            _reconnInfo = new ReconnectionInfo(_reconnInfo.ReconnectionAttempt, _stopwatch.Elapsed);
+            _subscriptions.PurgeSubscribedAndDroppedSubscriptions(innerConn.ConnectionId);
+            var reconnInfo = InternalReconnectionInfo;
+            InternalReconnectionInfo = new ReconnectionInfo(reconnInfo.ReconnectionAttempt, _stopwatch.Elapsed);
 
             if (Interlocked.CompareExchange(ref _wasConnected, 0, 1) == 1)
             {
-                RaiseDisconnected(connection.RemoteEndPoint);
+                RaiseDisconnected(conn.RemoteEndPoint);
             }
         }
 
-        private async Task TcpConnectionEstablishedAsync(TcpPackageConnection connection)
+        private async Task TcpConnectionEstablishedAsync(TcpPackageConnection conn)
         {
-            if (_state != ConnectionState.Connecting || _connection != connection || connection.IsClosed)
+            var innerConn = InternalConnection;
+            if (InternalState != ConnectionState.Connecting || innerConn != conn || conn.IsClosed)
             {
                 await TaskConstants.Completed;
-                if (_verboseDebug) LogIgnoredBecauseTcpConnectionEstablished(connection);
+                if (_verboseDebug) LogIgnoredBecauseTcpConnectionEstablished(conn);
                 return;
             }
 
-            if (_verboseDebug) LogTcpConnectionEstablished(connection);
-            _heartbeatInfo = new HeartbeatInfo(_packageNumber, true, _stopwatch.Elapsed);
+            if (_verboseDebug) LogTcpConnectionEstablished(conn);
+            InternalHeartbeatInfo = new HeartbeatInfo(Volatile.Read(ref _packageNumber), true, _stopwatch.Elapsed);
 
             if (_settings.DefaultUserCredentials != null)
             {
-                _connectingPhase = ConnectingPhase.Authentication;
+                InternalConnectingPhase = ConnectingPhase.Authentication;
 
-                _authInfo = new AuthInfo(Guid.NewGuid(), _stopwatch.Elapsed);
-                _connection.EnqueueSend(new TcpPackage(TcpCommand.Authenticate,
-                                                       TcpFlags.Authenticated,
-                                                       _authInfo.CorrelationId,
-                                                       _settings.DefaultUserCredentials.Username,
-                                                       _settings.DefaultUserCredentials.Password,
-                                                       null));
+                var authInfo = new AuthInfo(Guid.NewGuid(), _stopwatch.Elapsed);
+                InternalAuthInfo = authInfo;
+                innerConn.EnqueueSend(new TcpPackage(TcpCommand.Authenticate,
+                                                    TcpFlags.Authenticated,
+                                                    authInfo.CorrelationId,
+                                                    _settings.DefaultUserCredentials.Username,
+                                                    _settings.DefaultUserCredentials.Password,
+                                                    null));
             }
             else
             {
@@ -328,113 +387,122 @@ namespace EventStore.ClientAPI.Internal
 
         private void GoToIdentifyState()
         {
-            if (null == _connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
-            _connectingPhase = ConnectingPhase.Identification;
+            var innerConn = InternalConnection;
+            if (null == innerConn) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
+            InternalConnectingPhase = ConnectingPhase.Identification;
 
-            _identifyInfo = new IdentifyInfo(Guid.NewGuid(), _stopwatch.Elapsed);
+            var identifyInfo = new IdentifyInfo(Guid.NewGuid(), _stopwatch.Elapsed);
+            InternalIdentifyInfo = identifyInfo;
             var dto = new TcpClientMessageDto.IdentifyClient(ClientVersion, _esConnection.ConnectionName);
-            _connection.EnqueueSend(new TcpPackage(TcpCommand.IdentifyClient, _identifyInfo.CorrelationId, dto.Serialize()));
+            innerConn.EnqueueSend(new TcpPackage(TcpCommand.IdentifyClient, identifyInfo.CorrelationId, dto.Serialize()));
         }
 
         private void GoToConnectedState()
         {
-            if (null == _connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
+            var innerConn = InternalConnection;
+            if (null == innerConn) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
 
-            _state = ConnectionState.Connected;
-            _connectingPhase = ConnectingPhase.Connected;
+            InternalState = ConnectionState.Connected;
+            InternalConnectingPhase = ConnectingPhase.Connected;
 
             Interlocked.CompareExchange(ref _wasConnected, 1, 0);
 
-            RaiseConnectedEvent(_connection.RemoteEndPoint);
+            RaiseConnectedEvent(innerConn.RemoteEndPoint);
 
             if (_stopwatch.Elapsed - _lastTimeoutsTimeStamp >= _settings.OperationTimeoutCheckPeriod)
             {
-                _operations.CheckTimeoutsAndRetry(_connection);
-                _subscriptions.CheckTimeoutsAndRetry(_connection);
+                _operations.CheckTimeoutsAndRetry(innerConn);
+                _subscriptions.CheckTimeoutsAndRetry(innerConn);
                 _lastTimeoutsTimeStamp = _stopwatch.Elapsed;
             }
         }
 
         private async Task TimerTickAsync()
         {
-            switch (_state)
+            var innerConn = InternalConnection;
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init: break;
                 case ConnectionState.Connecting:
+                    var reconnInfo = InternalReconnectionInfo;
+                    var connectingPhase = InternalConnectingPhase;
+                    switch (connectingPhase)
                     {
-                        if (_connectingPhase == ConnectingPhase.Reconnecting && _stopwatch.Elapsed - _reconnInfo.TimeStamp >= _settings.ReconnectionDelay)
-                        {
+                        case ConnectingPhase.Reconnecting when _stopwatch.Elapsed - reconnInfo.TimeStamp >= _settings.ReconnectionDelay:
                             if (_verboseDebug) LogTimerTickCheckingReconnection();
 
-                            _reconnInfo = new ReconnectionInfo(_reconnInfo.ReconnectionAttempt + 1, _stopwatch.Elapsed);
-                            if (_settings.MaxReconnections >= 0 && _reconnInfo.ReconnectionAttempt > _settings.MaxReconnections)
+                            InternalReconnectionInfo = reconnInfo = new ReconnectionInfo(reconnInfo.ReconnectionAttempt + 1, _stopwatch.Elapsed);
+                            if (_settings.MaxReconnections >= 0 && reconnInfo.ReconnectionAttempt > _settings.MaxReconnections)
                             {
                                 await CloseConnectionAsync("Reconnection limit reached.").ConfigureAwait(false);
                             }
                             else
                             {
                                 RaiseReconnecting();
-                                _operations.CheckTimeoutsAndRetry(_connection);
+                                _operations.CheckTimeoutsAndRetry(innerConn);
                                 DiscoverEndPoint(null);
                             }
-                        }
-                        if (_connectingPhase == ConnectingPhase.Authentication && _stopwatch.Elapsed - _authInfo.TimeStamp >= _settings.OperationTimeout)
-                        {
+                            break;
+
+                        case ConnectingPhase.Authentication when _stopwatch.Elapsed - InternalAuthInfo.TimeStamp >= _settings.OperationTimeout:
                             RaiseAuthenticationFailed("Authentication timed out.");
                             GoToIdentifyState();
-                        }
-                        if (_connectingPhase == ConnectingPhase.Identification && _stopwatch.Elapsed - _identifyInfo.TimeStamp >= _settings.OperationTimeout)
-                        {
+                            break;
+
+                        case ConnectingPhase.Identification when _stopwatch.Elapsed - InternalIdentifyInfo.TimeStamp >= _settings.OperationTimeout:
                             const string msg = "Timed out waiting for client to be identified";
                             if (_verboseDebug) LogTimedoutWaitingForClientToBeIdentified();
                             await CloseTcpConnection(msg).ConfigureAwait(false);
-                        }
-                        if (_connectingPhase > ConnectingPhase.ConnectionEstablishing)
-                        {
-                            await ManageHeartbeatsAsync().ConfigureAwait(false);
-                        }
-                        break;
+                            break;
                     }
-                case ConnectionState.Connected:
+                    if (connectingPhase > ConnectingPhase.ConnectionEstablishing)
                     {
-                        // operations timeouts are checked only if connection is established and check period time passed
-                        if (_stopwatch.Elapsed - _lastTimeoutsTimeStamp >= _settings.OperationTimeoutCheckPeriod)
-                        {
-                            // On mono even impossible connection first says that it is established
-                            // so clearing of reconnection count on ConnectionEstablished event causes infinite reconnections.
-                            // So we reset reconnection count to zero on each timeout check period when connection is established
-                            _reconnInfo = new ReconnectionInfo(0, _stopwatch.Elapsed);
-                            _operations.CheckTimeoutsAndRetry(_connection);
-                            _subscriptions.CheckTimeoutsAndRetry(_connection);
-                            _lastTimeoutsTimeStamp = _stopwatch.Elapsed;
-                        }
                         await ManageHeartbeatsAsync().ConfigureAwait(false);
-                        break;
                     }
+                    break;
+
+                case ConnectionState.Connected:
+                    // operations timeouts are checked only if connection is established and check period time passed
+                    if (_stopwatch.Elapsed - _lastTimeoutsTimeStamp >= _settings.OperationTimeoutCheckPeriod)
+                    {
+                        // On mono even impossible connection first says that it is established
+                        // so clearing of reconnection count on ConnectionEstablished event causes infinite reconnections.
+                        // So we reset reconnection count to zero on each timeout check period when connection is established
+                        InternalReconnectionInfo = new ReconnectionInfo(0, _stopwatch.Elapsed);
+                        _operations.CheckTimeoutsAndRetry(innerConn);
+                        _subscriptions.CheckTimeoutsAndRetry(innerConn);
+                        _lastTimeoutsTimeStamp = _stopwatch.Elapsed;
+                    }
+                    await ManageHeartbeatsAsync().ConfigureAwait(false);
+                    break;
+
                 case ConnectionState.Closed: break;
-                default: ThrowException(_state); break;
+                default: ThrowException(state); break;
             }
         }
 
         private async Task ManageHeartbeatsAsync()
         {
-            if (_connection == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
+            var innerConn = InternalConnection;
+            if (innerConn == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument._connection); }
 
-            var timeout = _heartbeatInfo.IsIntervalStage ? _settings.HeartbeatInterval : _settings.HeartbeatTimeout;
-            if (_stopwatch.Elapsed - _heartbeatInfo.TimeStamp < timeout) { return; }
+            var heartbeatInfo = InternalHeartbeatInfo;
+            var timeout = heartbeatInfo.IsIntervalStage ? _settings.HeartbeatInterval : _settings.HeartbeatTimeout;
+            if (_stopwatch.Elapsed - heartbeatInfo.TimeStamp < timeout) { return; }
 
-            var packageNumber = _packageNumber;
-            if (_heartbeatInfo.LastPackageNumber != packageNumber)
+            var packageNumber = Volatile.Read(ref _packageNumber);
+            if (heartbeatInfo.LastPackageNumber != packageNumber)
             {
-                _heartbeatInfo = new HeartbeatInfo(packageNumber, true, _stopwatch.Elapsed);
+                InternalHeartbeatInfo = new HeartbeatInfo(packageNumber, true, _stopwatch.Elapsed);
                 return;
             }
 
-            if (_heartbeatInfo.IsIntervalStage)
+            if (heartbeatInfo.IsIntervalStage)
             {
                 // TcpMessage.Heartbeat analog
-                _connection.EnqueueSend(new TcpPackage(TcpCommand.HeartbeatRequestCommand, Guid.NewGuid(), null));
-                _heartbeatInfo = new HeartbeatInfo(_heartbeatInfo.LastPackageNumber, false, _stopwatch.Elapsed);
+                innerConn.EnqueueSend(new TcpPackage(TcpCommand.HeartbeatRequestCommand, Guid.NewGuid(), null));
+                InternalHeartbeatInfo = new HeartbeatInfo(heartbeatInfo.LastPackageNumber, false, _stopwatch.Elapsed);
                 return;
             }
             // TcpMessage.HeartbeatTimeout analog
@@ -444,17 +512,19 @@ namespace EventStore.ClientAPI.Internal
         [MethodImpl(MethodImplOptions.NoInlining)]
         private async Task CloseTcpConnection(int packageNumber)
         {
+            var innerConn = InternalConnection;
             // TcpMessage.HeartbeatTimeout analog
             var msg = string.Format("EventStoreConnection '{0}': closing TCP connection [{1}, {2}, {3}] due to HEARTBEAT TIMEOUT at pkgNum {4}.",
-                                    _esConnection.ConnectionName, _connection.RemoteEndPoint, _connection.LocalEndPoint,
-                                    _connection.ConnectionId, packageNumber);
+                                    _esConnection.ConnectionName, innerConn.RemoteEndPoint, innerConn.LocalEndPoint,
+                                    innerConn.ConnectionId, packageNumber);
             if (s_logger.IsInformationLevelEnabled()) { s_logger.LogInformation(msg); }
             await CloseTcpConnection(msg).ConfigureAwait(false);
         }
 
         private async Task StartOperationAsync(IClientOperation operation, int maxRetries, TimeSpan timeout)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     operation.Fail(ExConnectionIsNotActive());
@@ -465,37 +535,39 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 case ConnectionState.Connected:
                     if (_verboseDebug) LogStartOperationSchedule(operation, maxRetries, timeout);
-                    _operations.ScheduleOperation(new OperationItem(operation, maxRetries, timeout), _connection);
+                    _operations.ScheduleOperation(new OperationItem(operation, maxRetries, timeout), InternalConnection);
                     break;
                 case ConnectionState.Closed:
                     operation.Fail(EsConnectionDisposed());
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessageWrapper msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var volatileSubscriptionOperationWrapperType = typeof(SubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
                     var volatileSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IVolatileSubscriptionOperationWrapper>(volatileSubscriptionOperationWrapperType);
-                    var operation = volatileSubscriptionOperationWrapper.Create(msg, _connection);
+                    var operation = volatileSubscriptionOperationWrapper.Create(msg, innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -503,32 +575,34 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessage msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = msg.EventAppeared != null
                                   ? new SubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                              msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
+                                                              msg.EventAppeared, msg.SubscriptionDropped, () => innerConn)
                                   : new SubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                              msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                              msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -536,32 +610,34 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionMessage2 msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = msg.EventAppeared != null
                                   ? new SubscriptionOperation2(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                               msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
+                                                               msg.EventAppeared, msg.SubscriptionDropped, () => innerConn)
                                   : new SubscriptionOperation2(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                               msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                               msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -569,32 +645,34 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartSubscriptionRawMessage msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = msg.EventAppeared != null
                                   ? new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                                      msg.EventAppeared, msg.SubscriptionDropped, () => _connection)
+                                                                      msg.EventAppeared, msg.SubscriptionDropped, () => innerConn)
                                   : new VolatileSubscriptionOperation(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                                      msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                                      msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -602,31 +680,33 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
 
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessageWrapper msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var persistentSubscriptionOperationWrapperType = typeof(PersistentSubscriptionOperationWrapper<>).GetCachedGenericType(msg.EventType);
                     var persistentSubscriptionOperationWrapper = ActivatorUtils.FastCreateInstance<IPersistentSubscriptionOperationWrapper>(persistentSubscriptionOperationWrapperType);
-                    var operation = persistentSubscriptionOperationWrapper.Create(msg, _connection);
+                    var operation = persistentSubscriptionOperationWrapper.Create(msg, innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -634,29 +714,31 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessage msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = new PersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                                        msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                                        msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -664,29 +746,31 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionMessage2 msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = new PersistentSubscriptionOperation2(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                                         msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                                         msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -694,29 +778,31 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
         private async Task StartSubscriptionAsync(StartPersistentSubscriptionRawMessage msg)
         {
-            switch (_state)
+            var state = InternalState;
+            switch (state)
             {
                 case ConnectionState.Init:
                     msg.Source.SetException(ExConnectionIsNotActive());
                     break;
                 case ConnectionState.Connecting:
                 case ConnectionState.Connected:
+                    var innerConn = InternalConnection;
                     var operation = new ConnectToPersistentSubscriptionOperation(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings, msg.UserCredentials,
-                                                                                 msg.EventAppearedAsync, msg.SubscriptionDropped, () => _connection);
+                                                                                 msg.EventAppearedAsync, msg.SubscriptionDropped, () => innerConn);
                     if (_verboseDebug) LogStartSubscription(operation, msg.MaxRetries, msg.Timeout);
                     var subscription = new SubscriptionItem(operation, msg.MaxRetries, msg.Timeout);
-                    if (_state == ConnectionState.Connecting)
+                    if (state == ConnectionState.Connecting)
                     {
                         _subscriptions.EnqueueSubscription(subscription);
                     }
                     else
                     {
-                        _subscriptions.StartSubscription(subscription, _connection);
+                        _subscriptions.StartSubscription(subscription, innerConn);
                     }
                     break;
                 case ConnectionState.Closed:
@@ -724,59 +810,59 @@ namespace EventStore.ClientAPI.Internal
                     break;
                 default:
                     await TaskConstants.Completed;
-                    ThrowException(_state); break;
+                    ThrowException(state); break;
             }
         }
 
-        private async Task HandleTcpPackageAsync(TcpPackageConnection connection, TcpPackage package)
+        private async Task HandleTcpPackageAsync(TcpPackageConnection conn, TcpPackage package)
         {
-            if (_connection != connection || _state == ConnectionState.Closed || _state == ConnectionState.Init)
+            var state = InternalState;
+            var innerConn = InternalConnection;
+            if (innerConn != conn || state == ConnectionState.Closed || state == ConnectionState.Init)
             {
-                if (_verboseDebug) LogIgnoredTcpPackage(connection.ConnectionId, package.Command, package.CorrelationId);
+                if (_verboseDebug) LogIgnoredTcpPackage(conn.ConnectionId, package.Command, package.CorrelationId);
                 return;
             }
 
-            if (_verboseDebug) LogHandleTcpPackage(_connection.ConnectionId, package.Command, package.CorrelationId);
-            _packageNumber += 1;
+            if (_verboseDebug) LogHandleTcpPackage(innerConn.ConnectionId, package.Command, package.CorrelationId);
+            Interlocked.Increment(ref _packageNumber);
 
-            if (package.Command == TcpCommand.HeartbeatResponseCommand) { return; }
-            if (package.Command == TcpCommand.HeartbeatRequestCommand)
+            switch (package.Command)
             {
-                _connection.EnqueueSend(new TcpPackage(TcpCommand.HeartbeatResponseCommand, package.CorrelationId, null));
-                return;
-            }
+                case TcpCommand.HeartbeatResponseCommand: return;
 
-            if (package.Command == TcpCommand.Authenticated || package.Command == TcpCommand.NotAuthenticated)
-            {
-                if (_state == ConnectionState.Connecting
-                    && _connectingPhase == ConnectingPhase.Authentication
-                    && _authInfo.CorrelationId == package.CorrelationId)
-                {
-                    if (package.Command == TcpCommand.NotAuthenticated)
+                case TcpCommand.HeartbeatRequestCommand:
+                    innerConn.EnqueueSend(new TcpPackage(TcpCommand.HeartbeatResponseCommand, package.CorrelationId, null));
+                    return;
+
+                case TcpCommand.Authenticated:
+                case TcpCommand.NotAuthenticated:
+                    if (state == ConnectionState.Connecting
+                        && InternalConnectingPhase == ConnectingPhase.Authentication
+                        && InternalAuthInfo.CorrelationId == package.CorrelationId)
                     {
-                        RaiseAuthenticationFailed("Not authenticated");
+                        if (package.Command == TcpCommand.NotAuthenticated)
+                        {
+                            RaiseAuthenticationFailed("Not authenticated");
+                        }
+
+                        GoToIdentifyState();
+                        return;
                     }
+                    break;
 
-                    GoToIdentifyState();
+                case TcpCommand.ClientIdentified:
+                    if (state == ConnectionState.Connecting && InternalIdentifyInfo.CorrelationId == package.CorrelationId)
+                    {
+                        GoToConnectedState();
+                        return;
+                    }
+                    break;
+                case TcpCommand.BadRequest when package.CorrelationId == Guid.Empty:
+                    const string _closeReason = "Connection-wide BadRequest received. Too dangerous to continue.";
+                    var exc = CoreThrowHelper.GetEventStoreConnectionException(package);
+                    await CloseConnectionAsync(_closeReason, exc).ConfigureAwait(false);
                     return;
-                }
-            }
-
-            if (package.Command == TcpCommand.ClientIdentified)
-            {
-                if (_state == ConnectionState.Connecting && _identifyInfo.CorrelationId == package.CorrelationId)
-                {
-                    GoToConnectedState();
-                    return;
-                }
-            }
-
-            if (package.Command == TcpCommand.BadRequest && package.CorrelationId == Guid.Empty)
-            {
-                const string _closeReason = "Connection-wide BadRequest received. Too dangerous to continue.";
-                var exc = CoreThrowHelper.GetEventStoreConnectionException(package);
-                await CloseConnectionAsync(_closeReason, exc).ConfigureAwait(false);
-                return;
             }
 
             if (_operations.TryGetActiveOperation(package.CorrelationId, out OperationItem operation))
@@ -798,9 +884,9 @@ namespace EventStore.ClientAPI.Internal
                         break;
                     default: ThrowException(result.Decision); break;
                 }
-                if (_state == ConnectionState.Connected)
+                if (state == ConnectionState.Connected)
                 {
-                    _operations.TryScheduleWaitingOperations(connection);
+                    _operations.TryScheduleWaitingOperations(conn);
                 }
             }
             else if (_subscriptions.TryGetActiveSubscription(package.CorrelationId, out SubscriptionItem subscription))
@@ -843,14 +929,15 @@ namespace EventStore.ClientAPI.Internal
                 return;
             }
 
-            if (_state != ConnectionState.Connected || _connection.RemoteEndPoint.Equals(endPoint)) { return; }
+            var innerConn = InternalConnection;
+            if (InternalState != ConnectionState.Connected || innerConn.RemoteEndPoint.Equals(endPoint)) { return; }
 
-            var msg = $"EventStoreConnection '{_esConnection.ConnectionName}': going to reconnect to [{endPoint}]. Current endpoint: [{_connection.RemoteEndPoint}, L{_connection.LocalEndPoint}].";
+            var msg = $"EventStoreConnection '{_esConnection.ConnectionName}': going to reconnect to [{endPoint}]. Current endpoint: [{innerConn.RemoteEndPoint}, L{innerConn.LocalEndPoint}].";
             if (_verboseInfo) { s_logger.LogInformation(msg); }
             await CloseTcpConnection(msg).ConfigureAwait(false);
 
-            _state = ConnectionState.Connecting;
-            _connectingPhase = ConnectingPhase.EndPointDiscovery;
+            InternalState = ConnectionState.Connecting;
+            InternalConnectingPhase = ConnectingPhase.EndPointDiscovery;
             await EstablishTcpConnectionAsync(endPoints).ConfigureAwait(false);
         }
 
@@ -873,12 +960,12 @@ namespace EventStore.ClientAPI.Internal
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void ThrowException(ConnectionState state)
+        private static void ThrowException(int state)
         {
             throw GetException();
             Exception GetException()
             {
-                return new Exception($"Unknown state: {state}.");
+                return new Exception($"Unknown state: {s_connectionStateInfo[state]}.");
             }
         }
 
@@ -929,12 +1016,15 @@ namespace EventStore.ClientAPI.Internal
         public event EventHandler<ClientErrorEventArgs> ErrorOccurred = delegate { };
         public event EventHandler<ClientAuthenticationFailedEventArgs> AuthenticationFailed = delegate { };
 
-        private readonly struct HeartbeatInfo
+        private sealed class HeartbeatInfo
         {
+            public static readonly HeartbeatInfo Default = new HeartbeatInfo();
+
             public readonly int LastPackageNumber;
             public readonly bool IsIntervalStage;
             public readonly TimeSpan TimeStamp;
 
+            private HeartbeatInfo() { }
             public HeartbeatInfo(int lastPackageNumber, bool isIntervalStage, TimeSpan timeStamp)
             {
                 LastPackageNumber = lastPackageNumber;
@@ -943,11 +1033,14 @@ namespace EventStore.ClientAPI.Internal
             }
         }
 
-        private readonly struct ReconnectionInfo
+        private sealed class ReconnectionInfo
         {
+            public static readonly ReconnectionInfo Default = new ReconnectionInfo();
+
             public readonly int ReconnectionAttempt;
             public readonly TimeSpan TimeStamp;
 
+            private ReconnectionInfo() { }
             public ReconnectionInfo(int reconnectionAttempt, TimeSpan timeStamp)
             {
                 ReconnectionAttempt = reconnectionAttempt;
@@ -955,11 +1048,14 @@ namespace EventStore.ClientAPI.Internal
             }
         }
 
-        private readonly struct AuthInfo
+        private sealed class AuthInfo
         {
+            public static readonly AuthInfo Default = new AuthInfo();
+
             public readonly Guid CorrelationId;
             public readonly TimeSpan TimeStamp;
 
+            private AuthInfo() { }
             public AuthInfo(Guid correlationId, TimeSpan timeStamp)
             {
                 CorrelationId = correlationId;
@@ -967,11 +1063,14 @@ namespace EventStore.ClientAPI.Internal
             }
         }
 
-        private readonly struct IdentifyInfo
+        private sealed class IdentifyInfo
         {
+            public static readonly IdentifyInfo Default = new IdentifyInfo();
+
             public readonly Guid CorrelationId;
             public readonly TimeSpan TimeStamp;
 
+            private IdentifyInfo() { }
             public IdentifyInfo(Guid correlationId, TimeSpan timeStamp)
             {
                 CorrelationId = correlationId;
@@ -979,23 +1078,30 @@ namespace EventStore.ClientAPI.Internal
             }
         }
 
-        private enum ConnectionState
+        private static readonly Dictionary<int, string> s_connectionStateInfo = new Dictionary<int, string>
         {
-            Init,
-            Connecting,
-            Connected,
-            Closed
+            { ConnectionState.Init, "Init" },
+            { ConnectionState.Connecting, "Connecting" },
+            { ConnectionState.Connected, "Connected" },
+            { ConnectionState.Closed, "Closed" },
+        };
+        private static class ConnectionState
+        {
+            public const int Init = 0;
+            public const int Connecting = 1;
+            public const int Connected = 2;
+            public const int Closed = 3;
         }
 
-        private enum ConnectingPhase
+        private static class ConnectingPhase
         {
-            Invalid,
-            Reconnecting,
-            EndPointDiscovery,
-            ConnectionEstablishing,
-            Authentication,
-            Identification,
-            Connected
+            public const int Invalid = 0;
+            public const int Reconnecting = 1;
+            public const int EndPointDiscovery = 2;
+            public const int ConnectionEstablishing = 3;
+            public const int Authentication = 4;
+            public const int Identification = 5;
+            public const int Connected = 6;
         }
     }
 }

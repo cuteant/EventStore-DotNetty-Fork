@@ -97,20 +97,22 @@ namespace EventStore.ClientAPI.Internal
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogIgnoredBecauseTcpConnectionEstablished(TcpPackageConnection connection)
         {
+            var innerConn = InternalConnection;
             s_logger.LogDebug("EventStoreConnection '{connectionName}': " +
                 "IGNORED (_state {state}, _conn.Id {connId:B}, conn.Id {connectionId:B}, conn.closed {isClosed}): TCP connection to [{remoteEndPoint}, L{localEndPoint}] established.",
                 _esConnection.ConnectionName,
-                _state, _connection == null ? Guid.Empty : _connection.ConnectionId,
+                _state, innerConn == null ? Guid.Empty : innerConn.ConnectionId,
                 connection.ConnectionId, connection.IsClosed, connection.RemoteEndPoint, connection.LocalEndPoint);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void LogIgnoredBecauseTcpConnectionClosed(TcpPackageConnection connection)
         {
+            var innerConn = InternalConnection;
             s_logger.LogDebug("EventStoreConnection '{connectionName}': " +
                 "IGNORED (_state: {state}, _conn.ID: {connId:B}, conn.ID: {connectionId:B}): TCP connection to [{remoteEndPoint}, L{localEndPoint}] closed.",
                 _esConnection.ConnectionName,
-                _state, _connection == null ? Guid.Empty : _connection.ConnectionId,
+                _state, innerConn == null ? Guid.Empty : innerConn.ConnectionId,
                 connection.ConnectionId, connection.RemoteEndPoint, connection.LocalEndPoint);
         }
 

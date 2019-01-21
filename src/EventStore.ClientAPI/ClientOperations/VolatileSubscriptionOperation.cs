@@ -157,7 +157,7 @@ namespace EventStore.ClientAPI.ClientOperations
     where TResolvedEvent : IResolvedEvent
   {
     private long _processingEventNumber;
-    public long ProcessingEventNumber => _processingEventNumber;
+    public long ProcessingEventNumber => Volatile.Read(ref _processingEventNumber);
 
     public VolatileSubscriptionOperationBase(TaskCompletionSource<EventStoreSubscription> source,
       string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
