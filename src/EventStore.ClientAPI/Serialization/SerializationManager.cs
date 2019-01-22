@@ -9,11 +9,9 @@ using CuteAnt.Reflection;
 using EventStore.ClientAPI.Internal;
 using MessagePack;
 using MessagePack.Formatters;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Utf8Json;
-using EventStore.ClientAPI.Transport.Tcp;
 
 namespace EventStore.ClientAPI.Serialization
 {
@@ -47,13 +45,6 @@ namespace EventStore.ClientAPI.Serialization
         static SerializationManager()
         {
             // Preserve object references
-            //try
-            //{
-            //    MessagePackStandardResolver.Register(TcpPackageFormatter.Instance);
-            //    MessagePackStandardResolver.Register(HyperionExceptionResolver2.Instance, HyperionExpressionResolver.Instance, HyperionResolver.Instance);
-            //}
-            //catch { }
-
             _externalSerializers = new List<IExternalSerializer>();
             _typeToExternalSerializerDictionary = new CachedReadConcurrentDictionary<Type, IExternalSerializer>();
             _typeToStreamProviderDictionary = new CachedReadConcurrentDictionary<Type, StreamAttribute>();
@@ -88,16 +79,15 @@ namespace EventStore.ClientAPI.Serialization
         }
 
         /// <summary>Utf8Json message formatter</summary>
-        public static void Register(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
+        public static bool TryRegister(IJsonFormatter[] formatters, IJsonFormatterResolver[] resolvers)
         {
-            Utf8JsonStandardResolver.Register(formatters, resolvers);
+            return Utf8JsonStandardResolver.TryRegister(formatters, resolvers);
         }
 
         /// <summary>MessagePack message formatter</summary>
-        public static void Register(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers,
-          IMessagePackFormatter[] typelessFormatters, IFormatterResolver[] typelessResolvers)
+        public static bool TryRegister(IMessagePackFormatter[] formatters, IFormatterResolver[] resolvers)
         {
-            MessagePackStandardResolver.Register(formatters, resolvers);
+            return MessagePackStandardResolver.TryRegister(formatters, resolvers);
         }
 
         #endregion

@@ -11,7 +11,6 @@ using DotNetty.Handlers.Tls;
 using DotNetty.Transport.Channels;
 using EventStore.Transport.Tcp.Messages;
 using MessagePack;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Transport.Tcp

@@ -6,7 +6,6 @@ using CuteAnt.Collections;
 using EventStore.Transport.Tcp.Messages;
 using MessagePack;
 using MessagePack.Formatters;
-using MessagePack.Resolvers;
 
 #if CLIENTAPI
 using EventStore.ClientAPI.Common.Utils;
@@ -22,14 +21,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         static MessagePackExtensions()
         {
-            try
-            {
-                MessagePackStandardResolver.Register(TcpPackageFormatter.Instance);
-#if CLIENTAPI
-                MessagePackStandardResolver.Register(HyperionExceptionResolver2.Instance, HyperionExpressionResolver.Instance, HyperionResolver.Instance);
-#endif
-            }
-            catch { }
+            MessagePackStandardResolver.TryRegister(TcpPackageFormatter.Instance);
             DefaultResolver = MessagePackStandardResolver.Default;
         }
 

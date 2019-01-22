@@ -9,7 +9,6 @@ using DotNetty.Transport.Channels;
 using DotNetty.Transport.Libuv.Native;
 using EventStore.Transport.Tcp.Messages;
 using MessagePack;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.Transport.Tcp

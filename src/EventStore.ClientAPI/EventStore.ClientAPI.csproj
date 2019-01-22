@@ -35,9 +35,9 @@ Goals:
 
   <ItemGroup>
     <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
+    <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization.Utf8Json" Version="$(CuteAntExtensionsSerializationUtf8JsonPackageVersion)" />
     <PackageReference Include="CuteAnt.Extensions.Serialization.Protobuf" Version="$(CuteAntExtensionsSerializationProtobufPackageVersion)" />
-    <PackageReference Include="MessagePack.Hyperion" Version="$(MessagePackHyperionPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="$(SystemThreadingTasksDataflowPackageVersion)" />
     <PackageReference Include="System.ValueTuple" Version="$(SystemValueTuplePackageVersion)" />
