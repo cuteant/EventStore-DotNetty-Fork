@@ -148,7 +148,7 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void New_connection_to_persistent_subscription(this ILogger logger, string key, in Guid connectionId)
+        internal static void New_connection_to_persistent_subscription(this ILogger logger, string key, Guid connectionId)
         {
             logger.LogDebug("New connection to persistent subscription {0} by {1}", key, connectionId);
         }
@@ -203,7 +203,7 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void Writing_Epoch_previous_epoch_at(this ILogger logger, int epochNumber, long epochPosition, in Guid epochId, long lastEpochPosition)
+        internal static void Writing_Epoch_previous_epoch_at(this ILogger logger, int epochNumber, long epochPosition, Guid epochId, long lastEpochPosition)
         {
             logger.LogDebug("=== Writing E{0}@{1}:{2:B} (previous epoch at {3}).", epochNumber, epochPosition, epochId, lastEpochPosition);
         }

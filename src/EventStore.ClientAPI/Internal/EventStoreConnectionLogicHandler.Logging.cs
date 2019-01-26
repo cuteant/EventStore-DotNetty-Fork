@@ -138,14 +138,14 @@ namespace EventStore.ClientAPI.Internal
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private void LogIgnoredTcpPackage(in Guid connectionId, TcpCommand command, in Guid correlationId)
+        private void LogIgnoredTcpPackage(Guid connectionId, TcpCommand command, Guid correlationId)
         {
             s_logger.LogDebug("EventStoreConnection '{connectionName}': IGNORED: HandleTcpPackage connId {connId}, package {command}, {correlationId}.",
                 _esConnection.ConnectionName, connectionId, command, correlationId);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private void LogHandleTcpPackage(in Guid connectionId, TcpCommand command, in Guid correlationId)
+        private void LogHandleTcpPackage(Guid connectionId, TcpCommand command, Guid correlationId)
         {
             s_logger.LogDebug("EventStoreConnection '{connectionName}': HandleTcpPackage connId {connectionId}, package {command}, {correlationId}.",
                 _esConnection.ConnectionName, connectionId, command, correlationId);
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI.Internal
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private void LogHandleTcpPackageUNMAPPEDPACKAGE(in Guid correlationId, TcpCommand command)
+        private void LogHandleTcpPackageUNMAPPEDPACKAGE(Guid correlationId, TcpCommand command)
         {
             s_logger.LogDebug("EventStoreConnection '{connectionName}': HandleTcpPackage UNMAPPED PACKAGE with CorrelationId {correlationId:B}, Command: {command}.",
                 _esConnection.ConnectionName, correlationId, command);

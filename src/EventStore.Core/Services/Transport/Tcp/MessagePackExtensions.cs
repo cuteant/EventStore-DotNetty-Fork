@@ -32,7 +32,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T Deserialize<T>(this in ArraySegment<byte> data)
+        public static T Deserialize<T>(this ArraySegment<byte> data)
         {
             return MessagePackSerializer.Deserialize<T>(data, DefaultResolver);
         }
@@ -56,7 +56,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TcpPackage AsTcpPackage(this in ArraySegment<byte> data)
+        public static TcpPackage AsTcpPackage(this ArraySegment<byte> data)
         {
             return MessagePackSerializer.Deserialize<TcpPackage>(data, DefaultResolver);
         }

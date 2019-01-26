@@ -14,7 +14,7 @@ namespace EventStore.Core.DataStructures
             return false;
         }
 
-        public TValue Put(TKey key, in TValue value)
+        public TValue Put(TKey key, TValue value)
         {
             return value;
         }

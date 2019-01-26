@@ -769,7 +769,7 @@ namespace EventStore.Core
             LoggerMessageFactory.Define<string>(LogLevel.Error,
                 "FRAMING ERROR! Data:\n{data}");
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void FramingError(this ILogger logger, in ArraySegment<byte> bytes)
+        internal static void FramingError(this ILogger logger, ArraySegment<byte> bytes)
         {
             s_framingError(logger, Helper.FormatBinaryDump(bytes), null);
         }

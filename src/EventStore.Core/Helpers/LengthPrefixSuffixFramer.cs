@@ -54,14 +54,14 @@ namespace EventStore.Core.Helpers
             }
         }
 
-        public void UnFrameData(in ArraySegment<byte> data)
+        public void UnFrameData(ArraySegment<byte> data)
         {
             Parse(data);
         }
 
         /// <summary>Parses a stream chunking based on length-prefixed-suffixed framing. Calls are re-entrant and hold state internally.</summary>
         /// <param name="bytes">A byte array of data to append.</param>
-        private void Parse(in ArraySegment<byte> bytes)
+        private void Parse(ArraySegment<byte> bytes)
         {
             var data = bytes.Array;
             for (int i = bytes.Offset; i < bytes.Offset + bytes.Count;)

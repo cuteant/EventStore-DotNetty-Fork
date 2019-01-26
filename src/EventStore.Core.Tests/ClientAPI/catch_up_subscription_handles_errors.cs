@@ -603,7 +603,7 @@ namespace EventStore.Core.Tests.ClientAPI
             throw new NotImplementedException();
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, bool resolveLinkTos,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, bool resolveLinkTos,
             Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppeared,
             Action<EventStoreCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null,
             int readBatchSize = 500,
@@ -613,7 +613,7 @@ namespace EventStore.Core.Tests.ClientAPI
         }
 
         public EventStoreAllCatchUpSubscription SubscribeToAllFrom(
-            in Position? lastCheckpoint,
+            Position? lastCheckpoint,
             CatchUpSubscriptionSettings settings,
             Func<EventStoreCatchUpSubscription, ResolvedEvent, Task> eventAppeared,
             Action<EventStoreCatchUpSubscription> liveProcessingStarted = null,
@@ -720,12 +720,12 @@ namespace EventStore.Core.Tests.ClientAPI
             throw new NotImplementedException();
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             throw new NotImplementedException();
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings, Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync, Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null, Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             throw new NotImplementedException();
         }

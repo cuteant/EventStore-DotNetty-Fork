@@ -30,7 +30,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
 
         public DefaultCheckpointManager(
-            IPublisher publisher, in Guid projectionCorrelationId, in ProjectionVersion projectionVersion, IPrincipal runAs,
+            IPublisher publisher, Guid projectionCorrelationId, in ProjectionVersion projectionVersion, IPrincipal runAs,
             IODispatcher ioDispatcher, ProjectionConfig projectionConfig, string name, PositionTagger positionTagger,
             ProjectionNamesBuilder namingBuilder, bool usePersistentCheckpoints, bool producesRunningResults, bool definesFold,
             CoreProjectionCheckpointWriter coreProjectionCheckpointWriter)

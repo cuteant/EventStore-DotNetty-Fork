@@ -75,7 +75,7 @@ namespace EventStore.ClientAPI
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ConnectionWillBeClosed(this ILogger logger, in Disassociated disassociated, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, in Guid connectionId)
+        internal static void ConnectionWillBeClosed(this ILogger logger, in Disassociated disassociated, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, Guid connectionId)
         {
             var message = string.Format("TcpPackageConnection: [{0}, L{1}, {2}] ERROR for {3}. Connection will be closed.",
                                         remoteEndPoint, localEndPoint, connectionId,

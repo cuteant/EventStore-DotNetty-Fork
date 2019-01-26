@@ -506,7 +506,7 @@ namespace EventStore.Core
             LoggerMessageFactory.Define<IPEndPoint, IPEndPoint, string, Guid>(LogLevel.Information,
                 "========== [{internalHttp}] CLONE ASSIGNMENT RECEIVED FROM [{internalTcp},{internalSecureTcp},{masterId:B}].");
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void CloneAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, in Guid masterId)
+        internal static void CloneAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, Guid masterId)
         {
             s_cloneAssignmentReceivedFrom(logger,
                 nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp == null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);
@@ -516,7 +516,7 @@ namespace EventStore.Core
             LoggerMessageFactory.Define<IPEndPoint, IPEndPoint, string, Guid>(LogLevel.Information,
                 "========== [{internalHttp}] SLAVE ASSIGNMENT RECEIVED FROM [{internalTcp},{internalSecureTcp},{masterId:B}].");
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void SlaveAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, in Guid masterId)
+        internal static void SlaveAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, Guid masterId)
         {
             s_slaveAssignmentReceivedFrom(logger,
                 nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp == null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);

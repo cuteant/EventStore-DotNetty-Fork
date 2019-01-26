@@ -52,7 +52,7 @@ namespace EventStore.Core.DataStructures
             return false;
         }
 
-        public TValue Put(TKey key, in TValue value, int stickiness)
+        public TValue Put(TKey key, TValue value, int stickiness)
         {
             LinkedListNode<LRUItem> node;
             if (!_items.TryGetValue(key, out node))

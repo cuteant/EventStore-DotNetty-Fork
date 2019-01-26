@@ -463,7 +463,7 @@ namespace EventStore.ClientAPI.Embedded
             return subscription.StartAsync();
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -478,7 +478,7 @@ namespace EventStore.ClientAPI.Embedded
             catchUpSubscription.StartAsync();
             return catchUpSubscription;
         }
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

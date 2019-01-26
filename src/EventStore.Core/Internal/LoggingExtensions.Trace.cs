@@ -94,7 +94,7 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void PuttingAwaitingFileAsPTableInsteadOfMemTable(this ILogger logger, in Guid id)
+        internal static void PuttingAwaitingFileAsPTableInsteadOfMemTable(this ILogger logger, Guid id)
         {
             logger.LogTrace("Putting awaiting file as PTable instead of MemTable [{0}].", id);
         }
@@ -161,7 +161,7 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void DumpedMemTable(this ILogger logger, in Guid id, long count, TimeSpan elapsed)
+        internal static void DumpedMemTable(this ILogger logger, Guid id, long count, TimeSpan elapsed)
         {
             logger.LogTrace("Dumped MemTable [{id}, {table} entries] in {elapsed}.", id, count, elapsed);
         }

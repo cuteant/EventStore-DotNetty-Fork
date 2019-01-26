@@ -106,7 +106,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
-    EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
       Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -138,7 +138,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <param name="settings">The <see cref="CatchUpSubscriptionSettings"/> for the subscription.</param>
     /// <returns>A <see cref="EventStoreAllCatchUpSubscription"/> representing the subscription.</returns>
-    EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+    EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
       Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
       Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

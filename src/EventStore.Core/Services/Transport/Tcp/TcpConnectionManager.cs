@@ -304,7 +304,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _tcpEnvelope.ReplyWith(new TcpMessage.Authenticated(correlationId));
         }
 
-        public void SendBadRequestAndClose(in Guid correlationId, string message)
+        public void SendBadRequestAndClose(Guid correlationId, string message)
         {
             if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
@@ -313,7 +313,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _connection.Close(DisassociateInfo.Unknown, message);
         }
 
-        public void SendBadRequest(in Guid correlationId, string message)
+        public void SendBadRequest(Guid correlationId, string message)
         {
             if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 

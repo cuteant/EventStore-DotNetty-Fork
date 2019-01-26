@@ -794,7 +794,7 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowException_NotFoundEpoch(long epochPosition, int epochNumber, in Guid epochId)
+        internal static void ThrowException_NotFoundEpoch(long epochPosition, int epochNumber, Guid epochId)
         {
             var msg = string.Format("Not found epoch at {0} with epoch number: {1} and epoch ID: {2}. "
                                     + "SetLastEpoch FAILED! Data corruption risk!",

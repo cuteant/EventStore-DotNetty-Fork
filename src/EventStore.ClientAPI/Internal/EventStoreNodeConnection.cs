@@ -698,7 +698,7 @@ namespace EventStore.ClientAPI.Internal
 
         #region -- SubscribeToAllFrom --
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Action<EventStoreAllCatchUpSubscription, ResolvedEvent> eventAppeared,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
@@ -714,7 +714,7 @@ namespace EventStore.ClientAPI.Internal
             return catchUpSubscription;
         }
 
-        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(in Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
+        public EventStoreAllCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Func<EventStoreAllCatchUpSubscription, ResolvedEvent, Task> eventAppearedAsync,
           Action<EventStoreAllCatchUpSubscription> liveProcessingStarted = null,
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,

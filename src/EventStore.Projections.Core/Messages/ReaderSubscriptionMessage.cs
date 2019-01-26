@@ -137,8 +137,8 @@ namespace EventStore.Projections.Core.Messages
             private readonly long? _positionEventNumber;
 
             public EventReaderPartitionDeleted(
-                Guid correlationId, string partition, long? lastEventNumber, in TFPos? deleteLinkOrEventPosition,
-                in TFPos? deleteEventOrLinkTargetPosition, string positionStreamId, long? positionEventNumber,
+                Guid correlationId, string partition, long? lastEventNumber, TFPos? deleteLinkOrEventPosition,
+                TFPos? deleteEventOrLinkTargetPosition, string positionStreamId, long? positionEventNumber,
                 CheckpointTag preTagged = null, object source = null)
                 : base(correlationId, preTagged, source)
             {
