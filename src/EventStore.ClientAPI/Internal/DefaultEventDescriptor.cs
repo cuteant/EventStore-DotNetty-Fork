@@ -27,17 +27,7 @@ namespace EventStore.ClientAPI
 
         public bool TryGetValue<T>(string key, out T value)
         {
-            // TODO use IObjectTypeDeserializer.TryDeserialize
-            try
-            {
-                value = _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
-                return true;
-            }
-            catch
-            {
-                value = default;
-                return false;
-            }
+            return _objectTypeDeserializer.TryDeserialize<T>(_eventContext, key, out value);
         }
     }
 
