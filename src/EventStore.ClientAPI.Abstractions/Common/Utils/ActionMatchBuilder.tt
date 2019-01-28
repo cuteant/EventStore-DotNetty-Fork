@@ -4,14 +4,11 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 <# var count = 10; #>
-
 #if CLIENTAPI
 namespace EventStore.ClientAPI.Common.Utils
 #else
@@ -25,11 +22,11 @@ namespace EventStore.Common.Utils
     var gParameters = string.Join(", ", Enumerable.Range(1, i).Select(x => "Parameter" + x));
 #>
     /// <summary>Pattern matcher</summary>
-    /// <typeparam name="TIn">Argument type</typeparam>
+    /// <typeparam name="TItem">Argument type</typeparam>
 <# for (var t = 1; t <= i; t++) { #>
     /// <typeparam name="TArg<#= t #>">Argument type</typeparam>
 <# } #>
-    public sealed class ActionMatchBuilder<TIn, <#= types #>> : ActionMatchBuilderBase<Action<TIn, <#= types #>>, TIn>
+    public sealed class ActionMatchBuilder<TItem, <#= types #>> : ActionMatchBuilderBase<Action<TItem, <#= types #>>, TItem>
     {
 <# for (var t = 1; t <= i; t++) { #>
         private ParameterExpression _parameter<#= t #>;
@@ -45,44 +42,120 @@ namespace EventStore.Common.Utils
 
         /// <summary>Adds context-based matching case</summary>
         /// <typeparam name="TCtx">Context type</typeparam>
-        public void Match<TCtx>(Action<TCtx, <#= types #>> handler) where TCtx : class
+        public void Match<TCtx>(Action<TCtx, <#= types #>> handler) where TCtx : TItem
         {
-            Match(binder: _ => _ as TCtx, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+            Match<TCtx>(processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
         }
 
         /// <summary>Adds context-based matching case</summary>
         /// <typeparam name="TCtx">Context type</typeparam>
-        public void Match<TCtx>(Expression<Action<TCtx, <#= types #>>> processor) where TCtx : class
+        public void Match<TCtx>(Expression<Action<TCtx, <#= types #>>> processor) where TCtx : TItem
         {
-            Match(binder: _ => _ as TCtx, processor: processor);
-        }
-
-        /// <summary>Adds context-based matching case</summary>
-        /// <typeparam name="TCtx">Context type</typeparam>
-        public void Match<TCtx>(Expression<Func<TIn, TCtx>> binder, Expression<Action<TCtx, <#= types #>>> processor) where TCtx : class
-        {
+            EnsureCanAdd();
+            var ctxType = typeof(TCtx);
             var bindResult = Expression.Variable(typeof(TCtx), "binded");
-            var caseExpr = Expression.Block(
+            BlockExpression caseExpr;
+            if (ctxType.GetTypeInfo().IsValueType)
+            {
+                caseExpr = Expression.Block(
+                    Expression.IfThen(
+                        Expression.TypeIs(Parameter, ctxType),
+                        Expression.Block(
+                            new[] { bindResult },
+                            Expression.Assign(bindResult, Expression.Convert(Parameter, ctxType)),
+                            Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
+                        )
+                    )
+                );
+            }
+            else
+            {
+                caseExpr = Expression.Block(
                 new[] { bindResult },
-                Expression.Assign(bindResult, Expression.Invoke(binder, Parameter)),
+                Expression.Assign(bindResult, Expression.TypeAs(Parameter, ctxType)),
                 Expression.IfThen(
-                    Expression.NotEqual(Expression.Convert(bindResult, typeof(object)), Expression.Constant(null)),
+                    Expression.NotEqual(bindResult, Expression.Constant(null)),
                     Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
                 ));
+            }
+            CaseExpressionsList.Add(caseExpr);
+            if (ctxType == ItemType) { _state = State.MatchAnyAdded; }
+        }
+
+        /// <summary>Adds context-based matching case</summary>
+        /// <typeparam name="TCtx">Context type</typeparam>
+        public void Match<TCtx>(Action<TCtx, <#= types #>> handler, Predicate<TCtx> shouldHandle) where TCtx : TItem
+        {
+            Match<TCtx>(processor: (_, <#= arguments #>) => handler(_, <#= arguments #>), condition: _ => shouldHandle(_));
+        }
+
+        /// <summary>Adds context-based matching case</summary>
+        /// <typeparam name="TCtx">Context type</typeparam>
+        public void Match<TCtx>(Expression<Action<TCtx, <#= types #>>> processor, Expression<Predicate<TCtx>> condition) where TCtx : TItem
+        {
+            EnsureCanAdd();
+            var ctxType = typeof(TCtx);
+            var bindResult = Expression.Variable(ctxType, "binded");
+            BlockExpression caseExpr;
+            if (ctxType.GetTypeInfo().IsValueType)
+            {
+                caseExpr = Expression.Block(
+                    Expression.IfThen(
+                        Expression.TypeIs(Parameter, ctxType),
+                        Expression.Block(
+                            new[] { bindResult },
+                            Expression.Assign(bindResult, Expression.Convert(Parameter, ctxType)),
+                            Expression.IfThen(
+                                Expression.Invoke(condition, bindResult),
+                                Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
+                            )
+                        )
+                    )
+                );
+            }
+            else
+            {
+                caseExpr = Expression.Block(
+                    new[] { bindResult },
+                    Expression.Assign(bindResult, Expression.TypeAs(Parameter, ctxType)),
+                    Expression.IfThen(
+                        Expression.AndAlso(
+                            Expression.NotEqual(bindResult, Expression.Constant(null)),
+                            Expression.Invoke(condition, bindResult)
+                            ),
+                        Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
+                    )
+                );
+            }
             CaseExpressionsList.Add(caseExpr);
         }
 
-        public void MatchAny(Action<TIn, <#= types #>> handler)
+        /// <summary>Adds predicated-based matching case</summary>
+        public void Match(Predicate<TItem> shouldHandle, Action<TItem, <#= types #>> handler)
         {
-            if (FinalExpr != null) { return; }
+            Match(condition: _ => shouldHandle(_), processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+        }
+
+        public void MatchAny(Action<TItem, <#= types #>> handler)
+        {
+            EnsureCanAdd();
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+            _state = State.MatchAnyAdded;
+        }
+
+        public bool TryMatchAny(Action<TItem, <#= types #>> handler)
+        {
+            if (FinalExpr != null) { return false; }
+            FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+            _state = State.MatchAnyAdded;
+            return true;
         }
 
         /// <summary>Performs match on the given value</summary>
-        public void Match(TIn value, <#= typeAndArguments #>) => MatcherFunc(value, <#= arguments #>);
+        public void Match(TItem value, <#= typeAndArguments #>) => MatcherFunc(value, <#= arguments #>);
 
         /// <summary>Converts matcher into Action&lt;T&gt; instance</summary>
-        public static implicit operator Action<TIn, <#= types #>>(ActionMatchBuilder<TIn, <#= types #>> matcher) => matcher.MatcherFunc;
+        public static implicit operator Action<TItem, <#= types #>>(ActionMatchBuilder<TItem, <#= types #>> matcher) => matcher.MatcherFunc;
     }
 <# } #>
 }
