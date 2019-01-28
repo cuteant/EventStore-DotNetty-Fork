@@ -77,7 +77,16 @@ namespace EventStore.ClientAPI.Tests
 
             var metadata = SerializationManager.DeserializeMetadata(eventData.Metadata);
             Assert.Equal(token, metadata.Token);
-            Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(TestMessage)), metadata.EventType);
+            if (token == SerializingToken.TypelessMessagePack ||
+                token == SerializingToken.Lz4TypelessMessagePack ||
+                token == SerializingToken.Protobuf)
+            {
+                Assert.Null(metadata.EventType);
+            }
+            else
+            {
+                Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(TestMessage)), metadata.EventType);
+            }
             var fullEvent = SerializationManager.DeserializeEvent<TestMessage>(eventData);
             Assert.Equal(testMessage.Id, fullEvent.Value.Id);
             Assert.Equal(testMessage.Text, fullEvent.Value.Text);
