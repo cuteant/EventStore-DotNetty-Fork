@@ -39,6 +39,7 @@ StatsPeriodSec: 3600
 
 
 
+
 ## Database Options
 
 # The minimum flush delay in milliseconds.
@@ -112,6 +113,9 @@ StatsPeriodSec: 3600
 # Change the way the DB files are opened to reduce their stickiness in the system file cache.
 # ReduceFileCachePressure: false
 
+
+
+
 ## Projections Options
 
 # Enables the running of projections. System runs built-in projections, All runs user projections. Default: None
@@ -124,12 +128,23 @@ RunProjections: All                    # None / System / All
 #FaultOutOfOrderProjections: false
 
 
+
+
 ## Authentication Options
 
 # The type of authentication to use.
 # AuthenticationType: internal
 # Path to the configuration file for authentication configuration (if applicable).
 # AuthenticationConfig: 
+
+
+
+
+## Scavenge options
+
+# During large Index Merge operations, writes may be slowed down. Set this to the maximum index file level for which automatic merges should happen.
+# Merging indexes above this level should be done manually.
+# MaxAutoMergeIndexLevel = int.MaxValue
 
 
 
