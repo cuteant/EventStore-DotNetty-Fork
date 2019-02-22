@@ -27,7 +27,7 @@ namespace EventStore.Common.Utils
     /// <typeparam name="TArg<#= t #>">Argument type</typeparam>
 <# } #>
     /// <typeparam name="TOut">Return type</typeparam>
-    public sealed class FuncMatchBuilder<TIn, <#= types #>, TOut> : FuncMatchBuilderBase<Func<TIn, <#= types #>, TOut>, TIn, TOut>
+    public sealed class FuncMatchBuilder<TIn, <#= types #>, TOut> : SimpleMatchBuilderBase<Func<TIn, <#= types #>, TOut>, TIn, TOut>
     {
 <# for (var t = 1; t <= i; t++) { #>
         private ParameterExpression _parameter<#= t #>;
@@ -40,101 +40,34 @@ namespace EventStore.Common.Utils
             { 
                 Parameter, <#= gParameters #>
             });
+        private ParameterExpression[] _bindedParameters;
+        protected override ParameterExpression[] BindedParameters => _bindedParameters ?? (_bindedParameters = new[] 
+            { 
+                <#= gParameters #>
+            });
 
         /// <summary>Adds context-based matching case</summary>
         /// <typeparam name="TCtx">Context type</typeparam>
         public void Match<TCtx>(Func<TCtx, <#= types #>, TOut> handler) where TCtx : TIn
         {
-            Match<TCtx>(processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+            AddHandler<TCtx>((_, <#= arguments #>) => handler(_, <#= arguments #>));
         }
 
-        /// <summary>Adds context-based matching case</summary>
-        /// <typeparam name="TCtx">Context type</typeparam>
-        public void Match<TCtx>(Expression<Func<TCtx, <#= types #>, TOut>> processor) where TCtx : TIn
+        private void AddHandler<TCtx>(Expression<Func<TCtx, <#= types #>, TOut>> processor) //where TCtx : TIn
         {
-            EnsureCanAdd();
-            var ctxType = typeof(TCtx);
-            var bindResult = Expression.Variable(typeof(TCtx), "binded");
-            BlockExpression caseExpr;
-            if (ctxType.GetTypeInfo().IsValueType)
-            {
-                caseExpr = Expression.Block(
-                    Expression.IfThen(
-                        Expression.TypeIs(Parameter, ctxType),
-                        Expression.Block(
-                            new[] { bindResult },
-                            Expression.Assign(bindResult, Expression.Convert(Parameter, ctxType)),
-                            Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
-                        )
-                    )
-                );
-            }
-            else
-            {
-                caseExpr = Expression.Block(
-                new[] { bindResult },
-                Expression.Assign(bindResult, Expression.TypeAs(Parameter, ctxType)),
-                Expression.IfThen(
-                    Expression.NotEqual(bindResult, Expression.Constant(null)),
-                    Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
-                ));
-            }
-            CaseExpressionsList.Add(caseExpr);
-            if (ctxType == ItemType) { _state = State.MatchAnyAdded; }
+            Add<TCtx>(processor);
         }
 
         /// <summary>Adds context-based matching case</summary>
         /// <typeparam name="TCtx">Context type</typeparam>
         public void Match<TCtx>(Func<TCtx, <#= types #>, TOut> handler, Predicate<TCtx> shouldHandle) where TCtx : TIn
         {
-            Match<TCtx>(processor: (_, <#= arguments #>) => handler(_, <#= arguments #>), condition: _ => shouldHandle(_));
+            AddHandler<TCtx>((_, <#= arguments #>) => handler(_, <#= arguments #>), _ => shouldHandle(_));
         }
 
-        /// <summary>Adds context-based matching case</summary>
-        /// <typeparam name="TCtx">Context type</typeparam>
-        public void Match<TCtx>(Expression<Func<TCtx, <#= types #>, TOut>> processor, Expression<Predicate<TCtx>> condition) where TCtx : TIn
+        private void AddHandler<TCtx>(Expression<Func<TCtx, <#= types #>, TOut>> processor, Expression<Predicate<TCtx>> condition) //where TCtx : TIn
         {
-            EnsureCanAdd();
-            var ctxType = typeof(TCtx);
-            var bindResult = Expression.Variable(ctxType, "binded");
-            BlockExpression caseExpr;
-            if (ctxType.GetTypeInfo().IsValueType)
-            {
-                caseExpr = Expression.Block(
-                    Expression.IfThen(
-                        Expression.TypeIs(Parameter, ctxType),
-                        Expression.Block(
-                            new[] { bindResult },
-                            Expression.Assign(bindResult, Expression.Convert(Parameter, ctxType)),
-                            Expression.IfThen(
-                                Expression.Invoke(condition, bindResult),
-                                Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
-                            )
-                        )
-                    )
-                );
-            }
-            else
-            {
-                caseExpr = Expression.Block(
-                    new[] { bindResult },
-                    Expression.Assign(bindResult, Expression.TypeAs(Parameter, ctxType)),
-                    Expression.IfThen(
-                        Expression.AndAlso(
-                            Expression.NotEqual(bindResult, Expression.Constant(null)),
-                            Expression.Invoke(condition, bindResult)
-                            ),
-                        Expression.Return(RetPoint, Expression.Invoke(processor, bindResult, <#= gParameters #>))
-                    )
-                );
-            }
-            CaseExpressionsList.Add(caseExpr);
-        }
-
-        /// <summary>Adds predicated-based matching case</summary>
-        public void Match(Predicate<TIn> shouldHandle, Func<TIn, <#= types #>, TOut> handler)
-        {
-            Match(condition: _ => shouldHandle(_), processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
+            Add<TCtx>(processor, condition);
         }
 
         public void MatchAny(Func<TIn, <#= types #>, TOut> handler)
@@ -146,7 +79,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Func<TIn, <#= types #>, TOut> handler)
         {
-            if (FinalExpr != null) { return false; }
+            if (FinalExpr != null || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, <#= arguments #>) => handler(_, <#= arguments #>));
             _state = State.MatchAnyAdded;
             return true;
