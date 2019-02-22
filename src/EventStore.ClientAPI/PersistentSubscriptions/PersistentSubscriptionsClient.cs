@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 using Microsoft.Extensions.Logging;
@@ -71,11 +72,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
 
         private Task<string> SendGet(string url, UserCredentials userCredentials, int expectedCode)
         {
-            TaskCompletionSource<string> source = new TaskCompletionSource<string>(
-#if NET_4_5_GREATER
-                    TaskCreationOptions.RunContinuationsAsynchronously
-#endif
-                    );
+            TaskCompletionSource<string> source = TaskCompletionSourceFactory.Create<string>();
             _client.Get(url, userCredentials, response =>
             {
                 if (response.HttpStatusCode == expectedCode)
@@ -89,11 +86,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
 
         private Task SendPost(string url, string content, UserCredentials userCredentials, int expectedCode)
         {
-            TaskCompletionSource<object> source = new TaskCompletionSource<object>(
-#if NET_4_5_GREATER
-                    TaskCreationOptions.RunContinuationsAsynchronously
-#endif
-                    );
+            TaskCompletionSource<object> source = TaskCompletionSourceFactory.Create<object>();
             _client.Post(url, content, "application/json", userCredentials, response =>
             {
                 if (response.HttpStatusCode == expectedCode)

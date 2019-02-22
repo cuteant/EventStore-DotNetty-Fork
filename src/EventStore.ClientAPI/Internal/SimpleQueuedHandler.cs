@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using CuteAnt.AsyncEx;
 using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI.Internal

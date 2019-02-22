@@ -772,17 +772,17 @@ namespace EventStore.ClientAPI
         #region -- WrongExpectedVersionException --
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static WrongExpectedVersionException GetWrongExpectedVersionException_AppendFailed(string stream, long expectedVersion)
+        internal static WrongExpectedVersionException GetWrongExpectedVersionException_AppendFailed0(string stream, long expectedVersion, long? currentVersion)
         {
             var err = string.Format("Append failed due to WrongExpectedVersion. Stream: {0}, Expected version: {1}", stream, expectedVersion);
-            return new WrongExpectedVersionException(err);
+            return new WrongExpectedVersionException(err, expectedVersion, currentVersion);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static WrongExpectedVersionException GetWrongExpectedVersionException_AppendFailed(string stream, long expectedVersion, long? currentVersion)
         {
             var err = string.Format("Append failed due to WrongExpectedVersion. Stream: {0}, Expected version: {1}, Current version: {2}", stream, expectedVersion, currentVersion);
-            return new WrongExpectedVersionException(err);
+            return new WrongExpectedVersionException(err, expectedVersion, currentVersion);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

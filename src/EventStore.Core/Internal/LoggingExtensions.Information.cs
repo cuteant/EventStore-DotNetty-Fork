@@ -851,5 +851,23 @@ namespace EventStore.Core
         {
             s_fileWillBeDeletedDuringTruncatedbProcedure(logger, chunkFile, null);
         }
+
+        private static readonly Action<ILogger, Exception> s_aBackgroundOperationIsAlreadyRunning =
+            LoggerMessageFactory.Define(LogLevel.Information,
+                "A background operation is already running...");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ABackgroundOperationIsAlreadyRunning(this ILogger logger)
+        {
+            s_aBackgroundOperationIsAlreadyRunning(logger, null);
+        }
+
+        private static readonly Action<ILogger, Exception> s_requestMergeIndexesBecauseAdminMergeindexesRequestHasBeenReceived =
+            LoggerMessageFactory.Define(LogLevel.Information,
+                "Request merge indexes because /admin/mergeindexes request has been received.");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void RequestMergeIndexesBecauseAdminMergeindexesRequestHasBeenReceived(this ILogger logger)
+        {
+            s_requestMergeIndexesBecauseAdminMergeindexesRequestHasBeenReceived(logger, null);
+        }
     }
 }

@@ -3,9 +3,9 @@
   <PropertyGroup>
     <AssemblyVersion>5.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">5.0.0</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rc2</VersionSuffix>
+    <!--<VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rc2</VersionSuffix>
     <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">190128-01</VersionDateSuffix>
-    <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>
+    <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>-->
   </PropertyGroup>
   <Choose>
     <When Condition=" '$(TargetFramework)' == 'net40' ">

@@ -280,6 +280,17 @@ namespace EventStore.ClientAPI
         #region -- ArgumentOutOfRangeException --
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowArgumentOutOfRangeException_GreaterThanOrEqualTo(long minimum, ExceptionArgument argument)
+        {
+            throw GetException();
+            ArgumentOutOfRangeException GetException()
+            {
+                var argumentName = GetArgumentName(argument);
+                return new ArgumentOutOfRangeException(argumentName, $"{argumentName} should be greater than or equal to {minimum}.");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ThrowArgumentOutOfRangeException_Positive(ExceptionArgument argument)
         {
             throw GetException();

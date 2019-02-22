@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using EventStore.Core.Index;
 using NUnit.Framework;
@@ -34,6 +34,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
                                          () => new HashListMemTable(_ptableVersion, maxSize: 20),
                                          () => { throw new InvalidOperationException(); },
                                          _ptableVersion,
+                                         5,
                                          maxSizeForMemory: 10,
                                          skipIndexVerify: _skipIndexVerify);
             _tableIndex.Initialize(long.MaxValue);

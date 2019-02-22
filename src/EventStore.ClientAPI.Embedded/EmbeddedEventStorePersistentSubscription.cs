@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Embedded
@@ -34,7 +34,7 @@ namespace EventStore.ClientAPI.Embedded
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
           ConnectionSettings connSettings)
         {
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentEventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<PersistentEventStoreSubscription>();
 
             _subscriptions.StartPersistentSubscription(Guid.NewGuid(), source, subscriptionId, streamId, userCredentials, settings.BufferSize,
                 onEventAppearedAsync, onSubscriptionDropped, connSettings.MaxRetries, connSettings.OperationTimeout);

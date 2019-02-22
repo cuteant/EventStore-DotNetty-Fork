@@ -5,7 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common;
-using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Authentication;
@@ -105,7 +105,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task ConnectAsync()
         {
-            var source = TaskUtility.CreateTaskCompletionSource<object>();
+            var source = TaskCompletionSourceFactory.Create<object>();
 
             source.SetResult(null);
 
@@ -132,7 +132,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<DeleteResult>();
+            var source = TaskCompletionSourceFactory.Create<DeleteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.DeleteStream(source, stream, expectedVersion));
 
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.AppendToStream(source, stream, expectedVersion));
 
@@ -185,7 +185,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<ConditionalWriteResult>();
+            var source = TaskCompletionSourceFactory.Create<ConditionalWriteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ConditionalAppendToStream(source, stream));
 
@@ -202,7 +202,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreTransaction>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreTransaction>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.TransactionStart(source, this, stream, expectedVersion));
 
@@ -226,7 +226,7 @@ namespace EventStore.ClientAPI.Embedded
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreTransaction>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreTransaction>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.TransactionWrite(source, this));
 
@@ -244,7 +244,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.TransactionCommit(source));
 
@@ -261,7 +261,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventReadResult>();
+            var source = TaskCompletionSourceFactory.Create<EventReadResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadEvent(source, stream, eventNumber));
 
@@ -279,7 +279,7 @@ namespace EventStore.ClientAPI.Embedded
             if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) { EmbeddedThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize(); }
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadStreamForwardEvents(source, stream, start));
 
@@ -296,7 +296,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) { EmbeddedThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize(); }
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadStreamEventsBackward(source, stream, start));
 
@@ -312,7 +312,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             if (maxCount > ClientApiConstants.MaxReadSize) { EmbeddedThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize(); }
-            var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadAllEventsForward(source));
 
@@ -329,7 +329,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             if (maxCount > ClientApiConstants.MaxReadSize) { EmbeddedThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize(); }
-            var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.ReadAllEventsBackward(source));
 
@@ -349,7 +349,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
 
             var corrId = Guid.NewGuid();
 
@@ -365,7 +365,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
 
             var corrId = Guid.NewGuid();
 
@@ -414,7 +414,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
 
             var corrId = Guid.NewGuid();
 
@@ -430,7 +430,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
 
             var corrId = Guid.NewGuid();
 
@@ -500,7 +500,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionCreateResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionCreateResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.CreatePersistentSubscription(source, stream, groupName));
 
@@ -538,7 +538,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionUpdateResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionUpdateResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.UpdatePersistentSubscription(source, stream, groupName));
 
@@ -576,7 +576,7 @@ namespace EventStore.ClientAPI.Embedded
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionDeleteResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionDeleteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(
                 new EmbeddedResponders.DeletePersistentSubscription(source, stream, groupName));
@@ -607,7 +607,7 @@ namespace EventStore.ClientAPI.Embedded
             var metaevent = new EventData(Guid.NewGuid(), SystemEventTypes.StreamMetadata, true, metadata ?? Empty.ByteArray, null);
             var metastream = SystemStreams.MetastreamOf(stream);
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.AppendToStream(source, metastream, expectedMetastreamVersion));
 
@@ -676,7 +676,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task TransactionalWriteAsync(EventStoreTransaction transaction, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreTransaction>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreTransaction>();
 
             var envelope = new EmbeddedResponseEnvelope(
                 new EmbeddedResponders.TransactionWrite(source, this));
@@ -691,7 +691,7 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task<WriteResult> CommitTransactionAsync(EventStoreTransaction transaction, UserCredentials userCredentials = null)
         {
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
 
             var envelope = new EmbeddedResponseEnvelope(new EmbeddedResponders.TransactionCommit(source));
 

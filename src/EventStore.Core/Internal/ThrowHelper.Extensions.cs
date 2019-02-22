@@ -2460,6 +2460,16 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowCorruptIndexException_IndexMapHasLowerMaximumAutoMergeLevelThanIsCurrentlyConfigured(int tmpMaxAutoMergeLevel, int maxAutoMergeLevel)
+        {
+            throw GetException();
+            CorruptIndexException GetException()
+            {
+                return new CorruptIndexException($"Index map has lower maximum auto merge level ({tmpMaxAutoMergeLevel}) than is currently configured ({maxAutoMergeLevel}) and the index will need to be rebuilt");
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ThrowCorruptIndexException_IndexmapIsMissingContiguousLevelPosition(int i, int j)
         {
             throw GetException();

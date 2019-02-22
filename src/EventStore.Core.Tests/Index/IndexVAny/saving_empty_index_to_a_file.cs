@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
@@ -19,7 +19,7 @@ namespace EventStore.Core.Tests.Index.IndexVAny
             base.TestFixtureSetUp();
             
             _filename = GetFilePathFor("indexfile");
-            _map = IndexMap.FromFile(_filename);
+            _map = IndexMapTestFactory.FromFile(_filename);
             _map.SaveToFile(_filename);
         }
 
@@ -42,18 +42,19 @@ namespace EventStore.Core.Tests.Index.IndexVAny
                 var md5 = MD5Hash.GetHashFor(fs);
                 var md5String = BitConverter.ToString(md5).Replace("-", "");
 
-                Assert.AreEqual(4, lines.Count());
+                Assert.AreEqual(5, lines.Count());
                 Assert.AreEqual(md5String, lines[0]);
                 Assert.AreEqual(IndexMap.IndexMapVersion.ToString(), lines[1]);
                 Assert.AreEqual("-1/-1", lines[2]);
-                Assert.AreEqual("", lines[3]);
+                Assert.AreEqual($"{int.MaxValue}", lines[3]);
+                Assert.AreEqual("", lines[4]);
             }
         }
 
         [Test]
         public void saved_file_could_be_read_correctly_and_without_errors()
         {
-            var map = IndexMap.FromFile(_filename);
+            var map = IndexMapTestFactory.FromFile(_filename);
 
             Assert.AreEqual(-1, map.PrepareCheckpoint);
             Assert.AreEqual(-1, map.CommitCheckpoint);

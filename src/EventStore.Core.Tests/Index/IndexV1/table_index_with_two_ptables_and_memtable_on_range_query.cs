@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using EventStore.Core.Index;
 using EventStore.Core.Tests.Fakes;
@@ -43,6 +43,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
                                          () => new HashListMemTable(_ptableVersion, maxSize: 10),
                                          () => fakeReader,
                                          _ptableVersion,
+                                         5,
                                          maxSizeForMemory: 2,
                                          maxTablesPerLevel: 2,
                                          skipIndexVerify: _skipIndexVerify);

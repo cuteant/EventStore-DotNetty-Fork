@@ -132,6 +132,7 @@ namespace EventStore.Core
         protected bool _skipIndexScanOnReads;
         private bool _reduceFileCachePressure;
         private int _initializationThreads;
+        private int _maxAutoMergeIndexLevel;
 
         private bool _gossipOnSingleNode;
 
@@ -1097,6 +1098,19 @@ namespace EventStore.Core
         }
 
         /// <summary>
+        /// Sets if we want the Merge Index operation to happen automatically
+        /// </summary>
+        /// <param name="maxAutoMergeIndexLevel">The value to set maxAutoMergeIndexLevel to do automatic index merges</param>
+        /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+        public VNodeBuilder WithMaxAutoMergeIndexLevel(int maxAutoMergeIndexLevel)
+        {
+            if (maxAutoMergeIndexLevel < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxAutoMergeIndexLevel), maxAutoMergeIndexLevel, "MaxAutoMergeIndexLevel must be > 0");
+            _maxAutoMergeIndexLevel = maxAutoMergeIndexLevel;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the Server SSL Certificate
         /// </summary>
         /// <param name="sslCertificate">The server SSL certificate to use</param>
@@ -1457,7 +1471,9 @@ namespace EventStore.Core
                     _skipIndexScanOnReads,
                     _reduceFileCachePressure,
                     _initializationThreads,
-                    _faultOutOfOrderProjections);
+                    _faultOutOfOrderProjections,
+                    _structuredLog,
+                    _maxAutoMergeIndexLevel);
 
             var infoController = new InfoController(options, _projectionType);
 

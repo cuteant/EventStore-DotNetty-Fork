@@ -13,7 +13,6 @@ using EventStore.Core.Services.Monitoring.Utils;
 using EventStore.Core.Services.UserManagement;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Transport.Tcp;
-using EventStore.Transport.Tcp.Messages;
 
 namespace EventStore.Core.Services.Monitoring
 {
@@ -27,12 +26,12 @@ namespace EventStore.Core.Services.Monitoring
     }
 
     public class MonitoringService : IHandle<SystemMessage.SystemInit>,
-                                     IHandle<SystemMessage.StateChangeMessage>,
-                                     IHandle<SystemMessage.BecomeShuttingDown>,
-                                     IHandle<SystemMessage.BecomeShutdown>,
-                                     IHandle<ClientMessage.WriteEventsCompleted>,
-                                     IHandle<MonitoringMessage.GetFreshStats>,
-                                     IHandle<MonitoringMessage.GetFreshTcpConnectionStats>
+                                        IHandle<SystemMessage.StateChangeMessage>,
+                                        IHandle<SystemMessage.BecomeShuttingDown>,
+                                        IHandle<SystemMessage.BecomeShutdown>,
+                                        IHandle<ClientMessage.WriteEventsCompleted>,
+                                        IHandle<MonitoringMessage.GetFreshStats>,
+                                        IHandle<MonitoringMessage.GetFreshTcpConnectionStats>
     {
         private static readonly ILogger RegularLog = TraceLogger.GetLogger("REGULAR-STATS-LOGGER");
         private static readonly ILogger Log = TraceLogger.GetLogger<MonitoringService>();

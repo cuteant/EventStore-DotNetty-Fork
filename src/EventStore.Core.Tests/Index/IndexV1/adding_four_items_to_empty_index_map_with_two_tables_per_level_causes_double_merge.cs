@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 using EventStore.Core.Index;
 using NUnit.Framework;
@@ -22,6 +22,7 @@ namespace EventStore.Core.Tests.Index.IndexV1
         private MergeResult _result;
         protected byte _ptableVersion = PTableVersions.IndexV1;
         private bool _skipIndexVerify;
+        private int _maxAutoMergeIndexLevel = 4;
 
         public adding_four_items_to_empty_index_map_with_two_tables_per_level_causes_double_merge(byte version, bool skipIndexVerify){
             _ptableVersion = version;
@@ -36,21 +37,21 @@ namespace EventStore.Core.Tests.Index.IndexV1
             _mergeFile = GetTempFilePath();
             _filename = GetTempFilePath();
 
-            _map = IndexMap.FromFile(_filename, maxTablesPerLevel: 2);
+            _map = IndexMapTestFactory.FromFile(_filename, maxTablesPerLevel: 2);
             var memtable = new HashListMemTable(_ptableVersion, maxSize: 10);
             memtable.Add(0, 1, 0);
 
             _result = _map.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath(),skipIndexVerify:_skipIndexVerify),
-                                     10, 20, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion,skipIndexVerify:_skipIndexVerify);
+                                     10, 20, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion, _maxAutoMergeIndexLevel, 0,skipIndexVerify:_skipIndexVerify);
             _result.ToDelete.ForEach(x => x.MarkForDestruction());
             _result = _result.MergedMap.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath(),skipIndexVerify:_skipIndexVerify),
-                                                  20, 30, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion,skipIndexVerify:_skipIndexVerify);
+                                                  20, 30, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion, _maxAutoMergeIndexLevel, 0,skipIndexVerify:_skipIndexVerify);
             _result.ToDelete.ForEach(x => x.MarkForDestruction());
             _result = _result.MergedMap.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath(),skipIndexVerify:_skipIndexVerify),
-                                                  30, 40, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion,skipIndexVerify:_skipIndexVerify);
+                                                  30, 40, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new GuidFilenameProvider(PathName), _ptableVersion, _maxAutoMergeIndexLevel, 0,skipIndexVerify:_skipIndexVerify);
             _result.ToDelete.ForEach(x => x.MarkForDestruction());
             _result = _result.MergedMap.AddPTable(PTable.FromMemtable(memtable, GetTempFilePath(),skipIndexVerify:_skipIndexVerify),
-                                                  50, 60, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new FakeFilenameProvider(_mergeFile + ".firstmerge", _mergeFile), _ptableVersion,skipIndexVerify:_skipIndexVerify);
+                                                  50, 60, (streamId, hash) => hash, _ => true, _ => new Tuple<string, bool>("", true), new FakeFilenameProvider(_mergeFile + ".firstmerge", _mergeFile), _ptableVersion, _maxAutoMergeIndexLevel, 0,skipIndexVerify:_skipIndexVerify);
             _result.ToDelete.ForEach(x => x.MarkForDestruction());
         }
 

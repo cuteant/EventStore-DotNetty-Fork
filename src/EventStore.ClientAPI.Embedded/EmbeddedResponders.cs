@@ -35,7 +35,7 @@ namespace EventStore.ClientAPI.Embedded
                     case OperationResult.CommitTimeout:
                         break;
                     case OperationResult.WrongExpectedVersion:
-                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_AppendFailed(_stream, _expectedVersion));
+                        Fail(CoreThrowHelper.GetWrongExpectedVersionException_AppendFailed0(_stream, _expectedVersion, response.CurrentVersion));
                         break;
                     case OperationResult.StreamDeleted:
                         Fail(CoreThrowHelper.GetStreamDeletedException(_stream));

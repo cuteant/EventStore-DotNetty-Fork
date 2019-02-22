@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common;
-using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Internal
@@ -68,7 +68,7 @@ namespace EventStore.ClientAPI.Internal
 
         public Task ConnectAsync()
         {
-            var source = TaskUtility.CreateTaskCompletionSource<object>();
+            var source = TaskCompletionSourceFactory.Create<object>();
             _handler.EnqueueMessage(new StartConnectionMessage(source, _endPointDiscoverer));
             return source.Task;
         }
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<DeleteResult>();
+            var source = TaskCompletionSourceFactory.Create<DeleteResult>();
             EnqueueOperation(new DeleteStreamOperation(source, _settings.RequireMaster,
                                                        stream, expectedVersion, hardDelete, userCredentials));
             return await source.Task.ConfigureAwait(false);
@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI.Internal
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
                                                          stream, expectedVersion, events, userCredentials));
             return await source.Task.ConfigureAwait(false);
@@ -150,7 +150,7 @@ namespace EventStore.ClientAPI.Internal
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<ConditionalWriteResult>();
+            var source = TaskCompletionSourceFactory.Create<ConditionalWriteResult>();
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
                                                                     stream, expectedVersion, events, userCredentials));
             return await source.Task.ConfigureAwait(false);
@@ -165,7 +165,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreTransaction>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreTransaction>();
             EnqueueOperation(new StartTransactionOperation(source, _settings.RequireMaster,
                                                            stream, expectedVersion, this, userCredentials));
             return await source.Task.ConfigureAwait(false);
@@ -183,7 +183,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<object>();
+            var source = TaskCompletionSourceFactory.Create<object>();
             EnqueueOperation(new TransactionalWriteOperation(source, _settings.RequireMaster,
                                                              transaction.TransactionId, events, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -194,7 +194,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new CommitTransactionOperation(source, _settings.RequireMaster,
                                                             transaction.TransactionId, userCredentials));
             return await source.Task.ConfigureAwait(false);
@@ -208,7 +208,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
-            var source = TaskUtility.CreateTaskCompletionSource<EventReadResult>();
+            var source = TaskCompletionSourceFactory.Create<EventReadResult>();
             var operation = new ReadRawEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                       _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -221,7 +221,7 @@ namespace EventStore.ClientAPI.Internal
             if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsForwardOperation(source, stream, start, count,
                                                                     resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -231,9 +231,10 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice> ReadStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (start < StreamPosition.End) { ThrowHelper.ThrowArgumentOutOfRangeException_GreaterThanOrEqualTo(StreamPosition.End, ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsBackwardOperation(source, stream, start, count,
                                                                      resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -244,7 +245,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
             var operation = new ReadAllEventsForwardOperation(source, position, maxCount,
                                                               resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -255,7 +256,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<AllEventsSlice>();
+            var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
             var operation = new ReadAllEventsBackwardOperation(source, position, maxCount,
                                                                resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -271,7 +272,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
-            var source = TaskUtility.CreateTaskCompletionSource<EventReadResult<object>>();
+            var source = TaskCompletionSourceFactory.Create<EventReadResult<object>>();
             var operation = new ReadEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                    _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -282,7 +283,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
-            var source = TaskUtility.CreateTaskCompletionSource<EventReadResult<TEvent>>();
+            var source = TaskCompletionSourceFactory.Create<EventReadResult<TEvent>>();
             var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
                                                            _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -299,7 +300,7 @@ namespace EventStore.ClientAPI.Internal
             if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsForwardOperation(source, stream, start, count,
                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -311,7 +312,7 @@ namespace EventStore.ClientAPI.Internal
             if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice2>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice2>();
             var operation = new ReadStreamEventsForwardOperation2(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -325,7 +326,7 @@ namespace EventStore.ClientAPI.Internal
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsForwardOperation<TEvent>(source, stream, start, count,
                                                                          resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -341,7 +342,7 @@ namespace EventStore.ClientAPI.Internal
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<object>>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsBackwardOperation(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -354,7 +355,7 @@ namespace EventStore.ClientAPI.Internal
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
-            var source = TaskUtility.CreateTaskCompletionSource<StreamEventsSlice<TEvent>>();
+            var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsBackwardOperation<TEvent>(source, stream, start, count,
                                                                           resolveLinkTos, _settings.RequireMaster, userCredentials);
             EnqueueOperation(operation);
@@ -393,7 +394,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
                                                                  eventAppeared, subscriptionDropped,
                                                                  _settings.MaxRetries, _settings.OperationTimeout));
@@ -408,7 +409,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
                                                                  eventAppearedAsync, subscriptionDropped,
                                                                  _settings.MaxRetries, _settings.OperationTimeout));
@@ -423,7 +424,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage2(source, stream, settings, userCredentials,
                                                                   eventAppearedAsync, subscriptionDropped,
                                                                   _settings.MaxRetries, _settings.OperationTimeout));
@@ -445,7 +446,7 @@ namespace EventStore.ClientAPI.Internal
                 var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
                 return handler(@event);
             }
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage2(source, stream, settings, userCredentials,
                                                                   LocalEventAppearedAsync, subscriptionDropped,
                                                                   _settings.MaxRetries, _settings.OperationTimeout));
@@ -465,7 +466,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
             {
                 Source = source,
@@ -487,7 +488,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
             {
                 Source = source,
@@ -514,7 +515,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
                                                                     eventAppeared, subscriptionDropped,
                                                                     _settings.MaxRetries, _settings.OperationTimeout));
@@ -529,7 +530,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
                                                                     eventAppearedAsync, subscriptionDropped,
                                                                     _settings.MaxRetries, _settings.OperationTimeout));
@@ -673,7 +674,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
                                                                  eventAppeared, subscriptionDropped,
                                                                  _settings.MaxRetries, _settings.OperationTimeout));
@@ -687,7 +688,7 @@ namespace EventStore.ClientAPI.Internal
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var source = TaskUtility.CreateTaskCompletionSource<EventStoreSubscription>();
+            var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
                                                                  eventAppearedAsync, subscriptionDropped,
                                                                  _settings.MaxRetries, _settings.OperationTimeout));
@@ -873,7 +874,7 @@ namespace EventStore.ClientAPI.Internal
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionCreateResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionCreateResult>();
             EnqueueOperation(new CreatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
         }
@@ -883,7 +884,7 @@ namespace EventStore.ClientAPI.Internal
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionUpdateResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionUpdateResult>();
             EnqueueOperation(new UpdatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
         }
@@ -892,7 +893,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
-            var source = TaskUtility.CreateTaskCompletionSource<PersistentSubscriptionDeleteResult>();
+            var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionDeleteResult>();
             EnqueueOperation(new DeletePersistentSubscriptionOperation(source, stream, groupName, userCredentials));
             await source.Task.ConfigureAwait(false);
         }
@@ -937,7 +938,7 @@ namespace EventStore.ClientAPI.Internal
                 CoreThrowHelper.ThrowArgumentException_SettingMetadataForMetastreamIsNotSupported(stream);
             }
 
-            var source = TaskUtility.CreateTaskCompletionSource<WriteResult>();
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
 
             var metaevent = new EventData(Guid.NewGuid(), SystemEventTypes.StreamMetadata, true, metadata ?? Empty.ByteArray, null);
             EnqueueOperation(new AppendToStreamOperation(source,

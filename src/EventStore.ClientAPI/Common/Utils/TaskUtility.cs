@@ -25,14 +25,5 @@ namespace EventStore.ClientAPI.Common.Utils
     {
       _taskSchedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, DefaultConcurrencyLevel);
     }
-
-    internal static TaskCompletionSource<T> CreateTaskCompletionSource<T>()
-    {
-#if NET_4_5_GREATER
-      return new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
-#else
-      return new TaskCompletionSource<T>();
-#endif
-    }
   }
 }

@@ -114,7 +114,7 @@ namespace EventStore.Core
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void SwitchingMemTableCurrentlyAwaitingTables(this ILogger logger, int count)
         {
-            logger.LogTrace("Switching MemTable, currently: {0} awaiting tables.", count);
+            logger.LogTrace("Switching MemTable, currently: {awaitingMemTables} awaiting tables.", count);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

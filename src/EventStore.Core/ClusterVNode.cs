@@ -187,7 +187,9 @@ namespace EventStore.Core
                                             inMem: db.Config.InMemDb,
                                             skipIndexVerify: vNodeSettings.SkipIndexVerify,
                                             indexCacheDepth: vNodeSettings.IndexCacheDepth,
-                                            initializationThreads: vNodeSettings.InitializationThreads);
+                                            initializationThreads: vNodeSettings.InitializationThreads,
+                                            additionalReclaim: false,
+                                            maxAutoMergeIndexLevel: vNodeSettings.MaxAutoMergeIndexLevel);
             var readIndex = new ReadIndex(_mainQueue,
                                           readerPool,
                                           tableIndex,
@@ -220,12 +222,14 @@ namespace EventStore.Core
             _mainBus.Subscribe<SystemMessage.BecomeShutdown>(storageReader);
             monitoringRequestBus.Subscribe<MonitoringMessage.InternalStatsRequest>(storageReader);
 
-            var indexCommitterService = new IndexCommitterService(readIndex.IndexCommitter, _mainQueue, db.Config.ReplicationCheckpoint, db.Config.WriterCheckpoint, vNodeSettings.CommitAckCount);
+            var indexCommitterService = new IndexCommitterService(readIndex.IndexCommitter, _mainQueue,
+                db.Config.ReplicationCheckpoint, db.Config.WriterCheckpoint, vNodeSettings.CommitAckCount, tableIndex);
             AddTask(indexCommitterService.Task);
 
             _mainBus.Subscribe<SystemMessage.StateChangeMessage>(indexCommitterService);
             _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(indexCommitterService);
             _mainBus.Subscribe<StorageMessage.CommitAck>(indexCommitterService);
+            _mainBus.Subscribe<ClientMessage.MergeIndexes>(indexCommitterService);
 
             var chaser = new TFChunkChaser(db, db.Config.WriterCheckpoint, db.Config.ChaserCheckpoint, db.Config.OptimizeReadSideCache);
             var storageChaser = new StorageChaser(_mainQueue, db.Config.WriterCheckpoint, chaser, indexCommitterService, epochManager);

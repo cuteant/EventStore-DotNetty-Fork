@@ -1,9 +1,9 @@
 ﻿//using System;
-//using Microsoft.Extensions.Logging;
+//using EventStore.Common.Log;
 
 //namespace EventStore.Core.Tests.Fakes
 //{
-//    public class FakeLogger: ILogger 
+//    public class FakeLogger: ILogger
 //    {
 //        public void Flush(TimeSpan? maxTimeToWait = null)
 //        {
@@ -22,6 +22,9 @@
 //        }
 
 //        public void Debug(string text)
+//        {
+//        }
+//        public void Warn(string text)
 //        {
 //        }
 
@@ -86,6 +89,9 @@
 //        }
 
 //        public void DebugException(Exception exc, string format, params object[] args)
+//        {
+//        }
+//        public void WarnException(Exception exc, string format, params object[] args)
 //        {
 //        }
 
