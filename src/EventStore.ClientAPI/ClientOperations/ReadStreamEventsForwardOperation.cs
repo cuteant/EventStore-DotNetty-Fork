@@ -47,7 +47,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                  response.IsEndOfStream);
         }
     }
-    internal class ReadStreamEventsForwardOperation<T> : ReadStreamEventsForwardOperationBase<StreamEventsSlice<T>> where T : class
+    internal class ReadStreamEventsForwardOperation<T> : ReadStreamEventsForwardOperationBase<StreamEventsSlice<T>>
     {
         public ReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice<T>> source,
                                                 string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,

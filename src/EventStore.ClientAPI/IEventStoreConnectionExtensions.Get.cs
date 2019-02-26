@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static EventReadResult<TEvent> GetEvent<TEvent>(this IEventStoreBus bus,
-      long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -62,7 +62,7 @@ namespace EventStore.ClientAPI
       return AsyncContext.Run(
                 async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
                   => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
-                bus, CombineStreamId(stream, topic), eventNumber, resolveLinkTos, userCredentials);
+                bus, stream.Combine(topic), eventNumber, resolveLinkTos, userCredentials);
     }
 
     /// <summary>Asynchronously reads a single event from a stream.</summary>
@@ -73,7 +73,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static EventReadResult<TEvent> GetEvent<TEvent>(this IEventStoreBus bus,
-      string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -112,7 +112,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice<TEvent> GetStreamEventsForward<TEvent>(this IEventStoreBus bus,
-      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -143,7 +143,7 @@ namespace EventStore.ClientAPI
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsForwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
-                bus, CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
+                bus, stream.Combine(topic), start, count, resolveLinkTos, userCredentials);
     }
 
     /// <summary>Reads count Events from an Event Stream forwards (e.g. oldest to newest) starting from position start.</summary>
@@ -155,7 +155,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice<TEvent> GetStreamEventsForward<TEvent>(this IEventStoreBus bus,
-      string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -194,7 +194,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice<TEvent> GetStreamEventsBackward<TEvent>(this IEventStoreBus bus,
-      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -225,7 +225,7 @@ namespace EventStore.ClientAPI
       return AsyncContext.Run(
                 async (conn, streamId, pointer, eventCount, resolveLinkToEvents, credentials)
                   => await conn.GetStreamEventsBackwardAsync(streamId, pointer, eventCount, resolveLinkToEvents, credentials).ConfigureAwait(false),
-                bus, CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
+                bus, stream.Combine(topic), start, count, resolveLinkTos, userCredentials);
     }
 
     /// <summary>Reads count events from an Event Stream backwards (e.g. newest to oldest) from position asynchronously.</summary>
@@ -237,7 +237,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="StreamEventsSlice"/> containing the results of the read operation.</returns>
     public static StreamEventsSlice<TEvent> GetStreamEventsBackward<TEvent>(this IEventStoreBus bus,
-      string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -257,7 +257,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(this IEventStoreBus bus,
-      long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetEventAsync<TEvent>(null, eventNumber, resolveLinkTos, userCredentials);
@@ -281,7 +281,7 @@ namespace EventStore.ClientAPI
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-      return bus.GetEventAsync(CombineStreamId(stream, topic), eventNumber, resolveLinkTos, userCredentials);
+      return bus.GetEventAsync(stream.Combine(topic), eventNumber, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -296,7 +296,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
     public static Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(this IEventStoreBus bus,
-      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetStreamEventsForwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
@@ -321,7 +321,7 @@ namespace EventStore.ClientAPI
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-      return bus.GetStreamEventsForwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
+      return bus.GetStreamEventsForwardAsync(stream.Combine(topic), start, count, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -336,7 +336,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
     public static Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(this IEventStoreBus bus,
-      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+      long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return bus.GetStreamEventsBackwardAsync<TEvent>(null, start, count, resolveLinkTos, userCredentials);
@@ -361,7 +361,7 @@ namespace EventStore.ClientAPI
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-      return bus.GetStreamEventsBackwardAsync(CombineStreamId(stream, topic), start, count, resolveLinkTos, userCredentials);
+      return bus.GetStreamEventsBackwardAsync(stream.Combine(topic), start, count, resolveLinkTos, userCredentials);
     }
 
     #endregion
@@ -402,7 +402,7 @@ namespace EventStore.ClientAPI
       return AsyncContext.Run(
         async (conn, streamId, eventNum, resolveLinkToEvents, credentials)
           => await conn.GetEventAsync(streamId, eventNum, resolveLinkToEvents, credentials).ConfigureAwait(false),
-        bus, CombineStreamId(stream, topic), StreamPosition.Start, resolveLinkTos, userCredentials);
+        bus, stream.Combine(topic), StreamPosition.Start, resolveLinkTos, userCredentials);
     }
 
     /// <summary>Reads the frist event from a stream.</summary>
@@ -412,7 +412,6 @@ namespace EventStore.ClientAPI
     /// <returns>A result of the read operation.</returns>
     public static EventReadResult<TEvent> GetFirstEvent<TEvent>(this IEventStoreBus bus,
       bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
@@ -430,7 +429,6 @@ namespace EventStore.ClientAPI
     /// <returns>A result of the read operation.</returns>
     public static EventReadResult<TEvent> GetFirstEvent<TEvent>(this IEventStoreBus bus,
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
@@ -472,7 +470,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
-      return bus.GetEventAsync(CombineStreamId(stream, topic), StreamPosition.Start, resolveLinkTos, userCredentials);
+      return bus.GetEventAsync(stream.Combine(topic), StreamPosition.Start, resolveLinkTos, userCredentials);
     }
 
     /// <summary>Asynchronously reads the frist event from a stream.</summary>
@@ -482,7 +480,6 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static Task<EventReadResult<TEvent>> GetFirstEventAsync<TEvent>(this IEventStoreBus bus,
       bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
@@ -497,7 +494,6 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static Task<EventReadResult<TEvent>> GetFirstEventAsync<TEvent>(this IEventStoreBus bus,
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
@@ -549,7 +545,6 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static EventReadResult<TEvent> GetLastEvent<TEvent>(this IEventStoreBus bus,
       bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -566,7 +561,6 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static EventReadResult<TEvent> GetLastEvent<TEvent>(this IEventStoreBus bus,
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       return AsyncContext.Run(
@@ -592,7 +586,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
-      return GetLastEventAsync(bus, CombineStreamId(stream, topic), resolveLinkTos, userCredentials);
+      return GetLastEventAsync(bus, stream.Combine(topic), resolveLinkTos, userCredentials);
     }
 
     /// <summary>Asynchronously reads the last event from a stream.</summary>
@@ -641,7 +635,6 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static Task<EventReadResult<TEvent>> GetLastEventAsync<TEvent>(this IEventStoreBus bus,
       bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       return GetLastEventAsync<TEvent>(bus, null, resolveLinkTos, userCredentials);
     }
@@ -654,13 +647,10 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
     public static async Task<EventReadResult<TEvent>> GetLastEventAsync<TEvent>(this IEventStoreBus bus,
       string topic, bool resolveLinkTos, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
-      var slice = string.IsNullOrEmpty(topic)
-                ? await bus.GetStreamEventsBackwardAsync<TEvent>(StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false)
-                : await bus.GetStreamEventsBackwardAsync<TEvent>(topic, StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false);
+      var slice = await bus.GetStreamEventsBackwardAsync<TEvent>(topic, StreamPosition.End, 1, resolveLinkTos, userCredentials).ConfigureAwait(false);
       var readStatus = EventReadStatus.Success;
       var sliceEvents = slice.Events;
       switch (slice.Status)

@@ -3,7 +3,6 @@ using CuteAnt;
 using CuteAnt.Collections;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Internal;
-using EventStore.ClientAPI.Serialization;
 using EventStore.Transport.Tcp.Messages;
 using Microsoft.Extensions.Logging;
 
@@ -106,7 +105,7 @@ namespace EventStore.ClientAPI.Messages
                     systemRecord.EventType,
                     systemRecord.Created,
                     systemRecord.CreatedEpoch,
-                    SerializationManager.DeserializeEvent(systemRecord.Metadata, systemRecord.Data),
+                    EventManager.FromEventData(systemRecord.Data, systemRecord.Metadata),
                     systemRecord.DataContentType == 1);
             }
             catch (Exception exc)
@@ -128,7 +127,7 @@ namespace EventStore.ClientAPI.Messages
 
         #region ** ToRecordedEvent<T> **
 
-        private static RecordedEvent<T> ToRecordedEvent<T>(this TcpClientMessageDto.EventRecord systemRecord) where T : class
+        private static RecordedEvent<T> ToRecordedEvent<T>(this TcpClientMessageDto.EventRecord systemRecord)
         {
             try
             {
@@ -139,7 +138,7 @@ namespace EventStore.ClientAPI.Messages
                     systemRecord.EventType,
                     systemRecord.Created,
                     systemRecord.CreatedEpoch,
-                    SerializationManager.DeserializeEvent<T>(systemRecord.Metadata, systemRecord.Data),
+                    EventManager.FromEventData<T>(systemRecord.Data, systemRecord.Metadata),
                     systemRecord.DataContentType == 1);
             }
             catch (Exception exc)
@@ -157,7 +156,7 @@ namespace EventStore.ClientAPI.Messages
             }
         }
 
-        private static RecordedEvent<T> ToRecordedEvent<T>(this TcpClientMessageDto.EventRecord systemRecord, EventMetadata metadata, Type eventType) where T : class
+        private static RecordedEvent<T> ToRecordedEvent<T>(this TcpClientMessageDto.EventRecord systemRecord, IEventMetadata metadata, Type eventType)
         {
             try
             {
@@ -168,7 +167,7 @@ namespace EventStore.ClientAPI.Messages
                     systemRecord.EventType,
                     systemRecord.Created,
                     systemRecord.CreatedEpoch,
-                    SerializationManager.DeserializeEvent<T>(metadata, eventType, systemRecord.Data),
+                    EventManager.FromEventData<T>(systemRecord.Data, metadata),
                     systemRecord.DataContentType == 1);
             }
             catch (Exception exc)
@@ -209,11 +208,11 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
-                systemRecord = evnt.Event;
-                var linkMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
+                systemRecord = evnt.Link;
+                var linkMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
 
-                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).EventType);
+                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_eventDeserializerCache.GetOrAdd(eventType, s_createEventDeserializer);
                 return deserializer.ToResolvedEvent(evnt, eventMeta, linkMeta, eventType);
             }
@@ -225,11 +224,11 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
-                systemRecord = evnt.Event;
-                var linkMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
+                systemRecord = evnt.Link;
+                var linkMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
 
-                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).EventType);
+                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_eventDeserializerCache.GetOrAdd(eventType, s_createEventDeserializer);
                 return deserializer.ToResolvedEvent(evnt, eventMeta, linkMeta, eventType);
             }
@@ -266,11 +265,11 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
-                systemRecord = evnt.Event;
-                var linkMeta = systemRecord != null ? SerializationManager.DeserializeMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
+                systemRecord = evnt.Link;
+                var linkMeta = systemRecord != null ? EventManager.ToEventMetadata(systemRecord.Metadata) : null;
 
-                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).EventType);
+                var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_persistentEventDeserializerCache.GetOrAdd(eventType, s_createPersistentEventDeserializer);
                 return deserializer.ToResolvedEvent(evnt, eventMeta, linkMeta, eventType, retryCount);
             }
@@ -305,7 +304,7 @@ namespace EventStore.ClientAPI.Messages
 
         #region == ToResolvedEvent<T> ==
 
-        internal static ClientAPI.ResolvedEvent<T> ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedEvent evnt) where T : class
+        internal static ClientAPI.ResolvedEvent<T> ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedEvent evnt)
         {
             return new ClientAPI.ResolvedEvent<T>(
                        evnt.Event?.ToRecordedEvent<T>(),
@@ -313,12 +312,12 @@ namespace EventStore.ClientAPI.Messages
                        new Position(evnt.CommitPosition, evnt.PreparePosition));
         }
 
-        internal static ClientAPI.ResolvedEvent<T> ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedIndexedEvent evnt) where T : class
+        internal static ClientAPI.ResolvedEvent<T> ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedIndexedEvent evnt)
         {
             return new ClientAPI.ResolvedEvent<T>(evnt.Event?.ToRecordedEvent<T>(), evnt.Link?.ToRecordedEvent<T>(), null);
         }
 
-        internal static ClientAPI.ResolvedEvent<T>? ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedIndexedEvent evnt, EventReadStatus readStatus) where T : class
+        internal static ClientAPI.ResolvedEvent<T>? ToResolvedEvent<T>(this TcpClientMessageDto.ResolvedIndexedEvent evnt, EventReadStatus readStatus)
         {
             return readStatus == EventReadStatus.Success
                   ? new ClientAPI.ResolvedEvent<T>(evnt.Event?.ToRecordedEvent<T>(), evnt.Link?.ToRecordedEvent<T>(), null)
@@ -405,7 +404,7 @@ namespace EventStore.ClientAPI.Messages
 
         #region == ToResolvedEvents<T> ==
 
-        internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedEvent[] events) where T : class
+        internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedEvent[] events)
         {
             if (events == null || events.Length == 0)
             {
@@ -422,7 +421,7 @@ namespace EventStore.ClientAPI.Messages
             }
         }
 
-        internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedIndexedEvent[] events) where T : class
+        internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
             if (events == null || events.Length == 0)
             {
@@ -445,12 +444,12 @@ namespace EventStore.ClientAPI.Messages
 
         internal interface IResolvedEventDeserializer
         {
-            IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType);
-            IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType);
+            IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType);
+            IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType);
         }
-        internal class ResolvedEventDeserializer<T> : IResolvedEventDeserializer where T : class
+        internal class ResolvedEventDeserializer<T> : IResolvedEventDeserializer
         {
-            public IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType)
+            public IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType)
             {
                 return new ClientAPI.ResolvedEvent<T>(
                            evnt.Event?.ToRecordedEvent<T>(eventMeta, eventType),
@@ -458,7 +457,7 @@ namespace EventStore.ClientAPI.Messages
                            new Position(evnt.CommitPosition, evnt.PreparePosition));
             }
 
-            public IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType)
+            public IResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType)
             {
                 return new ClientAPI.ResolvedEvent<T>(evnt.Event?.ToRecordedEvent<T>(eventMeta, eventType),
                                                       evnt.Link?.ToRecordedEvent<T>(linkMeta, eventType), null);
@@ -471,11 +470,11 @@ namespace EventStore.ClientAPI.Messages
 
         internal interface IPersistentSubscriptionResolvedEventDeserializer
         {
-            IPersistentSubscriptionResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType, int? retryCount);
+            IPersistentSubscriptionResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType, int? retryCount);
         }
-        internal class PersistentSubscriptionResolvedEventDeserializer<T> : IPersistentSubscriptionResolvedEventDeserializer where T : class
+        internal class PersistentSubscriptionResolvedEventDeserializer<T> : IPersistentSubscriptionResolvedEventDeserializer
         {
-            public IPersistentSubscriptionResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, EventMetadata eventMeta, EventMetadata linkMeta, Type eventType, int? retryCount)
+            public IPersistentSubscriptionResolvedEvent2 ToResolvedEvent(TcpClientMessageDto.ResolvedIndexedEvent evnt, IEventMetadata eventMeta, IEventMetadata linkMeta, Type eventType, int? retryCount)
             {
                 return new ClientAPI.PersistentSubscriptionResolvedEvent<T>(
                     new ClientAPI.ResolvedEvent<T>(evnt.Event?.ToRecordedEvent<T>(eventMeta, eventType),

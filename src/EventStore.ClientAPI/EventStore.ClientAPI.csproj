@@ -34,9 +34,7 @@ Goals:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
-    <PackageReference Include="CuteAnt.Extensions.Serialization.MessagePack" Version="$(CuteAntExtensionsSerializationMessagePackPackageVersion)" />
-    <PackageReference Include="CuteAnt.Extensions.Serialization.Utf8Json" Version="$(CuteAntExtensionsSerializationUtf8JsonPackageVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="$(SystemThreadingTasksDataflowPackageVersion)" />
     <PackageReference Include="System.ValueTuple" Version="$(SystemValueTuplePackageVersion)" />
@@ -45,18 +43,6 @@ Goals:
   <ItemGroup>
     <ProjectReference Include="..\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Common\MatchHandler\PartialHandlerArgumentsCapture.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>PartialHandlerArgumentsCapture.cs</LastGenOutput>
-    </None>
-    <Compile Update="Common\MatchHandler\PartialHandlerArgumentsCapture.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>PartialHandlerArgumentsCapture.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>

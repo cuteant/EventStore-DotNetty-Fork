@@ -115,7 +115,6 @@ namespace EventStore.ClientAPI
 
   /// <summary>Represents a persistent subscription connection.</summary>
   public sealed class EventStorePersistentSubscription<TEvent> : EventStorePersistentSubscriptionBase<EventStorePersistentSubscription<TEvent>, PersistentSubscriptionResolvedEvent<TEvent>, ResolvedEvent<TEvent>>
-    where TEvent : class
   {
     static EventStorePersistentSubscription()
     {

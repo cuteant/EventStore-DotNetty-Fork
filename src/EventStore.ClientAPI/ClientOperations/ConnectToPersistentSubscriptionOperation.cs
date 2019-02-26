@@ -62,7 +62,6 @@ namespace EventStore.ClientAPI.ClientOperations
         ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection);
     }
     internal sealed class PersistentSubscriptionOperationWrapper<TEvent> : IPersistentSubscriptionOperationWrapper
-      where TEvent : class
     {
         public PersistentSubscriptionOperationWrapper() { }
 
@@ -76,7 +75,6 @@ namespace EventStore.ClientAPI.ClientOperations
     }
 
     internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent<TEvent>>
-      where TEvent : class
     {
         public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,

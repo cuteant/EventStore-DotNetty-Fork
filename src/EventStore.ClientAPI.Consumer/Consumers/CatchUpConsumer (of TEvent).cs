@@ -9,7 +9,6 @@ namespace EventStore.ClientAPI.Consumers
 {
     /// <summary>Represents the consumer of a catch-up subscription to EventStore: http://docs.geteventstore.com/introduction/4.0.0/subscriptions/ </summary>
     public class CatchUpConsumer<TEvent> : StreamConsumer<CatchUpSubscription<TEvent>, CatchUpSubscriptionSettings, TEvent>
-        where TEvent : class
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<CatchUpConsumer>();
 

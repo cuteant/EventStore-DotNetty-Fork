@@ -758,7 +758,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
         #region ** class StreamConsumerGenerator<T> **
 
-        internal class StreamConsumerGenerator<T> : IStreamConsumerGenerator where T : class
+        internal class StreamConsumerGenerator<T> : IStreamConsumerGenerator
         {
             #region @ Properties @
 

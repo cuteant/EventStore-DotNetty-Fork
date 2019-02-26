@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI.ClientOperations
         }
     }
 
-    internal class ReadEventOperation<T> : ReadEventOperationBase<EventReadResult<T>> where T : class
+    internal class ReadEventOperation<T> : ReadEventOperationBase<EventReadResult<T>>
     {
         public ReadEventOperation(TaskCompletionSource<EventReadResult<T>> source,
           string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)

@@ -8,7 +8,6 @@ namespace EventStore.ClientAPI.Consumers
 {
     /// <summary>Represents a consumer to a volatile subscription to EventStore: http://docs.geteventstore.com/introduction/4.0.0/subscriptions/ .</summary>
     public class VolatileConsumer<TEvent> : StreamConsumer<VolatileSubscription<TEvent>, SubscriptionSettings, TEvent>
-        where TEvent : class
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<VolatileConsumer>();
 

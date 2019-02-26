@@ -16,7 +16,7 @@ namespace EventStore.Core.Tests.ClientAPI
             _eventId1 = Guid.NewGuid();
 
             _conn.AppendToStreamAsync("test-stream",
-                                 -1, 
+                                 -1, null,
                                  new EventData(_eventId0, "event0", false, new byte[3], new byte[2]),
                                  new EventData(_eventId1, "event1", true, new byte[7], new byte[10]))
             .Wait();

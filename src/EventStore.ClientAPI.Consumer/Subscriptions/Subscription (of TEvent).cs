@@ -8,14 +8,13 @@ namespace EventStore.ClientAPI.Subscriptions
     public abstract class Subscription<TSubscription, TSettings, TEvent> : ISubscription<TSettings>, ISubscription
         where TSubscription : Subscription<TSubscription, TSettings, TEvent>
         where TSettings : SubscriptionSettings
-        where TEvent : class
     {
         public Subscription(string subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }
 
-        public string StreamId => typeof(TEvent).ToStreamId(Topic);
+        public string StreamId => EventManager.GetStreamId<TEvent>(Topic);
         public string SubscriptionId { get; }
         public string Topic { get; set; }
 

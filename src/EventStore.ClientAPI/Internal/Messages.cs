@@ -194,7 +194,6 @@ namespace EventStore.ClientAPI.Internal
     }
 
     internal sealed class StartSubscriptionMessage<TEvent> : StartSubscriptionMessageBase<ResolvedEvent<TEvent>>
-      where TEvent : class
     {
         public StartSubscriptionMessage(TaskCompletionSource<EventStoreSubscription> source,
           string streamId, SubscriptionSettings settings, UserCredentials userCredentials,
@@ -349,7 +348,6 @@ namespace EventStore.ClientAPI.Internal
     }
 
     internal sealed class StartPersistentSubscriptionMessage<TEvent> : StartPersistentSubscriptionMessageBase<PersistentSubscriptionResolvedEvent<TEvent>>
-      where TEvent : class
     {
         public StartPersistentSubscriptionMessage(TaskCompletionSource<PersistentEventStoreSubscription> source,
           string subscriptionId, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,

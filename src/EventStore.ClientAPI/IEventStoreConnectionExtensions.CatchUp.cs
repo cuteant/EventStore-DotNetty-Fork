@@ -551,7 +551,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -598,7 +598,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -640,7 +640,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -682,7 +682,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
 
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion
@@ -726,7 +726,6 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
@@ -770,7 +769,6 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
@@ -809,7 +807,6 @@ namespace EventStore.ClientAPI
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
@@ -848,7 +845,6 @@ namespace EventStore.ClientAPI
       long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
@@ -897,7 +893,6 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
@@ -942,7 +937,6 @@ namespace EventStore.ClientAPI
       Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
       Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
       UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
-      where TEvent : class
     {
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
@@ -1125,7 +1119,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1166,7 +1160,7 @@ namespace EventStore.ClientAPI
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, _ => addHandlers(new HandlerAdder(_)), liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1212,7 +1206,7 @@ namespace EventStore.ClientAPI
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
       var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     /// <summary>Subscribes to a single event stream. Existing events from
@@ -1253,7 +1247,7 @@ namespace EventStore.ClientAPI
       if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
       if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
       if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-      return bus.CatchUpSubscribe(CombineStreamId(stream, topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+      return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
     }
 
     #endregion

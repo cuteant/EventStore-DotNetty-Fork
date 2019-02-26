@@ -1,54 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using CuteAnt.Extensions.Serialization;
+﻿using System.Collections.Generic;
+using EventStore.ClientAPI.Common.Utils;
 
 namespace EventStore.ClientAPI
 {
     internal sealed class DefaultEventDescriptor : IEventDescriptor
     {
+        private static readonly Dictionary<string, object> s_empty = new Dictionary<string, object>();
+
+        private readonly IEventMetadata _eventMeta;
         private readonly Dictionary<string, object> _eventContext;
-        private static readonly IObjectTypeDeserializer _objectTypeDeserializer = JsonObjectTypeDeserializer.Instance;
 
-        public DefaultEventDescriptor(Dictionary<string, object> context)
+        public DefaultEventDescriptor(IEventMetadata eventMeta)
         {
-            if (null == context) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.context); }
-            _eventContext = context;
+            if (null == eventMeta) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMeta); }
+            _eventContext = eventMeta.Context ?? s_empty;
         }
 
-        public T GetValue<T>(string key)
-        {
-            return _objectTypeDeserializer.Deserialize<T>(_eventContext, key);
-        }
+        public IEventMetadata Metadata => _eventMeta;
 
-        public T GetValue<T>(string key, T defaultValue)
-        {
-            return _objectTypeDeserializer.Deserialize<T>(_eventContext, key, defaultValue);
-        }
+        public TMeta AsMetaData<TMeta>() where TMeta : IEventMetadata => (TMeta)_eventMeta;
 
-        public bool TryGetValue<T>(string key, out T value)
-        {
-            return _objectTypeDeserializer.TryDeserialize<T>(_eventContext, key, out value);
-        }
+        public T GetValue<T>(string key) => _eventContext.Deserialize<T>(key);
+
+        public T GetValue<T>(string key, T defaultValue) => _eventContext.Deserialize(key, defaultValue);
+
+        public bool TryGetValue<T>(string key, out T value) => _eventContext.TryDeserialize(key, out value);
     }
 
     internal sealed class NullEventDescriptor : IEventDescriptor
     {
         internal static readonly IEventDescriptor Instance = new NullEventDescriptor();
 
+        public IEventMetadata Metadata => null;
+
+        public TMeta AsMetaData<TMeta>() where TMeta : IEventMetadata => default;
+
         public T GetValue<T>(string key)
         {
             CoreThrowHelper.ThrowKeyNotFoundException(key); return default;
         }
 
-        public T GetValue<T>(string key, T defaultValue)
-        {
-            return default;
-        }
+        public T GetValue<T>(string key, T defaultValue) => default;
 
         public bool TryGetValue<T>(string key, out T value)
         {
-            value = default;
-            return false;
+            value = default; return false;
         }
     }
 }

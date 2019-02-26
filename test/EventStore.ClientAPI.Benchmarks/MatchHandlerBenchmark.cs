@@ -51,10 +51,6 @@ namespace EventStore.ClientAPI.Benchmarks
 
         private Action<TcpPackage, int> _packageMatcher;
 
-        private PartialAction<object> _partialReceive;
-        private MatchBuilder _matchBuilder;
-
-
         [GlobalSetup]
         public void GlobalSetup()
         {
@@ -99,7 +95,7 @@ namespace EventStore.ClientAPI.Benchmarks
                 GuidProp = _msgA.GuidProp,
                 DateProp = _msgA.DateProp
             };
-            _msgF= new MessageF
+            _msgF = new MessageF
             {
                 StringProp = _msgA.StringProp,
                 IntProp = _msgA.IntProp,
@@ -271,66 +267,17 @@ namespace EventStore.ClientAPI.Benchmarks
 
             //_packageMatcher
             var actionBuilder = new ActionMatchBuilder<TcpPackage, int>();
-            actionBuilder.Match(_ => _.Command == TcpCommand.Authenticate, (p, c) => ProcessPackage(p, c));
-            actionBuilder.Match(_ => _.Command == TcpCommand.Authenticated, (p, c) => ProcessPackage(p, c));
-            actionBuilder.Match(_ => _.Command == TcpCommand.BadRequest, (p, c) => ProcessPackage(p, c));
-            actionBuilder.Match(_ => _.Command == TcpCommand.ClientIdentified, (p, c) => ProcessPackage(p, c));
-            actionBuilder.Match(_ => _.Command == TcpCommand.CloneAssignment, (p, c) => ProcessPackage(p, c));
+            actionBuilder.Match<TcpPackage>((p, c) => ProcessPackage(p, c), _ => _.Command == TcpCommand.Authenticate);
+            actionBuilder.Match<TcpPackage>((p, c) => ProcessPackage(p, c), _ => _.Command == TcpCommand.Authenticated);
+            actionBuilder.Match<TcpPackage>((p, c) => ProcessPackage(p, c), _ => _.Command == TcpCommand.BadRequest);
+            actionBuilder.Match<TcpPackage>((p, c) => ProcessPackage(p, c), _ => _.Command == TcpCommand.ClientIdentified);
+            actionBuilder.Match<TcpPackage>((p, c) => ProcessPackage(p, c), _ => _.Command == TcpCommand.CloneAssignment);
             _packageMatcher = actionBuilder.Build();
-
-
-            _matchBuilder = new MatchBuilder(CachedMatchCompiler<object>.Instance);
-            _matchBuilder.Match(WrapAsyncHandler<MessageA>(ProcessMessageA));
-            _matchBuilder.Match(WrapAsyncHandler<MessageB>(ProcessMessageB));
-            _matchBuilder.Match(WrapAsyncHandler<MessageC>(ProcessMessageC));
-            _matchBuilder.Match(WrapAsyncHandler<MessageD>(ProcessMessageD));
-            _matchBuilder.Match(WrapAsyncHandler<MessageE>(ProcessMessageE));
-            _matchBuilder.Match(WrapAsyncHandler<MessageF>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageG>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageH>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageI>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageJ>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageK>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageL>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageM>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageN>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageO>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageP>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageQ>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageR>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageS>(ProcessMessageAny));
-            _matchBuilder.Match(WrapAsyncHandler<MessageT>(ProcessMessageAny));
-            _partialReceive = _matchBuilder.Build();
         }
 
         private Action<T> WrapAsyncHandler<T>(Func<T, Task> asyncHandler)
         {
             return m => asyncHandler(m);
-        }
-
-        [Benchmark]
-        public void AkkaMatchHandler()
-        {
-            if (!_partialReceive(_msgA)) { ThrowEx(); }
-            if (!_partialReceive(_msgB)) { ThrowEx(); }
-            if (!_partialReceive(_msgC)) { ThrowEx(); }
-            if (!_partialReceive(_msgD)) { ThrowEx(); }
-            if (!_partialReceive(_msgE)) { ThrowEx(); }
-            if (!_partialReceive(_msgF)) { ThrowEx(); }
-            if (!_partialReceive(_msgG)) { ThrowEx(); }
-            if (!_partialReceive(_msgH)) { ThrowEx(); }
-            if (!_partialReceive(_msgI)) { ThrowEx(); }
-            if (!_partialReceive(_msgJ)) { ThrowEx(); }
-            if (!_partialReceive(_msgK)) { ThrowEx(); }
-            if (!_partialReceive(_msgL)) { ThrowEx(); }
-            if (!_partialReceive(_msgM)) { ThrowEx(); }
-            if (!_partialReceive(_msgN)) { ThrowEx(); }
-            if (!_partialReceive(_msgO)) { ThrowEx(); }
-            if (!_partialReceive(_msgP)) { ThrowEx(); }
-            if (!_partialReceive(_msgQ)) { ThrowEx(); }
-            if (!_partialReceive(_msgR)) { ThrowEx(); }
-            if (!_partialReceive(_msgS)) { ThrowEx(); }
-            if (!_partialReceive(_msgT)) { ThrowEx(); }
         }
 
         [Benchmark]

@@ -3,6 +3,7 @@ using System.IO;
 using CuteAnt.IO;
 using CuteAnt.Pool;
 using EventStore.ClientAPI.Common;
+using EventStore.ClientAPI.Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -55,7 +56,7 @@ namespace EventStore.ClientAPI
         {
             using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
             {
-                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.ArrayPool = Json.CharacterArrayPool;
 
                 Check(reader.Read(), reader);
                 Check(JsonToken.StartObject, reader);
@@ -110,7 +111,7 @@ namespace EventStore.ClientAPI
             {
                 using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
                 {
-                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
                     WriteAsJson(jsonWriter);
                 }
                 return memoryStream.ToArray();
@@ -127,7 +128,7 @@ namespace EventStore.ClientAPI
             var stringWriter = StringWriterManager.Allocate();
             using (var jsonWriter = new JsonTextWriter(stringWriter))
             {
-                jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                jsonWriter.ArrayPool = Json.CharacterArrayPool;
                 jsonWriter.CloseOutput = false;
                 WriteAsJson(jsonWriter);
             }

@@ -5,7 +5,7 @@
     void Consume(EventStoreCatchUpSubscription subscription, ResolvedEvent<object> resolvedEvent);
   }
 
-  public interface IAutoSubscriberCatchUpConsume<T> where T : class
+  public interface IAutoSubscriberCatchUpConsume<T>
   {
     void Consume(EventStoreCatchUpSubscription<T> subscription, ResolvedEvent<T> resolvedEvent);
   }

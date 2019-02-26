@@ -114,20 +114,17 @@ namespace EventStore.ClientAPI.Internal
 
         #region -- AppendToStreamAsync / ConditionalAppendToStreamAsync --
 
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, params EventData[] events)
+        public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
         {
-            // ReSharper disable RedundantArgumentDefaultValue
-            // ReSharper disable RedundantCast
-            return AppendToStreamAsync(stream, expectedVersion, (IEnumerable<EventData>)events, null);
-            // ReSharper restore RedundantCast
-            // ReSharper restore RedundantArgumentDefaultValue
-        }
+            // ReSharper disable PossibleMultipleEnumeration
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
 
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
-        {
-            // ReSharper disable RedundantCast
-            return AppendToStreamAsync(stream, expectedVersion, (IEnumerable<EventData>)events, userCredentials);
-            // ReSharper restore RedundantCast
+            var source = TaskCompletionSourceFactory.Create<WriteResult>();
+            EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
+                                                         stream, expectedVersion, evt, userCredentials));
+            return await source.Task.ConfigureAwait(false);
+            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
@@ -139,6 +136,20 @@ namespace EventStore.ClientAPI.Internal
             var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
                                                          stream, expectedVersion, events, userCredentials));
+            return await source.Task.ConfigureAwait(false);
+            // ReSharper restore PossibleMultipleEnumeration
+        }
+
+        public async Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, EventData evt,
+            UserCredentials userCredentials = null)
+        {
+            // ReSharper disable PossibleMultipleEnumeration
+            if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
+            if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
+
+            var source = TaskCompletionSourceFactory.Create<ConditionalWriteResult>();
+            EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
+                                                                    stream, expectedVersion, evt, userCredentials));
             return await source.Task.ConfigureAwait(false);
             // ReSharper restore PossibleMultipleEnumeration
         }
@@ -279,10 +290,10 @@ namespace EventStore.ClientAPI.Internal
             return await source.Task.ConfigureAwait(false);
         }
 
-        public async Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+        public async Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventReadResult<TEvent>>();
             var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
                                                            _settings.RequireMaster, userCredentials);
@@ -319,13 +330,13 @@ namespace EventStore.ClientAPI.Internal
             return await source.Task.ConfigureAwait(false);
         }
 
-        public async Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+        public async Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsForwardOperation<TEvent>(source, stream, start, count,
                                                                          resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -349,12 +360,12 @@ namespace EventStore.ClientAPI.Internal
             return await source.Task.ConfigureAwait(false);
         }
 
-        public async Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class
+        public async Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsBackwardOperation<TEvent>(source, stream, start, count,
                                                                           resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -460,12 +471,12 @@ namespace EventStore.ClientAPI.Internal
         public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
           Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-          UserCredentials userCredentials = null) where TEvent : class
+          UserCredentials userCredentials = null)
         {
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
             {
@@ -482,12 +493,12 @@ namespace EventStore.ClientAPI.Internal
         public Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings,
           Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
-          UserCredentials userCredentials = null) where TEvent : class
+          UserCredentials userCredentials = null)
         {
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessageWrapper
             {
@@ -600,7 +611,6 @@ namespace EventStore.ClientAPI.Internal
         public EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-          where TEvent : class
         {
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
@@ -615,7 +625,6 @@ namespace EventStore.ClientAPI.Internal
         public EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
           Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-          where TEvent : class
         {
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
@@ -799,13 +808,13 @@ namespace EventStore.ClientAPI.Internal
           ConnectToPersistentSubscriptionSettings settings,
           Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
           Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
-          UserCredentials userCredentials = null) where TEvent : class
+          UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
                 eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
 
@@ -815,13 +824,13 @@ namespace EventStore.ClientAPI.Internal
           ConnectToPersistentSubscriptionSettings settings,
           Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
           Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
-          UserCredentials userCredentials = null) where TEvent : class
+          UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
                 eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
 
@@ -899,24 +908,21 @@ namespace EventStore.ClientAPI.Internal
         }
 
         public Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
-          where TEvent : class
         {
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             return CreatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
         }
 
         public Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
-          where TEvent : class
         {
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             return UpdatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
 
         }
 
         public Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null)
-          where TEvent : class
         {
-            var stream = IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic);
+            var stream = EventManager.GetStreamId<TEvent>(topic);
             return DeletePersistentSubscriptionAsync(stream, groupName, userCredentials);
         }
 
@@ -996,8 +1002,9 @@ namespace EventStore.ClientAPI.Internal
 
         public Task SetSystemSettingsAsync(SystemSettings settings, UserCredentials userCredentials = null)
         {
-            return AppendToStreamAsync(SystemStreams.SettingsStream, ExpectedVersion.Any, userCredentials,
-                                       new EventData(Guid.NewGuid(), SystemEventTypes.Settings, true, settings.ToJsonBytes(), null));
+            return AppendToStreamAsync(SystemStreams.SettingsStream, ExpectedVersion.Any,
+                                       new EventData(Guid.NewGuid(), SystemEventTypes.Settings, true, settings.ToJsonBytes(), null),
+                                       userCredentials);
         }
 
         #endregion

@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI
             _noMatching = new HashSet<Type>();
         }
 
-        public IHandlerRegistration Add<TEvent>(Func<IResolvedEvent<TEvent>, Task> handler) where TEvent : class
+        public IHandlerRegistration Add<TEvent>(Func<IResolvedEvent<TEvent>, Task> handler)
         {
             if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
@@ -41,7 +41,7 @@ namespace EventStore.ClientAPI
             return this;
         }
 
-        public IHandlerRegistration Add<TEvent>(Action<IResolvedEvent<TEvent>> handler) where TEvent : class
+        public IHandlerRegistration Add<TEvent>(Action<IResolvedEvent<TEvent>> handler)
         {
             if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
@@ -53,7 +53,7 @@ namespace EventStore.ClientAPI
             return this;
         }
 
-        public Func<IResolvedEvent<TEvent>, Task> GetHandler<TEvent>() where TEvent : class
+        public Func<IResolvedEvent<TEvent>, Task> GetHandler<TEvent>()
         {
             return GetHandler(typeof(TEvent));
         }

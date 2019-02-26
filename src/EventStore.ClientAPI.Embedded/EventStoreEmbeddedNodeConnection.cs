@@ -144,20 +144,9 @@ namespace EventStore.ClientAPI.Embedded
             return source.Task;
         }
 
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, params EventData[] events)
+        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
         {
-            // ReSharper disable RedundantArgumentDefaultValue
-            // ReSharper disable RedundantCast
-            return AppendToStreamAsync(stream, expectedVersion, (IEnumerable<EventData>)events, null);
-            // ReSharper restore RedundantCast
-            // ReSharper restore RedundantArgumentDefaultValue
-        }
-
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
-        {
-            // ReSharper disable RedundantCast
-            return AppendToStreamAsync(stream, expectedVersion, (IEnumerable<EventData>)events, GetUserCredentials(_settings, userCredentials));
-            // ReSharper restore RedundantCast
+            return AppendToStreamAsync(stream, expectedVersion, new[] { evt }, userCredentials);
         }
 
         public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
@@ -177,6 +166,11 @@ namespace EventStore.ClientAPI.Embedded
 
             return source.Task;
             // ReSharper restore PossibleMultipleEnumeration
+        }
+
+        public Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
+        {
+            return ConditionalAppendToStreamAsync(stream, expectedVersion, new[] { evt }, userCredentials);
         }
 
         public Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
@@ -661,8 +655,9 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task SetSystemSettingsAsync(SystemSettings settings, UserCredentials userCredentials = null)
         {
-            return AppendToStreamAsync(SystemStreams.SettingsStream, ExpectedVersion.Any, GetUserCredentials(_settings, userCredentials),
-                new EventData(Guid.NewGuid(), SystemEventTypes.Settings, true, settings.ToJsonBytes(), null));
+            return AppendToStreamAsync(SystemStreams.SettingsStream, ExpectedVersion.Any,
+                new EventData(Guid.NewGuid(), SystemEventTypes.Settings, true, settings.ToJsonBytes(), null),
+                GetUserCredentials(_settings, userCredentials));
         }
 
         public event EventHandler<ClientConnectionEventArgs> Connected = delegate { };

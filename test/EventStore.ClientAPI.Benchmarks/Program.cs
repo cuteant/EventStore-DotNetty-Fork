@@ -37,14 +37,6 @@ namespace EventStore.ClientAPI.Benchmarks
             sw.Restart();
             for (int i = 0; i < 100000; i++)
             {
-                mb.AkkaMatchHandler();
-            }
-            sw.Stop();
-            Console.WriteLine("  Time used: {0,9} ticks", sw.ElapsedTicks);
-
-            sw.Restart();
-            for (int i = 0; i < 100000; i++)
-            {
                 mb.EsPackageHandler();
             }
             sw.Stop();

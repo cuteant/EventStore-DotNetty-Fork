@@ -47,7 +47,7 @@ namespace EventStore.Core.Tests.ClientAPI
 
                 connection.AppendToStreamAsync(
                     stream,
-                    ExpectedVersion.Any,
+                    ExpectedVersion.Any, null,
                     new EventData(Guid.NewGuid(), "some-type", true, Helper.UTF8NoBom.GetBytes("{\"some\":\"json\"}"), null),
                     new EventData(Guid.NewGuid(), "some-type", true, null, Helper.UTF8NoBom.GetBytes("{\"some\":\"json\"}")),
                     new EventData(Guid.NewGuid(), "some-type", true, Helper.UTF8NoBom.GetBytes("{\"some\":\"json\"}"), Helper.UTF8NoBom.GetBytes("{\"some\":\"json\"}")))

@@ -24,7 +24,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Action<T> CompileConsumer<T>(IAutoSubscriberConsume<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(T), "message");
@@ -33,7 +32,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Func<T, Task> CompileAsyncConsumer<T>(IAutoSubscriberConsumeAsync<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(T), "message");
@@ -60,7 +58,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Action<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>> CompileCatchUpConsumer<T>(IAutoSubscriberCatchUpConsume<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStoreCatchUpSubscription<T>), "subscription");
@@ -70,7 +67,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Func<EventStoreCatchUpSubscription<T>, ResolvedEvent<T>, Task> CompileAsyncCatchUpConsumer<T>(IAutoSubscriberCatchUpConsumeAsync<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStoreCatchUpSubscription<T>), "subscription");
@@ -100,7 +96,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Action<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?> CompilePersistentConsumer<T>(IAutoSubscriberPersistentConsume<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStorePersistentSubscription<T>), "subscription");
@@ -111,7 +106,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Func<EventStorePersistentSubscription<T>, ResolvedEvent<T>, int?, Task> CompileAsyncPersistentConsumer<T>(IAutoSubscriberPersistentConsumeAsync<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStorePersistentSubscription<T>), "subscription");
@@ -140,7 +134,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Action<EventStoreSubscription, ResolvedEvent<T>> CompileVolatileConsumer<T>(IAutoSubscriberVolatileConsume<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStoreSubscription), "subscription");
@@ -150,7 +143,6 @@ namespace EventStore.ClientAPI.AutoSubscribing
         }
 
         public static Func<EventStoreSubscription, ResolvedEvent<T>, Task> CompileAsyncVolatileConsumer<T>(IAutoSubscriberVolatileConsumeAsync<T> concreteConsumer, MethodInfo consumeMethod)
-             where T : class
         {
             var instance = Expression.Constant(concreteConsumer);
             var param0 = Expression.Parameter(typeof(EventStoreSubscription), "subscription");

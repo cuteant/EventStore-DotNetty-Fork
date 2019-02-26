@@ -9,7 +9,6 @@ namespace EventStore.ClientAPI.Consumers
     /// <summary>Represents the consumer of a persistent subscription to EventStore: http://docs.geteventstore.com/introduction/4.0.0/subscriptions/
     /// This kind of consumer supports the competing consumer messaging pattern: http://www.enterpriseintegrationpatterns.com/patterns/messaging/CompetingConsumers.html </summary>
     public class PersistentConsumer<TEvent> : StreamConsumer<PersistentSubscription<TEvent>, ConnectToPersistentSubscriptionSettings, TEvent>
-      where TEvent : class
     {
         private static readonly ILogger s_logger = TraceLogger.GetLogger<PersistentConsumer>();
 

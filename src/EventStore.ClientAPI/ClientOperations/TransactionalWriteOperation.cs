@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using CuteAnt;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -14,9 +15,9 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly IEnumerable<EventData> _events;
 
         public TransactionalWriteOperation(TaskCompletionSource<object> source,
-                                           bool requireMaster, long transactionId, IEnumerable<EventData> events,
-                                           UserCredentials userCredentials)
-                : base(source, TcpCommand.TransactionWrite, TcpCommand.TransactionWriteCompleted, userCredentials)
+            bool requireMaster, long transactionId, IEnumerable<EventData> events,
+            UserCredentials userCredentials)
+            : base(source, TcpCommand.TransactionWrite, TcpCommand.TransactionWriteCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _transactionId = transactionId;
@@ -25,8 +26,38 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override object CreateRequestDto()
         {
-            var dtos = _events.Select(x => new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
+            TcpClientMessageDto.NewEvent[] dtos;
+            switch (_events)
+            {
+                case IList<EventData> evts:
+                    var evtCount = evts.Count;
+                    if (evtCount == 0) { dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance; break; }
+                    dtos = new TcpClientMessageDto.NewEvent[evtCount];
+                    for (var idx = 0; idx < evtCount; idx++)
+                    {
+                        var x = evts[idx];
+                        dtos[idx] = new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata);
+                    }
+                    break;
+                case null:
+                    dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance;
+                    break;
+                default:
+                    dtos = Convert(_events);
+                    break;
+            }
             return new TcpClientMessageDto.TransactionWrite(_transactionId, dtos, _requireMaster);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static TcpClientMessageDto.NewEvent[] Convert(IEnumerable<EventData> events)
+        {
+            var list = new List<TcpClientMessageDto.NewEvent>(16);
+            foreach (var x in events)
+            {
+                list.Add(new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
+            }
+            return list.ToArray();
         }
 
         protected override InspectionResult InspectResponse(TcpClientMessageDto.TransactionWriteCompleted response)
@@ -46,7 +77,7 @@ namespace EventStore.ClientAPI.ClientOperations
                     Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Write_access_denied));
                     return new InspectionResult(InspectionDecision.EndOperation, "AccessDenied");
                 default:
-                    CoreThrowHelper.ThrowException_UnexpectedOperationResult( response.Result); return null;
+                    CoreThrowHelper.ThrowException_UnexpectedOperationResult(response.Result); return null;
             }
         }
 

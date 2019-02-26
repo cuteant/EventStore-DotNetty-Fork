@@ -5,7 +5,7 @@ using MessagePack;
 namespace Es.SharedModels
 {
   [SerializingToken(SerializingToken.Json)]
-  [Stream("test-animal", "animal")]
+  [Stream("test-animal")]
   [Union(0, typeof(Cat))]
   [Union(1, typeof(Dog))]
   [Union(2, typeof(Cat1))]
@@ -17,7 +17,7 @@ namespace Es.SharedModels
 
   [SerializingToken(SerializingToken.MessagePack)]
   [MessagePackObject]
-  [Stream("test-animal", "cat")]
+  [Stream("test-animal")]
   public class Cat : IAnimal
   {
     [Key(0)]
@@ -36,7 +36,7 @@ namespace Es.SharedModels
   }
 
   [SerializingToken(SerializingToken.Utf8Json)]
-  [Stream("test-animal1", "animal1")]
+  [Stream("test-animal1")]
   [MessagePackObject]
   [Union(0, typeof(Cat1))]
   [Union(1, typeof(Dog1))]

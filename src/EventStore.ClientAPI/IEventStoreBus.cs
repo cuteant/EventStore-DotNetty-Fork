@@ -23,7 +23,7 @@ namespace EventStore.ClientAPI
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;EventReadResult&gt;"/> containing the results of the read operation.</returns>
-    Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+    Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -45,7 +45,7 @@ namespace EventStore.ClientAPI
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
-    Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+    Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -67,7 +67,7 @@ namespace EventStore.ClientAPI
     /// <param name="resolveLinkTos">Whether to resolve LinkTo events automatically.</param>
     /// <param name="userCredentials">The optional user credentials to perform operation with.</param>
     /// <returns>A <see cref="Task&lt;StreamEventsSlice&gt;"/> containing the results of the read operation.</returns>
-    Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null) where TEvent : class;
+    Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -124,7 +124,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings, Action<EventStoreSubscription, ResolvedEvent<TEvent>> eventAppeared,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null) where TEvent : class;
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
     /// <summary>Asynchronously subscribes to a single event stream. New events
     /// written to the stream while the subscription is active will be pushed to the client.</summary>
@@ -135,7 +135,7 @@ namespace EventStore.ClientAPI
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task&lt;EventStoreSubscription&gt;"/> representing the subscription.</returns>
     Task<EventStoreSubscription> VolatileSubscribeAsync<TEvent>(string topic, SubscriptionSettings settings, Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> eventAppearedAsync,
-      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null) where TEvent : class;
+      Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -276,8 +276,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-      where TEvent : class;
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
     /// <summary>Subscribes to a single event stream. Existing events from
     /// lastCheckpoint onwards are read from the stream
@@ -309,8 +308,7 @@ namespace EventStore.ClientAPI
     /// <returns>A <see cref="EventStoreCatchUpSubscription&lt;TEvent&gt;"/> representing the subscription.</returns>
     EventStoreCatchUpSubscription<TEvent> CatchUpSubscribe<TEvent>(string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
       Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
-      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
-      where TEvent : class;
+      Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -323,7 +321,7 @@ namespace EventStore.ClientAPI
     /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
-    Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class;
+    Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null);
 
     /// <summary>Asynchronously create a persistent subscription group on a stream.</summary>
     /// <param name="topic">The topic.</param>
@@ -331,14 +329,14 @@ namespace EventStore.ClientAPI
     /// <param name="settings">The <see cref="PersistentSubscriptionSettings"></see> for the subscription.</param>
     /// <param name="credentials">The credentials to be used for this operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
-    Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null) where TEvent : class;
+    Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null);
 
     /// <summary>Asynchronously delete a persistent subscription group on a stream.</summary>
     /// <param name="topic">The topic.</param>
     /// <param name="groupName">The name of the group to delete</param>
     /// <param name="userCredentials">User credentials to use for the operation.</param>
     /// <returns>A <see cref="Task"/> that can be waited upon.</returns>
-    Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null) where TEvent : class;
+    Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null);
 
     #endregion
 
@@ -433,7 +431,7 @@ namespace EventStore.ClientAPI
       ConnectToPersistentSubscriptionSettings settings,
       Action<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?> eventAppeared,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class;
+      UserCredentials userCredentials = null);
 
     /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
     /// <param name="subscriptionId">A unique identifier for the subscription. Two subscriptions with the same subscriptionId
@@ -454,7 +452,7 @@ namespace EventStore.ClientAPI
       ConnectToPersistentSubscriptionSettings settings,
       Func<EventStorePersistentSubscription<TEvent>, ResolvedEvent<TEvent>, int?, Task> eventAppearedAsync,
       Action<EventStorePersistentSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null,
-      UserCredentials userCredentials = null) where TEvent : class;
+      UserCredentials userCredentials = null);
 
     #endregion
 

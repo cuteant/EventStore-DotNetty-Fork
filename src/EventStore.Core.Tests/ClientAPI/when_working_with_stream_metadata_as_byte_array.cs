@@ -125,7 +125,7 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             const string stream = "setting_metadata_for_existing_stream_works";
 
-            _connection.AppendToStreamAsync(stream, ExpectedVersion.NoStream, TestEvent.NewTestEvent(), TestEvent.NewTestEvent()).Wait();
+            _connection.AppendToStreamAsync(stream, ExpectedVersion.NoStream, null, TestEvent.NewTestEvent(), TestEvent.NewTestEvent()).Wait();
 
             var metadataBytes = Guid.NewGuid().ToByteArray();
             _connection.SetStreamMetadataAsync(stream, ExpectedVersion.EmptyStream, metadataBytes).Wait();

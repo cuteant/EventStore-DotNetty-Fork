@@ -77,7 +77,6 @@ namespace EventStore.ClientAPI.ClientOperations
     ISubscriptionOperation Create(StartSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection);
   }
   internal sealed class SubscriptionOperationWrapper<TEvent> : IVolatileSubscriptionOperationWrapper
-    where TEvent : class
   {
     public SubscriptionOperationWrapper() { }
 
@@ -93,7 +92,6 @@ namespace EventStore.ClientAPI.ClientOperations
     }
   }
   internal sealed class SubscriptionOperation<TEvent> : VolatileSubscriptionOperationBase<ResolvedEvent<TEvent>>
-    where TEvent : class
   {
     public SubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source,
       string streamId, SubscriptionSettings settings, UserCredentials userCredentials,

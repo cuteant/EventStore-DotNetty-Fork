@@ -902,7 +902,7 @@ namespace EventStore.ClientAPI
         #region -- EventStoreHandlerException --
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void ThrowEventStoreHandlerException<TEvent>() where TEvent : class
+        internal static void ThrowEventStoreHandlerException<TEvent>()
         {
             throw GetException();
             EventStoreHandlerException GetException()

@@ -43,18 +43,18 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
 
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.Any).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.NoStream).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.Any).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.NoStream).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.Any, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.Any, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream1, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
 
                 var read1 = store.ReadStreamEventsForwardAsync(stream1, 0, 2, resolveLinkTos: false).Result;
                 Assert.That(read1.Events.Length, Is.EqualTo(0));
 
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.NoStream).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.Any).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.NoStream).Result.NextExpectedVersion);
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.Any).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.Any, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream2, ExpectedVersion.Any, new EventData[0]).Result.NextExpectedVersion);
 
                 var read2 = store.ReadStreamEventsForwardAsync(stream2, 0, 2, resolveLinkTos: false).Result;
                 Assert.That(read2.Events.Length, Is.EqualTo(0));
@@ -467,7 +467,7 @@ namespace EventStore.Core.Tests.ClientAPI
             using (var store = BuildConnection(_node))
             {
                 store.ConnectAsync().Wait();
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream, ExpectedVersion.NoStream).Result.NextExpectedVersion);
+                Assert.AreEqual(-1, store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
 
                 var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false).Result;
                 Assert.That(read.Events.Length, Is.EqualTo(0));

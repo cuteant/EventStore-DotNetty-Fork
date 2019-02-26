@@ -27,7 +27,7 @@ namespace EventStore.ClientAPI.ClientOperations
         }
     }
 
-    internal class ReadStreamEventsBackwardOperation<T> : ReadStreamEventsBackwardOperationBase<StreamEventsSlice<T>> where T : class
+    internal class ReadStreamEventsBackwardOperation<T> : ReadStreamEventsBackwardOperationBase<StreamEventsSlice<T>>
     {
         public ReadStreamEventsBackwardOperation(TaskCompletionSource<StreamEventsSlice<T>> source,
                                                       string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using CuteAnt;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -13,6 +14,7 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly bool _requireMaster;
         private readonly string _stream;
         private readonly long _expectedVersion;
+        private readonly EventData _event;
         private readonly IEnumerable<EventData> _events;
 
         private bool _wasCommitTimeout;
@@ -21,20 +23,77 @@ namespace EventStore.ClientAPI.ClientOperations
                                                        bool requireMaster,
                                                        string stream,
                                                        long expectedVersion,
+                                                       EventData evt,
+                                                       UserCredentials userCredentials)
+          : this(source, requireMaster, stream, expectedVersion, userCredentials)
+        {
+            _event = evt;
+        }
+
+        public ConditionalAppendToStreamOperation(TaskCompletionSource<ConditionalWriteResult> source,
+                                                       bool requireMaster,
+                                                       string stream,
+                                                       long expectedVersion,
                                                        IEnumerable<EventData> events,
                                                        UserCredentials userCredentials)
+          : this(source, requireMaster, stream, expectedVersion, userCredentials)
+        {
+            _events = events;
+        }
+
+        private ConditionalAppendToStreamOperation(TaskCompletionSource<ConditionalWriteResult> source,
+                                                        bool requireMaster,
+                                                        string stream,
+                                                        long expectedVersion,
+                                                        UserCredentials userCredentials)
           : base(source, TcpCommand.WriteEvents, TcpCommand.WriteEventsCompleted, userCredentials)
         {
             _requireMaster = requireMaster;
             _stream = stream;
             _expectedVersion = expectedVersion;
-            _events = events;
         }
 
         protected override object CreateRequestDto()
         {
-            var dtos = _events.Select(x => new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata)).ToArray();
+            TcpClientMessageDto.NewEvent[] dtos;
+            if (_event != null)
+            {
+                dtos = new[] { new TcpClientMessageDto.NewEvent(_event.EventId.ToByteArray(), _event.Type, _event.IsJson ? 1 : 0, 0, _event.Data, _event.Metadata) };
+            }
+            else
+            {
+                switch (_events)
+                {
+                    case IList<EventData> evts:
+                        var evtCount = evts.Count;
+                        if (evtCount == 0) { dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance; break; }
+                        dtos = new TcpClientMessageDto.NewEvent[evtCount];
+                        for (var idx = 0; idx < evtCount; idx++)
+                        {
+                            var x = evts[idx];
+                            dtos[idx] = new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata);
+                        }
+                        break;
+                    case null:
+                        dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance;
+                        break;
+                    default:
+                        dtos = Convert(_events);
+                        break;
+                }
+            }
             return new TcpClientMessageDto.WriteEvents(_stream, _expectedVersion, dtos, _requireMaster);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static TcpClientMessageDto.NewEvent[] Convert(IEnumerable<EventData> events)
+        {
+            var list = new List<TcpClientMessageDto.NewEvent>(16);
+            foreach (var x in events)
+            {
+                list.Add(new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
+            }
+            return list.ToArray();
         }
 
         protected override InspectionResult InspectResponse(TcpClientMessageDto.WriteEventsCompleted response)

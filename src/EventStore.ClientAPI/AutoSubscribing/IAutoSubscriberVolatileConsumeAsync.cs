@@ -7,7 +7,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
     Task ConsumeAsync(EventStoreSubscription subscription, ResolvedEvent<object> resolvedEvent);
   }
 
-  public interface IAutoSubscriberVolatileConsumeAsync<T> where T : class
+  public interface IAutoSubscriberVolatileConsumeAsync<T>
   {
     Task ConsumeAsync(EventStoreSubscription subscription, ResolvedEvent<T> resolvedEvent);
   }

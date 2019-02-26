@@ -4,9 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
-#if NETSTANDARD
-using EventStore.ClientAPI.Core.Internal;
-#endif
 
 namespace EventStore.ClientAPI
 {
@@ -120,12 +117,8 @@ namespace EventStore.ClientAPI
 
                 if (scheme == "tcp")
                 {
-#if DESKTOPCLR
                     var tcpEndPoint = GetSingleNodeIPEndPointFrom(uri);
                     return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
-#else
-                    return new EventStoreNodeConnection(connectionSettings, null, new SingleEndpointDiscoverer(uri, connectionSettings.UseSslConnection), connectionName);
-#endif
                 }
                 throw new Exception($"Unknown scheme for connection '{scheme}'");
             }
@@ -151,7 +144,6 @@ namespace EventStore.ClientAPI
             throw new Exception("Must specify uri or gossip seeds");
         }
 
-#if DESKTOPCLR
         private static IPEndPoint GetSingleNodeIPEndPointFrom(Uri uri)
         {
             // TODO GFY move this all the way back into the connection so it can be done on connect not on create
@@ -167,7 +159,6 @@ namespace EventStore.ClientAPI
             var port = uri.IsDefaultPort ? 2113 : uri.Port;
             return new IPEndPoint(ipaddress, port);
         }
-#endif
 
         private static UserCredentials GetCredentialFromUri(Uri uri)
         {

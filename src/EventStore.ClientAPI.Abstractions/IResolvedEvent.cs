@@ -2,34 +2,34 @@
 
 namespace EventStore.ClientAPI
 {
-  public interface IResolvedEvent<out T> : IResolvedEvent2 where T : class
-  {
-    IRecordedEvent<T> OriginalEvent { get; }
+    public interface IResolvedEvent<out T> : IResolvedEvent2
+    {
+        IRecordedEvent<T> OriginalEvent { get; }
 
-    T Body { get; }
-  }
+        T Body { get; }
+    }
 
-  public interface IResolvedEvent2 : IResolvedEvent
-  {
-    IEventDescriptor OriginalEventDescriptor { get; }
+    public interface IResolvedEvent2 : IResolvedEvent
+    {
+        IEventDescriptor OriginalEventDescriptor { get; }
 
-    IRecordedEvent GetOriginalEvent();
+        IRecordedEvent GetOriginalEvent();
 
-    object GetBody();
-  }
+        object GetBody();
+    }
 
-  public interface IResolvedEvent
-  {
-    bool IsResolved { get; }
+    public interface IResolvedEvent
+    {
+        bool IsResolved { get; }
 
-    Position? OriginalPosition { get; }
+        Position? OriginalPosition { get; }
 
-    string OriginalStreamId { get; }
+        string OriginalStreamId { get; }
 
-    Guid OriginalEventId { get; }
+        Guid OriginalEventId { get; }
 
-    long OriginalEventNumber { get; }
+        long OriginalEventNumber { get; }
 
-    string OriginalEventType { get; }
-  }
+        string OriginalEventType { get; }
+    }
 }

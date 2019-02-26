@@ -1150,7 +1150,6 @@ namespace EventStore.ClientAPI
 
     /// <summary>A catch-up subscription to a single stream in Event Store.</summary>
     public class EventStoreCatchUpSubscription<TEvent> : EventStoreStreamCatchUpSubscriptionBase<EventStoreCatchUpSubscription<TEvent>, StreamEventsSlice<TEvent>, ResolvedEvent<TEvent>>
-      where TEvent : class
     {
         static EventStoreCatchUpSubscription()
         {
@@ -1167,7 +1166,7 @@ namespace EventStore.ClientAPI
                                                Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted,
                                                Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
                                                CatchUpSubscriptionSettings settings)
-          : base(connection, IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic),
+          : base(connection, EventManager.GetStreamId<TEvent>(topic),
               fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
@@ -1183,7 +1182,7 @@ namespace EventStore.ClientAPI
                                                Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted,
                                                Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped,
                                                CatchUpSubscriptionSettings settings)
-          : base(connection, IEventStoreConnectionExtensions.CombineStreamId<TEvent>(topic),
+          : base(connection, EventManager.GetStreamId<TEvent>(topic),
               fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
@@ -1200,7 +1199,7 @@ namespace EventStore.ClientAPI
             bool shouldStopOrDone;
             do
             {
-                var slice = string.IsNullOrWhiteSpace(_topic)
+                var slice = string.IsNullOrEmpty(_topic)
                           ? await _innerConnection.GetStreamEventsForwardAsync<TEvent>(NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false)
                           : await _innerConnection.GetStreamEventsForwardAsync<TEvent>(_topic, NextReadEventNumber, ReadBatchSize, resolveLinkTos, userCredentials).ConfigureAwait(false);
                 shouldStopOrDone = await ReadEventsCallbackAsync(slice, lastEventNumber).ConfigureAwait(false);
@@ -1213,7 +1212,7 @@ namespace EventStore.ClientAPI
             {
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
 
-                var subscription = string.IsNullOrWhiteSpace(_topic)
+                var subscription = string.IsNullOrEmpty(_topic)
                     ? await _innerConnection.VolatileSubscribeAsync<TEvent>(
                             _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
                             eventAppearedAsync: EnqueuePushedEventAsync,

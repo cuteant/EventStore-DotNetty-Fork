@@ -478,17 +478,18 @@ namespace EventStore.Core.Tests.ClientAPI
             throw new NotImplementedException();
         }
 
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, params EventData[] events)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
+        public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
         {
             throw new NotImplementedException();
         }
 
         public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, EventData evt,
+            UserCredentials userCredentials = null)
         {
             throw new NotImplementedException();
         }
