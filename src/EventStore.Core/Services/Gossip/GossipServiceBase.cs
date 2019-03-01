@@ -135,7 +135,7 @@ namespace EventStore.Core.Services.Gossip
 
         private MemberInfo GetNodeToGossipTo(MemberInfo[] members)
         {
-            if (members.Length == 0) { return null; }
+            if (0u >= (uint)members.Length) { return null; }
             for (int i = 0; i < 5; ++i)
             {
                 var node = members[_rnd.Next(members.Length)];

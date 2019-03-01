@@ -32,13 +32,13 @@ namespace EventStore.Core.Bus
 
         public MultiQueuedHandler(params QueuedHandler[] queues) : this(queues, null)
         {
-            if (queues.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
+            if (0u >= (uint)queues.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
         }
 
         public MultiQueuedHandler(IQueuedHandler[] queues, Func<Message, int> queueHash)
         {
             if (null == queues) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queues); }
-            if (queues.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
+            if (0u >= (uint)queues.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
 
             Queues = queues;
             _queueHash = queueHash ?? NextQueueHash;

@@ -192,7 +192,7 @@ namespace EventStore.Core.Services.Replication
 
         private long GetValidLogPosition(long logPosition, Epoch[] epochs, IPEndPoint replicaEndPoint, Guid subscriptionId)
         {
-            if (epochs.Length == 0)
+            if (0u >= (uint)epochs.Length)
             {
                 if (logPosition > 0)
                 {
@@ -591,34 +591,34 @@ namespace EventStore.Core.Services.Replication
             for (int k = slavesCnt; k < desiredSlaveCount; ++k)
             {
                 // find next best clone
-                while (cloneIndex < candidates.Length && candidates[cloneIndex].State != ReplicaState.Clone)
+                while ((uint)cloneIndex < (uint)candidates.Length && candidates[cloneIndex].State != ReplicaState.Clone)
                 {
-                    cloneIndex++;
+                    cloneIndex = cloneIndex + 1;
                 }
 
                 // out of suitable clones - get out of here
-                if (cloneIndex >= candidates.Length) { break; }
+                if ((uint)cloneIndex >= (uint)candidates.Length) { break; }
 
                 // we need more slaves, even if there is lagging slaves
                 var newSlave = candidates[cloneIndex];
                 newSlave.State = ReplicaState.Slave;
                 newSlave.LagOccurences = 0;
                 newSlave.SendMessage(new ReplicationMessage.SlaveAssignment(_instanceId, newSlave.SubscriptionId));
-                cloneIndex++;
+                cloneIndex = cloneIndex + 1;
             }
 
             for (int k = 0; k < laggedSlaves; ++k)
             {
                 // find next best clone
-                while (cloneIndex < candidates.Length && candidates[cloneIndex].State != ReplicaState.Clone)
+                while ((uint)cloneIndex < (uint)candidates.Length && candidates[cloneIndex].State != ReplicaState.Clone)
                 {
-                    cloneIndex++;
+                    cloneIndex = cloneIndex + 1;
                 }
 
                 // find next worst slave
-                while (slaveIndex >= 0 && candidates[slaveIndex].State != ReplicaState.Slave)
+                while ((uint)slaveIndex < (uint)candidates.Length && candidates[slaveIndex].State != ReplicaState.Slave)
                 {
-                    slaveIndex--;
+                    slaveIndex = slaveIndex -1;
                 }
 
                 // no more suitable clones - get out of here
@@ -631,13 +631,13 @@ namespace EventStore.Core.Services.Replication
                 oldSlave.State = ReplicaState.Clone;
                 oldSlave.LagOccurences = 0;
                 oldSlave.SendMessage(new ReplicationMessage.CloneAssignment(_instanceId, oldSlave.SubscriptionId));
-                slaveIndex--;
+                slaveIndex = slaveIndex - 1;
 
                 var newSlave = candidates[cloneIndex];
                 newSlave.State = ReplicaState.Slave;
                 newSlave.LagOccurences = 0;
                 newSlave.SendMessage(new ReplicationMessage.SlaveAssignment(_instanceId, newSlave.SubscriptionId));
-                cloneIndex++;
+                cloneIndex = cloneIndex + 1;
             }
         }
 

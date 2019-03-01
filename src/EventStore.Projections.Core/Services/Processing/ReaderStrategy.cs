@@ -137,11 +137,11 @@ namespace EventStore.Projections.Core.Services.Processing
             _tag = tag;
             _phase = phase;
             _allStreams = allStreams;
-            _categories = categories != null && categories.Length > 0 ? new HashSet<string>(categories, StringComparer.Ordinal) : null;
-            _streams = streams != null && streams.Length > 0 ? new HashSet<string>(streams, StringComparer.Ordinal) : null;
+            _categories = categories != null && 0u < (uint)categories.Length ? new HashSet<string>(categories, StringComparer.Ordinal) : null;
+            _streams = streams != null && 0u < (uint)streams.Length ? new HashSet<string>(streams, StringComparer.Ordinal) : null;
             _allEvents = allEvents;
             _includeLinks = includeLinks;
-            _events = events != null && events.Length > 0 ? new HashSet<string>(events, StringComparer.Ordinal) : null;
+            _events = events != null && 0u < (uint)events.Length ? new HashSet<string>(events, StringComparer.Ordinal) : null;
             _includeStreamDeletedNotification = includeStreamDeletedNotification;
             _catalogStream = catalogStream;
             _processingLag = processingLag.GetValueOrDefault();

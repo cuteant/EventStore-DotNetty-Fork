@@ -139,8 +139,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private bool Equals(string[] a, string[] b)
         {
-            bool aEmpty = (a == null || a.Length == 0);
-            bool bEmpty = (b == null || b.Length == 0);
+            bool aEmpty = (a == null || 0u >= (uint)a.Length);
+            bool bEmpty = (b == null || 0u >= (uint)b.Length);
             if (aEmpty && bEmpty)
                 return true;
             if (aEmpty || bEmpty)

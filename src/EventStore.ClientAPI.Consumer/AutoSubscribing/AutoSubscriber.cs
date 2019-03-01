@@ -653,7 +653,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             {
                 topicsAttr = subscriptionInfo.ConcreteType.FirstAttribute<ForTopicsAttribute>();
             }
-            if (topicsAttr != null && topicsAttr.Topics != null && topicsAttr.Topics.Length > 0)
+            if (topicsAttr != null && topicsAttr.Topics != null && 0u < (uint)topicsAttr.Topics.Length)
             {
                 topics.UnionWith(topicsAttr.Topics);
             }

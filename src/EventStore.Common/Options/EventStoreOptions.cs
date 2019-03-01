@@ -134,7 +134,7 @@ namespace EventStore.Common.Options
                 {
                     valueToDump = String.Empty;
                     var collection = value as Array;
-                    if (collection.Length > 0)
+                    if ((uint)collection.Length > 0u)
                     {
                         valueToDump = "[ " + String.Join(", ", (IEnumerable<object>)value) + " ]";
                     }

@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             _ioDispatcher.ReadForward(_projectionNamesBuilder.GetEmittedStreamsName(), position, 1, false, SystemAccount.Principal, x =>
             {
-                if (x.Events.Length > 0)
+                if ((uint)x.Events.Length > 0u)
                 {
                     for (int i = 0; i < x.Events.Length; i++)
                     {

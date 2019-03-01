@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
         public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
         {
-            var settings = converters == null || converters.Length <= 0
+            var settings = converters == null || 0u >= (uint)converters.Length
                 ? null
                 : new JsonSerializerSettings { Converters = converters };
             return DeserializeObject(value, type, settings);

@@ -50,19 +50,19 @@
         public static bool HasStreams(this IQuerySources sources)
         {
             var streams = sources.Streams;
-            return streams != null && streams.Length > 0;
+            return streams != null && 0u < (uint)streams.Length;
         }
 
         public static bool HasCategories(this IQuerySources sources)
         {
             var categories = sources.Categories;
-            return categories != null && categories.Length > 0;
+            return categories != null && 0u < (uint)categories.Length;
         }
 
         public static bool HasEvents(this IQuerySources sources)
         {
             var events = sources.Events;
-            return events != null && events.Length > 0;
+            return events != null && 0u < (uint)events.Length;
         }
     }
 }

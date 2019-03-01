@@ -25,10 +25,11 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
         private IPrincipal CreatePrincipal(string header)
         {
             var loginAndGroups = header.Split(';');
-            if (loginAndGroups.Length == 0 || loginAndGroups.Length > 2)
+            var size = (uint)loginAndGroups.Length;
+            if (0u >= size || size > 2u)
                 return null;
             var login = loginAndGroups[0];
-            if (loginAndGroups.Length == 2)
+            if (size == 2u)
             {
                 var groups = loginAndGroups[1];
                 var groupsSplit = groups.Split(',');

@@ -234,7 +234,7 @@ namespace EventStore.Core.Helpers
                         {
                             case ReadStreamResult.Success:
                             case ReadStreamResult.NoStream:
-                                if (completed.Events != null && completed.Events.Length > 0)
+                                if (completed.Events != null && (uint)completed.Events.Length > 0u)
                                     WriteEvents(streamId, expectedVersion, events, principal, action);
                                 else
                                     UpdateStreamAcl(

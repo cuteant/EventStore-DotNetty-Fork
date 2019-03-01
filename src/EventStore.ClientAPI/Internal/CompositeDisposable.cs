@@ -218,7 +218,7 @@ namespace EventStore.ClientAPI.Internal
         public void CopyTo(IDisposable[] array, int arrayIndex)
         {
             if (array == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array); }
-            if (arrayIndex < 0 || arrayIndex >= array.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex); }
+            if ((uint)arrayIndex >= (uint)array.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex); }
 
             lock (_gate)
             {

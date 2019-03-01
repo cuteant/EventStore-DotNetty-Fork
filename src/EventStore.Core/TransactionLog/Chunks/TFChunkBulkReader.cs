@@ -62,7 +62,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
             if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
-            if (count > buffer.Length)
+            if ((uint)count > (uint)buffer.Length)
             {
                 count = buffer.Length;
             }
@@ -82,7 +82,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 _stream.Position = ChunkHeader.Size;
             }
 
-            if (count > buffer.Length)
+            if ((uint)count > (uint)buffer.Length)
             {
                 count = buffer.Length;
             }

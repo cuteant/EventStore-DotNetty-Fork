@@ -13,7 +13,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public MultiStreamPositionTagger(int phase, string[] streams): base(phase)
         {
             if (null == streams) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streams); }
-            if (streams.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
+            if (0u >= (uint)streams.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
             _streams = new HashSet<string>(streams, StringComparer.Ordinal);
         }
 

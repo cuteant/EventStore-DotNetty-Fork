@@ -86,7 +86,7 @@ namespace EventStore.Core.Services.Transport.Http
 
                 ICodec requestCodec = null;
                 var supportedRequestCodecs = match.ControllerAction.SupportedRequestCodecs;
-                if (supportedRequestCodecs != null && supportedRequestCodecs.Length > 0)
+                if (supportedRequestCodecs != null && 0u < (uint)supportedRequestCodecs.Length)
                 {
                     requestCodec = SelectRequestCodec(request.HttpMethod, request.ContentType, supportedRequestCodecs);
                     if (requestCodec == null)
@@ -192,7 +192,7 @@ namespace EventStore.Core.Services.Transport.Http
         {
             if (string.IsNullOrEmpty(contentType))
             {
-                return supportedCodecs != null && supportedCodecs.Length > 0 ? null : Codec.NoCodec;
+                return supportedCodecs != null && 0u < (uint)supportedCodecs.Length ? null : Codec.NoCodec;
             }
             #region ## 苦竹 修改 ##
             if (_httpMethods.Contains(method))

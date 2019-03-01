@@ -41,7 +41,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public static CheckpointTag ParseCheckpointTagJson(this byte[] source)
         {
-            if (source == null || source.Length == 0) { return null; }
+            if (source == null || 0u >= (uint)source.Length) { return null; }
             var reader = new JsonTextReader(new StreamReader(new MemoryStream(source)))
             {
                 ArrayPool = JsonConvertX.GlobalCharacterArrayPool
@@ -51,7 +51,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this byte[] source, in ProjectionVersion current)
         {
-            if (source == null || source.Length == 0)
+            if (source == null || 0u >= (uint)source.Length)
             {
                 return new CheckpointTagVersion { Version = new ProjectionVersion(current.ProjectionId, 0, 0), Tag = null };
             }

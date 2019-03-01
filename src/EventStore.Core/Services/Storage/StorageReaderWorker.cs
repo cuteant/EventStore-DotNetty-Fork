@@ -127,7 +127,7 @@ namespace EventStore.Core.Services.Storage
                 switch (res.Result)
                 {
                     case ReadAllResult.Success:
-                        if (msg.LongPollTimeout.HasValue && res.IsEndOfStream && res.Events.Length == 0)
+                        if (msg.LongPollTimeout.HasValue && res.IsEndOfStream && 0u >= (uint)res.Events.Length)
                         {
                             _publisher.Publish(new SubscriptionMessage.PollStream(
                                 SubscriptionsService.AllStreamsSubscriptionId, res.TfLastCommitPosition, null,

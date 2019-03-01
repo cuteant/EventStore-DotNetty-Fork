@@ -252,9 +252,10 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 var records = recordsQuery.Reverse().Select(x => new EventRecord(x.Version, x.Prepare)).ToArray();
 
                 long nextEventNumber = Math.Min(endEventNumber + 1, lastEventNumber + 1);
-                if (records.Length > 0)
+                var lastIdx = records.Length - 1;
+                if ((uint)lastIdx < (uint)records.Length)
                 {
-                    nextEventNumber = records[records.Length - 1].EventNumber + 1;
+                    nextEventNumber = records[lastIdx].EventNumber + 1;
                 }
                 var isEndOfStream = endEventNumber >= lastEventNumber;
                 return new IndexReadStreamResult(endEventNumber, maxCount, records, metadata,
@@ -331,10 +332,11 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 var records = recordsQuery.Select(x => new EventRecord(x.Version, x.Prepare)).ToArray();
 
+                var lastRecordIndex = records.Length - 1;
                 isEndOfStream = isEndOfStream
                                 || startEventNumber == 0
                                 || (startEventNumber <= lastEventNumber
-                                   && (records.Length == 0 || records[records.Length - 1].EventNumber != startEventNumber));
+                                   && ((uint)lastRecordIndex >= (uint)records.Length || records[lastRecordIndex].EventNumber != startEventNumber));
                 long nextEventNumber = isEndOfStream ? -1 : Math.Min(startEventNumber - 1, lastEventNumber);
                 return new IndexReadStreamResult(endEventNumber, maxCount, records, metadata,
                                                  nextEventNumber, lastEventNumber, isEndOfStream);
@@ -563,7 +565,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 ThrowHelper.ThrowException_ReadPrepareInternalCouldNotFindMetaevent(metaEventNumber, metastreamId);
             }
 
-            if (prepare.Data.Length == 0 || prepare.Flags.HasNoneOf(PrepareFlags.IsJson))
+            if (0u >= (uint)prepare.Data.Length || prepare.Flags.HasNoneOf(PrepareFlags.IsJson))
             {
                 return StreamMetadata.Empty;
             }

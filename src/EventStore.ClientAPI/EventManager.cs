@@ -280,7 +280,7 @@ namespace EventStore.ClientAPI
             eventDescriptor = (null == meta) ? NullEventDescriptor.Instance : new DefaultEventDescriptor(meta);
 
             obj = null;
-            if (null == data || data.Length == 0) { return; }
+            if (null == data || 0u >= (uint)data.Length) { return; }
 
             try { obj = _defaultEventAdapter.Adapt(data, meta); }
             catch (Exception exc) { CoreThrowHelper.ThrowEventDataDeserializationException(exc); }

@@ -38,10 +38,11 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
                                 ReadNotificationsFrom(0);
                                 break;
                             case ReadStreamResult.Success:
-                                if (completed.Events.Length == 0)
+                                var completedEvts = completed.Events;
+                                if (0u >= (uint)completedEvts.Length)
                                     ReadNotificationsFrom(0);
                                 else
-                                    ReadNotificationsFrom(completed.Events[0].Event.EventNumber + 1);
+                                    ReadNotificationsFrom(completedEvts[0].Event.EventNumber + 1);
                                 break;
                             default:
                                 throw new Exception(

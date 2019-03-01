@@ -93,7 +93,8 @@ namespace EventStore.Core.Services.UserManagement
             {
                 case ReadStreamResult.Success:
                     if (_results.Any(x => x.LoginName == loginName)) break;
-                    if (result.Events.Length != 1)
+                    var resultEvents = result.Events;
+                    if ((uint)resultEvents.Length != 1u)
                     {
                         AddLoadedUserDetails(loginName, "", new string[] { }, true, null);
                     }
@@ -101,7 +102,7 @@ namespace EventStore.Core.Services.UserManagement
                     {
                         try
                         {
-                            var eventRecord = result.Events[0].Event;
+                            var eventRecord = resultEvents[0].Event;
                             var userData = eventRecord.Data.ParseJson<UserData>();
                             AddLoadedUserDetails(
                                 userData.LoginName, userData.FullName, userData.Groups, userData.Disabled,

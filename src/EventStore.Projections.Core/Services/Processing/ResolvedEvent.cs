@@ -63,7 +63,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_resolvedLinkTo)
             {
                 Dictionary<string, JToken> extraMetadata = null;
-                if (positionEvent.Metadata != null && positionEvent.Metadata.Length > 0)
+                if (positionEvent.Metadata != null && 0u < (uint)positionEvent.Metadata.Length)
                 {
                     //TODO: parse JSON only when unresolved link and just tag otherwise
                     CheckpointTag tag;

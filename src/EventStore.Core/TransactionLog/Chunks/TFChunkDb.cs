@@ -39,7 +39,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             for (int chunkNum = 0; chunkNum < lastChunkNum;)
             {
                 var versions = Config.FileNamingStrategy.GetAllVersionsFor(chunkNum);
-                if (versions.Length == 0)
+                if (0u >= (uint)versions.Length)
                     ThrowHelper.ThrowCorruptDatabaseException_ChunkNotFound(Config, chunkNum);
 
                 var chunkFileName = versions[0];

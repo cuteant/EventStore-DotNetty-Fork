@@ -33,9 +33,10 @@ namespace EventStore.Core.Services.PersistentSubscription
 
             public void LoadStateCompleted(ClientMessage.ReadStreamEventsBackwardCompleted msg)
             {
-                if (msg.Events.Length > 0)
+                var msgEvts = msg.Events;
+                if ((uint)msgEvts.Length > 0u)
                 {
-                    var checkpoint = msg.Events.Where(v => v.Event.EventType == "SubscriptionCheckpoint").Select(x => x.Event).FirstOrDefault();
+                    var checkpoint = msgEvts.Where(v => v.Event.EventType == "SubscriptionCheckpoint").Select(x => x.Event).FirstOrDefault();
                     if (checkpoint != null)
                     {
                         long lastEvent = checkpoint.Data.ParseJson<long>();

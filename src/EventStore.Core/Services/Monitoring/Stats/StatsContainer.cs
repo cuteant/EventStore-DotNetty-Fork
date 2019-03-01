@@ -83,7 +83,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             foreach (var entry in input)
             {
                 var groups = entry.Key.Split(SplitSeparator, StringSplitOptions.RemoveEmptyEntries);
-                if (groups.Length < 2)
+                if (2u > (uint)groups.Length)
                 {
                     groupContainer.Add(entry.Key, entry.Value);
                     continue;

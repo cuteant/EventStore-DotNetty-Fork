@@ -187,9 +187,9 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         public override int Read(byte[] buffer, int offset, int count)
         {
             CheckDisposed();
-            if (offset < 0 || buffer.Length < offset) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
-            if (count < 0 || buffer.Length < count) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
-            if (offset + count > buffer.Length)
+            if ((uint)offset >= (uint)buffer.Length) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.offset);
+            if ((uint)count > (uint)buffer.Length) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count);
+            if ((uint)(offset + count) > (uint)buffer.Length)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.offset_count_must_be_less_than_size_of_array);
             var position = GetLowestAlignment(Position);
             var roffset = (int) (Position - position);

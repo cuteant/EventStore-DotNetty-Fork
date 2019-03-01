@@ -32,7 +32,7 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
         public string DetermineBestVersionFilenameFor(int index)
         {
             var allVersions = GetAllVersionsFor(index);
-            if (allVersions.Length == 0)
+            if (0u >= (uint)allVersions.Length)
                 return GetFilenameFor(index, 0);
             int lastVersion; var firstVersion = allVersions[0];
             if (!int.TryParse(firstVersion.Substring(firstVersion.LastIndexOf('.') + 1), out lastVersion))

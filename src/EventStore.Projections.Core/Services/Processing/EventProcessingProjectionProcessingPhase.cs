@@ -343,7 +343,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _stopwatch.Stop();
             if (eventsEmittedOnInitialization != null)
             {
-                if (emittedEvents == null || emittedEvents.Length == 0)
+                if (emittedEvents == null || 0u >= (uint)emittedEvents.Length)
                     emittedEvents = eventsEmittedOnInitialization;
                 else
                     emittedEvents = eventsEmittedOnInitialization.Concat(emittedEvents).ToArray();
@@ -449,7 +449,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     SetFaulting(faultedReason, ex);
                     emittedEvents = null;
                 }
-                if (emittedEvents != null && emittedEvents.Length > 0)
+                if (emittedEvents != null && (uint)emittedEvents.Length > 0u)
                 {
                     if (!ValidateEmittedEvents(emittedEvents))
                         return;

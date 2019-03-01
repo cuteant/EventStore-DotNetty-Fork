@@ -333,7 +333,7 @@ namespace EventStore.Core.Messages
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
                 if (null == rawBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
-                if (rawBytes.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
+                if (0u >= (uint)rawBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -380,7 +380,7 @@ namespace EventStore.Core.Messages
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
                 if (null == dataBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
-                if (dataBytes.Length < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
+                if (0u >= (uint)dataBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;

@@ -49,7 +49,7 @@ namespace EventStore.Projections.Core.Services.Processing
             int deleteFromPosition = 0;
             if (onReadCompleted.Result == ReadStreamResult.Success)
             {
-                if (onReadCompleted.Events.Length > 0)
+                if ((uint)onReadCompleted.Events.Length > 0u)
                 {
                     var checkpoint = onReadCompleted.Events.Where(v => v.Event.EventType == ProjectionEventTypes.ProjectionCheckpoint).Select(x => x.Event).FirstOrDefault();
                     if (checkpoint != null)
@@ -73,12 +73,12 @@ namespace EventStore.Projections.Core.Services.Processing
             if (onReadCompleted.Result == ReadStreamResult.Success ||
                 onReadCompleted.Result == ReadStreamResult.NoStream)
             {
-                if (onReadCompleted.Events.Length == 0 && !onReadCompleted.IsEndOfStream)
+                if (0u >= (uint)onReadCompleted.Events.Length && !onReadCompleted.IsEndOfStream)
                 {
                     DeleteEmittedStreamsFrom(onReadCompleted.NextEventNumber, onEmittedStreamsDeleted);
                     return;
                 }
-                if (onReadCompleted.Events.Length == 0)
+                if (0u >= (uint)onReadCompleted.Events.Length)
                 {
                     _ioDispatcher.DeleteStream(_emittedStreamsCheckpointStreamId, ExpectedVersion.Any, false, SystemAccount.Principal, x =>
                     {

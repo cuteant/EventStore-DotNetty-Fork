@@ -407,7 +407,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (!_projectionConfig.EmitEventEnabled)
             {
-                if (emittedEvents != null && emittedEvents.Length > 0)
+                if (emittedEvents != null && (uint)emittedEvents.Length > 0u)
                 {
                     SetFaulting("'emit' is not allowed by the projection/configuration/mode");
                     return false;

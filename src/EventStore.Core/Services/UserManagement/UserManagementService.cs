@@ -64,10 +64,11 @@ namespace EventStore.Core.Services.UserManagement
             var userData = CreateUserData(message);
             BeginReadUserDetails(message.LoginName, read =>
             {
-                //if (read.Events.Count() > 0)
-                if (read.Events.Length > 0)
+                var readEvents = read.Events;
+                var lastIdx = readEvents.Length - 1;
+                if ((uint)lastIdx < (uint)readEvents.Length)
                 {
-                    var data = read.Events[read.Events.Length - 1].Event.Data.ParseJson<UserData>();
+                    var data = readEvents[lastIdx].Event.Data.ParseJson<UserData>();
                     if (VerifyPassword(message.Password, data))
                     {
                         ReplyUpdated(message);
@@ -261,12 +262,16 @@ namespace EventStore.Core.Services.UserManagement
                         ReplyNotFound(message);
                         break;
                     case ReadStreamResult.Success:
-                        if (completed.Events.Length == 0)
-                            ReplyNotFound(message);
+                        var completedEvents = completed.Events;
+                        var zeroIndex = 0;
+                        if ((uint)zeroIndex < (uint)completedEvents.Length)
+                        {
+                            var data1 = completedEvents[zeroIndex].Event.Data.ParseJson<UserData>();
+                            action(completed, data1);
+                        }
                         else
                         {
-                            var data1 = completed.Events[0].Event.Data.ParseJson<UserData>();
-                            action(completed, data1);
+                            ReplyNotFound(message);
                         }
                         break;
                     default:

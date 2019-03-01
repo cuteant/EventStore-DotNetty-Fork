@@ -150,7 +150,7 @@ namespace EventStore.ClientAPI
           break;
         case SliceReadStatus.Success:
         default:
-          if (sliceEvents.Length == 0) { readStatus = EventReadStatus.NotFound; }
+          if (0u >= (uint)sliceEvents.Length) { readStatus = EventReadStatus.NotFound; }
           break;
       }
       if (EventReadStatus.Success == readStatus)

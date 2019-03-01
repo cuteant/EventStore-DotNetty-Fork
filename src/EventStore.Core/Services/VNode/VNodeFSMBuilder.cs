@@ -74,7 +74,7 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition InAllStatesExcept(VNodeState[] states)
         {
-            if (states.Length <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.states_Length); }
+            if (0u >= (uint)states.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.states_Length); }
 
             var s = Enum.GetValues(typeof (VNodeState)).Cast<VNodeState>().Except(states).ToArray();
             return new VNodeFSMStatesDefinition(this, s);

@@ -135,7 +135,7 @@ namespace EventStore.Core.Messaging
             {
                 if (Log.IsInformationLevelEnabled())
                 {
-                    if (ex.LoaderExceptions.Length > 0)
+                    if ((uint)ex.LoaderExceptions.Length > 0u)
                     {
                         Log.TheExceptionsOccuredWhenScanningForMessageTypes(ex);
                     }

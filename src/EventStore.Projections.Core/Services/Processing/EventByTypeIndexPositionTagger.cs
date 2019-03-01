@@ -17,7 +17,7 @@ namespace EventStore.Projections.Core.Services.Processing
             : base(phase)
         {
             if (null == eventTypes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventTypes); }
-            if (eventTypes.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventTypes); }
+            if (0u >= (uint)eventTypes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventTypes); }
             _eventTypes = new HashSet<string>(eventTypes, StringComparer.Ordinal);
             if (includeStreamDeletedNotification)
                 _eventTypes.Add("$deleted");

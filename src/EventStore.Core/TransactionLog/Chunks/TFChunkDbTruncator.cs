@@ -24,7 +24,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             var newLastChunkNum = (int)(truncateChk / _config.ChunkSize);
 
             var excessiveChunks = _config.FileNamingStrategy.GetAllVersionsFor(oldLastChunkNum + 1);
-            if (excessiveChunks.Length > 0)
+            if ((uint)excessiveChunks.Length > 0u)
             {
                 ThrowHelper.ThrowException_DuringTruncationOfDBExcessiveTFChunksWereFound(excessiveChunks);
             }
@@ -34,7 +34,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             for (int chunkNum = 0; chunkNum <= newLastChunkNum;)
             {
                 var chunks = _config.FileNamingStrategy.GetAllVersionsFor(chunkNum);
-                if (chunks.Length == 0)
+                if (0u >= (uint)chunks.Length)
                 {
                     if (chunkNum != newLastChunkNum)
                     {

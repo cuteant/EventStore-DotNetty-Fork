@@ -133,7 +133,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                     }
 
-                    if (readResult.IsEndOfStream || readResult.Events.Length == 0)
+                    if (readResult.IsEndOfStream || 0u >= (uint)readResult.Events.Length)
                     {
                         CompleteInterruptedScavenges(incompleteScavenges);
                     }

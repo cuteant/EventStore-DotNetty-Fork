@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI.Internal
             for (int i = 0; i < gossipCandidates.Length; ++i)
             {
                 var gossip = TryGetGossipFrom(gossipCandidates[i]);
-                if (gossip == null || gossip.Members == null || gossip.Members.Length == 0)
+                if (gossip == null || gossip.Members == null || 0u >= (uint)gossip.Members.Length)
                 {
                     continue;
                 }
@@ -107,7 +107,7 @@ namespace EventStore.ClientAPI.Internal
         {
             //_log.Debug("ClusterDnsEndPointDiscoverer: GetGossipCandidatesFromDns");
             GossipSeed[] endpoints;
-            if (_gossipSeeds != null && _gossipSeeds.Length > 0)
+            if (_gossipSeeds != null && 0u < (uint)_gossipSeeds.Length)
             {
                 endpoints = _gossipSeeds;
             }
@@ -131,7 +131,7 @@ namespace EventStore.ClientAPI.Internal
             {
                 CoreThrowHelper.ThrowClusterException(_clusterDns, exc);
             }
-            if (addresses == null || addresses.Length == 0)
+            if (addresses == null || 0u >= (uint)addresses.Length)
             {
                 CoreThrowHelper.ThrowClusterException(_clusterDns);
             }

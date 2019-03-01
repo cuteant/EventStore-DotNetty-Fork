@@ -299,7 +299,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_lastCommittedOrSubmittedEventPosition == null)
             {
                 var parsed = default(CheckpointTagVersion);
-                if (!newPhysicalStream && message.Events.Length > 0)
+                if (!newPhysicalStream && (uint)message.Events.Length > 0u)
                 {
                     parsed = message.Events[0].Event.Metadata.ParseCheckpointTagVersionExtraJson(_projectionVersion);
                     if (parsed.Tag == null)
@@ -589,7 +589,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _submittedToWriteEvents = events.ToArray();
             _submittedToWriteEmittedEvents = emittedEvents.ToArray();
 
-            if (_submittedToWriteEvents.Length > 0)
+            if ((uint)_submittedToWriteEvents.Length > 0u)
                 PublishWriteEvents(MaxRetryCount);
         }
 

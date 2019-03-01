@@ -50,7 +50,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (null == streams) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streams); }
             if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
-            if (streams.Length == 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
+            if (0u >= (uint)streams.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.streams); }
 
             _streams = new HashSet<string>(streams, StringComparer.Ordinal);
             _eofs = new ConcurrentDictionary<string, bool>(_streams.ToDictionary(v => v, v => false), StringComparer.Ordinal);
@@ -145,7 +145,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     CheckEof();
                     break;
                 case ReadStreamResult.Success:
-                    if (message.Events.Length == 0)
+                    if (0u >= (uint)message.Events.Length)
                     {
                         // the end
                         _eofs[message.EventStreamId] = true;

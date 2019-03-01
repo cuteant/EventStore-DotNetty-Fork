@@ -141,7 +141,8 @@ namespace EventStore.Projections.Core.Services.Processing
             EmittedStream stream;
             if (!_emittedStreams.TryGetValue(streamId, out stream))
             {
-                var streamMetadata = emittedEvents.Length > 0 ? emittedEvents[0].StreamMetadata : null;
+                var zeroIndex = 0;
+                var streamMetadata = (uint)zeroIndex <(uint)emittedEvents.Length ? emittedEvents[zeroIndex].StreamMetadata : null;
 
                 var writeQueueId = _maximumAllowedWritesInFlight == AllowedWritesInFlight.Unbounded
                     ? (Guid?)null

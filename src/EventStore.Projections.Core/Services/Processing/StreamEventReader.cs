@@ -94,7 +94,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 case ReadStreamResult.Success:
                     var oldFromSequenceNumber = StartFrom(message, _fromSequenceNumber);
                     _fromSequenceNumber = message.NextEventNumber;
-                    var eof = message.Events.Length == 0;
+                    var eof = 0u >= (uint)message.Events.Length;
                     _eof = eof;
                     var willDispose = eof && _stopOnEof;
 
@@ -143,9 +143,10 @@ namespace EventStore.Projections.Core.Services.Processing
         private long StartFrom(ClientMessage.ReadStreamEventsForwardCompleted message, long fromSequenceNumber)
         {
             if (fromSequenceNumber != 0) return fromSequenceNumber;
-            if(message.Events.Length > 0)
+            var zeroIndex = 0;
+            if((uint)zeroIndex < (uint)message.Events.Length)
             {
-                return message.Events[0].OriginalEventNumber;
+                return message.Events[zeroIndex].OriginalEventNumber;
             }
             return fromSequenceNumber;
         }

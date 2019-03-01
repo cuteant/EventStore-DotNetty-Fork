@@ -28,7 +28,8 @@ namespace EventStore.Core.Services.Transport.Http
 
             SupportedRequestCodecs = requestCodecs;
             SupportedResponseCodecs = responseCodecs;
-            DefaultResponseCodec = responseCodecs.Length > 0 ? responseCodecs[0] : null;
+            var zeroIdx = 0;
+            DefaultResponseCodec = (uint)zeroIdx < (uint)responseCodecs.Length ? responseCodecs[zeroIdx] : null;
         }
 
         public bool Equals(ControllerAction other)

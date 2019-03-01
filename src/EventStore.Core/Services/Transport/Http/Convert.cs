@@ -23,13 +23,15 @@ namespace EventStore.Core.Services.Transport.Http
         {
             if (null == msg) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
 
+            var msgEvents = msg.Events;
             string escapedStreamId = Uri.EscapeDataString(msg.EventStreamId);
             var self = HostName.Combine(requestedUrl, "/streams/{0}", escapedStreamId);
             var feed = new FeedElement();
             feed.SetTitle(string.Format("Event stream '{0}'", msg.EventStreamId));
             feed.StreamId = msg.EventStreamId;
             feed.SetId(self);
-            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event != null ? msg.Events[0].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            var zeroIdx = 0;
+            feed.SetUpdated((uint)zeroIdx < (uint)msgEvents.Length && msgEvents[zeroIdx].Event != null ? msgEvents[zeroIdx].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
             feed.SetHeadOfStream(msg.IsEndOfStream);
 
@@ -43,13 +45,13 @@ namespace EventStore.Core.Services.Transport.Http
                 feed.AddLink("last", HostName.Combine(requestedUrl, "/streams/{0}/{1}/forward/{2}", escapedStreamId, 0, msg.MaxCount));
                 feed.AddLink("next", HostName.Combine(requestedUrl, "/streams/{0}/{1}/backward/{2}", escapedStreamId, nextEventNumber, msg.MaxCount));
             }
-            if (!msg.IsEndOfStream || msg.Events.Length > 0)
+            if (!msg.IsEndOfStream || (uint)msgEvents.Length > 0u)
                 feed.AddLink("previous", HostName.Combine(requestedUrl, "/streams/{0}/{1}/forward/{2}", escapedStreamId, prevEventNumber, msg.MaxCount));
             if (!escapedStreamId.StartsWith("$$", StringComparison.Ordinal))
                 feed.AddLink("metadata", HostName.Combine(requestedUrl, "/streams/{0}/metadata", escapedStreamId));
-            for (int i = msg.Events.Length - 1; i >= 0; --i)
+            for (int i = msgEvents.Length - 1; i >= 0; --i)
             {
-                feed.AddEntry(ToEntry(msg.Events[i], requestedUrl, embedContent));
+                feed.AddEntry(ToEntry(msgEvents[i], requestedUrl, embedContent));
             }
 
             return feed;

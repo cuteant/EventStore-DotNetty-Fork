@@ -67,7 +67,7 @@ namespace EventStore.Common.Utils
 
         public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
         {
-            if (converters == null || converters.Length <= 0)
+            if (converters == null || 0u >= (uint)converters.Length)
             {
                 return DeserializeObject(value, type, settings: null);
             }

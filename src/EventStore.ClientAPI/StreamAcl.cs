@@ -104,8 +104,8 @@ namespace EventStore.ClientAPI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string CheckAndReturnIfSingle(string[] roles)
         {
-            if (roles.Length > 1) { CoreThrowHelper.ThrowArgumentException_UnderlyingStreamACLHasMultipleRoles(); }
-            return roles.Length == 0 ? null : roles[0];
+            if ((uint)roles.Length > 1u) { CoreThrowHelper.ThrowArgumentException_UnderlyingStreamACLHasMultipleRoles(); }
+            return 0u >= (uint)roles.Length ? null : roles[0];
         }
     }
 }

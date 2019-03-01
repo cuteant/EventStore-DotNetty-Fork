@@ -963,7 +963,7 @@ namespace EventStore.ClientAPI.Internal
                 if (t.Exception != null)
                     throw t.Exception.InnerException;
                 var res = t.Result;
-                if (res.StreamMetadata == null || res.StreamMetadata.Length == 0)
+                if (res.StreamMetadata == null || 0u >= (uint)res.StreamMetadata.Length)
                     return new StreamMetadataResult(res.Stream, res.IsStreamDeleted, res.MetastreamVersion, StreamMetadata.Create());
                 var metadata = StreamMetadata.FromJsonBytes(res.StreamMetadata);
                 return new StreamMetadataResult(res.Stream, res.IsStreamDeleted, res.MetastreamVersion, metadata);

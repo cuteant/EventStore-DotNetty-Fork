@@ -265,9 +265,11 @@ namespace EventStore.Core.Services.Storage
             {
                 if (msg.LiveUntil < DateTime.UtcNow) { return; }
 
+                var msgEvents = msg.Events;
+                var eventCount = msgEvents.Length;
                 string streamId = msg.EventStreamId;
                 var commitCheck = _indexWriter.CheckCommit(streamId, msg.ExpectedVersion,
-                    msg.Events.Select(x => x.EventId));
+                    msgEvents.Select(x => x.EventId));
                 if (commitCheck.Decision != CommitDecision.Ok)
                 {
                     ActOnCommitCheckFailure(msg.Envelope, msg.CorrelationId, commitCheck);
@@ -276,15 +278,15 @@ namespace EventStore.Core.Services.Storage
 
                 var prepares = new List<PrepareLogRecord>();
                 var logPosition = Writer.Checkpoint.ReadNonFlushed();
-                if (msg.Events.Length > 0)
+                if (eventCount > 0)
                 {
                     var transactionPosition = logPosition;
-                    for (int i = 0; i < msg.Events.Length; ++i)
+                    for (int i = 0; i < eventCount; ++i)
                     {
-                        var evnt = msg.Events[i];
+                        var evnt = msgEvents[i];
                         var flags = PrepareFlags.Data | PrepareFlags.IsCommitted;
                         if (i == 0) { flags |= PrepareFlags.TransactionBegin; }
-                        if (i == msg.Events.Length - 1) { flags |= PrepareFlags.TransactionEnd; }
+                        if (i == eventCount - 1) { flags |= PrepareFlags.TransactionEnd; }
                         if (evnt.IsJson) { flags |= PrepareFlags.IsJson; }
 
                         // when IsCommitted ExpectedVersion is always explicit
@@ -473,12 +475,14 @@ namespace EventStore.Core.Services.Storage
                 if (!CheckTransactionInfo(message.TransactionId, transactionInfo))
                     return;
 
-                if (message.Events.Length > 0)
+                var msgEvents = message.Events;
+                var eventCount = msgEvents.Length;
+                if (eventCount > 0)
                 {
                     long lastLogPosition = -1;
-                    for (int i = 0; i < message.Events.Length; ++i)
+                    for (int i = 0; i < eventCount; ++i)
                     {
-                        var evnt = message.Events[i];
+                        var evnt = msgEvents[i];
                         var record = LogRecord.TransactionWrite(logPosition,
                             message.CorrelationId,
                             evnt.EventId,
@@ -493,7 +497,7 @@ namespace EventStore.Core.Services.Storage
                         logPosition = res.NewPos;
                         lastLogPosition = res.WrittenPos;
                     }
-                    var info = new TransactionInfo(transactionInfo.TransactionOffset + message.Events.Length,
+                    var info = new TransactionInfo(transactionInfo.TransactionOffset + eventCount,
                         transactionInfo.EventStreamId);
                     _indexWriter.UpdateTransactionInfo(message.TransactionId, lastLogPosition, info);
                 }

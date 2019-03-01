@@ -462,7 +462,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.SystemCoreReady message)
         {
-            if (_subSystems == null || _subSystems.Length == 0)
+            if (_subSystems == null || 0u >= (uint)_subSystems.Length)
             {
                 _outputBus.Publish(new SystemMessage.SystemReady());
             }

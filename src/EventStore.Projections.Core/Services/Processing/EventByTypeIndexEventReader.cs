@@ -289,7 +289,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         break;
                     case ReadStreamResult.Success:
                         _reader.UpdateNextStreamPosition(message.EventStreamId, message.NextEventNumber);
-                        var isEof = message.Events.Length == 0;
+                        var isEof = 0u >= (uint)message.Events.Length;
                         _eofs[message.EventStreamId] = isEof;
                         EnqueueEvents(message);
                         ProcessBuffersAndContinue(eventStreamId: message.EventStreamId);
@@ -402,7 +402,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         ProcessBuffersAndContinue(null);
                         break;
                     case ReadStreamResult.Success:
-                        if (events.Length == 0)
+                        if (0u >= (uint)events.Length)
                         {
                             _indexStreamEof = true;
                             if (_lastKnownIndexCheckpointPosition == null)
@@ -665,7 +665,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 switch (message.Result)
                 {
                     case ReadAllResult.Success:
-                        var eof = message.Events.Length == 0;
+                        var eof = 0u >= (uint)message.Events.Length;
                         _eof = eof;
                         var willDispose = _reader._stopOnEof && eof;
                         _fromTfPosition = message.NextPos;

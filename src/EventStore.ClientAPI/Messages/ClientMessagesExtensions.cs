@@ -58,7 +58,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent[] ToRawResolvedEvents(this TcpClientMessageDto.ResolvedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return Empty.ResolvedEvents;
             }
@@ -75,7 +75,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent[] ToRawResolvedEvents(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return Empty.ResolvedEvents;
             }
@@ -330,7 +330,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<object>[] ToResolvedEvents(this TcpClientMessageDto.ResolvedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<object>>.Instance;
             }
@@ -347,7 +347,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<object>[] ToResolvedEvents(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<object>>.Instance;
             }
@@ -368,7 +368,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static IResolvedEvent2[] ToResolvedEvents2(this TcpClientMessageDto.ResolvedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<IResolvedEvent2>.Instance;
             }
@@ -385,7 +385,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static IResolvedEvent2[] ToResolvedEvents2(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<IResolvedEvent2>.Instance;
             }
@@ -406,7 +406,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<T>>.Instance;
             }
@@ -423,7 +423,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
-            if (events == null || events.Length == 0)
+            if (events == null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<T>>.Instance;
             }

@@ -270,7 +270,7 @@ namespace EventStore.Core.Services
 
         private void ReplicationFail(string message, params object[] args)
         {
-            var msg = args.Length == 0 ? message : string.Format(message, args);
+            var msg = 0u >= (uint)args.Length ? message : string.Format(message, args);
             Log.LogCritical(msg);
             BlockWriter = true;
             Application.Exit(ExitCode.Error, msg);

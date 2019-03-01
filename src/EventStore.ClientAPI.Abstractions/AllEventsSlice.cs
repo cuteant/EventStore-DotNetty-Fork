@@ -16,7 +16,7 @@
     public readonly ResolvedEvent[] Events;
 
     /// <summary>A boolean representing whether or not this is the end of the $all stream.</summary>
-    public bool IsEndOfStream { get { return Events.Length == 0; } }
+    public bool IsEndOfStream { get { return 0u >= (uint)Events.Length; } }
 
     internal AllEventsSlice(ReadDirection readDirection, Position fromPosition, Position nextPosition, ResolvedEvent[] events)
     {

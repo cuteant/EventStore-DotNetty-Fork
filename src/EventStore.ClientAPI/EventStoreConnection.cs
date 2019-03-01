@@ -39,11 +39,11 @@ namespace EventStore.ClientAPI
         {
             var settings = ConnectionString.GetConnectionSettings(connectionString, builder);
             var uri = GetUriFromConnectionString(connectionString);
-            if (uri == null && (settings.GossipSeeds == null || settings.GossipSeeds.Length == 0))
+            if (uri == null && (settings.GossipSeeds == null || 0u >= (uint)settings.GossipSeeds.Length))
             {
                 throw new Exception($"Did not find ConnectTo or GossipSeeds in the connection string.\n'{connectionString}'");
             }
-            if (uri != null && settings.GossipSeeds != null && settings.GossipSeeds.Length > 0)
+            if (uri != null && settings.GossipSeeds != null && (uint)settings.GossipSeeds.Length > 0u)
             {
                 throw new NotSupportedException($"Setting ConnectTo as well as GossipSeeds on the connection string is currently not supported.\n{connectionString}");
             }
@@ -56,7 +56,7 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, string connectionName = null)
         {
-            if (connectionSettings.GossipSeeds == null || connectionSettings.GossipSeeds.Length == 0)
+            if (connectionSettings.GossipSeeds == null || 0u >= (uint)connectionSettings.GossipSeeds.Length)
             {
                 throw new ArgumentException("No gossip seeds specified", nameof(connectionSettings));
             }
@@ -122,7 +122,7 @@ namespace EventStore.ClientAPI
                 }
                 throw new Exception($"Unknown scheme for connection '{scheme}'");
             }
-            if (connectionSettings.GossipSeeds != null && connectionSettings.GossipSeeds.Length > 0)
+            if (connectionSettings.GossipSeeds != null && (uint)connectionSettings.GossipSeeds.Length > 0u)
             {
                 var clusterSettings = new ClusterSettings(connectionSettings.GossipSeeds,
                     connectionSettings.MaxDiscoverAttempts,
@@ -151,7 +151,7 @@ namespace EventStore.ClientAPI
             if (!IPAddress.TryParse(uri.Host, out ipaddress))
             {
                 var entries = Dns.GetHostAddresses(uri.Host);
-                if (entries.Length == 0) { throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'"); }
+                if (0u >= (uint)entries.Length) { throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'"); }
                 //pick an IPv4 address, if one exists
                 ipaddress = entries.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
                 if (ipaddress == null) { throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'"); }

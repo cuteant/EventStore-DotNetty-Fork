@@ -239,7 +239,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 case ReadStreamResult.Success:
                     var oldFromSequenceNumber = _fromSequenceNumber;
                     _fromSequenceNumber = message.NextEventNumber;
-                    var eof = message.Events.Length == 0;
+                    var eof = 0u >= (uint)message.Events.Length;
                     var willDispose = eof && _stopOnEof;
 
                     if (eof)

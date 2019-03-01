@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public GossipSeedClusterSettingsBuilder SetGossipSeedEndPoints(params IPEndPoint[] gossipSeeds)
         {
-            if (gossipSeeds == null || gossipSeeds.Length == 0)
+            if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
             {
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public GossipSeedClusterSettingsBuilder SetGossipSeedEndPoints(params GossipSeed[] gossipSeeds)
         {
-            if (gossipSeeds == null || gossipSeeds.Length == 0)
+            if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
             {
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
