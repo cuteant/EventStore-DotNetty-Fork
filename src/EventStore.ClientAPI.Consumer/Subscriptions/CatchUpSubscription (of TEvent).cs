@@ -5,5 +5,8 @@ namespace EventStore.ClientAPI.Subscriptions
     public class CatchUpSubscription<TEvent> : Subscription<CatchUpSubscription<TEvent>, CatchUpSubscriptionSettings, TEvent>
     {
         public CatchUpSubscription() : base(default(string)) { }
+
+        /// <summary>Only for CatchUpConsumer</summary>
+        public long? LastCheckpoint { get; set; }
     }
 }

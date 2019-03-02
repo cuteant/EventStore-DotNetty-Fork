@@ -18,7 +18,7 @@ namespace EventStore.ClientAPI.Tests
             streamId = EventManager.GetStreamId<Dog1>();
             Assert.Equal("test-animal1", streamId);
 
-            streamId = EventManager.GetStreamId<Dog>(typeof(IAnimal));
+            streamId = EventManager.GetStreamId<IAnimal>();
             Assert.Equal("test-animal", streamId);
         }
 
@@ -34,15 +34,16 @@ namespace EventStore.ClientAPI.Tests
                 { "FullName", "Genghis Khan" }
             };
 
-            var eventData = EventManager.ToEventData(cat, context.ToEventMetadata());
+            IEventAdapter eventAdapter = DefaultEventAdapter.Instance;
+            var eventData = eventAdapter.Adapt(cat, eventAdapter.ToEventMetadata(context));
             Assert.Equal("cat1", eventData.Type);
             Assert.True(eventData.IsJson);
-            var metadata = EventManager.ToEventMetadata(eventData.Metadata);
+            var metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
             Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
             Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
             Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
             Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());
-            var catEvent = EventManager.FromEventData<Cat1>(eventData);
+            var catEvent = eventAdapter.FromEventData<Cat1>(eventData);
             Assert.Equal(cat.Name, catEvent.Value.Name);
             Assert.Equal(cat.Meow, catEvent.Value.Meow);
             Assert.Equal((CombGuid)context["Id"], catEvent.Descriptor.GetValue<CombGuid>("Id"));
@@ -66,15 +67,16 @@ namespace EventStore.ClientAPI.Tests
                 { "FullName", "Genghis Khan" }
             };
 
-            var eventData = EventManager.ToEventData(cat, context.ToEventMetadata());
+            IEventAdapter eventAdapter = DefaultEventAdapter.Instance;
+            var eventData = eventAdapter.Adapt(cat, eventAdapter.ToEventMetadata(context));
             Assert.Equal("cat", eventData.Type);
             Assert.True(eventData.IsJson);
-            var metadata = EventManager.ToEventMetadata(eventData.Metadata);
+            var metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
             Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
             Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
             Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
             Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());
-            var catEvent = EventManager.FromEventData<Cat>(eventData);
+            var catEvent = eventAdapter.FromEventData<Cat>(eventData);
             Assert.Equal(cat.Name, catEvent.Value.Name);
             Assert.Equal(cat.Meow, catEvent.Value.Meow);
             Assert.Equal((CombGuid)context["Id"], catEvent.Descriptor.GetValue<CombGuid>("Id"));
@@ -83,70 +85,30 @@ namespace EventStore.ClientAPI.Tests
             Assert.Equal((int)context["age"], catEvent.Descriptor.GetValue<int>("Age"));
             Assert.Equal((string)context["FullName"], catEvent.Descriptor.GetValue<string>("FullName"));
 
-            eventData = EventManager.ToEventData(cat);
+            eventData = eventAdapter.Adapt(cat, null);
             Assert.Equal("cat", eventData.Type);
             Assert.True(eventData.IsJson);
-            metadata = EventManager.ToEventMetadata(eventData.Metadata);
-            catEvent = EventManager.FromEventData<Cat>(eventData);
+            metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
+            catEvent = eventAdapter.FromEventData<Cat>(eventData);
             Assert.Equal(cat.Name, catEvent.Value.Name);
             Assert.Equal(cat.Meow, catEvent.Value.Meow);
 
 
-            eventData = EventManager.ToEventData(dog);
+            eventData = eventAdapter.Adapt(dog, null);
             Assert.Equal("dog", eventData.Type);
             Assert.True(eventData.IsJson);
-            metadata = EventManager.ToEventMetadata(eventData.Metadata);
-            var dogEvent = EventManager.FromEventData<Dog>(eventData);
+            metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
+            var dogEvent = eventAdapter.FromEventData<Dog>(eventData);
             Assert.Equal(dog.Name, dogEvent.Value.Name);
             Assert.Equal(dog.Bark, dogEvent.Value.Bark);
 
-            eventData = EventManager.ToEventData(dog);
+            eventData = eventAdapter.Adapt(dog, null);
             Assert.Equal("dog", eventData.Type);
             Assert.True(eventData.IsJson);
-            metadata = EventManager.ToEventMetadata(eventData.Metadata);
-            dogEvent = EventManager.FromEventData<Dog>(eventData);
+            metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
+            dogEvent = eventAdapter.FromEventData<Dog>(eventData);
             Assert.Equal(dog.Name, dogEvent.Value.Name);
             Assert.Equal(dog.Bark, dogEvent.Value.Bark);
-        }
-
-        [Fact]
-        public void SerializeEvents_SingleType_SingleContext()
-        {
-            var events = new List<TestMessage>
-            {
-                new TestMessage { Id = 10L, Text = "One testing......" },
-                new TestMessage { Id = 11L, Text = "Two testing......" }
-            };
-            var context = new Dictionary<string, object> { { "Id", CombGuid.NewComb() } };
-            var eventDatas = EventManager.ToEventDatas(events, context);
-            var fullEvents = eventDatas.Select(_ => EventManager.FromEventData<TestMessage>(_)).ToArray();
-
-            Assert.Equal(10L, fullEvents[0].Value.Id);
-            Assert.Equal("One testing......", fullEvents[0].Value.Text);
-            Assert.Equal(context["Id"], fullEvents[0].Descriptor.GetValue<CombGuid>("Id"));
-
-            Assert.Equal(11L, fullEvents[1].Value.Id);
-            Assert.Equal("Two testing......", fullEvents[1].Value.Text);
-            Assert.Equal(context["Id"], fullEvents[1].Descriptor.GetValue<CombGuid>("Id"));
-        }
-
-        [Fact]
-        public void SerializeEvents_MultiType_SingleContext()
-        {
-            var events = new List<object>
-            {
-                new StartMessage { Text = "string......" },
-                new EndMessage { Text = "ending......" }
-            };
-            var context = new Dictionary<string, object> { { "Id", CombGuid.NewComb() } };
-            var eventDatas = EventManager.ToEventDatas(events, context);
-            var fullEvents = eventDatas.Select(_ => EventManager.FromEventData(_)).ToArray();
-
-            Assert.Equal("string......", ((StartMessage)fullEvents[0].Value).Text);
-            Assert.Equal(context["Id"], fullEvents[0].Descriptor.GetValue<CombGuid>("Id"));
-
-            Assert.Equal("ending......", ((EndMessage)fullEvents[1].Value).Text);
-            Assert.Equal(context["Id"], fullEvents[1].Descriptor.GetValue<CombGuid>("Id"));
         }
 
         [Fact]
@@ -162,8 +124,9 @@ namespace EventStore.ClientAPI.Tests
                 new Dictionary<string, object> { { "Id", CombGuid.NewComb() } },
                 new Dictionary<string, object> { { "Id1", Guid.NewGuid() } }
             };
-            var eventDatas = EventManager.ToEventDatas(events, contexts);
-            var fullEvents = eventDatas.Select(_ => EventManager.FromEventData<TestMessage>(_)).ToArray();
+            IEventAdapter eventAdapter = DefaultEventAdapter.Instance;
+            var eventDatas = EventManager.ToEventDatas(eventAdapter, events, contexts);
+            var fullEvents = eventDatas.Select(_ => eventAdapter.FromEventData<TestMessage>(_)).ToArray();
 
             Assert.Equal(10L, fullEvents[0].Value.Id);
             Assert.Equal("One testing......", fullEvents[0].Value.Text);
@@ -187,8 +150,9 @@ namespace EventStore.ClientAPI.Tests
                 new Dictionary<string, object> { { "Id", CombGuid.NewComb() } },
                 new Dictionary<string, object> { { "Id1", Guid.NewGuid() } }
             };
-            var eventDatas = EventManager.ToEventDatas(events, contexts);
-            var fullEvents = eventDatas.Select(_ => EventManager.FromEventData(_)).ToArray();
+            IEventAdapter eventAdapter = DefaultEventAdapter.Instance;
+            var eventDatas = EventManager.ToEventDatas(eventAdapter, events, contexts);
+            var fullEvents = eventDatas.Select(_ => eventAdapter.FromEventData(_)).ToArray();
 
             Assert.Equal("string......", ((StartMessage)fullEvents[0].Value).Text);
             Assert.Equal(contexts[0]["Id"], fullEvents[0].Descriptor.GetValue<CombGuid>("Id"));

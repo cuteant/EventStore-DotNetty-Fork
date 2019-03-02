@@ -7,5 +7,7 @@
           : base(subscriptionId)
         {
         }
+
+        public PersistentSubscriptionSettings PersistentSettings { get; set; }
     }
 }

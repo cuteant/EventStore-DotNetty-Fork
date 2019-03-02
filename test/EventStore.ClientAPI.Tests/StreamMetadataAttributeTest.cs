@@ -10,8 +10,8 @@ namespace EventStore.ClientAPI.Tests
     {
       var metaAttr = new StreamMetadataAttribute()
       {
-        MaxCount = 1000,
-        MaxAge = TimeSpan.FromMinutes(60),
+        MaxCount = "1000",
+        MaxAge = "60m",
         CustomMetadata = "name=seabiscuit,age=18;city=shenzhen,isdel=true;id="
       };
 

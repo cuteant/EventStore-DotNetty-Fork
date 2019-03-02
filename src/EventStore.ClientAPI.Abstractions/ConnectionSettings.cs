@@ -92,6 +92,9 @@ namespace EventStore.ClientAPI
         /// <summary>The interval after which a client will time out during connection.</summary>
         public readonly TimeSpan ClientConnectionTimeout;
 
+        /// <summary>EventAdapter</summary>
+        public readonly IEventAdapter EventAdapter;
+
         /// <summary>ThrowOnNoMatchingHandler</summary>
         public readonly bool ThrowOnNoMatchingHandler;
 
@@ -103,9 +106,9 @@ namespace EventStore.ClientAPI
 
         public readonly int? WriteBufferLowWaterMark;
 
-        public readonly int SendBufferSize;
+        public readonly int? SendBufferSize;
 
-        public readonly int ReceiveBufferSize;
+        public readonly int? ReceiveBufferSize;
 
         public readonly int SocketWorkerPoolSizeMin;
 
@@ -138,13 +141,14 @@ namespace EventStore.ClientAPI
             int externalGossipPort,
             TimeSpan gossipTimeout,
             NodePreference nodePreference,
+            IEventAdapter eventAdapter,
             bool throwOnNoMatchingHandler,
             bool enableLibuv,
             bool enableBufferPooling,
             int? writeBufferHighWaterMark,
             int? writeBufferLowWaterMark,
-            int sendBufferSize,
-            int receiveBufferSize,
+            int? sendBufferSize,
+            int? receiveBufferSize,
             int socketWorkerPoolSizeMin,
             double socketWorkerPoolSizeFactor,
             int socketWorkerPoolSizeMax)
@@ -186,6 +190,8 @@ namespace EventStore.ClientAPI
             ExternalGossipPort = externalGossipPort;
             GossipTimeout = gossipTimeout;
             NodePreference = nodePreference;
+
+            EventAdapter = eventAdapter;
 
             ThrowOnNoMatchingHandler = throwOnNoMatchingHandler;
 

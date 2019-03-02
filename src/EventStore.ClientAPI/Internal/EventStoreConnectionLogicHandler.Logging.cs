@@ -134,7 +134,7 @@ namespace EventStore.ClientAPI.Internal
         private void LogStartSubscription(ISubscriptionOperation operation, int maxRetries, TimeSpan timeout)
         {
             s_logger.LogDebug("EventStoreConnection '{connectionName}': StartSubscription {action} {typeName}, {op}, {maxRetries}, {timeout}.",
-                _esConnection.ConnectionName, operation.GetType().Name, operation, maxRetries, timeout, _state == ConnectionState.Connected ? "fire" : "enqueue");
+                _esConnection.ConnectionName, operation.GetType().Name, operation, maxRetries, timeout, _state == InternalConnectionState.Connected ? "fire" : "enqueue");
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

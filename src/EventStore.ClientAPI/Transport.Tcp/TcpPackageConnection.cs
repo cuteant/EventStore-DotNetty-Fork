@@ -8,6 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI.Transport.Tcp
 {
+    internal interface IHasTcpPackageConnection
+    {
+        TcpPackageConnection Connection { get; }
+    }
+
     internal class TcpPackageConnection : DotNettyClientTransport, ITcpPackageListener
     {
         public bool IsClosed { get { return _connection != null ? _connection.IsClosed : true; } }
@@ -39,7 +44,7 @@ namespace EventStore.ClientAPI.Transport.Tcp
             _remoteEndPoint = remoteEndPoint;
             _connEventHandler = connEventHandler;
 
-            ConnectionId = Guid.Empty;
+            ConnectionId = Guid.NewGuid();
         }
 
         public async Task ConnectAsync()
@@ -48,8 +53,6 @@ namespace EventStore.ClientAPI.Transport.Tcp
             {
                 var conn = await ConnectAsync(_remoteEndPoint).ConfigureAwait(false);
                 conn.ReadHandlerSource.TrySetResult(this);
-
-                ConnectionId = conn.ConnectionId;
 
                 conn.ConnectionClosed += OnConnectionClosed;
 

@@ -39,6 +39,8 @@ namespace EventStore.ClientAPI
         private NodePreference _nodePreference = NodePreference.Master;
         private bool _throwOnNoMatchingHandler;
 
+        private IEventAdapter _eventAdapter;
+
         internal ConnectionSettingsBuilder() { }
 
         /// <summary>ThrowOnNoMatchingHandler</summary>
@@ -347,6 +349,13 @@ namespace EventStore.ClientAPI
             return this;
         }
 
+        public ConnectionSettingsBuilder SetEventAdapter(IEventAdapter eventAdapter)
+        {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
+            return this;
+        }
+
         private bool _enableLibuv = true;
         public ConnectionSettingsBuilder DisableLibuv()
         {
@@ -375,14 +384,14 @@ namespace EventStore.ClientAPI
             return this;
         }
 
-        private int _sendBufferSize = 256 * 1024 * 1024;
+        private int? _sendBufferSize;
         public ConnectionSettingsBuilder SetSendBufferSize(int sendBufferSize)
         {
             if (sendBufferSize >= 1024) { _sendBufferSize = sendBufferSize; }
             return this;
         }
 
-        private int _receiveBufferSize = 256 * 1024 * 1024;
+        private int? _receiveBufferSize;
         public ConnectionSettingsBuilder SetReceiveBufferSize(int receiveBufferSize)
         {
             if (receiveBufferSize >= 1024) { _receiveBufferSize = receiveBufferSize; }
@@ -447,6 +456,7 @@ namespace EventStore.ClientAPI
                                           _gossipExternalHttpPort,
                                           _gossipTimeout,
                                           _nodePreference,
+                                          _eventAdapter,
                                           _throwOnNoMatchingHandler,
                                           _enableLibuv,
                                           _enableBufferPooling,

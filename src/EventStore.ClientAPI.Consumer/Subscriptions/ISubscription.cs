@@ -10,7 +10,6 @@ namespace EventStore.ClientAPI.Subscriptions
         string Topic { get; set; }
 
         StreamMetadata StreamMeta { get; }
-        PersistentSubscriptionSettings PersistentSettings { get; }
 
         RetryPolicy RetryPolicy { get; set; }
 

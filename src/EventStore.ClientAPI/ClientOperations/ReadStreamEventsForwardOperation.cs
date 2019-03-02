@@ -7,11 +7,15 @@ namespace EventStore.ClientAPI.ClientOperations
 {
     internal class ReadStreamEventsForwardOperation : ReadStreamEventsForwardOperationBase<StreamEventsSlice<object>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice<object>> source,
                                                 string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                bool requireMaster, UserCredentials userCredentials)
+                                                bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override StreamEventsSlice<object> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
@@ -20,7 +24,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                  _stream,
                                                  _fromEventNumber,
                                                  ReadDirection.Forward,
-                                                 response.Events.ToResolvedEvents(),
+                                                 response.Events.ToResolvedEvents(_eventAdapter),
                                                  response.NextEventNumber,
                                                  response.LastEventNumber,
                                                  response.IsEndOfStream);
@@ -28,11 +32,15 @@ namespace EventStore.ClientAPI.ClientOperations
     }
     internal class ReadStreamEventsForwardOperation2 : ReadStreamEventsForwardOperationBase<StreamEventsSlice2>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadStreamEventsForwardOperation2(TaskCompletionSource<StreamEventsSlice2> source,
                                                  string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                 bool requireMaster, UserCredentials userCredentials)
+                                                 bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override StreamEventsSlice2 TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
@@ -41,7 +49,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                  _stream,
                                                  _fromEventNumber,
                                                  ReadDirection.Forward,
-                                                 response.Events.ToResolvedEvents2(),
+                                                 response.Events.ToResolvedEvents2(_eventAdapter),
                                                  response.NextEventNumber,
                                                  response.LastEventNumber,
                                                  response.IsEndOfStream);
@@ -49,11 +57,15 @@ namespace EventStore.ClientAPI.ClientOperations
     }
     internal class ReadStreamEventsForwardOperation<T> : ReadStreamEventsForwardOperationBase<StreamEventsSlice<T>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadStreamEventsForwardOperation(TaskCompletionSource<StreamEventsSlice<T>> source,
                                                 string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                bool requireMaster, UserCredentials userCredentials)
+                                                bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override StreamEventsSlice<T> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
@@ -62,7 +74,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                            _stream,
                                            _fromEventNumber,
                                            ReadDirection.Forward,
-                                           response.Events.ToResolvedEvents<T>(),
+                                           response.Events.ToResolvedEvents<T>(_eventAdapter),
                                            response.NextEventNumber,
                                            response.LastEventNumber,
                                            response.IsEndOfStream);

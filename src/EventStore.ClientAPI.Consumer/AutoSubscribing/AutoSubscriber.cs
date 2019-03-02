@@ -506,6 +506,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
                 Topic = topic,
 
                 Settings = GetCustomAttribute<ConnectToCatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
+                LastCheckpoint = GetCustomAttribute<CatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod)?.LastCheckpoint,
                 StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
                 RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),
@@ -904,6 +905,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
                     Topic = topic,
 
                     Settings = GetCustomAttribute<ConnectToCatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod).ToSettings(),
+                    LastCheckpoint = GetCustomAttribute<CatchUpSubscriptionConfigurationAttribute>(consumerInfo, consumeMethod)?.LastCheckpoint,
                     StreamMeta = GetCustomAttribute<StreamMetadataAttribute>(consumerInfo, consumeMethod).ToStreamMetadata(),
 
                     RetryPolicy = GetCustomAttribute<AutoSubscriberRetryPolicyAttribute>(consumerInfo, consumeMethod).ToRetryPolicy(),

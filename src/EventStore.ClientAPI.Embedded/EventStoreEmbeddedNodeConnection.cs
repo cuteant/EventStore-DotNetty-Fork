@@ -103,6 +103,10 @@ namespace EventStore.ClientAPI.Embedded
 
         public ConnectionSettings Settings => _settings;
 
+        public ConnectionState ConnectionState => throw new NotSupportedException();
+
+        public ConnectingPhase ConnectingPhase => throw new NotSupportedException();
+
         public Task ConnectAsync()
         {
             var source = TaskCompletionSourceFactory.Create<object>();

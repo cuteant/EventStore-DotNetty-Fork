@@ -84,19 +84,19 @@ namespace EventStore.ClientAPI
                         connectionSettings.MaxRetries, connectionSettings.MaxReconnections,
                         connectionSettings.RequireMaster, connectionSettings.ReconnectionDelay,
                         connectionSettings.QueueTimeout, connectionSettings.OperationTimeout,
-                        connectionSettings.OperationTimeoutCheckPeriod, credential, connectionSettings.UseSslConnection,
-                        connectionSettings.TargetHost,
+                        connectionSettings.OperationTimeoutCheckPeriod, credential,
+                        connectionSettings.UseSslConnection, connectionSettings.TargetHost,
                         connectionSettings.ValidateServer, connectionSettings.FailOnNoServerResponse,
                         connectionSettings.HeartbeatInterval, connectionSettings.HeartbeatTimeout,
                         connectionSettings.ClientConnectionTimeout, connectionSettings.ClusterDns,
                         connectionSettings.GossipSeeds, connectionSettings.MaxDiscoverAttempts,
                         connectionSettings.ExternalGossipPort, connectionSettings.GossipTimeout,
-                        connectionSettings.NodePreference, connectionSettings.ThrowOnNoMatchingHandler,
-                        connectionSettings.EnableLibuv, connectionSettings.EnableBufferPooling,
-                        connectionSettings.WriteBufferHighWaterMark, connectionSettings.WriteBufferLowWaterMark,
-                        connectionSettings.SendBufferSize, connectionSettings.ReceiveBufferSize,
-                        connectionSettings.SocketWorkerPoolSizeMin, connectionSettings.SocketWorkerPoolSizeFactor,
-                        connectionSettings.SocketWorkerPoolSizeMax);
+                        connectionSettings.NodePreference, connectionSettings.EventAdapter,
+                        connectionSettings.ThrowOnNoMatchingHandler, connectionSettings.EnableLibuv,
+                        connectionSettings.EnableBufferPooling, connectionSettings.WriteBufferHighWaterMark,
+                        connectionSettings.WriteBufferLowWaterMark, connectionSettings.SendBufferSize,
+                        connectionSettings.ReceiveBufferSize, connectionSettings.SocketWorkerPoolSizeMin,
+                        connectionSettings.SocketWorkerPoolSizeFactor, connectionSettings.SocketWorkerPoolSizeMax);
                 }
                 if (scheme == "discover")
                 {

@@ -7,11 +7,15 @@ namespace EventStore.ClientAPI.ClientOperations
 {
     internal class ReadStreamEventsBackwardOperation : ReadStreamEventsBackwardOperationBase<StreamEventsSlice<object>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadStreamEventsBackwardOperation(TaskCompletionSource<StreamEventsSlice<object>> source,
                                                       string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                      bool requireMaster, UserCredentials userCredentials)
+                                                      bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override StreamEventsSlice<object> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
@@ -20,7 +24,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                  _stream,
                                                  _fromEventNumber,
                                                  ReadDirection.Backward,
-                                                 response.Events.ToResolvedEvents(),
+                                                 response.Events.ToResolvedEvents(_eventAdapter),
                                                  response.NextEventNumber,
                                                  response.LastEventNumber,
                                                  response.IsEndOfStream);
@@ -29,11 +33,15 @@ namespace EventStore.ClientAPI.ClientOperations
 
     internal class ReadStreamEventsBackwardOperation<T> : ReadStreamEventsBackwardOperationBase<StreamEventsSlice<T>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadStreamEventsBackwardOperation(TaskCompletionSource<StreamEventsSlice<T>> source,
                                                       string stream, long fromEventNumber, int maxCount, bool resolveLinkTos,
-                                                      bool requireMaster, UserCredentials userCredentials)
+                                                      bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override StreamEventsSlice<T> TransformResponse(TcpClientMessageDto.ReadStreamEventsCompleted response)
@@ -42,7 +50,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                             _stream,
                                             _fromEventNumber,
                                             ReadDirection.Backward,
-                                            response.Events.ToResolvedEvents<T>(),
+                                            response.Events.ToResolvedEvents<T>(_eventAdapter),
                                             response.NextEventNumber,
                                             response.LastEventNumber,
                                             response.IsEndOfStream);

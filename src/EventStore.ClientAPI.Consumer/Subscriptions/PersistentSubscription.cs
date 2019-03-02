@@ -8,5 +8,7 @@ namespace EventStore.ClientAPI.Subscriptions
             : base(streamId, subscriptionId)
         {
         }
+
+        public PersistentSubscriptionSettings PersistentSettings { get; set; }
     }
 }

@@ -15,6 +15,7 @@ using ClientMessage = EventStore.Transport.Tcp.Messages.TcpClientMessageDto;
 using ResolvedEvent = EventStore.ClientAPI.ResolvedEvent;
 using StreamMetadata = EventStore.ClientAPI.StreamMetadata;
 using SystemSettings = EventStore.ClientAPI.SystemSettings;
+using EventStore.ClientAPI.Transport.Tcp;
 
 namespace EventStore.Core.Tests.ClientAPI
 {
@@ -307,7 +308,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 }
                 else if (callCount == 2)
                 {
-                    var result = Task.FromResult(CreateStreamEventsSlice(fromEvent:1, isEnd: true));
+                    var result = Task.FromResult(CreateStreamEventsSlice(fromEvent: 1, isEnd: true));
                     Assert.That(finalEvent.Wait(TimeoutMs));
                     return result;
                 }
@@ -381,7 +382,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 var taskCompletionSource = new TaskCompletionSource<StreamEventsSlice>(TaskCreationOptions.RunContinuationsAsynchronously);
                 if (callCount == 1)
                 {
-                    taskCompletionSource.SetResult(CreateStreamEventsSlice(fromEvent: 0, count:0, isEnd: true));
+                    taskCompletionSource.SetResult(CreateStreamEventsSlice(fromEvent: 0, count: 0, isEnd: true));
                 }
                 else if (callCount == 2)
                 {
@@ -396,11 +397,11 @@ namespace EventStore.Core.Tests.ClientAPI
 
             _connection.HandleSubscribeToStreamAsync((stream, raise, drop) =>
             {
-            var taskCompletionSource = new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
-            VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
-            taskCompletionSource.SetResult(volatileEventStoreSubscription);
+                var taskCompletionSource = new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously);
+                VolatileEventStoreSubscription volatileEventStoreSubscription2 = CreateVolatileSubscription(raise, drop, null);
+                taskCompletionSource.SetResult(volatileEventStoreSubscription);
 
-            raise(volatileEventStoreSubscription2, event1.ToRawResolvedEvent());// new ResolvedEvent(event1));
+                raise(volatileEventStoreSubscription2, event1.ToRawResolvedEvent());// new ResolvedEvent(event1));
 
                 return taskCompletionSource.Task;
             });
@@ -424,9 +425,14 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.That(reconnectTask.Wait(TimeoutMs));
         }
 
+        sealed class NullConn : EventStore.ClientAPI.Transport.Tcp.IHasTcpPackageConnection
+        {
+            public TcpPackageConnection Connection => null;
+        }
+
         private static VolatileEventStoreSubscription CreateVolatileSubscription(Func<EventStoreSubscription, ResolvedEvent, Task> raise, Action<EventStoreSubscription, SubscriptionDropReason, Exception> drop, int? lastEventNumber)
         {
-            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously), StreamId, SubscriptionSettings.Default, null, raise, drop, () => null), StreamId, -1, lastEventNumber);
+            return new VolatileEventStoreSubscription(new VolatileSubscriptionOperation(new TaskCompletionSource<EventStoreSubscription>(TaskCreationOptions.RunContinuationsAsynchronously), StreamId, SubscriptionSettings.Default, null, raise, drop, new NullConn()), StreamId, -1, lastEventNumber);
         }
 
         private static StreamEventsSlice CreateStreamEventsSlice(int fromEvent = 0, int count = 1, bool isEnd = false)
@@ -454,6 +460,10 @@ namespace EventStore.Core.Tests.ClientAPI
         {
             throw new NotImplementedException();
         }
+
+        public ConnectionState ConnectionState => throw new NotSupportedException();
+
+        public ConnectingPhase ConnectingPhase => throw new NotSupportedException();
 
         public string ConnectionName { get; }
         public ConnectionSettings Settings { get { return null; } }

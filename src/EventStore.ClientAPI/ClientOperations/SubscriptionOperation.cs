@@ -21,24 +21,26 @@ namespace EventStore.ClientAPI.ClientOperations
     {
         private static readonly ILogger _log = TraceLogger.GetLogger("EventStore.ClientAPI.SubscriptionOperation");
 
-        private readonly TaskCompletionSource<TSubscription> _source;
         protected readonly string _streamId;
         protected readonly bool _resolveLinkTos;
         protected readonly SubscriptionSettings _subscriptionSettings;
         protected readonly UserCredentials _userCredentials;
         protected readonly Action<TSubscription, TResolvedEvent> _eventAppeared;
         protected readonly Func<TSubscription, TResolvedEvent, Task> _eventAppearedAsync;
+        protected readonly IHasTcpPackageConnection _getConnection;
+
+        protected TSubscription _subscription;
+        protected Guid _correlationId;
+
+        private readonly TaskCompletionSource<TSubscription> _source;
         private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
         private readonly bool _verboseLogging;
-        protected readonly Func<TcpPackageConnection> _getConnection;
         private readonly int _maxQueueSize = 2000;
         private readonly BufferBlock<ResolvedEventWrapper> _bufferBlock;
         private readonly List<ActionBlock<ResolvedEventWrapper>> _actionBlocks;
         private readonly ITargetBlock<ResolvedEventWrapper> _targetBlock;
         private readonly IDisposable _links;
-        protected TSubscription _subscription;
         private int _unsubscribed;
-        protected Guid _correlationId;
 
         /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
         internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
@@ -50,7 +52,7 @@ namespace EventStore.ClientAPI.ClientOperations
             UserCredentials userCredentials,
             Action<TSubscription, TResolvedEvent> eventAppeared,
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-            Func<TcpPackageConnection> getConnection)
+            IHasTcpPackageConnection getConnection)
             : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
@@ -94,7 +96,7 @@ namespace EventStore.ClientAPI.ClientOperations
             UserCredentials userCredentials,
             Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync,
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-            Func<TcpPackageConnection> getConnection)
+            IHasTcpPackageConnection getConnection)
             : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
@@ -138,7 +140,7 @@ namespace EventStore.ClientAPI.ClientOperations
             UserCredentials userCredentials,
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
             bool verboseLogging,
-            Func<TcpPackageConnection> getConnection)
+            IHasTcpPackageConnection getConnection)
         {
             if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
             if (null == getConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getConnection); }
@@ -154,7 +156,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected void EnqueueSend(TcpPackage package)
         {
-            _getConnection().EnqueueSend(package);
+            _getConnection.Connection.EnqueueSend(package);
         }
 
         public bool Subscribe(Guid correlationId, TcpPackageConnection connection)
@@ -172,7 +174,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void Unsubscribe()
         {
-            DropSubscription(SubscriptionDropReason.UserInitiated, null, _getConnection());
+            DropSubscription(SubscriptionDropReason.UserInitiated, null, _getConnection.Connection);
         }
 
         private TcpPackage CreateUnsubscriptionPackage()

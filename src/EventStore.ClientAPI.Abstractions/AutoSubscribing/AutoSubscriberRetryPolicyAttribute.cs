@@ -9,27 +9,27 @@ namespace EventStore.ClientAPI.AutoSubscribing
         public AutoSubscriberRetryPolicyAttribute(int maxNoOfRetries)
         {
             if (maxNoOfRetries < 1 && maxNoOfRetries != RetryPolicy.Unbounded) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxNoOfRetries); }
-            MinDelay = TimeSpan.Zero; MaxDelay = TimeSpan.Zero; Step = TimeSpan.Zero;
+            MinDelay = "0ms"; MaxDelay = "0ms"; Step = "0ms";
             MaxNoOfRetries = maxNoOfRetries;
             ProviderType = SleepDurationProviderType.Immediately;
         }
 
-        public AutoSubscriberRetryPolicyAttribute(int maxNoOfRetries, TimeSpan sleepDuration)
+        public AutoSubscriberRetryPolicyAttribute(int maxNoOfRetries, string sleepDuration)
         {
             if (maxNoOfRetries < 1 && maxNoOfRetries != RetryPolicy.Unbounded) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxNoOfRetries); }
-            MinDelay = TimeSpan.Zero; MaxDelay = TimeSpan.Zero; Step = TimeSpan.Zero;
+            MinDelay = "0ms"; MaxDelay = "0ms"; Step = "0ms";
             MaxNoOfRetries = maxNoOfRetries;
             ProviderType = SleepDurationProviderType.FixedDuration;
             FixedSleepDuration = sleepDuration;
         }
 
-        public AutoSubscriberRetryPolicyAttribute(int maxNoOfRetries, TimeSpan minDelay, TimeSpan maxDelay, TimeSpan step, double powerFactor)
+        public AutoSubscriberRetryPolicyAttribute(int maxNoOfRetries, string minDelay, string maxDelay, string step, double powerFactor)
         {
             if (maxNoOfRetries < 1 && maxNoOfRetries != RetryPolicy.Unbounded) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxNoOfRetries); }
-            if (minDelay <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMin(minDelay); }
-            if (maxDelay <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMax(maxDelay); }
-            if (step <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffStep(step); }
-            if (minDelay >= maxDelay) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMinMax(minDelay); }
+            //if (minDelay <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMin(minDelay); }
+            //if (maxDelay <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMax(maxDelay); }
+            //if (step <= TimeSpan.Zero) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffStep(step); }
+            //if (minDelay >= maxDelay) { ThrowHelper.ThrowArgumentOutOfRangeException_ExponentialBackoffMinMax(minDelay); }
 
             MinDelay = minDelay;
             MaxDelay = maxDelay;
@@ -44,11 +44,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
         public int MaxNoOfRetries { get; }
 
-        public TimeSpan FixedSleepDuration { get; }
+        public string FixedSleepDuration { get; }
 
-        public TimeSpan MinDelay { get; }
-        public TimeSpan MaxDelay { get; }
-        public TimeSpan Step { get; }
+        public string MinDelay { get; }
+        public string MaxDelay { get; }
+        public string Step { get; }
         public double PowerFactor { get; }
     }
 }

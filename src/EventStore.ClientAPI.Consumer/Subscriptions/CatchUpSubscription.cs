@@ -4,5 +4,8 @@
     public class CatchUpSubscription : Subscription<CatchUpSubscription, CatchUpSubscriptionSettings>
     {
         public CatchUpSubscription(string streamId) : base(streamId, default(string)) { }
+
+        /// <summary>Only for CatchUpConsumer</summary>
+        public long? LastCheckpoint { get; set; }
     }
 }

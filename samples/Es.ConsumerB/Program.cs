@@ -25,10 +25,10 @@ namespace Es.Consumer
                 //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberConsumerRegistration));
                 //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberHandlerRegistration));
 
-                //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberCatchUpConsume));
+                autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberCatchUpConsume));
                 //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberCatchUpConsumeAsync));
-                autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberPersistentConsume));
-                autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberPersistentConsumeAsync));
+                //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberPersistentConsume));
+                //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberPersistentConsumeAsync));
                 //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberVolatileConsume));
                 //autoSubscriber.RegisterConsumerTypes(typeof(AutoSubscriberVolatileConsumeAsync));
 

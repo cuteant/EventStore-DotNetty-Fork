@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using CuteAnt.Collections;
 using CuteAnt.Reflection;
 using CuteAnt.Text;
@@ -14,20 +13,11 @@ namespace EventStore.ClientAPI
     {
         #region @@ Core @@
 
-        private static readonly CachedReadConcurrentDictionary<Type, string> _streamMapCache;
-
-        internal static IEventAdapter _defaultEventAdapter;
+        private static readonly CachedReadConcurrentDictionary<Type, string> s_streamMapCache;
 
         static EventManager()
         {
-            _streamMapCache = new CachedReadConcurrentDictionary<Type, string>(DictionaryCacheConstants.SIZE_MEDIUM);
-            _defaultEventAdapter = DefaultEventAdapter.Instance;
-        }
-
-        public static IEventAdapter EventAdapter
-        {
-            get => _defaultEventAdapter;
-            set => Interlocked.Exchange(ref _defaultEventAdapter, value);
+            s_streamMapCache = new CachedReadConcurrentDictionary<Type, string>(DictionaryCacheConstants.SIZE_MEDIUM);
         }
 
         #endregion
@@ -35,28 +25,28 @@ namespace EventStore.ClientAPI
         #region -- GetStreamId --
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetStreamId(this Type actualType, Type expectedType = null)
+        public static string GetStreamId(this Type actualType)
         {
-            return LookupStreamId(expectedType ?? actualType);
+            return LookupStreamId(actualType);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetStreamId(this Type actualType, string topic, Type expectedType = null)
+        public static string GetStreamId(this Type actualType, string topic)
         {
-            var streamId = LookupStreamId(expectedType ?? actualType);
+            var streamId = LookupStreamId(actualType);
             return streamId.Combine(topic);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetStreamId<TEvent>(Type expectedType = null)
+        public static string GetStreamId<TEvent>()
         {
-            return LookupStreamId(expectedType ?? typeof(TEvent));
+            return LookupStreamId(typeof(TEvent));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string GetStreamId<TEvent>(string topic, Type expectedType = null)
+        public static string GetStreamId<TEvent>(string topic)
         {
-            var streamId = LookupStreamId(expectedType ?? typeof(TEvent));
+            var streamId = LookupStreamId(typeof(TEvent));
             return streamId.Combine(topic);
         }
 
@@ -77,7 +67,7 @@ namespace EventStore.ClientAPI
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static string LookupStreamId(Type expectedType)
         {
-            if (_streamMapCache.TryGetValue(expectedType, out var streamId)) { return streamId; }
+            if (s_streamMapCache.TryGetValue(expectedType, out var streamId)) { return streamId; }
             return EnsureStreamIdGenerated(expectedType);
         }
 
@@ -87,202 +77,157 @@ namespace EventStore.ClientAPI
             // FirstAttribute 可获取动态添加的attr
             var streamAttr = expectedType.FirstAttribute<StreamAttribute>();
             var streamId = streamAttr != null ? streamAttr.StreamId : RuntimeTypeNameFormatter.Serialize(expectedType);
-            if (_streamMapCache.TryAdd(expectedType, streamId)) { return streamId; }
+            if (s_streamMapCache.TryAdd(expectedType, streamId)) { return streamId; }
 
-            _streamMapCache.TryGetValue(expectedType, out streamId); return streamId;
+            s_streamMapCache.TryGetValue(expectedType, out streamId); return streamId;
 
         }
 
         #endregion
 
-        #region -- ToEventMetadata --
+        #region == ToEventDatas ==
+
+        internal static EventData[] ToEventDatas(IEventAdapter eventAdapter, IList<object> events, IList<Dictionary<string, object>> eventContexts)
+        {
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
+
+            var evts = new EventData[events.Count];
+            if (eventContexts != null)
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], eventAdapter.ToEventMetadata(eventContexts[idx]));
+                }
+            }
+            else
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], null);
+                }
+            }
+            return evts;
+        }
+
+        internal static EventData[] ToEventDatas(IEventAdapter eventAdapter, IList<object> events, IList<IEventMetadata> eventMetas = null)
+        {
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
+
+            var evts = new EventData[events.Count];
+            if (eventMetas == null)
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], null);
+                }
+            }
+            else
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], eventMetas[idx]);
+                }
+            }
+            return evts;
+        }
+
+        internal static EventData[] ToEventDatas<TEvent>(IEventAdapter eventAdapter, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
+        {
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
+
+            var evts = new EventData[events.Count];
+            if (eventContexts != null)
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], eventAdapter.ToEventMetadata(eventContexts[idx]));
+                }
+            }
+            else
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], null);
+                }
+            }
+            return evts;
+        }
+
+        internal static EventData[] ToEventDatas<TEvent>(IEventAdapter eventAdapter, IList<TEvent> events, IList<IEventMetadata> eventMetas = null)
+        {
+            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
+
+            var evts = new EventData[events.Count];
+            if (eventMetas == null)
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], null);
+                }
+            }
+            else
+            {
+                for (var idx = 0; idx < events.Count; idx++)
+                {
+                    evts[idx] = eventAdapter.Adapt(events[idx], eventMetas[idx]);
+                }
+            }
+            return evts;
+        }
+
+        #endregion
+
+        #region == FromEventData ==
+
+        internal static IFullEvent FromEventData(this IEventAdapter eventAdapter, EventData eventData)
+        {
+            return FromEventData(eventAdapter, eventData.Data, eventData.Metadata);
+        }
+        internal static IFullEvent<T> FromEventData<T>(this IEventAdapter eventAdapter, EventData eventData)
+        {
+            return FromEventData<T>(eventAdapter, eventData.Data, eventData.Metadata);
+        }
+
+        internal static IFullEvent FromEventData(this IEventAdapter eventAdapter, byte[] data, byte[] metadata)
+        {
+            var eventMeta = eventAdapter.ToEventMetadata(metadata);
+            ToFullEvent(eventAdapter, data, eventMeta, out IEventDescriptor eventDescriptor, out object obj);
+            return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
+        }
+
+        internal static IFullEvent<T> FromEventData<T>(this IEventAdapter eventAdapter, byte[] data, byte[] metadata)
+        {
+            var eventMeta = eventAdapter.ToEventMetadata(metadata);
+            ToFullEvent(eventAdapter, data, eventMeta, out IEventDescriptor eventDescriptor, out object obj);
+            return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = (T)obj };
+        }
+
+
+        internal static IFullEvent FromEventData(this IEventAdapter eventAdapter, byte[] data, IEventMetadata metadata)
+        {
+            ToFullEvent(eventAdapter, data, metadata, out IEventDescriptor eventDescriptor, out object obj);
+            return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
+        }
+
+        internal static IFullEvent<T> FromEventData<T>(this IEventAdapter eventAdapter, byte[] data, IEventMetadata metadata)
+        {
+            ToFullEvent(eventAdapter, data, metadata, out IEventDescriptor eventDescriptor, out object obj);
+            return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = (T)obj };
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEventMetadata ToEventMetadata(this Dictionary<string, object> eventContext)
-        {
-            return _defaultEventAdapter.ToEventMetadata(eventContext);
-        }
-
-        public static IEventMetadata ToEventMetadata(byte[] metadata) => _defaultEventAdapter.ToEventMetadata(metadata);
-
-        #endregion
-
-        #region -- ToEventData --
-
-        public static EventData ToEventData(object evt, IEventMetadata eventMeta = null)
-        {
-            if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
-
-            return _defaultEventAdapter.Adapt(evt, eventMeta);
-        }
-
-        #endregion
-
-        #region -- ToEventDatas --
-
-        public static EventData[] ToEventDatas(IList<object> events, Dictionary<string, object> eventContext)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(eventContext));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas(IList<object> events, IEventMetadata eventMeta = null)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-
-            var context = eventMeta?.Context;
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(context));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas(IList<object> events, IList<Dictionary<string, object>> eventContexts)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (null == eventContexts) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventContexts); }
-            if (events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(eventContexts[idx]));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas(IList<object> events, IList<IEventMetadata> eventMetas = null)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (null == eventMetas) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMetas); }
-            if (events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], eventMetas[idx]);
-            }
-
-            return list;
-        }
-
-
-        public static EventData[] ToEventDatas<TEvent>(IList<TEvent> events, Dictionary<string, object> eventContext)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(eventContext));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IEventMetadata eventMeta = null)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-
-            var context = eventMeta?.Context;
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(context));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (null == eventContexts) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventContexts); }
-            if (events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], _defaultEventAdapter.ToEventMetadata(eventContexts[idx]));
-            }
-
-            return list;
-        }
-
-        public static EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IList<IEventMetadata> eventMetas)
-        {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (null == eventMetas) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMetas); }
-            if (events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
-
-            var list = new EventData[events.Count];
-            for (var idx = 0; idx < events.Count; idx++)
-            {
-                list[idx] = ToEventData(events[idx], eventMetas[idx]);
-            }
-
-            return list;
-        }
-
-        #endregion
-
-        #region -- FromEventData --
-
-        public static IFullEvent FromEventData(EventData eventData)
-        {
-            return FromEventData(eventData.Data, eventData.Metadata);
-        }
-        public static IFullEvent<T> FromEventData<T>(EventData eventData)
-        {
-            return FromEventData<T>(eventData.Data, eventData.Metadata);
-        }
-
-        public static IFullEvent FromEventData(byte[] data, byte[] metadata)
-        {
-            var eventMeta = _defaultEventAdapter.ToEventMetadata(metadata);
-            ToFullEvent(data, eventMeta, out IEventDescriptor eventDescriptor, out object obj);
-            return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
-        }
-
-        public static IFullEvent<T> FromEventData<T>(byte[] data, byte[] metadata)
-        {
-            var eventMeta = _defaultEventAdapter.ToEventMetadata(metadata);
-            ToFullEvent(data, eventMeta, out IEventDescriptor eventDescriptor, out object obj);
-            return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = (T)obj };
-        }
-
-
-        public static IFullEvent FromEventData(byte[] data, IEventMetadata metadata)
-        {
-            ToFullEvent(data, metadata, out IEventDescriptor eventDescriptor, out object obj);
-            return new DefaultFullEvent { Descriptor = eventDescriptor, Value = obj };
-        }
-
-        public static IFullEvent<T> FromEventData<T>(byte[] data, IEventMetadata metadata)
-        {
-            ToFullEvent(data, metadata, out IEventDescriptor eventDescriptor, out object obj);
-            return new DefaultFullEvent<T> { Descriptor = eventDescriptor, Value = (T)obj };
-        }
-
-        private static void ToFullEvent(byte[] data, IEventMetadata meta, out IEventDescriptor eventDescriptor, out object obj)
+        private static void ToFullEvent(IEventAdapter eventAdapter, byte[] data, IEventMetadata meta, out IEventDescriptor eventDescriptor, out object obj)
         {
             eventDescriptor = (null == meta) ? NullEventDescriptor.Instance : new DefaultEventDescriptor(meta);
 
             obj = null;
             if (null == data || 0u >= (uint)data.Length) { return; }
 
-            try { obj = _defaultEventAdapter.Adapt(data, meta); }
+            try { obj = eventAdapter.Adapt(data, meta); }
             catch (Exception exc) { CoreThrowHelper.ThrowEventDataDeserializationException(exc); }
         }
 

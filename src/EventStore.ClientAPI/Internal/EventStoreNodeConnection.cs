@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI.Internal
     /// (even if you call the synchronous behaviors). Many threads can use an <see cref="EventStoreConnection"/> at the same
     /// time or a single thread can make many asynchronous requests. To get the most performance out of the connection
     /// it is generally recommended to use it in this way.</remarks>
-    internal class EventStoreNodeConnection : IEventStoreConnection2, IEventStoreTransactionConnection
+    internal sealed partial class EventStoreNodeConnection : IEventStoreConnection2, IEventStoreTransactionConnection
     {
         #region @@ Fields @@
 
@@ -41,6 +41,12 @@ namespace EventStore.ClientAPI.Internal
         /// <summary>Returns the <see cref="ClusterSettings"/> use to create this connection.</summary>
         public ClusterSettings ClusterSettings => _clusterSettings;
 
+        /// <summary>TBD</summary>
+        public ConnectionState ConnectionState => (ConnectionState)_handler.ConnectionState;
+
+        /// <summary>TBD</summary>
+        public ConnectingPhase ConnectingPhase => (ConnectingPhase)_handler.ConnectingPhase;
+
         #endregion
 
         #region @@ Constructors @@
@@ -50,7 +56,8 @@ namespace EventStore.ClientAPI.Internal
         /// <param name="clusterSettings">The <see cref="ClusterSettings" /> containing the settings for this connection.</param>
         /// <param name="endPointDiscoverer">Discoverer of destination node end point.</param>
         /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
-        internal EventStoreNodeConnection(ConnectionSettings settings, ClusterSettings clusterSettings, IEndPointDiscoverer endPointDiscoverer, string connectionName)
+        internal EventStoreNodeConnection(ConnectionSettings settings, ClusterSettings clusterSettings,
+            IEndPointDiscoverer endPointDiscoverer, string connectionName)
         {
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
@@ -59,6 +66,8 @@ namespace EventStore.ClientAPI.Internal
             _settings = settings;
             _clusterSettings = clusterSettings;
             _endPointDiscoverer = endPointDiscoverer;
+            _eventAdapter = settings.EventAdapter ?? DefaultEventAdapter.Instance;
+
             _handler = new EventStoreConnectionLogicHandler(this, settings);
         }
 
@@ -285,7 +294,7 @@ namespace EventStore.ClientAPI.Internal
             if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var source = TaskCompletionSourceFactory.Create<EventReadResult<object>>();
             var operation = new ReadEventOperation(source, stream, eventNumber, resolveLinkTos,
-                                                   _settings.RequireMaster, userCredentials);
+                                                   _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -296,7 +305,7 @@ namespace EventStore.ClientAPI.Internal
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventReadResult<TEvent>>();
             var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
-                                                           _settings.RequireMaster, userCredentials);
+                                                           _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -313,7 +322,7 @@ namespace EventStore.ClientAPI.Internal
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsForwardOperation(source, stream, start, count,
-                                                                 resolveLinkTos, _settings.RequireMaster, userCredentials);
+                                                                 resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -325,7 +334,7 @@ namespace EventStore.ClientAPI.Internal
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice2>();
             var operation = new ReadStreamEventsForwardOperation2(source, stream, start, count,
-                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials);
+                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -339,7 +348,7 @@ namespace EventStore.ClientAPI.Internal
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsForwardOperation<TEvent>(source, stream, start, count,
-                                                                         resolveLinkTos, _settings.RequireMaster, userCredentials);
+                                                                         resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -355,7 +364,7 @@ namespace EventStore.ClientAPI.Internal
             if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsBackwardOperation(source, stream, start, count,
-                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials);
+                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -368,7 +377,7 @@ namespace EventStore.ClientAPI.Internal
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
             var operation = new ReadStreamEventsBackwardOperation<TEvent>(source, stream, start, count,
-                                                                          resolveLinkTos, _settings.RequireMaster, userCredentials);
+                                                                          resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
             EnqueueOperation(operation);
             return await source.Task.ConfigureAwait(false);
         }
@@ -905,25 +914,6 @@ namespace EventStore.ClientAPI.Internal
             var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionDeleteResult>();
             EnqueueOperation(new DeletePersistentSubscriptionOperation(source, stream, groupName, userCredentials));
             await source.Task.ConfigureAwait(false);
-        }
-
-        public Task CreatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
-        {
-            var stream = EventManager.GetStreamId<TEvent>(topic);
-            return CreatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
-        }
-
-        public Task UpdatePersistentSubscriptionAsync<TEvent>(string topic, string groupName, PersistentSubscriptionSettings settings, UserCredentials credentials = null)
-        {
-            var stream = EventManager.GetStreamId<TEvent>(topic);
-            return UpdatePersistentSubscriptionAsync(stream, groupName, settings, credentials);
-
-        }
-
-        public Task DeletePersistentSubscriptionAsync<TEvent>(string topic, string groupName, UserCredentials userCredentials = null)
-        {
-            var stream = EventManager.GetStreamId<TEvent>(topic);
-            return DeletePersistentSubscriptionAsync(stream, groupName, userCredentials);
         }
 
         #endregion

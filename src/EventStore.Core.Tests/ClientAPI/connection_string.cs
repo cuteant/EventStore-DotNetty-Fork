@@ -71,5 +71,33 @@ namespace EventStore.Core.Tests.ClientAPI
             Assert.AreEqual("foo", settings.DefaultUserCredentials.Username);
             Assert.AreEqual("bar", settings.DefaultUserCredentials.Password);
         }
+
+        [Test]
+        public void can_set_throw_on_no_matching_handler()
+        {
+            var settings = ConnectionString.GetConnectionSettings("throw_on_no_matching_handler=on");
+            Assert.AreEqual(true, settings.ThrowOnNoMatchingHandler);
+        }
+
+        [Test]
+        public void can_set_send_buffer_size()
+        {
+            var settings = ConnectionString.GetConnectionSettings("send_buffer_size=256KB");
+            Assert.AreEqual(256 * 1000, settings.SendBufferSize);
+        }
+
+        [Test]
+        public void can_set_receive_buffer_size()
+        {
+            var settings = ConnectionString.GetConnectionSettings("receive_buffer_size=128K");
+            Assert.AreEqual(128 * 1024, settings.ReceiveBufferSize);
+        }
+
+        [Test]
+        public void can_set_event_adapter()
+        {
+            var settings = ConnectionString.GetConnectionSettings("event_adapter=EventStore.ClientAPI.DefaultEventAdapter:EventStore.ClientAPI");
+            Assert.NotNull(settings.EventAdapter);
+        }
     }
 }

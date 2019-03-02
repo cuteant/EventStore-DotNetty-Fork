@@ -20,7 +20,6 @@ namespace EventStore.ClientAPI.Subscriptions
 
         public TSettings Settings { get; set; }
         public StreamMetadata StreamMeta { get; set; }
-        public PersistentSubscriptionSettings PersistentSettings { get; set; }
 
         public RetryPolicy RetryPolicy { get; set; }
         public UserCredentials Credentials { get; set; }

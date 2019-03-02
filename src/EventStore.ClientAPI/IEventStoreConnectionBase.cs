@@ -378,6 +378,12 @@ namespace EventStore.ClientAPI
         /// <summary>A <see cref="ConnectionSettings"/> object is an immutable representation of the settings for an <see cref="IEventStoreConnection"/>.</summary>
         ConnectionSettings Settings { get; }
 
+        /// <summary>TBD</summary>
+        ConnectionState ConnectionState { get; }
+
+        /// <summary>TBD</summary>
+        ConnectingPhase ConnectingPhase { get; }
+
         #endregion
     }
 }

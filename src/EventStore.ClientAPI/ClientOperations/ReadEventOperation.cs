@@ -7,31 +7,41 @@ namespace EventStore.ClientAPI.ClientOperations
 {
     internal class ReadEventOperation : ReadEventOperationBase<EventReadResult<object>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadEventOperation(TaskCompletionSource<EventReadResult<object>> source,
-          string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+          string stream, long eventNumber, bool resolveLinkTo, bool requireMaster,
+          UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override EventReadResult<object> TransformResponse(TcpClientMessageDto.ReadEventCompleted response)
         {
             var readStatus = Convert(response.Result);
-            return new EventReadResult<object>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus));
+            return new EventReadResult<object>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent(readStatus, _eventAdapter));
         }
     }
 
     internal class ReadEventOperation<T> : ReadEventOperationBase<EventReadResult<T>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public ReadEventOperation(TaskCompletionSource<EventReadResult<T>> source,
-          string stream, long eventNumber, bool resolveLinkTo, bool requireMaster, UserCredentials userCredentials)
+          string stream, long eventNumber, bool resolveLinkTo, bool requireMaster,
+          UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, eventNumber, resolveLinkTo, requireMaster, userCredentials)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override EventReadResult<T> TransformResponse(TcpClientMessageDto.ReadEventCompleted response)
         {
             var readStatus = Convert(response.Result);
-            return new EventReadResult<T>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent<T>(readStatus));
+            return new EventReadResult<T>(readStatus, _stream, _eventNumber, response.Event.ToResolvedEvent<T>(readStatus, _eventAdapter));
         }
     }
 

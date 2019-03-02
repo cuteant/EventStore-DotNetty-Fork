@@ -22,6 +22,7 @@ namespace EventStore.ClientAPI
         name,
         dictionary,
         context,
+        eventAdapter,
         eventData,
         eventMeta,
         eventMetas,

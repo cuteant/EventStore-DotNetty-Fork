@@ -11,14 +11,15 @@ namespace EventStore.ClientAPI.Consumers
         where TSubscription : class, ISubscription<TSettings>
         where TSettings : SubscriptionSettings
     {
-        internal const int ON = 1;
-        internal const int OFF = 0;
-        internal int _subscribed;
+        protected const int ON = 1;
+        protected const int OFF = 0;
+        protected int _subscribed;
 
-        private static readonly RetryPolicy s_retryPolicy = new RetryPolicy(RetryPolicy.Unbounded, TimeSpan.FromMilliseconds(200));
         protected static readonly RetryPolicy DefaultRetryPolicy = new RetryPolicy(RetryPolicy.Unbounded, TimeSpan.FromMilliseconds(1000), TimeSpan.FromHours(2), TimeSpan.FromMilliseconds(1000), 1.2D);
-        private long _processingEventNumber = StreamPosition.End;
+        private long _lastProcessingEventNumber = StreamPosition.End;
         private int _retryAttempts = 0;
+
+        protected long LastProcessingEventNumber => Volatile.Read(ref _lastProcessingEventNumber);
 
         public IEventStoreBus Bus { get; protected set; }
         public TSubscription Subscription { get; protected set; }
@@ -26,36 +27,46 @@ namespace EventStore.ClientAPI.Consumers
         public abstract Task ConnectToSubscriptionAsync();
         public virtual Task ConnectToSubscriptionAsync(long? lastCheckpoint) => ConnectToSubscriptionAsync();
 
-        protected async Task<bool> CanRetryAsync(long eventNumber, SubscriptionDropReason dropReason)
+        protected virtual async Task<bool> CanRetryAsync(long eventNumber, SubscriptionDropReason dropReason)
         {
-            if (_processingEventNumber != eventNumber)
+            if (Volatile.Read(ref _lastProcessingEventNumber) != eventNumber)
             {
                 Interlocked.Exchange(ref _retryAttempts, 0);
-                Interlocked.Exchange(ref _processingEventNumber, eventNumber);
+                Interlocked.Exchange(ref _lastProcessingEventNumber, eventNumber);
             }
             if (dropReason == SubscriptionDropReason.EventHandlerException)
             {
-                Interlocked.Increment(ref _retryAttempts);
+                var retryAttempts = Interlocked.Increment(ref _retryAttempts);
                 var retryPolicy = Subscription.RetryPolicy;
-                if (retryPolicy.MaxNoOfRetries != RetryPolicy.Unbounded && _retryAttempts > retryPolicy.MaxNoOfRetries)
+                if (retryPolicy.MaxNoOfRetries != RetryPolicy.Unbounded && retryAttempts > retryPolicy.MaxNoOfRetries)
                 {
                     return false;
                 }
                 var sleepDurationProvider = retryPolicy.SleepDurationProvider;
                 if (sleepDurationProvider != null)
                 {
-                    var delay = sleepDurationProvider(_retryAttempts);
+                    var delay = sleepDurationProvider(retryAttempts);
                     await Task.Delay(delay).ConfigureAwait(false);
                 }
             }
             return true;
         }
 
-        protected async Task HandleDroppedSubscriptionAsync(DroppedSubscription subscriptionDropped)
+        protected virtual async Task SubscriptionDroppedAsync(long lastEventNum, SubscriptionDropReason dropReason, Exception exception)
         {
-            if (this.Disposed) { return; }
-            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscriptionAsync(), s_retryPolicy);
+            Interlocked.Exchange(ref _subscribed, OFF);
+
+            if (await CanRetryAsync(lastEventNum, dropReason).ConfigureAwait(false))
+            {
+                var subscriptionDropped = new DroppedSubscription(Subscription, exception?.Message, dropReason);
+                await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+            }
         }
 
+        protected virtual async Task HandleDroppedSubscriptionAsync(DroppedSubscription subscriptionDropped)
+        {
+            if (this.Disposed) { return; }
+            await DroppedSubscriptionPolicy.Handle(subscriptionDropped, async () => await ConnectToSubscriptionAsync(), subscriptionDropped.RetryPolicy ?? DefaultRetryPolicy);
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace EventStore.Transport.Http.Codecs
 
         static JsonCodec()
         {
-            FromSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
+            FromSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.Auto, null, true);
             FromSettings.DateParseHandling = DateParseHandling.None;
             FromSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
 

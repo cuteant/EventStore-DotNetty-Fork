@@ -15,19 +15,23 @@ namespace EventStore.ClientAPI.ClientOperations
 
     internal sealed class PersistentSubscriptionOperation : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent<object>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
           Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent<object>, Task> eventAppearedAsync,
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-          Func<TcpPackageConnection> getConnection)
+          IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override PersistentSubscriptionResolvedEvent<object> TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
         {
-            return new PersistentSubscriptionResolvedEvent<object>(rawEvent.ToResolvedEvent(), retryCount);
+            return new PersistentSubscriptionResolvedEvent<object>(rawEvent.ToResolvedEvent(_eventAdapter), retryCount);
         }
     }
 
@@ -37,19 +41,23 @@ namespace EventStore.ClientAPI.ClientOperations
 
     internal sealed class PersistentSubscriptionOperation2 : ConnectToPersistentSubscriptionOperationBase<IPersistentSubscriptionResolvedEvent2>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public PersistentSubscriptionOperation2(TaskCompletionSource<PersistentEventStoreSubscription> source,
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
           Func<PersistentEventStoreSubscription, IPersistentSubscriptionResolvedEvent2, Task> eventAppearedAsync,
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-          Func<TcpPackageConnection> getConnection)
+          IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override IPersistentSubscriptionResolvedEvent2 TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
         {
-            return rawEvent.ToPersistentSubscriptionResolvedEvent2(retryCount);
+            return rawEvent.ToPersistentSubscriptionResolvedEvent2(retryCount, _eventAdapter);
         }
     }
 
@@ -59,35 +67,39 @@ namespace EventStore.ClientAPI.ClientOperations
 
     internal interface IPersistentSubscriptionOperationWrapper
     {
-        ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection);
+        ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, IHasTcpPackageConnection connection, IEventAdapter eventAdapter);
     }
     internal sealed class PersistentSubscriptionOperationWrapper<TEvent> : IPersistentSubscriptionOperationWrapper
     {
         public PersistentSubscriptionOperationWrapper() { }
 
-        public ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, TcpPackageConnection connection)
+        public ISubscriptionOperation Create(StartPersistentSubscriptionMessageWrapper msgWrapper, IHasTcpPackageConnection connection, IEventAdapter eventAdapter)
         {
             var msg = (StartPersistentSubscriptionMessage<TEvent>)msgWrapper.Message;
 
             return new PersistentSubscriptionOperation<TEvent>(msg.Source, msg.SubscriptionId, msg.StreamId, msg.Settings,
-                msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped, () => connection);
+                msg.UserCredentials, msg.EventAppearedAsync, msg.SubscriptionDropped, connection, eventAdapter);
         }
     }
 
     internal sealed class PersistentSubscriptionOperation<TEvent> : ConnectToPersistentSubscriptionOperationBase<PersistentSubscriptionResolvedEvent<TEvent>>
     {
+        private readonly IEventAdapter _eventAdapter;
+
         public PersistentSubscriptionOperation(TaskCompletionSource<PersistentEventStoreSubscription> source,
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
           Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent<TEvent>, Task> eventAppearedAsync,
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-          Func<TcpPackageConnection> getConnection)
+          IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
+            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            _eventAdapter = eventAdapter;
         }
 
         protected override PersistentSubscriptionResolvedEvent<TEvent> TransformEvent(TcpClientMessageDto.ResolvedIndexedEvent rawEvent, int? retryCount)
         {
-            return new PersistentSubscriptionResolvedEvent<TEvent>(rawEvent.ToResolvedEvent<TEvent>(), retryCount);
+            return new PersistentSubscriptionResolvedEvent<TEvent>(rawEvent.ToResolvedEvent<TEvent>(_eventAdapter), retryCount);
         }
     }
 
@@ -101,7 +113,7 @@ namespace EventStore.ClientAPI.ClientOperations
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
           Func<PersistentEventStoreSubscription, PersistentSubscriptionResolvedEvent, Task> eventAppearedAsync,
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-          Func<TcpPackageConnection> getConnection)
+          IHasTcpPackageConnection getConnection)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
         }
@@ -128,7 +140,7 @@ namespace EventStore.ClientAPI.ClientOperations
         //  string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
         //  Action<PersistentEventStoreSubscription, TResolvedEvent> eventAppeared,
         //  Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-        //  Func<TcpPackageConnection> getConnection)
+        //  IHasTcpPackageConnection getConnection)
         //  : base(source, streamId, new SubscriptionSettings { ResolveLinkTos = false }, userCredentials, eventAppeared, subscriptionDropped, getConnection)
         //{
         //  _groupName = groupName;
@@ -138,7 +150,7 @@ namespace EventStore.ClientAPI.ClientOperations
           string groupName, string streamId, ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
           Func<PersistentEventStoreSubscription, TResolvedEvent, Task> eventAppearedAsync,
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
-          Func<TcpPackageConnection> getConnection)
+          IHasTcpPackageConnection getConnection)
           : base(source, streamId,
               //new SubscriptionSettings { ResolveLinkTos = false, TaskScheduler = settings.TaskScheduler, CancellationToken = settings.CancellationToken }, 
               SubscriptionSettings.Default,
@@ -200,7 +212,7 @@ namespace EventStore.ClientAPI.ClientOperations
                     DropSubscription(SubscriptionDropReason.MaxSubscribersReached, new MaximumSubscribersReachedException());
                     return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
                 }
-                DropSubscription((SubscriptionDropReason)dto.Reason, null, _getConnection());
+                DropSubscription((SubscriptionDropReason)dto.Reason, null, _getConnection.Connection);
                 return new InspectionResult(InspectionDecision.EndOperation, "SubscriptionDropped");
             }
             return null;

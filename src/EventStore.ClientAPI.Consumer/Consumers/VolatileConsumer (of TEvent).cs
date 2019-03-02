@@ -55,35 +55,29 @@ namespace EventStore.ClientAPI.Consumers
 
         public override async Task ConnectToSubscriptionAsync()
         {
-            if (Interlocked.CompareExchange(ref _subscribed, ON, OFF) == ON) { return; }
+            if (Volatile.Read(ref _subscribed) == ON) { return; }
 
             try
             {
                 if (_resolvedEventAppearedAsync != null)
                 {
                     _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppearedAsync,
-                            async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                            async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),
                             Subscription.Credentials).ConfigureAwait(false);
                 }
                 else
                 {
                     _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppeared,
-                            async (sub, reason, exception) => await SubscriptionDroppedAsync(sub, reason, exception).ConfigureAwait(false),
+                            async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),
                             Subscription.Credentials).ConfigureAwait(false);
                 }
+
+                Interlocked.Exchange(ref _subscribed, ON);
             }
             catch (Exception exc)
             {
                 s_logger.LogError(exc.ToString());
-            }
-        }
-
-        private async Task SubscriptionDroppedAsync(EventStoreSubscription subscription, SubscriptionDropReason dropReason, Exception exception)
-        {
-            if (await CanRetryAsync(subscription.ProcessingEventNumber, dropReason).ConfigureAwait(false))
-            {
-                var subscriptionDropped = new DroppedSubscription(Subscription, exception.Message, dropReason);
-                await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
+                throw exc;
             }
         }
     }
