@@ -371,7 +371,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
                     {
-                        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                        jsonWriter.ArrayPool = Json.CharacterArrayPool;
                         jobj.WriteTo(jsonWriter);
                     }
                     modifiedMeta = memoryStream.ToArray();

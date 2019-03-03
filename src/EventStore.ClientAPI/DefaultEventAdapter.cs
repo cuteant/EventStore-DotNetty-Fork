@@ -18,6 +18,8 @@ namespace EventStore.ClientAPI
     {
         public static readonly DefaultEventAdapter Instance = new DefaultEventAdapter();
 
+        private static readonly UTF8Encoding UTF8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
         private const int c_metaBufferSize = 1024;
         private const int c_dataBufferSize = 64 * 1024;
         private const int c_charBufferSize = 1024;
@@ -194,11 +196,10 @@ namespace EventStore.ClientAPI
         {
             if (writer == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
 
-            var jsonWriter = new JsonTextWriter(new StreamWriter(writer, Encoding.UTF8, c_charBufferSize, true))
+            var jsonWriter = new JsonTextWriter(new StreamWriter(writer, UTF8NoBom, c_charBufferSize, true))
             {
                 ArrayPool = _charPool,
                 CloseOutput = false,
-                //AutoCompleteOnClose = false
             };
 
             return jsonWriter;

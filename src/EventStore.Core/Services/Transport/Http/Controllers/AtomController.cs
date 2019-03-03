@@ -917,7 +917,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             </head>
             <body>
             <script>
-                var data = " + JsonConvertX.SerializeObject(value, Formatting.Indented, JsonCodec.ToSettings) + @";
+                var data = " + JsonConvert.SerializeObject(value, Formatting.Indented, JsonCodec.ToSettings) + @";
                 var newLocation = '/web/index.html#/streams/' + data.streamId" + @"
                 if('positionEventNumber' in data){
                     newLocation = newLocation + '/' + data.positionEventNumber;

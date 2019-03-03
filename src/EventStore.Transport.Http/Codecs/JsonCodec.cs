@@ -3,6 +3,8 @@ using System.Text;
 using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace EventStore.Transport.Http.Codecs
 {
@@ -11,24 +13,49 @@ namespace EventStore.Transport.Http.Codecs
         public static Formatting Formatting = Formatting.Indented;
 
         private static readonly ILogger Log = TraceLogger.GetLogger<JsonCodec>();
-        private static readonly JsonSerializerSettings FromSettings;
-        public static readonly JsonSerializerSettings ToSettings;
 
-        static JsonCodec()
+        private static readonly JsonSerializerSettings FromSettings = new JsonSerializerSettings
         {
-            FromSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.Auto, null, true);
-            FromSettings.DateParseHandling = DateParseHandling.None;
-            FromSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            DateParseHandling = DateParseHandling.None,
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.None,
+            Converters = new JsonConverter[] { new StringEnumConverter() }
+        };
 
-            ToSettings = JsonConvertX.CreateSerializerSettings(Formatting.None, TypeNameHandling.None, null, true);
-            ToSettings.DefaultValueHandling = DefaultValueHandling.Include;
-            ToSettings.Converters.Add(JsonConvertX.DefaultStringEnumConverter);
+        public static readonly JsonSerializerSettings ToSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            DateFormatHandling = DateFormatHandling.IsoDateFormat,
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Include,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.None,
+            Converters = new JsonConverter[] { new StringEnumConverter() }
+        };
+
+
+        public string ContentType
+        {
+            get { return Http.ContentType.Json; }
         }
 
-        public string ContentType { get { return Http.ContentType.Json; } }
-        public Encoding Encoding { get { return Helper.UTF8NoBom; } }
-        public bool HasEventIds { get { return false; } }
-        public bool HasEventTypes { get { return false; } }
+        public Encoding Encoding
+        {
+            get { return Helper.UTF8NoBom; }
+        }
+
+        public bool HasEventIds
+        {
+            get { return false; }
+        }
+
+        public bool HasEventTypes
+        {
+            get { return false; }
+        }
 
         public bool CanParse(MediaType format)
         {
@@ -37,9 +64,9 @@ namespace EventStore.Transport.Http.Codecs
 
         public bool SuitableForResponse(MediaType component)
         {
-            return string.Equals(component.Type, "*", StringComparison.Ordinal)
+            return component.Type == "*"
                    || (string.Equals(component.Type, "application", StringComparison.OrdinalIgnoreCase)
-                       && (string.Equals(component.Subtype, "*", StringComparison.Ordinal)
+                       && (component.Subtype == "*"
                            || string.Equals(component.Subtype, "json", StringComparison.OrdinalIgnoreCase)));
         }
 
@@ -47,7 +74,7 @@ namespace EventStore.Transport.Http.Codecs
         {
             try
             {
-                return JsonConvertX.DeserializeObject<T>(text, FromSettings);
+                return JsonConvert.DeserializeObject<T>(text, FromSettings);
             }
             catch (Exception e)
             {
@@ -58,13 +85,15 @@ namespace EventStore.Transport.Http.Codecs
 
         public string To<T>(T value)
         {
-            if (value == null) { return ""; }
+            if (value == null)
+                return "";
 
-            if ((object)value == Empty.Result) { return Empty.Json; }
+            if ((object)value == Empty.Result)
+                return Empty.Json;
 
             try
             {
-                return JsonConvertX.SerializeObject(value, Formatting, ToSettings);
+                return JsonConvert.SerializeObject(value, Formatting, ToSettings);
             }
             catch (Exception ex)
             {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using CuteAnt.IO;
 using CuteAnt.Pool;
+using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,7 +63,7 @@ namespace EventStore.Core.Data
         {
             using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
             {
-                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.ArrayPool = Json.CharacterArrayPool;
                 return FromJsonReader(reader);
             }
         }
@@ -71,7 +72,7 @@ namespace EventStore.Core.Data
         {
             using (var reader = new JsonTextReader(new StringReader(json)))
             {
-                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.ArrayPool = Json.CharacterArrayPool;
                 return FromJsonReader(reader);
             }
         }
@@ -221,7 +222,7 @@ namespace EventStore.Core.Data
             {
                 using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
                 {
-                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
                     WriteAsJson(jsonWriter);
                 }
                 return memoryStream.ToArray();
@@ -233,7 +234,7 @@ namespace EventStore.Core.Data
             var stringWriter = StringWriterManager.Allocate();
             using (var jsonWriter = new JsonTextWriter(stringWriter))
             {
-                jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                jsonWriter.ArrayPool = Json.CharacterArrayPool;
                 jsonWriter.CloseOutput = false;
                 WriteAsJson(jsonWriter);
             }

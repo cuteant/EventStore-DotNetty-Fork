@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 
@@ -188,6 +189,15 @@ namespace EventStore.Transport.Http
         internal static void IsNotAValidSerialized<T>(this ILogger logger, string text, Exception e)
         {
             s_isNotAValidSerialized(logger, text, typeof(T).FullName, e);
+        }
+
+        private static readonly Action<ILogger, string, Exception> s_isNotAValidSerialized0 =
+            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            "'{text}' is not a valid serialized");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void IsNotAValidSerialized(this ILogger logger, byte[] json, Exception e)
+        {
+            s_isNotAValidSerialized0(logger, Encoding.UTF8.GetString(json), e);
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using CuteAnt.Pool;
 
 namespace EventStore.Common.Options
 {
@@ -105,7 +104,7 @@ namespace EventStore.Common.Options
             {
                 return "No options have been parsed";
             }
-            var dumpOptionsBuilder = StringBuilderManager.Allocate();
+            var dumpOptionsBuilder = new StringBuilder();
             var defaultOptionsHeading = "DEFAULT OPTIONS:";
             var displayingModifiedOptions = true;
             dumpOptionsBuilder.AppendLine("MODIFIED OPTIONS:");
@@ -141,7 +140,7 @@ namespace EventStore.Common.Options
                 }
                 dumpOptionsBuilder.AppendLine(String.Format("\t{0,-25} {1} ({2})", optionName + ":", String.IsNullOrEmpty(valueToDump) ? "<empty>" : valueToDump, option.Source));
             }
-            return StringBuilderManager.ReturnAndFree(dumpOptionsBuilder);
+            return dumpOptionsBuilder.ToString();
         }
     }
     public static class RagsExtensions

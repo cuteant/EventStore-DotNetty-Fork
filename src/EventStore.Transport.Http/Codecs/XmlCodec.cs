@@ -3,8 +3,6 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using CuteAnt.Buffers;
-using CuteAnt.IO;
 using EventStore.Common.Utils;
 using Microsoft.Extensions.Logging;
 
@@ -14,10 +12,25 @@ namespace EventStore.Transport.Http.Codecs
     {
         private static readonly ILogger Log = TraceLogger.GetLogger<XmlCodec>();
 
-        public string ContentType { get { return EventStore.Transport.Http.ContentType.Xml; } }
-        public Encoding Encoding { get { return Helper.UTF8NoBom; } }
-        public bool HasEventIds { get { return false; } }
-        public bool HasEventTypes { get { return false; } }
+        public string ContentType
+        {
+            get { return EventStore.Transport.Http.ContentType.Xml; }
+        }
+
+        public Encoding Encoding
+        {
+            get { return Helper.UTF8NoBom; }
+        }
+
+        public bool HasEventIds
+        {
+            get { return false; }
+        }
+
+        public bool HasEventTypes
+        {
+            get { return false; }
+        }
 
         public bool CanParse(MediaType format)
         {
@@ -34,7 +47,8 @@ namespace EventStore.Transport.Http.Codecs
 
         public T From<T>(string text)
         {
-            if (string.IsNullOrEmpty(text)) { return default(T); }
+            if (string.IsNullOrEmpty(text))
+                return default(T);
 
             try
             {
@@ -52,30 +66,31 @@ namespace EventStore.Transport.Http.Codecs
 
         public string To<T>(T value)
         {
-            if (value == null) { return null; }
+            if ((object)value == null)
+                return null;
 
-            if ((object)value == Empty.Result) { return Empty.Xml; }
+            if ((object)value == Empty.Result)
+                return Empty.Xml;
 
             try
             {
-                using (var memory = MemoryStreamManager.GetStream())
+                using (var memory = new MemoryStream())
+                using (var writer = new XmlTextWriter(memory, Helper.UTF8NoBom))
                 {
-                    using (var writer = new XmlTextWriter(memory, Helper.UTF8NoBom))
+                    var serializable = value as IXmlSerializable;
+                    if (serializable != null)
                     {
-                        if (value is IXmlSerializable serializable)
-                        {
-                            writer.WriteStartDocument();
-                            serializable.WriteXml(writer);
-                            writer.WriteEndDocument();
-                        }
-                        else
-                        {
-                            new XmlSerializer(typeof(T)).Serialize(writer, value);
-                        }
-
-                        writer.Flush();
-                        return Helper.UTF8NoBom.GetString(memory.GetBuffer(), 0, (int)memory.Length);
+                        writer.WriteStartDocument();
+                        serializable.WriteXml(writer);
+                        writer.WriteEndDocument();
                     }
+                    else
+                    {
+                        new XmlSerializer(typeof(T)).Serialize(writer, value);
+                    }
+
+                    writer.Flush();
+                    return Helper.UTF8NoBom.GetString(memory.GetBuffer(), 0, (int)memory.Length);
                 }
             }
             catch (Exception exc)

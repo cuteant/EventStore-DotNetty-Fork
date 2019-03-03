@@ -23,7 +23,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
             if (!string.IsNullOrEmpty(serializedState))
             {
-                var deserialized = JsonConvertX.DeserializeObject(serializedState);
+                var deserialized = JsonConvert.DeserializeObject(serializedState);
                 var array = deserialized as JArray;
                 if (array != null && array.Count > 0)
                 {

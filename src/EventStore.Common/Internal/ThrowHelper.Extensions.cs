@@ -16,6 +16,7 @@ namespace EventStore.Common
         define,
         compiler,
         handlesType,
+        inner,
     }
 
     #endregion

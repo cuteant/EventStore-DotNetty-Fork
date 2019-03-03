@@ -25,7 +25,8 @@
 
   <ItemGroup>
     <PackageReference Include="CuteAnt.Core" Version="$(CuteAntCorePackageVersion)" />
-    <PackageReference Include="CuteAnt.Extensions.Serialization" Version="$(CuteAntExtensionsSerializationPackageVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="System.Buffers" Version="$(SystemBuffersPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

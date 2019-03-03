@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using CuteAnt;
 using CuteAnt.Reflection;
+using EventStore.ClientAPI.Internal;
 using Xunit;
+using Newtonsoft.Json;
 
 namespace EventStore.ClientAPI.Tests
 {
@@ -51,6 +54,35 @@ namespace EventStore.ClientAPI.Tests
             // TryGetValueCamelCase
             Assert.Equal((int)context["age"], catEvent.Descriptor.GetValue<int>("Age"));
             Assert.Equal((string)context["FullName"], catEvent.Descriptor.GetValue<string>("FullName"));
+        }
+
+        [Fact]
+        public void SerializeEvent_JsonConvert_Test()
+        {
+            var cat = new Cat1 { Name = "MyCat", Meow = "Meow testing......" };
+            var context = new Dictionary<string, object>
+            {
+                { "Id", CombGuid.NewComb() },
+                { "Id1", Guid.NewGuid() },
+                { "age", 18 },
+                { "FullName", "Genghis Khan" }
+            };
+
+            IEventAdapter eventAdapter = DefaultEventAdapter.Instance;
+            var eventData = eventAdapter.Adapt(cat, eventAdapter.ToEventMetadata(context));
+            Assert.Equal("cat1", eventData.Type);
+            Assert.True(eventData.IsJson);
+
+            var eventMetaJson = Encoding.UTF8.GetString(eventData.Metadata);
+            var metadata = JsonConvert.DeserializeObject<EventMetadata>(eventMetaJson);
+            Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
+            Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
+            Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
+            Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());
+            var eventJson = Encoding.UTF8.GetString(eventData.Data);
+            var catEvent = JsonConvert.DeserializeObject<Cat>(eventJson);
+            Assert.Equal(cat.Name, catEvent.Name);
+            Assert.Equal(cat.Meow, catEvent.Meow);
         }
 
         [Fact]
