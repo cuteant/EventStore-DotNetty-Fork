@@ -220,8 +220,8 @@ namespace EventStore.Transport.Http.Atom
             Links.ForEach(link => link.WriteXml(writer));
             if (Content != null)
             {
-                var serializeObject = JsonConvert.SerializeObject(Content);
-                var deserializeXmlNode = JsonConvert.DeserializeXmlNode(serializeObject, "content");
+                var serializeObject = JsonConvertX.SerializeObject(Content);
+                var deserializeXmlNode = JsonConvertX.DeserializeXmlNode(serializeObject, "content");
                 writer.WriteStartElement("content", AtomSpecs.AtomV1Namespace);
                 writer.WriteAttributeString("type", ContentType.ApplicationXml);
                 deserializeXmlNode.DocumentElement.WriteContentTo(writer);

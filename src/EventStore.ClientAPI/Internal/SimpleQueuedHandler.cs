@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI.Internal
         {
             var processMessageAsync = _matchBuilder.Build();
             _messageBlock = new ActionBlock<Message>(processMessageAsync,
-                                                     new ExecutionDataflowBlockOptions { TaskScheduler = TaskUtility.TaskSchedulerPair.ExclusiveScheduler });
+                                                     new ExecutionDataflowBlockOptions { TaskScheduler = EventManager.TaskSchedulerPair.ExclusiveScheduler });
         }
 
         public void EnqueueMessage(Message message)

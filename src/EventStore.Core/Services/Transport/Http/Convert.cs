@@ -356,7 +356,8 @@ namespace EventStore.Core.Services.Transport.Http
             if (string.IsNullOrEmpty(unformattedjson)) { return unformattedjson; }
             JsonReader reader = new JsonTextReader(new System.IO.StringReader(unformattedjson))
             {
-                ArrayPool = Json.CharacterArrayPool,
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false,
                 DateParseHandling = DateParseHandling.None
             };
             var jo = JObject.Load(reader);

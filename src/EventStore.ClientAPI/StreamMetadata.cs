@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using CuteAnt.IO;
+using System.Text;
+using CuteAnt.Buffers;
 using CuteAnt.Pool;
+using CuteAnt.Text;
 using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
@@ -19,6 +22,9 @@ namespace EventStore.ClientAPI
     /// </summary>
     public class StreamMetadata
     {
+        private const int c_initialBufferSize = 1024 * 4;
+        private static readonly ArrayPool<byte> s_sharedBufferPool = BufferManager.Shared;
+
         /// <summary>
         /// The maximum number of events allowed in the stream.
         /// </summary>
@@ -217,14 +223,20 @@ namespace EventStore.ClientAPI
         /// <returns>Byte array representing the stream metadata.</returns>
         public byte[] AsJsonBytes()
         {
-            using (var memoryStream = MemoryStreamManager.GetStream())
+            using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                var outputStream = pooledOutputStream.Object;
+                outputStream.Reinitialize(c_initialBufferSize, s_sharedBufferPool);
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(new StreamWriterX(outputStream, StringHelper.UTF8NoBOM)))
                 {
-                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
                     WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
                 }
-                return memoryStream.ToArray();
+                return outputStream.ToByteArray();
             }
         }
 
@@ -234,14 +246,20 @@ namespace EventStore.ClientAPI
         /// <returns>A string representing the stream metadata.</returns>
         public string AsJsonString()
         {
-            var stringWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(stringWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteAsJson(jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return sw.ToString();
             }
-            return StringWriterManager.ReturnAndFree(stringWriter);
         }
 
         private void WriteAsJson(JsonTextWriter jsonWriter)
@@ -315,9 +333,10 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public static StreamMetadata FromJsonBytes(byte[] json)
         {
-            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
+            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json), Encoding.UTF8)))
             {
-                reader.ArrayPool = Json.CharacterArrayPool;
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.CloseInput = false;
 
                 Check(reader.Read(), reader);
                 Check(JsonToken.StartObject, reader);

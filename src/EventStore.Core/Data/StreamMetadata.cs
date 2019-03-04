@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using CuteAnt.IO;
+using System.Text;
+using CuteAnt.Buffers;
 using CuteAnt.Pool;
-using EventStore.Common.Utils;
+using CuteAnt.Text;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,6 +15,9 @@ namespace EventStore.Core.Data
 {
     public class StreamMetadata
     {
+        private const int c_initialBufferSize = 1024 * 4;
+        private static readonly ArrayPool<byte> s_sharedBufferPool = BufferManager.Shared;
+
         public static readonly StreamMetadata Empty = new StreamMetadata();
 
         public readonly long? MaxCount;
@@ -25,8 +30,8 @@ namespace EventStore.Core.Data
         public readonly StreamAcl Acl;
 
         public StreamMetadata(long? maxCount = null, TimeSpan? maxAge = null,
-                                long? truncateBefore = null, bool? tempStream = null,
-                                TimeSpan? cacheControl = null, StreamAcl acl = null)
+                            long? truncateBefore = null, bool? tempStream = null,
+                            TimeSpan? cacheControl = null, StreamAcl acl = null)
         {
             if (maxCount <= 0)
             {
@@ -61,9 +66,11 @@ namespace EventStore.Core.Data
 
         public static StreamMetadata FromJsonBytes(byte[] json)
         {
-            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
+            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json), Encoding.UTF8)))
             {
-                reader.ArrayPool = Json.CharacterArrayPool;
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.CloseInput = false;
+
                 return FromJsonReader(reader);
             }
         }
@@ -72,7 +79,9 @@ namespace EventStore.Core.Data
         {
             using (var reader = new JsonTextReader(new StringReader(json)))
             {
-                reader.ArrayPool = Json.CharacterArrayPool;
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.CloseInput = false;
+
                 return FromJsonReader(reader);
             }
         }
@@ -218,27 +227,39 @@ namespace EventStore.Core.Data
 
         public byte[] ToJsonBytes()
         {
-            using (var memoryStream = MemoryStreamManager.GetStream())
+            using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                var outputStream = pooledOutputStream.Object;
+                outputStream.Reinitialize(c_initialBufferSize, s_sharedBufferPool);
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(new StreamWriterX(outputStream, StringHelper.UTF8NoBOM)))
                 {
-                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
                     WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
                 }
-                return memoryStream.ToArray();
+                return outputStream.ToByteArray();
             }
         }
 
         public string ToJsonString()
         {
-            var stringWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(stringWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteAsJson(jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return sw.ToString();
             }
-            return StringWriterManager.ReturnAndFree(stringWriter);
         }
 
         private void WriteAsJson(JsonTextWriter jsonWriter)

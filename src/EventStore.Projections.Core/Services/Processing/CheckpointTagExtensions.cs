@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EventStore.Common.Utils;
+using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -34,7 +34,8 @@ namespace EventStore.Projections.Core.Services.Processing
             if (string.IsNullOrEmpty(source)) { return null; }
             var reader = new JsonTextReader(new StringReader(source))
             {
-                ArrayPool = Json.CharacterArrayPool
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false
             };
             return CheckpointTag.FromJson(reader, default(ProjectionVersion)).Tag;
         }
@@ -42,9 +43,10 @@ namespace EventStore.Projections.Core.Services.Processing
         public static CheckpointTag ParseCheckpointTagJson(this byte[] source)
         {
             if (source == null || 0u >= (uint)source.Length) { return null; }
-            var reader = new JsonTextReader(new StreamReader(new MemoryStream(source)))
+            var reader = new JsonTextReader(new StreamReader(new MemoryStream(source), Encoding.UTF8))
             {
-                ArrayPool = Json.CharacterArrayPool
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false
             };
             return CheckpointTag.FromJson(reader, default(ProjectionVersion)).Tag;
         }
@@ -55,9 +57,10 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 return new CheckpointTagVersion { Version = new ProjectionVersion(current.ProjectionId, 0, 0), Tag = null };
             }
-            var reader = new JsonTextReader(new StreamReader(new MemoryStream(source)))
+            var reader = new JsonTextReader(new StreamReader(new MemoryStream(source), Encoding.UTF8))
             {
-                ArrayPool = Json.CharacterArrayPool
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false
             };
             return CheckpointTag.FromJson(reader, current);
         }
@@ -70,7 +73,8 @@ namespace EventStore.Projections.Core.Services.Processing
             }
             var reader = new JsonTextReader(new StringReader(source))
             {
-                ArrayPool = Json.CharacterArrayPool
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false
             };
             return CheckpointTag.FromJson(reader, current);
         }
@@ -80,7 +84,8 @@ namespace EventStore.Projections.Core.Services.Processing
             if (string.IsNullOrEmpty(source)) { return null; }
             var reader = new JsonTextReader(new StringReader(source))
             {
-                ArrayPool = Json.CharacterArrayPool
+                ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                CloseInput = false
             };
             return CheckpointTag.FromJson(reader, default(ProjectionVersion)).ExtraMetadata;
         }
@@ -92,7 +97,8 @@ namespace EventStore.Projections.Core.Services.Processing
                 if (string.IsNullOrEmpty(source)) { return null; }
                 var reader = new JsonTextReader(new StringReader(source))
                 {
-                    ArrayPool = Json.CharacterArrayPool
+                    ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
+                    CloseInput = false
                 };
                 if (!reader.Read()) return null;
                 if (reader.TokenType != JsonToken.StartObject) return null;

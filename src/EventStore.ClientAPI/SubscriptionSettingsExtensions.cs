@@ -15,7 +15,7 @@ namespace EventStore.ClientAPI
 
             return new DataflowBlockOptions
             {
-                TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+                TaskScheduler = EventManager.TaskSchedulerPair.ConcurrentScheduler,
 
                 CancellationToken = settings.CancellationToken,
             };
@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI
 
             return new DataflowBlockOptions
             {
-                TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+                TaskScheduler = EventManager.TaskSchedulerPair.ConcurrentScheduler,
 
                 CancellationToken = settings.CancellationToken,
                 MaxMessagesPerTask = settings.MaxMessagesPerTask,
@@ -48,7 +48,7 @@ namespace EventStore.ClientAPI
 
             return new ExecutionDataflowBlockOptions
             {
-                TaskScheduler = TaskUtility.TaskSchedulerPair.ConcurrentScheduler,
+                TaskScheduler = EventManager.TaskSchedulerPair.ConcurrentScheduler,
 
                 CancellationToken = settings.CancellationToken,
                 MaxMessagesPerTask = settings.MaxMessagesPerTask,

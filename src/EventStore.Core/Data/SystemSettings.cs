@@ -1,8 +1,10 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Buffers;
 using System.IO;
-using CuteAnt.IO;
+using System.Runtime.CompilerServices;
+using System.Text;
+using CuteAnt.Buffers;
 using CuteAnt.Pool;
+using CuteAnt.Text;
 using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
@@ -12,6 +14,9 @@ namespace EventStore.Core.Data
 {
     public class SystemSettings
     {
+        private const int c_initialBufferSize = 1024 * 4;
+        private static readonly ArrayPool<byte> s_sharedBufferPool = BufferManager.Shared;
+
         public static readonly SystemSettings Default = new SystemSettings(
                 new StreamAcl(SystemRoles.All, SystemRoles.All, SystemRoles.All, SystemRoles.All, SystemRoles.All),
                 new StreamAcl(SystemRoles.Admins, SystemRoles.Admins, SystemRoles.Admins, SystemRoles.Admins, SystemRoles.Admins));
@@ -32,9 +37,10 @@ namespace EventStore.Core.Data
 
         public static SystemSettings FromJsonBytes(byte[] json)
         {
-            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json))))
+            using (var reader = new JsonTextReader(new StreamReader(new MemoryStream(json), Encoding.UTF8)))
             {
-                reader.ArrayPool = Json.CharacterArrayPool;
+                reader.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                reader.CloseInput = false;
 
                 Check(reader.Read(), reader);
                 Check(JsonToken.StartObject, reader);
@@ -79,27 +85,39 @@ namespace EventStore.Core.Data
 
         public byte[] ToJsonBytes()
         {
-            using (var memoryStream = MemoryStreamManager.GetStream())
+            using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                var outputStream = pooledOutputStream.Object;
+                outputStream.Reinitialize(c_initialBufferSize, s_sharedBufferPool);
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(new StreamWriterX(outputStream, StringHelper.UTF8NoBOM)))
                 {
-                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
                     WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
                 }
-                return memoryStream.ToArray();
+                return outputStream.ToByteArray();
             }
         }
 
         public string ToJsonString()
         {
-            var stringWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(stringWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteAsJson(jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteAsJson(jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return sw.ToString();
             }
-            return StringWriterManager.ReturnAndFree(stringWriter);
         }
 
         private void WriteAsJson(JsonTextWriter jsonWriter)

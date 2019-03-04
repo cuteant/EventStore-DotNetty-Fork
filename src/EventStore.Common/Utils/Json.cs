@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Buffers;
 using System.Xml;
+using CuteAnt.Pool;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -11,53 +11,61 @@ namespace EventStore.Common.Utils
 {
     public static class Json
     {
-        public static readonly IArrayPool<char> CharacterArrayPool;
-        public static readonly JsonSerializerSettings JsonSettings;
+        private static readonly JsonSerializerSettings FromSettings;
+        private static readonly ObjectPool<JsonSerializer> _deserializerPool;
+        private static readonly JsonSerializerSettings ToSettings;
+        private static readonly ObjectPool<JsonSerializer> _serializerPool;
 
         static Json()
         {
-            CharacterArrayPool = new JsonArrayPool<char>(ArrayPool<char>.Shared);
-
-            JsonSettings = new JsonSerializerSettings
+            FromSettings = new JsonSerializerSettings
             {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                DateParseHandling = DateParseHandling.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.None,
+                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
+            };
+            _deserializerPool = JsonConvertX.GetJsonSerializerPool(FromSettings);
+            ToSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
                 NullValueHandling = NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.None,
-                Converters = new JsonConverter[] { new StringEnumConverter() }
+                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
             };
+            _serializerPool = JsonConvertX.GetJsonSerializerPool(ToSettings);
         }
 
         public static byte[] ToJsonBytes(this object source)
         {
-            string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-            return Helper.UTF8NoBom.GetBytes(instring);
+            return _serializerPool.SerializeToByteArray(source);
         }
 
         public static string ToJson(this object source)
         {
-            string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-            return instring;
+            return _serializerPool.SerializeObject(source);
         }
 
         public static string ToCanonicalJson(this object source)
         {
-            string instring = JsonConvert.SerializeObject(source);
-            return instring;
+            return JsonConvertX.SerializeObject(source);
         }
 
         public static T ParseJson<T>(this string json)
         {
-            var result = JsonConvert.DeserializeObject<T>(json, JsonSettings);
-            return result;
+            return (T)_deserializerPool.DeserializeObject(json, typeof(T));
         }
 
         public static T ParseJson<T>(this byte[] json)
         {
-            var result = JsonConvert.DeserializeObject<T>(Helper.UTF8NoBom.GetString(json), JsonSettings);
-            return result;
+            return (T)_deserializerPool.DeserializeFromByteArray(json, typeof(T));
         }
 
         public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
@@ -68,7 +76,7 @@ namespace EventStore.Common.Utils
 
         public static object DeserializeObject(JObject value, Type type, params JsonConverter[] converters)
         {
-            var settings = converters == null || converters.Length <= 0
+            var settings = converters == null || 0u >= (uint)converters.Length
                 ? null
                 : new JsonSerializerSettings { Converters = converters };
             return DeserializeObject(value, type, settings);
@@ -97,27 +105,6 @@ namespace EventStore.Common.Utils
             }
 
             return true;
-        }
-
-        sealed class JsonArrayPool<T> : IArrayPool<T>
-        {
-            private readonly ArrayPool<T> _inner;
-
-            public JsonArrayPool(ArrayPool<T> inner)
-            {
-                if (inner == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inner); }
-
-                _inner = inner;
-            }
-
-            public T[] Rent(int minimumLength) => _inner.Rent(minimumLength);
-
-            public void Return(T[] array)
-            {
-                if (array == null) { return; }
-
-                _inner.Return(array);
-            }
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CuteAnt.IO;
+using CuteAnt.Buffers;
 using CuteAnt.Pool;
-using EventStore.Common.Utils;
+using CuteAnt.Text;
 using EventStore.Core.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,6 +14,9 @@ namespace EventStore.Projections.Core.Services.Processing
 {
     public class CheckpointTag : IComparable<CheckpointTag>
     {
+        private const int c_initialBufferSize = 1024 * 4;
+        private static readonly ArrayPool<byte> s_sharedBufferPool = BufferManager.Shared;
+
         public readonly int Phase;
         public readonly TFPos Position;
         //TODO: rename to StreamsOrEventTypes or just Positions
@@ -533,14 +537,20 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
-            using (var memoryStream = MemoryStreamManager.GetStream())
+            using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
             {
-                using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                var outputStream = pooledOutputStream.Object;
+                outputStream.Reinitialize(c_initialBufferSize, s_sharedBufferPool);
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(new StreamWriterX(outputStream, StringHelper.UTF8NoBOM)))
                 {
-                    jsonWriter.ArrayPool = Json.CharacterArrayPool;
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
                     WriteTo(projectionVersion, extraMetaData, jsonWriter);
+                    jsonWriter.Flush();
                 }
-                return memoryStream.ToArray();
+                return outputStream.ToByteArray();
             }
         }
 
@@ -548,38 +558,56 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (projectionVersion.ProjectionId == -1) throw new ArgumentException("projectionId is required", nameof(projectionVersion));
 
-            var textWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(textWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteTo(projectionVersion, extraMetaData, jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteTo(projectionVersion, extraMetaData, jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return sw.ToString();
             }
-            return StringWriterManager.ReturnAndFree(textWriter);
         }
 
         public string ToJsonString(IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
         {
-            var textWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(textWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return sw.ToString();
             }
-            return StringWriterManager.ReturnAndFree(textWriter);
         }
 
         public JRaw ToJsonRaw(IEnumerable<KeyValuePair<string, JToken>> extraMetaData = null)
         {
-            var textWriter = StringWriterManager.Allocate();
-            using (var jsonWriter = new JsonTextWriter(textWriter))
+            using (var pooledStringWriter = StringWriterManager.Create())
             {
-                jsonWriter.ArrayPool = Json.CharacterArrayPool;
-                jsonWriter.CloseOutput = false;
-                WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
+                var sw = pooledStringWriter.Object;
+
+                using (JsonTextWriter jsonWriter = new JsonTextWriter(sw))
+                {
+                    jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                    jsonWriter.CloseOutput = false;
+
+                    WriteTo(default(ProjectionVersion), extraMetaData, jsonWriter);
+                    jsonWriter.Flush();
+                }
+                return new JRaw(sw.ToString());
             }
-            return new JRaw(StringWriterManager.ReturnAndFree(textWriter));
         }
 
         public void WriteTo(in ProjectionVersion projectionVersion, IEnumerable<KeyValuePair<string, JToken>> extraMetaData, JsonWriter jsonWriter)

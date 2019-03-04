@@ -34,10 +34,9 @@ Goals:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="CuteAnt.JsonExtensions" Version="$(CuteAntJsonExtensionsPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="$(SystemThreadingTasksDataflowPackageVersion)" />
-    <PackageReference Include="System.ValueTuple" Version="$(SystemValueTuplePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

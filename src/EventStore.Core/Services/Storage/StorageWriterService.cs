@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,7 +8,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CuteAnt.IO;
+using CuteAnt.Buffers;
+using CuteAnt.Text;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -39,6 +41,9 @@ namespace EventStore.Core.Services.Storage
         IHandle<MonitoringMessage.InternalStatsRequest>
     {
         private static readonly ILogger Log = TraceLogger.GetLogger<StorageWriterService>();
+
+        private const int c_initialBufferSize = 1024 * 4;
+        private static readonly ArrayPool<byte> s_sharedBufferPool = BufferManager.Shared;
 
         protected static readonly int TicksPerMs = (int)(Stopwatch.Frequency / 1000);
         private static readonly TimeSpan WaitForChaserSingleIterationTimeout = TimeSpan.FromMilliseconds(200);
@@ -367,14 +372,20 @@ namespace EventStore.Core.Services.Storage
             {
                 var jobj = JObject.Parse(Encoding.UTF8.GetString(rawMeta));
                 jobj[SystemMetadata.TruncateBefore] = recreateFromEventNumber;
-                using (var memoryStream = MemoryStreamManager.GetStream())
+                using (var pooledOutputStream = BufferManagerOutputStreamManager.Create())
                 {
-                    using (var jsonWriter = new JsonTextWriter(new StreamWriterX(memoryStream)))
+                    var outputStream = pooledOutputStream.Object;
+                    outputStream.Reinitialize(c_initialBufferSize, s_sharedBufferPool);
+
+                    using (var jsonWriter = new JsonTextWriter(new StreamWriterX(outputStream, StringHelper.UTF8NoBOM)))
                     {
-                        jsonWriter.ArrayPool = Json.CharacterArrayPool;
+                        jsonWriter.ArrayPool = JsonConvertX.GlobalCharacterArrayPool;
+                        jsonWriter.CloseOutput = false;
+
                         jobj.WriteTo(jsonWriter);
+                        jsonWriter.Flush();
                     }
-                    modifiedMeta = memoryStream.ToArray();
+                    modifiedMeta =  outputStream.ToByteArray();
                     return true;
                 }
             }

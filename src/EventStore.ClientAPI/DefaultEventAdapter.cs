@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Threading;
-using CuteAnt.Buffers;
 using CuteAnt.Pool;
 using CuteAnt.Reflection;
-using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Internal;
+using JsonExtensions;
+using JsonExtensions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -25,9 +24,7 @@ namespace EventStore.ClientAPI
         private const int c_charBufferSize = 1024;
 
         private readonly JsonSerializerSettings _metaSettings;
-        private readonly JsonSerializerSettings _serializerSettings;
-        private readonly IArrayPool<char> _charPool;
-        private readonly ObjectPoolProvider _objectPoolProvider;
+        private readonly JsonSerializerSettings _dataSettings;
 
         private ObjectPool<JsonSerializer> _metaSerializerPool;
         private ObjectPool<JsonSerializer> _dataSerializerPool;
@@ -77,61 +74,34 @@ namespace EventStore.ClientAPI
                 serializerSettings.SerializationBinder = JsonSerializationBinder.Instance;
             }
 
-            _serializerSettings = serializerSettings;
-            _charPool = new JsonArrayPool<char>(charPool);
-            _objectPoolProvider = objectPoolProvider;
+            _dataSettings = serializerSettings;
         }
 
         protected JsonSerializerSettings MetaSerializerSettings => _metaSettings;
 
-        protected JsonSerializerSettings DataSerializerSettings => _serializerSettings;
+        protected JsonSerializerSettings DataSerializerSettings => _dataSettings;
 
         public override EventData Adapt(object message, EventMetadata eventMeta)
         {
-            //if (message == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
-            byte[] metaData = null;
             var actualType = message.GetType();
             if (null == eventMeta) { eventMeta = new EventMetadata(); }
             eventMeta.ClrEventType = TypeUtils.SerializeTypeName(actualType);
 
-            using (var pooledStream = BufferManagerOutputStreamManager.Create())
+            var metaSerializer = CreateMetaSerializer();
+            var dataSerializer = CreateDataSerializer();
+            try
             {
-                var outputStream = pooledStream.Object;
-                outputStream.Reinitialize(c_metaBufferSize);
+                var metaData = metaSerializer.SerializeToByteArray(eventMeta);
+                var eventData = dataSerializer.SerializeToByteArray(message);
 
-                using (JsonWriter jsonWriter = CreateJsonWriter(outputStream))
-                {
-                    var jsonSerializer = CreateMetaSerializer();
-                    try
-                    {
-                        jsonSerializer.Serialize(jsonWriter, eventMeta, typeof(EventMetadata));
-                        jsonWriter.Flush();
-                    }
-                    finally { ReleaseMetaSerializer(jsonSerializer); }
-                }
-                metaData = outputStream.ToByteArray();
+                return new EventData(Guid.NewGuid(), StringUtils.ToCamelCase(actualType.Name), true, eventData, metaData);
             }
-
-            using (var pooledStream = BufferManagerOutputStreamManager.Create())
+            finally
             {
-                var outputStream = pooledStream.Object;
-                outputStream.Reinitialize(c_dataBufferSize);
-
-                using (JsonWriter jsonWriter = CreateJsonWriter(outputStream))
-                {
-                    var jsonSerializer = CreateDataSerializer();
-                    try
-                    {
-                        jsonSerializer.Serialize(jsonWriter, message);
-                        jsonWriter.Flush();
-                    }
-                    finally { ReleaseDataSerializer(jsonSerializer); }
-                }
-
-                var eventData = outputStream.ToByteArray();
-
-                return new EventData(Guid.NewGuid(), Json.ToCamelCase(actualType.Name), true, eventData, metaData);
+                ReleaseMetaSerializer(metaSerializer);
+                ReleaseDataSerializer(dataSerializer);
             }
         }
 
@@ -139,16 +109,13 @@ namespace EventStore.ClientAPI
         {
             if (eventData == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventData); }
 
-            using (var jsonReader = CreateJsonReader(new MemoryStream(eventData)))
+            TypeUtils.TryResolveType(eventMeta?.ClrEventType, out var dataType);
+            var jsonSerializer = CreateDataSerializer();
+            try
             {
-                var jsonSerializer = CreateDataSerializer();
-                try
-                {
-                    TypeUtils.TryResolveType(eventMeta?.ClrEventType, out var dataType);
-                    return jsonSerializer.Deserialize(jsonReader, dataType);
-                }
-                finally { ReleaseDataSerializer(jsonSerializer); }
+                return jsonSerializer.DeserializeFromByteArray(eventData, dataType);
             }
+            finally { ReleaseDataSerializer(jsonSerializer); }
         }
 
         public override IEventMetadata ToEventMetadata(Dictionary<string, object> context) => new EventMetadata { Context = context };
@@ -157,22 +124,19 @@ namespace EventStore.ClientAPI
         {
             if (metadata == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metadata); }
 
-            using (var jsonReader = CreateJsonReader(new MemoryStream(metadata)))
+            var jsonSerializer = CreateMetaSerializer();
+            try
             {
-                var jsonSerializer = CreateMetaSerializer();
-                try
-                {
-                    return jsonSerializer.Deserialize<EventMetadata>(jsonReader);
-                }
-                finally { ReleaseMetaSerializer(jsonSerializer); }
+                return (IEventMetadata)jsonSerializer.DeserializeFromByteArray(metadata, typeof(EventMetadata));
             }
+            finally { ReleaseMetaSerializer(jsonSerializer); }
         }
 
         protected virtual JsonSerializer CreateMetaSerializer()
         {
             if (_metaSerializerPool == null)
             {
-                Interlocked.Exchange(ref _metaSerializerPool, _objectPoolProvider.Create(new JsonSerializerObjectPolicy(_metaSettings)));
+                Interlocked.Exchange(ref _metaSerializerPool, JsonConvertX.GetJsonSerializerPool(_metaSettings));
             }
 
             return _metaSerializerPool.Take();
@@ -184,37 +148,12 @@ namespace EventStore.ClientAPI
         {
             if (_dataSerializerPool == null)
             {
-                Interlocked.Exchange(ref _dataSerializerPool, _objectPoolProvider.Create(new JsonSerializerObjectPolicy(_serializerSettings)));
+                Interlocked.Exchange(ref _dataSerializerPool, JsonConvertX.GetJsonSerializerPool(_dataSettings));
             }
 
             return _dataSerializerPool.Take();
         }
 
         protected virtual void ReleaseDataSerializer(JsonSerializer serializer) => _dataSerializerPool.Return(serializer);
-
-        protected virtual JsonWriter CreateJsonWriter(Stream writer)
-        {
-            if (writer == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
-
-            var jsonWriter = new JsonTextWriter(new StreamWriter(writer, UTF8NoBom, c_charBufferSize, true))
-            {
-                ArrayPool = _charPool,
-                CloseOutput = false,
-            };
-
-            return jsonWriter;
-        }
-
-        protected virtual JsonReader CreateJsonReader(Stream reader)
-        {
-            if (reader == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reader); }
-
-            var jsonReader = new JsonTextReader(new StreamReader(reader, Encoding.UTF8, true, c_charBufferSize, true))
-            {
-                ArrayPool = _charPool,
-                CloseInput = false
-            };
-            return jsonReader;
-        }
     }
 }

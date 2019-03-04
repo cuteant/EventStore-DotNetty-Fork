@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using CuteAnt;
 using CuteAnt.Collections;
 using CuteAnt.Reflection;
 using CuteAnt.Text;
@@ -18,6 +21,45 @@ namespace EventStore.ClientAPI
         static EventManager()
         {
             s_streamMapCache = new CachedReadConcurrentDictionary<Type, string>(DictionaryCacheConstants.SIZE_MEDIUM);
+        }
+
+        #endregion
+
+        #region -- TaskScheduler -- 
+
+        private static TaskScheduler s_defaultTaskScheduler = TaskScheduler.Default;
+
+        /// <summary>DefaultTaskScheduler</summary>
+        public static TaskScheduler DefaultTaskScheduler
+        {
+            get => Volatile.Read(ref s_defaultTaskScheduler);
+            set => Interlocked.Exchange(ref s_defaultTaskScheduler, value);
+        }
+
+        // The default concurrency level is DEFAULT_CONCURRENCY_MULTIPLIER * #CPUs. The higher the
+        // DEFAULT_CONCURRENCY_MULTIPLIER, the more concurrent writes can take place without interference
+        // and blocking, but also the more expensive operations that require all locks become (e.g. table
+        // resizing, ToArray, Count, etc). According to brief benchmarks that we ran, 4 seems like a good
+        // compromise.
+        private const Int32 DEFAULT_CONCURRENCY_MULTIPLIER = 4;
+
+        /// <summary>The number of concurrent writes for which to optimize by default.</summary>
+        private static Int32 DefaultConcurrencyLevel => DEFAULT_CONCURRENCY_MULTIPLIER * PlatformHelper.ProcessorCount;
+
+        private static ConcurrentExclusiveSchedulerPair s_taskSchedulerPair;
+
+        /// <summary>TaskSchedulerPair</summary>
+        internal static ConcurrentExclusiveSchedulerPair TaskSchedulerPair
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Volatile.Read(ref s_taskSchedulerPair) ?? EnsureSchedulerPairCreated();
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static ConcurrentExclusiveSchedulerPair EnsureSchedulerPairCreated()
+        {
+            Interlocked.CompareExchange(ref s_taskSchedulerPair, new ConcurrentExclusiveSchedulerPair(DefaultTaskScheduler, DefaultConcurrencyLevel), null);
+            return s_taskSchedulerPair;
         }
 
         #endregion

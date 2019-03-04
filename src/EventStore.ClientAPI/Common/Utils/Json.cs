@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Xml;
 using CuteAnt;
 using CuteAnt.Pool;
+using JsonExtensions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -15,26 +14,15 @@ namespace EventStore.ClientAPI.Common.Utils
 {
     internal static class Json
     {
-        private static readonly ObjectPool<JsonSerializer> _jsonSerializerPool;
+        private static readonly ObjectPool<JsonSerializer> _defaultPool;
 
-        public static readonly JsonSerializerSettings JsonSettings;
-
-        public static readonly IArrayPool<char> CharacterArrayPool;
+        private static readonly JsonSerializerSettings FromSettings;
+        private static readonly ObjectPool<JsonSerializer> _deserializerPool;
+        private static readonly JsonSerializerSettings ToSettings;
+        private static readonly ObjectPool<JsonSerializer> _serializerPool;
 
         static Json()
         {
-            CharacterArrayPool = new JsonArrayPool<char>(ArrayPool<char>.Shared);
-
-            JsonSettings = new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None,
-                Converters = new JsonConverter[] { new StringEnumConverter(), new CombGuidConverter() }
-            };
             var settings = new JsonSerializerSettings
             {
                 DateFormatHandling = DateFormatHandling.IsoDateFormat,
@@ -44,21 +32,43 @@ namespace EventStore.ClientAPI.Common.Utils
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.None,
                 PreserveReferencesHandling = PreserveReferencesHandling.None,
-                Converters = new JsonConverter[] { new StringEnumConverter(), new CombGuidConverter() }
+                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
             };
-            _jsonSerializerPool = SynchronizedObjectPoolProvider.Default.Create(new JsonSerializerObjectPolicy(settings));
+            _defaultPool = JsonConvertX.GetJsonSerializerPool(settings);
+
+            FromSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                DateParseHandling = DateParseHandling.None,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.None,
+                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
+            };
+            _deserializerPool = JsonConvertX.GetJsonSerializerPool(FromSettings);
+            ToSettings = new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.None,
+                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
+            };
+            _serializerPool = JsonConvertX.GetJsonSerializerPool(ToSettings);
         }
 
         public static byte[] ToJsonBytes(this object source)
         {
-            string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-            return Helper.UTF8NoBom.GetBytes(instring);
+            return _serializerPool.SerializeToByteArray(source);
         }
 
         public static string ToJson(this object source)
         {
-            string instring = JsonConvert.SerializeObject(source, Formatting.Indented, JsonSettings);
-            return instring;
+            return _serializerPool.SerializeObject(source);
         }
 
         public static string ToCanonicalJson(this object source)
@@ -69,14 +79,12 @@ namespace EventStore.ClientAPI.Common.Utils
 
         public static T ParseJson<T>(this string json)
         {
-            var result = JsonConvert.DeserializeObject<T>(json, JsonSettings);
-            return result;
+            return (T)_deserializerPool.DeserializeObject(json, typeof(T));
         }
 
         public static T ParseJson<T>(this byte[] json)
         {
-            var result = JsonConvert.DeserializeObject<T>(Helper.UTF8NoBom.GetString(json), JsonSettings);
-            return result;
+            return (T)_deserializerPool.DeserializeFromByteArray(json, typeof(T));
         }
 
         public static object DeserializeObject(JObject value, Type type, JsonSerializerSettings settings)
@@ -176,7 +184,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
             using (var jsonReader = new JTokenReader(token))
             {
-                var jsonDeserializer = _jsonSerializerPool.Take();
+                var jsonDeserializer = _defaultPool.Take();
 
                 try
                 {
@@ -184,7 +192,7 @@ namespace EventStore.ClientAPI.Common.Utils
                 }
                 finally
                 {
-                    _jsonSerializerPool.Return(jsonDeserializer);
+                    _defaultPool.Return(jsonDeserializer);
                 }
             }
         }
@@ -193,152 +201,12 @@ namespace EventStore.ClientAPI.Common.Utils
         {
             if (char.IsUpper(key[0]))
             {
-                var camelCaseKey = ToCamelCase(key);
+                var camelCaseKey = StringUtils.ToCamelCase(key);
                 return dictionary.TryGetValue(camelCaseKey, out value);
             }
 
             value = null;
             return false;
-        }
-
-        internal static string ToCamelCase(string s)
-        {
-            if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
-            {
-                return s;
-            }
-
-            char[] chars = s.ToCharArray();
-
-            for (int i = 0; i < chars.Length; i++)
-            {
-                if (i == 1 && !char.IsUpper(chars[i]))
-                {
-                    break;
-                }
-
-                bool hasNext = (i + 1 < chars.Length);
-                if (i > 0 && hasNext && !char.IsUpper(chars[i + 1]))
-                {
-                    // if the next character is a space, which is not considered uppercase 
-                    // (otherwise we wouldn't be here...)
-                    // we want to ensure that the following:
-                    // 'FOO bar' is rewritten as 'foo bar', and not as 'foO bar'
-                    // The code was written in such a way that the first word in uppercase
-                    // ends when if finds an uppercase letter followed by a lowercase letter.
-                    // now a ' ' (space, (char)32) is considered not upper
-                    // but in that case we still want our current character to become lowercase
-                    if (char.IsSeparator(chars[i + 1]))
-                    {
-                        chars[i] = char.ToLower(chars[i], CultureInfo.InvariantCulture);
-                    }
-
-                    break;
-                }
-
-                chars[i] = char.ToLower(chars[i], CultureInfo.InvariantCulture);
-            }
-
-            return new string(chars);
-        }
-    }
-
-    sealed class JsonArrayPool<T> : IArrayPool<T>
-    {
-        private readonly ArrayPool<T> _inner;
-
-        public JsonArrayPool(ArrayPool<T> inner)
-        {
-            if (inner == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inner); }
-
-            _inner = inner;
-        }
-
-        public T[] Rent(int minimumLength) => _inner.Rent(minimumLength);
-
-        public void Return(T[] array)
-        {
-            if (array == null) { return; }
-
-            _inner.Return(array);
-        }
-    }
-
-    sealed class JsonSerializationBinder : CuteAnt.Serialization.DefaultSerializationBinder, ISerializationBinder
-    {
-        public static readonly JsonSerializationBinder Instance = new JsonSerializationBinder();
-
-        private JsonSerializationBinder() { }
-    }
-
-    sealed class JsonSerializerObjectPolicy : IPooledObjectPolicy<JsonSerializer>
-    {
-        private readonly JsonSerializerSettings _serializerSettings;
-
-        public JsonSerializerObjectPolicy(JsonSerializerSettings serializerSettings)
-        {
-            _serializerSettings = serializerSettings;
-        }
-
-        public JsonSerializer Create() => JsonSerializer.Create(_serializerSettings); // CreateDefault
-
-        public JsonSerializer PreGetting(JsonSerializer serializer) => serializer;
-
-        public bool Return(JsonSerializer serializer) => serializer != null;
-    }
-
-    /// <summary>Converts a <see cref="CombGuid"/> to and from a string.</summary>
-    sealed class CombGuidConverter : JsonConverter
-    {
-        /// <summary>Reads the JSON representation of the object.</summary>
-        /// <param name="reader">The <see cref="JsonReader"/> to read from.</param>
-        /// <param name="objectType">Type of the object.</param>
-        /// <param name="existingValue">The existing property value of the JSON that is being converted.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        /// <returns>The object value.</returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return CombGuid.Empty;
-            }
-            else
-            {
-                JToken token = JToken.Load(reader);
-                var str = token.Value<string>();
-                if (CombGuid.TryParse(str, CombGuidSequentialSegmentType.Comb, out CombGuid v))
-                {
-                    return v;
-                }
-                if (CombGuid.TryParse(str, CombGuidSequentialSegmentType.Guid, out v))
-                {
-                    return v;
-                }
-                return CombGuid.Empty;
-            }
-        }
-
-        /// <summary>Writes the JSON representation of the object.</summary>
-        /// <param name="writer">The <see cref="JsonWriter"/> to write to.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value == null)
-            {
-                writer.WriteNull();
-                return;
-            }
-            CombGuid comb = (CombGuid)value;
-            writer.WriteValue(comb.ToString());
-        }
-
-        /// <summary>Determines whether this instance can convert the specified object type.</summary>
-        /// <param name="objectType">Type of the object.</param>
-        /// <returns><c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.</returns>
-        public override Boolean CanConvert(Type objectType)
-        {
-            return objectType == TypeConstants.CombGuidType || objectType == typeof(CombGuid?);
         }
     }
 }

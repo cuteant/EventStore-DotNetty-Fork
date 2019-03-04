@@ -5,12 +5,10 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
 using CuteAnt.Pool;
 using CuteAnt.Reflection;
-using CuteAnt.Text;
 using EventStore.ClientAPI.SystemData;
+using JsonExtensions.Utilities;
 
 namespace EventStore.ClientAPI
 {
@@ -21,36 +19,18 @@ namespace EventStore.ClientAPI
 
         static ConnectionString()
         {
-            Digits = "0123456789".ToCharArray();
-            ByteSizes = new ByteSize[]
-            {
-                new ByteSize { Factor = 1024L * 1024L * 1024L * 1024L * 1024 * 1024L, Suffixes = new string[] { "E", "e", "Ei", "EiB", "exbibyte", "exbibytes" } },
-                new ByteSize { Factor = 1000L * 1000L * 1000L * 1000L * 1000L * 1000L, Suffixes = new string[] { "EB", "exabyte", "exabytes" } },
-                new ByteSize { Factor = 1024L * 1024L * 1024L * 1024L * 1024L, Suffixes = new string[] { "P", "p", "Pi", "PiB", "pebibyte", "pebibytes" } },
-                new ByteSize { Factor = 1000L * 1000L * 1000L * 1000L * 1000L, Suffixes = new string[] { "PB", "petabyte", "petabytes" } },
-                new ByteSize { Factor = 1024L * 1024L * 1024L * 1024L, Suffixes = new string[] { "T", "t", "Ti", "TiB", "tebibyte", "tebibytes" } },
-                new ByteSize { Factor = 1000L * 1000L * 1000L * 1000L, Suffixes = new string[] { "TB", "terabyte", "terabytes" } },
-                new ByteSize { Factor = 1024L * 1024L * 1024L, Suffixes = new string[] { "G", "g", "Gi", "GiB", "gibibyte", "gibibytes" } },
-                new ByteSize { Factor = 1000L * 1000L * 1000L, Suffixes = new string[] { "GB", "gigabyte", "gigabytes" } },
-                new ByteSize { Factor = 1024L * 1024L, Suffixes = new string[] { "M", "m", "Mi", "MiB", "mebibyte", "mebibytes" } },
-                new ByteSize { Factor = 1000L * 1000L, Suffixes = new string[] { "MB", "megabyte", "megabytes" } },
-                new ByteSize { Factor = 1024L, Suffixes = new string[] { "K", "k", "Ki", "KiB", "kibibyte", "kibibytes" } },
-                new ByteSize { Factor = 1000L, Suffixes = new string[] { "KB", "kilobyte", "kilobytes" } },
-                new ByteSize { Factor = 1, Suffixes = new string[] { "b", "B", "byte", "bytes" } }
-            };
-
             s_translators = new Dictionary<Type, Func<string, object>>()
             {
-                { typeof(int), x => ToNullableInt(GetByteSize(x)) ?? 0 },
-                { typeof(int?), x => ToNullableInt(GetByteSize(x)) },
+                { typeof(int), x => ConfigUtils.ToNullableInt(x) ?? 0 },
+                { typeof(int?), x => ConfigUtils.ToNullableInt(x) },
                 { typeof(decimal), x => decimal.Parse(x, CultureInfo.InvariantCulture) },
                 { typeof(string), x => x },
-                { typeof(bool), x => ToBoolean(x) },
-                { typeof(long), x => GetByteSize(x) ?? 0L },
+                { typeof(bool), x => ConfigUtils.ToNullableBool(x) ?? false },
+                { typeof(long), x => ConfigUtils.ToNullableInt64(x) ?? 0L },
                 { typeof(byte), x => byte.Parse(x, CultureInfo.InvariantCulture) },
                 { typeof(double), x => double.Parse(x, CultureInfo.InvariantCulture) },
                 { typeof(float), x => float.Parse(x, CultureInfo.InvariantCulture) },
-                { typeof(TimeSpan), x => GetTimeSpan(x, false) },
+                { typeof(TimeSpan), x => ConfigUtils.ToNullableTimeSpan(x, true) ?? TimeSpan.Zero },
                 { typeof(GossipSeed[]), x => x.Split(',').Select(q =>
                     {
                         try
@@ -141,87 +121,13 @@ namespace EventStore.ClientAPI
             return StringBuilderManager.ReturnAndFree(nameWithSpaces);
         }
 
-        /// <summary>MyProperty -> my_property</summary>
-        private static string ToSnakeCase(string s)
-        {
-            if (string.IsNullOrEmpty(s))
-            {
-                return s;
-            }
-
-            var sb = StringBuilderCache.Acquire();
-            var state = SnakeCaseState.Start;
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (s[i] == ' ')
-                {
-                    if (state != SnakeCaseState.Start)
-                    {
-                        state = SnakeCaseState.NewWord;
-                    }
-                }
-                else if (char.IsUpper(s[i]))
-                {
-                    switch (state)
-                    {
-                        case SnakeCaseState.Upper:
-                            bool hasNext = (i + 1 < s.Length);
-                            if (i > 0 && hasNext)
-                            {
-                                char nextChar = s[i + 1];
-                                if (!char.IsUpper(nextChar) && nextChar != '_')
-                                {
-                                    sb.Append('_');
-                                }
-                            }
-                            break;
-                        case SnakeCaseState.Lower:
-                        case SnakeCaseState.NewWord:
-                            sb.Append('_');
-                            break;
-                    }
-
-                    var c = char.ToLower(s[i], CultureInfo.InvariantCulture);
-                    sb.Append(c);
-
-                    state = SnakeCaseState.Upper;
-                }
-                else if (s[i] == '_')
-                {
-                    sb.Append('_');
-                    state = SnakeCaseState.Start;
-                }
-                else
-                {
-                    if (state == SnakeCaseState.NewWord)
-                    {
-                        sb.Append('_');
-                    }
-
-                    sb.Append(s[i]);
-                    state = SnakeCaseState.Lower;
-                }
-            }
-
-            return StringBuilderCache.GetStringAndRelease(sb);
-        }
-
-        private enum SnakeCaseState
-        {
-            Start,
-            Lower,
-            Upper,
-            NewWord
-        }
-
         private static T Apply<T>(IEnumerable<KeyValuePair<string, string>> items, T obj)
         {
             var typeFields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
 
             var fields = typeFields.Select(x => new Tuple<string, FieldInfo>(x.Name, x))
                 .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(WithSpaces(x.Name), x)))
-                .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(ToSnakeCase(x.Name), x)))
+                .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(StringUtils.ToSnakeCase(x.Name), x)))
                 .GroupBy(x => x.Item1)
                 .ToDictionary(x => x.First().Item1, x => x.First().Item2, StringComparer.OrdinalIgnoreCase);
 
@@ -236,147 +142,5 @@ namespace EventStore.ClientAPI
             }
             return obj;
         }
-
-        #region ** ToBoolean **
-
-        private static bool ToBoolean(string str)
-        {
-            if (string.IsNullOrWhiteSpace(str)) { return false; }
-            switch (str.ToLowerInvariant())
-            {
-                case "1":
-                case "t":
-                case "on":
-                case "true":
-                    return true;
-
-                case "0":
-                case "f":
-                case "false":
-                case "off":
-                default:
-                    return false;
-            }
-        }
-
-        #endregion
-
-        #region ** ToNullableInt **
-
-        private static int? ToNullableInt(long? value) => value.HasValue && value.Value > 0L ? (int?)value.Value : null;
-
-        #endregion
-
-        #region ** GetTimeSpan **
-
-        private static readonly Regex TimeSpanRegex =
-            new Regex(@"^(?<value>([0-9]+(\.[0-9]+)?))\s*(?<unit>(nanoseconds|nanosecond|nanos|nano|ns|microseconds|microsecond|micros|micro|us|milliseconds|millisecond|millis|milli|ms|seconds|second|s|minutes|minute|m|hours|hour|h|days|day|d))$",
-                RegexOptions.Compiled);
-
-        private static TimeSpan GetTimeSpan(string res, bool allowInfinite = true)
-        {
-            var match = TimeSpanRegex.Match(res);
-            if (match.Success)
-            {
-                var u = match.Groups["unit"].Value;
-                var v = ParsePositiveValue(match.Groups["value"].Value);
-
-                switch (u)
-                {
-                    case "nanoseconds":
-                    case "nanosecond":
-                    case "nanos":
-                    case "nano":
-                    case "ns":
-                        return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * v / 1000000.0));
-                    case "microseconds":
-                    case "microsecond":
-                    case "micros":
-                    case "micro":
-                        return TimeSpan.FromTicks((long)Math.Round(TimeSpan.TicksPerMillisecond * v / 1000.0));
-                    case "milliseconds":
-                    case "millisecond":
-                    case "millis":
-                    case "milli":
-                    case "ms":
-                        return TimeSpan.FromMilliseconds(v);
-                    case "seconds":
-                    case "second":
-                    case "s":
-                        return TimeSpan.FromSeconds(v);
-                    case "minutes":
-                    case "minute":
-                    case "m":
-                        return TimeSpan.FromMinutes(v);
-                    case "hours":
-                    case "hour":
-                    case "h":
-                        return TimeSpan.FromHours(v);
-                    case "days":
-                    case "day":
-                    case "d":
-                        return TimeSpan.FromDays(v);
-                }
-            }
-
-            if (allowInfinite && string.Equals("infinite", res, StringComparison.OrdinalIgnoreCase))  //Not in Hocon spec
-            {
-                return Timeout.InfiniteTimeSpan;
-            }
-
-            return TimeSpan.FromMilliseconds(ParsePositiveValue(res));
-        }
-
-        private static double ParsePositiveValue(string v)
-        {
-            var value = double.Parse(v, NumberFormatInfo.InvariantInfo);
-            if (value < 0)
-            {
-                throw new FormatException($"Expected a positive value instead of {value}");
-            }
-            return value;
-        }
-
-        #endregion
-
-        #region ** GetByteSize **
-
-        private struct ByteSize
-        {
-            public long Factor { get; set; }
-            public string[] Suffixes { get; set; }
-        }
-
-        private static ByteSize[] ByteSizes { get; }
-
-        private static char[] Digits { get; }
-
-        private static long? GetByteSize(string res)
-        {
-            if (string.IsNullOrWhiteSpace(res)) { return null; }
-            res = res.Trim();
-            var index = res.LastIndexOfAny(Digits);
-            if (index == -1 || index + 1 >= res.Length) { return long.Parse(res); }
-
-            var value = res.Substring(0, index + 1);
-            var unit = res.Substring(index + 1).Trim();
-
-            for (var byteSizeIndex = 0; byteSizeIndex < ByteSizes.Length; byteSizeIndex++)
-            {
-                var byteSize = ByteSizes[byteSizeIndex];
-                for (var suffixIndex = 0; suffixIndex < byteSize.Suffixes.Length; suffixIndex++)
-                {
-                    var suffix = byteSize.Suffixes[suffixIndex];
-                    if (string.Equals(unit, suffix, StringComparison.Ordinal))
-                    {
-                        return byteSize.Factor * long.Parse(value);
-                    }
-                }
-            }
-
-            throw new FormatException($"{unit} is not a valid byte size suffix");
-        }
-
-        #endregion
     }
 }
