@@ -68,7 +68,7 @@ namespace EventStore.ClientAPI.ClientOperations
             for (var idx = 0; idx < numActionBlocks; idx++)
             {
                 _actionBlocks.Add(new ActionBlock<ResolvedEventWrapper>(
-                    e => ProcessItem(e),
+                    ProcessItem,
                     settings.ToExecutionDataflowBlockOptions(true)));
             }
             if (numActionBlocks > 1)
@@ -112,7 +112,7 @@ namespace EventStore.ClientAPI.ClientOperations
             for (var idx = 0; idx < numActionBlocks; idx++)
             {
                 _actionBlocks.Add(new ActionBlock<ResolvedEventWrapper>(
-                  e => ProcessItemAsync(e),
+                  ProcessItemAsync,
                   settings.ToExecutionDataflowBlockOptions()));
             }
             if (numActionBlocks > 1)

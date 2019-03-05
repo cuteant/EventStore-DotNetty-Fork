@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI
         /// <returns>A new <see cref="PersistentSubscriptionSettingsBuilder"></see></returns>
         public PersistentSubscriptionSettingsBuilder StartFromBeginning()
         {
-            _startFrom = 0;
+            _startFrom = 0L;
             return this;
         }
 
@@ -213,7 +213,7 @@ namespace EventStore.ClientAPI
         /// <returns>A new <see cref="PersistentSubscriptionSettingsBuilder"></see></returns>
         public PersistentSubscriptionSettingsBuilder StartFromCurrent()
         {
-            _startFrom = -1;
+            _startFrom = -1L;
             return this;
         }
 

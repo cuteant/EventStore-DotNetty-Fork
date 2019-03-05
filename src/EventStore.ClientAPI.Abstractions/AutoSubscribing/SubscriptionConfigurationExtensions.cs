@@ -18,7 +18,25 @@ namespace EventStore.ClientAPI.AutoSubscribing
             }
 
             var startFrom = ConfigUtils.ToNullableInt64(attr.StartFrom);
-            if (startFrom.HasValue) { builder.StartFrom(startFrom.Value); }
+            if (startFrom.HasValue)
+            {
+                if (startFrom.Value < 0L)
+                {
+                    builder.StartFromCurrent();
+                }
+                else if (startFrom.Value == 0L)
+                {
+                    builder.StartFromBeginning();
+                }
+                else
+                {
+                    builder.StartFrom(startFrom.Value);
+                }
+            }
+            else
+            {
+                builder.StartFromBeginning();
+            }
 
             var extraStatistics = ConfigUtils.ToNullableBool(attr.ExtraStatistics);
             if (extraStatistics.HasValue && extraStatistics.Value) { builder.WithExtraStatistics(); }

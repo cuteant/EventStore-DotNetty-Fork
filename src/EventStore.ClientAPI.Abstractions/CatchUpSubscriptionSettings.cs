@@ -1,18 +1,27 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace EventStore.ClientAPI
 {
     /// <summary>Settings for <see cref="T:EventStore.ClientAPI.EventStoreCatchUpSubscription"/>.</summary>
     public partial class CatchUpSubscriptionSettings : SubscriptionSettings
     {
+#pragma warning disable CS0809 // 过时成员重写未过时成员
         /// <inheritdoc />
+        [Obsolete("No longer used")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int BoundedCapacityPerBlock { get => Unbounded; set { } }
 
         /// <inheritdoc />
+        [Obsolete("No longer used")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int MaxDegreeOfParallelismPerBlock { get => DefaultDegreeOfParallelism; set { } }
 
         /// <inheritdoc />
+        [Obsolete("No longer used")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int NumActionBlocks { get => DefaultNumActionBlocks; set { } }
+#pragma warning restore CS0809 // 过时成员重写未过时成员
 
         /// <summary>The maximum amount of events to cache when processing from a live subscription. Going above this value will drop the subscription.</summary>
         public readonly int MaxLiveQueueSize;

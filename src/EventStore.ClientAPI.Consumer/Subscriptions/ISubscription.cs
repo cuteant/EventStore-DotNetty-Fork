@@ -6,7 +6,6 @@ namespace EventStore.ClientAPI.Subscriptions
     public interface ISubscription
     {
         string StreamId { get; }
-        string SubscriptionId { get; }
         string Topic { get; set; }
 
         StreamMetadata StreamMeta { get; }

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using CuteAnt.AsyncEx;
-using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 
@@ -48,12 +45,11 @@ namespace EventStore.ClientAPI
 
         private readonly int _numActionBlocks;
         internal readonly BufferBlock<TResolvedEvent> _historicalQueue;
-        private readonly List<ActionBlock<TResolvedEvent>> _historicalBlocks;
-        private IDisposable _historicalLinks;
+        protected readonly ActionBlock<TResolvedEvent> _historicalTargetBlock;
+        private readonly IDisposable _historicalLinks;
         private readonly BufferBlock<TResolvedEvent> _liveQueue;
-        private readonly List<ActionBlock<TResolvedEvent>> _liveBlocks;
+        protected readonly ActionBlock<TResolvedEvent> _liveTargetBlock;
         private IDisposable _liveLinks;
-        internal EventStoreSubscription _subscription;
         private DropData _dropData;
 
         ///<summary>stop has been called.</summary>
@@ -68,6 +64,13 @@ namespace EventStore.ClientAPI
 
         #region @@ Properties @@
 
+        private EventStoreSubscription _subscription;
+        internal EventStoreSubscription InnerSubscription
+        {
+            get => Volatile.Read(ref _subscription);
+            set => Interlocked.Exchange(ref _subscription, value);
+        }
+
         /// <summary>Indicates whether the subscription is to all events or to a specific stream.</summary>
         public bool IsSubscribedToAll { get; protected set; } = false;
         /// <summary>The name of the stream to which the subscription is subscribed (empty if subscribed to all).</summary>
@@ -76,7 +79,7 @@ namespace EventStore.ClientAPI
         public string SubscriptionName => _subscriptionName;
 
         /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
-        internal Int32 InputCount { get { return _numActionBlocks == 1 ? _liveBlocks[0].InputCount : _liveQueue.Count; } }
+        internal Int32 InputCount => _liveTargetBlock.InputCount;
 
         #endregion
 
@@ -91,32 +94,17 @@ namespace EventStore.ClientAPI
         /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
         /// <param name="settings">Settings for this subscription.</param>
         protected EventStoreCatchUpSubscription(IEventStoreConnection connection, string streamId, UserCredentials userCredentials,
-          Action<TSubscription, TResolvedEvent> eventAppeared, Action<TSubscription> liveProcessingStarted,
-          Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
-          : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
+            Action<TSubscription, TResolvedEvent> eventAppeared, Action<TSubscription> liveProcessingStarted,
+            Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
+            : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
             if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+
             EventAppeared = eventAppeared;
 
-            _numActionBlocks = settings.NumActionBlocks;
-            if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
-            {
-                // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
-                _numActionBlocks = 1;
-            }
-            _historicalBlocks = new List<ActionBlock<TResolvedEvent>>(_numActionBlocks);
-            _liveBlocks = new List<ActionBlock<TResolvedEvent>>(_numActionBlocks);
-            for (var idx = 0; idx < _numActionBlocks; idx++)
-            {
-                _historicalBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessHistoricalQueue(e), settings.ToExecutionDataflowBlockOptions(true)));
-                _liveBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessLiveQueue(e), settings.ToExecutionDataflowBlockOptions(true)));
-            }
-            var links = new CompositeDisposable();
-            for (var idx = 0; idx < _numActionBlocks; idx++)
-            {
-                links.Add(_historicalQueue.LinkTo(_historicalBlocks[idx]));
-            }
-            _historicalLinks = links;
+            _historicalTargetBlock = new ActionBlock<TResolvedEvent>(ProcessHistoricalQueue, settings.ToExecutionDataflowBlockOptions(true));
+            _liveTargetBlock = new ActionBlock<TResolvedEvent>(ProcessLiveQueue, settings.ToExecutionDataflowBlockOptions(true));
+            _historicalLinks = _historicalQueue.LinkTo(_historicalTargetBlock);
         }
 
         /// <summary>Constructs state for EventStoreCatchUpSubscription.</summary>
@@ -128,36 +116,21 @@ namespace EventStore.ClientAPI
         /// <param name="subscriptionDropped">Action invoked if the subscription drops.</param>
         /// <param name="settings">Settings for this subscription.</param>
         protected EventStoreCatchUpSubscription(IEventStoreConnection connection, string streamId, UserCredentials userCredentials,
-          Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync, Action<TSubscription> liveProcessingStarted,
-          Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
-          : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
+            Func<TSubscription, TResolvedEvent, Task> eventAppearedAsync, Action<TSubscription> liveProcessingStarted,
+            Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
+            : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
             if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+
             EventAppearedAsync = eventAppearedAsync;
 
-            _numActionBlocks = settings.NumActionBlocks;
-            if (SubscriptionSettings.Unbounded == settings.BoundedCapacityPerBlock)
-            {
-                // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
-                _numActionBlocks = 1;
-            }
-            _historicalBlocks = new List<ActionBlock<TResolvedEvent>>(_numActionBlocks);
-            _liveBlocks = new List<ActionBlock<TResolvedEvent>>(_numActionBlocks);
-            for (var idx = 0; idx < _numActionBlocks; idx++)
-            {
-                _historicalBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessHistoricalQueueAsync(e), settings.ToExecutionDataflowBlockOptions()));
-                _liveBlocks.Add(new ActionBlock<TResolvedEvent>(e => ProcessLiveQueueAsync(e), settings.ToExecutionDataflowBlockOptions()));
-            }
-            var links = new CompositeDisposable();
-            for (var idx = 0; idx < _numActionBlocks; idx++)
-            {
-                links.Add(_historicalQueue.LinkTo(_historicalBlocks[idx]));
-            }
-            _historicalLinks = links;
+            _historicalTargetBlock = new ActionBlock<TResolvedEvent>(ProcessHistoricalQueueAsync, settings.ToExecutionDataflowBlockOptions());
+            _liveTargetBlock = new ActionBlock<TResolvedEvent>(ProcessLiveQueueAsync, settings.ToExecutionDataflowBlockOptions());
+            _historicalLinks = _historicalQueue.LinkTo(_historicalTargetBlock);
         }
 
         private EventStoreCatchUpSubscription(IEventStoreConnection connection, string streamId, UserCredentials userCredentials,
-          Action<TSubscription> liveProcessingStarted, Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
+            Action<TSubscription> liveProcessingStarted, Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _connection = connection;
@@ -233,17 +206,11 @@ namespace EventStore.ClientAPI
 
             _historicalQueue?.Complete();
             _historicalLinks?.Dispose();
-            foreach (var block in _historicalBlocks)
-            {
-                block?.Complete();
-            }
+            _historicalTargetBlock?.Complete();
 
             _liveQueue?.Complete();
             _liveLinks?.Dispose();
-            foreach (var block in _liveBlocks)
-            {
-                block?.Complete();
-            }
+            _liveTargetBlock?.Complete();
         }
 
         /// <summary>Attempts to stop the subscription without blocking for completion of stop.</summary>
@@ -287,7 +254,7 @@ namespace EventStore.ClientAPI
 
             // 等待所有事件都被消费完毕
             var spinner = new SpinWait();
-            while (_liveBlocks != null && _liveBlocks.Any(_ => _.InputCount > 0))
+            while (_liveTargetBlock.InputCount > 0)
             {
                 spinner.SpinOnce();
             }
@@ -329,7 +296,8 @@ namespace EventStore.ClientAPI
             {
                 if (Verbose) LogWaitingOnSubscriptionPullingEventsIfLeft();
 
-                await ReadEventsTillAsync(_settings.ResolveLinkTos, _userCredentials, _subscription.LastCommitPosition, _subscription.LastEventNumber).ConfigureAwait(false);
+                var subscription = InnerSubscription;
+                await ReadEventsTillAsync(_settings.ResolveLinkTos, _userCredentials, subscription.LastCommitPosition, subscription.LastEventNumber).ConfigureAwait(false);
                 StartLiveProcessing();
             }
             else
@@ -346,8 +314,7 @@ namespace EventStore.ClientAPI
         {
             // 等待所有历史事件都被消费完毕
             var spinner = new SpinWait();
-            while ((_historicalQueue != null && _historicalQueue.Count > 0) ||
-                   (_historicalBlocks != null && _historicalBlocks.Any(_ => _.InputCount > 0)))
+            while (_historicalQueue.Count > 0 || _historicalTargetBlock.InputCount > 0)
             {
                 spinner.SpinOnce();
             }
@@ -365,13 +332,7 @@ namespace EventStore.ClientAPI
             if (Verbose) LogHookingToConnectionConnected();
             _connection.Connected += OnReconnect;
 
-            var links = new CompositeDisposable();
-            for (var idx = 0; idx < _numActionBlocks; idx++)
-            {
-                links.Add(_liveQueue.LinkTo(_liveBlocks[idx]));
-            }
-
-            Interlocked.Exchange(ref _liveLinks, links);
+            Interlocked.Exchange(ref _liveLinks, _liveQueue.LinkTo(_liveTargetBlock));
         }
 
         #endregion
@@ -410,7 +371,8 @@ namespace EventStore.ClientAPI
             var dropData = new DropData(reason, error);
             if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
             {
-                AsyncContext.Run(s_sendToLiveQueueFunc, _liveQueue, DropSubscriptionEvent);
+                _liveQueue.Post(DropSubscriptionEvent);
+                //AsyncContext.Run(s_sendToLiveQueueFunc, _liveQueue, DropSubscriptionEvent);
             }
         }
 
@@ -424,15 +386,11 @@ namespace EventStore.ClientAPI
 
         #region ** ProcessLiveQueue **
 
-        private void ProcessLiveQueue(in TResolvedEvent e)
+        private void ProcessLiveQueue(TResolvedEvent e)
         {
             if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
             {
-                if (_dropData == null)
-                {
-                    _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
-                }
-                DropSubscription(_dropData.Reason, _dropData.Error);
+                DropSubscriptionArtificial();
                 return;
             }
             try
@@ -446,6 +404,18 @@ namespace EventStore.ClientAPI
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void DropSubscriptionArtificial()
+        {
+            var dropData = Volatile.Read(ref _dropData);
+            if (dropData == null)
+            {
+                dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
+                Interlocked.Exchange(ref _dropData, dropData);
+            }
+            DropSubscription(dropData.Reason, dropData.Error);
+        }
+
         #endregion
 
         #region ** ProcessLiveQueueAsync **
@@ -454,11 +424,7 @@ namespace EventStore.ClientAPI
         {
             if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
             {
-                if (_dropData == null)
-                {
-                    _dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
-                }
-                DropSubscription(_dropData.Reason, _dropData.Error);
+                DropSubscriptionArtificial();
                 return;
             }
             try
@@ -476,7 +442,7 @@ namespace EventStore.ClientAPI
 
         #region ** ProcessHistoricalQueue **
 
-        private void ProcessHistoricalQueue(in TResolvedEvent e)
+        private void ProcessHistoricalQueue(TResolvedEvent e)
         {
             if (_lastHistoricalEventError != null) { return; }
             try
@@ -520,7 +486,7 @@ namespace EventStore.ClientAPI
             {
                 if (Verbose) { LogDroppingSubscription(reason, error); }
 
-                _subscription?.Unsubscribe();
+                InnerSubscription?.Unsubscribe();
                 _subscriptionDropped?.Invoke(this as TSubscription, reason, error);
                 _stopped.Set();
             }
@@ -640,7 +606,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                Interlocked.Exchange(ref _subscription, subscription);
+                InnerSubscription = subscription;
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -980,7 +946,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                Interlocked.Exchange(ref _subscription, subscription);
+                InnerSubscription = subscription;
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1057,7 +1023,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                Interlocked.Exchange(ref _subscription, subscription);
+                InnerSubscription = subscription;
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1134,7 +1100,7 @@ namespace EventStore.ClientAPI
                     subscriptionDropped: ServerSubscriptionDropped,
                     userCredentials: _userCredentials).ConfigureAwait(false);
 
-                Interlocked.Exchange(ref _subscription, subscription);
+                InnerSubscription = subscription;
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else
@@ -1224,7 +1190,7 @@ namespace EventStore.ClientAPI
                             subscriptionDropped: ServerSubscriptionDropped,
                             userCredentials: _userCredentials).ConfigureAwait(false);
 
-                Interlocked.Exchange(ref _subscription, subscription);
+                InnerSubscription = subscription;
                 await ReadMissedHistoricEventsAsync().ConfigureAwait(false);
             }
             else

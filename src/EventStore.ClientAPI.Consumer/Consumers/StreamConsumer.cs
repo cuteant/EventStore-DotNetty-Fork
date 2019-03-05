@@ -38,19 +38,21 @@ namespace EventStore.ClientAPI.Consumers
             }
         }
 
-        public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IHandlerRegistration> registerEventHandlers)
+        public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IHandlerRegistration> addEventHandlers)
         {
-            if (null == registerEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.registerEventHandlers); }
+            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
+            if (RegisterHandlers != null) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
             Initialize(bus, subscription);
-            RegisterEventHandlers = registerEventHandlers;
+            RegisterEventHandlers = addEventHandlers;
             UsingEventHandlers = true;
         }
 
-        public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IConsumerRegistration> registerHandlers)
+        public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IConsumerRegistration> addHandlers)
         {
-            if (null == registerHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.registerHandlers); }
+            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
+            if (RegisterEventHandlers != null) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
             Initialize(bus, subscription);
-            RegisterHandlers = registerHandlers;
+            RegisterHandlers = addHandlers;
             UsingEventHandlers = true;
         }
     }

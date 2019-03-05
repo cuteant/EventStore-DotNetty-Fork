@@ -17,9 +17,19 @@ namespace EventStore.ClientAPI
             _subscriptionOperation.Unsubscribe();
         }
 
+        public void NotifyEventsProcessed(Guid processedEvent)
+        {
+            _subscriptionOperation.NotifyEventsProcessed(processedEvent);
+        }
+
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
             _subscriptionOperation.NotifyEventsProcessed(processedEvents);
+        }
+
+        public void NotifyEventsFailed(Guid processedEvent, PersistentSubscriptionNakEventAction action, string reason)
+        {
+            _subscriptionOperation.NotifyEventsFailed(processedEvent, action, reason);
         }
 
         public void NotifyEventsFailed(Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)

@@ -256,7 +256,7 @@ namespace EventStore.ClientAPI
 
         #endregion
 
-        #region -- UpdatePersistentSubscription --
+        #region -- UpdateOrCreatePersistentSubscription --
 
         /// <summary>Update a persistent subscription group on a stream.</summary>
         /// <param name="connection">The <see cref="IEventStoreConnectionBase"/> responsible for raising the event.</param>

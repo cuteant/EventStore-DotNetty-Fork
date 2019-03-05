@@ -55,13 +55,6 @@ namespace EventStore.ClientAPI.Consumers
         {
             if (Volatile.Read(ref _subscribed) == ON) { return; }
 
-            var startFrom = Subscription.PersistentSettings.StartFrom;
-            if (startFrom != StreamPosition.End)
-            {
-                await ConnectToSubscriptionAsync(startFrom).ConfigureAwait(false);
-                return;
-            }
-
             if (Interlocked.Exchange(ref _initialized, ON) == OFF)
             {
                 try
@@ -85,9 +78,18 @@ namespace EventStore.ClientAPI.Consumers
             await InternalConnectToSubscriptionAsync().ConfigureAwait(false);
         }
 
-        public override async Task ConnectToSubscriptionAsync(long? lastCheckpoint)
+        public virtual async Task ConnectToSubscriptionAsync(long? startFrom)
         {
             if (Volatile.Read(ref _subscribed) == ON) { return; }
+
+            if (!startFrom.HasValue)
+            {
+                await ConnectToSubscriptionAsync().ConfigureAwait(false);
+                return;
+            }
+
+            long realStartFrom = StreamPosition.End;
+            if (startFrom.Value >= 0L) { realStartFrom = startFrom.Value; }
 
             if (Interlocked.Exchange(ref _initialized, ON) == OFF)
             {
@@ -100,7 +102,7 @@ namespace EventStore.ClientAPI.Consumers
                         await Bus
                             .CreatePersistentSubscriptionAsync(
                                 Subscription.StreamId, Subscription.SubscriptionId,
-                                Subscription.PersistentSettings.Clone(lastCheckpoint ?? -1), Subscription.Credentials)
+                                Subscription.PersistentSettings.Clone(realStartFrom), Subscription.Credentials)
                             .ConfigureAwait(false);
                     }
                     else
@@ -110,7 +112,7 @@ namespace EventStore.ClientAPI.Consumers
                         await Bus
                             .CreatePersistentSubscriptionAsync(
                                 Subscription.StreamId, Subscription.Topic, Subscription.SubscriptionId,
-                                Subscription.PersistentSettings.Clone(lastCheckpoint ?? -1), Subscription.Credentials)
+                                Subscription.PersistentSettings.Clone(realStartFrom), Subscription.Credentials)
                             .ConfigureAwait(false);
                     }
                 }

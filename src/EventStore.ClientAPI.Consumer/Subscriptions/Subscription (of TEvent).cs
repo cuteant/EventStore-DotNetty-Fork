@@ -9,13 +9,9 @@ namespace EventStore.ClientAPI.Subscriptions
         where TSubscription : Subscription<TSubscription, TSettings, TEvent>
         where TSettings : SubscriptionSettings
     {
-        public Subscription(string subscriptionId)
-        {
-            SubscriptionId = subscriptionId;
-        }
+        public Subscription() { }
 
         public string StreamId => EventManager.GetStreamId<TEvent>(Topic);
-        public string SubscriptionId { get; }
         public string Topic { get; set; }
 
         public TSettings Settings { get; set; }

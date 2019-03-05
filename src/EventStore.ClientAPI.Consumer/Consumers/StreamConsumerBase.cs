@@ -25,7 +25,6 @@ namespace EventStore.ClientAPI.Consumers
         public TSubscription Subscription { get; protected set; }
 
         public abstract Task ConnectToSubscriptionAsync();
-        public virtual Task ConnectToSubscriptionAsync(long? lastCheckpoint) => ConnectToSubscriptionAsync();
 
         protected virtual async Task<bool> CanRetryAsync(long eventNumber, SubscriptionDropReason dropReason)
         {

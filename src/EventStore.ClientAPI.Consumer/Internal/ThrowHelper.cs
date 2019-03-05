@@ -14,5 +14,15 @@ namespace EventStore.ClientAPI
                 return new ArgumentOutOfRangeException("DropReason", dropReason, null);
             }
         }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ThrowArgumentException_HandlerAlreadyRegistered()
+        {
+            throw GetException();
+            ArgumentException GetException()
+            {
+                return new ArgumentException("The event handler has already been registered.");
+            }
+        }
     }
 }

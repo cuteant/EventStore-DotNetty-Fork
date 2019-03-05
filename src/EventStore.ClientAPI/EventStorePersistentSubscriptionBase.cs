@@ -58,23 +58,19 @@ namespace EventStore.ClientAPI
         private readonly ConnectionSettings _connSettings;
         private readonly bool _autoAck;
 
+        private readonly ActionBlock<TPersistentSubscriptionResolvedEvent> _targetBlock;
         private PersistentEventStoreSubscription _subscription;
-        private BufferBlock<TPersistentSubscriptionResolvedEvent> _bufferBlock;
-        private List<ActionBlock<TPersistentSubscriptionResolvedEvent>> _actionBlocks;
-        private ITargetBlock<TPersistentSubscriptionResolvedEvent> _targetBlock;
         private readonly ConnectToPersistentSubscriptionSettings _settings;
-        private IDisposable _links;
         private DropData _dropData;
 
         private int _isDropped;
         private readonly ManualResetEventSlim _stopped = new ManualResetEventSlim(true);
-        private readonly int _bufferSize;
         private long _processingEventNumber;
 
         /// <summary>Gets the number of items waiting to be processed by this subscription.</summary>
-        internal Int32 InputCount { get { return null == _bufferBlock ? _actionBlocks[0].InputCount : _bufferBlock.Count; } }
+        internal Int32 InputCount => _targetBlock.InputCount;
 
-        public long ProcessingEventNumber => _processingEventNumber;
+        public long ProcessingEventNumber => Volatile.Read(ref _processingEventNumber);
 
         internal EventStorePersistentSubscriptionBase(string subscriptionId, string streamId,
                                                       ConnectToPersistentSubscriptionSettings settings,
@@ -83,6 +79,7 @@ namespace EventStore.ClientAPI
                                                       UserCredentials userCredentials, ConnectionSettings connSettings)
           : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
         {
+            _targetBlock = new ActionBlock<TPersistentSubscriptionResolvedEvent>(ProcessResolvedEvent, _settings.ToExecutionDataflowBlockOptions(true));
             _eventAppeared = eventAppeared;
         }
 
@@ -93,6 +90,7 @@ namespace EventStore.ClientAPI
                                                       UserCredentials userCredentials, ConnectionSettings connSettings)
           : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
         {
+            _targetBlock = new ActionBlock<TPersistentSubscriptionResolvedEvent>(ProcessResolvedEventAsync, _settings.ToExecutionDataflowBlockOptions());
             _eventAppearedAsync = eventAppearedAsync;
         }
 
@@ -108,7 +106,6 @@ namespace EventStore.ClientAPI
             _userCredentials = userCredentials;
             _verbose = settings.VerboseLogging && _log.IsDebugLevelEnabled();
             _connSettings = connSettings;
-            _bufferSize = settings.BufferSize;
             _autoAck = settings.AutoAck;
         }
 
@@ -119,46 +116,6 @@ namespace EventStore.ClientAPI
         {
             _stopped.Reset();
 
-            var numActionBlocks = _settings.NumActionBlocks;
-            if (SubscriptionSettings.Unbounded == _settings.BoundedCapacityPerBlock)
-            {
-                // 如果没有设定 ActionBlock 的容量，设置多个 ActionBlock 没有意义
-                numActionBlocks = 1;
-            }
-            var actionBlocks = new List<ActionBlock<TPersistentSubscriptionResolvedEvent>>(numActionBlocks);
-            Interlocked.Exchange(ref _actionBlocks, actionBlocks);
-            if (_eventAppeared != null)
-            {
-                for (var idx = 0; idx < numActionBlocks; idx++)
-                {
-                    actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEvent(e), _settings.ToExecutionDataflowBlockOptions(true)));
-                }
-            }
-            else
-            {
-                for (var idx = 0; idx < numActionBlocks; idx++)
-                {
-                    actionBlocks.Add(new ActionBlock<TPersistentSubscriptionResolvedEvent>(e => ProcessResolvedEventAsync(e), _settings.ToExecutionDataflowBlockOptions()));
-                }
-            }
-            if (numActionBlocks > 1)
-            {
-                var links = new CompositeDisposable();
-                var bufferBlock = new BufferBlock<TPersistentSubscriptionResolvedEvent>(_settings.ToBufferBlockOptions());
-                Interlocked.Exchange(ref _bufferBlock, bufferBlock);
-                for (var idx = 0; idx < numActionBlocks; idx++)
-                {
-                    var linkOptions = new DataflowLinkOptions { PropagateCompletion = true };
-                    links.Add(bufferBlock.LinkTo(actionBlocks[idx], linkOptions));
-                }
-                _links = links;
-                Interlocked.Exchange(ref _targetBlock, bufferBlock);
-            }
-            else
-            {
-                Interlocked.Exchange(ref _targetBlock, actionBlocks[0]);
-            }
-
             var subscription = await StartSubscriptionAsync(_subscriptionId, _streamId, _settings, _userCredentials, OnEventAppearedAsync, OnSubscriptionDropped, _connSettings)
                                   .ConfigureAwait(false);
             Interlocked.Exchange(ref _subscription, subscription);
@@ -166,17 +123,17 @@ namespace EventStore.ClientAPI
         }
 
         internal abstract Task<PersistentEventStoreSubscription> StartSubscriptionAsync(string subscriptionId, string streamId,
-          ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
-          Func<EventStoreSubscription, TPersistentSubscriptionResolvedEvent, Task> onEventAppearedAsync,
-          Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
-          ConnectionSettings connSettings);
+            ConnectToPersistentSubscriptionSettings settings, UserCredentials userCredentials,
+            Func<EventStoreSubscription, TPersistentSubscriptionResolvedEvent, Task> onEventAppearedAsync,
+            Action<EventStoreSubscription, SubscriptionDropReason, Exception> onSubscriptionDropped,
+            ConnectionSettings connSettings);
 
         /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
         /// <remarks>There is no need to ack a message if you have Auto Ack enabled</remarks>
         /// <param name="event">The <see cref="ResolvedEvent"></see> to acknowledge</param>
         public void Acknowledge(in TResolvedEvent @event)
         {
-            _subscription.NotifyEventsProcessed(new[] { @event.OriginalEventId });
+            _subscription.NotifyEventsProcessed(@event.OriginalEventId);
         }
 
         /// <summary>Acknowledge that a message have completed processing (this will tell the server it has been processed).</summary>
@@ -194,7 +151,7 @@ namespace EventStore.ClientAPI
         /// <param name="eventId">The <see cref="ResolvedEvent"></see> OriginalEvent.EventId to acknowledge</param>
         public void Acknowledge(Guid eventId)
         {
-            _subscription.NotifyEventsProcessed(new[] { eventId });
+            _subscription.NotifyEventsProcessed(eventId);
         }
 
         /// <summary>Acknowledge a group of messages by event id (this will tell the server it has been processed).</summary>
@@ -212,7 +169,7 @@ namespace EventStore.ClientAPI
         /// <param name="reason">A string with a message as to why the failure is occurring</param>
         public void Fail(in TResolvedEvent @event, PersistentSubscriptionNakEventAction action, string reason)
         {
-            _subscription.NotifyEventsFailed(new[] { @event.OriginalEventId }, action, reason);
+            _subscription.NotifyEventsFailed(@event.OriginalEventId, action, reason);
         }
 
         /// <summary>Mark nmessages that have failed processing. The server will take action based upon the action parameter.</summary>
@@ -240,15 +197,7 @@ namespace EventStore.ClientAPI
                 CoreThrowHelper.ThrowTimeoutException_CouldNotStopSubscriptionsInTime(GetType());
             }
 
-            if (_bufferBlock != null)
-            {
-                _bufferBlock.Complete();
-                _links?.Dispose();
-            }
-            else if (_actionBlocks != null && _actionBlocks.Count > 0)
-            {
-                _actionBlocks[0]?.Complete();
-            }
+            _targetBlock.Complete();
         }
 
         private void EnqueueSubscriptionDropNotification(SubscriptionDropReason reason, Exception error)
@@ -257,7 +206,8 @@ namespace EventStore.ClientAPI
             var dropData = new DropData(reason, error);
             if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
             {
-                AsyncContext.Run(s_sendToQueueFunc, _targetBlock, DropSubscriptionEvent);
+                _targetBlock.Post(DropSubscriptionEvent);
+                //AsyncContext.Run(s_sendToQueueFunc, _targetBlock, DropSubscriptionEvent);
             }
         }
 
@@ -277,28 +227,23 @@ namespace EventStore.ClientAPI
             return _targetBlock.SendAsync(resolvedEvent);
         }
 
-        private void ProcessResolvedEvent(in TPersistentSubscriptionResolvedEvent resolvedEvent)
+        private void ProcessResolvedEvent(TPersistentSubscriptionResolvedEvent resolvedEvent)
         {
-            if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+            var isArtificialEvent = resolvedEvent.Equals(DropSubscriptionEvent);  // drop subscription artificial ResolvedEvent
+            var dropData = Volatile.Read(ref _dropData);
+            if (isArtificialEvent || dropData != null)
             {
-                if (_dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
-                DropSubscription(_dropData.Reason, _dropData.Error);
+                ProcessDropSubscription(isArtificialEvent, dropData);
                 return;
             }
 
             Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
-
-            if (_dropData != null)
-            {
-                DropSubscription(_dropData.Reason, _dropData.Error);
-                return;
-            }
             try
             {
                 _eventAppeared(this as TSubscription, TransformEvent(resolvedEvent), resolvedEvent.RetryCount);
                 if (_autoAck)
                 {
-                    _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
+                    _subscription.NotifyEventsProcessed(resolvedEvent.OriginalEventId);
                 }
                 if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
             }
@@ -310,28 +255,29 @@ namespace EventStore.ClientAPI
             }
         }
 
+        private void ProcessDropSubscription(bool isArtificialEvent, DropData dropData)
+        {
+            if (isArtificialEvent && dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
+            DropSubscription(dropData.Reason, dropData.Error);
+        }
+
         private async Task ProcessResolvedEventAsync(TPersistentSubscriptionResolvedEvent resolvedEvent)
         {
-            if (resolvedEvent.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+            var isArtificialEvent = resolvedEvent.Equals(DropSubscriptionEvent);  // drop subscription artificial ResolvedEvent
+            var dropData = Volatile.Read(ref _dropData);
+            if (isArtificialEvent || dropData != null)
             {
-                if (_dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
-                DropSubscription(_dropData.Reason, _dropData.Error);
+                ProcessDropSubscription(isArtificialEvent, dropData);
                 return;
             }
 
             Interlocked.Exchange(ref _processingEventNumber, resolvedEvent.OriginalEventNumber);
-
-            if (_dropData != null)
-            {
-                DropSubscription(_dropData.Reason, _dropData.Error);
-                return;
-            }
             try
             {
                 await _eventAppearedAsync(this as TSubscription, TransformEvent(resolvedEvent), resolvedEvent.RetryCount).ConfigureAwait(false);
                 if (_autoAck)
                 {
-                    _subscription.NotifyEventsProcessed(new[] { resolvedEvent.OriginalEventId });
+                    _subscription.NotifyEventsProcessed(resolvedEvent.OriginalEventId);
                 }
                 if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
             }

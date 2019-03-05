@@ -223,13 +223,32 @@ namespace EventStore.ClientAPI.ClientOperations
             return new PersistentEventStoreSubscription(this, _streamId, lastCommitPosition, lastEventNumber);
         }
 
+        public void NotifyEventsProcessed(Guid processedEvent)
+        {
+            var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(
+                _subscriptionId,
+                new[] { processedEvent.ToByteArray() });
+
+            NotifyEventsProcessed(dto);
+        }
+
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
             if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
-            var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(
-                _subscriptionId,
-                processedEvents.Select(x => x.ToByteArray()).ToArray());
 
+            var count = processedEvents.Length;
+            var rawIds = new byte[count][];
+            for (var idx = 0; idx < count; idx++)
+            {
+                rawIds[idx] = processedEvents[idx].ToByteArray();
+            }
+
+            var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(_subscriptionId, rawIds);
+            NotifyEventsProcessed(dto);
+        }
+
+        private void NotifyEventsProcessed(TcpClientMessageDto.PersistentSubscriptionAckEvents dto)
+        {
             var package = new TcpPackage(TcpCommand.PersistentSubscriptionAckEvents,
                                   _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
                                   _correlationId,
@@ -239,16 +258,40 @@ namespace EventStore.ClientAPI.ClientOperations
             EnqueueSend(package);
         }
 
+        public void NotifyEventsFailed(Guid processedEvent, PersistentSubscriptionNakEventAction action, string reason)
+        {
+            if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
+
+            var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(
+                _subscriptionId,
+                new[] { processedEvent.ToByteArray() },
+                reason,
+                (TcpClientMessageDto.PersistentSubscriptionNakEvents.NakAction)action);
+            NotifyEventsFailed(dto);
+        }
+
         public void NotifyEventsFailed(Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
         {
             if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
             if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
+
+            var count = processedEvents.Length;
+            var rawIds = new byte[count][];
+            for (var idx = 0; idx < count; idx++)
+            {
+                rawIds[idx] = processedEvents[idx].ToByteArray();
+            }
+
             var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(
                 _subscriptionId,
-                processedEvents.Select(x => x.ToByteArray()).ToArray(),
+                rawIds,
                 reason,
                 (TcpClientMessageDto.PersistentSubscriptionNakEvents.NakAction)action);
+            NotifyEventsFailed(dto);
+        }
 
+        private void NotifyEventsFailed(TcpClientMessageDto.PersistentSubscriptionNakEvents dto)
+        {
             var package = new TcpPackage(TcpCommand.PersistentSubscriptionNakEvents,
                                   _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
                                   _correlationId,

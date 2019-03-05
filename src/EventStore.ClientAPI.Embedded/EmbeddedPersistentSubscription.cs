@@ -69,6 +69,7 @@ namespace EventStore.ClientAPI.Embedded
             _subscriptionId = subscriptionId;
         }
 
+        public void NotifyEventsProcessed(Guid processedEvent) => NotifyEventsProcessed(new Guid[] { processedEvent });
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
             if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
@@ -79,8 +80,11 @@ namespace EventStore.ClientAPI.Embedded
                 new PublishEnvelope(Publisher, true), _subscriptionId, processedEvents, user));
         }
 
-        public void NotifyEventsFailed(
-            Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
+        public void NotifyEventsFailed(Guid processedEvent, PersistentSubscriptionNakEventAction action, string reason)
+        {
+            NotifyEventsFailed(new[] { processedEvent }, action, reason);
+        }
+        public void NotifyEventsFailed(Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
         {
             if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
             if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
