@@ -1053,7 +1053,7 @@ namespace EventStore.ClientAPI
         /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
         /// the first event in the stream.</param>
         /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
@@ -1062,14 +1062,14 @@ namespace EventStore.ClientAPI
         /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
         /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
         public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
-            string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
+            string stream, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addEventHandlers,
             Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
             Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
             UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-            return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+            return bus.CatchUpSubscribe(stream, lastCheckpoint, settings, addEventHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
         }
 
         #endregion
@@ -1188,7 +1188,7 @@ namespace EventStore.ClientAPI
         /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
         /// the first event in the stream.</param>
         /// <param name="resolveLinkTos">Whether to resolve Link events automatically.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
@@ -1197,7 +1197,7 @@ namespace EventStore.ClientAPI
         /// <param name="verboseLogging">Enables verbose logging on the subscription.</param>
         /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
         public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
-            string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addHandlers,
+            string stream, string topic, long? lastCheckpoint, bool resolveLinkTos, Action<IHandlerRegistration> addEventHandlers,
             Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
             Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
             UserCredentials userCredentials = null, int readBatchSize = 500, string subscriptionName = "", bool verboseLogging = false)
@@ -1206,7 +1206,7 @@ namespace EventStore.ClientAPI
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
             var settings = CatchUpSubscriptionSettings.Create(readBatchSize, resolveLinkTos, subscriptionName, verboseLogging);
-            return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+            return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addEventHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
         }
 
         /// <summary>Subscribes to a single event stream. Existing events from
@@ -1233,7 +1233,7 @@ namespace EventStore.ClientAPI
         ///
         /// NOTE: Using <see cref="StreamPosition.Start" /> here will result in missing
         /// the first event in the stream.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="liveProcessingStarted">An action invoked when the subscription switches to newly-pushed events.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
@@ -1241,13 +1241,13 @@ namespace EventStore.ClientAPI
         /// <returns>A <see cref="EventStoreCatchUpSubscription"/> representing the subscription.</returns>
         public static EventStoreCatchUpSubscription2 CatchUpSubscribe(this IEventStoreBus bus,
             string stream, string topic, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-            Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
+            Action<IHandlerRegistration> addEventHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
             Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-            return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
+            return bus.CatchUpSubscribe(stream.Combine(topic), lastCheckpoint, settings, addEventHandlers, liveProcessingStarted, subscriptionDropped, userCredentials);
         }
 
         #endregion

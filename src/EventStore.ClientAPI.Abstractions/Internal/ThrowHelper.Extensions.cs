@@ -130,6 +130,7 @@ namespace EventStore.ClientAPI
         currentPassword,
         url,
         addHandlers,
+        addEventHandlers,
         connectionSettings,
         clusterSettings,
         onSuccess,

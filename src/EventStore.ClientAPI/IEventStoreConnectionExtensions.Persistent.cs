@@ -1942,7 +1942,7 @@ namespace EventStore.ClientAPI
         /// to load balance a subscription in a round-robin fashion.</param>
         /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
         /// <param name="stream">The stream to subscribe to.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
         /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
@@ -1956,13 +1956,13 @@ namespace EventStore.ClientAPI
         /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
         /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
         public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreBus bus,
-            string stream, string subscriptionId, Action<IHandlerRegistration> addHandlers,
+            string stream, string subscriptionId, Action<IHandlerRegistration> addEventHandlers,
             Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
             UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
-            return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
+            return bus.PersistentSubscribeAsync(stream, subscriptionId, settings, addEventHandlers, subscriptionDropped, userCredentials);
         }
 
         #endregion
@@ -2037,7 +2037,7 @@ namespace EventStore.ClientAPI
         /// <param name="bus">The <see cref="IEventStoreBus"/> responsible for raising the event.</param>
         /// <param name="stream">The stream to subscribe to.</param>
         /// <param name="topic">The topic.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
         /// <param name="bufferSize">The buffer size to use for the persistent subscription.</param>
@@ -2051,7 +2051,7 @@ namespace EventStore.ClientAPI
         /// you attempt to connect to a group that does not exist you will be given an exception.</remarks>
         /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
         public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreBus bus,
-            string stream, string topic, string subscriptionId, Action<IHandlerRegistration> addHandlers,
+            string stream, string topic, string subscriptionId, Action<IHandlerRegistration> addEventHandlers,
             Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
             UserCredentials userCredentials = null, int bufferSize = 10, bool autoAck = true, bool verboseLogging = false)
         {
@@ -2059,7 +2059,7 @@ namespace EventStore.ClientAPI
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
             var settings = new ConnectToPersistentSubscriptionSettings(bufferSize, autoAck, verboseLogging);
-            return bus.PersistentSubscribeAsync(stream.Combine(topic), subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
+            return bus.PersistentSubscribeAsync(stream.Combine(topic), subscriptionId, settings, addEventHandlers, subscriptionDropped, userCredentials);
         }
 
         /// <summary>Asynchronously subscribes to a persistent subscription(competing consumer) on event store.</summary>
@@ -2070,7 +2070,7 @@ namespace EventStore.ClientAPI
         /// <param name="stream">The stream to subscribe to.</param>
         /// <param name="topic">The topic.</param>
         /// <param name="settings">The <see cref="ConnectToPersistentSubscriptionSettings"/> for the subscription.</param>
-        /// <param name="addHandlers">A function to add handlers to the consumer.</param>
+        /// <param name="addEventHandlers">A function to add handlers to the consumer.</param>
         /// <param name="subscriptionDropped">An action invoked if the subscription is dropped.</param>
         /// <param name="userCredentials">User credentials to use for the operation.</param>
         /// <remarks>This will connect you to a persistent subscription group for a stream. The subscription group
@@ -2081,14 +2081,14 @@ namespace EventStore.ClientAPI
         /// <returns>A <see cref="Task&lt;EventStorePersistentSubscription2&gt;"/> representing the subscription.</returns>
         public static Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(this IEventStoreBus bus,
             string stream, string topic, string subscriptionId,
-            ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
+            ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addEventHandlers,
             Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
             UserCredentials userCredentials = null)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(topic)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.topic); }
-            return bus.PersistentSubscribeAsync(stream.Combine(topic), subscriptionId, settings, addHandlers, subscriptionDropped, userCredentials);
+            return bus.PersistentSubscribeAsync(stream.Combine(topic), subscriptionId, settings, addEventHandlers, subscriptionDropped, userCredentials);
         }
 
         #endregion

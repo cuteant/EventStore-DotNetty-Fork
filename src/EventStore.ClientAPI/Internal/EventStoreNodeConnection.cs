@@ -451,16 +451,16 @@ namespace EventStore.ClientAPI.Internal
             return source.Task;
         }
         public Task<EventStoreSubscription> VolatileSubscribeAsync(string stream, SubscriptionSettings settings,
-          Action<IHandlerRegistration> addHandlers,
+          Action<IHandlerRegistration> addEventHandlers,
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
+            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
-            addHandlers(handlerCollection);
+            addEventHandlers(handlerCollection);
             Task LocalEventAppearedAsync(EventStoreSubscription sub, IResolvedEvent2 @event)
             {
                 var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
@@ -591,15 +591,15 @@ namespace EventStore.ClientAPI.Internal
             return catchUpSubscription;
         }
         public EventStoreCatchUpSubscription2 CatchUpSubscribe(string stream, long? lastCheckpoint, CatchUpSubscriptionSettings settings,
-          Action<IHandlerRegistration> addHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
+          Action<IHandlerRegistration> addEventHandlers, Action<EventStoreCatchUpSubscription2> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
+            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
-            addHandlers(handlerCollection);
+            addEventHandlers(handlerCollection);
             Task LocalEventAppearedAsync(EventStoreCatchUpSubscription2 sub, IResolvedEvent2 @event)
             {
                 var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
@@ -787,17 +787,17 @@ namespace EventStore.ClientAPI.Internal
             return subscription.StartAsync();
         }
         public Task<EventStorePersistentSubscription2> PersistentSubscribeAsync(string stream, string subscriptionId,
-          ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addHandlers,
+          ConnectToPersistentSubscriptionSettings settings, Action<IHandlerRegistration> addEventHandlers,
           Action<EventStorePersistentSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
+            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
-            addHandlers(handlerCollection);
+            addEventHandlers(handlerCollection);
             Task LocalEventAppearedAsync(EventStorePersistentSubscription2 sub, IResolvedEvent2 @event, int? retryCount)
             {
                 var handler = handlerCollection.GetHandler(@event.GetBody().GetType());
