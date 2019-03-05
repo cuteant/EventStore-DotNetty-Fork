@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI.Internal
         /// <returns></returns>
         public EventData[] ToEventDatas(IList<object> events, IList<Dictionary<string, object>> eventContexts)
         {
-            return EventManager.ToEventDatas(_eventAdapter, events, eventContexts);
+            return _eventAdapter.ToEventDatas(events, eventContexts);
         }
 
         /// <summary>TBD</summary>
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.Internal
         /// <returns></returns>
         public EventData[] ToEventDatas(IList<object> events, IList<IEventMetadata> eventMetas = null)
         {
-            return EventManager.ToEventDatas(_eventAdapter, events, eventMetas);
+            return _eventAdapter.ToEventDatas(events, eventMetas);
         }
 
         /// <summary>TBD</summary>
@@ -52,7 +52,7 @@ namespace EventStore.ClientAPI.Internal
         /// <returns></returns>
         public EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
         {
-            return EventManager.ToEventDatas(_eventAdapter, events, eventContexts);
+            return _eventAdapter.ToEventDatas(events, eventContexts);
         }
 
         /// <summary>TBD</summary>
@@ -62,7 +62,7 @@ namespace EventStore.ClientAPI.Internal
         /// <returns></returns>
         public EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IList<IEventMetadata> eventMetas = null)
         {
-            return EventManager.ToEventDatas(_eventAdapter, events, eventMetas);
+            return _eventAdapter.ToEventDatas(events, eventMetas);
         }
     }
 }

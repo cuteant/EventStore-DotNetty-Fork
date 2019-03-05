@@ -37,7 +37,7 @@ namespace EventStore.ClientAPI
             UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            return connection.SubscribeToStreamFrom(stream, StreamPosition.Start, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
+            return connection.SubscribeToStreamFrom(stream, StreamCheckpoint.StreamStart, settings, eventAppeared, liveProcessingStarted, subscriptionDropped, userCredentials);
         }
 
         /// <summary>Subscribes to a single event stream. Existing events from
@@ -68,7 +68,7 @@ namespace EventStore.ClientAPI
             UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            return connection.SubscribeToStreamFrom(stream, StreamPosition.Start, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
+            return connection.SubscribeToStreamFrom(stream, StreamCheckpoint.StreamStart, settings, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, userCredentials);
         }
 
         #endregion
@@ -104,9 +104,9 @@ namespace EventStore.ClientAPI
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return AsyncContext.Run(
-              async (conn, streamId, settings, processingFunc, credentials)
-                => await conn.SubscribeToStreamEndAsync(streamId, settings, processingFunc.Item1, processingFunc.Item2, processingFunc.Item3, credentials).ConfigureAwait(false),
-              connection, stream, subscriptionSettings, Tuple.Create(eventAppeared, liveProcessingStarted, subscriptionDropped), userCredentials);
+                async (conn, streamId, settings, processingFunc, credentials)
+                    => await conn.SubscribeToStreamEndAsync(streamId, settings, processingFunc.Item1, processingFunc.Item2, processingFunc.Item3, credentials).ConfigureAwait(false),
+                connection, stream, subscriptionSettings, Tuple.Create(eventAppeared, liveProcessingStarted, subscriptionDropped), userCredentials);
         }
 
         /// <summary>Subscribes to a single event stream. Existing events from
@@ -138,9 +138,9 @@ namespace EventStore.ClientAPI
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return AsyncContext.Run(
-              async (conn, streamId, settings, processingFunc, credentials)
-                => await conn.SubscribeToStreamEndAsync(streamId, settings, processingFunc.Item1, processingFunc.Item2, processingFunc.Item3, credentials).ConfigureAwait(false),
-              connection, stream, subscriptionSettings, Tuple.Create(eventAppearedAsync, liveProcessingStarted, subscriptionDropped), userCredentials);
+                async (conn, streamId, settings, processingFunc, credentials)
+                    => await conn.SubscribeToStreamEndAsync(streamId, settings, processingFunc.Item1, processingFunc.Item2, processingFunc.Item3, credentials).ConfigureAwait(false),
+                connection, stream, subscriptionSettings, Tuple.Create(eventAppearedAsync, liveProcessingStarted, subscriptionDropped), userCredentials);
         }
 
         #endregion
@@ -177,7 +177,7 @@ namespace EventStore.ClientAPI
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
-            long lastCheckpoint = StreamPosition.Start;
+            long? lastCheckpoint = StreamCheckpoint.StreamStart;
             var readResult = await ReadLastEventAsync(connection, stream, settings.ResolveLinkTos, userCredentials);
             if (EventReadStatus.Success == readResult.Status)
             {
@@ -217,7 +217,7 @@ namespace EventStore.ClientAPI
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
-            long lastCheckpoint = StreamPosition.Start;
+            long? lastCheckpoint = StreamCheckpoint.StreamStart;
             var readResult = await ReadLastEventAsync(connection, stream, settings.ResolveLinkTos, userCredentials);
             if (EventReadStatus.Success == readResult.Status)
             {

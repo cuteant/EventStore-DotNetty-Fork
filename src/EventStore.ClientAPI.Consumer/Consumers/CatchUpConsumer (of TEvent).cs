@@ -62,9 +62,8 @@ namespace EventStore.ClientAPI.Consumers
 
             try
             {
-                if (lastCheckpoint == null)
+                if (lastCheckpoint.HasValue && StreamPosition.End == lastCheckpoint.Value)
                 {
-                    lastCheckpoint = StreamPosition.Start;
                     var readResult = await Bus.ReadLastEventAsync(Subscription.StreamId, Subscription.Settings.ResolveLinkTos, Subscription.Credentials);
                     if (EventReadStatus.Success == readResult.Status)
                     {

@@ -52,7 +52,7 @@ namespace Es.Consumer
     public class AutoSubscriberCatchUpConsume : IAutoSubscriberCatchUpConsume
     {
         [Stream("test-animal")]
-        [CatchUpSubscriptionConfiguration(0)]
+        //[CatchUpSubscriptionConfiguration(10)]
         public void Consume(EventStoreCatchUpSubscription subscription, ResolvedEvent<object> resolvedEvent)
         {
             var msg = resolvedEvent.OriginalEvent.FullEvent.Value;

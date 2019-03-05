@@ -39,7 +39,7 @@ namespace Es.Consumer
 
                 #region PersistentSubscription
 
-                var settings = new ConnectToPersistentSubscriptionSettings();
+                //var settings = new ConnectToPersistentSubscriptionSettings();
 
                 //var sub = conn.PersistentSubscribeAsync(STREAM, GROUP, settings,
                 //    addHandlers: _ =>
@@ -75,23 +75,23 @@ namespace Es.Consumer
                 //        Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
                 //    });
 
-                conn.PersistentSubscribeAsync(STREAM, GROUP, settings, async (_, x, c) =>
-                {
-                    var msg = x.OriginalEvent.FullEvent.Value;
-                    if (msg is Cat cat)
-                    {
-                        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-                    }
-                    if (msg is Dog dog)
-                    {
-                        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-                    }
-                    await Task.Delay(500);
-                },
-                (subscription, reason, exc) =>
-                {
-                    Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-                });
+                //conn.PersistentSubscribeAsync(STREAM, GROUP, settings, async (_, x, c) =>
+                //{
+                //    var msg = x.OriginalEvent.FullEvent.Value;
+                //    if (msg is Cat cat)
+                //    {
+                //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+                //    }
+                //    if (msg is Dog dog)
+                //    {
+                //        Console.WriteLine("Received: " + x.Event.EventStreamId + ":" + x.Event.EventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+                //    }
+                //    await Task.Delay(500);
+                //},
+                //(subscription, reason, exc) =>
+                //{
+                //    Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+                //});
 
                 //conn.PersistentSubscribeAsync<IAnimal>(GROUP, settings, async (_, x, c) =>
                 //{
@@ -200,30 +200,30 @@ namespace Es.Consumer
                 //If stored atomically with the processing of the event this will also provide simulated
                 //transactional messaging.
 
-                //var settings = CatchUpSubscriptionSettings.Create(20, true);
-                ////settings.VerboseLogging = true;
+                var settings = CatchUpSubscriptionSettings.Create(20, true);
+                //settings.VerboseLogging = true;
 
-                ////settings.MaxDegreeOfParallelismPerBlock = 5;
-                ////settings.BoundedCapacityPerBlock = 2;
-                ////settings.NumActionBlocks = 5;
+                //settings.MaxDegreeOfParallelismPerBlock = 5;
+                //settings.BoundedCapacityPerBlock = 2;
+                //settings.NumActionBlocks = 5;
 
-                //var sub = conn.CatchUpSubscribe(STREAM, StreamPosition.Start, settings,
-                //    addHandlers: _ =>
-                //    _.Add<Cat>(iEvent =>
-                //      {
-                //          var cat = iEvent.OriginalEvent.FullEvent.Value;
-                //          Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-                //      }
-                //    ).Add<Dog>(iEvent =>
-                //    {
-                //        var dog = iEvent.OriginalEvent.FullEvent.Value;
-                //        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-                //    }
-                //    ),
-                //    subscriptionDropped: (subscription, reason, exc) =>
-                //    {
-                //        Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
-                //    });
+                var sub = conn.CatchUpSubscribe(STREAM, StreamCheckpoint.StreamStart, settings,
+                    addHandlers: _ =>
+                    _.Add<Cat>(iEvent =>
+                      {
+                          var cat = iEvent.OriginalEvent.FullEvent.Value;
+                          Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+                      }
+                    ).Add<Dog>(iEvent =>
+                    {
+                        var dog = iEvent.OriginalEvent.FullEvent.Value;
+                        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+                    }
+                    ),
+                    subscriptionDropped: (subscription, reason, exc) =>
+                    {
+                        Console.WriteLine($"subscriptionDropped: reason-{reason} exc:{exc.Message}");
+                    });
 
                 //var sub = conn.CatchUpSubscribe(STREAM, 1000, settings,
                 //    addHandlers: _ =>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt;
@@ -118,18 +120,37 @@ namespace EventStore.ClientAPI
         {
             // FirstAttribute 可获取动态添加的attr
             var streamAttr = expectedType.FirstAttribute<StreamAttribute>();
-            var streamId = streamAttr != null ? streamAttr.StreamId : RuntimeTypeNameFormatter.Serialize(expectedType);
+            string streamId = null;
+            if (streamAttr != null)
+            {
+                streamId = streamAttr.StreamId;
+            }
+            else
+            {
+                // 判断 StreamAttribute 是否通过接口配置
+                var implementedInterfaces = expectedType.GetTypeInfo()
+                    .ImplementedInterfaces
+                    .Where(_ => _.HasAttribute<StreamAttribute>())
+                    .ToArray();
+                // 需要唯一接口验证
+                if (1 == implementedInterfaces.Length)
+                {
+                    var implementedInterface = implementedInterfaces[0];
+                    streamAttr = implementedInterface.FirstAttribute<StreamAttribute>();
+                    streamId = streamAttr.StreamId;
+                }
+                if (null == streamId) { streamId = RuntimeTypeNameFormatter.Serialize(expectedType); }
+            }
             if (s_streamMapCache.TryAdd(expectedType, streamId)) { return streamId; }
 
             s_streamMapCache.TryGetValue(expectedType, out streamId); return streamId;
-
         }
 
         #endregion
 
         #region == ToEventDatas ==
 
-        internal static EventData[] ToEventDatas(IEventAdapter eventAdapter, IList<object> events, IList<Dictionary<string, object>> eventContexts)
+        internal static EventData[] ToEventDatas(this IEventAdapter eventAdapter, IList<object> events, IList<Dictionary<string, object>> eventContexts)
         {
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
@@ -152,7 +173,7 @@ namespace EventStore.ClientAPI
             return evts;
         }
 
-        internal static EventData[] ToEventDatas(IEventAdapter eventAdapter, IList<object> events, IList<IEventMetadata> eventMetas = null)
+        internal static EventData[] ToEventDatas(this IEventAdapter eventAdapter, IList<object> events, IList<IEventMetadata> eventMetas = null)
         {
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
@@ -175,7 +196,7 @@ namespace EventStore.ClientAPI
             return evts;
         }
 
-        internal static EventData[] ToEventDatas<TEvent>(IEventAdapter eventAdapter, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
+        internal static EventData[] ToEventDatas<TEvent>(this IEventAdapter eventAdapter, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
         {
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
@@ -198,7 +219,7 @@ namespace EventStore.ClientAPI
             return evts;
         }
 
-        internal static EventData[] ToEventDatas<TEvent>(IEventAdapter eventAdapter, IList<TEvent> events, IList<IEventMetadata> eventMetas = null)
+        internal static EventData[] ToEventDatas<TEvent>(this IEventAdapter eventAdapter, IList<TEvent> events, IList<IEventMetadata> eventMetas = null)
         {
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }

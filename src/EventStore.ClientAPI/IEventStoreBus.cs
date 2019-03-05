@@ -11,6 +11,8 @@ namespace EventStore.ClientAPI
         /// <summary>TBD</summary>
         IEventAdapter EventAdapter { get; }
 
+        #region -- ToEventData --
+
         /// <summary>TBD</summary>
         /// <param name="evt"></param>
         /// <param name="eventContext"></param>
@@ -48,6 +50,9 @@ namespace EventStore.ClientAPI
         /// <param name="eventMetas"></param>
         /// <returns></returns>
         EventData[] ToEventDatas<TEvent>(IList<TEvent> events, IList<IEventMetadata> eventMetas = null);
+
+        #endregion
+
 
         #region -- GetEventAsync --
 

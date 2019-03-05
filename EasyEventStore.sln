@@ -22,8 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Nito.AsyncEx.Tasks.Sources", "..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.shproj", "{90BCC560-AA2B-4146-858A-9E524B696F75}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{201CB597-F20D-4E30-9B7D-34EDF1B4C660}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.ReaderWriterLockSlim.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.shproj", "{65E9ED9B-9545-47D8-A39C-DA22C323ABB2}"
@@ -31,10 +29,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Abstractions", "src\EventStore.ClientAPI.Abstractions\EventStore.ClientAPI.Abstractions.csproj", "{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.TaskFactory.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.shproj", "{B38B6795-2812-4CD5-92F6-935734090816}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.GZip.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.shproj", "{64B440E4-D885-4270-8E12-53FDA499B6E4}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.StreamReaderAndWriter.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.shproj", "{1AB88764-60ED-44F3-9E98-08391B5F5CDB}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.DateTimeUtilities.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.shproj", "{F0DCBA0C-1EE9-403C-931C-555776F6C680}"
 EndProject
@@ -66,11 +60,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClientAPI.Benchm
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
-		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.GZip.Sources\CuteAnt.Extensions.GZip.Sources.projitems*{64b440e4-d885-4270-8e12-53fda499b6e4}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems*{65e9ed9b-9545-47d8-a39c-da22c323abb2}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems*{8dbb7dc8-2b90-4a8c-a60d-d41466174bde}*SharedItemsImports = 13
-		..\CuteAnt.Extensions.Common\src\Nito.AsyncEx.Tasks.Sources\Nito.AsyncEx.Tasks.Sources.projitems*{90bcc560-aa2b-4146-858a-9e524b696f75}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems*{b2be33a0-1eb0-49f7-bd28-72806d4a1df1}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems*{b38b6795-2812-4cd5-92f6-935734090816}*SharedItemsImports = 13
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems*{c7f8dbe6-77b7-494d-af00-018f7579548c}*SharedItemsImports = 13
@@ -136,12 +127,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8DBB7DC8-2B90-4A8C-A60D-D41466174BDE} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{C7F8DBE6-77B7-494D-AF00-018F7579548C} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
-		{90BCC560-AA2B-4146-858A-9E524B696F75} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{65E9ED9B-9545-47D8-A39C-DA22C323ABB2} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{9C8E5742-6E84-40E5-9AAA-3ECBFDD92A93} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{B38B6795-2812-4CD5-92F6-935734090816} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
-		{64B440E4-D885-4270-8E12-53FDA499B6E4} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
-		{1AB88764-60ED-44F3-9E98-08391B5F5CDB} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{F0DCBA0C-1EE9-403C-931C-555776F6C680} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
 		{FB791DF1-AE27-4892-847B-C0B0995C633D} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{FE89BA19-77E0-4163-BA6E-04854BA66213} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
