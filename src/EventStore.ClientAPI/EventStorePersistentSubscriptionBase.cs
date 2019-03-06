@@ -5,8 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using CuteAnt.AsyncEx;
-using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.Logging;
 
@@ -206,15 +204,8 @@ namespace EventStore.ClientAPI
             var dropData = new DropData(reason, error);
             if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
             {
-                _targetBlock.Post(DropSubscriptionEvent);
-                //AsyncContext.Run(s_sendToQueueFunc, _targetBlock, DropSubscriptionEvent);
+                _targetBlock.SendAsync(DropSubscriptionEvent);
             }
-        }
-
-        private static readonly Func<ITargetBlock<TPersistentSubscriptionResolvedEvent>, TPersistentSubscriptionResolvedEvent, Task<bool>> s_sendToQueueFunc = SendToQueueAsync;
-        private static async Task<bool> SendToQueueAsync(ITargetBlock<TPersistentSubscriptionResolvedEvent> targetBlock, TPersistentSubscriptionResolvedEvent message)
-        {
-            return await targetBlock.SendAsync(message).ConfigureAwait(false);
         }
 
         private void OnSubscriptionDropped(EventStoreSubscription subscription, SubscriptionDropReason reason, Exception exception)
@@ -229,7 +220,7 @@ namespace EventStore.ClientAPI
 
         private void ProcessResolvedEvent(TPersistentSubscriptionResolvedEvent resolvedEvent)
         {
-            var isArtificialEvent = resolvedEvent.Equals(DropSubscriptionEvent);  // drop subscription artificial ResolvedEvent
+            var isArtificialEvent = resolvedEvent.IsDropping;  // drop subscription artificial ResolvedEvent
             var dropData = Volatile.Read(ref _dropData);
             if (isArtificialEvent || dropData != null)
             {
@@ -263,7 +254,7 @@ namespace EventStore.ClientAPI
 
         private async Task ProcessResolvedEventAsync(TPersistentSubscriptionResolvedEvent resolvedEvent)
         {
-            var isArtificialEvent = resolvedEvent.Equals(DropSubscriptionEvent);  // drop subscription artificial ResolvedEvent
+            var isArtificialEvent = resolvedEvent.IsDropping;  // drop subscription artificial ResolvedEvent
             var dropData = Volatile.Read(ref _dropData);
             if (isArtificialEvent || dropData != null)
             {

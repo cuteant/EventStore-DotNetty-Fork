@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.Subscriptions;
 using Microsoft.Extensions.Logging;
 
@@ -19,8 +20,11 @@ namespace EventStore.ClientAPI.Consumers
         protected override void OnDispose(bool disposing)
         {
             base.OnDispose(disposing);
-            var subscription = Interlocked.Exchange(ref _esSubscription, null);
-            subscription?.Dispose();
+            Task.Run(() =>
+            {
+                var subscription = Interlocked.Exchange(ref _esSubscription, null);
+                subscription?.Dispose();
+            }).Ignore();
         }
 
         public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription,

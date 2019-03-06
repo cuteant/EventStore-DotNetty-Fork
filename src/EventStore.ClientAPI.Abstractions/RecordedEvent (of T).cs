@@ -3,7 +3,7 @@
 namespace EventStore.ClientAPI
 {
     /// <summary>Represents a previously written event</summary>
-    public class RecordedEvent<T> : IRecordedEvent<T>
+    public sealed class RecordedEvent<T> : IRecordedEvent<T>
     {
         /// <summary>The Event Stream that this event belongs to</summary>
         public readonly string EventStreamId;
@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI
         public long CreatedEpoch;
 
         internal RecordedEvent(string streamId, Guid eventId, long eventNumber, string eventType,
-          long? created, long? createdEpoch, IFullEvent<T> fullEvent, bool isJson)
+            long? created, long? createdEpoch, IFullEvent<T> fullEvent, bool isJson)
         {
             EventStreamId = streamId;
 

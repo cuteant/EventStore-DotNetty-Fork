@@ -59,8 +59,18 @@ namespace EventStore.ClientAPI
             Event = evnt;
             Link = link;
             OriginalPosition = position;
+            _isDropping = false;
         }
 
-        public static readonly ResolvedEvent<T> Null = new ResolvedEvent<T>();
+        internal ResolvedEvent(bool isSystem)
+        {
+            _isDropping = true;
+            Event = null;
+            Link = null;
+            OriginalPosition = null;
+        }
+
+        bool IResolvedEvent.IsDropping => _isDropping;
+        private readonly bool _isDropping;
     }
 }

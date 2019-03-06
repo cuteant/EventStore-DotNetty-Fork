@@ -1,4 +1,5 @@
-﻿using EventStore.ClientAPI.Resilience;
+﻿using System;
+using EventStore.ClientAPI.Resilience;
 
 namespace EventStore.ClientAPI.Subscriptions
 {
@@ -8,16 +9,16 @@ namespace EventStore.ClientAPI.Subscriptions
     /// </summary>
     public class DroppedSubscription
     {
-        public DroppedSubscription(ISubscription subscription, string exceptionMessage, SubscriptionDropReason dropReason)
+        public DroppedSubscription(ISubscription subscription, Exception exception, SubscriptionDropReason dropReason)
         {
             StreamId = subscription.StreamId;
-            ExceptionMessage = exceptionMessage;
+            Error = exception;
             DropReason = dropReason;
             RetryPolicy = subscription.RetryPolicy;
         }
 
         public string StreamId { get; }
-        public string ExceptionMessage { get; }
+        public Exception Error { get; }
         public SubscriptionDropReason DropReason { get; }
         public RetryPolicy RetryPolicy { get; }
     }

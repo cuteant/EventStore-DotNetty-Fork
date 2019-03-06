@@ -16,7 +16,7 @@ namespace EventStore.ClientAPI.Tests
         public void GetStreamProviderTest()
         {
             var streamId = EventManager.GetStreamId<Dog>();
-            Assert.Equal(RuntimeTypeNameFormatter.Serialize(typeof(Dog)), streamId);
+            Assert.Equal("test-animal", streamId);
 
             streamId = EventManager.GetStreamId<Dog1>();
             Assert.Equal("test-animal1", streamId);

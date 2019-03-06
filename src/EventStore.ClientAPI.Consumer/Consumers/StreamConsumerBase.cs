@@ -57,7 +57,7 @@ namespace EventStore.ClientAPI.Consumers
 
             if (await CanRetryAsync(lastEventNum, dropReason).ConfigureAwait(false))
             {
-                var subscriptionDropped = new DroppedSubscription(Subscription, exception?.Message, dropReason);
+                var subscriptionDropped = new DroppedSubscription(Subscription, exception, dropReason);
                 await HandleDroppedSubscriptionAsync(subscriptionDropped).ConfigureAwait(false);
             }
         }

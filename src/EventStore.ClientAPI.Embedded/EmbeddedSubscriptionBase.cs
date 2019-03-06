@@ -114,7 +114,7 @@ namespace EventStore.ClientAPI.Embedded
 
                 if (Subscription != null)
                 {
-                    EnqueueMessage((false, ResolvedEvent.Null, default(int?), reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
+                    EnqueueMessage((false, new ResolvedEvent(true), default(int?), reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
                 }
             }
         }

@@ -17,6 +17,7 @@ namespace EventStore.ClientAPI
         {
             Event = @event;
             RetryCount = retryCount;
+            _isDropping = false;
         }
 
         int? IPersistentSubscriptionResolvedEvent.RetryCount => RetryCount;
@@ -47,5 +48,15 @@ namespace EventStore.ClientAPI
         /// <param name="x"></param>
         /// <returns></returns>
         public static implicit operator ResolvedEvent<T>(PersistentSubscriptionResolvedEvent<T> x) => x.Event;
+
+        internal PersistentSubscriptionResolvedEvent(bool isSystem)
+        {
+            _isDropping = true;
+            Event = default;
+            RetryCount = null;
+        }
+
+        bool IResolvedEvent.IsDropping => _isDropping;
+        private readonly bool _isDropping;
     }
 }

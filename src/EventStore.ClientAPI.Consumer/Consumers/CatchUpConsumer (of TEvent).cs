@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
+using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.Resilience;
 using EventStore.ClientAPI.Subscriptions;
 using Microsoft.Extensions.Logging;
@@ -21,8 +22,11 @@ namespace EventStore.ClientAPI.Consumers
         protected override void OnDispose(bool disposing)
         {
             base.OnDispose(disposing);
-            var subscription = Interlocked.Exchange(ref esSubscription, null);
-            subscription?.Stop(TimeSpan.FromMinutes(1));
+            Task.Run(() =>
+            {
+                var subscription = Interlocked.Exchange(ref esSubscription, null);
+                subscription?.Stop(TimeSpan.FromMinutes(1));
+            }).Ignore();
         }
 
         public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription,

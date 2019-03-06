@@ -52,8 +52,6 @@ namespace EventStore.ClientAPI
         private IDisposable _liveLinks;
         private DropData _dropData;
 
-        ///<summary>stop has been called.</summary>
-        protected volatile bool ShouldStop;
         internal const int c_on = 1;
         internal const int c_off = 0;
         internal int _isDropped = c_off;
@@ -67,8 +65,18 @@ namespace EventStore.ClientAPI
         private EventStoreSubscription _subscription;
         internal EventStoreSubscription InnerSubscription
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Volatile.Read(ref _subscription);
             set => Interlocked.Exchange(ref _subscription, value);
+        }
+
+        private int _shouldStop;
+        ///<summary>stop has been called.</summary>
+        protected bool ShouldStop
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => c_on == Volatile.Read(ref _shouldStop);
+            set => Interlocked.Exchange(ref _shouldStop, value ? c_on : c_off);
         }
 
         /// <summary>Indicates whether the subscription is to all events or to a specific stream.</summary>
@@ -371,15 +379,16 @@ namespace EventStore.ClientAPI
             var dropData = new DropData(reason, error);
             if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
             {
-                _liveQueue.Post(DropSubscriptionEvent);
-                //AsyncContext.Run(s_sendToLiveQueueFunc, _liveQueue, DropSubscriptionEvent);
+                var liveLinks = Volatile.Read(ref _liveLinks);
+                if (liveLinks != null)
+                {
+                    _liveQueue.SendAsync(DropSubscriptionEvent);
+                }
+                else
+                {
+                    _liveTargetBlock.SendAsync(DropSubscriptionEvent);
+                }
             }
-        }
-
-        private static readonly Func<BufferBlock<TResolvedEvent>, TResolvedEvent, Task<bool>> s_sendToLiveQueueFunc = SendToLiveQueueAsync;
-        private static async Task<bool> SendToLiveQueueAsync(BufferBlock<TResolvedEvent> liveQueue, TResolvedEvent message)
-        {
-            return await liveQueue.SendAsync(message).ConfigureAwait(false);
         }
 
         #endregion
@@ -388,7 +397,7 @@ namespace EventStore.ClientAPI
 
         private void ProcessLiveQueue(TResolvedEvent e)
         {
-            if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+            if (e.IsDropping) // drop subscription artificial ResolvedEvent
             {
                 DropSubscriptionArtificial();
                 return;
@@ -422,7 +431,7 @@ namespace EventStore.ClientAPI
 
         private async Task ProcessLiveQueueAsync(TResolvedEvent e)
         {
-            if (e.Equals(DropSubscriptionEvent)) // drop subscription artificial ResolvedEvent
+            if (e.IsDropping) // drop subscription artificial ResolvedEvent
             {
                 DropSubscriptionArtificial();
                 return;
@@ -520,7 +529,7 @@ namespace EventStore.ClientAPI
     {
         static EventStoreAllCatchUpSubscription()
         {
-            DropSubscriptionEvent = new ResolvedEvent();
+            DropSubscriptionEvent = new ResolvedEvent(true);
         }
         /// <summary>The last position processed on the subscription.</summary>
         public Position LastProcessedPosition
@@ -888,7 +897,7 @@ namespace EventStore.ClientAPI
     {
         static EventStoreStreamCatchUpSubscription()
         {
-            DropSubscriptionEvent = new ResolvedEvent();
+            DropSubscriptionEvent = new ResolvedEvent(true);
         }
         private readonly IEventStoreConnection _innerConnection;
 
@@ -965,7 +974,7 @@ namespace EventStore.ClientAPI
     {
         static EventStoreCatchUpSubscription()
         {
-            DropSubscriptionEvent = new ResolvedEvent<object>();
+            DropSubscriptionEvent = new ResolvedEvent<object>(true);
         }
         private readonly IEventStoreConnection2 _innerConnection;
 
@@ -1042,7 +1051,7 @@ namespace EventStore.ClientAPI
     {
         static EventStoreCatchUpSubscription2()
         {
-            DropSubscriptionEvent = new ResolvedEvent<object>();
+            DropSubscriptionEvent = new ResolvedEvent<object>(true);
         }
         private readonly IEventStoreConnection2 _innerConnection;
 
@@ -1119,7 +1128,7 @@ namespace EventStore.ClientAPI
     {
         static EventStoreCatchUpSubscription()
         {
-            DropSubscriptionEvent = new ResolvedEvent<TEvent>();
+            DropSubscriptionEvent = new ResolvedEvent<TEvent>(true);
         }
         private readonly IEventStoreConnection2 _innerConnection;
         private readonly string _topic;

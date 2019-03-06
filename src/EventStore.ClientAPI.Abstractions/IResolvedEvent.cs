@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace EventStore.ClientAPI
 {
@@ -20,6 +21,9 @@ namespace EventStore.ClientAPI
 
     public interface IResolvedEvent
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        bool IsDropping { get; } // internal use only
+
         bool IsResolved { get; }
 
         Position? OriginalPosition { get; }

@@ -42,30 +42,35 @@ namespace Es.Consumer
 
                 #region PersistentSubscription
 
-                var settings = new ConnectToPersistentSubscriptionSettings();
+                //var settings = new ConnectToPersistentSubscriptionSettings();
 
-                var subscription = new PersistentSubscription(STREAM, GROUP);
-                subscription.Settings = settings;
-                subscription.PersistentSettings = PersistentSubscriptionSettings.Create().DoNotResolveLinkTos().StartFromBeginning();
-                var persistentConsumer = new PersistentConsumer();
-                persistentConsumer.Initialize(conn, subscription, addEventHandlers : _ =>
-                    _.Add<Cat>(iEvent =>
-                    {
-                        if (iEvent.OriginalEventNumber == 2 && !throwEx)
-                        {
-                            throwEx = true;
-                            throw new Exception();
-                        }
-                        var cat = iEvent.OriginalEvent.FullEvent.Value;
-                        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-                    }
-                    ).Add<Dog>(iEvent =>
-                    {
-                        var dog = iEvent.OriginalEvent.FullEvent.Value;
-                        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-                    }
-                    ));
-                persistentConsumer.ConnectToSubscriptionAsync();
+                //var subscription = new PersistentSubscription(STREAM, GROUP);
+                //subscription.Settings = settings;
+                //subscription.PersistentSettings = PersistentSubscriptionSettings.Create().DoNotResolveLinkTos().StartFromBeginning();
+                //var persistentConsumer = new PersistentConsumer();
+                //persistentConsumer.Initialize(conn, subscription, addEventHandlers: _ =>
+                //   _.Add<Cat>(iEvent =>
+                //   {
+                //       if (iEvent.OriginalEventNumber == 2 && !throwEx)
+                //       {
+                //           throwEx = true;
+                //           throw new Exception();
+                //       }
+                //       var cat = iEvent.OriginalEvent.FullEvent.Value;
+                //       Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+                //   }
+                //   ).Add<Dog>(iEvent =>
+                //   {
+                //       if (iEvent.OriginalEventNumber == 9)
+                //       {
+                //           conn.Close();
+                //           //persistentConsumer.Dispose();
+                //       }
+                //       var dog = iEvent.OriginalEvent.FullEvent.Value;
+                //       Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+                //   }
+                //   ));
+                //persistentConsumer.ConnectToSubscriptionAsync();
 
                 //var sub = conn.PersistentSubscribeAsync(STREAM, GROUP, settings,
                 //    addEventHandlers: _ =>
@@ -144,6 +149,33 @@ namespace Es.Consumer
                 //var settings = new SubscriptionSettings();
                 ////var settings = new SubscriptionSettings { MaxDegreeOfParallelismPerBlock = 5 };
                 ////var settings = new SubscriptionSettings { BoundedCapacityPerBlock = 2, NumActionBlocks = 5 };
+
+                //var subscription = new VolatileSubscription(STREAM);
+                //subscription.Settings = settings;
+                //var volatileConsumer = new VolatileConsumer();
+                //volatileConsumer.Initialize(conn, subscription, addEventHandlers: _ =>
+                //   _.Add<Cat>(iEvent =>
+                //   {
+                //       if ((iEvent.OriginalEventNumber % 2) == 0 && !throwEx)
+                //       {
+                //           throwEx = true;
+                //           throw new Exception();
+                //       }
+                //       var cat = iEvent.OriginalEvent.FullEvent.Value;
+                //       Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+                //   }
+                //   ).Add<Dog>(iEvent =>
+                //   {
+                //       if ((iEvent.OriginalEventNumber % 9) == 0)
+                //       {
+                //           conn.Close();
+                //           //volatileConsumer.Dispose();
+                //       }
+                //       var dog = iEvent.OriginalEvent.FullEvent.Value;
+                //       Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+                //   }
+                //   ));
+                //volatileConsumer.ConnectToSubscriptionAsync();
 
                 //var sub = conn.VolatileSubscribeAsync(STREAM, settings,
                 //    addEventHandlers: _ =>
@@ -242,13 +274,18 @@ namespace Es.Consumer
                 //        if (iEvent.OriginalEventNumber == 2 && !throwEx)
                 //        {
                 //            throwEx = true;
-                //            throw new Exception();
+                //            //throw new Exception();
                 //        }
                 //        var cat = iEvent.OriginalEvent.FullEvent.Value;
                 //        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
                 //    }
                 //    ).Add<Dog>(iEvent =>
                 //    {
+                //        if (iEvent.OriginalEventNumber == 9)
+                //        {
+                //            conn.Close();
+                //            //catchUpConsumer.Dispose();
+                //        }
                 //        var dog = iEvent.OriginalEvent.FullEvent.Value;
                 //        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
                 //    }
@@ -329,9 +366,11 @@ namespace Es.Consumer
 
                 #endregion
 
-                Console.WriteLine("waiting for events. press enter to exit");
+                Console.WriteLine("waiting for events. press any key to close connection");
                 Console.ReadKey();
             }
+            Console.WriteLine("Press any key to exit");
+            Console.ReadKey();
         }
 
         private static void UpdateSubscription(IEventStoreConnection conn)
