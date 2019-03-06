@@ -75,7 +75,7 @@ namespace EventStore.ClientAPI
                                                       Action<TSubscription, TResolvedEvent, int?> eventAppeared,
                                                       Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                       UserCredentials userCredentials, ConnectionSettings connSettings)
-          : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
+            : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
         {
             _targetBlock = new ActionBlock<TPersistentSubscriptionResolvedEvent>(ProcessResolvedEvent, _settings.ToExecutionDataflowBlockOptions(true));
             _eventAppeared = eventAppeared;
@@ -86,7 +86,7 @@ namespace EventStore.ClientAPI
                                                       Func<TSubscription, TResolvedEvent, int?, Task> eventAppearedAsync,
                                                       Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
                                                       UserCredentials userCredentials, ConnectionSettings connSettings)
-          : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
+            : this(subscriptionId, streamId, settings, subscriptionDropped, userCredentials, connSettings)
         {
             _targetBlock = new ActionBlock<TPersistentSubscriptionResolvedEvent>(ProcessResolvedEventAsync, _settings.ToExecutionDataflowBlockOptions());
             _eventAppearedAsync = eventAppearedAsync;
@@ -246,6 +246,7 @@ namespace EventStore.ClientAPI
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private void ProcessDropSubscription(bool isArtificialEvent, DropData dropData)
         {
             if (isArtificialEvent && dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }

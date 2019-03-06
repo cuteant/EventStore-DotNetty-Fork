@@ -13,7 +13,7 @@ using JsonExtensions.Utilities;
 namespace EventStore.ClientAPI
 {
     /// <summary>Methods for dealing with connection strings.</summary>
-    public class ConnectionString
+    public sealed class ConnectionString
     {
         private static readonly Dictionary<Type, Func<string, object>> s_translators;
 
@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI
                 if (!fields.TryGetValue(item.Key, out FieldInfo fi)) continue;
                 if (!s_translators.TryGetValue(fi.FieldType, out Func<string, object> func))
                 {
-                    throw new Exception(string.Format("Can not map field named {0} as type {1} has no translator", item, fi.FieldType.Name));
+                    throw new Exception($"Can not map field named {item} as type {fi.FieldType.Name} has no translator");
                 }
                 fi.SetValue(obj, func(item.Value));
             }
