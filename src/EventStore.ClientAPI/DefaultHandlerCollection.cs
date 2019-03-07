@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CuteAnt.AsyncEx;
-using EventStore.ClientAPI.Exceptions;
 using Microsoft.Extensions.Logging;
 
 namespace EventStore.ClientAPI
@@ -62,11 +62,17 @@ namespace EventStore.ClientAPI
         {
             if (_handlers.TryGetValue(eventType, out Func<IResolvedEvent2, Task> func)) { return func; }
 
+            return GetHandlerInternal(eventType);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public Func<IResolvedEvent2, Task> GetHandlerInternal(Type eventType)
+        {
             if (!_throwOnNoMatchingHandler)
             {
                 lock (_thisLock)
                 {
-                    var hander = GetHandlerLocal(eventType);
+                    var hander = Match(eventType);
                     if (hander != null) { return hander; }
                     _handlers.Add(eventType, s_emptyHandler);
                     if (s_logger.IsWarningLevelEnabled()) { s_logger.NoHandlerFoundForEventTypeTheDefaultHanderHasBeenUsed(eventType); }
@@ -79,7 +85,7 @@ namespace EventStore.ClientAPI
                 {
                     lock (_thisLock)
                     {
-                        var hander = GetHandlerLocal(eventType);
+                        var hander = Match(eventType);
                         if (hander != null) { return hander; }
                         _noMatching.Add(eventType);
                     }
@@ -87,22 +93,22 @@ namespace EventStore.ClientAPI
                 s_logger.NoHandlerFoundForEventType(eventType);
                 CoreThrowHelper.ThrowEventStoreHandlerException(eventType); return null;
             }
+        }
 
-            Func<IResolvedEvent2, Task> GetHandlerLocal(Type eType)
+        private Func<IResolvedEvent2, Task> Match(Type eventType)
+        {
+            if (_handlers.TryGetValue(eventType, out var func)) { return func; }
+
+            // no exact handler match found, so let's see if we can find a handler that
+            // handles a supertype of the consumed event.
+            var handlerType = _handlers.Keys.FirstOrDefault(type => type.IsAssignableFrom(eventType));
+            if (handlerType != null)
             {
-                if (_handlers.TryGetValue(eventType, out func)) { return func; }
-
-                // no exact handler match found, so let's see if we can find a handler that
-                // handles a supertype of the consumed event.
-                var handlerType = _handlers.Keys.FirstOrDefault(type => type.IsAssignableFrom(eventType));
-                if (handlerType != null)
-                {
-                    var hander = _handlers[handlerType];
-                    _handlers.Add(eventType, hander);
-                    return hander;
-                }
-                return null;
+                var hander = _handlers[handlerType];
+                _handlers.Add(eventType, hander);
+                return hander;
             }
+            return null;
         }
 
         public bool ThrowOnNoMatchingHandler { get => _throwOnNoMatchingHandler; set => _throwOnNoMatchingHandler = value; }
