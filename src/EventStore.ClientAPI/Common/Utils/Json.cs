@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Xml;
-using CuteAnt;
 using CuteAnt.Pool;
-using JsonExtensions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -14,8 +11,6 @@ namespace EventStore.ClientAPI.Common.Utils
 {
     internal static class Json
     {
-        private static readonly ObjectPool<JsonSerializer> _defaultPool;
-
         private static readonly JsonSerializerSettings FromSettings;
         private static readonly ObjectPool<JsonSerializer> _deserializerPool;
         private static readonly JsonSerializerSettings ToSettings;
@@ -23,19 +18,6 @@ namespace EventStore.ClientAPI.Common.Utils
 
         static Json()
         {
-            var settings = new JsonSerializerSettings
-            {
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                DateParseHandling = DateParseHandling.None,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                NullValueHandling = NullValueHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None,
-                PreserveReferencesHandling = PreserveReferencesHandling.None,
-                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
-            };
-            _defaultPool = JsonConvertX.GetJsonSerializerPool(settings);
-
             FromSettings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -110,103 +92,6 @@ namespace EventStore.ClientAPI.Common.Utils
                     WriteArrayAttribute = writeArrayAttribute
                 }
             });
-        }
-
-        public static TValue Deserialize<TValue>(this IDictionary<string, object> context, string key)
-        {
-            //if (null == context) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.context); }
-            if (null == key) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
-
-            if (context.TryGetValue(key, out object value) || TryGetValueCamelCase(key, context, out value))
-            {
-                return (TValue)Deserialize(value, typeof(TValue), false);
-            }
-            throw new KeyNotFoundException($"The key was not present: {key}");
-        }
-
-        public static TValue Deserialize<TValue>(this IDictionary<string, object> context, string key, TValue defaultValue)
-        {
-            //if (null == context) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.context); }
-            if (null == key) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
-
-            if (context.TryGetValue(key, out object value) || TryGetValueCamelCase(key, context, out value))
-            {
-                return (TValue)Deserialize(value, typeof(TValue), false);
-            }
-            return defaultValue;
-        }
-
-        public static bool TryDeserialize<TValue>(this IDictionary<string, object> context, string key, out TValue value)
-        {
-            if (/*null == context ||*/ null == key) { value = default; return false; }
-
-            if (context.TryGetValue(key, out object rawValue) || TryGetValueCamelCase(key, context, out rawValue))
-            {
-                value = (TValue)Deserialize(rawValue, typeof(TValue), false);
-                return true;
-            }
-            value = default; return false;
-        }
-
-        private static object Deserialize(object value, Type objectType, bool allowNull = false)
-        {
-            if (value?.GetType() == TypeConstants.CombGuidType)
-            {
-                if (objectType == TypeConstants.CombGuidType)
-                {
-                    return value;
-                }
-                else if (objectType == TypeConstants.StringType)
-                {
-                    return value.ToString();
-                }
-                else if (objectType == TypeConstants.GuidType)
-                {
-                    return (Guid)((CombGuid)value);
-                }
-                else if (objectType == TypeConstants.ByteArrayType)
-                {
-                    //return ((CombGuid)value).ToByteArray();
-                    return ((CombGuid)value).GetByteArray();
-                }
-                else if (objectType == typeof(DateTime))
-                {
-                    return ((CombGuid)value).DateTime;
-                }
-                else if (objectType == typeof(DateTimeOffset))
-                {
-                    return new DateTimeOffset(((CombGuid)value).DateTime);
-                }
-                value = value.ToString();
-            }
-            var token = value as JToken ?? new JValue(value);
-            if (token.Type == JTokenType.Null && allowNull) { return null; }
-
-            using (var jsonReader = new JTokenReader(token))
-            {
-                var jsonDeserializer = _defaultPool.Take();
-
-                try
-                {
-                    return jsonDeserializer.Deserialize(jsonReader, objectType);
-                }
-                finally
-                {
-                    _defaultPool.Return(jsonDeserializer);
-                }
-            }
-        }
-
-        private static bool TryGetValueCamelCase(string key, IDictionary<string, object> dictionary, out object value)
-        {
-            if (char.IsUpper(key[0]))
-            {
-                var camelCaseKey = StringUtils.ToCamelCase(key);
-                return dictionary.TryGetValue(camelCaseKey, out value);
-            }
-
-            value = null;
-            return false;
         }
     }
 }

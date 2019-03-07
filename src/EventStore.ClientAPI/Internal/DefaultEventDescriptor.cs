@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using EventStore.ClientAPI.Common.Utils;
+using JsonExtensions;
 
 namespace EventStore.ClientAPI
 {

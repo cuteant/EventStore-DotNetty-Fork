@@ -258,39 +258,39 @@ namespace Es.Consumer
                 //If stored atomically with the processing of the event this will also provide simulated
                 //transactional messaging.
 
-                //var settings = CatchUpSubscriptionSettings.Create(20, true);
-                ////settings.VerboseLogging = true;
+                var settings = CatchUpSubscriptionSettings.Create(20, true);
+                //settings.VerboseLogging = true;
 
-                ////settings.MaxDegreeOfParallelismPerBlock = 5;
-                ////settings.BoundedCapacityPerBlock = 2;
-                ////settings.NumActionBlocks = 5;
+                //settings.MaxDegreeOfParallelismPerBlock = 5;
+                //settings.BoundedCapacityPerBlock = 2;
+                //settings.NumActionBlocks = 5;
 
-                //var subscription = new CatchUpSubscription(STREAM);
-                //subscription.Settings = settings;
-                //var catchUpConsumer = new CatchUpConsumer();
-                //catchUpConsumer.Initialize(conn, subscription, addEventHandlers: _ =>
-                //    _.Add<Cat>(iEvent =>
-                //    {
-                //        if (iEvent.OriginalEventNumber == 2 && !throwEx)
-                //        {
-                //            throwEx = true;
-                //            //throw new Exception();
-                //        }
-                //        var cat = iEvent.OriginalEvent.FullEvent.Value;
-                //        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
-                //    }
-                //    ).Add<Dog>(iEvent =>
-                //    {
-                //        if (iEvent.OriginalEventNumber == 9)
-                //        {
-                //            conn.Close();
-                //            //catchUpConsumer.Dispose();
-                //        }
-                //        var dog = iEvent.OriginalEvent.FullEvent.Value;
-                //        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
-                //    }
-                //    ));
-                //catchUpConsumer.ConnectToSubscriptionAsync();
+                var subscription = new CatchUpSubscription(STREAM);
+                subscription.Settings = settings;
+                var catchUpConsumer = new CatchUpConsumer();
+                catchUpConsumer.Initialize(conn, subscription, addEventHandlers: _ =>
+                    _.Add<Cat>(iEvent =>
+                    {
+                        if (iEvent.OriginalEventNumber == 2 && !throwEx)
+                        {
+                            throwEx = true;
+                            throw new Exception();
+                        }
+                        var cat = iEvent.OriginalEvent.FullEvent.Value;
+                        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Cat: " + cat.Name + ":" + cat.Meow);
+                    }
+                    ).Add<Dog>(iEvent =>
+                    {
+                        if (iEvent.OriginalEventNumber == 9)
+                        {
+                            //conn.Close();
+                            //catchUpConsumer.Dispose();
+                        }
+                        var dog = iEvent.OriginalEvent.FullEvent.Value;
+                        Console.WriteLine("Received2: " + iEvent.OriginalStreamId + ":" + iEvent.OriginalEventNumber + " Dog: " + dog.Name + ":" + dog.Bark);
+                    }
+                    ));
+                catchUpConsumer.ConnectToSubscriptionAsync();
 
                 //var sub = conn.CatchUpSubscribe(STREAM, StreamCheckpoint.StreamStart, settings,
                 //    addEventHandlers: _ =>
