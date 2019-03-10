@@ -262,7 +262,7 @@ namespace EventStore.Common.Utils
                     return list;
                 }
 
-                if (ctxType.GetTypeInfo().IsValueType)
+                if (ctxType.IsValueType)
                 {
                     caseExpr = Expression.Block(
                         Expression.IfThen(

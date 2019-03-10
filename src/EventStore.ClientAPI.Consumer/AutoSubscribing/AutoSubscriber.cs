@@ -237,7 +237,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             var interfaceType = consumerInfo.InterfaceType;
             var concreteConsumer = GetConcreteConsumer(consumerInfo.ConcreteType);
             var topics = GetTopAttributeValues(consumerInfo, consumeMethod);
-            var isGenericType = interfaceType.GetTypeInfo().IsGenericType;
+            var isGenericType = interfaceType.IsGenericType;
 
             #region IAutoSubscriberConsume<>
 
@@ -688,7 +688,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         {
             MethodInfo consumeMethod = null;
             var interfaceType = consumerInfo.InterfaceType;
-            var isGenericType = interfaceType.GetTypeInfo().IsGenericType;
+            var isGenericType = interfaceType.IsGenericType;
             if (isGenericType && (interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsume<>) || interfaceType.GetGenericTypeDefinition() == typeof(IAutoSubscriberConsumeAsync<>)))
             {
                 consumeMethod = consumerInfo.ConcreteType.GetMethod(consumerInfo.ConsumeMethodName, new[] { consumerInfo.MessageType });
