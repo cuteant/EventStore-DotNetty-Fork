@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotNetty.Codecs;
+using DotNetty.Common;
 using DotNetty.Transport.Channels;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +25,7 @@ namespace EventStore.Transport.Tcp
             Logger = TraceLogger.GetLogger(this.GetType());
             ConnectionGroup = new ConcurrentHashSet<IChannel>(ChannelComparer.Default);
 
+            ResourceLeakDetector.Level = ResourceLeakDetector.DetectionLevel.Disabled;
             Settings = settings;
         }
 
