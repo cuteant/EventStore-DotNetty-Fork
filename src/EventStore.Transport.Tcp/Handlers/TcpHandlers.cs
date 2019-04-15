@@ -68,9 +68,7 @@ namespace EventStore.Transport.Tcp
             {
                 if (readableBytes > 0 && _listener != null)
                 {
-                    var bytes = buf.GetIoBuffer();
-
-                    var packages = MessagePackSerializer.Deserialize<List<TcpPackage>>(bytes, DefaultResolver);
+                    var packages = MessagePackSerializer.Deserialize<List<TcpPackage>>(buf.UnreadSpan, DefaultResolver);
                     foreach (var package in packages)
                     {
                         _listener.Notify(package);
