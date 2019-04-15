@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessagePack.Abstractions" Version="$(MessagePackAbstractionsPackageVersion)" />
+    <PackageReference Include="MessagePack.Span.Abstractions" Version="$(MessagePackSpanAbstractionsPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 </Project>

@@ -80,34 +80,23 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         private static readonly CachedReadConcurrentDictionary<string, byte[]> s_loginCache =
             new CachedReadConcurrentDictionary<string, byte[]>(StringComparer.Ordinal);
-        private static readonly CachedReadConcurrentDictionary<byte[], string> s_loginCache2 =
-            new CachedReadConcurrentDictionary<byte[], string>(ByteArrayComparer.Instance);
+        private static readonly IMessagePackFormatter<Guid> s_guidFormatter = ExtBinaryGuidFormatter.Instance;
 
-        public TcpPackage Deserialize(byte[] bytes, int offset, IFormatterResolver formatterResolver, out int readSize)
+        public TcpPackage Deserialize(ref MessagePackReader reader, IFormatterResolver formatterResolver)
         {
-            if (MessagePackBinary.IsNil(bytes, offset)) { readSize = 1; return null; }
+            if (reader.IsNil()) { return null; }
 
-            var startOffset = offset;
-
-            var command = (TcpCommand)MessagePackBinary.ReadByte(bytes, offset, out readSize);
-            offset += readSize;
-            var flags = (TcpFlags)MessagePackBinary.ReadByte(bytes, offset, out readSize);
-            offset += readSize;
-            var correlationId = new Guid(MessagePackBinary.ReadBytes(bytes, offset, out readSize));
-            offset += readSize;
+            var command = (TcpCommand)reader.ReadByte();
+            var flags = (TcpFlags)reader.ReadByte();
+            var correlationId = s_guidFormatter.Deserialize(ref reader, null);
             string login = null;
             string pass = null;
             if ((flags & TcpFlags.Authenticated) != 0)
             {
-                var bts = MessagePackBinary.ReadBytes(bytes, offset, out readSize);
-                offset += readSize;
-                login = s_loginCache2.GetOrAdd(bts, s_getStringFunc);
-                bts = MessagePackBinary.ReadBytes(bytes, offset, out readSize);
-                offset += readSize;
-                pass = s_loginCache2.GetOrAdd(bts, s_getStringFunc);
+                login = MessagePackBinary.ResolveString(reader.ReadUtf8Span());
+                pass = MessagePackBinary.ResolveString(reader.ReadUtf8Span());
             }
-            var data = MessagePackBinary.ReadBytes(bytes, offset, out readSize);
-            readSize += offset - startOffset;
+            var data = reader.ReadBytes();
             return new TcpPackage(command,
                                   flags,
                                   correlationId,
@@ -116,33 +105,31 @@ namespace EventStore.Core.Services.Transport.Tcp
                                   data);
         }
 
-        public int Serialize(ref byte[] bytes, int offset, TcpPackage value, IFormatterResolver formatterResolver)
+        public void Serialize(ref MessagePackWriter writer, ref int idx, TcpPackage value, IFormatterResolver formatterResolver)
         {
-            if (value == null) { return MessagePackBinary.WriteNil(ref bytes, offset); }
-
-            var startOffset = offset;
+            if (value == null) { writer.WriteNil(ref idx); return; }
 
             var flags = value.Flags;
-            offset += MessagePackBinary.WriteByte(ref bytes, offset, (byte)value.Command);
-            offset += MessagePackBinary.WriteByte(ref bytes, offset, (byte)flags);
-            offset += MessagePackBinary.WriteBytes(ref bytes, offset, value.CorrelationId.ToByteArray());
+            writer.WriteByte((byte)value.Command, ref idx);
+            writer.WriteByte((byte)flags, ref idx);
+            s_guidFormatter.Serialize(ref writer, ref idx, value.CorrelationId, null);
             if ((flags & TcpFlags.Authenticated) != 0)
             {
-                offset += MessagePackBinary.WriteBytes(ref bytes, offset, s_loginCache.GetOrAdd(value.Login, s_getBytesFunc));
-                offset += MessagePackBinary.WriteBytes(ref bytes, offset, s_loginCache.GetOrAdd(value.Password, s_getBytesFunc));
+                var login = s_loginCache.GetOrAdd(value.Login, s_getBytesFunc);
+                writer.WriteRawBytes(login, ref idx);
+                var password = s_loginCache.GetOrAdd(value.Password, s_getBytesFunc);
+                writer.WriteRawBytes(password, ref idx);
             }
-            offset += MessagePackBinary.WriteBytes(ref bytes, offset, value.Data);
-
-            return offset - startOffset;
+            writer.WriteBytes(value.Data, ref idx);
         }
 
-        private static Func<string, byte[]> s_getBytesFunc = GetBytesInternal;
+        private static readonly Func<string, byte[]> s_getBytesFunc = s => GetBytesInternal(s);
         private static byte[] GetBytesInternal(string v)
         {
             var len = Helper.UTF8NoBom.GetByteCount(v);
             if (len > 255) ThrowArgumentException(len);
 
-            return Helper.UTF8NoBom.GetBytes(v);
+            return MessagePackBinary.GetEncodedStringBytes(v);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -153,28 +140,6 @@ namespace EventStore.Core.Services.Transport.Tcp
             {
                 return new ArgumentException($"Login or password serialized length should be less than 256 bytes (but is {len}).");
             }
-        }
-
-        private static Func<byte[], string> s_getStringFunc = GetStringInternal;
-        private static string GetStringInternal(byte[] v) => Encoding.UTF8.GetString(v);
-
-        internal sealed class ByteArrayComparer : IEqualityComparer<byte[]>
-        {
-            public static readonly ByteArrayComparer Instance = new ByteArrayComparer();
-
-            public bool Equals(byte[] a, byte[] b)
-            {
-                if (ReferenceEquals(a, b)) { return true; }
-                if (a.Length != b.Length) { return false; }
-                var length = a.Length;
-                for (var i = 0; i < length; i++)
-                {
-                    if (a[i] != b[i]) { return false; }
-                }
-                return true;
-            }
-
-            public int GetHashCode(byte[] obj) => obj.GetHashCode();
         }
     }
 }
