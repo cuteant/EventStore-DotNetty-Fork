@@ -43,7 +43,6 @@ namespace EventStore.ClientAPI
         private readonly string _subscriptionName;
         internal readonly CatchUpSubscriptionSettings _settings;
 
-        private readonly int _numActionBlocks;
         internal readonly BufferBlock<TResolvedEvent> _historicalQueue;
         protected readonly ActionBlock<TResolvedEvent> _historicalTargetBlock;
         private readonly IDisposable _historicalLinks;

@@ -12,13 +12,13 @@ namespace EventStore.ClientAPI.Exceptions
         /// <summary>
         /// If available, the expected version specified for the operation that failed.
         /// </summary>
-        /// <remarks>Only available if the operation was <see cref="IEventStoreConnectionBase.AppendToStreamAsync(string,long,EventStore.ClientAPI.EventData[])"/> or one of it's overloads.</remarks>
+        /// <remarks>Only available if the operation was <see cref="IEventStoreConnectionBase.AppendToStreamAsync(string,long,EventStore.ClientAPI.EventData,SystemData.UserCredentials)"/> or one of it's overloads.</remarks>
         public long? ExpectedVersion { get; }
 
         /// <summary>
         /// If available, the current version of the stream that the operation was attempted on.
         /// </summary>
-        /// <remarks>Only available if the operation was <see cref="IEventStoreConnectionBase.AppendToStreamAsync(string,long,EventStore.ClientAPI.EventData[])"/> or one of it's overloads.</remarks>
+        /// <remarks>Only available if the operation was <see cref="IEventStoreConnectionBase.AppendToStreamAsync(string,long,EventStore.ClientAPI.EventData,SystemData.UserCredentials)"/> or one of it's overloads.</remarks>
         public long? ActualVersion { get; }
 
         /// <summary>

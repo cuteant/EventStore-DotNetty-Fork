@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using CuteAnt.Collections;
 using EventStore.Transport.Tcp.Messages;
 using MessagePack;

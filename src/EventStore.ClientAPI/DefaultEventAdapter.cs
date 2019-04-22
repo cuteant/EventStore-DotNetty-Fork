@@ -87,7 +87,7 @@ namespace EventStore.ClientAPI
 
             var actualType = message.GetType();
             if (null == eventMeta) { eventMeta = new EventMetadata(); }
-            eventMeta.ClrEventType = TypeUtils.SerializeTypeName(actualType);
+            eventMeta.ClrEventType = RuntimeTypeNameFormatter.Serialize(actualType);
 
             var metaSerializer = CreateMetaSerializer();
             var dataSerializer = CreateDataSerializer();

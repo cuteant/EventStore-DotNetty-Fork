@@ -13,6 +13,7 @@ namespace EventStore.ClientAPI
         public DefaultEventDescriptor(IEventMetadata eventMeta)
         {
             if (null == eventMeta) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMeta); }
+            _eventMeta = eventMeta;
             _eventContext = eventMeta.Context ?? s_empty;
         }
 
