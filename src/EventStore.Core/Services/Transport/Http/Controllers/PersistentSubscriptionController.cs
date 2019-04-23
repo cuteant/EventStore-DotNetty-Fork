@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
@@ -86,26 +87,33 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var groupname = match.BoundVariables["subscription"];
             var stream = match.BoundVariables["stream"];
             var messageIds = match.BoundVariables["messageIds"];
-            var ids = new List<Guid>();
-            foreach (var messageId in messageIds.Split(new[] { ',' }))
+            var ids = ThreadLocalList<Guid>.NewInstance();
+            try
             {
-                if (!Guid.TryParse(messageId, out Guid id))
+                foreach (var messageId in messageIds.Split(new[] { ',' }))
                 {
-                    http.ReplyStatus(HttpStatusCode.BadRequest, "messageid should be a properly formed guid", exception => { });
-                    return;
+                    if (!Guid.TryParse(messageId, out Guid id))
+                    {
+                        http.ReplyStatus(HttpStatusCode.BadRequest, "messageid should be a properly formed guid", exception => { });
+                        return;
+                    }
+                    ids.Add(id);
                 }
-                ids.Add(id);
-            }
 
-            var cmd = new ClientMessage.PersistentSubscriptionAckEvents(
-                                             Guid.NewGuid(),
-                                             Guid.NewGuid(),
-                                             envelope,
-                                             BuildSubscriptionGroupKey(stream, groupname),
-                                             ids.ToArray(),
-                                             http.User);
-            Publish(cmd);
-            http.ReplyStatus(HttpStatusCode.Accepted, "", exception => { });
+                var cmd = new ClientMessage.PersistentSubscriptionAckEvents(
+                                                 Guid.NewGuid(),
+                                                 Guid.NewGuid(),
+                                                 envelope,
+                                                 BuildSubscriptionGroupKey(stream, groupname),
+                                                 ids.ToArray(),
+                                                 http.User);
+                Publish(cmd);
+                http.ReplyStatus(HttpStatusCode.Accepted, "", exception => { });
+            }
+            finally
+            {
+                ids.Return();
+            }
         }
 
         private void NackMessages(HttpEntityManager http, UriTemplateMatch match)
@@ -117,27 +125,34 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var stream = match.BoundVariables["stream"];
             var messageIds = match.BoundVariables["messageIds"];
             var nakAction = GetNackAction(http, match);
-            var ids = new List<Guid>();
-            foreach (var messageId in messageIds.Split(new[] { ',' }))
+            var ids = ThreadLocalList<Guid>.NewInstance();
+            try
             {
-                if (!Guid.TryParse(messageId, out Guid id))
+                foreach (var messageId in messageIds.Split(new[] { ',' }))
                 {
-                    http.ReplyStatus(HttpStatusCode.BadRequest, "messageid should be a properly formed guid", exception => { });
-                    return;
+                    if (!Guid.TryParse(messageId, out Guid id))
+                    {
+                        http.ReplyStatus(HttpStatusCode.BadRequest, "messageid should be a properly formed guid", exception => { });
+                        return;
+                    }
+                    ids.Add(id);
                 }
-                ids.Add(id);
+                var cmd = new ClientMessage.PersistentSubscriptionNackEvents(
+                                                 Guid.NewGuid(),
+                                                 Guid.NewGuid(),
+                                                 envelope,
+                                                 BuildSubscriptionGroupKey(stream, groupname),
+                                                 "Nacked from HTTP",
+                                                 nakAction,
+                                                 ids.ToArray(),
+                                                 http.User);
+                Publish(cmd);
+                http.ReplyStatus(HttpStatusCode.Accepted, "", exception => { });
             }
-            var cmd = new ClientMessage.PersistentSubscriptionNackEvents(
-                                             Guid.NewGuid(),
-                                             Guid.NewGuid(),
-                                             envelope,
-                                             BuildSubscriptionGroupKey(stream, groupname),
-                                             "Nacked from HTTP",
-                                             nakAction,
-                                             ids.ToArray(),
-                                             http.User);
-            Publish(cmd);
-            http.ReplyStatus(HttpStatusCode.Accepted, "", exception => { });
+            finally
+            {
+                ids.Return();
+            }
         }
 
         private static string BuildSubscriptionGroupKey(string stream, string groupName)

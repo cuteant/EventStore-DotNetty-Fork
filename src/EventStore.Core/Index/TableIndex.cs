@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EventStore.Common.Utils;
+using DotNetty.Common;
 using EventStore.Core.Exceptions;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.Util;
@@ -702,43 +701,49 @@ namespace EventStore.Core.Index
             if (startVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startVersion); }
             if (endVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endVersion); }
 
-            var candidates = new List<IEnumerator<IndexEntry>>();
-
-            var awaiting = Volatile.Read(ref _awaitingMemTables);
-            for (int index = 0; index < awaiting.Count; index++)
+            var candidates = ThreadLocalList<IEnumerator<IndexEntry>>.NewInstance();
+            try
             {
-                var range = awaiting[index].Table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
-                if (range.MoveNext()) { candidates.Add(range); }
-            }
-
-            var map = _indexMap;
-            foreach (var table in map.InOrder())
-            {
-                var range = table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
-                if (range.MoveNext()) { candidates.Add(range); }
-            }
-
-            var last = new IndexEntry(0, 0, 0);
-            var first = true;
-
-            var sortedCandidates = new List<IndexEntry>();
-            while (candidates.Count > 0)
-            {
-                var maxIdx = GetMaxOf(candidates);
-                var winner = candidates[maxIdx];
-
-                var best = winner.Current;
-                if (first || ((last.Stream != best.Stream) && (last.Version != best.Version)) || last.Position != best.Position)
+                var awaiting = Volatile.Read(ref _awaitingMemTables);
+                for (int index = 0; index < awaiting.Count; index++)
                 {
-                    last = best;
-                    sortedCandidates.Add(best);
-                    first = false;
+                    var range = awaiting[index].Table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
+                    if (range.MoveNext()) { candidates.Add(range); }
                 }
 
-                if (!winner.MoveNext()) { candidates.RemoveAt(maxIdx); }
-            }
+                var map = _indexMap;
+                foreach (var table in map.InOrder())
+                {
+                    var range = table.GetRange(hash, startVersion, endVersion, limit).GetEnumerator();
+                    if (range.MoveNext()) { candidates.Add(range); }
+                }
 
-            return sortedCandidates;
+                var last = new IndexEntry(0, 0, 0);
+                var first = true;
+
+                var sortedCandidates = new List<IndexEntry>();
+                while (candidates.Count > 0)
+                {
+                    var maxIdx = GetMaxOf(candidates);
+                    var winner = candidates[maxIdx];
+
+                    var best = winner.Current;
+                    if (first || ((last.Stream != best.Stream) && (last.Version != best.Version)) || last.Position != best.Position)
+                    {
+                        last = best;
+                        sortedCandidates.Add(best);
+                        first = false;
+                    }
+
+                    if (!winner.MoveNext()) { candidates.RemoveAt(maxIdx); }
+                }
+
+                return sortedCandidates;
+            }
+            finally
+            {
+                candidates.Return();
+            }
         }
 
         private static int GetMaxOf(List<IEnumerator<IndexEntry>> enumerators)

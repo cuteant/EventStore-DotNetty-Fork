@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
+using DotNetty.Common;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.DataStructures;
 using EventStore.Core.TransactionLog;
 using EventStore.Core.TransactionLog.Checkpoint;
 using EventStore.Core.TransactionLog.LogRecords;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Storage.EpochManager
 {
@@ -134,13 +135,20 @@ namespace EventStore.Core.Services.Storage.EpochManager
         {
             lock (_locker)
             {
-                var res = new List<EpochRecord>();
-                for (int epochNum = _lastEpochNumber, n = maxCount; epochNum >= 0 && n > 0; --epochNum, --n)
+                var res = ThreadLocalList<EpochRecord>.NewInstance();
+                try
                 {
-                    if (!_epochs.TryGetValue(epochNum, out EpochRecord epoch)) { break; }
-                    res.Add(epoch);
+                    for (int epochNum = _lastEpochNumber, n = maxCount; epochNum >= 0 && n > 0; --epochNum, --n)
+                    {
+                        if (!_epochs.TryGetValue(epochNum, out EpochRecord epoch)) { break; }
+                        res.Add(epoch);
+                    }
+                    return res.ToArray();
                 }
-                return res.ToArray();
+                finally
+                {
+                    res.Return();
+                }
             }
         }
 

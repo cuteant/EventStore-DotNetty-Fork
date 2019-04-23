@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using DotNetty.Common;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -542,52 +543,60 @@ namespace EventStore.Projections.Core.Services.Processing
                 }
             }
 
-            var events = new List<Event>();
-            var emittedEvents = new List<EmittedEvent>();
-            while (_pendingWrites.Count > 0 && events.Count < _maxWriteBatchLength)
+            var events = ThreadLocalList<Event>.NewInstance();
+            var emittedEvents = ThreadLocalList<EmittedEvent>.NewInstance();
+            try
             {
-                var e = _pendingWrites.Peek();
-                if (!e.IsReady())
+                while (_pendingWrites.Count > 0 && events.Count < _maxWriteBatchLength)
                 {
-                    _readyHandler.Handle(
-                        new CoreProjectionProcessingMessage.EmittedStreamAwaiting(
-                            _streamId, new SendToThisEnvelope(this)));
-                    _awaitingReady = true;
-                    break;
-                }
-                _pendingWrites.Dequeue();
-
-                var expectedTag = e.ExpectedTag;
-                var causedByTag = e.CausedByTag;
-                if (expectedTag != null)
-                {
-                    if (DetectConcurrencyViolations(expectedTag))
+                    var e = _pendingWrites.Peek();
+                    if (!e.IsReady())
                     {
-                        RequestRestart(
-                            string.Format(
-                                "Wrong expected tag while submitting write event request to the '{0}' stream.  The last known stream tag is: '{1}'  the expected tag is: '{2}'",
-                                _streamId, _lastCommittedOrSubmittedEventPosition, expectedTag));
+                        _readyHandler.Handle(
+                            new CoreProjectionProcessingMessage.EmittedStreamAwaiting(
+                                _streamId, new SendToThisEnvelope(this)));
+                        _awaitingReady = true;
+                        break;
+                    }
+                    _pendingWrites.Dequeue();
+
+                    var expectedTag = e.ExpectedTag;
+                    var causedByTag = e.CausedByTag;
+                    if (expectedTag != null)
+                    {
+                        if (DetectConcurrencyViolations(expectedTag))
+                        {
+                            RequestRestart(
+                                string.Format(
+                                    "Wrong expected tag while submitting write event request to the '{0}' stream.  The last known stream tag is: '{1}'  the expected tag is: '{2}'",
+                                    _streamId, _lastCommittedOrSubmittedEventPosition, expectedTag));
+                            return;
+                        }
+                    }
+
+                    _lastCommittedOrSubmittedEventPosition = causedByTag;
+                    try
+                    {
+                        events.Add(
+                            new Event(
+                                e.EventId, e.EventType, e.IsJson, e.Data != null ? Helper.UTF8NoBom.GetBytes(e.Data) : null,
+                                e.CausedByTag.ToJsonBytes(_projectionVersion, MetadataWithCausedByAndCorrelationId(e))));
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        Failed(string.Format("Failed to write the event: {0} to stream: {1} failed. Reason: {2}.", e, _streamId, ex.Message));
                         return;
                     }
+                    emittedEvents.Add(e);
                 }
-
-                _lastCommittedOrSubmittedEventPosition = causedByTag;
-                try
-                {
-                    events.Add(
-                        new Event(
-                            e.EventId, e.EventType, e.IsJson, e.Data != null ? Helper.UTF8NoBom.GetBytes(e.Data) : null,
-                            e.CausedByTag.ToJsonBytes(_projectionVersion, MetadataWithCausedByAndCorrelationId(e))));
-                }
-                catch (ArgumentException ex)
-                {
-                    Failed(string.Format("Failed to write the event: {0} to stream: {1} failed. Reason: {2}.", e, _streamId, ex.Message));
-                    return;
-                }
-                emittedEvents.Add(e);
+                _submittedToWriteEvents = events.ToArray();
+                _submittedToWriteEmittedEvents = emittedEvents.ToArray();
             }
-            _submittedToWriteEvents = events.ToArray();
-            _submittedToWriteEmittedEvents = emittedEvents.ToArray();
+            finally
+            {
+                events.Return();
+                emittedEvents.Return();
+            }
 
             if ((uint)_submittedToWriteEvents.Length > 0u)
                 PublishWriteEvents(MaxRetryCount);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DotNetty.Common;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messages;
@@ -87,30 +88,37 @@ namespace EventStore.Core.Services.AwakeReaderService
 
         private void NotifyEventInStream(string streamId, StorageMessage.EventCommitted message)
         {
-            HashSet<AwakeServiceMessage.SubscribeAwake> list;
-            List<AwakeServiceMessage.SubscribeAwake> toRemove = null;
-            if (_subscribers.TryGetValue(streamId, out list))
+            ThreadLocalList<AwakeServiceMessage.SubscribeAwake> toRemove = null;
+            try
             {
-                foreach (var subscriber in list)
+                if (_subscribers.TryGetValue(streamId, out HashSet<AwakeServiceMessage.SubscribeAwake> list))
                 {
-                    if (subscriber.From < new TFPos(message.CommitPosition, message.Event.LogPosition))
+                    foreach (var subscriber in list)
                     {
-                        _batchedReplies.Add(subscriber);
-                        _map.Remove(subscriber.CorrelationId);
-                        if (toRemove == null)
-                            toRemove = new List<AwakeServiceMessage.SubscribeAwake>();
-                        toRemove.Add(subscriber);
+                        if (subscriber.From < new TFPos(message.CommitPosition, message.Event.LogPosition))
+                        {
+                            _batchedReplies.Add(subscriber);
+                            _map.Remove(subscriber.CorrelationId);
+                            if (toRemove == null) { toRemove = ThreadLocalList<AwakeServiceMessage.SubscribeAwake>.NewInstance(); }
+                            toRemove.Add(subscriber);
+                        }
+                    }
+                    if (toRemove != null)
+                    {
+                        foreach (var item in toRemove)
+                        {
+                            list.Remove(item);
+                        }
+                        if (list.Count == 0)
+                        {
+                            _subscribers.Remove(streamId);
+                        }
                     }
                 }
-                if (toRemove != null)
-                {
-                    foreach (var item in toRemove)
-                        list.Remove(item);
-                    if (list.Count == 0)
-                    {
-                        _subscribers.Remove(streamId);
-                    }
-                }
+            }
+            finally
+            {
+                toRemove?.Return();
             }
         }
 

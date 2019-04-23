@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common;
 
 namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.PinnedState
 {
@@ -84,33 +85,39 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
 
             var maxBalancedClientAssignmentCount = (int)Math.Ceiling(AssignmentCount / (decimal)clientCount);
 
-            var reassignments = new List<uint>();
-
-            foreach (var existingClient in Nodes)
+            var reassignments = ThreadLocalList<uint>.NewInstance();
+            try
             {
-                if (existingClient == newNode || existingClient.State == Node.NodeState.Disconnected)
+                foreach (var existingClient in Nodes)
                 {
-                    continue;
-                }
-
-                if (existingClient.AssignmentCount > maxBalancedClientAssignmentCount)
-                {
-                    var assignmentsToMove = Assignments
-                        .Select((node, bucket) => Tuple.Create(node, bucket))
-                        .Where(_ => _.Item1.NodeId == existingClient.NodeId && _.Item1.State == BucketAssignment.BucketState.Assigned)
-                        .OrderBy(_ => _.Item1.InFlightCount) // Take buckets without inflight messages first.
-                        .Take(existingClient.AssignmentCount - maxBalancedClientAssignmentCount);
-
-                    foreach (var assignment in assignmentsToMove)
+                    if (existingClient == newNode || existingClient.State == Node.NodeState.Disconnected)
                     {
-                        reassignments.Add((uint)assignment.Item2);
+                        continue;
+                    }
+
+                    if (existingClient.AssignmentCount > maxBalancedClientAssignmentCount)
+                    {
+                        var assignmentsToMove = Assignments
+                            .Select((node, bucket) => Tuple.Create(node, bucket))
+                            .Where(_ => _.Item1.NodeId == existingClient.NodeId && _.Item1.State == BucketAssignment.BucketState.Assigned)
+                            .OrderBy(_ => _.Item1.InFlightCount) // Take buckets without inflight messages first.
+                            .Take(existingClient.AssignmentCount - maxBalancedClientAssignmentCount);
+
+                        foreach (var assignment in assignmentsToMove)
+                        {
+                            reassignments.Add((uint)assignment.Item2);
+                        }
                     }
                 }
-            }
 
-            foreach (var reassignment in reassignments)
+                foreach (var reassignment in reassignments)
+                {
+                    ApplyBucketAssigned(reassignment, newNode.NodeId);
+                }
+            }
+            finally
             {
-                ApplyBucketAssigned(reassignment, newNode.NodeId);
+                reassignments.Return();
             }
                 
             Clean();

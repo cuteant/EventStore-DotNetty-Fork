@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
@@ -93,37 +94,44 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public OptionStructure[] GetOptionsInfo(IOptions options)
         {
-            var optionsToSendToClient = new List<OptionStructure>();
-            foreach (var property in options.GetType().GetProperties())
+            var optionsToSendToClient = ThreadLocalList<OptionStructure>.NewInstance();
+            try
             {
-                var argumentDescriptionAttribute = property.HasAttr<ArgDescriptionAttribute>() ? property.Attr<ArgDescriptionAttribute>() : null;
-                var configFileOptionValue = property.GetValue(options, null);
-                string[] possibleValues = null;
-                if (property.PropertyType.IsEnum)
+                foreach (var property in options.GetType().GetProperties())
                 {
-                    possibleValues = property.PropertyType.GetEnumNames();
-                }
-                else if (property.PropertyType.IsArray)
-                {
-                    var array = configFileOptionValue as Array;
-                    if (array == null) { continue; }
-                    var configFileOptionValueAsString = String.Empty;
-                    for (var i = 0; i < array.Length; i++)
+                    var argumentDescriptionAttribute = property.HasAttr<ArgDescriptionAttribute>() ? property.Attr<ArgDescriptionAttribute>() : null;
+                    var configFileOptionValue = property.GetValue(options, null);
+                    string[] possibleValues = null;
+                    if (property.PropertyType.IsEnum)
                     {
-                        configFileOptionValueAsString += array.GetValue(i).ToString();
+                        possibleValues = property.PropertyType.GetEnumNames();
                     }
-                    configFileOptionValue = configFileOptionValueAsString;
+                    else if (property.PropertyType.IsArray)
+                    {
+                        var array = configFileOptionValue as Array;
+                        if (array == null) { continue; }
+                        var configFileOptionValueAsString = String.Empty;
+                        for (var i = 0; i < array.Length; i++)
+                        {
+                            configFileOptionValueAsString += array.GetValue(i).ToString();
+                        }
+                        configFileOptionValue = configFileOptionValueAsString;
+                    }
+                    optionsToSendToClient.Add(new OptionStructure
+                    {
+                        Name = property.Name,
+                        Description = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Description,
+                        Group = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Group,
+                        Value = configFileOptionValue == null ? "" : configFileOptionValue.ToString(),
+                        PossibleValues = possibleValues
+                    });
                 }
-                optionsToSendToClient.Add(new OptionStructure
-                {
-                    Name = property.Name,
-                    Description = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Description,
-                    Group = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Group,
-                    Value = configFileOptionValue == null ? "" : configFileOptionValue.ToString(),
-                    PossibleValues = possibleValues
-                });
+                return optionsToSendToClient.ToArray();
             }
-            return optionsToSendToClient.ToArray();
+            finally
+            {
+                optionsToSendToClient.Return();
+            }
         }
         public OptionStructure[] Filter(OptionStructure[] optionsToBeFiltered, params string[] namesOfValuesToExclude)
         {

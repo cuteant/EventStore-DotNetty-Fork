@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CuteAnt;
+using DotNetty.Common;
 using EventStore.ClientAPI.SystemData;
 using EventStore.Core.Messages;
 using EventStore.Transport.Tcp.Messages;
@@ -52,12 +53,19 @@ namespace EventStore.ClientAPI.ClientOperations
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static TcpClientMessageDto.NewEvent[] Convert(IEnumerable<EventData> events)
         {
-            var list = new List<TcpClientMessageDto.NewEvent>(16);
-            foreach (var x in events)
+            var list = ThreadLocalList<TcpClientMessageDto.NewEvent>.NewInstance(16);
+            try
             {
-                list.Add(new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
+                foreach (var x in events)
+                {
+                    list.Add(new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
+                }
+                return list.ToArray();
             }
-            return list.ToArray();
+            finally
+            {
+                list.Return();
+            }
         }
 
         protected override InspectionResult InspectResponse(TcpClientMessageDto.TransactionWriteCompleted response)

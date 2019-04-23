@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common;
 
 namespace EventStore.Projections.Core.Services.Processing
 {
@@ -41,24 +42,31 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (_states.Count > 0)
             {
-                var list = new List<EmittedEventEnvelope>();
-                foreach (var entry in _states)
+                var list = ThreadLocalList<EmittedEventEnvelope>.NewInstance();
+                try
                 {
-                    var partition = entry.Key;
-                    var streamId = _namingBuilder.MakePartitionCheckpointStreamName(partition);
-                    var data = entry.Value.PartitionState.Serialize();
-                    var causedBy = entry.Value.PartitionState.CausedBy;
-                    var expectedTag = entry.Value.ExpectedTag;
-                    list.Add(
-                        new EmittedEventEnvelope(
-                            new EmittedDataEvent(
-                                streamId, Guid.NewGuid(), ProjectionEventTypes.PartitionCheckpoint, true,
-                                data, null, causedBy, expectedTag), _partitionCheckpointStreamMetadata));
+                    foreach (var entry in _states)
+                    {
+                        var partition = entry.Key;
+                        var streamId = _namingBuilder.MakePartitionCheckpointStreamName(partition);
+                        var data = entry.Value.PartitionState.Serialize();
+                        var causedBy = entry.Value.PartitionState.CausedBy;
+                        var expectedTag = entry.Value.ExpectedTag;
+                        list.Add(
+                            new EmittedEventEnvelope(
+                                new EmittedDataEvent(
+                                    streamId, Guid.NewGuid(), ProjectionEventTypes.PartitionCheckpoint, true,
+                                    data, null, causedBy, expectedTag), _partitionCheckpointStreamMetadata));
+                    }
+                    //NOTE: order yb is required to satisfy internal emit events validation
+                    // which ensures that events are ordered by causedBy tag.  
+                    // it is too strong check, but ...
+                    eventWriter.ValidateOrderAndEmitEvents(list.OrderBy(v => v.Event.CausedByTag).ToArray());
                 }
-                //NOTE: order yb is required to satisfy internal emit events validation
-                // which ensures that events are ordered by causedBy tag.  
-                // it is too strong check, but ...
-                eventWriter.ValidateOrderAndEmitEvents(list.OrderBy(v => v.Event.CausedByTag).ToArray());
+                finally
+                {
+                    list.Return();
+                }
             }
         }
 

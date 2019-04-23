@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using DotNetty.Common;
 using EventStore.Common.Utils;
 using EventStore.Core.Exceptions;
 using Microsoft.Extensions.Logging;
@@ -250,19 +251,26 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private void EnsureNoExcessiveChunks(int lastChunkNum)
         {
-            var allowedFiles = new List<string>();
-            int cnt = 0;
-            for (int i = 0; i <= lastChunkNum; ++i)
+            var allowedFiles = ThreadLocalList<string>.NewInstance();
+            try
             {
-                var files = Config.FileNamingStrategy.GetAllVersionsFor(i);
-                cnt += files.Length;
-                allowedFiles.AddRange(files);
-            }
+                int cnt = 0;
+                for (int i = 0; i <= lastChunkNum; ++i)
+                {
+                    var files = Config.FileNamingStrategy.GetAllVersionsFor(i);
+                    cnt += files.Length;
+                    allowedFiles.AddRange(files);
+                }
 
-            var allFiles = Config.FileNamingStrategy.GetAllPresentFiles();
-            if (allFiles.Length != cnt)
+                var allFiles = Config.FileNamingStrategy.GetAllPresentFiles();
+                if (allFiles.Length != cnt)
+                {
+                    ThrowHelper.ThrowCorruptDatabaseException_UnexpectedFiles(allFiles, allowedFiles);
+                }
+            }
+            finally
             {
-                ThrowHelper.ThrowCorruptDatabaseException_UnexpectedFiles(allFiles, allowedFiles);
+                allowedFiles.Return();
             }
         }
 

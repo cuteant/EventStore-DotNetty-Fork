@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
-using CuteAnt.Buffers;
-using CuteAnt.Pool;
+using DotNetty.Common;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Index;
@@ -79,56 +77,62 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 var startPosition = Math.Max(0, _persistedCommitPos);
                 reader.Reposition(startPosition);
 
-                var commitedPrepares = new List<PrepareLogRecord>();
-
-                long processed = 0;
-                SeqReadResult result;
-                while ((result = reader.TryReadNext()).Success && result.LogRecord.LogPosition < buildToPosition)
+                var commitedPrepares = ThreadLocalList<PrepareLogRecord>.NewInstance();
+                try
                 {
-                    switch (result.LogRecord.RecordType)
+                    long processed = 0;
+                    SeqReadResult result;
+                    while ((result = reader.TryReadNext()).Success && result.LogRecord.LogPosition < buildToPosition)
                     {
-                        case LogRecordType.Prepare:
-                            {
-                                var prepare = (PrepareLogRecord)result.LogRecord;
-                                if (prepare.Flags.HasAnyOf(PrepareFlags.IsCommitted))
+                        switch (result.LogRecord.RecordType)
+                        {
+                            case LogRecordType.Prepare:
                                 {
-                                    if (prepare.Flags.HasAnyOf(PrepareFlags.SingleWrite))
+                                    var prepare = (PrepareLogRecord)result.LogRecord;
+                                    if (prepare.Flags.HasAnyOf(PrepareFlags.IsCommitted))
                                     {
-                                        Commit(commitedPrepares, false, false);
-                                        commitedPrepares.Clear();
-                                        Commit(new[] { prepare }, result.Eof, false);
-                                    }
-                                    else
-                                    {
-
-                                        if (prepare.Flags.HasAnyOf(PrepareFlags.Data | PrepareFlags.StreamDelete))
-                                            commitedPrepares.Add(prepare);
-                                        if (prepare.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
+                                        if (prepare.Flags.HasAnyOf(PrepareFlags.SingleWrite))
                                         {
-                                            Commit(commitedPrepares, result.Eof, false);
+                                            Commit(commitedPrepares, false, false);
                                             commitedPrepares.Clear();
+                                            Commit(new[] { prepare }, result.Eof, false);
+                                        }
+                                        else
+                                        {
+
+                                            if (prepare.Flags.HasAnyOf(PrepareFlags.Data | PrepareFlags.StreamDelete))
+                                                commitedPrepares.Add(prepare);
+                                            if (prepare.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
+                                            {
+                                                Commit(commitedPrepares, result.Eof, false);
+                                                commitedPrepares.Clear();
+                                            }
                                         }
                                     }
+                                    break;
                                 }
+                            case LogRecordType.Commit:
+                                Commit((CommitLogRecord)result.LogRecord, result.Eof, false);
                                 break;
-                            }
-                        case LogRecordType.Commit:
-                            Commit((CommitLogRecord)result.LogRecord, result.Eof, false);
-                            break;
-                        case LogRecordType.System:
-                            break;
-                        default:
-                            ThrowHelper.ThrowException_UnknownRecordType(result.LogRecord.RecordType); break;
-                    }
+                            case LogRecordType.System:
+                                break;
+                            default:
+                                ThrowHelper.ThrowException_UnknownRecordType(result.LogRecord.RecordType); break;
+                        }
 
-                    processed += 1;
-                    if (DateTime.UtcNow - lastTime > reportPeriod || processed % 100000 == 0)
-                    {
-                        if (debugEnabled) { Log.ReadIndexRebuilding(processed, result.RecordPostPosition, startPosition, buildToPosition); }
-                        lastTime = DateTime.UtcNow;
+                        processed += 1;
+                        if (DateTime.UtcNow - lastTime > reportPeriod || processed % 100000 == 0)
+                        {
+                            if (debugEnabled) { Log.ReadIndexRebuilding(processed, result.RecordPostPosition, startPosition, buildToPosition); }
+                            lastTime = DateTime.UtcNow;
+                        }
                     }
+                    if (debugEnabled) Log.ReadIndex_rebuilding_done(processed, startTime);
                 }
-                if (debugEnabled) Log.ReadIndex_rebuilding_done(processed, startTime);
+                finally
+                {
+                    commitedPrepares.Return();
+                }
                 _bus.Publish(new StorageMessage.TfEofAtNonCommitRecord());
                 _backend.SetSystemSettings(GetSystemSettings());
             }
@@ -180,79 +184,84 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             string streamId = null;
             var indexEntries = new List<IndexKey>();
-            var prepares = new List<PrepareLogRecord>();
-
-            foreach (var prepare in GetTransactionPrepares(commit.TransactionPosition, commit.LogPosition))
+            var prepares = ThreadLocalList<PrepareLogRecord>.NewInstance();
+            try
             {
-                if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
+                foreach (var prepare in GetTransactionPrepares(commit.TransactionPosition, commit.LogPosition))
+                {
+                    if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
 
-                if (streamId == null)
-                {
-                    streamId = prepare.EventStreamId;
-                }
-                else
-                {
-                    if (prepare.EventStreamId != streamId)
+                    if (streamId == null)
                     {
-                        ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commit.LogPosition);
+                        streamId = prepare.EventStreamId;
+                    }
+                    else
+                    {
+                        if (prepare.EventStreamId != streamId)
+                        {
+                            ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commit.LogPosition);
+                        }
+                    }
+                    eventNumber = prepare.Flags.HasAllOf(PrepareFlags.StreamDelete)
+                                          ? EventNumber.DeletedStream
+                                          : commit.FirstEventNumber + prepare.TransactionOffset;
+
+                    if (new TFPos(commit.LogPosition, prepare.LogPosition) > new TFPos(_persistedCommitPos, _persistedPreparePos))
+                    {
+                        indexEntries.Add(new IndexKey(streamId, eventNumber, prepare.LogPosition));
+                        prepares.Add(prepare);
                     }
                 }
-                eventNumber = prepare.Flags.HasAllOf(PrepareFlags.StreamDelete)
-                                      ? EventNumber.DeletedStream
-                                      : commit.FirstEventNumber + prepare.TransactionOffset;
 
-                if (new TFPos(commit.LogPosition, prepare.LogPosition) > new TFPos(_persistedCommitPos, _persistedPreparePos))
+                if (indexEntries.Count > 0)
                 {
-                    indexEntries.Add(new IndexKey(streamId, eventNumber, prepare.LogPosition));
-                    prepares.Add(prepare);
+                    if (_additionalCommitChecks && cacheLastEventNumber)
+                    {
+                        CheckStreamVersion(streamId, indexEntries[0].Version, commit);
+                        CheckDuplicateEvents(streamId, commit, indexEntries, prepares);
+                    }
+                    _tableIndex.AddEntries(commit.LogPosition, indexEntries); // atomically add a whole bulk of entries
                 }
-            }
 
-            if (indexEntries.Count > 0)
+                if (eventNumber != EventNumber.Invalid)
+                {
+                    if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
+
+                    if (cacheLastEventNumber)
+                    {
+                        _backend.SetStreamLastEventNumber(streamId, eventNumber);
+                    }
+                    if (SystemStreams.IsMetastream(streamId))
+                    {
+                        _backend.SetStreamMetadata(SystemStreams.OriginalStreamOf(streamId), null); // invalidate cached metadata
+                    }
+
+                    if (streamId == SystemStreams.SettingsStream)
+                    {
+                        _backend.SetSystemSettings(DeserializeSystemSettings(prepares[prepares.Count - 1].Data));
+                    }
+                }
+
+                var newLastCommitPosition = Math.Max(commit.LogPosition, lastCommitPosition);
+                if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
+                {
+                    ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
+                }
+
+                if (!_indexRebuild)
+                    for (int i = 0, n = indexEntries.Count; i < n; ++i)
+                    {
+                        _bus.Publish(
+                            new StorageMessage.EventCommitted(
+                                commit.LogPosition,
+                                new EventRecord(indexEntries[i].Version, prepares[i]),
+                                isTfEof && i == n - 1));
+                    }
+            }
+            finally
             {
-                if (_additionalCommitChecks && cacheLastEventNumber)
-                {
-                    CheckStreamVersion(streamId, indexEntries[0].Version, commit);
-                    CheckDuplicateEvents(streamId, commit, indexEntries, prepares);
-                }
-                _tableIndex.AddEntries(commit.LogPosition, indexEntries); // atomically add a whole bulk of entries
+                prepares.Return();
             }
-
-            if (eventNumber != EventNumber.Invalid)
-            {
-                if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
-
-                if (cacheLastEventNumber)
-                {
-                    _backend.SetStreamLastEventNumber(streamId, eventNumber);
-                }
-                if (SystemStreams.IsMetastream(streamId))
-                {
-                    _backend.SetStreamMetadata(SystemStreams.OriginalStreamOf(streamId), null); // invalidate cached metadata
-                }
-
-                if (streamId == SystemStreams.SettingsStream)
-                {
-                    _backend.SetSystemSettings(DeserializeSystemSettings(prepares[prepares.Count - 1].Data));
-                }
-            }
-
-            var newLastCommitPosition = Math.Max(commit.LogPosition, lastCommitPosition);
-            if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
-            {
-                ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
-            }
-
-            if(!_indexRebuild)
-            for (int i = 0, n = indexEntries.Count; i < n; ++i)
-            {
-                _bus.Publish(
-                    new StorageMessage.EventCommitted(
-                        commit.LogPosition,
-                        new EventRecord(indexEntries[i].Version, prepares[i]),
-                        isTfEof && i == n - 1));
-            }
-
             return eventNumber;
         }
 
@@ -267,76 +276,81 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             string streamId = lastPrepare.EventStreamId;
             var indexEntries = new List<IndexKey>();
-            var prepares = new List<PrepareLogRecord>();
-
-            foreach (var prepare in commitedPrepares)
+            var prepares = ThreadLocalList<PrepareLogRecord>.NewInstance();
+            try
             {
-                if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
-
-                if (prepare.EventStreamId != streamId)
+                foreach (var prepare in commitedPrepares)
                 {
-                    ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commitedPrepares);
+                    if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
+
+                    if (prepare.EventStreamId != streamId)
+                    {
+                        ThrowHelper.ThrowException_ExpectedStream(streamId, prepare, commitedPrepares);
+                    }
+
+                    if (prepare.LogPosition < lastCommitPosition || (prepare.LogPosition == lastCommitPosition && !_indexRebuild))
+                    {
+                        continue;  // already committed
+                    }
+
+                    eventNumber = prepare.ExpectedVersion + 1; /* for committed prepare expected version is always explicit */
+
+                    if (new TFPos(prepare.LogPosition, prepare.LogPosition) > new TFPos(_persistedCommitPos, _persistedPreparePos))
+                    {
+                        indexEntries.Add(new IndexKey(streamId, eventNumber, prepare.LogPosition));
+                        prepares.Add(prepare);
+                    }
                 }
 
-                if (prepare.LogPosition < lastCommitPosition || (prepare.LogPosition == lastCommitPosition && !_indexRebuild))
+                if (indexEntries.Count > 0)
                 {
-                    continue;  // already committed
+                    if (_additionalCommitChecks && cacheLastEventNumber)
+                    {
+                        CheckStreamVersion(streamId, indexEntries[0].Version, null); // TODO AN: bad passing null commit
+                        CheckDuplicateEvents(streamId, null, indexEntries, prepares); // TODO AN: bad passing null commit
+                    }
+                    _tableIndex.AddEntries(lastPrepare.LogPosition, indexEntries); // atomically add a whole bulk of entries
                 }
 
-                eventNumber = prepare.ExpectedVersion + 1; /* for committed prepare expected version is always explicit */
-
-                if (new TFPos(prepare.LogPosition, prepare.LogPosition) > new TFPos(_persistedCommitPos, _persistedPreparePos))
+                if (eventNumber != EventNumber.Invalid)
                 {
-                    indexEntries.Add(new IndexKey(streamId, eventNumber, prepare.LogPosition));
-                    prepares.Add(prepare);
+                    if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
+
+                    if (cacheLastEventNumber)
+                    {
+                        _backend.SetStreamLastEventNumber(streamId, eventNumber);
+                    }
+                    if (SystemStreams.IsMetastream(streamId))
+                    {
+                        _backend.SetStreamMetadata(SystemStreams.OriginalStreamOf(streamId), null); // invalidate cached metadata
+                    }
+
+                    if (streamId == SystemStreams.SettingsStream)
+                    {
+                        _backend.SetSystemSettings(DeserializeSystemSettings(prepares[prepares.Count - 1].Data));
+                    }
                 }
+
+                var newLastCommitPosition = Math.Max(lastPrepare.LogPosition, lastCommitPosition);
+                if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
+                {
+                    ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
+                }
+
+                if (!_indexRebuild)
+                    for (int i = 0, n = indexEntries.Count; i < n; ++i)
+                    {
+                        _bus.Publish(
+                            new StorageMessage.EventCommitted(
+                                prepares[i].LogPosition,
+                                new EventRecord(indexEntries[i].Version, prepares[i]),
+                                isTfEof && i == n - 1));
+                    }
             }
-
-            if (indexEntries.Count > 0)
+            finally
             {
-                if (_additionalCommitChecks && cacheLastEventNumber)
-                {
-                    CheckStreamVersion(streamId, indexEntries[0].Version, null); // TODO AN: bad passing null commit
-                    CheckDuplicateEvents(streamId, null, indexEntries, prepares); // TODO AN: bad passing null commit
-                }
-                _tableIndex.AddEntries(lastPrepare.LogPosition, indexEntries); // atomically add a whole bulk of entries
+                prepares.Return();
             }
-
-            if (eventNumber != EventNumber.Invalid)
-            {
-                if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
-
-                if (cacheLastEventNumber)
-                {
-                    _backend.SetStreamLastEventNumber(streamId, eventNumber);
-                }
-                if (SystemStreams.IsMetastream(streamId))
-                {
-                    _backend.SetStreamMetadata(SystemStreams.OriginalStreamOf(streamId), null); // invalidate cached metadata
-                }
-
-                if (streamId == SystemStreams.SettingsStream)
-                {
-                    _backend.SetSystemSettings(DeserializeSystemSettings(prepares[prepares.Count - 1].Data));
-                }
-            }
-
-            var newLastCommitPosition = Math.Max(lastPrepare.LogPosition, lastCommitPosition);
-            if (Interlocked.CompareExchange(ref _lastCommitPosition, newLastCommitPosition, lastCommitPosition) != lastCommitPosition)
-            {
-                ThrowHelper.ThrowException(ExceptionResource.Concurrency_Error_In_ReadIndex_Commit);
-            }
-
-            if(!_indexRebuild)
-            for (int i = 0, n = indexEntries.Count; i < n; ++i)
-            {
-                _bus.Publish(
-                    new StorageMessage.EventCommitted(
-                        prepares[i].LogPosition,
-                        new EventRecord(indexEntries[i].Version, prepares[i]),
-                        isTfEof && i == n - 1));
-            }
-
             return eventNumber;
         }
 

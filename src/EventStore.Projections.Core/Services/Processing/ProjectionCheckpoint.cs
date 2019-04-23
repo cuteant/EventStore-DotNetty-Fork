@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using DotNetty.Common;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messaging;
 using EventStore.Projections.Core.Common;
@@ -32,7 +33,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private readonly ProjectionVersion _projectionVersion;
 
-        private List<IEnvelope> _awaitingStreams;
+        private ThreadLocalList<IEnvelope> _awaitingStreams;
 
         private Guid[] _writeQueueIds;
         private int _maximumAllowedWritesInFlight;
@@ -215,7 +216,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public void Handle(CoreProjectionProcessingMessage.EmittedStreamAwaiting message)
         {
             if (_awaitingStreams == null)
-                _awaitingStreams = new List<IEnvelope>();
+                _awaitingStreams = ThreadLocalList<IEnvelope>.NewInstance();
             _awaitingStreams.Add(message.Envelope);
         }
 
@@ -224,8 +225,19 @@ namespace EventStore.Projections.Core.Services.Processing
             var awaitingStreams = _awaitingStreams;
             _awaitingStreams = null; // still awaiting will re-register
             if (awaitingStreams != null)
-                foreach (var stream in awaitingStreams)
-                    stream.ReplyWith(message);
+            {
+                try
+                {
+                    foreach (var stream in awaitingStreams)
+                    {
+                        stream.ReplyWith(message);
+                    }
+                }
+                finally
+                {
+                    awaitingStreams.Return();
+                }
+            }
         }
     }
 }

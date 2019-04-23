@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CuteAnt.Buffers;
 using CuteAnt.Text;
+using DotNetty.Common;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -265,7 +266,7 @@ namespace EventStore.Core.Services.Storage
         void IHandle<StorageMessage.WritePrepares>.Handle(StorageMessage.WritePrepares msg)
         {
             Interlocked.Decrement(ref FlushMessagesInQueue);
-
+            ThreadLocalList<PrepareLogRecord> prepares = null;
             try
             {
                 if (msg.LiveUntil < DateTime.UtcNow) { return; }
@@ -281,7 +282,7 @@ namespace EventStore.Core.Services.Storage
                     return;
                 }
 
-                var prepares = new List<PrepareLogRecord>();
+                prepares = ThreadLocalList<PrepareLogRecord>.NewInstance();
                 var logPosition = Writer.Checkpoint.ReadNonFlushed();
                 if (eventCount > 0)
                 {
@@ -333,6 +334,7 @@ namespace EventStore.Core.Services.Storage
             }
             finally
             {
+                prepares?.Return();
                 Flush();
             }
         }

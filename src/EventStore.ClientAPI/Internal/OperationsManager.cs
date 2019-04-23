@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using DotNetty.Common;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.Transport.Tcp;
@@ -93,40 +94,48 @@ namespace EventStore.ClientAPI.Internal
 
         public void CheckTimeoutsAndRetry(TcpPackageConnection connection)
         {
-            var retryOperations = new List<OperationItem>();
-            var removeOperations = new List<OperationItem>();
-            foreach (var operation in _activeOperations.Values)
+            var retryOperations = ThreadLocalList<OperationItem>.NewInstance();
+            var removeOperations = ThreadLocalList<OperationItem>.NewInstance();
+            try
             {
-                if (connection != null && operation.ConnectionId != connection.ConnectionId)
+                foreach (var operation in _activeOperations.Values)
                 {
-                    retryOperations.Add(operation);
-                }
-                else if (operation.Timeout > TimeSpan.Zero && DateTime.UtcNow - operation.LastUpdated > _settings.OperationTimeout)
-                {
-                    if (_verboseLogging) LogOperationNeverGotResponseFromServer(operation);
-
-                    if (_settings.FailOnNoServerResponse)
-                    {
-                        operation.Operation.Fail(CoreThrowHelper.GetOperationTimedOutException(_connectionName, operation));
-                        removeOperations.Add(operation);
-                    }
-                    else
+                    if (connection != null && operation.ConnectionId != connection.ConnectionId)
                     {
                         retryOperations.Add(operation);
                     }
+                    else if (operation.Timeout > TimeSpan.Zero && DateTime.UtcNow - operation.LastUpdated > _settings.OperationTimeout)
+                    {
+                        if (_verboseLogging) LogOperationNeverGotResponseFromServer(operation);
+
+                        if (_settings.FailOnNoServerResponse)
+                        {
+                            operation.Operation.Fail(CoreThrowHelper.GetOperationTimedOutException(_connectionName, operation));
+                            removeOperations.Add(operation);
+                        }
+                        else
+                        {
+                            retryOperations.Add(operation);
+                        }
+                    }
+                }
+
+                foreach (var operation in removeOperations)
+                {
+                    RemoveOperation(operation);
+                }
+
+                if (connection == null) { return; }
+
+                foreach (var operation in retryOperations)
+                {
+                    ScheduleOperationRetry(operation);
                 }
             }
-
-            foreach (var operation in removeOperations)
+            finally
             {
-                RemoveOperation(operation);
-            }
-
-            if (connection == null) { return; }
-
-            foreach (var operation in retryOperations)
-            {
-                ScheduleOperationRetry(operation);
+                retryOperations.Return();
+                removeOperations.Return();
             }
 
             if (_retryPendingOperations.Count > 0)

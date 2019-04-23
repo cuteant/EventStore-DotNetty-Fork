@@ -7,6 +7,7 @@ using System.Text;
 using CuteAnt.Buffers;
 using CuteAnt.Pool;
 using CuteAnt.Text;
+using DotNetty.Common;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -199,15 +200,22 @@ namespace EventStore.Core.Data
 
             if (reader.TokenType == JsonToken.StartArray)
             {
-                var roles = new List<string>();
-                while (true)
+                var roles = ThreadLocalList<string>.NewInstance();
+                try
                 {
-                    Check(reader.Read(), reader);
-                    if (reader.TokenType == JsonToken.EndArray) { break; }
-                    Check(JsonToken.String, reader);
-                    roles.Add((string)reader.Value);
+                    while (true)
+                    {
+                        Check(reader.Read(), reader);
+                        if (reader.TokenType == JsonToken.EndArray) { break; }
+                        Check(JsonToken.String, reader);
+                        roles.Add((string)reader.Value);
+                    }
+                    return roles.ToArray();
                 }
-                return roles.ToArray();
+                finally
+                {
+                    roles.Return();
+                }
             }
 
             ThrowHelper.ThrowException_InvalidJson(); return null;

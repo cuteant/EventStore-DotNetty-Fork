@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DotNetty.Common;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
 using EventStore.Core.DataStructures;
@@ -164,38 +165,43 @@ namespace EventStore.Core.TransactionLog.Chunks
                     passNum += 1;
                     sw.Restart();
 
-                    var chunksToMerge = new List<TFChunk.TFChunk>();
-                    long totalDataSize = 0;
-                    foreach (var chunk in GetAllChunks(0))
+                    var chunksToMerge = ThreadLocalList<TFChunk.TFChunk>.NewInstance();
+                    try
                     {
-                        ct.ThrowIfCancellationRequested();
-
-                        if (totalDataSize + chunk.PhysicalDataSize > _maxChunkDataSize)
+                        long totalDataSize = 0;
+                        foreach (var chunk in GetAllChunks(0))
                         {
-                            if (chunksToMerge.Count == 0)
-                                ThrowHelper.ThrowException(ExceptionResource.SCAVENGING_no_chunks_to_merge);
+                            ct.ThrowIfCancellationRequested();
 
-                            if (chunksToMerge.Count > 1 && MergeChunks(chunksToMerge, ct))
+                            if (totalDataSize + chunk.PhysicalDataSize > _maxChunkDataSize)
+                            {
+                                if (0u >= (uint)chunksToMerge.Count) { ThrowHelper.ThrowException(ExceptionResource.SCAVENGING_no_chunks_to_merge); }
+
+                                if (chunksToMerge.Count > 1 && MergeChunks(chunksToMerge, ct))
+                                {
+                                    mergedSomething = true;
+                                }
+
+                                chunksToMerge.Clear();
+                                totalDataSize = 0;
+                            }
+
+                            chunksToMerge.Add(chunk);
+                            totalDataSize += chunk.PhysicalDataSize;
+                        }
+
+                        if (chunksToMerge.Count > 1)
+                        {
+                            if (MergeChunks(chunksToMerge, ct))
                             {
                                 mergedSomething = true;
                             }
-
-                            chunksToMerge.Clear();
-                            totalDataSize = 0;
                         }
-
-                        chunksToMerge.Add(chunk);
-                        totalDataSize += chunk.PhysicalDataSize;
                     }
-
-                    if (chunksToMerge.Count > 1)
+                    finally
                     {
-                        if (MergeChunks(chunksToMerge, ct))
-                        {
-                            mergedSomething = true;
-                        }
+                        chunksToMerge.Return();
                     }
-
                     if (traceEnabled) Log.ScavengingMergePassCompleted(passNum, sw.Elapsed, mergedSomething);
                 } while (mergedSomething);
             }
@@ -291,21 +297,27 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
                 else
                 {
-                    var positionMapping = new List<PosMap>(filteredCount);
-
-                    for (int i = 0; i < threadLocalCache.Records.Count; i++)
+                    var positionMapping = ThreadLocalList<PosMap>.NewInstance(filteredCount);
+                    try
                     {
-                        ct.ThrowIfCancellationRequested();
+                        for (int i = 0; i < threadLocalCache.Records.Count; i++)
+                        {
+                            ct.ThrowIfCancellationRequested();
 
-                        // Since we replaced the ones we don't want with `default`, the success flag will only be true on the ones we want to keep.
-                        var recordReadResult = threadLocalCache.Records[i];
+                            // Since we replaced the ones we don't want with `default`, the success flag will only be true on the ones we want to keep.
+                            var recordReadResult = threadLocalCache.Records[i];
 
-                        // Check log record, if not present then assume we can skip. 
-                        if (recordReadResult.LogRecord != null)
-                            positionMapping.Add(WriteRecord(newChunk, recordReadResult.LogRecord));
+                            // Check log record, if not present then assume we can skip. 
+                            if (recordReadResult.LogRecord != null)
+                                positionMapping.Add(WriteRecord(newChunk, recordReadResult.LogRecord));
+                        }
+
+                        newChunk.CompleteScavenge(positionMapping);
                     }
-
-                    newChunk.CompleteScavenge(positionMapping);
+                    finally
+                    {
+                        positionMapping.Return();
+                    }
 
                     if (Log.IsTraceLevelEnabled())
                     {
@@ -406,14 +418,21 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 var oldVersion = oldChunks.Any(x => x.ChunkHeader.Version != TFChunk.TFChunk.CurrentChunkVersion);
 
-                var positionMapping = new List<PosMap>();
-                foreach (var oldChunk in oldChunks)
+                var positionMapping = ThreadLocalList<PosMap>.NewInstance();
+                try
                 {
-                    TraverseChunkBasic(oldChunk, ct,
-                        result => positionMapping.Add(WriteRecord(newChunk, result.LogRecord)));
-                }
+                    foreach (var oldChunk in oldChunks)
+                    {
+                        TraverseChunkBasic(oldChunk, ct,
+                            result => positionMapping.Add(WriteRecord(newChunk, result.LogRecord)));
+                    }
 
-                newChunk.CompleteScavenge(positionMapping);
+                    newChunk.CompleteScavenge(positionMapping);
+                }
+                finally
+                {
+                    positionMapping.Return();
+                }
 
                 if (Log.IsTraceLevelEnabled())
                 {

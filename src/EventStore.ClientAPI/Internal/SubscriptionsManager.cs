@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetty.Common;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Transport.Tcp;
 using Microsoft.Extensions.Logging;
@@ -82,15 +83,22 @@ namespace EventStore.ClientAPI.Internal
 
         public void PurgeSubscribedAndDroppedSubscriptions(Guid connectionId)
         {
-            var subscriptionsToRemove = new List<SubscriptionItem>();
-            foreach (var subscription in _activeSubscriptions.Values.Where(x => x.IsSubscribed && x.ConnectionId == connectionId))
+            var subscriptionsToRemove = ThreadLocalList<SubscriptionItem>.NewInstance();
+            try
             {
-                subscription.Operation.ConnectionClosed();
-                subscriptionsToRemove.Add(subscription);
+                foreach (var subscription in _activeSubscriptions.Values.Where(x => x.IsSubscribed && x.ConnectionId == connectionId))
+                {
+                    subscription.Operation.ConnectionClosed();
+                    subscriptionsToRemove.Add(subscription);
+                }
+                foreach (var subscription in subscriptionsToRemove)
+                {
+                    _activeSubscriptions.Remove(subscription.CorrelationId);
+                }
             }
-            foreach (var subscription in subscriptionsToRemove)
+            finally
             {
-                _activeSubscriptions.Remove(subscription.CorrelationId);
+                subscriptionsToRemove.Return();
             }
         }
 
@@ -98,38 +106,46 @@ namespace EventStore.ClientAPI.Internal
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
-            var retrySubscriptions = new List<SubscriptionItem>();
-            var removeSubscriptions = new List<SubscriptionItem>();
-            foreach (var subscription in _activeSubscriptions.Values)
+            var retrySubscriptions = ThreadLocalList<SubscriptionItem>.NewInstance();
+            var removeSubscriptions = ThreadLocalList<SubscriptionItem>.NewInstance();
+            try
             {
-                if (subscription.IsSubscribed) continue;
-                if (subscription.ConnectionId != connection.ConnectionId)
+                foreach (var subscription in _activeSubscriptions.Values)
                 {
-                    retrySubscriptions.Add(subscription);
-                }
-                else if (subscription.Timeout > TimeSpan.Zero && DateTime.UtcNow - subscription.LastUpdated > _settings.OperationTimeout)
-                {
-                    LogSubscriptionNeverGotConfirmationFromServer(subscription);
-
-                    if (_settings.FailOnNoServerResponse)
-                    {
-                        subscription.Operation.DropSubscription(SubscriptionDropReason.SubscribingError, CoreThrowHelper.GetOperationTimedOutException(_connectionName, subscription));
-                        removeSubscriptions.Add(subscription);
-                    }
-                    else
+                    if (subscription.IsSubscribed) continue;
+                    if (subscription.ConnectionId != connection.ConnectionId)
                     {
                         retrySubscriptions.Add(subscription);
                     }
+                    else if (subscription.Timeout > TimeSpan.Zero && DateTime.UtcNow - subscription.LastUpdated > _settings.OperationTimeout)
+                    {
+                        LogSubscriptionNeverGotConfirmationFromServer(subscription);
+
+                        if (_settings.FailOnNoServerResponse)
+                        {
+                            subscription.Operation.DropSubscription(SubscriptionDropReason.SubscribingError, CoreThrowHelper.GetOperationTimedOutException(_connectionName, subscription));
+                            removeSubscriptions.Add(subscription);
+                        }
+                        else
+                        {
+                            retrySubscriptions.Add(subscription);
+                        }
+                    }
+                }
+
+                foreach (var subscription in retrySubscriptions)
+                {
+                    ScheduleSubscriptionRetry(subscription);
+                }
+                foreach (var subscription in removeSubscriptions)
+                {
+                    RemoveSubscription(subscription);
                 }
             }
-
-            foreach (var subscription in retrySubscriptions)
+            finally
             {
-                ScheduleSubscriptionRetry(subscription);
-            }
-            foreach (var subscription in removeSubscriptions)
-            {
-                RemoveSubscription(subscription);
+                retrySubscriptions.Return();
+                removeSubscriptions.Return();
             }
 
             if (_retryPendingSubscriptions.Count > 0)

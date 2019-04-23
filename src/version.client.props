@@ -3,8 +3,8 @@
   <PropertyGroup>
     <AssemblyVersion>5.0.0.0</AssemblyVersion>
     <VersionPrefix Condition=" '$(VersionPrefix)'=='' ">5.0.1</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rc2</VersionSuffix>
-    <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">190415-01</VersionDateSuffix>
+    <VersionSuffix Condition=" '$(VersionSuffix)'=='' ">rtm</VersionSuffix>
+    <VersionDateSuffix Condition=" '$(VersionDateSuffix)'=='' ">190422-01</VersionDateSuffix>
     <VersionSuffix Condition=" '$(VersionDateSuffix)'!='' ">$(VersionSuffix)-$(VersionDateSuffix)</VersionSuffix>
   </PropertyGroup>
   <Choose>
