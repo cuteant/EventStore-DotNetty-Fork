@@ -1,7 +1,7 @@
-﻿@echo off
+@echo off
 
 EventStore.ClusterNode.exe uninstall
 
-pause
+REM dotnet EventStore.ClusterNode.dll uninstall
 
 :end

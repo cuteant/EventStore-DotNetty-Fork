@@ -1,7 +1,7 @@
-﻿@echo off
+@echo off
 
 EventStore.ClusterNode.exe install
 
-pause
+REM dotnet EventStore.ClusterNode.dll install
 
 :end

@@ -43,6 +43,10 @@ namespace EventStore.ClusterNode
 
                 StringBuilderManager.DefaultPolicy.MaximumRetainedCapacity = 1024 * 32;
 
+#if !NETCOREAPP
+                MessagePack.MessagePackBinary.Shared = CuteAnt.Buffers.BufferManager.Shared;
+#endif
+
                 string[] args = null;
                 var esConfigFile = ConfigurationManager.AppSettings.Get("esConfigFile");
                 if (!string.IsNullOrWhiteSpace(esConfigFile))

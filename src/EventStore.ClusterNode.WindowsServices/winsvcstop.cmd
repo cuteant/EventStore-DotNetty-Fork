@@ -1,8 +1,7 @@
-﻿@echo off
+@echo off
 
-call defines.bat
+EventStore.ClusterNode.exe stop
 
-redis-server --service-stop --service-name %NTSERVICE%
-
+REM dotnet EventStore.ClusterNode.dll stop
 
 :end

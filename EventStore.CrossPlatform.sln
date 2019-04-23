@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.Core.Messages", 
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "CuteAnt.Extensions.Async.Sources", "..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.shproj", "{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventStore.ClusterNode.DotNetCore", "src\EventStore.ClusterNode.DotNetCore\EventStore.ClusterNode.DotNetCore.csproj", "{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems*{1ab88764-60ed-44f3-9e98-08391b5f5cdb}*SharedItemsImports = 13
@@ -162,6 +164,10 @@ Global
 		{C8776F66-4FAD-41B0-B684-08911AB48CFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8776F66-4FAD-41B0-B684-08911AB48CFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8776F66-4FAD-41B0-B684-08911AB48CFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -194,6 +200,7 @@ Global
 		{6660A2E4-ECDC-49F8-BF3C-19DB600F63C3} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
 		{C8776F66-4FAD-41B0-B684-08911AB48CFB} = {455EA8B5-593E-4FA3-B3D3-FABE9A7D0E2F}
 		{B2BE33A0-1EB0-49F7-BD28-72806D4A1DF1} = {89BC7946-8A1C-4CE4-8F8B-C8A344C60EBF}
+		{B3BFEF8F-1DEE-44D7-8709-0DDFF13C5A51} = {FA36119A-FE32-4691-B2F0-EE8348B6EE05}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C8F04120-7171-4928-B510-435CB4B4E0E7}
