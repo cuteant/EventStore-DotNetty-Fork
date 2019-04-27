@@ -7,7 +7,6 @@ using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Monitoring.Stats;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace EventStore.Core.Bus
 {

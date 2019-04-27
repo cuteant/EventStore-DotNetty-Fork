@@ -10,6 +10,13 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <RetainVMGarbageCollection>true</RetainVMGarbageCollection>
+    <ThreadPoolMinThreads>100</ThreadPoolMinThreads>
+    <!--<ThreadPoolMaxThreads>25</ThreadPoolMaxThreads>-->
+  </PropertyGroup>
+  <PropertyGroup>
     <ApplicationIcon>..\app2.ico</ApplicationIcon>
   </PropertyGroup>
 
