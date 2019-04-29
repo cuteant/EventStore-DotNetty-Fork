@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 //using System.ComponentModel.Composition;
 //using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Net;
 using System.Threading;
+using DotNetty;
+using DotNetty.Buffers;
 using EventStore.Common.Exceptions;
 using EventStore.Common.Options;
 using EventStore.Common.Utils;
@@ -312,6 +315,75 @@ namespace EventStore.ClusterNode
                     throw new Exception("No server certificate specified.");
                 }
             }
+
+            // DotNetty buffer options
+            if (!options.DirectBufferPreferred)
+            {
+                Environment.SetEnvironmentVariable("io.netty.noPreferDirect", "true");
+            }
+            if (!options.CheckBufferAccessible)
+            {
+                Environment.SetEnvironmentVariable("io.netty.buffer.checkAccessible", "false");
+            }
+            if (!options.CheckBufferBounds)
+            {
+                Environment.SetEnvironmentVariable("io.netty.buffer.checkBounds", "false");
+            }
+            var numHeapArena = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorHeapArenas));
+            if (numHeapArena.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.numHeapArenas",
+                    numHeapArena.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var numDirectArena = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorDirectArenas));
+            if (numDirectArena.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.numDirectArenas",
+                    numDirectArena.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var pageSize = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorPageSize));
+            if (pageSize.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.pageSize",
+                    pageSize.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var maxOrder = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorMaxOrder));
+            if (maxOrder.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.maxOrder",
+                    maxOrder.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var tinyCacheSize = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorTinyCacheSize));
+            if (tinyCacheSize.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.tinyCacheSize",
+                    tinyCacheSize.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var smallCacheSize = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorSmallCacheSize));
+            if (smallCacheSize.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.smallCacheSize",
+                    smallCacheSize.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var normalCacheSize = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorNormalCacheSize));
+            if (normalCacheSize.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.normalCacheSize",
+                    normalCacheSize.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var maxCachedBufferCapacity = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorCacheBufferMaxCapacity));
+            if (maxCachedBufferCapacity.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.maxCachedBufferCapacity",
+                    maxCachedBufferCapacity.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            var cacheTrimInterval = VNodeBuilder.ToNullableInt(VNodeBuilder.GetByteSize(options.AllocatorCacheTrimInterval));
+            if (cacheTrimInterval.HasValue)
+            {
+                Environment.SetEnvironmentVariable("io.netty.allocator.cacheTrimInterval",
+                    cacheTrimInterval.Value.ToString(CultureInfo.InvariantCulture));
+            }
+
 
             var authenticationConfig = String.IsNullOrEmpty(options.AuthenticationConfig) ? options.Config : options.AuthenticationConfig;
             //var plugInContainer = FindPlugins();

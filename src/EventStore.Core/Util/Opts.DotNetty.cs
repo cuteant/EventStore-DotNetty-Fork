@@ -72,5 +72,44 @@
 
         public const string ClientSocketWorkerPoolSizeMaxDescr = "Max number of threads to cap factor-based number to";
         public const int ClientSocketWorkerPoolSizeMaxDefault = 2;
+
+
+
+
+        public const string DirectBufferPreferredDescr = "DirectBufferPreferred";
+        public const bool DirectBufferPreferredDefault = true;
+
+        public const string CheckBufferAccessibleDescr = "CheckBufferAccessible";
+        public const bool CheckBufferAccessibleDefault = true;
+
+        public const string CheckBufferBoundsDescr = "CheckBufferBounds";
+        public const bool CheckBufferBoundsDefault = true;
+
+        public const string AllocatorHeapArenasDescr = "AllocatorHeapArenas";
+        public const string AllocatorHeapArenasDefault = "0";
+
+        public const string AllocatorDirectArenasDescr = "AllocatorDirectArenas";
+        public const string AllocatorDirectArenasDefault = "0";
+
+        public const string AllocatorPageSizeDescr = "AllocatorPageSize";
+        public const string AllocatorPageSizeDefault = "8K";
+
+        public const string AllocatorMaxOrderDescr = "AllocatorMaxOrder";
+        public const string AllocatorMaxOrderDefault = "11";
+
+        public const string AllocatorTinyCacheSizeDescr = "AllocatorTinyCacheSize";
+        public const string AllocatorTinyCacheSizeDefault = "512";
+
+        public const string AllocatorSmallCacheSizeDescr = "AllocatorSmallCacheSize";
+        public const string AllocatorSmallCacheSizeDefault = "256";
+
+        public const string AllocatorNormalCacheSizeDescr = "AllocatorNormalCacheSize";
+        public const string AllocatorNormalCacheSizeDefault = "64";
+
+        public const string AllocatorCacheBufferMaxCapacityDescr = "AllocatorCacheBufferMaxCapacity";
+        public const string AllocatorCacheBufferMaxCapacityDefault = "32K";
+
+        public const string AllocatorCacheTrimIntervalDescr = "AllocatorCacheTrimInterval";
+        public const string AllocatorCacheTrimIntervalDefault = "8K";
     }
 }

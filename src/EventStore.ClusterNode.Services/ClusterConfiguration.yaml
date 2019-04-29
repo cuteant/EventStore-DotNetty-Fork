@@ -274,6 +274,39 @@ RunProjections: All                    # None / System / All
 
 
 
+## DotNetty Buffer Options
+
+#DirectBufferPreferred = true
+
+#CheckBufferAccessible = true
+
+#CheckBufferBounds = true
+
+# default use 2 * available processors
+#AllocatorHeapArenas = 0
+
+# default use 2 * available processors
+#AllocatorDirectArenas = 0
+
+# pageSize is a power of two. (min: 4096)
+#AllocatorPageSize = 8K
+
+# maxOrder (expected: 0-14)
+#AllocatorMaxOrder = 11
+
+#AllocatorTinyCacheSize = 512
+
+#AllocatorSmallCacheSize = 256
+
+#AllocatorNormalCacheSize = 64
+
+#AllocatorCacheBufferMaxCapacity = 32K
+
+#AllocatorCacheTrimInterval = 8K
+
+
+
+
 ## DotNetty Options
 
 # Whether to use Libuv-Transport

@@ -70,5 +70,44 @@ namespace EventStore.ClusterNode
 
         [ArgDescription(Opts.ClientSocketWorkerPoolSizeMaxDescr, Opts.DotNettyGroup)]
         public int ClientSocketWorkerPoolSizeMax { get; set; }
+
+
+
+
+        [ArgDescription(Opts.DirectBufferPreferredDescr, Opts.DotNettyGroup)]
+        public bool DirectBufferPreferred { get; set; }
+
+        [ArgDescription(Opts.CheckBufferAccessibleDescr, Opts.DotNettyGroup)]
+        public bool CheckBufferAccessible { get; set; }
+
+        [ArgDescription(Opts.CheckBufferBoundsDescr, Opts.DotNettyGroup)]
+        public bool CheckBufferBounds { get; set; }
+
+        [ArgDescription(Opts.AllocatorHeapArenasDescr, Opts.DotNettyGroup)]
+        public string AllocatorHeapArenas { get; set; }
+
+        [ArgDescription(Opts.AllocatorDirectArenasDescr, Opts.DotNettyGroup)]
+        public string AllocatorDirectArenas { get; set; }
+
+        [ArgDescription(Opts.AllocatorPageSizeDescr, Opts.DotNettyGroup)]
+        public string AllocatorPageSize { get; set; }
+
+        [ArgDescription(Opts.AllocatorMaxOrderDescr, Opts.DotNettyGroup)]
+        public string AllocatorMaxOrder { get; set; }
+
+        [ArgDescription(Opts.AllocatorTinyCacheSizeDescr, Opts.DotNettyGroup)]
+        public string AllocatorTinyCacheSize { get; set; }
+
+        [ArgDescription(Opts.AllocatorSmallCacheSizeDescr, Opts.DotNettyGroup)]
+        public string AllocatorSmallCacheSize { get; set; }
+
+        [ArgDescription(Opts.AllocatorNormalCacheSizeDescr, Opts.DotNettyGroup)]
+        public string AllocatorNormalCacheSize { get; set; }
+
+        [ArgDescription(Opts.AllocatorCacheBufferMaxCapacityDescr, Opts.DotNettyGroup)]
+        public string AllocatorCacheBufferMaxCapacity { get; set; }
+
+        [ArgDescription(Opts.AllocatorCacheTrimIntervalDescr, Opts.DotNettyGroup)]
+        public string AllocatorCacheTrimInterval { get; set; }
     }
 }

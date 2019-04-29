@@ -221,7 +221,7 @@ namespace EventStore.Core
 
         #region ** ToNullableInt **
 
-        private static int? ToNullableInt(long? value) => value.HasValue && value.Value > 0L ? (int?)value.Value : null;
+        public static int? ToNullableInt(long? value) => value.HasValue && value.Value > 0L ? (int?)value.Value : null;
 
         #endregion
 
@@ -344,13 +344,13 @@ namespace EventStore.Core
                 new ByteSize { Factor = 1024L * 1024L, Suffixes = new string[] { "M", "m", "Mi", "MiB", "mebibyte", "mebibytes" } },
                 new ByteSize { Factor = 1000L * 1000L, Suffixes = new string[] { "MB", "megabyte", "megabytes" } },
                 new ByteSize { Factor = 1024L, Suffixes = new string[] { "K", "k", "Ki", "KiB", "kibibyte", "kibibytes" } },
-                new ByteSize { Factor = 1000L, Suffixes = new string[] { "kB", "kilobyte", "kilobytes" } },
+                new ByteSize { Factor = 1000L, Suffixes = new string[] { "kB", "KB", "kilobyte", "kilobytes" } },
                 new ByteSize { Factor = 1, Suffixes = new string[] { "b", "B", "byte", "bytes" } }
             };
 
         private static char[] Digits { get; } = "0123456789".ToCharArray();
 
-        private static long? GetByteSize(string res)
+        public static long? GetByteSize(string res)
         {
             if (string.IsNullOrWhiteSpace(res)) { return null; }
             res = res.Trim();

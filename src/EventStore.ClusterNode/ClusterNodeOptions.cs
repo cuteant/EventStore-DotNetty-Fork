@@ -242,7 +242,7 @@ namespace EventStore.ClusterNode
 
         [ArgDescription(Opts.StructuredLogDescr, Opts.DbGroup)]
         public bool StructuredLog { get; set; }
-		
+        
         [ArgDescription(Opts.MaxAutoMergeIndexLevelDescr, Opts.DbGroup)]
         public int MaxAutoMergeIndexLevel { get; set; }
 
@@ -391,6 +391,19 @@ namespace EventStore.ClusterNode
             ClientSocketWorkerPoolSizeMin = Opts.ClientSocketWorkerPoolSizeMinDefault;
             ClientSocketWorkerPoolSizeFactor = Opts.ClientSocketWorkerPoolSizeFactorDefault;
             ClientSocketWorkerPoolSizeMax = Opts.ClientSocketWorkerPoolSizeMaxDefault;
+
+            DirectBufferPreferred = Opts.DirectBufferPreferredDefault;
+            CheckBufferAccessible = Opts.CheckBufferAccessibleDefault;
+            CheckBufferBounds = Opts.CheckBufferBoundsDefault;
+            AllocatorHeapArenas = Opts.AllocatorHeapArenasDefault;
+            AllocatorDirectArenas = Opts.AllocatorDirectArenasDefault;
+            AllocatorPageSize = Opts.AllocatorPageSizeDefault;
+            AllocatorMaxOrder = Opts.AllocatorMaxOrderDefault;
+            AllocatorTinyCacheSize = Opts.AllocatorTinyCacheSizeDefault;
+            AllocatorSmallCacheSize = Opts.AllocatorSmallCacheSizeDefault;
+            AllocatorNormalCacheSize = Opts.AllocatorNormalCacheSizeDefault;
+            AllocatorCacheBufferMaxCapacity = Opts.AllocatorCacheBufferMaxCapacityDefault;
+            AllocatorCacheTrimInterval = Opts.AllocatorCacheTrimIntervalDefault;
         }
     }
 }

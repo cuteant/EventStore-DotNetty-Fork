@@ -142,6 +142,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="clean.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="winsvcreg.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
