@@ -13,8 +13,8 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <RetainVMGarbageCollection>true</RetainVMGarbageCollection>
-    <ThreadPoolMinThreads>100</ThreadPoolMinThreads>
-    <!--<ThreadPoolMaxThreads>25</ThreadPoolMaxThreads>-->
+    <!--<ThreadPoolMinThreads>100</ThreadPoolMinThreads>
+    <ThreadPoolMaxThreads>25</ThreadPoolMaxThreads>-->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
