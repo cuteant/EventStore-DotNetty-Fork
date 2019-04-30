@@ -46,7 +46,7 @@ namespace EventStore.Core.Services.Storage
 
         public string Name { get { return _queueStats.Name; } }
         private readonly QueueStatsCollector _queueStats = new QueueStatsCollector("Index Committer");
-        private readonly ConcurrentQueueWrapper<StorageMessage.CommitAck> _replicatedQueue = new ConcurrentQueueWrapper<StorageMessage.CommitAck>();
+        private readonly ConcurrentQueue<StorageMessage.CommitAck> _replicatedQueue = new ConcurrentQueue<StorageMessage.CommitAck>();
         private readonly ConcurrentDictionary<long, PendingTransaction> _pendingTransactions =
                             new ConcurrentDictionary<long, PendingTransaction>();
 

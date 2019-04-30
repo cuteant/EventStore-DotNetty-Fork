@@ -58,7 +58,7 @@ namespace EventStore.ClientAPI.Internal
         private readonly ConnectionSettings _settings;
         private readonly bool _verboseLogging;
         private readonly Dictionary<Guid, OperationItem> _activeOperations = new Dictionary<Guid, OperationItem>();
-        private readonly ConcurrentQueueWrapper<OperationItem> _waitingOperations = new ConcurrentQueueWrapper<OperationItem>();
+        private readonly ConcurrentQueue<OperationItem> _waitingOperations = new ConcurrentQueue<OperationItem>();
         private readonly List<OperationItem> _retryPendingOperations = new List<OperationItem>();
         private readonly object _lock = new object();
         private int _totalOperationCount;

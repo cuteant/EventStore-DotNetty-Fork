@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using EventStore.Common.Utils;
 
 namespace EventStore.Core.DataStructures
 {
@@ -167,7 +166,7 @@ namespace EventStore.Core.DataStructures
 #if USE_POOL
         private class ObjectPool<TItem> where TItem : class
         {
-            private readonly ConcurrentQueueWrapper<TItem> _items = new ConcurrentQueueWrapper<TItem>();
+            private readonly ConcurrentQueue<TItem> _items = new ConcurrentQueue<TItem>();
 
             private readonly int _count;
             private readonly Func<TItem> _creator;
