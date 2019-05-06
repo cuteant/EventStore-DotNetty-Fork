@@ -144,7 +144,7 @@ RunProjections: All                    # None / System / All
 
 # During large Index Merge operations, writes may be slowed down. Set this to the maximum index file level for which automatic merges should happen.
 # Merging indexes above this level should be done manually.
-# MaxAutoMergeIndexLevel = int.MaxValue
+# MaxAutoMergeIndexLevel: int.MaxValue
 
 
 
@@ -276,33 +276,33 @@ RunProjections: All                    # None / System / All
 
 ## DotNetty Buffer Options
 
-#DirectBufferPreferred = true
+#DirectBufferPreferred: true
 
-#CheckBufferAccessible = true
+#CheckBufferAccessible: true
 
-#CheckBufferBounds = true
-
-# default use 2 * available processors
-#AllocatorHeapArenas = 0
+#CheckBufferBounds: true
 
 # default use 2 * available processors
-#AllocatorDirectArenas = 0
+#AllocatorHeapArenas: 0
+
+# default use 2 * available processors
+#AllocatorDirectArenas: 0
 
 # pageSize is a power of two. (min: 4096)
-#AllocatorPageSize = 8K
+#AllocatorPageSize: 8K
 
 # maxOrder (expected: 0-14)
-#AllocatorMaxOrder = 11
+#AllocatorMaxOrder: 11
 
-#AllocatorTinyCacheSize = 512
+#AllocatorTinyCacheSize: 512
 
-#AllocatorSmallCacheSize = 256
+#AllocatorSmallCacheSize: 256
 
-#AllocatorNormalCacheSize = 64
+#AllocatorNormalCacheSize: 64
 
-#AllocatorCacheBufferMaxCapacity = 32K
+#AllocatorCacheBufferMaxCapacity: 32K
 
-#AllocatorCacheTrimInterval = 8K
+#AllocatorCacheTrimInterval: 8K
 
 
 
@@ -314,7 +314,7 @@ RunProjections: All                    # None / System / All
 
 # If set to true, we will use IPV6 addresses upon DNS resolution for host names.
 # Otherwise, we will use IPV4.
-# DnsUseIpv6 = false
+# DnsUseIpv6: false
 
 # If set to true, we will enforce usage of IPV4 or IPV6 addresses upon DNS resolution for host names.
 # If dns-use-ipv6 = true, we will use IPV6 enforcement
@@ -327,82 +327,82 @@ RunProjections: All                    # None / System / All
 # As of 09/21/2016 there are two known cases: running under Mono and in Azure WebApp  
 # for them we will need enforce-ip-family = true, and for Azure dns-use-ipv6 = false
 # This property is always set to true if Mono runtime is detected.
-# EnforceIpFamily = false
+# EnforceIpFamily: false
 
 # Sets the connectTimeoutMillis of all outbound connections,
 # i.e. how long a connect may take until it is timed out
-# ConnectionTimeout = 15 s
+# ConnectionTimeout: 15 s
 
 # Toggles buffer pooling on and off inside DotNetty.
-# EnableBufferPooling = true
+# EnableBufferPooling: true
 
 # Sets the high water mark for the in and outbound sockets,
 # set to 0b for platform default
-# WriteBufferHighWaterMark = 0b
+# WriteBufferHighWaterMark: 0b
 
 # Sets the low water mark for the in and outbound sockets,
 # set to 0b for platform default
-# WriteBufferLowWaterMark = 0b
+# WriteBufferLowWaterMark: 0b
 
 # Sets the send buffer size of the Sockets,
 # set to 0b for platform default
-# SendBufferSize = 256K
+# SendBufferSize: 256K
 
 # Sets the receive buffer size of the Sockets,
 # set to 0b for platform default
-# ReceiveBufferSize = 256K
+# ReceiveBufferSize: 256K
 
 # Maximum message size the transport will accept, but at least 32000 bytes.
-# MaxFrameSize = 10M
+# MaxFrameSize: 10M
 
 # Sets the size of the connection backlog
-# Backlog = 4096
+# Backlog: 4096
 
 # Enables the TCP_NODELAY flag, i.e. disables Nagleâ€™s algorithm
-# TcpNoDelay = true
+# TcpNoDelay: true
 
 # Enables TCP Keepalive, subject to the O/S kernelâ€™s configuration
-# TcpKeepAlive = true
+# TcpKeepAlive: true
 
-# TcpLinger = 0
+# TcpLinger: 0
 
 # Enables SO_REUSEADDR, which determines when an ActorSystem can open
 # the specified listen port (the meaning differs between *nix and Windows)
 # Valid values are "on", "off", and "off-for-windows"
 # due to the following Windows bug: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4476378
 # "off-for-windows" of course means that it's "on" for all other platforms
-# TcpReuseAddr = on
+# TcpReuseAddr: on
 
 # Enables SO_REUSEPORT
-# TcpReusePort = true
+# TcpReusePort: true
 
 # Used to configure the number of I/O worker threads on server sockets
 
 # Min number of threads to cap factor-based number to
-# ServerSocketWorkerPoolSizeMin = 2
+# ServerSocketWorkerPoolSizeMin: 2
 
 # The pool size factor is used to determine thread pool size
 # using the following formula: ceil(available processors * factor).
 # Resulting size is then bounded by the pool-size-min and
 # pool-size-max values.
-# ServerSocketWorkerPoolSizeFactor = 1.0
+# ServerSocketWorkerPoolSizeFactor: 1.0
 
 # Max number of threads to cap factor-based number to
-# ServerSocketWorkerPoolSizeMax = 2
+# ServerSocketWorkerPoolSizeMax: 2
 
 # Used to configure the number of I/O worker threads on client sockets
 
 # Min number of threads to cap factor-based number to
-# ClientSocketWorkerPoolSizeMin = 2
+# ClientSocketWorkerPoolSizeMin: 2
 
 # The pool size factor is used to determine thread pool size
 # using the following formula: ceil(available processors * factor).
 # Resulting size is then bounded by the pool-size-min and
 # pool-size-max values.
-# ClientSocketWorkerPoolSizeFactor = 1.0
+# ClientSocketWorkerPoolSizeFactor: 1.0
 
 # Max number of threads to cap factor-based number to
-# ClientSocketWorkerPoolSizeMax = 2
+# ClientSocketWorkerPoolSizeMax: 2
 
 
 
