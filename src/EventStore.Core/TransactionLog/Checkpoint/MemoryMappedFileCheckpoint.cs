@@ -19,7 +19,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
         private long _lastFlushed;
         private readonly MemoryMappedViewAccessor _accessor;
 
-        public MemoryMappedFileCheckpoint(string filename): this(filename, Guid.NewGuid().ToString(), false)
+        public MemoryMappedFileCheckpoint(string filename) : this(filename, Guid.NewGuid().ToString(), false)
         {
         }
 
@@ -43,8 +43,9 @@ namespace EventStore.Core.TransactionLog.Checkpoint
                                                     HandleInheritability.None,
                                                     false);
 #else
+            var mapName = Runtime.IsUnixOrMac ? null : Guid.NewGuid().ToString();
             _file = MemoryMappedFile.CreateFromFile(_fileStream,
-                                                    Guid.NewGuid().ToString(),
+                                                    mapName,
                                                     sizeof(long),
                                                     MemoryMappedFileAccess.ReadWrite,
                                                     HandleInheritability.None,
@@ -83,8 +84,8 @@ namespace EventStore.Core.TransactionLog.Checkpoint
             _accessor.Flush();
 
             _fileStream.FlushToDisk();
-//            if (!FileStreamExtensions.FlushFileBuffers(_fileHandle))
-//                throw new 1Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
+            //            if (!FileStreamExtensions.FlushFileBuffers(_fileHandle))
+            //                throw new 1Exception(string.Format("FlushFileBuffers failed with err: {0}", Marshal.GetLastWin32Error()));
 
             Interlocked.Exchange(ref _lastFlushed, last);
 
@@ -105,7 +106,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
         {
             return Interlocked.Read(ref _last);
         }
-        
+
         public event Action<long> Flushed;
 
         protected virtual void OnFlushed(long obj)
