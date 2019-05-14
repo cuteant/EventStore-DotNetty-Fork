@@ -1,10 +1,8 @@
 ﻿using EventStore.ClientAPI;
-using CuteAnt.Extensions.Serialization;
 using MessagePack;
 
 namespace Es.SharedModels
 {
-    [SerializingToken(SerializingToken.Json)]
     [Stream("test-animal")]
     [Union(0, typeof(Cat))]
     [Union(1, typeof(Dog))]
@@ -15,7 +13,6 @@ namespace Es.SharedModels
         string Name { get; set; }
     }
 
-    [SerializingToken(SerializingToken.MessagePack)]
     [MessagePackObject]
     [Stream("test-animal")]
     public class Cat : IAnimal
@@ -35,7 +32,6 @@ namespace Es.SharedModels
         public string Bark { get; set; }
     }
 
-    [SerializingToken(SerializingToken.Utf8Json)]
     [Stream("test-animal1")]
     [MessagePackObject]
     [Union(0, typeof(Cat1))]
@@ -46,7 +42,6 @@ namespace Es.SharedModels
         public virtual string Name { get; set; }
     }
 
-    [SerializingToken(SerializingToken.External)]
     [MessagePackObject]
     public class Cat1 : Animal
     {
@@ -61,7 +56,6 @@ namespace Es.SharedModels
         public string Bark { get; set; }
     }
 
-    [SerializingToken(SerializingToken.MessagePack)]
     [Stream("test-message")]
     [MessagePackObject]
     public class StartMessage
@@ -71,7 +65,6 @@ namespace Es.SharedModels
     }
 
     [Stream("test-message")]
-    [SerializingToken(SerializingToken.Lz4MessagePack)]
     [MessagePackObject]
     public class EndMessage
     {
@@ -79,7 +72,6 @@ namespace Es.SharedModels
         public string Text { get; set; }
     }
 
-    [SerializingToken(SerializingToken.Json)]
     [MessagePackObject]
     public class TestMessage
     {
