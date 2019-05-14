@@ -117,9 +117,18 @@ namespace EventStore.Core.Tests.TransactionLog
             var tempFiles = strategy.GetAllTempFiles();
 
             Assert.AreEqual(3, tempFiles.Length);
-            Assert.AreEqual(GetFilePathFor("bla.tmp"), tempFiles[0]);
-            Assert.AreEqual(GetFilePathFor("chunk-000005.000007.tmp"), tempFiles[1]);
-            Assert.AreEqual(GetFilePathFor("foo.tmp"), tempFiles[2]);
+            if (EventStore.Common.Utils.Runtime.IsWindows)
+            {
+                Assert.AreEqual(GetFilePathFor("bla.tmp"), tempFiles[0]);
+                Assert.AreEqual(GetFilePathFor("chunk-000005.000007.tmp"), tempFiles[1]);
+                Assert.AreEqual(GetFilePathFor("foo.tmp"), tempFiles[2]);
+            }
+            else
+            {
+                Assert.AreEqual(GetFilePathFor("foo.tmp"), tempFiles[0]);
+                Assert.AreEqual(GetFilePathFor("chunk-000005.000007.tmp"), tempFiles[1]);
+                Assert.AreEqual(GetFilePathFor("bla.tmp"), tempFiles[2]);
+            }
         }
 
         [Test]
