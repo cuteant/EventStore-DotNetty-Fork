@@ -1,0 +1,1 @@
+dotnet publish -c Release -f netcoreapp2.2 --self-contained false -o ../../Artifacts/linux-x64  -r linux-x64 /p:NoBuild=false
