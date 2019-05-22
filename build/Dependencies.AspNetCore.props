@@ -2,8 +2,8 @@
   <!-- Shared Package Versions -->
   <PropertyGroup>
     <MicrosoftAspNetCorePackageVersion>2.2.0</MicrosoftAspNetCorePackageVersion>
-    <MicrosoftAspNetCoreAllPackageVersion>2.2.4</MicrosoftAspNetCoreAllPackageVersion>
-    <MicrosoftAspNetCoreAppPackageVersion>2.2.4</MicrosoftAspNetCoreAppPackageVersion>
+    <MicrosoftAspNetCoreAllPackageVersion>2.2.5</MicrosoftAspNetCoreAllPackageVersion>
+    <MicrosoftAspNetCoreAppPackageVersion>2.2.5</MicrosoftAspNetCoreAppPackageVersion>
 
     <MicrosoftAspNetCoreAntiforgeryPackageVersion>2.2.0</MicrosoftAspNetCoreAntiforgeryPackageVersion>
     <MicrosoftAspNetCoreApplicationInsightsHostingStartupPackageVersion>2.2.0</MicrosoftAspNetCoreApplicationInsightsHostingStartupPackageVersion>
@@ -40,7 +40,7 @@
     <MicrosoftAspNetCoreDataProtectionAzureKeyVaultPackageVersion>2.2.0</MicrosoftAspNetCoreDataProtectionAzureKeyVaultPackageVersion>
     <MicrosoftAspNetCoreDataProtectionAzureStoragePackageVersion>2.2.0</MicrosoftAspNetCoreDataProtectionAzureStoragePackageVersion>
     <MicrosoftAspNetCoreDataProtectionExtensionsPackageVersion>2.2.0</MicrosoftAspNetCoreDataProtectionExtensionsPackageVersion>
-    <MicrosoftAspNetCoreDataProtectionRedisPackageVersion>2.2.0-preview2-35157</MicrosoftAspNetCoreDataProtectionRedisPackageVersion>
+    <MicrosoftAspNetCoreDataProtectionStackExchangeRedisPackageVersion>2.2.5</MicrosoftAspNetCoreDataProtectionStackExchangeRedisPackageVersion>
     <MicrosoftAspNetCoreDataProtectionSystemWebPackageVersion>2.2.0</MicrosoftAspNetCoreDataProtectionSystemWebPackageVersion>
 
     <MicrosoftAspNetCoreDiagnosticsPackageVersion>2.2.0</MicrosoftAspNetCoreDiagnosticsPackageVersion>
@@ -129,8 +129,8 @@
     <MicrosoftAspNetCoreSignalRCorePackageVersion>1.1.0</MicrosoftAspNetCoreSignalRCorePackageVersion>
     <MicrosoftAspNetCoreSignalRProtocolsNewtonsoftJsonPackageVersion>3.0.0-preview4-19216-03</MicrosoftAspNetCoreSignalRProtocolsNewtonsoftJsonPackageVersion>
     <MicrosoftAspNetCoreSignalRProtocolsJsonPackageVersion>1.1.0</MicrosoftAspNetCoreSignalRProtocolsJsonPackageVersion>
-    <MicrosoftAspNetCoreSignalRProtocolsMessagePackPackageVersion>1.1.0</MicrosoftAspNetCoreSignalRProtocolsMessagePackPackageVersion>
-    <MicrosoftAspNetCoreSignalRStackExchangeRedisPackageVersion>1.1.0</MicrosoftAspNetCoreSignalRStackExchangeRedisPackageVersion>
+    <MicrosoftAspNetCoreSignalRProtocolsMessagePackPackageVersion>1.1.5</MicrosoftAspNetCoreSignalRProtocolsMessagePackPackageVersion>
+    <MicrosoftAspNetCoreSignalRStackExchangeRedisPackageVersion>1.1.5</MicrosoftAspNetCoreSignalRStackExchangeRedisPackageVersion>
 
     <MicrosoftAspNetCoreSpaServicesPackageVersion>2.2.0</MicrosoftAspNetCoreSpaServicesPackageVersion>
     <MicrosoftAspNetCoreSpaServicesExtensionsPackageVersion>2.2.0</MicrosoftAspNetCoreSpaServicesExtensionsPackageVersion>

@@ -42,8 +42,8 @@
     <MongoDBDriverGridFSStrongNamePackageVersion>2.8.0</MongoDBDriverGridFSStrongNamePackageVersion>
     <mongocsharpdriverStrongNamePackageVersion>2.8.0</mongocsharpdriverStrongNamePackageVersion>
     <MySqlDataPackageVersion>8.0.16</MySqlDataPackageVersion>
-    <MySqlConnectorPackageVersion>0.53.0</MySqlConnectorPackageVersion>
-    <NpgsqlPackageVersion>4.0.6</NpgsqlPackageVersion>
+    <MySqlConnectorPackageVersion>0.54.0</MySqlConnectorPackageVersion>
+    <NpgsqlPackageVersion>4.0.7</NpgsqlPackageVersion>
     <OracleManagedDataAccessPackageVersion>18.6.0</OracleManagedDataAccessPackageVersion>
     <OracleManagedDataAccessCorePackageVersion>2.18.6</OracleManagedDataAccessCorePackageVersion>
     <StackExchangeRedisPackageVersion>2.0.601</StackExchangeRedisPackageVersion>
@@ -51,10 +51,10 @@
     <SystemDataSQLiteCorePackageVersion>1.0.110</SystemDataSQLiteCorePackageVersion>
 
     <!-- Hosting related packages -->
-    <TopshelfPackageVersion>4.2.0.205-develop</TopshelfPackageVersion>
-    <TopshelfExtensionsConfigurationPackageVersion>4.2.0.205-develop</TopshelfExtensionsConfigurationPackageVersion>
-    <TopshelfNLogPackageVersion>4.2.0.205-develop</TopshelfNLogPackageVersion>
-    <TopshelfSerilogPackageVersion>4.2.0.205-develop</TopshelfSerilogPackageVersion>
+    <TopshelfPackageVersion>4.2.0.212-develop</TopshelfPackageVersion>
+    <TopshelfExtensionsConfigurationPackageVersion>4.2.0.212-develop</TopshelfExtensionsConfigurationPackageVersion>
+    <TopshelfNLogPackageVersion>4.2.0.212-develop</TopshelfNLogPackageVersion>
+    <TopshelfSerilogPackageVersion>4.2.0.212-develop</TopshelfSerilogPackageVersion>
 
     <!-- Logging related packages -->
     <NLogPackageVersion>4.6.3</NLogPackageVersion>
