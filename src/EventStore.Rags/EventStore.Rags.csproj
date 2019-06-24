@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotNetSignedPackageVersion)" />
+    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
   </ItemGroup>
 
 </Project>

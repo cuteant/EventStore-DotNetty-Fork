@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Product>Event Store</Product>
     <Authors>Event Store LLP, Seabiscuit</Authors>
-    <Copyright>Copyright 2012-2017 Event Store LLP, Seabiscuit</Copyright>
+    <Copyright>Copyright 2012-2019 Event Store LLP, Seabiscuit</Copyright>
     <PackageIconUrl></PackageIconUrl>
     <PackageProjectUrl>https://github.com/cuteant/EventStore-NETCore-Fork</PackageProjectUrl>
     <PackageLicense>https://github.com/cuteant/EventStore-NETCore-Fork/blob/dev-netcore/LICENSE.md</PackageLicense>

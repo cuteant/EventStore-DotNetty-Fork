@@ -237,6 +237,19 @@ namespace EventStore.ClientAPI
         private void OnReconnect(object sender, ClientConnectionEventArgs clientConnectionEventArgs)
         {
             if (Verbose) { LogCatchupSubscriptionRecoveringAfterReconnection(); }
+
+            DropData dropData;
+            do
+            {
+                dropData = _dropData;
+            } while (Interlocked.CompareExchange(ref _dropData, null, dropData) != dropData);
+
+            int isDropped;
+            do
+            {
+                isDropped = _isDropped;
+            } while (Interlocked.CompareExchange(ref _isDropped, 0, isDropped) != isDropped);
+
             _connection.Connected -= OnReconnect;
             RunSubscriptionAsync();
         }

@@ -59,35 +59,40 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
             _ioDispatcher.ReadForward(
                 UserManagementService.UserPasswordNotificationsStreamId, fromEventNumber, 100, false,
                 SystemAccount.Principal, completed =>
+                {
+                    if (_stopped) return;
+                    switch (completed.Result)
                     {
-                        if (_stopped) return;
-                        switch (completed.Result)
-                        {
-                            case ReadStreamResult.AccessDenied:
-                            case ReadStreamResult.Error:
-                            case ReadStreamResult.NotModified:
-                                _log.FailedToReadUserPasswordNotificationsStream(completed.Result);
+                        case ReadStreamResult.AccessDenied:
+                        case ReadStreamResult.Error:
+                        case ReadStreamResult.NotModified:
+                            _log.FailedToReadUserPasswordNotificationsStream(completed.Result);
+                            _ioDispatcher.Delay(
+                                TimeSpan.FromSeconds(10), () => ReadNotificationsFrom(fromEventNumber));
+                            break;
+                        case ReadStreamResult.NoStream:
+                        case ReadStreamResult.StreamDeleted:
+                            _ioDispatcher.Delay(
+                                TimeSpan.FromSeconds(1), () => ReadNotificationsFrom(0));
+                            break;
+                        case ReadStreamResult.Success:
+                            foreach (var @event in completed.Events)
+                                PublishPasswordChangeNotificationFrom(@event);
+                            if (completed.IsEndOfStream)
                                 _ioDispatcher.Delay(
-                                    TimeSpan.FromSeconds(10), () => ReadNotificationsFrom(fromEventNumber));
-                                break;
-                            case ReadStreamResult.NoStream:
-                            case ReadStreamResult.StreamDeleted:
-                                _ioDispatcher.Delay(
-                                    TimeSpan.FromSeconds(1), () => ReadNotificationsFrom(0));
-                                break;
-                            case ReadStreamResult.Success:
-                                foreach (var @event in completed.Events)
-                                    PublishPasswordChangeNotificationFrom(@event);
-                                if (completed.IsEndOfStream)
-                                    _ioDispatcher.Delay(
-                                        TimeSpan.FromSeconds(1), () => ReadNotificationsFrom(completed.NextEventNumber));
-                                else
-                                    ReadNotificationsFrom(completed.NextEventNumber);
-                                break;
-                            default:
-                                throw new NotSupportedException();
-                        }
-                    });
+                                    TimeSpan.FromSeconds(1), () => ReadNotificationsFrom(completed.NextEventNumber));
+                            else
+                                ReadNotificationsFrom(completed.NextEventNumber);
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                },
+                () => {
+                    if (_log.IsWarningLevelEnabled()) { _log.Timeout_reading_stream(); }
+                    _ioDispatcher.Delay(TimeSpan.FromSeconds(10), () => ReadNotificationsFrom(fromEventNumber));
+                },
+                Guid.NewGuid());
         }
 
 

@@ -7,6 +7,7 @@
         Deleted,
         Idempotent,
         CorruptedIdempotency,
-        InvalidTransaction
+        InvalidTransaction,
+        IdempotentNotReady
     }
 }

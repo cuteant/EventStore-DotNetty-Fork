@@ -541,5 +541,11 @@ namespace EventStore.Core
         {
             logger.LogDebug("Opened completed " + filename + " as version " + version);
         }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void DroppingIdempotentWriteToStream(this ILogger logger, in Core.Services.Storage.ReaderIndex.CommitCheckResult result)
+        {
+            logger.LogDebug("Dropping idempotent write to stream {@stream}, startEventNumber: {@startEventNumber}, endEventNumber: {@endEventNumber} since the original write has not yet been replicated.", result.EventStreamId, result.StartEventNumber, result.EndEventNumber);
+        }
     }
 }

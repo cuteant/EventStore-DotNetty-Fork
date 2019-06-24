@@ -635,6 +635,10 @@ namespace EventStore.Core.Services.Storage
                 case CommitDecision.InvalidTransaction:
                     envelope.ReplyWith(new StorageMessage.InvalidTransaction(correlationId));
                     break;
+                case CommitDecision.IdempotentNotReady:
+                    //just drop the write and wait for the client to retry
+                    if (Log.IsDebugLevelEnabled()) { Log.DroppingIdempotentWriteToStream(result); }
+                    break;
                 default:
                     ThrowHelper.ThrowArgumentOutOfRangeException(); break;
             }

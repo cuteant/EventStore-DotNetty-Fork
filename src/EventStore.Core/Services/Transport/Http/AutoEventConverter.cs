@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using EventStore.Common.Utils;
 using EventStore.Core.Data;
@@ -177,9 +178,39 @@ namespace EventStore.Core.Services.Transport.Http
                 isJson = true;
                 return Helper.UTF8NoBom.GetBytes(Codec.Json.To(obj));
             }
-
+            else if (obj is string strVal)
+            {
+                try
+                {
+                    var jsonObject = JsonConvert.DeserializeObject(strVal);
+                    if (jsonObject is JObject || jsonObject is JArray)
+                    {
+                        isJson = true;
+                        return Helper.UTF8NoBom.GetBytes(Codec.Json.To(jsonObject));
+                    }
+                    else
+                    {
+                        ThrowJsonException();
+                    }
+                }
+                catch (JsonException)
+                {
+                    isJson = false;
+                    return Helper.UTF8NoBom.GetBytes(strVal);
+                }
+            }
             isJson = false;
-            return Helper.UTF8NoBom.GetBytes((obj as string) ?? string.Empty);
+            return Helper.UTF8NoBom.GetBytes(string.Empty);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowJsonException()
+        {
+            throw GetJsonException();
+            JsonException GetJsonException()
+            {
+                return new JsonException();
+            }
         }
     }
 }

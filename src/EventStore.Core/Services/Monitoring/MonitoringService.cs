@@ -50,6 +50,7 @@ namespace EventStore.Core.Services.Monitoring
         private SystemStatsHelper _systemStats;
 
         private string _lastWrittenCsvHeader;
+        private DateTime _lastCsvTimestamp = DateTime.UtcNow;
         private DateTime _lastStatsRequestTime = DateTime.UtcNow;
         private StatsContainer _memoizedStats;
         private readonly Timer _timer;
@@ -150,15 +151,50 @@ namespace EventStore.Core.Services.Monitoring
 
         private void SaveStatsToFile(Dictionary<string, object> rawStats)
         {
-            var header = StatsCsvEncoder.GetHeader(rawStats);
             var infoEnabled = RegularLog.IsInformationLevelEnabled();
+            if (!infoEnabled) { return; }
+
+            var writeHeader = false;
+
+            var header = StatsCsvEncoder.GetHeader(rawStats);
             if (header != _lastWrittenCsvHeader)
             {
                 _lastWrittenCsvHeader = header;
-                if (infoEnabled) { RegularLog.LogCsvStatsHeader(header); }
+                writeHeader = true;
             }
 
-            if (infoEnabled) { RegularLog.LogCsvStats(rawStats); }
+            var line = StatsCsvEncoder.GetLine(rawStats);
+            var timestamp = GetTimestamp(line);
+            if (timestamp.HasValue)
+            {
+                if (timestamp.Value.Day != _lastCsvTimestamp.Day)
+                {
+                    writeHeader = true;
+                }
+                _lastCsvTimestamp = timestamp.Value;
+            }
+
+            if (writeHeader)
+            {
+                RegularLog.LogInformation(Environment.NewLine);
+                RegularLog.LogInformation(header);
+            }
+            if (infoEnabled) { RegularLog.LogInformation(line); }
+        }
+
+        private DateTime? GetTimestamp(string line)
+        {
+            var separatorIdx = line.IndexOf(',');
+            if (separatorIdx == -1) { return null; }
+
+            try
+            {
+                return DateTime.Parse(line.Substring(0, separatorIdx)).ToUniversalTime();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void SaveStatsToStream(Dictionary<string, object> rawStats)

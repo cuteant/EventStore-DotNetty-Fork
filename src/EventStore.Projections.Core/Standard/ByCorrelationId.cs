@@ -89,8 +89,6 @@ namespace EventStore.Projections.Core.Standard
             newState = null;
             if (data.EventStreamId != data.PositionStreamId)
                 return false;
-            if(!data.IsJson)
-                return false;
 
             JObject metadata = null;
 

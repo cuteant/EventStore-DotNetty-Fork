@@ -102,6 +102,15 @@ namespace EventStore.ClientAPI
             logger.LogDebug(exc, "TcpPackageConnection: connection to [{0} failed. Error: ", remoteEndPoint);
         }
 
+        private static readonly Action<ILogger, GossipSeed, int, string, Exception> s_respondedWithHttpStatus =
+            LoggerMessageFactory.Define<GossipSeed, int, string>(LogLevel.Information,
+            "[{endPoint}] responded with {httpStatusCode} ({statusDescription})");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void RespondedWithHttpStatus(this ILogger logger, GossipSeed endPoint, EventStore.ClientAPI.Transport.Http.HttpResponse response)
+        {
+            s_respondedWithHttpStatus(logger, endPoint, response.HttpStatusCode, response.StatusDescription, null);
+        }
+
         private static readonly Action<ILogger, int, string, NodeEndPoints, Exception> s_discoveringAttemptSuccessful =
             LoggerMessageFactory.Define<int, string, NodeEndPoints>(LogLevel.Information,
             "Discovering attempt {attempt}{maxDiscoverAttemptsStr} successful: best candidate is {endPoints}.");
@@ -190,6 +199,24 @@ namespace EventStore.ClientAPI
         internal static void UnknownNotHandledReason(this ILogger logger, TcpClientMessageDto.NotHandled.NotHandledReason reason)
         {
             s_unknownNotHandledReason(logger, reason, null);
+        }
+
+        private static readonly Action<ILogger, GossipSeed, Exception> s_failed_to_get_cluster_info_deserialization =
+            LoggerMessageFactory.Define<GossipSeed>(LogLevel.Error,
+            "Failed to get cluster info from [{endPoint}]: deserialization error:");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Failed_to_get_cluster_info_deserialization(this ILogger logger, GossipSeed endPoint, Exception exception)
+        {
+            s_failed_to_get_cluster_info_deserialization(logger, endPoint, exception);
+        }
+
+        private static readonly Action<ILogger, GossipSeed, Exception> s_failed_to_get_cluster_info_request_failed =
+            LoggerMessageFactory.Define<GossipSeed>(LogLevel.Error,
+            "Failed to get cluster info from [{endPoint}]: request failed, error:");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Failed_to_get_cluster_info_request_failed(this ILogger logger, GossipSeed endPoint, Exception exception)
+        {
+            s_failed_to_get_cluster_info_request_failed(logger, endPoint, exception);
         }
     }
 }

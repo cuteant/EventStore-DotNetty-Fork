@@ -182,7 +182,10 @@ namespace EventStore.Core.Services.PersistentSubscription
                     {
                         messagePointer.MarkSent();
                         MarkBeginProcessing(message);
-                        _lastKnownMessage = Math.Max(_lastKnownMessage, message.ResolvedEvent.OriginalEventNumber);
+                        if (!message.IsReplayedEvent)
+                        {
+                            _lastKnownMessage = Math.Max(_lastKnownMessage, message.ResolvedEvent.OriginalEventNumber);
+                        }
                     }
                     else if (result == ConsumerPushResult.Skipped)
                     {
@@ -223,7 +226,10 @@ namespace EventStore.Core.Services.PersistentSubscription
                 {
                     messagePointer.MarkSent();
                     MarkBeginProcessing(messagePointer.Message);
-                    _lastKnownMessage = Math.Max(_lastKnownMessage, messagePointer.Message.ResolvedEvent.OriginalEventNumber);
+                    if (!messagePointer.Message.IsReplayedEvent)
+                    {
+                        _lastKnownMessage = Math.Max(_lastKnownMessage, messagePointer.Message.ResolvedEvent.OriginalEventNumber);
+                    }
                     yield return messagePointer.Message.ResolvedEvent;
                 }
             }

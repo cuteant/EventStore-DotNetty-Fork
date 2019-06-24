@@ -97,6 +97,22 @@ namespace EventStore.Core.Tests.Services.PersistentSubscription
             var cache = new OutstandingMessageCache();
             Assert.AreEqual(long.MaxValue, cache.GetLowestPosition());
         }
+
+        [Test]
+        public void lowest_ignores_replayed_events()
+        {
+            var cache = new OutstandingMessageCache();
+            //normal event:
+            var id1 = Guid.NewGuid();
+            cache.StartMessage(new OutstandingMessage(id1, null, Helper.BuildFakeEvent(id1, "type", "name", 10), 0),
+                DateTime.Now);
+            //replayed event:
+            var id2 = Guid.NewGuid();
+            cache.StartMessage(new OutstandingMessage(id2, null, Helper.BuildFakeEvent(id2, "type", "$persistentsubscription-name::group-parked", 9), 0),
+                DateTime.Now);
+            Assert.AreEqual(10, cache.GetLowestPosition());
+        }
+
         [Test]
         public void get_expired_messages_returns_max_value_on_empty_cache()
         {

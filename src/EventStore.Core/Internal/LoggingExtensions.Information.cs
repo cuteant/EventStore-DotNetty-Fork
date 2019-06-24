@@ -216,19 +216,6 @@ namespace EventStore.Core
             s_error_while_reading_disk_IO_on_Windows(logger, ex);
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void LogCsvStatsHeader(this ILogger logger, string header)
-        {
-            logger.LogInformation(Environment.NewLine);
-            logger.LogInformation(header);
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void LogCsvStats(this ILogger logger, Dictionary<string, object> rawStats)
-        {
-            logger.LogInformation(StatsCsvEncoder.GetLine(rawStats));
-        }
-
         private static readonly Action<ILogger, Exception> s_received_error_reading_counters =
             LoggerMessageFactory.Define(LogLevel.Information,
                 "Received error reading counters. Attempting to rebuild.");

@@ -19,7 +19,7 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="projectionOperationTimeout">Timeout of projection API operations</param>
         /// <param name="queryTimeout">Timeout of query execution</param>
-        public QueryManager(IPEndPoint httpEndPoint, TimeSpan projectionOperationTimeout, TimeSpan queryTimeout)
+        public QueryManager(EndPoint httpEndPoint, TimeSpan projectionOperationTimeout, TimeSpan queryTimeout)
         {
             _queryTimeout = queryTimeout;
             _projectionsManager = new ProjectionsManager(httpEndPoint, projectionOperationTimeout);

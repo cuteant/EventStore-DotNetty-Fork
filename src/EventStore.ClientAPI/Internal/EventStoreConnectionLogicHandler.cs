@@ -340,6 +340,8 @@ namespace EventStore.ClientAPI.Internal
                 return;
             }
 
+            var wasConnected = Interlocked.CompareExchange(ref _wasConnected, 0, 1) == 1;
+
             ConnectionState = InternalConnectionState.Connecting;
             ConnectingPhase = InternalConnectingPhase.Reconnecting;
 
@@ -349,7 +351,7 @@ namespace EventStore.ClientAPI.Internal
             var reconnInfo = InternalReconnectionInfo;
             InternalReconnectionInfo = new ReconnectionInfo(reconnInfo.ReconnectionAttempt, _stopwatch.Elapsed);
 
-            if (Interlocked.CompareExchange(ref _wasConnected, 0, 1) == 1)
+            if (wasConnected)
             {
                 RaiseDisconnected(conn.RemoteEndPoint);
             }

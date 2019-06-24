@@ -452,7 +452,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             var dto = package.Data.Deserialize<TcpClientMessageDto.SubscribeToStream>();
             if (dto == null) return null;
             return new ClientMessage.SubscribeToStream(Guid.NewGuid(), package.CorrelationId, envelope,
-                                                       connection.ConnectionId, dto.EventStreamId, dto.ResolveLinkTos, user);
+                                                       connection.ConnectionId, dto.EventStreamId ?? string.Empty /*workaround to allow proto3 clients*/, dto.ResolveLinkTos, user);
         }
 
         private static ClientMessage.UnsubscribeFromStream UnwrapUnsubscribeFromStream(TcpPackage package, IEnvelope envelope, IPrincipal user)

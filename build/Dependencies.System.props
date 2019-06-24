@@ -1,8 +1,30 @@
 <Project>
   <!-- Shared Package Versions -->
   <PropertyGroup>
-    <!-- Compatibility packages -->
+    <!-- Core packages -->
     <MicrosoftCSharpPackageVersion>4.5.0</MicrosoftCSharpPackageVersion>
+    <FSharpCorePackageVersion>4.6.2</FSharpCorePackageVersion>
+    <MonoPosixPackageVersion>5.4.0.201</MonoPosixPackageVersion>
+    <MonoPosixNETStandardPackageVersion>1.0.0</MonoPosixNETStandardPackageVersion>
+
+    <!-- Azure packages -->
+    <MicrosoftAzureKeyVaultPackageVersion>3.0.3</MicrosoftAzureKeyVaultPackageVersion>
+    <WindowsAzureStoragePackageVersion>9.3.3</WindowsAzureStoragePackageVersion>
+
+    <!-- IdentityModel packages -->
+    <MicrosoftIdentityModelKeyVaultExtensionsPackageVersion>5.4.0</MicrosoftIdentityModelKeyVaultExtensionsPackageVersion>
+    <MicrosoftIdentityModelLoggingPackageVersion>5.4.0</MicrosoftIdentityModelLoggingPackageVersion>
+    <MicrosoftIdentityModelManagedKeyVaultSecurityKeyPackageVersion>5.4.0</MicrosoftIdentityModelManagedKeyVaultSecurityKeyPackageVersion>
+    <MicrosoftIdentityModelJsonWebTokensPackageVersion>5.4.0</MicrosoftIdentityModelJsonWebTokensPackageVersion>
+    <MicrosoftIdentityModelProtocolsPackageVersion>5.4.0</MicrosoftIdentityModelProtocolsPackageVersion>
+    <MicrosoftIdentityModelProtocolsOpenIdConnectPackageVersion>5.4.0</MicrosoftIdentityModelProtocolsOpenIdConnectPackageVersion>
+    <MicrosoftIdentityModelProtocolsWsFederationPackageVersion>5.4.0</MicrosoftIdentityModelProtocolsWsFederationPackageVersion>
+    <MicrosoftIdentityModelTokensPackageVersion>5.4.0</MicrosoftIdentityModelTokensPackageVersion>
+    <MicrosoftIdentityModelTokensSamlPackageVersion>5.4.0</MicrosoftIdentityModelTokensSamlPackageVersion>
+    <MicrosoftIdentityModelXmlPackageVersion>5.4.0</MicrosoftIdentityModelXmlPackageVersion>
+    <SystemIdentityModelTokensJwtPackageVersion>5.4.0</SystemIdentityModelTokensJwtPackageVersion>
+
+    <!-- Compatibility packages -->
     <MicrosoftWin32RegistryPackageVersion>4.5.0</MicrosoftWin32RegistryPackageVersion>
     <MicrosoftWin32RegistryAccessControlPackageVersion>4.5.0</MicrosoftWin32RegistryAccessControlPackageVersion>
     <MicrosoftWindowsCompatibilityPackageVersion>2.1.1</MicrosoftWindowsCompatibilityPackageVersion>
@@ -19,7 +41,7 @@
     <SystemDirectoryServicesPackageVersion>4.5.0</SystemDirectoryServicesPackageVersion>
     <SystemDirectoryServicesAccountManagementPackageVersion>4.5.0</SystemDirectoryServicesAccountManagementPackageVersion>
     <SystemDirectoryServicesProtocolsPackageVersion>4.5.0</SystemDirectoryServicesProtocolsPackageVersion>
-    <SystemDrawingCommonPackageVersion>4.5.0</SystemDrawingCommonPackageVersion>
+    <SystemDrawingCommonPackageVersion>4.5.1</SystemDrawingCommonPackageVersion>
     <SystemIOFileSystemAccessControlPackageVersion>4.5.0</SystemIOFileSystemAccessControlPackageVersion>
     <SystemIOPackagingPackageVersion>4.5.0</SystemIOPackagingPackageVersion>
     <SystemIOPipesAccessControlPackageVersion>4.5.1</SystemIOPipesAccessControlPackageVersion>

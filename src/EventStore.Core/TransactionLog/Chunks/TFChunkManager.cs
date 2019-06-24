@@ -259,23 +259,35 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     //Cover the case of initial replication of merged chunks where they were never set
                     // in the map in the first place.
-                    i = i + 1;
+                    i += 1;
                 }
             }
 
             var infoEnabled = Log.IsInformationLevelEnabled();
-            TFChunk.TFChunk lastRemovedChunk = null;
+            TFChunk.TFChunk previousRemovedChunk = null;
             for (int i = chunkStartNumber; i <= chunkEndNumber; i += 1)
             {
                 var oldChunk = Interlocked.Exchange(ref _chunks[i], newChunk);
-                if (oldChunk != null && !ReferenceEquals(lastRemovedChunk, oldChunk))
+                if (!ReferenceEquals(previousRemovedChunk, oldChunk))
                 {
-                    oldChunk.MarkForDeletion();
+                    // Once we've swapped all entries for the previousRemovedChunk we can safely delete it.
+                    if (previousRemovedChunk != null)
+                    {
+                        previousRemovedChunk.MarkForDeletion();
+                        if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, previousRemovedChunk);
+                    }
 
-                    if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, oldChunk);
+                    previousRemovedChunk = oldChunk;
                 }
-                lastRemovedChunk = oldChunk;
             }
+
+            if (previousRemovedChunk != null)
+            {
+                // Delete the last chunk swapped out now it's fully replaced.
+                previousRemovedChunk.MarkForDeletion();
+                if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, previousRemovedChunk);
+            }
+
             return true;
         }
 

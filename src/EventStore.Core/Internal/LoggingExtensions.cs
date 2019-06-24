@@ -71,6 +71,15 @@ namespace EventStore.Core
             s_read_operations_have_expired(logger, queueId, expiredBatchCount, null);
         }
 
+        private static readonly Action<ILogger, string,  Exception> s_timeout_reading_stream =
+            LoggerMessageFactory.Define< string>(LogLevel.Warning,
+                "Timeout reading stream: {stream}. Trying again in 10 seconds.");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Timeout_reading_stream(this ILogger logger)
+        {
+            s_timeout_reading_stream(logger, Core.Services.UserManagement.UserManagementService.UserPasswordNotificationsStreamId, null);
+        }
+
         private static readonly Action<ILogger, Exception> s_unexpected_error_in_StorageWriterService =
             LoggerMessageFactory.Define(LogLevel.Critical,
                 "Unexpected error in StorageWriterService. Terminating the process...");

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Product>EasyEventStore</Product>
     <Authors>Event Store LLP, Seabiscuit</Authors>
-    <Copyright>Copyright 2017 Event Store LLP, Seabiscuit</Copyright>
+    <Copyright>Copyright 2019 Event Store LLP, Seabiscuit</Copyright>
     <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://github.com/cuteant/EventStore-NETCore-Fork</PackageProjectUrl>
     <PackageLicense>https://raw.githubusercontent.com/cuteant/EventStore-NETCore-Fork/dev-netcore/LICENSE.md</PackageLicense>

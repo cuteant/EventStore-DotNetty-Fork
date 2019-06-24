@@ -80,7 +80,7 @@
     <MicrosoftAspNetCoreMvcAbstractionsPackageVersion>2.2.0</MicrosoftAspNetCoreMvcAbstractionsPackageVersion>
     <MicrosoftAspNetCoreMvcAnalyzersPackageVersion>2.2.0</MicrosoftAspNetCoreMvcAnalyzersPackageVersion>
     <MicrosoftAspNetCoreMvcApiExplorerPackageVersion>2.2.0</MicrosoftAspNetCoreMvcApiExplorerPackageVersion>
-    <MicrosoftAspNetCoreMvcCorePackageVersion>2.2.2</MicrosoftAspNetCoreMvcCorePackageVersion>
+    <MicrosoftAspNetCoreMvcCorePackageVersion>2.2.5</MicrosoftAspNetCoreMvcCorePackageVersion>
     <MicrosoftAspNetCoreMvcCorsPackageVersion>2.2.0</MicrosoftAspNetCoreMvcCorsPackageVersion>
     <MicrosoftAspNetCoreMvcDataAnnotationsPackageVersion>2.2.0</MicrosoftAspNetCoreMvcDataAnnotationsPackageVersion>
     <MicrosoftAspNetCoreMvcFormattersJsonPackageVersion>2.2.0</MicrosoftAspNetCoreMvcFormattersJsonPackageVersion>
@@ -89,7 +89,7 @@
     <MicrosoftAspNetCoreMvcRazorPackageVersion>2.2.0</MicrosoftAspNetCoreMvcRazorPackageVersion>
     <MicrosoftAspNetCoreMvcRazorExtensionsPackageVersion>2.2.0</MicrosoftAspNetCoreMvcRazorExtensionsPackageVersion>
     <MicrosoftAspNetCoreMvcRazorViewCompilationPackageVersion>2.2.0</MicrosoftAspNetCoreMvcRazorViewCompilationPackageVersion>
-    <MicrosoftAspNetCoreMvcRazorPagesPackageVersion>2.2.0</MicrosoftAspNetCoreMvcRazorPagesPackageVersion>
+    <MicrosoftAspNetCoreMvcRazorPagesPackageVersion>2.2.5</MicrosoftAspNetCoreMvcRazorPagesPackageVersion>
     <MicrosoftAspNetCoreMvcTagHelpersPackageVersion>2.2.0</MicrosoftAspNetCoreMvcTagHelpersPackageVersion>
     <MicrosoftAspNetCoreMvcViewFeaturesPackageVersion>2.2.0</MicrosoftAspNetCoreMvcViewFeaturesPackageVersion>
 

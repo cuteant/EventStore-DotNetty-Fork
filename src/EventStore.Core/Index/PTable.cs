@@ -160,8 +160,9 @@ namespace EventStore.Core.Index
 
                 _count = indexEntriesTotalSize / _indexEntrySize;
 
-                if(_version>=PTableVersions.IndexV4 && _count>0 && _midpointsCached < 2){
-                    //if there is at least 1 index entry with version>=4, there should always be at least 2 midpoints cached
+                if (_version >= PTableVersions.IndexV4 && _count > 0 && _midpointsCached > 0 && _midpointsCached < 2)
+                {
+                    //if there is at least 1 index entry with version>=4 and there are cached midpoints, there should always be at least 2 midpoints cached
                     ThrowHelper.ThrowCorruptIndexException_LessThan2MidpointsCachedInPTable(_count,_midpointsCached);
                 }
                 else if(_count>=2 && _midpointsCached > _count){

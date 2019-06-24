@@ -111,6 +111,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         private void SetContentType(string contentType, Encoding encoding)
         {
+            if (contentType == null) { return; }
+
             try
             {
                 HttpEntity.Response.ContentType = contentType + (encoding != null ? ("; charset=" + encoding.WebName) : "");
@@ -158,7 +160,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 HttpEntity.Response.AddHeader("Access-Control-Allow-Origin", "*");
                 HttpEntity.Response.AddHeader("Access-Control-Expose-Headers", "Location, ES-Position, ES-CurrentVersion");
                 if (HttpEntity.Response.StatusCode == HttpStatusCode.Unauthorized)
-                    HttpEntity.Response.AddHeader("WWW-Authenticate", "Basic realm=\"ES\"");
+                    HttpEntity.Response.AddHeader("WWW-Authenticate", "BasicCustom realm=\"ES\"");
             }
             catch (ObjectDisposedException)
             {

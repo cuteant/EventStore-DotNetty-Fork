@@ -80,7 +80,11 @@ namespace EventStore.ClusterNode
 
             if (!opts.MemDb)
             {
-                //_dbLock = new ExclusiveDbLock(dbPath);
+                //var absolutePath = Path.GetFullPath(dbPath);
+                //if (Runtime.IsWindows)
+                //    absolutePath = absolutePath.ToLower();
+
+                //_dbLock = new ExclusiveDbLock(absolutePath);
                 //if (!_dbLock.Acquire())
                 //{
                 //  throw new Exception($"Couldn't acquire exclusive lock on DB at '{dbPath}'.");

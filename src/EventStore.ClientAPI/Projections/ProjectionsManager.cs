@@ -301,5 +301,29 @@ namespace EventStore.ClientAPI.Projections
             if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             return _client.Reset(_httpEndPoint, name, userCredentials, _httpSchema);
         }
+
+        /// <summary>
+        /// Asynchronously gets the projection config.
+        /// </summary>
+        /// <param name="name">The name of the projection.</param>
+        /// <param name="userCredentials">Credentials for the operation.</param>
+        /// <returns>String of JSON containing projection config.</returns>
+        public Task<ProjectionConfig> GetConfigAsync(string name, UserCredentials userCredentials = null)
+        {
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            return _client.GetConfig(_httpEndPoint, name, userCredentials, _httpSchema);
+        }
+
+        /// <summary>
+        /// Asynchronously updates the projection config.
+        /// </summary>
+        /// <param name="name">The name of the projection.</param>
+        /// <param name="config">The projection configuration.</param>
+        /// <param name="userCredentials">Credentials for the operation.</param>
+        public Task UpdateConfigAsync(string name, ProjectionConfig config, UserCredentials userCredentials = null)
+        {
+            if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            return _client.UpdateConfig(_httpEndPoint, name, config, userCredentials, _httpSchema);
+        }
     }
 }

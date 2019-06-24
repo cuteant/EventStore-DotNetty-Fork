@@ -200,7 +200,7 @@ namespace EventStore.ClientAPI.Internal
                 {
                     if (response.HttpStatusCode != HttpStatusCode.OK)
                     {
-                        //_log.Info("[{0}] responded with {1} ({2})", endPoint, response.HttpStatusCode, response.StatusDescription);
+                        if (_log.IsInformationLevelEnabled()) { _log.RespondedWithHttpStatus(endPoint, response); }
                         completed.Set();
                         return;
                     }
@@ -209,15 +209,17 @@ namespace EventStore.ClientAPI.Internal
                         result = response.Body.ParseJson<ClusterMessages.ClusterInfoDto>();
                         //_log.Debug("ClusterDnsEndPointDiscoverer: Got gossip from [{0}]:\n{1}.", endPoint, string.Join("\n", result.Members.Select(x => x.ToString())));
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        //_log.Info("Failed to get cluster info from [{0}]: deserialization error: {1}.", endPoint, e.Message);
+                        if (e is AggregateException ae) { e = ae.Flatten(); }
+                        _log.Failed_to_get_cluster_info_deserialization(endPoint, e);
                     }
                     completed.Set();
                 },
                 e =>
                 {
-                    //_log.Info("Failed to get cluster info from [{0}]: request failed, error: {1}.", endPoint, e.Message);
+                    if (e is AggregateException ae) { e = ae.Flatten(); }
+                    _log.Failed_to_get_cluster_info_request_failed(endPoint, e);
                     completed.Set();
                 }, endPoint.HostHeader);
 
