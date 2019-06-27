@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using EventStore.Core.Messages;
 using MessagePack;
 
@@ -10,7 +11,7 @@ namespace EventStore.Transport.Tcp.Messages
         public sealed class NewEvent
         {
             [Key(0)]
-            public readonly byte[] EventId;
+            public readonly Guid EventId;
             [Key(1)]
             public readonly string EventType;
             [Key(2)]
@@ -25,7 +26,7 @@ namespace EventStore.Transport.Tcp.Messages
             private NewEvent() { }
 
             [SerializationConstructor]
-            public NewEvent(byte[] eventId, string eventType, int dataContentType, int metadataContentType, byte[] data, byte[] metadata)
+            public NewEvent(Guid eventId, string eventType, int dataContentType, int metadataContentType, byte[] data, byte[] metadata)
             {
                 EventId = eventId;
                 EventType = eventType;
@@ -44,7 +45,7 @@ namespace EventStore.Transport.Tcp.Messages
             [Key(1)]
             public readonly long EventNumber;
             [Key(2)]
-            public readonly byte[] EventId;
+            public readonly Guid EventId;
             [Key(3)]
             public readonly string EventType;
             [Key(4)]
@@ -63,7 +64,7 @@ namespace EventStore.Transport.Tcp.Messages
             private EventRecord() { }
 
             [SerializationConstructor]
-            public EventRecord(string eventStreamId, long eventNumber, byte[] eventId, string eventType, int dataContentType, int metadataContentType, byte[] data, byte[] metadata, long? created, long? createdEpoch)
+            public EventRecord(string eventStreamId, long eventNumber, Guid eventId, string eventType, int dataContentType, int metadataContentType, byte[] data, byte[] metadata, long? created, long? createdEpoch)
             {
                 EventStreamId = eventStreamId;
                 EventNumber = eventNumber;
@@ -824,12 +825,12 @@ namespace EventStore.Transport.Tcp.Messages
             [Key(0)]
             public readonly string SubscriptionId;
             [Key(1)]
-            public readonly byte[][] ProcessedEventIds;
+            public readonly Guid[] ProcessedEventIds;
 
             private PersistentSubscriptionAckEvents() { }
 
             [SerializationConstructor]
-            public PersistentSubscriptionAckEvents(string subscriptionId, byte[][] processedEventIds)
+            public PersistentSubscriptionAckEvents(string subscriptionId, Guid[] processedEventIds)
             {
                 SubscriptionId = subscriptionId;
                 ProcessedEventIds = processedEventIds;
@@ -842,7 +843,7 @@ namespace EventStore.Transport.Tcp.Messages
             [Key(0)]
             public readonly string SubscriptionId;
             [Key(1)]
-            public readonly byte[][] ProcessedEventIds;
+            public readonly Guid[] ProcessedEventIds;
             [Key(2)]
             public readonly string Message;
             [Key(3)]
@@ -865,7 +866,7 @@ namespace EventStore.Transport.Tcp.Messages
             private PersistentSubscriptionNakEvents() { }
 
             [SerializationConstructor]
-            public PersistentSubscriptionNakEvents(string subscriptionId, byte[][] processedEventIds, string message, PersistentSubscriptionNakEvents.NakAction action)
+            public PersistentSubscriptionNakEvents(string subscriptionId, Guid[] processedEventIds, string message, PersistentSubscriptionNakEvents.NakAction action)
             {
                 SubscriptionId = subscriptionId;
                 ProcessedEventIds = processedEventIds;

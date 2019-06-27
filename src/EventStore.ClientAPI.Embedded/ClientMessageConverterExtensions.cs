@@ -60,7 +60,7 @@ namespace EventStore.ClientAPI.Embedded
             if (eventRecord == null) return null;
             return new ClientMessage.EventRecord(
                 eventRecord.EventStreamId, eventRecord.EventNumber,
-                eventRecord.EventId.ToByteArray(), eventRecord.EventType, eventRecord.IsJson ? 1 : 0,
+                eventRecord.EventId, eventRecord.EventType, eventRecord.IsJson ? 1 : 0,
                 eventRecord.IsJson ? 1 : 0,
                 eventRecord.Data,
                 eventRecord.Metadata,

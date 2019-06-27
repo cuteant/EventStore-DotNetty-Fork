@@ -138,7 +138,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 // ReSharper disable PossibleNullReferenceException
                 var e = dto.Events[i];
                 // ReSharper restore PossibleNullReferenceException
-                events[i] = new Event(new Guid(e.EventId), e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
+                events[i] = new Event(e.EventId, e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
             }
             return new ClientMessage.WriteEvents(Guid.NewGuid(), package.CorrelationId, envelope, dto.RequireMaster,
                                                  dto.EventStreamId, dto.ExpectedVersion, events, user, login, password);
@@ -150,7 +150,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             for (int i = 0; i < events.Length; ++i)
             {
                 var e = msg.Events[i];
-                events[i] = new TcpClientMessageDto.NewEvent(e.EventId.ToByteArray(),
+                events[i] = new TcpClientMessageDto.NewEvent(e.EventId,
                                                              e.EventType,
                                                              e.IsJson ? 1 : 0,
                                                              0, e.Data,
@@ -240,7 +240,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                 // ReSharper disable PossibleNullReferenceException
                 var e = dto.Events[i];
                 // ReSharper restore PossibleNullReferenceException
-                events[i] = new Event(new Guid(e.EventId), e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
+                events[i] = new Event(e.EventId, e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
             }
             return new ClientMessage.TransactionWrite(Guid.NewGuid(), package.CorrelationId, envelope, dto.RequireMaster,
                                                       dto.TransactionId, events, user, login, password);
@@ -252,7 +252,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             for (int i = 0; i < events.Length; ++i)
             {
                 var e = msg.Events[i];
-                events[i] = new TcpClientMessageDto.NewEvent(e.EventId.ToByteArray(), e.EventType, e.IsJson ? 1 : 0, 0, e.Data, e.Metadata);
+                events[i] = new TcpClientMessageDto.NewEvent(e.EventId, e.EventType, e.IsJson ? 1 : 0, 0, e.Data, e.Metadata);
             }
             var dto = new TcpClientMessageDto.TransactionWrite(msg.TransactionId, events, msg.RequireMaster);
             return CreateWriteRequestPackage(TcpCommand.TransactionWrite, msg, dto);
@@ -563,7 +563,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             if (dto == null) return null;
             return new ClientMessage.PersistentSubscriptionAckEvents(
                 Guid.NewGuid(), package.CorrelationId, envelope, dto.SubscriptionId,
-                dto.ProcessedEventIds.Select(x => new Guid(x)).ToArray(), user);
+                dto.ProcessedEventIds, user);
         }
 
         private static ClientMessage.PersistentSubscriptionNackEvents UnwrapPersistentSubscriptionNackEvents(
@@ -575,7 +575,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             return new ClientMessage.PersistentSubscriptionNackEvents(
                 Guid.NewGuid(), package.CorrelationId, envelope, dto.SubscriptionId,
                 dto.Message, (ClientMessage.PersistentSubscriptionNackEvents.NakAction)dto.Action,
-                dto.ProcessedEventIds.Select(x => new Guid(x)).ToArray(), user);
+                dto.ProcessedEventIds, user);
         }
 
         private static TcpPackage WrapPersistentSubscriptionConfirmation(ClientMessage.PersistentSubscriptionConfirmation msg)

@@ -52,7 +52,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var write = new TcpClientMessageDto.WriteEvents(
                 Guid.NewGuid().ToString(),
                 ExpectedVersion.Any,
-                new[] { new TcpClientMessageDto.NewEvent(evnt.EventId.ToByteArray(), evnt.EventType, evnt.IsJson ? 1 : 0, 0, evnt.Data, evnt.Metadata) },
+                new[] { new TcpClientMessageDto.NewEvent(evnt.EventId, evnt.EventType, evnt.IsJson ? 1 : 0, 0, evnt.Data, evnt.Metadata) },
                 false);
 
             var package = new TcpPackage(TcpCommand.WriteEvents, Guid.NewGuid(), write.Serialize());

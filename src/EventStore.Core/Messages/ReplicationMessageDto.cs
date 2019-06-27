@@ -1,4 +1,6 @@
-﻿using MessagePack;
+﻿using System;
+using System.Net;
+using MessagePack;
 
 namespace EventStore.Core.Messages
 {
@@ -64,14 +66,14 @@ namespace EventStore.Core.Messages
             public int EpochNumber { get; set; }
 
             [Key(2)]
-            public byte[] EpochId { get; set; }
+            public Guid EpochId { get; set; }
 
             public Epoch()
             {
             }
 
             [SerializationConstructor]
-            public Epoch(long epochPosition, int epochNumber, byte[] epochId)
+            public Epoch(long epochPosition, int epochNumber, Guid epochId)
             {
                 EpochPosition = epochPosition;
                 EpochNumber = epochNumber;
@@ -86,22 +88,22 @@ namespace EventStore.Core.Messages
             public long LogPosition { get; set; }
 
             [Key(1)]
-            public byte[] ChunkId { get; set; }
+            public Guid ChunkId { get; set; }
 
             [Key(2)]
             public Epoch[] LastEpochs { get; set; }
 
             [Key(3)]
-            public byte[] Ip { get; set; }
+            public IPAddress Ip { get; set; }
 
             [Key(4)]
             public int Port { get; set; }
 
             [Key(5)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(6)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(7)]
             public bool IsPromotable { get; set; }
@@ -111,8 +113,8 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public SubscribeReplica(long logPosition, byte[] chunkId, Epoch[] lastEpochs, byte[] ip, int port,
-                                    byte[] masterId, byte[] subscriptionId, bool isPromotable)
+            public SubscribeReplica(long logPosition, Guid chunkId, Epoch[] lastEpochs, IPAddress ip, int port,
+                                    Guid masterId, Guid subscriptionId, bool isPromotable)
             {
                 LogPosition = logPosition;
                 ChunkId = chunkId;
@@ -130,20 +132,20 @@ namespace EventStore.Core.Messages
         public sealed class ReplicaSubscriptionRetry
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             public ReplicaSubscriptionRetry()
             {
             }
 
             [SerializationConstructor]
-            public ReplicaSubscriptionRetry(byte[] masterId, byte[] subscriptionId)
+            public ReplicaSubscriptionRetry(Guid masterId, Guid subscriptionId)
             {
-                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -154,10 +156,10 @@ namespace EventStore.Core.Messages
         public sealed class ReplicaSubscribed
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(2)]
             public long SubscriptionPosition { get; set; }
@@ -167,10 +169,10 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public ReplicaSubscribed(byte[] masterId, byte[] subscriptionId, long subscriptionPosition)
+            public ReplicaSubscribed(Guid masterId, Guid subscriptionId, long subscriptionPosition)
             {
-                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 if (subscriptionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
 
                 MasterId = masterId;
@@ -183,7 +185,7 @@ namespace EventStore.Core.Messages
         public sealed class ReplicaLogPositionAck
         {
             [Key(0)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(1)]
             public long ReplicationLogPosition { get; set; }
@@ -193,7 +195,7 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public ReplicaLogPositionAck(byte[] subscriptionId, long replicationLogPosition)
+            public ReplicaLogPositionAck(Guid subscriptionId, long replicationLogPosition)
             {
                 SubscriptionId = subscriptionId;
                 ReplicationLogPosition = replicationLogPosition;
@@ -204,10 +206,10 @@ namespace EventStore.Core.Messages
         public sealed class CreateChunk
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(2)]
             public byte[] ChunkHeaderBytes { get; set; }
@@ -223,10 +225,10 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public CreateChunk(byte[] masterId, byte[] subscriptionId, byte[] chunkHeaderBytes, int fileSize, bool isCompletedChunk)
+            public CreateChunk(Guid masterId, Guid subscriptionId, byte[] chunkHeaderBytes, int fileSize, bool isCompletedChunk)
             {
-                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 if (null == chunkHeaderBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeaderBytes); }
 
                 MasterId = masterId;
@@ -241,10 +243,10 @@ namespace EventStore.Core.Messages
         public sealed class RawChunkBulk
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(2)]
             public int ChunkStartNumber { get; set; }
@@ -266,16 +268,16 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public RawChunkBulk(byte[] masterId,
-                                byte[] subscriptionId,
+            public RawChunkBulk(Guid masterId,
+                                Guid subscriptionId,
                                 int chunkStartNumber,
                                 int chunkEndNumber,
                                 int rawPosition,
                                 byte[] rawBytes,
                                 bool completeChunk)
             {
-                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 if (null == rawBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
                 if (0u >= (uint)rawBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
 
@@ -293,10 +295,10 @@ namespace EventStore.Core.Messages
         public sealed class DataChunkBulk
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             [Key(2)]
             public int ChunkStartNumber { get; set; }
@@ -318,16 +320,16 @@ namespace EventStore.Core.Messages
             }
 
             [SerializationConstructor]
-            public DataChunkBulk(byte[] masterId,
-                                 byte[] subscriptionId,
+            public DataChunkBulk(Guid masterId,
+                                 Guid subscriptionId,
                                  int chunkStartNumber,
                                  int chunkEndNumber,
                                  long subscriptionPosition,
                                  byte[] dataBytes,
                                  bool completeChunk)
             {
-                if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 if (null == dataBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
                 if (0u >= (uint)dataBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
 
@@ -345,17 +347,17 @@ namespace EventStore.Core.Messages
         public sealed class SlaveAssignment
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             public SlaveAssignment()
             {
             }
 
             [SerializationConstructor]
-            public SlaveAssignment(byte[] masterId, byte[] subscriptionId)
+            public SlaveAssignment(Guid masterId, Guid subscriptionId)
             {
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -366,17 +368,17 @@ namespace EventStore.Core.Messages
         public sealed class CloneAssignment
         {
             [Key(0)]
-            public byte[] MasterId { get; set; }
+            public Guid MasterId { get; set; }
 
             [Key(1)]
-            public byte[] SubscriptionId { get; set; }
+            public Guid SubscriptionId { get; set; }
 
             public CloneAssignment()
             {
             }
 
             [SerializationConstructor]
-            public CloneAssignment(byte[] masterId, byte[] subscriptionId)
+            public CloneAssignment(Guid masterId, Guid subscriptionId)
             {
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;

@@ -393,7 +393,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 return taskCompletionSource.Task;
             });
 
-            var event1 = new ClientMessage.ResolvedEvent(new ClientMessage.EventRecord(StreamId, 1, Guid.NewGuid().ToByteArray(), null, 0, 0, null, null, null, null), null, 0, 0);
+            var event1 = new ClientMessage.ResolvedEvent(new ClientMessage.EventRecord(StreamId, 1, Guid.NewGuid(), null, 0, 0, null, null, null, null), null, 0, 0);
 
             _connection.HandleSubscribeToStreamAsync((stream, raise, drop) =>
             {
@@ -441,7 +441,7 @@ namespace EventStore.Core.Tests.ClientAPI
                 .Select(
                     i =>
                         new ClientMessage.ResolvedIndexedEvent(
-                            new ClientMessage.EventRecord(StreamId, i, Guid.NewGuid().ToByteArray(), null, 0, 0, null,
+                            new ClientMessage.EventRecord(StreamId, i, Guid.NewGuid(), null, 0, 0, null,
                                 null, null, null), null))
                 .ToArray();
 

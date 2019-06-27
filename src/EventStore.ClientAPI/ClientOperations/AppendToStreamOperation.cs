@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI.ClientOperations
             TcpClientMessageDto.NewEvent[] dtos;
             if (_event != null)
             {
-                dtos = new[] { new TcpClientMessageDto.NewEvent(_event.EventId.ToByteArray(), _event.Type, _event.IsJson ? 1 : 0, 0, _event.Data, _event.Metadata) };
+                dtos = new[] { new TcpClientMessageDto.NewEvent(_event.EventId, _event.Type, _event.IsJson ? 1 : 0, 0, _event.Data, _event.Metadata) };
             }
             else
             {
@@ -72,7 +72,7 @@ namespace EventStore.ClientAPI.ClientOperations
                         for (var idx = 0; idx < evtCount; idx++)
                         {
                             var x = evts[idx];
-                            dtos[idx] = new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata);
+                            dtos[idx] = new TcpClientMessageDto.NewEvent(x.EventId, x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata);
                         }
                         break;
                     case null:
@@ -94,7 +94,7 @@ namespace EventStore.ClientAPI.ClientOperations
             {
                 foreach (var x in events)
                 {
-                    list.Add(new TcpClientMessageDto.NewEvent(x.EventId.ToByteArray(), x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
+                    list.Add(new TcpClientMessageDto.NewEvent(x.EventId, x.Type, x.IsJson ? 1 : 0, 0, x.Data, x.Metadata));
                 }
                 return list.ToArray();
             }

@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI.Messages
         {
             return new RecordedEvent(
                 systemRecord.EventStreamId,
-                new Guid(systemRecord.EventId),
+                systemRecord.EventId,
                 systemRecord.EventNumber,
                 systemRecord.EventType,
                 systemRecord.Created,
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI.Messages
             {
                 return new RecordedEvent<object>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,
@@ -117,7 +117,7 @@ namespace EventStore.ClientAPI.Messages
                 if (s_logger.IsWarningLevelEnabled()) s_logger.CanotDeserializeTheRecordedEvent(systemRecord, exc);
                 return new RecordedEvent<object>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,
@@ -137,7 +137,7 @@ namespace EventStore.ClientAPI.Messages
             {
                 return new RecordedEvent<T>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,
@@ -150,7 +150,7 @@ namespace EventStore.ClientAPI.Messages
                 if (s_logger.IsWarningLevelEnabled()) s_logger.CanotDeserializeTheRecordedEvent(systemRecord, exc);
                 return new RecordedEvent<T>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI.Messages
             {
                 return new RecordedEvent<T>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,
@@ -179,7 +179,7 @@ namespace EventStore.ClientAPI.Messages
                 if (s_logger.IsWarningLevelEnabled()) s_logger.CanotDeserializeTheRecordedEvent(systemRecord, exc);
                 return new RecordedEvent<T>(
                     systemRecord.EventStreamId,
-                    new Guid(systemRecord.EventId),
+                    systemRecord.EventId,
                     systemRecord.EventNumber,
                     systemRecord.EventType,
                     systemRecord.Created,

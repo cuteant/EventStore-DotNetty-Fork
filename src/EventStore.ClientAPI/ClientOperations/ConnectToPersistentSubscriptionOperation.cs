@@ -223,11 +223,11 @@ namespace EventStore.ClientAPI.ClientOperations
             return new PersistentEventStoreSubscription(this, _streamId, lastCommitPosition, lastEventNumber);
         }
 
-        public void NotifyEventsProcessed(Guid processedEvent)
+        public void NotifyEventsProcessed(Guid processedEventId)
         {
             var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(
                 _subscriptionId,
-                new[] { processedEvent.ToByteArray() });
+                new[] { processedEventId });
 
             NotifyEventsProcessed(dto);
         }
@@ -237,10 +237,10 @@ namespace EventStore.ClientAPI.ClientOperations
             if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
 
             var count = processedEvents.Length;
-            var rawIds = new byte[count][];
+            var rawIds = new Guid[count];
             for (var idx = 0; idx < count; idx++)
             {
-                rawIds[idx] = processedEvents[idx].ToByteArray();
+                rawIds[idx] = processedEvents[idx];
             }
 
             var dto = new TcpClientMessageDto.PersistentSubscriptionAckEvents(_subscriptionId, rawIds);
@@ -264,7 +264,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
             var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(
                 _subscriptionId,
-                new[] { processedEvent.ToByteArray() },
+                new[] { processedEvent },
                 reason,
                 (TcpClientMessageDto.PersistentSubscriptionNakEvents.NakAction)action);
             NotifyEventsFailed(dto);
@@ -276,10 +276,10 @@ namespace EventStore.ClientAPI.ClientOperations
             if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
 
             var count = processedEvents.Length;
-            var rawIds = new byte[count][];
+            var rawIds = new Guid[count];
             for (var idx = 0; idx < count; idx++)
             {
-                rawIds[idx] = processedEvents[idx].ToByteArray();
+                rawIds[idx] = processedEvents[idx];
             }
 
             var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(

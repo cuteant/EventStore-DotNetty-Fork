@@ -44,7 +44,7 @@ namespace EventStore.Core.Messages
             return new TcpClientMessageDto.EventRecord(
                 eventStreamId: eventRecord.EventStreamId,
                 eventNumber: eventRecord.EventNumber,
-                eventId: eventRecord.EventId.ToByteArray(),
+                eventId: eventRecord.EventId,
                 eventType: eventRecord.EventType,
                 dataContentType: isJson ? 1 : 0,
                 metadataContentType: isJson ? 1 : 0,
@@ -76,7 +76,7 @@ namespace EventStore.Core.Messages
             return new TcpClientMessageDto.EventRecord(
                 eventStreamId: eventRecord.EventStreamId,
                 eventNumber: eventNumber,
-                eventId: eventRecord.EventId.ToByteArray(),
+                eventId: eventRecord.EventId,
                 eventType: eventRecord.EventType,
                 dataContentType: isJson ? 1 : 0,
                 metadataContentType: isJson ? 1 : 0,

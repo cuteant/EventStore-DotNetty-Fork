@@ -162,7 +162,7 @@ namespace EventStore.ClientAPI
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void CanotDeserializeTheRecordedEvent(this ILogger logger, TcpClientMessageDto.EventRecord systemRecord, Exception exc)
         {
-            s_canotDeserializeTheRecordedEvent(logger, systemRecord.EventStreamId, new Guid(systemRecord.EventId), systemRecord.EventNumber, systemRecord.EventType, exc);
+            s_canotDeserializeTheRecordedEvent(logger, systemRecord.EventStreamId, systemRecord.EventId, systemRecord.EventNumber, systemRecord.EventType, exc);
         }
 
         private static readonly Action<ILogger, string, Exception> s_noHandlerFo1undForEventTypeError =
