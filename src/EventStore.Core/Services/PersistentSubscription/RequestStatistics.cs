@@ -34,7 +34,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             var current = _watch.ElapsedTicks;
             var time = current - record.Start;
             var ms = time / TimeSpan.TicksPerMillisecond;
-            if (_measurements.Count >= _windowSize)
+            if ((uint)_measurements.Count >= (uint)_windowSize)
             {
                 _measurements.Dequeue();
             }
@@ -44,7 +44,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         public ObservedTimingMeasurement GetMeasurementDetails()
         {
             var ret = new ObservedTimingMeasurement();
-            if (_measurements == null || _measurements.Count == 0) { return ret; }
+            if (_measurements == null || 0u >= (uint)_measurements.Count) { return ret; }
             var items = _measurements.ToArray();
             Array.Sort(items);
             ret.Measurements.Add(Measurement.From("Mean", items.Sum() / items.Length));

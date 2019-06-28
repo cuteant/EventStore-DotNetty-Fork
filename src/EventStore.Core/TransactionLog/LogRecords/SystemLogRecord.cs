@@ -57,7 +57,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
             Reserved = reader.ReadInt64();
 
             var dataCount = reader.ReadInt32();
-            Data = dataCount == 0 ? NoData : reader.ReadBytes(dataCount);
+            Data = 0u >= (uint)dataCount ? NoData : reader.ReadBytes(dataCount);
         }
 
         public EpochRecord GetEpochRecord()

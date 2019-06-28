@@ -193,7 +193,7 @@ namespace EventStore.Core.Messages
 
             public WriteEventsCompleted(Guid correlationId, long firstEventNumber, long lastEventNumber, long preparePosition, long commitPosition)
             {
-                if (firstEventNumber < -1)
+                if (ThrowHelper.IsInvalidEventNumber(firstEventNumber))
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
@@ -303,7 +303,7 @@ namespace EventStore.Core.Messages
                                     IPrincipal user, string login = null, string password = null)
                 : base(internalCorrId, correlationId, envelope, requireMaster, user, login, password)
             {
-                if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
+                if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
                 if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 TransactionId = transactionId;
@@ -346,7 +346,7 @@ namespace EventStore.Core.Messages
                                      long transactionId, IPrincipal user, string login = null, string password = null)
                 : base(internalCorrId, correlationId, envelope, requireMaster, user, login, password)
             {
-                if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
+                if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
                 TransactionId = transactionId;
             }
         }
@@ -367,7 +367,7 @@ namespace EventStore.Core.Messages
 
             public TransactionCommitCompleted(Guid correlationId, long transactionId, long firstEventNumber, long lastEventNumber, long preparePosition, long commitPosition)
             {
-                if (firstEventNumber < -1)
+                if (ThrowHelper.IsInvalidEventNumber(firstEventNumber))
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
@@ -478,7 +478,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, user)
             {
                 if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-                if (eventNumber < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber);
+                if (ThrowHelper.IsInvalidEventNumber(eventNumber)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber);
 
                 EventStreamId = eventStreamId;
                 EventNumber = eventNumber;
@@ -538,7 +538,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, user)
             {
                 if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-                if (fromEventNumber < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.fromEventNumber);
+                if (ThrowHelper.IsInvalidEventNumber(fromEventNumber)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.fromEventNumber);
 
                 EventStreamId = eventStreamId;
                 FromEventNumber = fromEventNumber;
@@ -628,7 +628,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, user)
             {
                 if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-                if (fromEventNumber < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.fromEventNumber);
+                if (ThrowHelper.IsInvalidEventNumber(fromEventNumber)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.fromEventNumber);
 
                 EventStreamId = eventStreamId;
                 FromEventNumber = fromEventNumber;
@@ -863,7 +863,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == connectionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.connectionId); }
                 if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (AllowedInFlightMessages < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.AllowedInFlightMessages); }
+                if ((ulong)allowedInFlightMessages > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.AllowedInFlightMessages); }
                 SubscriptionId = subscriptionId;
                 ConnectionId = connectionId;
                 AllowedInFlightMessages = allowedInFlightMessages;

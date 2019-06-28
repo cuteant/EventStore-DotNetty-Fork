@@ -184,7 +184,7 @@ namespace EventStore.Core.Messages
             public PrepareAck(Guid correlationId, long logPosition, PrepareFlags flags)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
 
                 CorrelationId = correlationId;
                 LogPosition = logPosition;
@@ -206,9 +206,9 @@ namespace EventStore.Core.Messages
             public CommitAck(Guid correlationId, long logPosition, long transactionPosition, long firstEventNumber, long lastEventNumber, bool isSelf = false)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
-                if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
-                if (firstEventNumber < -1)
+                if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+                if (ThrowHelper.IsInvalidEventNumber(firstEventNumber))
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
@@ -236,9 +236,9 @@ namespace EventStore.Core.Messages
             public CommitReplicated(Guid correlationId, long logPosition, long transactionPosition, long firstEventNumber, long lastEventNumber)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
-                if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
-                if (firstEventNumber < -1)
+                if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+                if (ThrowHelper.IsInvalidEventNumber(firstEventNumber))
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.firstEventNumber);
                 if (lastEventNumber - firstEventNumber + 1 < 0)
                     ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.lastEventNumber);
@@ -292,7 +292,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-                if (FirstEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.FirstEventNumber); }
+                if ((ulong)firstEventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.FirstEventNumber); }
 
 
                 CorrelationId = correlationId;
@@ -442,7 +442,7 @@ namespace EventStore.Core.Messages
             public BatchLogExpiredMessages(Guid correlationId,int queueId)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (queueId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.queueId); }
+                if ((uint)queueId > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.queueId); }
                 CorrelationId = correlationId;
                 QueueId = queueId;
             }

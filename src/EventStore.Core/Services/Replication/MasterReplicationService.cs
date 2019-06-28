@@ -80,7 +80,7 @@ namespace EventStore.Core.Services.Replication
             if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
             if (null == tcpSendPublisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpSendPublisher); }
             if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
-            if (clusterSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
+            if ((uint)(clusterSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
 
             _publisher = publisher;
             _instanceId = instanceId;
@@ -531,7 +531,7 @@ namespace EventStore.Core.Services.Replication
             if (_state == VNodeState.Master)
             {
                 var now = _stopwatch.Elapsed;
-                if (_subscriptions.Count >= _clusterSize / 2) // everything is ok
+                if ((uint)_subscriptions.Count >= (uint)(_clusterSize / 2)) // everything is ok
                     _noQuorumTimestamp = TimeSpan.Zero;
                 else
                 {

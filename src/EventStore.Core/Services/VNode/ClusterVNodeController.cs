@@ -443,7 +443,7 @@ namespace EventStore.Core.Services.VNode
             if (Log.IsInformationLevelEnabled()) Log.ServiceInitializ1ed(_nodeInfo, message);
             _serviceInitsToExpect -= 1;
             _outputBus.Publish(message);
-            if (_serviceInitsToExpect == 0)
+            if (0u >= (uint)_serviceInitsToExpect)
                 _mainQueue.Publish(new SystemMessage.SystemStart());
         }
 
@@ -476,7 +476,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (Log.IsInformationLevelEnabled()) Log.SubSystemInitialized(_nodeInfo, message);
             _subSystemInitsToExpect -= 1;
-            if (_subSystemInitsToExpect == 0)
+            if (0u >= (uint)_subSystemInitsToExpect)
             {
                 _outputBus.Publish(new SystemMessage.SystemReady());
             }
@@ -844,7 +844,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (Log.IsInformationLevelEnabled()) Log.ServiceHasShutDown(_nodeInfo, message);
             _serviceShutdownsToExpect -= 1;
-            if (_serviceShutdownsToExpect == 0)
+            if (0u >= (uint)_serviceShutdownsToExpect)
             {
                 if (Log.IsInformationLevelEnabled()) Log.AllServicesShutdown(_nodeInfo);
                 Shutdown();

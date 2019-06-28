@@ -155,10 +155,10 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     return new CommitCheckResult(CommitDecision.Deleted, streamId, curVersion, -1, -1, true);
                 }
 
-                if (curVersion < 0)
+                if ((ulong)curVersion > Consts.TooBigOrNegativeUL)
                 {
                     var metadataVersion = GetStreamLastEventNumber(SystemStreams.MetastreamOf(streamId));
-                    if (metadataVersion < 0)
+                    if ((ulong)metadataVersion > Consts.TooBigOrNegativeUL)
                     {
                         return new CommitCheckResult(CommitDecision.WrongExpectedVersion, streamId, curVersion, -1, -1, false);
                     }
@@ -299,7 +299,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public void PreCommit(IList<PrepareLogRecord> commitedPrepares)
         {
-            if (commitedPrepares.Count == 0) { return; }
+            if (0u >= (uint)commitedPrepares.Count) { return; }
 
             var lastPrepare = commitedPrepares[commitedPrepares.Count - 1];
             string streamId = lastPrepare.EventStreamId;
@@ -377,7 +377,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public void PurgeNotProcessedCommitsTill(long checkpoint)
         {
-            while (_notProcessedCommits.Count > 0 && _notProcessedCommits.Peek().LogPosition < checkpoint)
+            while ((uint)_notProcessedCommits.Count > 0u && _notProcessedCommits.Peek().LogPosition < checkpoint)
             {
                 var commitInfo = _notProcessedCommits.Dequeue();
                 // decrease stickiness
@@ -386,7 +386,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     x =>
                     {
                         if (!Debugger.IsAttached) Debugger.Launch(); else Debugger.Break();
-                        throw new Exception($"CommitInfo for stream '{x}' is not present!");
+                        throw ThrowHelper.GetException_CommitInfo_for_stream_is_not_present(x);
                     },
                     (streamId, oldVersion) => oldVersion,
                     stickiness: -1);
@@ -407,7 +407,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public void PurgeNotProcessedTransactions(long checkpoint)
         {
-            while (_notProcessedTrans.Count > 0 && _notProcessedTrans.Peek().LogPosition < checkpoint)
+            while ((uint)_notProcessedTrans.Count > 0u && _notProcessedTrans.Peek().LogPosition < checkpoint)
             {
                 var transInfo = _notProcessedTrans.Dequeue();
                 // decrease stickiness

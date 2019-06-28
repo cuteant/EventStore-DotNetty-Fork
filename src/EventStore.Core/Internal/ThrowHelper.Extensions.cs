@@ -347,7 +347,29 @@ namespace EventStore.Core
 
     partial class ThrowHelper
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInvalidEventNumber(long value)
+        {
+            const long End = -1L;
+
+            return (ulong)(value - End) > 9223372036854775808ul/*unchecked((ulong)(long.MaxValue - End))*/;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInvalidCheckpoint(long value)
+        {
+            const long End = -1L;
+
+            return (ulong)(value - End) > 9223372036854775808ul/*unchecked((ulong)(long.MaxValue - End))*/;
+        }
+
         #region -- Exception --
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static Exception GetException_CommitInfo_for_stream_is_not_present(string x)
+        {
+            return new Exception($"CommitInfo for stream '{x}' is not present!");
+        }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ThrowException()

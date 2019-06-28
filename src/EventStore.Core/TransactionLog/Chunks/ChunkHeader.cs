@@ -23,10 +23,12 @@ namespace EventStore.Core.TransactionLog.Chunks
         public ChunkHeader(byte version, int chunkSize, int chunkStartNumber, int chunkEndNumber, bool isScavenged, Guid chunkId)
         {
             if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
-            if (chunkSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.chunkSize); }
-            if (chunkStartNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkStartNumber); }
-            if (chunkEndNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkEndNumber); }
-            if (chunkStartNumber > chunkEndNumber)
+            if ((uint)(chunkSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.chunkSize); }
+            uint nStartNum = (uint)chunkStartNumber;
+            uint nEndNum = (uint)chunkEndNumber;
+            if (nStartNum > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkStartNumber); }
+            if (nEndNum > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chunkEndNumber); }
+            if (nStartNum > nEndNum)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_ChunkStartNumberIsGreaterThanChunkEndNumber();
             }

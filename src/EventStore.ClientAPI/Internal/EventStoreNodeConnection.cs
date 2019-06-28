@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common;
+using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
 
@@ -193,7 +194,7 @@ namespace EventStore.ClientAPI.Internal
 
         public EventStoreTransaction ContinueTransaction(long transactionId, UserCredentials userCredentials = null)
         {
-            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
+            if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
             return new EventStoreTransaction(transactionId, userCredentials, this);
         }
 
@@ -227,7 +228,7 @@ namespace EventStore.ClientAPI.Internal
         public async Task<EventReadResult> ReadEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
+            if (Helper.IsInvalidEventNumber(eventNumber)) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var source = TaskCompletionSourceFactory.Create<EventReadResult>();
             var operation = new ReadRawEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                       _settings.RequireMaster, userCredentials);
@@ -238,9 +239,9 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice> ReadStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((ulong)start > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsForwardOperation(source, stream, start, count,
                                                                     resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -251,9 +252,9 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice> ReadStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (start < StreamPosition.End) { ThrowHelper.ThrowArgumentOutOfRangeException_GreaterThanOrEqualTo(StreamPosition.End, ExceptionArgument.start); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if (Helper.IsInvalidEventNumber(start)) { ThrowHelper.ThrowArgumentOutOfRangeException_GreaterThanOrEqualTo(StreamPosition.End, ExceptionArgument.start); }
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice>();
             var operation = new ReadRawStreamEventsBackwardOperation(source, stream, start, count,
                                                                      resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -263,8 +264,8 @@ namespace EventStore.ClientAPI.Internal
 
         public Task<AllEventsSlice> ReadAllEventsForwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
-            if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((uint)(maxCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if ((uint)maxCount > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
             var operation = new ReadAllEventsForwardOperation(source, position, maxCount,
                                                               resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -274,8 +275,8 @@ namespace EventStore.ClientAPI.Internal
 
         public Task<AllEventsSlice> ReadAllEventsBackwardAsync(in Position position, int maxCount, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
-            if (maxCount > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((uint)(maxCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if ((uint)maxCount > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<AllEventsSlice>();
             var operation = new ReadAllEventsBackwardOperation(source, position, maxCount,
                                                                resolveLinkTos, _settings.RequireMaster, userCredentials);
@@ -291,7 +292,7 @@ namespace EventStore.ClientAPI.Internal
         public async Task<EventReadResult<object>> GetEventAsync(string stream, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
+            if (Helper.IsInvalidEventNumber(eventNumber)) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var source = TaskCompletionSourceFactory.Create<EventReadResult<object>>();
             var operation = new ReadEventOperation(source, stream, eventNumber, resolveLinkTos,
                                                    _settings.RequireMaster, userCredentials, _eventAdapter);
@@ -301,7 +302,7 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<EventReadResult<TEvent>> GetEventAsync<TEvent>(string topic, long eventNumber, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (eventNumber < -1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
+            if (Helper.IsInvalidEventNumber(eventNumber)) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber); }
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventReadResult<TEvent>>();
             var operation = new ReadEventOperation<TEvent>(source, stream, eventNumber, resolveLinkTos,
@@ -317,9 +318,9 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice<object>> GetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((ulong)start > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsForwardOperation(source, stream, start, count,
                                                                  resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
@@ -329,9 +330,9 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice2> InternalGetStreamEventsForwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((ulong)start > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice2>();
             var operation = new ReadStreamEventsForwardOperation2(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
@@ -341,9 +342,9 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<TEvent>> GetStreamEventsForwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (start < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((ulong)start > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.start); }
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();
@@ -360,8 +361,8 @@ namespace EventStore.ClientAPI.Internal
         public async Task<StreamEventsSlice<object>> GetStreamEventsBackwardAsync(string stream, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<object>>();
             var operation = new ReadStreamEventsBackwardOperation(source, stream, start, count,
                                                                   resolveLinkTos, _settings.RequireMaster, userCredentials, _eventAdapter);
@@ -371,8 +372,8 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<StreamEventsSlice<TEvent>> GetStreamEventsBackwardAsync<TEvent>(string topic, long start, int count, bool resolveLinkTos, UserCredentials userCredentials = null)
         {
-            if (count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
-            if (count > ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
+            if ((uint)(count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((uint)count > (uint)ClientApiConstants.MaxReadSize) CoreThrowHelper.ThrowArgumentException_CountShouldBeLessThanMaxReadSize();
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<StreamEventsSlice<TEvent>>();

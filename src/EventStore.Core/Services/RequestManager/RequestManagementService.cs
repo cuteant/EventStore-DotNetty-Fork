@@ -11,25 +11,26 @@ using EventStore.Core.Services.Histograms;
 
 namespace EventStore.Core.Services.RequestManager
 {
-    public interface IRequestManager: IHandle<StorageMessage.RequestManagerTimerTick>
+    public interface IRequestManager : IHandle<StorageMessage.RequestManagerTimerTick>
     {
     }
 
-    public class RequestManagementService : IHandle<SystemMessage.SystemInit>,
-                                            IHandle<ClientMessage.WriteEvents>,
-                                            IHandle<ClientMessage.DeleteStream>,
-                                            IHandle<ClientMessage.TransactionStart>,
-                                            IHandle<ClientMessage.TransactionWrite>,
-                                            IHandle<ClientMessage.TransactionCommit>,
-                                            IHandle<StorageMessage.RequestCompleted>,
-                                            IHandle<StorageMessage.CheckStreamAccessCompleted>,
-                                            IHandle<StorageMessage.AlreadyCommitted>,
-                                            IHandle<StorageMessage.PrepareAck>,
-                                            IHandle<StorageMessage.CommitReplicated>,
-                                            IHandle<StorageMessage.WrongExpectedVersion>,
-                                            IHandle<StorageMessage.InvalidTransaction>,
-                                            IHandle<StorageMessage.StreamDeleted>,
-                                            IHandle<StorageMessage.RequestManagerTimerTick>
+    public class RequestManagementService :
+        IHandle<SystemMessage.SystemInit>,
+        IHandle<ClientMessage.WriteEvents>,
+        IHandle<ClientMessage.DeleteStream>,
+        IHandle<ClientMessage.TransactionStart>,
+        IHandle<ClientMessage.TransactionWrite>,
+        IHandle<ClientMessage.TransactionCommit>,
+        IHandle<StorageMessage.RequestCompleted>,
+        IHandle<StorageMessage.CheckStreamAccessCompleted>,
+        IHandle<StorageMessage.AlreadyCommitted>,
+        IHandle<StorageMessage.PrepareAck>,
+        IHandle<StorageMessage.CommitReplicated>,
+        IHandle<StorageMessage.WrongExpectedVersion>,
+        IHandle<StorageMessage.InvalidTransaction>,
+        IHandle<StorageMessage.StreamDeleted>,
+        IHandle<StorageMessage.RequestManagerTimerTick>
     {
         private readonly IPublisher _bus;
         private readonly TimerMessage.Schedule _tickRequestMessage;
@@ -42,13 +43,13 @@ namespace EventStore.Core.Services.RequestManager
         private readonly TimeSpan _commitTimeout;
 
         public RequestManagementService(IPublisher bus,
-                                                             int prepareCount,
-                                                             TimeSpan prepareTimeout,
-                                                             TimeSpan commitTimeout,
-                                                             bool betterOrdering)
+                                            int prepareCount,
+                                            TimeSpan prepareTimeout,
+                                            TimeSpan commitTimeout,
+                                            bool betterOrdering)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (prepareCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCount); }
+            if ((uint)prepareCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCount); }
 
             _bus = bus;
             _tickRequestMessage = TimerMessage.Schedule.Create(TimeSpan.FromMilliseconds(1000),

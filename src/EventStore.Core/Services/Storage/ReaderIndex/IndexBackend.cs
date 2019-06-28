@@ -65,7 +65,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var res = _streamLastEventNumberCache.Put(
                 streamId,
                 new KeyValuePair<int, long?>(cacheVersion, lastEventNumber),
-                (key, d) => d.Key == 0 ? new EventNumberCached(1, d.Value) : new EventNumberCached(1, null),
+                (key, d) => 0u >= (uint)d.Key ? new EventNumberCached(1, d.Value) : new EventNumberCached(1, null),
                 (key, old, d) => old.Version == d.Key ? new EventNumberCached(d.Key + 1, d.Value ?? old.LastEventNumber) : old);
             return res.LastEventNumber;
         }
@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var res = _streamMetadataCache.Put(
                 streamId,
                 new KeyValuePair<int, StreamMetadata>(cacheVersion, metadata),
-                (key, d) => d.Key == 0 ? new MetadataCached(1, d.Value) : new MetadataCached(1, null),
+                (key, d) => 0u >= (uint)d.Key ? new MetadataCached(1, d.Value) : new MetadataCached(1, null),
                 (key, old, d) => old.Version == d.Key ? new MetadataCached(d.Key + 1, d.Value ?? old.Metadata) : old);
             return res.Metadata;
         }

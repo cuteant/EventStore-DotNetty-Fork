@@ -49,7 +49,7 @@ namespace EventStore.ClientAPI.Transport.Http
             try
             {
                 int bytesRead = _input.EndRead(ar);
-                if (bytesRead <= 0) //mono can return -1
+                if ((uint)(bytesRead - 1) >= Consts.TooBigOrNegative) //mono can return -1
                 {
                     OnCompleted();
                     return;

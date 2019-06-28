@@ -120,8 +120,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                 ThrowHelper.ThrowException_UnknownRecordType(result.LogRecord.RecordType); break;
                         }
 
-                        processed += 1;
-                        if (DateTime.UtcNow - lastTime > reportPeriod || processed % 100000 == 0)
+                        processed += 1L;
+                        if (DateTime.UtcNow - lastTime > reportPeriod || 0ul >= (ulong)(processed % 100000L))
                         {
                             if (debugEnabled) { Log.ReadIndexRebuilding(processed, result.RecordPostPosition, startPosition, buildToPosition); }
                             lastTime = DateTime.UtcNow;
@@ -213,7 +213,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     }
                 }
 
-                if (indexEntries.Count > 0)
+                if ((uint)indexEntries.Count > 0u)
                 {
                     if (_additionalCommitChecks && cacheLastEventNumber)
                     {
@@ -225,7 +225,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 if (eventNumber != EventNumber.Invalid)
                 {
-                    if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
+                    if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
 
                     if (cacheLastEventNumber)
                     {
@@ -269,7 +269,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         {
             long eventNumber = EventNumber.Invalid;
 
-            if (commitedPrepares.Count == 0) { return eventNumber; }
+            if (0u >= (uint)commitedPrepares.Count) { return eventNumber; }
 
             var lastCommitPosition = Interlocked.Read(ref _lastCommitPosition);
             var lastPrepare = commitedPrepares[commitedPrepares.Count - 1];
@@ -302,7 +302,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     }
                 }
 
-                if (indexEntries.Count > 0)
+                if ((uint)indexEntries.Count > 0u)
                 {
                     if (_additionalCommitChecks && cacheLastEventNumber)
                     {
@@ -314,7 +314,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 if (eventNumber != EventNumber.Invalid)
                 {
-                    if (eventNumber < 0) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
+                    if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) ThrowHelper.ThrowException_EventNumberIsIncorrect(eventNumber);
 
                     if (cacheLastEventNumber)
                     {

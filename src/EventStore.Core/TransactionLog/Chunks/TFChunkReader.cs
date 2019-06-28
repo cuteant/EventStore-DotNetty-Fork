@@ -24,7 +24,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
             if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (initialPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialPosition); }
+            if ((ulong)initialPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialPosition); }
 
             _db = db;
             _writerCheckpoint = writerCheckpoint;
@@ -104,7 +104,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     ThrowHelper.ThrowException_RequestedPositionIsGreaterThanWriterCheckpoint(pos, writerChk);
                 }
 
-                if (pos <= 0)
+                if ((ulong)(pos - 1L) > Consts.TooBigOrNegativeUL)
                 {
                     return SeqReadResult.Failure;
                 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -801,9 +802,10 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
         }
 
-        private TimeSpan ToTimeout(int milliseconds)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static TimeSpan ToTimeout(int milliseconds)
         {
-            return milliseconds == 0 ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(milliseconds);
+            return 0u >= (uint)milliseconds ? TimeSpan.MaxValue : TimeSpan.FromMilliseconds(milliseconds);
         }
     }
 }

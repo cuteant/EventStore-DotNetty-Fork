@@ -31,7 +31,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void EnableCaching()
         {
-            if (_chunksCount == 0) { ThrowHelper.ThrowException(ExceptionResource.No_chunks_in_DB); }
+            if (0u >= (uint)_chunksCount) { ThrowHelper.ThrowException(ExceptionResource.No_chunks_in_DB); }
 
             lock (_chunksLocker)
             {
@@ -50,7 +50,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 } while (Interlocked.Decrement(ref _backgroundPassesRemaining) > 0);
                 Interlocked.Exchange(ref _backgroundRunning, 0);
             } while (Interlocked.CompareExchange(ref _backgroundPassesRemaining, 0, 0) > 0
-                     && Interlocked.CompareExchange(ref _backgroundRunning, 1, 0) == 0);
+                     && 0u >= (uint)Interlocked.CompareExchange(ref _backgroundRunning, 1, 0));
         }
 
         private void CacheUncacheReadOnlyChunks()
@@ -130,7 +130,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         public TFChunk.TFChunk AddNewChunk(ChunkHeader chunkHeader, int fileSize)
         {
             if (null == chunkHeader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
-            if (fileSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
+            if ((uint)(fileSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
 
             lock (_chunksLocker)
             {
@@ -312,7 +312,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             if (!_cachingEnabled) return;
 
             Interlocked.Increment(ref _backgroundPassesRemaining);
-            if (Interlocked.CompareExchange(ref _backgroundRunning, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _backgroundRunning, 1, 0))
             {
                 ThreadPoolScheduler.Schedule(BackgroundCachingProcess, (object)null);
             }
@@ -326,7 +326,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         public TFChunk.TFChunk GetChunkFor(long logPosition)
         {
             var chunkNum = (int)(logPosition / _config.ChunkSize);
-            if (chunkNum < 0 || chunkNum >= _chunksCount)
+            if ((uint)chunkNum >= _chunksCount /*chunkNum < 0 || chunkNum >= _chunksCount*/)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_LogPositionDoesNotHaveCorrespondingChunkInDB(logPosition);
             }
@@ -342,7 +342,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk GetChunk(int chunkNum)
         {
-            if (chunkNum < 0 || chunkNum >= _chunksCount)
+            if ((uint)chunkNum >= _chunksCount /*chunkNum < 0 || chunkNum >= _chunksCount*/)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_ChunkIsNotPresentInDB(chunkNum);
             }

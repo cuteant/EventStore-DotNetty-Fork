@@ -38,11 +38,11 @@ namespace EventStore.Core.Services.Storage.EpochManager
                               Func<ITransactionFileReader> readerFactory)
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (cachedEpochCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cachedEpochCount); }
+            if ((uint)cachedEpochCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cachedEpochCount); }
             if (null == checkpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpoint); }
             if (null == writer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
-            if (initialReaderCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialReaderCount); }
-            if (maxReaderCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
+            if ((uint)initialReaderCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialReaderCount); }
+            if ((uint)(maxReaderCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
             if (initialReaderCount > maxReaderCount)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_InitialReaderCountIsGreaterThanMaxReaderCount();
@@ -65,7 +65,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
         {
             lock (_locker)
             {
-                return _lastEpochNumber < 0 ? null : GetEpoch(_lastEpochNumber, throwIfNotFound: true);
+                return (uint)_lastEpochNumber > Consts.TooBigOrNegative ? null : GetEpoch(_lastEpochNumber, throwIfNotFound: true);
             }
         }
 
@@ -77,7 +77,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
                 try
                 {
                     long epochPos = _checkpoint.Read();
-                    if (epochPos < 0) // we probably have lost/uninitialized epoch checkpoint
+                    if ((ulong)epochPos > Consts.TooBigOrNegativeUL) // we probably have lost/uninitialized epoch checkpoint
                     {
                         reader.Reposition(_writer.Checkpoint.Read());
 
@@ -172,8 +172,8 @@ namespace EventStore.Core.Services.Storage.EpochManager
 
         public bool IsCorrectEpochAt(long epochPosition, int epochNumber, Guid epochId)
         {
-            if (epochPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochPosition); }
-            if (epochNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochNumber); }
+            if ((ulong)epochPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochPosition); }
+            if ((uint)epochNumber > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.epochNumber); }
             if (Guid.Empty == epochId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.epochId); }
 
             lock (_locker)

@@ -67,7 +67,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public IEnumerable<OutstandingMessage> GetMessagesExpiringBefore(DateTime time)
         {
-            while (_byTime.Count > 0)
+            while ((uint)_byTime.Count > 0u)
             {
                 var item = _byTime.Keys.First();
                 if(item.Item1 > time) {

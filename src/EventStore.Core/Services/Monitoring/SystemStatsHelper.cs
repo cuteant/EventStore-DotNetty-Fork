@@ -220,7 +220,7 @@ namespace EventStore.Core.Services.Monitoring
                 {
                     var l = line.Substring(0, line.Length - 1);
                     var pieces = l.Split(':');
-                    if (pieces.Length == 2)
+                    if ((uint)pieces.Length == 2u)
                     {
                         if (string.Equals(pieces[0].Trim(), "pages free", StringComparison.OrdinalIgnoreCase))
                         {

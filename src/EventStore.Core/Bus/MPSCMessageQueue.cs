@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using EventStore.Core.Messaging;
@@ -123,7 +124,7 @@ namespace EventStore.Core.Bus
                 }
             }
 
-            if (i == 0)
+            if (0u >= (uint)i)
             {
                 result = default(QueueBatchDequeueResult);
                 return false;
@@ -162,9 +163,10 @@ namespace EventStore.Core.Bus
             return (low << MaskShift) | high >> MaskShift | unchanged;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsPowerOf2(int n)
         {
-            return (n & (n - 1)) == 0;
+            return 0u >= (uint)(n & (n - 1));
         }
     }
 }

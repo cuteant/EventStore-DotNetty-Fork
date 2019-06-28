@@ -44,7 +44,7 @@ namespace EventStore.ClientAPI
         /// <param name="connection">The connection the transaction is hooked to.</param>
         internal EventStoreTransaction(long transactionId, UserCredentials userCredentials, IEventStoreTransactionConnection connection)
         {
-            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
+            if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
 
             TransactionId = transactionId;
             _userCredentials = userCredentials;

@@ -33,7 +33,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
                                          mustExist ? FileMode.Open : FileMode.OpenOrCreate,
                                          FileAccess.ReadWrite,
                                          FileShare.ReadWrite);
-            if (_fileStream.Length != 8)
+            if ((ulong)_fileStream.Length != 8ul)
                 _fileStream.SetLength(8);
             _reader = new BinaryReader(_fileStream);
             _writer = new BinaryWriter(_fileStream);

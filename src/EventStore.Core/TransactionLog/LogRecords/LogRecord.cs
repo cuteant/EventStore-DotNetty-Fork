@@ -45,7 +45,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
             var version = reader.ReadByte();
             var logPosition = reader.ReadInt64();
 
-            if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+            if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
 
             switch (recordType)
             {
@@ -114,7 +114,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
 
         protected LogRecord(LogRecordType recordType, byte version, long logPosition)
         {
-            if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+            if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
             RecordType = recordType;
             Version = version;
             LogPosition = logPosition;

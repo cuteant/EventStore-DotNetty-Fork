@@ -118,7 +118,7 @@ namespace EventStore.Core
 
                     // Get the list
                     res = RmGetList(handle, out pnProcInfoNeeded, ref pnProcInfo, processInfo, ref lpdwRebootReasons);
-                    if (res == 0)
+                    if (0u >= (uint)res)
                     {
                         processes = new List<Process>((int)pnProcInfo);
 
@@ -153,7 +153,7 @@ namespace EventStore.Core
             {
                 logger.TryingToRetrieveListOfProcessesHavingAFileHandleOpen(path);
                 var processes = ProcessUtil.WhoIsLocking(path);
-                var processList = processes.Count == 0 ? "None" : string.Join(Environment.NewLine, processes.Select(x => string.Format("[{0}] {1}", x.Id, x.MainModule.FileName)));
+                var processList = 0u >= (uint)processes.Count ? "None" : string.Join(Environment.NewLine, processes.Select(x => string.Format("[{0}] {1}", x.Id, x.MainModule.FileName)));
                 logger.ProcessesLocking(path, processList);
             }
             catch (Exception e)

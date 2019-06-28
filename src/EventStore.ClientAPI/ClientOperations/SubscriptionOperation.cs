@@ -310,7 +310,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void DropSubscription(SubscriptionDropReason reason, Exception exc, TcpPackageConnection connection = null)
         {
-            if (Interlocked.CompareExchange(ref _unsubscribed, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _unsubscribed, 1, 0))
             {
                 if (_verboseLogging) { _log.ClosingSubscription(_correlationId, _streamId, reason, exc); }
 

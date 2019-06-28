@@ -59,11 +59,11 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
             node.State = Node.NodeState.Disconnected;
 
             AssignmentCount -= node.AssignmentCount;
-            if (AssignmentCount < 0)
+            if ((uint)AssignmentCount > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowInvalidOperationException();
 
             TotalCapacity -= node.MaximumInFlightMessages;
-            if (TotalCapacity < 0)
+            if ((uint)TotalCapacity > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowInvalidOperationException();
 
             for (int i = 0; i < Assignments.Length; i++)
@@ -144,7 +144,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
 
         private void Clean()
         {
-            var oldNodes = Nodes.Where(_ => _.AssignmentCount == 0 && _.State == Node.NodeState.Disconnected).ToList();
+            var oldNodes = Nodes.Where(_ => 0u >= (uint)_.AssignmentCount && _.State == Node.NodeState.Disconnected).ToList();
             foreach (var oldNode in oldNodes)
             {
                 Nodes.Remove(oldNode);

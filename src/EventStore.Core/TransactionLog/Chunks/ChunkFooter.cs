@@ -22,15 +22,15 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public ChunkFooter(bool isCompleted, bool isMap12Bytes, int physicalDataSize, long logicalDataSize, int mapSize, byte[] md5Hash)
         {
-            if (physicalDataSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.physicalDataSize); }
-            if (logicalDataSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logicalDataSize); }
-            if (logicalDataSize < physicalDataSize)
+            if ((uint)physicalDataSize > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.physicalDataSize); }
+            if ((ulong)logicalDataSize > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logicalDataSize); }
+            if ((ulong)logicalDataSize < (ulong)physicalDataSize)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_LogicalDataSizeIsLessThanPhysicalDataSize(logicalDataSize, physicalDataSize);
             }
-            if (mapSize < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.mapSize); }
+            if ((uint)mapSize > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.mapSize); }
             if (null == md5Hash) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5Hash); }
-            if (md5Hash.Length != ChecksumSize)
+            if ((uint)md5Hash.Length != (uint)ChecksumSize)
             {
                 ThrowHelper.ThrowArgumentException_MD5HashIsOfWrongLength();
             }

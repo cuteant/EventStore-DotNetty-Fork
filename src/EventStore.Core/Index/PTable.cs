@@ -78,8 +78,8 @@ namespace EventStore.Core.Index
         {
             if (string.IsNullOrEmpty(filename)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.filename); }
             if (Guid.Empty == id) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.id); }
-            if (maxReaders <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaders); }
-            if (depth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.depth); }
+            if ((uint)(maxReaders - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaders); }
+            if ((uint)depth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.depth); }
 
             if (!File.Exists(filename))
                 ThrowHelper.ThrowCorruptIndexException_PTableNotFound(filename);
@@ -151,7 +151,8 @@ namespace EventStore.Core.Index
 
                 long indexEntriesTotalSize = (_size - PTableHeader.Size - _midpointsCacheSize - PTableFooter.GetSize(_version) - MD5Size);
 
-                if(indexEntriesTotalSize < 0){
+                if((ulong)indexEntriesTotalSize > Consts.TooBigOrNegativeUL)
+                {
                     ThrowHelper.ThrowCorruptIndexException_TotalSizeOfIndexEntries(indexEntriesTotalSize, _size, _midpointsCacheSize, _version);
                 }
                 else if(indexEntriesTotalSize % _indexEntrySize != 0){
@@ -170,7 +171,7 @@ namespace EventStore.Core.Index
                     ThrowHelper.ThrowCorruptIndexException_MoreMidpointsCachedInPTableThanIndexEntries(_midpointsCached, _count);
                 }
 
-                if (Count == 0)
+                if (0ul >= (ulong)Count)
                 {
                     _minEntry = new IndexEntryKey(ulong.MaxValue, long.MaxValue);
                     _maxEntry = new IndexEntryKey(ulong.MinValue, long.MinValue);
@@ -208,10 +209,10 @@ namespace EventStore.Core.Index
         internal Midpoint[] CacheMidpointsAndVerifyHash(int depth, bool skipIndexVerify)
         {
             var buffer = new byte[4096];
-            if (depth < 0 || depth > 30)
+            if (!Helper.IsInRangeInclusive(depth, 0, 30) /*depth < 0 || depth > 30*/)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.depth);
             var count = Count;
-            if (count == 0 || depth == 0)
+            if (0ul >= (ulong)count || 0u >= (uint)depth)
                 return null;
             var debugEnabled = Log.IsDebugLevelEnabled();
             if(skipIndexVerify && debugEnabled)
@@ -362,8 +363,8 @@ namespace EventStore.Core.Index
         private void ReadUntilWithMd5(long nextPos, Stream fileStream, MD5 md5)
         {
             long toRead = nextPos - fileStream.Position;
-            if (toRead < 0) ThrowHelper.ThrowException_ShouldNotDoNegativeReads();
-            while (toRead > 0)
+            if ((ulong)toRead > Consts.TooBigOrNegativeUL) ThrowHelper.ThrowException_ShouldNotDoNegativeReads();
+            while (toRead > 0L)
             {
                 var localReadCount = Math.Min(toRead, TmpReadBuf.Length);
                 int read = fileStream.Read(TmpReadBuf, 0, (int)localReadCount);
@@ -378,7 +379,7 @@ namespace EventStore.Core.Index
             if (fromFile == null)
                 ThrowHelper.ThrowCorruptIndexException_ReadFromFileMD5HashIsNull();
 
-            if (computed.Length != fromFile.Length)
+            if ((uint)computed.Length != (uint)fromFile.Length)
                 ThrowHelper.ThrowCorruptIndexException_HashSizesDiffer(fromFile, computed);
 
             for (int i = 0; i < fromFile.Length; i++)
@@ -426,8 +427,8 @@ namespace EventStore.Core.Index
 
         private bool TryGetLargestEntry(ulong stream, long startNumber, long endNumber, out IndexEntry entry)
         {
-            if (startNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
-            if (endNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
+            if ((ulong)startNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
+            if ((ulong)endNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
 
             entry = TableIndex.InvalidIndexEntry;
 
@@ -490,8 +491,8 @@ namespace EventStore.Core.Index
 
         private bool TryGetSmallestEntry(ulong stream, long startNumber, long endNumber, out IndexEntry entry)
         {
-            if (startNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
-            if (endNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
+            if ((ulong)startNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
+            if ((ulong)endNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
 
             entry = TableIndex.InvalidIndexEntry;
 
@@ -549,8 +550,8 @@ namespace EventStore.Core.Index
 
         public IEnumerable<IndexEntry> GetRange(ulong stream, long startNumber, long endNumber, int? limit = null)
         {
-            if (startNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
-            if (endNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
+            if ((ulong)startNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startNumber); }
+            if ((ulong)endNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.endNumber); }
 
             ulong hash = GetHash(stream);
 

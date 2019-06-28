@@ -283,7 +283,7 @@ namespace EventStore.ClientAPI
 
         private void DropSubscription(SubscriptionDropReason reason, Exception error)
         {
-            if (Interlocked.CompareExchange(ref _isDropped, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _isDropped, 1, 0))
             {
                 if (_verbose) { _log.PersistentDroppingSubscriptionReason(_streamId, reason, error); }
 

@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
                 if (!Directory.Exists(directory)) return null;
                 var driveInfo = ShellExecutor.GetOutput("df", $"-P {directory}");
                 var driveInfoLines = driveInfo.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                if (driveInfoLines.Length == 0) return null;
+                if (0u >= (uint)driveInfoLines.Length) return null;
                 var ourline = driveInfoLines[1];
                 var trimmedLine = SystemStatsHelper.SpacesRegex.Replace(ourline, " ");
                 var info = trimmedLine.Split(' ');

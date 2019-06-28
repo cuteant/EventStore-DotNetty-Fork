@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace EventStore.Common.Utils
@@ -34,7 +35,7 @@ namespace EventStore.Common.Utils
 
         public static string GetDefaultLogsDir()
         {
-            return Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) , "es-logs");
+            return Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "es-logs");
         }
 
         public static string FormatBinaryDump(byte[] logBulk)
@@ -74,5 +75,75 @@ namespace EventStore.Common.Utils
             }
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <paramref name="upperBound"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(byte value, byte lowerBound, byte upperBound)
+            => ((byte)(value - lowerBound) <= (byte)(upperBound - lowerBound));
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <see cref="int.MaxValue"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(int value, int lowerBound)
+            => (uint)(value - lowerBound) <= (uint)(int.MaxValue - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <paramref name="upperBound"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(int value, int lowerBound, int upperBound)
+            => (uint)(value - lowerBound) <= (uint)(upperBound - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <see cref="uint.MaxValue"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(uint value, uint lowerBound)
+            => (value - lowerBound) <= (uint.MaxValue - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <paramref name="upperBound"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(uint value, uint lowerBound, uint upperBound)
+            => (value - lowerBound) <= (upperBound - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <see cref="long.MaxValue"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(long value, long lowerBound)
+            => (ulong)(value - lowerBound) <= (ulong)(long.MaxValue - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is between
+        /// <paramref name="lowerBound"/> and <paramref name="upperBound"/>, inclusive.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInRangeInclusive(long value, long lowerBound, long upperBound)
+            => (ulong)(value - lowerBound) <= (ulong)(upperBound - lowerBound);
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is in the range [0..9].
+        /// Otherwise, returns <see langword="false"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDigit(char value) => (uint)(value - '0') <= '9' - '0';
+
+        /// <summary>
+        /// Returns <see langword="true"/> if <paramref name="value"/> is in the range [A..F].
+        /// Otherwise, returns <see langword="false"/>.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsUpper(char value) => (uint)(value - 'A') <= 'F' - 'A';
     }
 }

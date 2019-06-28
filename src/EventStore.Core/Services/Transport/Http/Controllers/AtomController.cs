@@ -358,7 +358,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"'{evNum}' is not valid event number");
                 return;
             }
-            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || count <= 0))
+            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || (uint)(count - 1) >= Consts.TooBigOrNegative))
             {
                 SendBadRequest(manager, $"'{cnt}' is not valid count. Should be positive integer");
                 return;
@@ -396,7 +396,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 return SendBadRequest(manager, $"'{evNum}' is not valid event number");
             }
 
-            if (cnt.IsEmptyString() || !int.TryParse(cnt, out int count) || count <= 0)
+            if (cnt.IsEmptyString() || !int.TryParse(cnt, out int count) || (uint)(count - 1) >= Consts.TooBigOrNegative)
             {
                 return SendBadRequest(manager, $"'{cnt}' is not valid count. Should be positive integer");
             }
@@ -511,7 +511,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"'{evNum}' is not valid event number");
                 return;
             }
-            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || count <= 0))
+            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || (uint)(count - 1) >= Consts.TooBigOrNegative))
             {
                 SendBadRequest(manager, $"'{cnt}' is not valid count. Should be positive integer");
                 return;
@@ -550,7 +550,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 return SendBadRequest(manager, $"'{evNum}' is not valid event number");
             }
 
-            if (cnt.IsEmptyString() || !int.TryParse(cnt, out int count) || count <= 0)
+            if (cnt.IsEmptyString() || !int.TryParse(cnt, out int count) || (uint)(count - 1) >= Consts.TooBigOrNegative)
             {
                 return SendBadRequest(manager, $"'{cnt}' is not valid count. Should be positive integer");
             }
@@ -593,7 +593,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"Invalid position argument: {pos}");
                 return;
             }
-            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || count <= 0))
+            if (cnt.IsNotEmptyString() && (!int.TryParse(cnt, out count) || (uint)(count - 1) >= Consts.TooBigOrNegative))
             {
                 SendBadRequest(manager, $"Invalid count argument: {cnt}");
                 return;
@@ -626,7 +626,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 return SendBadRequest(manager, $"Invalid position argument: {pos}");
             }
 
-            if (!int.TryParse(cnt, out int count) || count <= 0)
+            if (!int.TryParse(cnt, out int count) || (uint)(count - 1) >= Consts.TooBigOrNegative)
             {
                 return SendBadRequest(manager, $"Invalid count argument: {cnt}");
             }
@@ -826,7 +826,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             {
                 // etag format is version;contenttypehash
                 var splitted = etag.Trim('\"').Split(ETagSeparatorArray);
-                if (splitted.Length == 2)
+                if ((uint)splitted.Length == 2u)
                 {
                     var typeHash = manager.ResponseCodec.ContentType.GetHashCode().ToString(CultureInfo.InvariantCulture);
                     var res = splitted[1] == typeHash && long.TryParse(splitted[0], out long streamVersion) ? (long?)streamVersion : null;
@@ -843,7 +843,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             {
                 // etag format is version;contenttypehash
                 var splitted = etag.Trim('\"').Split(ETagSeparatorArray);
-                if (splitted.Length == 2)
+                if ((uint)splitted.Length == 2u)
                 {
                     var typeHash = manager.ResponseCodec.ContentType.GetHashCode().ToString(CultureInfo.InvariantCulture);
                     return splitted[1] == typeHash && long.TryParse(splitted[0], out long tfEofPosition) ? (long?)tfEofPosition : null;

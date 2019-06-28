@@ -55,7 +55,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void Open(bool verifyHash = true, bool readOnly = false, int threads = 1)
         {
-            if (threads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
+            if ((uint)(threads - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
 
             ValidateReaderChecksumsMustBeLess(Config);
             var checkpoint = Config.WriterCheckpoint.Read();
@@ -76,7 +76,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 void LocalAction(ChunkInfo chunkInfo)
                 {
                     TFChunk.TFChunk chunk;
-                    if (lastChunkVersions.Length == 0 && (chunkInfo.ChunkStartNumber + 1) * (long)Config.ChunkSize == checkpoint)
+                    if (0u >= (uint)lastChunkVersions.Length && (chunkInfo.ChunkStartNumber + 1) * (long)Config.ChunkSize == checkpoint)
                     {
                         // The situation where the logical data size is exactly divisible by ChunkSize,
                         // so it might happen that we have checkpoint indicating one more chunk should exist,
@@ -114,7 +114,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 throw aggEx.InnerException;
             }
 
-            if (lastChunkVersions.Length == 0)
+            if (0u >= (uint)lastChunkVersions.Length)
             {
                 var onBoundary = checkpoint == (Config.ChunkSize * (long)lastChunkNum);
                 if (!onBoundary)
@@ -221,7 +221,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             ChunkHeader chunkHeader;
             using (var fs = new FileStream(chunkFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                if (fs.Length < ChunkFooter.Size + ChunkHeader.Size)
+                if ((ulong)fs.Length < ChunkFooter.Size + ChunkHeader.Size)
                 {
                     ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsBad(chunkFileName, fs.Length);
                 }
@@ -237,7 +237,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             ChunkFooter chunkFooter;
             using (var fs = new FileStream(chunkFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
-                if (fs.Length < ChunkFooter.Size + ChunkHeader.Size)
+                if ((ulong)fs.Length < ChunkFooter.Size + ChunkHeader.Size)
                 {
                     ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsBad(chunkFileName, fs.Length);
                 }
@@ -263,7 +263,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
 
                 var allFiles = Config.FileNamingStrategy.GetAllPresentFiles();
-                if (allFiles.Length != cnt)
+                if ((ulong)allFiles.Length != (ulong)cnt)
                 {
                     ThrowHelper.ThrowCorruptDatabaseException_UnexpectedFiles(allFiles, allowedFiles);
                 }

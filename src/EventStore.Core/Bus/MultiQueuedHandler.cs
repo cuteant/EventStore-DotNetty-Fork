@@ -18,7 +18,7 @@ namespace EventStore.Core.Bus
                                   Func<int, IQueuedHandler> queueFactory,
                                   Func<Message, int> queueHash = null)
         {
-            if (queueCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queueCount); }
+            if ((uint)(queueCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queueCount); }
             if (null == queueFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queueFactory); }
 
             Queues = new IQueuedHandler[queueCount];

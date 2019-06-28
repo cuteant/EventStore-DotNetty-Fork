@@ -62,7 +62,7 @@ namespace EventStore.Core.Services.Transport.Http
             try
             {
                 var allMatches = httpService.GetAllUriMatches(request.Url);
-                if (allMatches.Count == 0)
+                if (0u >= (uint)allMatches.Count)
                 {
                     NotFound(httpEntity);
                     return;

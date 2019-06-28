@@ -263,7 +263,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithMaxRetriesOf(int count)
         {
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((uint)count > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _maxRetryCount = count;
             return this;
         }
@@ -276,7 +276,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithLiveBufferSizeOf(int count)
         {
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((uint)count > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _liveBufferSize = count;
             return this;
         }
@@ -289,7 +289,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithReadBatchOf(int count)
         {
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((uint)count > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _readBatchSize = count;
             return this;
         }
@@ -302,7 +302,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithHistoryBufferSizeOf(int count)
         {
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((uint)count > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
             _historyBufferSize = count;
             return this;
         }

@@ -30,7 +30,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void SetRawPosition(int rawPosition)
         {
-            if (rawPosition >= _stream.Length)
+            if ((ulong)rawPosition >= (ulong)_stream.Length)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_RawPositionIsOutOfBounds(rawPosition);
             }
@@ -41,7 +41,7 @@ namespace EventStore.Core.TransactionLog.Chunks
         public void SetDataPosition(long dataPosition)
         {
             var rawPos = dataPosition + ChunkHeader.Size;
-            if (rawPos >= _stream.Length)
+            if ((ulong)rawPos >= (ulong)_stream.Length)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_DataPositionIsOutOfBounds(dataPosition);
             }
@@ -60,9 +60,10 @@ namespace EventStore.Core.TransactionLog.Chunks
         public BulkReadResult ReadNextRawBytes(int count, byte[] buffer)
         {
             if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            var nCount = (uint)count;
+            if (nCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
-            if ((uint)count > (uint)buffer.Length)
+            if (nCount > (uint)buffer.Length)
             {
                 count = buffer.Length;
             }
@@ -75,14 +76,15 @@ namespace EventStore.Core.TransactionLog.Chunks
         public BulkReadResult ReadNextDataBytes(int count, byte[] buffer)
         {
             if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            uint nCount = (uint)count;
+            if (nCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
-            if (_stream.Position == 0)
+            if (0ul >= (ulong)_stream.Position)
             {
                 _stream.Position = ChunkHeader.Size;
             }
 
-            if ((uint)count > (uint)buffer.Length)
+            if (nCount > (uint)buffer.Length)
             {
                 count = buffer.Length;
             }

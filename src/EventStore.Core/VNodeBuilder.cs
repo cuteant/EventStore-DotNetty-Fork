@@ -1104,7 +1104,7 @@ namespace EventStore.Core
         /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
         public VNodeBuilder WithMaxAutoMergeIndexLevel(int maxAutoMergeIndexLevel)
         {
-            if (maxAutoMergeIndexLevel < 0)
+            if ((uint)maxAutoMergeIndexLevel > Consts.TooBigOrNegative)
                 throw new ArgumentOutOfRangeException(nameof(maxAutoMergeIndexLevel), maxAutoMergeIndexLevel, "MaxAutoMergeIndexLevel must be > 0");
             _maxAutoMergeIndexLevel = maxAutoMergeIndexLevel;
             return this;
@@ -1164,7 +1164,7 @@ namespace EventStore.Core
             if (!string.IsNullOrWhiteSpace(certificateThumbprint))
             {
                 var certificates = store.Certificates.Find(X509FindType.FindByThumbprint, certificateThumbprint, true);
-                if (certificates.Count == 0)
+                if (0u >= (uint)certificates.Count)
                     throw new Exception(string.Format("Could not find valid certificate with thumbprint '{0}'.", certificateThumbprint));
 
                 //Can this even happen?
@@ -1177,7 +1177,7 @@ namespace EventStore.Core
             if (!string.IsNullOrWhiteSpace(certificateSubjectName))
             {
                 var certificates = store.Certificates.Find(X509FindType.FindBySubjectName, certificateSubjectName, true);
-                if (certificates.Count == 0)
+                if (0u >= (uint)certificates.Count)
                     throw new Exception(string.Format("Could not find valid certificate with subject name '{0}'.", certificateSubjectName));
 
                 //Can this even happen?
@@ -1500,7 +1500,7 @@ namespace EventStore.Core
             }
             else
             {
-                if ((_gossipSeeds == null || _gossipSeeds.Count == 0) && _clusterNodeCount > 1)
+                if ((_gossipSeeds == null || 0u >= (uint)_gossipSeeds.Count) && _clusterNodeCount > 1)
                 {
                     throw new Exception("DNS discovery is disabled, but no gossip seed endpoints have been specified. "
                                       + "Specify gossip seeds using the `GossipSeed` option.");

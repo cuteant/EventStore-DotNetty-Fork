@@ -372,7 +372,7 @@ namespace EventStore.Core.Helpers
             private void CleanupQueue(Guid key, WriterQueue queue)
             {
                 if (queue.IsBusy) return;
-                if (queue.Count > 0) return;
+                if ((uint)queue.Count > 0u) return;
                 _queues.Remove(key);
             }
         }
@@ -396,7 +396,7 @@ namespace EventStore.Core.Helpers
 
             public ClientMessage.WriteEvents Dequeue()
             {
-                if (_queue.Count == 0) return null;
+                if (0u >= (uint)_queue.Count) return null;
 
                 IsBusy = true;
 

@@ -10,7 +10,7 @@ namespace EventStore.Core.Index
         /// </summary>
         public static int LowerBound<TKey, TValue>(this SortedList<TKey, TValue> list, TKey key)
         {
-            if (list.Count == 0)
+            if (0u >= (uint)list.Count)
                 return -1;
 
             var comparer = list.Comparer;
@@ -37,7 +37,7 @@ namespace EventStore.Core.Index
         /// </summary>
         public static int UpperBound<TKey, TValue>(this SortedList<TKey, TValue> list, TKey key)
         {
-            if (list.Count == 0)
+            if (0u >= (uint)list.Count)
                 return -1;
 
             var comparer = list.Comparer;

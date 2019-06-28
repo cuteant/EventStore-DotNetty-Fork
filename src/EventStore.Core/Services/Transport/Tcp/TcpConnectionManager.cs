@@ -221,7 +221,7 @@ namespace EventStore.Core.Services.Transport.Tcp
                     }
                 case TcpCommand.Authenticate:
                     {
-                        if ((package.Flags & TcpFlags.Authenticated) == 0)
+                        if (0u >= (uint)(package.Flags & TcpFlags.Authenticated))
                         {
                             ReplyNotAuthenticated(package.CorrelationId, "No user credentials provided.");
                         }

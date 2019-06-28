@@ -25,7 +25,7 @@ namespace EventStore.Core.Services
         {
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (null == forwardingProxy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
-            if (tickInterval.Milliseconds < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.tickInterval); }
+            if ((uint)tickInterval.Milliseconds > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.tickInterval); }
 
             _bus = bus;
             _forwardingProxy = forwardingProxy;

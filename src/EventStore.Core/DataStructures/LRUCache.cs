@@ -22,13 +22,13 @@ namespace EventStore.Core.DataStructures
         private Func<object,bool> _onPut, _onRemove; //_onPut is not called if a key-value pair already exists in the cache
         public LRUCache(int maxCount)
         {
-            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
+            if ((uint)maxCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
         }
 
         public LRUCache(int maxCount,Func<object,bool> onPut, Func<object,bool> onRemove)
         {
-            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
+            if ((uint)maxCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
             _onPut = onPut;
             _onRemove = onRemove;
@@ -104,7 +104,7 @@ namespace EventStore.Core.DataStructures
         {
             lock (_lock)
             {
-                while (_orderList.Count > 0)
+                while ((uint)_orderList.Count > 0u)
                 {
                     var node = _orderList.First;
                     _orderList.RemoveFirst();
@@ -148,7 +148,7 @@ namespace EventStore.Core.DataStructures
 
         private void EnsureCapacity()
         {
-            while (_items.Count > 0 && _items.Count >= _maxCount)
+            while ((uint)_items.Count > 0u && (uint)_items.Count >= (uint)_maxCount)
             {
                 var node = _orderList.First;
                 _orderList.Remove(node);
@@ -161,7 +161,7 @@ namespace EventStore.Core.DataStructures
 
         private LinkedListNode<LRUItem> GetNode()
         {
-            if (_nodesPool.Count > 0)
+            if ((uint)_nodesPool.Count > 0u)
                 return _nodesPool.Dequeue();
             return new LinkedListNode<LRUItem>(new LRUItem());
         }

@@ -265,7 +265,7 @@ namespace EventStore.Core.Services.Transport.Http
                 {
                     case ReadAllResult.Success:
                         var codec = entity.ResponseCodec;
-                        if (!headOfTf && msg.Events.Length == msg.MaxCount)
+                        if (!headOfTf && (uint)msg.Events.Length == (uint)msg.MaxCount)
                             return Ok(codec.ContentType, codec.Encoding, null, MaxPossibleAge, msg.IsCachePublic);
                         var etag = GetPositionETag(msg.TfLastCommitPosition, codec.ContentType);
                         var cacheSeconds = GetCacheSeconds(msg.StreamMetadata);

@@ -62,7 +62,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
                 return ConsumerPushResult.NoMoreCapacity;
             }
 
-            if (_state.AvailableCapacity == 0)
+            if (0u >= (uint)_state.AvailableCapacity)
             {
                 return ConsumerPushResult.NoMoreCapacity;
             }

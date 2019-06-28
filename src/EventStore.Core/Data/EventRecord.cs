@@ -28,7 +28,7 @@ namespace EventStore.Core.Data
 
         public EventRecord(long eventNumber, PrepareLogRecord prepare)
         {
-            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
+            if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
 
             EventNumber = eventNumber;
             LogPosition = prepare.LogPosition;
@@ -60,12 +60,12 @@ namespace EventStore.Core.Data
                            byte[] data, 
                            byte[] metadata)
         {
-            if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
-            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
-            if (transactionOffset < -1)
+            if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+            if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+            if (ThrowHelper.IsInvalidCheckpoint(transactionOffset))
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.transactionOffset);
             if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
+            if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
             if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
             if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 

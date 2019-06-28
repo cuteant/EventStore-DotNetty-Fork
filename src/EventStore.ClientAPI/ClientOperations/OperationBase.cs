@@ -81,7 +81,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected void Succeed()
         {
-            if (Interlocked.CompareExchange(ref _completed, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _completed, 1, 0))
             {
                 if (_response != null)
                     _source.SetResult(TransformResponse(_response));
@@ -92,7 +92,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void Fail(Exception exception)
         {
-            if (Interlocked.CompareExchange(ref _completed, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _completed, 1, 0))
             {
                 _source.SetException(exception);
             }

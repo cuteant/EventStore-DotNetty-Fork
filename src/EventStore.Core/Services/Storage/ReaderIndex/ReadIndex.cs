@@ -38,8 +38,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (null == readerPool) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerPool); }
             if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
-            if (streamInfoCacheCapacity < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.streamInfoCacheCapacity); }
-            if (metastreamMaxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.metastreamMaxCount); }
+            if ((uint)streamInfoCacheCapacity > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.streamInfoCacheCapacity); }
+            if ((ulong)(metastreamMaxCount - 1L) > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.metastreamMaxCount); }
             if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
 
             var metastreamMetadata = new StreamMetadata(maxCount: metastreamMaxCount);

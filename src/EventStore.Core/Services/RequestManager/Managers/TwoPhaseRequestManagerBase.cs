@@ -44,13 +44,13 @@ namespace EventStore.Core.Services.RequestManager.Managers
         private bool _initialized;
         private bool _betterOrdering;
         protected TwoPhaseRequestManagerBase(IPublisher publisher,
-                                                                       int prepareCount,
-                                                                       TimeSpan prepareTimeout,
-                                                                       TimeSpan commitTimeout,
-                                                                       bool betterOrdering)
+                                            int prepareCount,
+                                            TimeSpan prepareTimeout,
+                                            TimeSpan commitTimeout,
+                                            bool betterOrdering)
         {
             if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (prepareCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareCount); }
+            if ((uint)(prepareCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareCount); }
 
             Publisher = publisher;
             PublishEnvelope = new PublishEnvelope(publisher);
@@ -154,7 +154,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
             if (message.Flags.HasAnyOf(PrepareFlags.TransactionEnd))
             {
                 _awaitingPrepare -= 1;
-                if (_awaitingPrepare == 0)
+                if (0u >= (uint)_awaitingPrepare)
                 {
                     Publisher.Publish(new StorageMessage.WriteCommit(message.CorrelationId, PublishEnvelope, _transactionId));
                     _nextTimeoutTime = DateTime.UtcNow + CommitTimeout;

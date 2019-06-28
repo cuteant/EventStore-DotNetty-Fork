@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI
             IList<object> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return DoWriteAsync(connection, stream, ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -146,7 +146,7 @@ namespace EventStore.ClientAPI
             IList<object> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return DoWriteAsync(connection, stream, ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -156,7 +156,7 @@ namespace EventStore.ClientAPI
             IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return DoWriteAsync(connection, stream, ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI
             IList<TEvent> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return DoWriteAsync(connection, stream, ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -180,7 +180,7 @@ namespace EventStore.ClientAPI
             IList<object> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return DoWriteAsync(connection, stream.Combine(topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -190,7 +190,7 @@ namespace EventStore.ClientAPI
             IList<object> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return DoWriteAsync(connection, stream.Combine(topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -200,7 +200,7 @@ namespace EventStore.ClientAPI
             IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return DoWriteAsync(connection, stream.Combine(topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials);
@@ -210,7 +210,7 @@ namespace EventStore.ClientAPI
             IList<TEvent> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
             if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-            if (batchSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
+            if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return DoWriteAsync(connection, stream.Combine(topic), ExpectedVersion.Any, eventDatas, batchSize, userCredentials);

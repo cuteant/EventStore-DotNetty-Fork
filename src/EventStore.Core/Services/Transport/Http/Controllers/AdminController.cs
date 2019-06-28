@@ -75,7 +75,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var startFromChunkVariable = match.BoundVariables["startFromChunk"];
             if (startFromChunkVariable != null)
             {
-                if (!int.TryParse(startFromChunkVariable, out startFromChunk) || startFromChunk < 0)
+                if (!int.TryParse(startFromChunkVariable, out startFromChunk) || (uint)startFromChunk > Consts.TooBigOrNegative)
                 {
                     SendBadRequest(entity, "startFromChunk must be a positive integer");
                     return;

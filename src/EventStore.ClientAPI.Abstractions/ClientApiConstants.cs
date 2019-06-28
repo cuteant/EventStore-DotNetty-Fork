@@ -8,6 +8,6 @@
         /// <summary>
         /// The maximum number of events that can be read in a single operation.
         /// </summary>
-        public static readonly int MaxReadSize = Consts.MaxReadSize;
+        public const int MaxReadSize = Consts.MaxReadSize;
     }
 }

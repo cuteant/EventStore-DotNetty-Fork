@@ -168,7 +168,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
             private BloomFilter PopulateBloomFilter(){
                 var mapCount = Chunk.ChunkFooter.MapCount;
-                if(mapCount <= 0) return null;
+                if((uint)(mapCount - 1) >= Consts.TooBigOrNegative) return null;
 
                 BloomFilter bf = null;
                 double p = 1e-4; //false positive probability
@@ -223,7 +223,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                     ThrowHelper.ThrowArgumentOutOfRangeException_DepthTooForMidpoints();
                 }
 
-                if (Chunk.ChunkFooter.MapCount == 0) // empty chunk
+                if (0u >= (uint)Chunk.ChunkFooter.MapCount) // empty chunk
                 {
                     return null;
                 }
@@ -396,7 +396,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
             public RecordReadResult TryReadClosestForward(long logicalPosition)
             {
-                if (Chunk.ChunkFooter.MapCount == 0)
+                if (0u >= (uint)Chunk.ChunkFooter.MapCount)
                 {
                     return RecordReadResult.Failure;
                 }
@@ -431,7 +431,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
             public RecordReadResult TryReadClosestBackward(long logicalPosition)
             {
-                if (Chunk.ChunkFooter.MapCount == 0)
+                if (0u >= (uint)Chunk.ChunkFooter.MapCount)
                 {
                     return RecordReadResult.Failure;
                 }
@@ -589,11 +589,11 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                     return false;
 
                 length = workItem.Reader.ReadInt32();
-                if (length <= 0)
+                if ((uint)(length - 1) >= Consts.TooBigOrNegative)
                 {
                     ThrowHelper.ThrowInvalidReadException_LogRecordAtActualPosHasNonPositiveLength(actualPosition, length, Chunk);
                 }
-                if (length > TFConsts.MaxLogRecordSize)
+                if ((uint)length > TFConsts.MaxLogRecordSize)
                 {
                     ThrowHelper.ThrowInvalidReadException_LogRecordAtActualPosHasTooLargeLength(actualPosition, length, Chunk);
                 }
@@ -628,11 +628,11 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 workItem.Stream.Position = realPos - sizeof(int);
 
                 length = workItem.Reader.ReadInt32();
-                if (length <= 0)
+                if ((uint)(length - 1) >= Consts.TooBigOrNegative)
                 {
                     ThrowHelper.ThrowInvalidReadException_LogRecordThatEndsAtActualPosHasNonPositiveLength(actualPosition, length, Chunk);
                 }
-                if (length > TFConsts.MaxLogRecordSize)
+                if ((uint)length > TFConsts.MaxLogRecordSize)
                 {
                     ThrowHelper.ThrowArgumentException_LogRecordThatEndsAtActualPosHasTooLargeLength(actualPosition, length, Chunk);
                 }

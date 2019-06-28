@@ -98,7 +98,7 @@ namespace EventStore.Core.Bus
                 lock(_notifyStopLock){
                     _totalStarted--;
                     Debug.Assert(_totalStarted >= 0,string.Format("QueueStatsCollector [{0}] _totalStarted = {1} < 0",Name,_totalStarted));
-                    if(_totalStarted == 0){
+                    if(0u >= (uint)_totalStarted){
                         Monitor.Pulse(_notifyStopLock);
                     }
                 }
@@ -141,7 +141,7 @@ namespace EventStore.Core.Bus
                 {
                     _nonIdle--;
                     Debug.Assert(_nonIdle >= 0,string.Format("QueueStatsCollector [{0}] _nonIdle = {1} < 0",Name,_nonIdle));
-                    if (_nonIdle == 0)
+                    if (0u >= (uint)_nonIdle)
                     {
                         Monitor.Pulse(_notifyIdleLock);
                     }
@@ -298,7 +298,7 @@ namespace EventStore.Core.Bus
                 {
                     while (_nonIdle > 0 || _totalLength > 0 || (waitForCheckpoints && (AreCheckpointsDifferent(0) || AreCheckpointsDifferent(1)
                            || AreCheckpointsDifferent(2) || AnyCheckpointsDifferent()))
-                           || (waitForNonEmptyTf && _writerCheckpoint[0].Read() == 0))
+                           || (waitForNonEmptyTf && _writerCheckpoint[0].Read() == 0L))
                     {
                         if (!Monitor.Wait(_notifyIdleLock, 100))
                         {

@@ -42,7 +42,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             if (null == scavengerLog) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.scavengerLog); }
             if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
             if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
-            if (threads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
+            if ((uint)(threads - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threads); }
 
             if (threads > MaxThreadCount)
             {
@@ -80,7 +80,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public Task Scavenge(bool alwaysKeepScavenged, bool mergeChunks, int startFromChunk = 0, CancellationToken ct = default(CancellationToken))
         {
-            if (startFromChunk < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startFromChunk); }
+            if ((uint)startFromChunk > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.startFromChunk); }
 
             // Note we aren't passing the CancellationToken to the task on purpose so awaiters
             // don't have to handle Exceptions and can wait for the actual completion of the task.
@@ -178,7 +178,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                             {
                                 if (0u >= (uint)chunksToMerge.Count) { ThrowHelper.ThrowException(ExceptionResource.SCAVENGING_no_chunks_to_merge); }
 
-                                if (chunksToMerge.Count > 1 && MergeChunks(chunksToMerge, ct))
+                                if ((uint)chunksToMerge.Count > 1u && MergeChunks(chunksToMerge, ct))
                                 {
                                     mergedSomething = true;
                                 }
@@ -191,7 +191,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                             totalDataSize += chunk.PhysicalDataSize;
                         }
 
-                        if (chunksToMerge.Count > 1)
+                        if ((uint)chunksToMerge.Count > 1u)
                         {
                             if (MergeChunks(chunksToMerge, ct))
                             {
@@ -390,7 +390,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             var oldChunksList = string.Join("\n", oldChunks);
 
-            if (oldChunks.Count < 2)
+            if ((uint)oldChunks.Count < 2u)
             {
                 if (Log.IsTraceLevelEnabled()) Log.TriedToMergeLessThan2chunksAborting(oldChunksList);
                 return false;

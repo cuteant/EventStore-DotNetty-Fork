@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.TimerService
 
                 _queueStats.ProcessingStarted<ExecuteScheduledTasks>(_tasks.Count);
                 int processed = 0;
-                while (_tasks.Count > 0 && _tasks.FindMin().DueTime <= _timeProvider.Now)
+                while ((uint)_tasks.Count > 0u && _tasks.FindMin().DueTime <= _timeProvider.Now)
                 {
                     processed += 1;
                     var scheduledTask = _tasks.DeleteMin();
@@ -77,7 +77,7 @@ namespace EventStore.Core.Services.TimerService
                 }
                 _queueStats.ProcessingEnded(processed);
 
-                if (processed == 0)
+                if (0u >= (uint)processed)
                 {
                     _queueStats.EnterIdle();
 

@@ -28,7 +28,7 @@ namespace EventStore.Core.Services.Storage
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (null == subscriber) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriber); }
             if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
-            if (threadCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threadCount); }
+            if ((uint)(threadCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threadCount); }
             if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _bus = bus;

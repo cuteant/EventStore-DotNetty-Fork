@@ -21,14 +21,14 @@ namespace EventStore.Core.DataStructures
 
         public StickyLRUCache(int maxCount)
         {
-            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
+            if ((uint)maxCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
 
             _maxCount = maxCount;
         }
 
         public void Clear()
         {
-            while (_orderList.Count > 0)
+            while ((uint)_orderList.Count > 0u)
             {
                 var node = _orderList.First;
                 _orderList.RemoveFirst();
@@ -112,10 +112,10 @@ namespace EventStore.Core.DataStructures
 
         private void EnsureCapacity()
         {
-            while (_items.Count > 0 && _items.Count >= _maxCount)
+            while ((uint)_items.Count > 0u && (uint)_items.Count >= (uint)_maxCount)
             {
                 var node = _orderList.First;
-                if (node.Value.Stickiness == 0)
+                if (0u >= (uint)node.Value.Stickiness)
                 {
                     _orderList.Remove(node);
                     _items.Remove(node.Value.Key);
@@ -132,7 +132,7 @@ namespace EventStore.Core.DataStructures
 
         private LinkedListNode<LRUItem> GetNode()
         {
-            if (_nodesPool.Count > 0)
+            if ((uint)_nodesPool.Count > 0u)
                 return _nodesPool.Dequeue();
             return new LinkedListNode<LRUItem>(new LRUItem());
         }

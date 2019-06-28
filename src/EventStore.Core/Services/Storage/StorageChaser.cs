@@ -226,7 +226,7 @@ namespace EventStore.Core.Services.Storage
 
         private void ProcessPrepareRecord(PrepareLogRecord record, long postPosition)
         {
-            if (_transaction.Count > 0 && _transaction[0].TransactionPosition != record.TransactionPosition)
+            if ((uint)_transaction.Count > 0u && _transaction[0].TransactionPosition != record.TransactionPosition)
                 CommitPendingTransaction(_transaction, postPosition);
 
             if (record.Flags.HasAnyOf(PrepareFlags.IsCommitted))
@@ -296,7 +296,7 @@ namespace EventStore.Core.Services.Storage
 
         private void CommitPendingTransaction(List<PrepareLogRecord> transaction, long postPosition)
         {
-            if (transaction.Count > 0)
+            if ((uint)transaction.Count > 0u)
             {
                 _indexCommitterService.AddPendingPrepare(transaction.ToArray(), postPosition);
                 _transaction.Clear();

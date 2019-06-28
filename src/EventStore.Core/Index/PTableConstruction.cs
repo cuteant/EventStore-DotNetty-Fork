@@ -24,7 +24,7 @@ namespace EventStore.Core.Index
         {
             if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
             if (string.IsNullOrEmpty(filename)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.filename); }
-            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
+            if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             int indexEntrySize = GetIndexEntrySize(table.Version);
             long dumpedEntryCount = 0;
@@ -103,7 +103,7 @@ namespace EventStore.Core.Index
         {
             if (null == tables) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tables); }
             if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
-            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
+            if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             var indexEntrySize = GetIndexEntrySize(version);
 
@@ -112,7 +112,7 @@ namespace EventStore.Core.Index
                 numIndexEntries += tables[i].Count;
 
             var fileSizeUpToIndexEntries = GetFileSizeUpToIndexEntries(numIndexEntries, version);
-            if (tables.Count == 2)
+            if ((uint)tables.Count == 2u)
                 return MergeTo2(tables, numIndexEntries, indexEntrySize, outputFile, upgradeHash, existsAt, readRecord, version, cacheDepth, skipIndexVerify); // special case
 
             if (Log.IsTraceLevelEnabled()) Log.PTables_merge_started();
@@ -342,7 +342,7 @@ namespace EventStore.Core.Index
         {
             if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
             if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
-            if (cacheDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
+            if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
             var indexEntrySize = GetIndexEntrySize(version);
             var numIndexEntries = table.Count;
@@ -390,7 +390,7 @@ namespace EventStore.Core.Index
 
                         var forceKeep = version > table.Version;
 
-                        if (droppedCount == 0 && !forceKeep)
+                        if (0ul >= (ulong)droppedCount && !forceKeep)
                         {
                             if (Log.IsTraceLevelEnabled()) Log.PTableScavengeFinishedNoEntriesRemovedSoNotKeepingScavengedTable(watch.Elapsed);
 
@@ -408,7 +408,7 @@ namespace EventStore.Core.Index
                             return null;
                         }
 
-                        if (Log.IsTraceLevelEnabled() && droppedCount == 0 && forceKeep)
+                        if (Log.IsTraceLevelEnabled() && 0ul >= (ulong)droppedCount && forceKeep)
                         {
                             Log.Keeping_scavenged_index_even_though_it_isnot_smaller();
                         }

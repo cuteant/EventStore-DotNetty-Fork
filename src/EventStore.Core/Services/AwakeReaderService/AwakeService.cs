@@ -29,7 +29,7 @@ namespace EventStore.Core.Services.AwakeReaderService
 
         private void BeginReplyBatch()
         {
-            if (_batchedReplies.Count > 0)
+            if ((uint)_batchedReplies.Count > 0u)
                 ThrowHelper.ThrowException();
             _processedEvents = 0;
         }
@@ -109,7 +109,7 @@ namespace EventStore.Core.Services.AwakeReaderService
                         {
                             list.Remove(item);
                         }
-                        if (list.Count == 0)
+                        if (0u >= (uint)list.Count)
                         {
                             _subscribers.Remove(streamId);
                         }

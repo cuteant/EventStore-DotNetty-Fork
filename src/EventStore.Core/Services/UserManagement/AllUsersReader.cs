@@ -129,7 +129,7 @@ namespace EventStore.Core.Services.UserManagement
 
         private void TryComplete()
         {
-            if (!_aborted && _activeRequests == 0)
+            if (!_aborted && 0u >= (uint)_activeRequests)
             {
                 _onCompleted(UserManagementMessage.Error.Success, _results.ToArray());
             }

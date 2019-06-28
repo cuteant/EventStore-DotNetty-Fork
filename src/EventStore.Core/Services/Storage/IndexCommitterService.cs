@@ -62,7 +62,7 @@ namespace EventStore.Core.Services.Storage
             if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
             if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (commitCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitCount); }
+            if ((uint)(commitCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitCount); }
 
             _indexCommitter = indexCommitter;
             _publisher = publisher;
@@ -146,7 +146,7 @@ namespace EventStore.Core.Services.Storage
             if(_pendingTransactions.TryRemove(message.TransactionPosition, out transaction))
             {
                 var isTfEof = IsTfEof(transaction.PostPosition);
-                if (transaction.Prepares.Count > 0)
+                if ((uint)transaction.Prepares.Count > 0u)
                 {
                     _indexCommitter.Commit(transaction.Prepares, isTfEof, true);
                 }
@@ -441,7 +441,7 @@ namespace EventStore.Core.Services.Storage
 
                 public bool IsReplicated(int commitCount)
                 {
-                    return CommitAcks.Count >= commitCount && _hadSelf;
+                    return (uint)CommitAcks.Count >= (uint)commitCount && _hadSelf ? true : false;
                 }
             }
         }

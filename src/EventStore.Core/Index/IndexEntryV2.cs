@@ -21,7 +21,7 @@ namespace EventStore.Core
         public int CompareTo(IndexEntryV2 other)
         {
             var keyCmp = Stream.CompareTo(other.Stream);
-            if (keyCmp == 0)
+            if (0u >= (uint)keyCmp)
             {
                 keyCmp = Version.CompareTo(other.Version);
                 if (keyCmp != 0)

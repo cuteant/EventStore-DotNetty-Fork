@@ -22,7 +22,7 @@ namespace EventStore.Core.DataStructures
         private static IHasher hasher1 = new XXHashUnsafe(), hasher2 = new Murmur3AUnsafe();
 
         public BloomFilter(int n, double p){
-            if (n <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.n); }
+            if ((uint)(n - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.n); }
             if (p<=0.0 || p>=0.5)
                 ThrowHelper.ThrowArgumentOutOfRangeException_ShouldBeBetween0And05Exclusive();
 
@@ -65,7 +65,7 @@ namespace EventStore.Core.DataStructures
                 hash += hash2;
                 hash &= Int32.MaxValue; //make positive
                 int idx = (hash%m);
-                if((bits[idx / LONG_SIZE] & (1UL << (idx % LONG_SIZE))) == 0)
+                if(0ul >= (bits[idx / LONG_SIZE] & (1UL << (idx % LONG_SIZE))))
                     return false;
             }
 

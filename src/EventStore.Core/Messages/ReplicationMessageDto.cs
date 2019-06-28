@@ -173,7 +173,7 @@ namespace EventStore.Core.Messages
             {
                 //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
                 //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (subscriptionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
+                if ((ulong)subscriptionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;

@@ -255,7 +255,7 @@ namespace EventStore.Core.Services.Storage
             }
 
             var totalTime = message.TotalTimeWasted + sw.Elapsed;
-            if (Log.IsDebugLevelEnabled() && (totalTime < TimeSpan.FromSeconds(5) || (int)totalTime.TotalSeconds % 30 == 0)) // too verbose otherwise
+            if (Log.IsDebugLevelEnabled() && (totalTime < TimeSpan.FromSeconds(5) || 0u >= (uint)((int)totalTime.TotalSeconds % 30))) // too verbose otherwise
             {
                 Log.Still_waiting_for_chaser_to_catch_up_already_for(totalTime);
             }
@@ -291,7 +291,7 @@ namespace EventStore.Core.Services.Storage
                     {
                         var evnt = msgEvents[i];
                         var flags = PrepareFlags.Data | PrepareFlags.IsCommitted;
-                        if (i == 0) { flags |= PrepareFlags.TransactionBegin; }
+                        if (0u >= (uint)i) { flags |= PrepareFlags.TransactionBegin; }
                         if (i == eventCount - 1) { flags |= PrepareFlags.TransactionEnd; }
                         if (evnt.IsJson) { flags |= PrepareFlags.IsJson; }
 
@@ -302,7 +302,7 @@ namespace EventStore.Core.Services.Storage
                                 transactionPosition, i, streamId,
                                 expectedVersion, flags, evnt.EventType, evnt.Data, evnt.Metadata));
                         logPosition = res.NewPos;
-                        if (i == 0) { transactionPosition = res.WrittenPos; }
+                        if (0u >= (uint)i) { transactionPosition = res.WrittenPos; }
                         // transaction position could be changed due to switching to new chunk
                         prepares.Add(res.Prepare);
                     }
@@ -556,7 +556,7 @@ namespace EventStore.Core.Services.Storage
 
         private static bool CheckTransactionInfo(long transactionId, in TransactionInfo transactionInfo)
         {
-            if (transactionInfo.TransactionOffset < -1 || transactionInfo.EventStreamId.IsEmptyString())
+            if (ThrowHelper.IsInvalidCheckpoint(transactionInfo.TransactionOffset) || transactionInfo.EventStreamId.IsEmptyString())
             {
                 Log.InvalidTransactionInfoFoundForTransactionId(transactionId, transactionInfo);
                 return false;
@@ -699,7 +699,7 @@ namespace EventStore.Core.Services.Storage
         protected bool Flush(bool force = false)
         {
             var start = _watch.ElapsedTicks;
-            if (force || FlushMessagesInQueue == 0 || start - _lastFlushTimestamp >= _lastFlushDelay + _minFlushDelay)
+            if (force || 0u >= (uint)FlushMessagesInQueue || start - _lastFlushTimestamp >= _lastFlushDelay + _minFlushDelay)
             {
                 var flushSize = Writer.Checkpoint.ReadNonFlushed() - Writer.Checkpoint.Read();
 
@@ -761,24 +761,24 @@ namespace EventStore.Core.Services.Storage
             var lastFlushSize = Interlocked.Read(ref _lastFlushSize);
             var lastFlushDelayMs = Interlocked.Read(ref _lastFlushDelay) / (double)TicksPerMs;
             var statCount = _statCount;
-            var meanFlushSize = statCount == 0 ? 0 : Interlocked.Read(ref _sumFlushSize) / statCount;
-            var meanFlushDelayMs = statCount == 0
-                ? 0
+            var meanFlushSize = 0u >= (uint)statCount ? 0L : Interlocked.Read(ref _sumFlushSize) / statCount;
+            var meanFlushDelayMs = 0u >= (uint)statCount
+                ? 0D
                 : Interlocked.Read(ref _sumFlushDelay) / (double)TicksPerMs / statCount;
             var maxFlushSize = Interlocked.Read(ref _maxFlushSize);
             var maxFlushDelayMs = Interlocked.Read(ref _maxFlushDelay) / (double)TicksPerMs;
             var queuedFlushMessages = FlushMessagesInQueue;
 
             var stats = new Dictionary<string, object>(StringComparer.Ordinal)
-      {
-        {"es-writer-lastFlushSize", new StatMetadata(lastFlushSize, "Writer Last Flush Size")},
-        {"es-writer-lastFlushDelayMs", new StatMetadata(lastFlushDelayMs, "Writer Last Flush Delay, ms")},
-        {"es-writer-meanFlushSize", new StatMetadata(meanFlushSize, "Writer Mean Flush Size")},
-        {"es-writer-meanFlushDelayMs", new StatMetadata(meanFlushDelayMs, "Writer Mean Flush Delay, ms")},
-        {"es-writer-maxFlushSize", new StatMetadata(maxFlushSize, "Writer Max Flush Size")},
-        {"es-writer-maxFlushDelayMs", new StatMetadata(maxFlushDelayMs, "Writer Max Flush Delay, ms")},
-        {"es-writer-queuedFlushMessages", new StatMetadata(queuedFlushMessages, "Writer Queued Flush Message")}
-      };
+            {
+                {"es-writer-lastFlushSize", new StatMetadata(lastFlushSize, "Writer Last Flush Size")},
+                {"es-writer-lastFlushDelayMs", new StatMetadata(lastFlushDelayMs, "Writer Last Flush Delay, ms")},
+                {"es-writer-meanFlushSize", new StatMetadata(meanFlushSize, "Writer Mean Flush Size")},
+                {"es-writer-meanFlushDelayMs", new StatMetadata(meanFlushDelayMs, "Writer Mean Flush Delay, ms")},
+                {"es-writer-maxFlushSize", new StatMetadata(maxFlushSize, "Writer Max Flush Size")},
+                {"es-writer-maxFlushDelayMs", new StatMetadata(maxFlushDelayMs, "Writer Max Flush Delay, ms")},
+                {"es-writer-queuedFlushMessages", new StatMetadata(queuedFlushMessages, "Writer Queued Flush Message")}
+            };
 
             message.Envelope.ReplyWith(new MonitoringMessage.InternalStatsRequestResponse(stats));
         }

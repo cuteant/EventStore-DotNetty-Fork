@@ -14,7 +14,7 @@ namespace EventStore.Core.Helpers
 
         private const int PrefixLength = sizeof(int);
 
-        public bool HasData { get { return _memStream.Length > 0; } }
+        public bool HasData { get { return (ulong)_memStream.Length > 0ul; } }
 
         private readonly int _maxPackageSize;
         private readonly Action<BinaryReader> _packageHandler;
@@ -28,7 +28,7 @@ namespace EventStore.Core.Helpers
         public LengthPrefixSuffixFramer(Action<BinaryReader> packageHandler, int maxPackageSize = TFConsts.MaxLogRecordSize)
         {
             if (null == packageHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.packageHandler); }
-            if (maxPackageSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxPackageSize); }
+            if ((uint)(maxPackageSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxPackageSize); }
 
             _maxPackageSize = maxPackageSize;
             _packageHandler = packageHandler;
@@ -73,7 +73,7 @@ namespace EventStore.Core.Helpers
                     i += 1;
                     if (_prefixBytes == PrefixLength)
                     {
-                        if (_packageLength <= 0 || _packageLength > _maxPackageSize)
+                        if ((uint)(_packageLength - 1) >= Consts.TooBigOrNegative || (uint)_packageLength > (uint)_maxPackageSize)
                         {
                             Log.FramingError(bytes);
                             ThrowHelper.ThrowPackageFramingException(_packageLength, _maxPackageSize);
@@ -87,7 +87,7 @@ namespace EventStore.Core.Helpers
                     _memStream.Write(bytes.Array, i, copyCnt);
                     i += copyCnt;
 
-                    if (_memStream.Length == _packageLength)
+                    if ((ulong)_memStream.Length == (ulong)_packageLength)
                     {
 #if DEBUG
                         var buf = _memStream.GetBuffer();

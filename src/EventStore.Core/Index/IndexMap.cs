@@ -30,9 +30,9 @@ namespace EventStore.Core.Index
 
         private IndexMap(int version, List<List<PTable>> tables, long prepareCheckpoint, long commitCheckpoint, int maxTablesPerLevel, int maxTableLevelsForAutomaticMerge)
         {
-            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
-            if (prepareCheckpoint < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.prepareCheckpoint);
-            if (commitCheckpoint < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.commitCheckpoint);
+            if ((uint)version > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if (ThrowHelper.IsInvalidCheckpoint(prepareCheckpoint)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.prepareCheckpoint);
+            if (ThrowHelper.IsInvalidCheckpoint(commitCheckpoint)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.commitCheckpoint);
             if (maxTablesPerLevel <= 1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxTablesPerLevel);
 
             Version = version;
@@ -68,7 +68,7 @@ namespace EventStore.Core.Index
         
         private static void AddTableToTables(List<List<PTable>> tables, int level, PTable table)
         {
-            while (level >= tables.Count)
+            while ((uint)level >= (uint)tables.Count)
             {
                 tables.Add(new List<PTable>());
             }
@@ -80,12 +80,12 @@ namespace EventStore.Core.Index
 
         private static void InsertTableToTables(List<List<PTable>> tables, int level, int position, PTable table)
         {
-            while (level >= tables.Count)
+            while ((uint)level >= (uint)tables.Count)
                 tables.Add(new List<PTable>());
 
             var innerTables = tables[level] ?? (tables[level] = new List<PTable>());
             
-            while (position >= innerTables.Count) 
+            while ((uint)position >= (uint)innerTables.Count) 
                 innerTables.Add(null);
             
             innerTables[position] = table;
@@ -194,7 +194,7 @@ namespace EventStore.Core.Index
             {
                 ThrowHelper.ThrowCorruptIndexException_IndexMapFileIsEmpty();
             }
-            if (text.Length != 32 || !text.All(x => char.IsDigit(x) || (x >= 'A' && x <= 'F')))
+            if ((uint)text.Length != 32u || !text.All(x => Helper.IsDigit(x) || Helper.IsUpper(x)))
             {
                 ThrowHelper.ThrowCorruptIndexException_CorruptedIndexMapMD5Hash(text);
             }
@@ -240,11 +240,11 @@ namespace EventStore.Core.Index
             try
             {
                 var checkpoints = text.Split('/');
-                if (!long.TryParse(checkpoints[0], out long prepareCheckpoint) || prepareCheckpoint < -1)
+                if (!long.TryParse(checkpoints[0], out long prepareCheckpoint) || ThrowHelper.IsInvalidCheckpoint(prepareCheckpoint))
                 {
                     ThrowHelper.ThrowCorruptIndexException_InvalidPrepareCheckpoint(checkpoints[0]);
                 }
-                if (!long.TryParse(checkpoints[1], out long commitCheckpoint) || commitCheckpoint < -1)
+                if (!long.TryParse(checkpoints[1], out long commitCheckpoint) || ThrowHelper.IsInvalidCheckpoint(commitCheckpoint))
                 {
                     ThrowHelper.ThrowCorruptIndexException_InvalidCommitCheckpoint(checkpoints[1]);
                 }
@@ -285,7 +285,7 @@ namespace EventStore.Core.Index
                         new ParallelOptions { MaxDegreeOfParallelism = threads }, LocalAction);
                     void LocalAction(string indexMapEntry)
                     {
-                        if (checkpoints.PreparePosition < 0 || checkpoints.CommitPosition < 0)
+                        if ((ulong)checkpoints.PreparePosition > Consts.TooBigOrNegativeUL || (ulong)checkpoints.CommitPosition > Consts.TooBigOrNegativeUL)
                             ThrowHelper.ThrowCorruptIndexException_NegativePrepareCommitCheckpointInNonEmptyIndexMap(checkpoints);
 
                         PTable ptable = null;
@@ -433,16 +433,16 @@ namespace EventStore.Core.Index
             //we have more than one entry at the max level
             //or we have at least one entry at the max level and tables at a level above it
             // or we have any tables > max level
-            var tablesExistAtMaxLevelOrAbove = _map.Count > _maxTableLevelsForAutomaticMerge
+            var tablesExistAtMaxLevelOrAbove = (uint)_map.Count > (uint)_maxTableLevelsForAutomaticMerge
                     && _map[_maxTableLevelsForAutomaticMerge] != null;
             bool moreThanOneEntryAtMaxLevel = tablesExistAtMaxLevelOrAbove
-                                              && _map[_maxTableLevelsForAutomaticMerge].Count > 1;
-            bool atLeastOneEntryAtMaxLevelAndOneAboveIt = tablesExistAtMaxLevelOrAbove && _map[_maxTableLevelsForAutomaticMerge].Count == 1
-                                                          && _map.Count > _maxTableLevelsForAutomaticMerge + 1
-                                                          && _map.Skip(_maxTableLevelsForAutomaticMerge).Any(x => x.Count > 0);
+                                              && (uint)_map[_maxTableLevelsForAutomaticMerge].Count > 1u;
+            bool atLeastOneEntryAtMaxLevelAndOneAboveIt = tablesExistAtMaxLevelOrAbove && (uint)_map[_maxTableLevelsForAutomaticMerge].Count == 1u
+                                                          && (uint)_map.Count > (uint)(_maxTableLevelsForAutomaticMerge + 1)
+                                                          && _map.Skip(_maxTableLevelsForAutomaticMerge).Any(x => (uint)x.Count > 0u);
             bool moreThanOneEntryAboveMaxLevel = tablesExistAtMaxLevelOrAbove &&
-                                                 _map.Skip(_maxTableLevelsForAutomaticMerge).Any(x => x.Count > 1) ||
-                                                 _map.Skip(_maxTableLevelsForAutomaticMerge).Count(x => x.Count > 0) > 1;
+                                                 _map.Skip(_maxTableLevelsForAutomaticMerge).Any(x => (uint)x.Count > 1u) ||
+                                                 (uint)_map.Skip(_maxTableLevelsForAutomaticMerge).Count(x => (uint)x.Count > 0u) > 1u;
             if (moreThanOneEntryAtMaxLevel || atLeastOneEntryAtMaxLevelAndOneAboveIt || moreThanOneEntryAboveMaxLevel)
             {
                 //we don't actually care which table we return here as manual merge will actually just iterate over anything above the max merge level
@@ -465,7 +465,7 @@ namespace EventStore.Core.Index
             bool skipIndexVerify = false)
         {
             bool isManual;
-            //if (_maxTableLevelsForAutomaticMerge == 0)
+            //if (0u >= (uint)_maxTableLevelsForAutomaticMerge)
             //{
             //    //when we are not auto merging at all, a manual merge will only be triggered if
             //    //there are entries in the index map. the table it passes is always the first table
@@ -501,8 +501,8 @@ namespace EventStore.Core.Index
             int indexCacheDepth = 16,
             bool skipIndexVerify = false)
         {
-            if (prepareCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCheckpoint); }
-            if (commitCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitCheckpoint); }
+            if ((ulong)prepareCheckpoint > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCheckpoint); }
+            if ((ulong)commitCheckpoint > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitCheckpoint); }
 
             var tables = CopyFrom(_map);
             AddTableToTables(tables, 0, tableToAdd);
@@ -511,7 +511,7 @@ namespace EventStore.Core.Index
             var maxTableLevelsToMerge = Math.Min(tables.Count, _maxTableLevelsForAutomaticMerge);
             for (int level = 0; level < maxTableLevelsToMerge; level++)
             {
-                if (tables[level].Count >= _maxTablesPerLevel)
+                if ((uint)tables[level].Count >= (uint)_maxTablesPerLevel)
                 {
                     var filename = filenameProvider.GetFilenameNewTable();
                     PTable mergedTable = PTable.MergeTo(tables[level], filename, upgradeHash, existsAt, recordExistsAt,
@@ -536,19 +536,19 @@ namespace EventStore.Core.Index
             int indexCacheDepth = 16,
             bool skipIndexVerify = false)
         {
-            if (prepareCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCheckpoint); }
-            if (commitCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitCheckpoint); }
+            if ((ulong)prepareCheckpoint > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCheckpoint); }
+            if ((ulong)commitCheckpoint > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitCheckpoint); }
 
             var tables = CopyFrom(_map);
 
-            if (tables.Count < _maxTableLevelsForAutomaticMerge)
+            if ((uint)tables.Count < (uint)_maxTableLevelsForAutomaticMerge)
             {
                 return new MergeResult(this, new List<PTable>());
             }
 
             var toDelete = new List<PTable>();
             var tablesToMerge = tables.Skip(_maxTableLevelsForAutomaticMerge).SelectMany(a => a).ToList();
-            if (tablesToMerge.Count == 1)
+            if ((uint)tablesToMerge.Count == 1u)
                 return new MergeResult(this, new List<PTable>());
 
             var filename = filenameProvider.GetFilenameNewTable();

@@ -99,11 +99,11 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                         bool reduceFileCachePressure)
         {
             if (string.IsNullOrEmpty(filename)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.filename); }
-            if (initialReaderCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initialReaderCount); }
-            if (maxReaderCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
+            if ((uint)(initialReaderCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initialReaderCount); }
+            if ((uint)(maxReaderCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
             if (initialReaderCount > maxReaderCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException_InitialReaderCountIsGreaterThanMaxReaderCount();
-            if (midpointsDepth < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.midpointsDepth); }
+            if ((uint)midpointsDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.midpointsDepth); }
 
             _filename = filename;
             _internalStreamsCount = initialReaderCount;
@@ -235,7 +235,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 _logicalDataSize = _chunkFooter.LogicalDataSize;
                 _physicalDataSize = _chunkFooter.PhysicalDataSize;
                 var expectedFileSize = _chunkFooter.PhysicalDataSize + _chunkFooter.MapSize + ChunkHeader.Size + ChunkFooter.Size;
-                if (_chunkHeader.Version == (byte) ChunkVersions.Unaligned && reader.Stream.Length != expectedFileSize)
+                if (_chunkHeader.Version == (byte) ChunkVersions.Unaligned && (ulong)reader.Stream.Length != (ulong)expectedFileSize)
                 {
                     ThrowHelper.ThrowCorruptDatabaseException_ChunkFileShouldHaveFileSize1(_filename, expectedFileSize, reader.Stream.Length);
                 }
@@ -255,7 +255,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         private void InitNew(ChunkHeader chunkHeader, int fileSize)
         {
             if (null == chunkHeader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
-            if (fileSize <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
+            if ((uint)(fileSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
 
             _fileSize = fileSize;
             _isReadOnly = false;
@@ -276,7 +276,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         private void InitOngoing(int writePosition, bool checkSize)
         {
-            if (writePosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.writePosition); }
+            if ((uint)writePosition > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.writePosition); }
             var fileInfo = new FileInfo(_filename);
             if (!fileInfo.Exists)
                 ThrowHelper.ThrowCorruptDatabaseException_ChunkNotFound(_filename);
@@ -313,9 +313,9 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                SetAttributes(filename, false);
                using (var stream = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                {
-                   if (stream.Length%4096 == 0) return;
+                   if (0ul >= (ulong)(stream.Length%4096L)) return;
                    var footerStart = stream.Length - ChunkFooter.Size;
-                   var alignedSize = (stream.Length/4096 + 1)*4096;
+                   var alignedSize = (stream.Length/4096L + 1L)*4096L;
                    var footer = new byte[ChunkFooter.Size];
                    stream.SetLength(alignedSize);
                    stream.Seek(footerStart, SeekOrigin.Begin);
@@ -546,7 +546,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         private ChunkHeader ReadHeader(Stream stream)
         {
-            if (stream.Length < ChunkHeader.Size)
+            if ((ulong)stream.Length < (ulong)ChunkHeader.Size)
             {
                 ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsTooShortToEvenReadChunkHeader(_filename, stream.Length);
             }
@@ -558,7 +558,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         private ChunkFooter ReadFooter(Stream stream)
         {
-            if (stream.Length < ChunkFooter.Size)
+            if ((ulong)stream.Length < (ulong)ChunkFooter.Size)
             {
                 ThrowHelper.ThrowCorruptDatabaseException_ChunkFileIsTooShortToEvenReadChunkFooter(_filename, stream.Length);
             }
@@ -610,7 +610,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             Interlocked.Add(ref _memStreamCount, _maxReaderCount);
             if (_selfdestructin54321)
             {
-                if (Interlocked.Add(ref _memStreamCount, -_maxReaderCount) == 0)
+                if (0u >= (uint)Interlocked.Add(ref _memStreamCount, -_maxReaderCount))
                     FreeCachedData();
                 if(Log.IsTraceLevelEnabled()) Log.CachingAbortedForTFChunk(this);
                 return;
@@ -661,7 +661,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                         while (toRead > 0)
                         {
                             int read = workItem.Stream.Read(buffer, 0, Math.Min(toRead, buffer.Length));
-                            if (read == 0)
+                            if (0u >= (uint)read)
                                 break;
                             toRead -= read;
                             unmanagedStream.Write(buffer, 0, read);
@@ -784,7 +784,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         public bool TryAppendRawData(byte[] buffer)
         {
             var workItem = _writerWorkItem;
-            if (workItem.StreamPosition + buffer.Length > workItem.StreamLength)
+            if ((ulong)(workItem.StreamPosition + buffer.Length) > (ulong)workItem.StreamLength)
                 return false;
             WriteRawData(workItem, buffer, buffer.Length);
             return true;
@@ -976,9 +976,9 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 fileStreamCount = Interlocked.Decrement(ref _fileStreamCount);
             }
 
-            if (fileStreamCount < 0)
+            if ((uint)fileStreamCount > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowException(ExceptionResource.Count_of_file_streams_reduced_below_zero);
-            if (fileStreamCount == 0) // we are the last who should "turn the light off" for file streams
+            if (0u >= (uint)fileStreamCount) // we are the last who should "turn the light off" for file streams
                 CleanUpFileStreamDestruction();
         }
 
@@ -1001,7 +1001,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         }
 
         public static int GetAlignedSize(int size) {
-            if(size % 4096 == 0) return size;
+            if(0u >= (uint)(size % 4096)) return size;
             return (size / 4096 + 1) * 4096;
         }
 
@@ -1018,9 +1018,9 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             {
                 memStreamCount = Interlocked.Decrement(ref _memStreamCount);
             }
-            if (memStreamCount < 0)
+            if ((uint)memStreamCount > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowException(ExceptionResource.Count_of_memory_streams_reduced_below_zero);
-            if (memStreamCount == 0) // we are the last who should "turn the light off" for memory streams
+            if (0u >= (uint)memStreamCount) // we are the last who should "turn the light off" for memory streams
             {
                 FreeCachedData();
                 return true;
@@ -1067,7 +1067,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             Interlocked.Increment(ref _fileStreamCount);
             if (_selfdestructin54321)
             {
-                if (Interlocked.Decrement(ref _fileStreamCount) == 0)
+                if (0u >= (uint)Interlocked.Decrement(ref _fileStreamCount))
                     CleanUpFileStreamDestruction(); // now we should "turn light off"
                 ThrowHelper.ThrowFileBeingDeletedException();
             }
@@ -1082,7 +1082,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             if (item.IsMemory)
             {
                 _memStreams.Enqueue(item);
-                if (_isCached == 0 || _selfdestructin54321)
+                if (0u >= (uint)_isCached || _selfdestructin54321)
                     TryDestructMemStreams();
             }
             else
@@ -1098,7 +1098,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             Interlocked.Increment(ref _fileStreamCount);
             if (_selfdestructin54321)
             {
-                if (Interlocked.Decrement(ref _fileStreamCount) == 0)
+                if (0u >= (uint)Interlocked.Decrement(ref _fileStreamCount))
                 {
                     // now we should "turn light off"
                     CleanUpFileStreamDestruction();
@@ -1120,10 +1120,10 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         public void ReleaseReader(TFChunkBulkReader reader)
         {
-            var fileStreamCount = Interlocked.Decrement(ref _fileStreamCount);
-            if (fileStreamCount < 0)
+            var fileStreamCount = (uint)Interlocked.Decrement(ref _fileStreamCount);
+            if (fileStreamCount > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowException(ExceptionResource.Count_of_file_streams_reduced_below_zero);
-            if (_selfdestructin54321 && fileStreamCount == 0)
+            if (_selfdestructin54321 && 0u >= fileStreamCount)
                 CleanUpFileStreamDestruction();
         }
 

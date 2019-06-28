@@ -40,7 +40,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
 
         public static bool HasNoneOf(this PrepareFlags flags, PrepareFlags flagSet)
         {
-            return (flags & flagSet) == 0;
+            return 0u >= (uint)(flags & flagSet);
         }
     }
 
@@ -100,8 +100,8 @@ namespace EventStore.Core.TransactionLog.LogRecords
         {
             if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
             if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
-            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
-            if (transactionOffset < -1)
+            if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+            if (ThrowHelper.IsInvalidCheckpoint(transactionOffset))
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.transactionOffset);
             if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
             if (expectedVersion < Core.Data.ExpectedVersion.Any)
@@ -145,10 +145,10 @@ namespace EventStore.Core.TransactionLog.LogRecords
             EventType = reader.ReadString();
 
             var dataCount = reader.ReadInt32();
-            Data = dataCount == 0 ? NoData : reader.ReadBytes(dataCount);
+            Data = 0u >= (uint)dataCount ? NoData : reader.ReadBytes(dataCount);
             
             var metadataCount = reader.ReadInt32();
-            Metadata = metadataCount == 0 ? NoData : reader.ReadBytes(metadataCount);
+            Metadata = 0u >= (uint)metadataCount ? NoData : reader.ReadBytes(metadataCount);
             if(InMemorySize > TFConsts.MaxLogRecordSize) ThrowHelper.ThrowException(ExceptionResource.Record_too_large);
         }
 

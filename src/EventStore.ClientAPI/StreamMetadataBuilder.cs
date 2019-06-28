@@ -82,7 +82,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMaxCount(long maxCount)
         {
-            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if ((ulong)(maxCount - 1) >= Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
             _maxCount = maxCount;
             return this;
         }
@@ -93,7 +93,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMaxAge(TimeSpan maxAge)
         {
-            if (maxAge.Ticks <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxAge); }
+            if ((ulong)(maxAge.Ticks - 1) >= Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxAge); }
             _maxAge = maxAge;
             return this;
         }
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetTruncateBefore(long truncateBefore)
         {
-            if (truncateBefore < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.truncateBefore); }
+            if ((ulong)truncateBefore > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.truncateBefore); }
             _truncateBefore = truncateBefore;
             return this;
         }
@@ -115,7 +115,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetCacheControl(TimeSpan cacheControl)
         {
-            if (cacheControl.Ticks <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.cacheControl); }
+            if ((ulong)(cacheControl.Ticks - 1) >= Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.cacheControl); }
             _cacheControl = cacheControl;
             return this;
         }

@@ -35,7 +35,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void SwitchToLive()
         {
-            while (_liveBuffer.Count > 0)
+            while ((uint)_liveBuffer.Count > 0u)
             {
                 _buffer.AddLast(_liveBuffer.Dequeue());
             }
@@ -44,7 +44,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         
         private void DrainLiveTo(long eventNumber)
         {
-            while (_liveBuffer.Count > 0 && _liveBuffer.Peek().ResolvedEvent.OriginalEventNumber < eventNumber)
+            while ((uint)_liveBuffer.Count > 0u && _liveBuffer.Peek().ResolvedEvent.OriginalEventNumber < eventNumber)
             {
                 _liveBuffer.Dequeue();
             }
@@ -76,7 +76,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (Live)
             {
-                if (_buffer.Count < _maxBufferSize)
+                if ((uint)_buffer.Count < (uint)_maxBufferSize)
                     _buffer.AddLast(ev);
                 else
                     Live = false;
@@ -106,7 +106,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private long TryPeekLive()
         {
-            return _liveBuffer.Count == 0 ? long.MaxValue : _liveBuffer.Peek().ResolvedEvent.OriginalEventNumber;
+            return 0u >= (uint)_liveBuffer.Count ? long.MaxValue : _liveBuffer.Peek().ResolvedEvent.OriginalEventNumber;
         }
 
         public IEnumerable<OutstandingMessagePointer> Scan()
@@ -135,7 +135,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public bool TryMoveToLive()
         {
-            if (_liveBuffer.Count == 0){
+            if (0u >= (uint)_liveBuffer.Count){
                 Live = true;
                 return true;
             }

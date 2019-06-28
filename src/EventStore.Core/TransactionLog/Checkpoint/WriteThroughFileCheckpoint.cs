@@ -59,7 +59,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
                             IntPtr.Zero);
 
             _stream = new FileStream(handle, FileAccess.ReadWrite, 4096);
-            var exists = _stream.Length == 4096;
+            var exists = (ulong)_stream.Length == 4096ul;
             _stream.SetLength(4096);
             _reader = new BinaryReader(_stream);
             _writer = new BinaryWriter(_memStream);

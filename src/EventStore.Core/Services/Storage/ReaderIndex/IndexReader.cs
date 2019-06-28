@@ -67,7 +67,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         IndexReadEventResult IIndexReader.ReadEvent(string streamId, long eventNumber)
         {
             if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
-            if (eventNumber < -1) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber);
+            if (ThrowHelper.IsInvalidEventNumber(eventNumber)) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventNumber);
             using (var reader = _backend.BorrowReader())
             {
                 return ReadEventInternal(reader, streamId, eventNumber);
@@ -135,7 +135,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         {
             // we assume that you already did check for stream deletion
             if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
-            if (eventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
+            if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
 
             return _skipIndexScanOnRead ? ReadPrepareSkipScan(reader, streamId, eventNumber) :
                                           ReadPrepare(reader, streamId, eventNumber);
@@ -149,7 +149,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                           .Where(x => x.Prepare != null && x.Prepare.EventStreamId == streamId)
                                           .GroupBy(x => x.Version).Select(x => x.Last()).ToList();
             //if (recordsQuery.Count() == 1)
-            if (recordsQuery.Count == 1)
+            if ((uint)recordsQuery.Count == 1u)
             {
                 return recordsQuery.First().Prepare;
             }
@@ -194,8 +194,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         private IndexReadStreamResult ReadStreamEventsForwardInternal(string streamId, long fromEventNumber, int maxCount, bool skipIndexScanOnRead)
         {
             if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
-            if (fromEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.fromEventNumber); }
-            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if ((ulong)fromEventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.fromEventNumber); }
+            if ((uint)(maxCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
 
             using (var reader = _backend.BorrowReader())
             {
@@ -271,7 +271,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         private IndexReadStreamResult ReadStreamEventsBackwardInternal(string streamId, long fromEventNumber, int maxCount, bool skipIndexScanOnRead)
         {
             if (string.IsNullOrEmpty(streamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
-            if (maxCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
+            if ((uint)(maxCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxCount); }
 
             using (var reader = _backend.BorrowReader())
             {
@@ -290,7 +290,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     return new IndexReadStreamResult(fromEventNumber, maxCount, ReadStreamResult.NoStream, metadata, lastEventNumber);
                 }
 
-                long endEventNumber = fromEventNumber < 0 ? lastEventNumber : fromEventNumber;
+                long endEventNumber = (ulong)fromEventNumber > Consts.TooBigOrNegativeUL ? lastEventNumber : fromEventNumber;
                 long startEventNumber = Math.Max(0L, endEventNumber - maxCount + 1);
                 bool isEndOfStream = false;
 
@@ -334,7 +334,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 var lastRecordIndex = records.Length - 1;
                 isEndOfStream = isEndOfStream
-                                || startEventNumber == 0
+                                || 0ul >= (ulong)startEventNumber
                                 || (startEventNumber <= lastEventNumber
                                    && ((uint)lastRecordIndex >= (uint)records.Length || records[lastRecordIndex].EventNumber != startEventNumber));
                 long nextEventNumber = isEndOfStream ? -1 : Math.Min(startEventNumber - 1, lastEventNumber);
@@ -345,7 +345,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public string GetEventStreamIdByTransactionId(long transactionId)
         {
-            if (transactionId < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
+            if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
             using (var reader = _backend.BorrowReader())
             {
                 var res = ReadPrepareInternal(reader, transactionId);

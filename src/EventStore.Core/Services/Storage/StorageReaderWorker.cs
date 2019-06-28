@@ -326,7 +326,7 @@ namespace EventStore.Core.Services.Storage
                         var checkpoint = _writerCheckpoint.Read();
                         pos = new TFPos(checkpoint, checkpoint);
                     }
-                    if (pos.CommitPosition < 0 || pos.PreparePosition < 0)
+                    if ((ulong)pos.CommitPosition > Consts.TooBigOrNegativeUL || (ulong)pos.PreparePosition > Consts.TooBigOrNegativeUL)
                     {
                         return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, "Invalid position.");
                     }
@@ -379,7 +379,7 @@ namespace EventStore.Core.Services.Storage
                         var checkpoint = _writerCheckpoint.Read();
                         pos = new TFPos(checkpoint, checkpoint);
                     }
-                    if (pos.CommitPosition < 0 || pos.PreparePosition < 0)
+                    if ((ulong)pos.CommitPosition > Consts.TooBigOrNegativeUL || (ulong)pos.PreparePosition > Consts.TooBigOrNegativeUL)
                     {
                         return NoData(msg, ReadAllResult.Error, pos, lastCommitPosition, "Invalid position.");
                     }
@@ -571,14 +571,14 @@ namespace EventStore.Core.Services.Storage
         public void Handle(StorageMessage.BatchLogExpiredMessages message)
         {
             if(!_batchLoggingEnabled) return;
-            if(_expiredBatchCount == 0){
+            if(0UL >= (ulong)_expiredBatchCount){
                 _batchLoggingEnabled = false;
                 if (Log.IsWarningLevelEnabled()) Log.Batch_logging_disabled_read_load_is_back_to_normal(_queueId);
                 return;
             }
 
             if (Log.IsWarningLevelEnabled()) Log.Read_operations_have_expired(_queueId, _expiredBatchCount);
-            _expiredBatchCount = 0;
+            _expiredBatchCount = 0L;
             _publisher.Publish(
                 TimerMessage.Schedule.Create(TimeSpan.FromSeconds(2),
                                             new PublishEnvelope(_publisher),

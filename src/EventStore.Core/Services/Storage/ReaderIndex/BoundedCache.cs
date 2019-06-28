@@ -22,9 +22,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         public BoundedCache(int maxCachedEntries, long maxDataSize, Func<TValue, long> valueSize)
         {
             if (null == valueSize) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.valueSize); }
-            if (maxCachedEntries <= 0)
+            if ((uint)(maxCachedEntries - 1) >= Consts.TooBigOrNegative)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxCachedEntries);
-            if (maxDataSize <= 0)
+            if ((ulong)(maxDataSize - 1) >= Consts.TooBigOrNegativeUL)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxDataSize);
 
             _maxCachedEntries = maxCachedEntries;
@@ -81,8 +81,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         private bool IsFull()
         {
-            return _queue.Count >= _maxCachedEntries
-                   || (_currentSize > _maxDataSize && _queue.Count > 0);
+            return (uint)_queue.Count >= (uint)_maxCachedEntries
+                   || ((ulong)_currentSize > (ulong)_maxDataSize && (uint)_queue.Count > 0u);
         }
 
         public void RemoveRecord(TKey key)

@@ -86,7 +86,7 @@ namespace EventStore.Core.Bus
 
         private void TryStopQueueStats()
         {
-            if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _isRunning, 1, 0))
             {
                 if (Interlocked.CompareExchange(ref _queueStatsState, 2, 1) == 1)
                     _queueStats.Stop();
@@ -98,7 +98,7 @@ namespace EventStore.Core.Bus
         {
             try
             {
-                if (Interlocked.CompareExchange(ref _queueStatsState, 1, 0) == 0)
+                if (0u >= (uint)Interlocked.CompareExchange(ref _queueStatsState, 1, 0))
                     _queueStats.Start();
 
                 var proceed = true;
@@ -161,7 +161,7 @@ namespace EventStore.Core.Bus
                     _stopped.Set();
 
                     // try to reacquire lock if needed
-                    proceed = !_stop && _queue.Count > 0 && Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0;
+                    proceed = !_stop && (uint)_queue.Count > 0u && 0u >= (uint)Interlocked.CompareExchange(ref _isRunning, 1, 0);
                 }
             }
             catch (Exception ex)
@@ -179,7 +179,7 @@ namespace EventStore.Core.Bus
             _queueStats.Enqueued();
 #endif
             _queue.Enqueue(message);
-            if (!_stop && Interlocked.CompareExchange(ref _isRunning, 1, 0) == 0)
+            if (!_stop && 0u >= (uint)Interlocked.CompareExchange(ref _isRunning, 1, 0))
             {
                 ThreadPoolScheduler.Schedule(ReadFromQueue, (object)null);
             }

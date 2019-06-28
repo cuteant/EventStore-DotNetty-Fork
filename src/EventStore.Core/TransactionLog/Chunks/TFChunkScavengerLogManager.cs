@@ -58,7 +58,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 if (readResult.Result == ReadStreamResult.Success || readResult.Result == ReadStreamResult.NoStream)
                 {
-                    if (readResult.Events.Length == 1)
+                    if ((uint)readResult.Events.Length == 1u)
                     {
                         var currentMetadata = StreamMetadata.FromJsonBytes(readResult.Events[0].Event.Data);
 
@@ -147,7 +147,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private void CompleteInterruptedScavenges(IList<string> incompletedScavenges)
         {
-            if (incompletedScavenges.Count == 0)
+            if (0u >= (uint)incompletedScavenges.Count)
             {
                 if (Log.IsDebugLevelEnabled()) Log.No_incomplete_scavenges_found_on_node(_nodeEndpoint);
             }

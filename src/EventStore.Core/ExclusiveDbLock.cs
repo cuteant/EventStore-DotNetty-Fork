@@ -21,7 +21,7 @@ namespace EventStore.Core
         public ExclusiveDbLock(string dbPath)
         {
             if (string.IsNullOrEmpty(dbPath)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dbPath); }
-            MutexName = dbPath.Length <= 250 ? "ESDB:" + dbPath.Replace('\\', '/') : "ESDB-HASHED:" + GetDbPathHash(dbPath);
+            MutexName = (uint)dbPath.Length <= 250u ? "ESDB:" + dbPath.Replace('\\', '/') : "ESDB-HASHED:" + GetDbPathHash(dbPath);
             MutexName += new string('-', 260 - MutexName.Length);
         }
 

@@ -1,7 +1,8 @@
-﻿using EventStore.ClientAPI.Internal;
-using System;
+﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CuteAnt.Pool;
+using EventStore.ClientAPI.Internal;
 
 namespace EventStore.ClientAPI.Common.Utils
 {
@@ -16,9 +17,9 @@ namespace EventStore.ClientAPI.Common.Utils
             {
                 action();
             }
-// ReSharper disable EmptyGeneralCatchClause
+            // ReSharper disable EmptyGeneralCatchClause
             catch (Exception)
-// ReSharper restore EmptyGeneralCatchClause
+            // ReSharper restore EmptyGeneralCatchClause
             {
             }
         }
@@ -35,7 +36,7 @@ namespace EventStore.ClientAPI.Common.Utils
                 return defaultValue;
             }
         }
-   
+
         public static string FormatBinaryDump(byte[] logBulk)
         {
             return FormatBinaryDump(new ArraySegment<byte>(logBulk ?? Empty.ByteArray));
@@ -43,7 +44,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
         public static string FormatBinaryDump(ArraySegment<byte> logBulk)
         {
-            if (logBulk.Count == 0)
+            if (0u >= (uint)logBulk.Count)
                 return "--- NO DATA ---";
 
             var sb = StringBuilderManager.Allocate();
@@ -73,5 +74,9 @@ namespace EventStore.ClientAPI.Common.Utils
             }
             return StringBuilderManager.ReturnAndFree(sb);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsInvalidEventNumber(long value)
+            => (ulong)(value - StreamPosition.End) > 9223372036854775808ul/*unchecked((ulong)(long.MaxValue - StreamPosition.End))*/;
     }
 }

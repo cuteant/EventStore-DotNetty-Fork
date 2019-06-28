@@ -27,7 +27,7 @@ namespace EventStore.Core.Messages
             public SubscribeReplica(long logPosition, Guid chunkId, EpochRecord[] lastEpochs, IPEndPoint replicaEndPoint, 
                                     Guid masterId, Guid subscriptionId, bool isPromotable)
             {
-                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
                 if (null == lastEpochs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
@@ -107,7 +107,7 @@ namespace EventStore.Core.Messages
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
                 if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
-                if (logPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
+                if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
                 if (null == lastEpochs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
                 if (null == replicaEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicaEndPoint); }
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
@@ -211,7 +211,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (subscriptionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
+                if ((ulong)subscriptionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -222,7 +222,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (subscriptionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
+                if ((ulong)subscriptionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
                 if (null == masterEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterEndPoint); }
 
                 MasterId = masterId;

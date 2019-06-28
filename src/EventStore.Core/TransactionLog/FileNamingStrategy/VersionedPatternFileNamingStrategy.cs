@@ -23,10 +23,10 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public string GetFilenameFor(int index, int version)
         {
-            if (index < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.index); }
-            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if ((uint)index > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.index); }
+            if ((uint)version > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
 
-            return Path.Combine(_path, string.Format("{0}{1:000000}.{2:000000}", _prefix, index, version));
+            return Path.Combine(_path, $"{_prefix}{index:000000}.{version:000000}");
         }
 
         public string DetermineBestVersionFilenameFor(int index)
@@ -42,7 +42,7 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public string[] GetAllVersionsFor(int index)
         {
-            var versions = Directory.EnumerateFiles(_path, string.Format("{0}{1:000000}.*", _prefix, index))
+            var versions = Directory.EnumerateFiles(_path, $"{_prefix}{index:000000}.*")
                                     .Where(x => _chunkNamePattern.IsMatch(Path.GetFileName(x)))
                                     .OrderByDescending(x => x, StringComparer.CurrentCultureIgnoreCase)
                                     .ToArray();
@@ -51,7 +51,7 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public string[] GetAllPresentFiles()
         {
-            var versions = Directory.EnumerateFiles(_path, string.Format("{0}*.*", _prefix))
+            var versions = Directory.EnumerateFiles(_path, $"{_prefix}*.*")
                                     .Where(x => _chunkNamePattern.IsMatch(Path.GetFileName(x)))
                                     .ToArray();
             return versions;
@@ -59,7 +59,7 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public string GetTempFilename()
         {
-            return Path.Combine(_path, string.Format("{0}.tmp", Guid.NewGuid()));
+            return Path.Combine(_path, $"{Guid.NewGuid()}.tmp");
         }
 
         public string[] GetAllTempFiles()

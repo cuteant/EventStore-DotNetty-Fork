@@ -207,12 +207,12 @@ namespace EventStore.Core.TransactionLog.Unbuffered
             }
 
             var bytesAvailable = bytesRead - roffset;
-            if (bytesAvailable <= 0) return 0;
+            if ((uint)(bytesAvailable - 1) >= Consts.TooBigOrNegative) return 0;
             var toCopy = count > bytesAvailable ? bytesAvailable : count;
 
             MemCopy(_readBuffer, roffset, buffer, offset, toCopy);
             _bufferedCount += toCopy;
-            if (count - toCopy == 0) return toCopy;
+            if (0u >= (uint)(count - toCopy)) return toCopy;
             return toCopy + Read(buffer, offset + toCopy, count - toCopy);
         }
 
@@ -246,7 +246,7 @@ namespace EventStore.Core.TransactionLog.Unbuffered
                     Flush();
                     left -= toFill;
                     current += toFill;
-                    done = left == 0;
+                    done = 0ul >= (ulong)left;
                 }
             }
         }

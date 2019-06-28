@@ -67,7 +67,7 @@ namespace EventStore.ClientAPI.ClientOperations
                 {
                     case IList<EventData> evts:
                         var evtCount = evts.Count;
-                        if (evtCount == 0) { dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance; break; }
+                        if (0u >= (uint)evtCount) { dtos = EmptyArray<TcpClientMessageDto.NewEvent>.Instance; break; }
                         dtos = new TcpClientMessageDto.NewEvent[evtCount];
                         for (var idx = 0; idx < evtCount; idx++)
                         {

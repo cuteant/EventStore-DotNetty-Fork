@@ -209,7 +209,7 @@ namespace EventStore.Core.Services.Monitoring
 
         public void Handle(SystemMessage.StateChangeMessage message)
         {
-            if ((_statsStorage & StatsStorage.Stream) == 0) { return; }
+            if (0u >= (uint)(_statsStorage & StatsStorage.Stream)) { return; }
 
             if (_statsStreamCreated) { return; }
 

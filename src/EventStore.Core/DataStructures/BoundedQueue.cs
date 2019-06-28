@@ -17,7 +17,7 @@ namespace EventStore.Core.DataStructures
 
         public void Enqueue(in T obj)
         {
-            if (_queue.Count >= _maxCapacity) Dequeue();
+            if ((uint)_queue.Count >= (uint)_maxCapacity) Dequeue();
             _queue.Enqueue(obj);
         }
 
@@ -33,7 +33,7 @@ namespace EventStore.Core.DataStructures
 
         public bool CanAccept()
         {
-            return _queue.Count < _maxCapacity;
+            return (uint)_queue.Count < (uint)_maxCapacity ? true : false;
         }
     }
 }

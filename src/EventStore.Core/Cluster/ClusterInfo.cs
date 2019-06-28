@@ -37,7 +37,7 @@ namespace EventStore.Core.Cluster
             if (ReferenceEquals(null, other)) return true;
             if (ReferenceEquals(this, other)) return false;
 
-            if (other.Members.Length != Members.Length)
+            if ((uint)other.Members.Length != (uint)Members.Length)
                 return true;
             
             for (int i = 0; i < Members.Length; i++)

@@ -228,7 +228,7 @@ namespace EventStore.Core.Services.UserManagement
         private void NotifyInitialized()
         {
             _numberOfStandardUsersToBeCreated -= 1;
-            if (_numberOfStandardUsersToBeCreated == 0)
+            if (0u >= (uint)_numberOfStandardUsersToBeCreated)
             {
                 _publisher.Publish(new UserManagementMessage.UserManagementServiceInitialized());
             }

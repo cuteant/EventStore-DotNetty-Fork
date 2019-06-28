@@ -30,7 +30,7 @@ namespace EventStore.Core.Index
 
         public bool MarkForConversion()
         {
-            return Interlocked.CompareExchange(ref _isConverting, 1, 0) == 0;
+            return 0u >= (uint)Interlocked.CompareExchange(ref _isConverting, 1, 0);
         }
 
         public void Add(ulong stream, long version, long position)
@@ -41,7 +41,7 @@ namespace EventStore.Core.Index
         public void AddEntries(IList<IndexEntry> entries)
         {
             if (null == entries) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entries); }
-            if (entries.Count <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.entries_Count); }
+            if ((uint)(entries.Count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.entries_Count); }
 
             var collection = entries.Select(x => new IndexEntry(GetHash(x.Stream), x.Version, x.Position)).ToList();
 
@@ -65,8 +65,8 @@ namespace EventStore.Core.Index
                     var entry = collection[i];
                     if (entry.Stream != stream)
                         ThrowHelper.ThrowException_NotAllIndexEntriesInABulkHaveTheSameStreamHash();
-                    if (entry.Version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Version); }
-                    if (entry.Position < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Position); }
+                    if ((ulong)entry.Version > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Version); }
+                    if ((ulong)entry.Position > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Position); }
                     list.Add(new Entry(entry.Version, entry.Position), 0);
                 }
             }
@@ -78,7 +78,7 @@ namespace EventStore.Core.Index
 
         public bool TryGetOneValue(ulong stream, long number, out long position)
         {
-            if (number < 0)
+            if ((ulong)number > Consts.TooBigOrNegativeUL)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.number);
             ulong hash = GetHash(stream);
 
@@ -183,9 +183,9 @@ namespace EventStore.Core.Index
 
         public IEnumerable<IndexEntry> GetRange(ulong stream, long startNumber, long endNumber, int? limit = null)
         {
-            if (startNumber < 0)
+            if ((ulong)startNumber > Consts.TooBigOrNegativeUL)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startNumber);
-            if (endNumber < 0)
+            if ((ulong)endNumber > Consts.TooBigOrNegativeUL)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endNumber);
 
             ulong hash = GetHash(stream);

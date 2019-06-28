@@ -16,7 +16,7 @@ namespace EventStore.Core.Util
 
         public static byte[] GetHashFor(Stream s, int startPosition, long count)
         {
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((ulong)count > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
             using (MD5 md5 = MD5.Create())
             {
@@ -29,7 +29,7 @@ namespace EventStore.Core.Util
         public static void ContinuousHashFor(MD5 md5, Stream s, int startPosition, long count)
         {
             if (null == md5) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5); }
-            if (count < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
+            if ((ulong)count > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
             if (s.Position != startPosition)
                 s.Position = startPosition;
@@ -39,7 +39,7 @@ namespace EventStore.Core.Util
             while (toRead > 0)
             {
                 int read = s.Read(buffer, 0, (int)Math.Min(toRead, buffer.Length));
-                if (read == 0)
+                if (0u >= (uint)read)
                     break;
 
                 md5.TransformBlock(buffer, 0, read, null, 0);

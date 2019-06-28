@@ -87,14 +87,14 @@ namespace EventStore.Core.DataStructures
 
         public T FindMin()
         {
-            if (Count == 0)
+            if (0u >= (uint)Count)
                 ThrowHelper.ThrowInvalidOperationException();
             return _root.Item;
         }
 
         public T DeleteMin()
         {
-            if (Count == 0)
+            if (0u >= (uint)Count)
                 ThrowHelper.ThrowInvalidOperationException();
 
             var oldRoot = _root;
@@ -173,7 +173,7 @@ namespace EventStore.Core.DataStructures
 
             public ObjectPool(int count, Func<TItem> creator)
             {
-                if (count < 0)
+                if ((uint)count > Consts.TooBigOrNegative)
                     ThrowHelper.ThrowArgumentOutOfRangeException();
                 if (creator == null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.creator);
@@ -197,7 +197,7 @@ namespace EventStore.Core.DataStructures
 
             public void Return(TItem item)
             {
-                if (_items.Count < _count)
+                if ((uint)_items.Count < (uint)_count)
                     _items.Enqueue(item);
             }
         }

@@ -88,7 +88,7 @@ namespace EventStore.Core.Services
                         _subscriptionsById.Remove(subscriptions[i].CorrelationId);
                 }
                 subscriptions.RemoveAll(x => x.ConnectionId == message.Connection.ConnectionId);
-                if (subscriptions.Count == 0) // schedule removal of list instance
+                if (0u >= (uint)subscriptions.Count) // schedule removal of list instance
                 {
                     if (subscriptionGroupsToRemove == null)
                         subscriptionGroupsToRemove = new List<string>();
@@ -170,7 +170,7 @@ namespace EventStore.Core.Services
             if (_subscriptionTopics.TryGetValue(subscription.EventStreamId, out List<Subscription> subscriptions))
             {
                 subscriptions.Remove(subscription);
-                if (subscriptions.Count == 0)
+                if (0u >= (uint)subscriptions.Count)
                 {
                     _subscriptionTopics.Remove(subscription.EventStreamId);
                 }
@@ -220,7 +220,7 @@ namespace EventStore.Core.Services
                         _bus.Publish(CloneReadRequestWithNoPollFlag(poller.OriginalRequest));
                         pollTopic.RemoveAt(i);
 
-                        if (pollTopic.Count == 0) // schedule removal of list instance
+                        if (0u >= (uint)pollTopic.Count) // schedule removal of list instance
                         {
                             if (pollTopicsToRemove == null) { pollTopicsToRemove = new List<string>(); }
                             pollTopicsToRemove.Add(pollTopicKeyVal.Key);

@@ -33,12 +33,12 @@ namespace EventStore.Core.Services.PersistentSubscription
         private readonly object _lock = new object();
         public bool HasClients
         {
-            get { return _pushClients.Count > 0; }
+            get { return (uint)_pushClients.Count > 0u; }
         }
 
         public int ClientCount { get { return _pushClients.Count; } }
 
-        public bool HasReachedMaxClientCount { get { return _settings.MaxSubscriberCount != 0 && _pushClients.Count >= _settings.MaxSubscriberCount; } }
+        public bool HasReachedMaxClientCount { get { return _settings.MaxSubscriberCount != 0 && (uint)_pushClients.Count >= (uint)_settings.MaxSubscriberCount; } }
 
         public PersistentSubscriptionState State
         {
@@ -139,7 +139,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             lock (_lock)
             {
-                if ((_state & PersistentSubscriptionState.OutstandingPageRequest) == 0) { return; }
+                if (0u >= (uint)(_state & PersistentSubscriptionState.OutstandingPageRequest)) { return; }
                 _state &= ~PersistentSubscriptionState.OutstandingPageRequest;
                 if (_streamBuffer.Live) { return; }
                 foreach (var ev in events)
@@ -433,12 +433,12 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void TryReadingParkedMessagesFrom(long position, long stopAt)
         {
-            if ((_state & PersistentSubscriptionState.ReplayingParkedMessages) == 0)
+            if (0u >= (uint)(_state & PersistentSubscriptionState.ReplayingParkedMessages))
             {
                 return; //not replaying
             }
 
-            if (stopAt - position <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
+            if ((ulong)((stopAt - position) - 1L) > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.count); }
 
             var count = (int)Math.Min(stopAt - position, _settings.ReadBatchSize);
             _settings.StreamReader.BeginReadEvents(_settings.ParkedMessageStream, position, count, _settings.ReadBatchSize, true, (events, newposition, isstop) => HandleParkedReadCompleted(events, newposition, isstop, stopAt));
@@ -448,7 +448,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             lock (_lock)
             {
-                if ((_state & PersistentSubscriptionState.ReplayingParkedMessages) == 0) return;
+                if (0u >= (uint)(_state & PersistentSubscriptionState.ReplayingParkedMessages)) return;
 
                 var debugEnabled = Log.IsDebugLevelEnabled();
                 foreach (var ev in events)

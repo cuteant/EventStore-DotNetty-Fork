@@ -77,7 +77,7 @@ namespace EventStore.Core.Index
             if (null == lowHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lowHasher); }
             if (null == highHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.highHasher); }
             if (null == tfReaderFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tfReaderFactory); }
-            if (initializationThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
+            if ((uint)(initializationThreads - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
             if (maxTablesPerLevel <= 1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxTablesPerLevel); }
             if (indexCacheDepth > 28 || indexCacheDepth < 8) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.indexCacheDepth); }
 
@@ -105,7 +105,7 @@ namespace EventStore.Core.Index
 
         public void Initialize(long chaserCheckpoint)
         {
-            if (chaserCheckpoint < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chaserCheckpoint); }
+            if ((ulong)chaserCheckpoint > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.chaserCheckpoint); }
 
             //NOT THREAD SAFE (assumes one thread)
             if (_initialized) { ThrowHelper.ThrowIOException_TableIndexIsAlreadyInitialized(); }
@@ -206,9 +206,9 @@ namespace EventStore.Core.Index
 
         public void Add(long commitPos, string streamId, long version, long position)
         {
-            if (commitPos < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitPos); }
-            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
-            if (position < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.position); }
+            if ((ulong)commitPos > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.commitPos); }
+            if ((ulong)version > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.version); }
+            if ((ulong)position > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.position); }
 
             AddEntries(commitPos, new[] { CreateIndexKey(streamId, version, position) });
         }
@@ -221,7 +221,7 @@ namespace EventStore.Core.Index
             var collection = entries.Select(x => CreateIndexEntry(x)).ToList();
             table.AddEntries(collection);
 
-            if (table.Count >= _maxSizeForMemory)
+            if ((uint)table.Count >= (uint)_maxSizeForMemory)
             {
                 long prepareCheckpoint = collection[0].Position;
                 for (int i = 1, n = collection.Count; i < n; ++i)
@@ -251,7 +251,7 @@ namespace EventStore.Core.Index
             {
                 var newTables = new List<TableItem> { new TableItem(_memTableFactory(), -1, -1, 0) };
                 newTables.AddRange(_awaitingMemTables.Select(
-                    (x, i) => i == 0 ? new TableItem(x.Table, prepareCheckpoint, commitPos, x.Level) : x));
+                    (x, i) => 0u >= (uint)i ? new TableItem(x.Table, prepareCheckpoint, commitPos, x.Level) : x));
 
                 if (Log.IsTraceLevelEnabled()) Log.SwitchingMemTableCurrentlyAwaitingTables(newTables.Count);
 
@@ -310,7 +310,7 @@ namespace EventStore.Core.Index
                     lock (_awaitingTablesLock)
                     {
                         if (Log.IsTraceLevelEnabled()) Log.AwaitingTablesQueueSizeIs(_awaitingMemTables.Count);
-                        if (_awaitingMemTables.Count == 1)
+                        if ((uint)_awaitingMemTables.Count == 1u)
                         {
                             return;
                         }
@@ -570,7 +570,7 @@ namespace EventStore.Core.Index
 
         private bool TryGetOneValueInternal(ulong stream, long version, out long position)
         {
-            if (version < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.version); }
+            if ((ulong)version > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.version); }
 
             var awaiting = Volatile.Read(ref _awaitingMemTables);
             foreach (var tableItem in awaiting)
@@ -698,8 +698,8 @@ namespace EventStore.Core.Index
 
         private IEnumerable<IndexEntry> GetRangeInternal(ulong hash, long startVersion, long endVersion, int? limit = null)
         {
-            if (startVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startVersion); }
-            if (endVersion < 0) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endVersion); }
+            if ((ulong)startVersion > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.startVersion); }
+            if ((ulong)endVersion > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.endVersion); }
 
             var candidates = ThreadLocalList<IEnumerator<IndexEntry>>.NewInstance();
             try
@@ -722,7 +722,7 @@ namespace EventStore.Core.Index
                 var first = true;
 
                 var sortedCandidates = new List<IndexEntry>();
-                while (candidates.Count > 0)
+                while ((uint)candidates.Count > 0u)
                 {
                     var maxIdx = GetMaxOf(candidates);
                     var winner = candidates[maxIdx];

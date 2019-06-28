@@ -29,7 +29,7 @@ namespace EventStore.Core.DataStructures
             : base(string.Format("Object pool '{0}' has reached its max limit for items: {1}.", poolName, maxLimit), innerException)
         {
             if (string.IsNullOrEmpty(poolName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.poolName); }
-            if (maxLimit < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxLimit); }
+            if ((uint)maxLimit > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxLimit); }
         }
     }
 
@@ -55,9 +55,9 @@ namespace EventStore.Core.DataStructures
                           Action<ObjectPool<T>> onPoolDisposed = null)
         {
             if (string.IsNullOrEmpty(objectPoolName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.objectPoolName); }
-            if (initialCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialCount); }
-            if (maxCount < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
-            if (initialCount > maxCount)
+            if ((uint)initialCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialCount); }
+            if ((uint)maxCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
+            if ((uint)initialCount > (uint)maxCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException_InitialCountIsGreaterThanMaxCount();
             if (null == factory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.factory); }
 
@@ -103,7 +103,7 @@ namespace EventStore.Core.DataStructures
 
             if (_disposing)
             {
-                if (Interlocked.Decrement(ref _count) == 0)
+                if (0u >= (uint)Interlocked.Decrement(ref _count))
                     OnPoolDisposed(); // now we possibly should "turn light off"
                 throw new ObjectPoolDisposingException(ObjectPoolName);
             }
@@ -131,16 +131,16 @@ namespace EventStore.Core.DataStructures
                 count = Interlocked.Decrement(ref _count);
             }
 
-            if (count < 0)
+            if ((uint)count > Consts.TooBigOrNegative)
                 ThrowHelper.ThrowException_SomehowWeManagedToDecreaseCountOfPoolItemsBelowZero();
-            if (count == 0) // we are the last who should "turn the light off" 
+            if (0u >= (uint)count) // we are the last who should "turn the light off" 
                 OnPoolDisposed();
         }
 
         private void OnPoolDisposed()
         {
             // ensure that we call _onPoolDisposed just once
-            if (Interlocked.CompareExchange(ref _poolDisposed, 1, 0) == 0)
+            if (0u >= (uint)Interlocked.CompareExchange(ref _poolDisposed, 1, 0))
                 _onPoolDisposed(this);
         }
     }

@@ -22,8 +22,8 @@ namespace EventStore.Core.TransactionLog.LogRecords
             : base(LogRecordType.Commit, commitRecordVersion, logPosition)
         {
             if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-            if (transactionPosition < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
-            if (firstEventNumber < 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.firstEventNumber); }
+            if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
+            if ((ulong)firstEventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.firstEventNumber); }
 
             TransactionPosition = transactionPosition;
             FirstEventNumber = firstEventNumber;

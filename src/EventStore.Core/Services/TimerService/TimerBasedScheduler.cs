@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.TimerService
 
         protected void ProcessOperations()
         {
-            while (_tasks.Count > 0 && _tasks.FindMin().DueTime <= _timeProvider.Now)
+            while ((uint)_tasks.Count > 0u && _tasks.FindMin().DueTime <= _timeProvider.Now)
             {
                 var scheduledTask = _tasks.DeleteMin();
                 scheduledTask.Action(this, scheduledTask.State);
@@ -57,7 +57,7 @@ namespace EventStore.Core.Services.TimerService
 
         private void ResetTimer()
         {
-            if (_tasks.Count > 0)
+            if ((uint)_tasks.Count > 0u)
             {
                 var tuple = _tasks.FindMin();
                 _timer.FireIn((int) (tuple.DueTime - _timeProvider.Now).TotalMilliseconds, OnTimerFired);
