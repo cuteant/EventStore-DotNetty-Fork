@@ -27,7 +27,6 @@ namespace EventStore.Core
     /// </summary>
     public abstract partial class VNodeBuilder
     {
-        // ReSharper disable FieldCanBeMadeReadOnly.Local - as more options are added
         protected ILogger _log;
 
         protected int _chunkSize;
@@ -135,8 +134,6 @@ namespace EventStore.Core
         private int _maxAutoMergeIndexLevel;
 
         private bool _gossipOnSingleNode;
-
-        // ReSharper restore FieldCanBeMadeReadOnly.Local
 
         protected VNodeBuilder()
         {

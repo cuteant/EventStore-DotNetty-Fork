@@ -1,14 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\version.hdr.props" />
   <Import Project="..\nuget.hdr.props" />
-  
+
   <PropertyGroup>
     <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
     <RootNamespace>HdrHistogram</RootNamespace>
     <AssemblyName>HdrHistogram</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="NuGet">
     <PackageId>HdrHistogram.Unofficial</PackageId>
     <Title>HdrHistogram.Unofficial</Title>
@@ -16,4 +15,5 @@
     <PackageTags>HdrHistogram HdrHistogram.NET Histogram Instrumentation</PackageTags>
   </PropertyGroup>
 
+  <Import Project="..\version.hdr.props" />
 </Project>

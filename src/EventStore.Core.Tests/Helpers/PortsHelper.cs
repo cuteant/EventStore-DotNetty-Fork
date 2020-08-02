@@ -41,7 +41,7 @@ namespace EventStore.Core.Tests.Helpers
         }
         catch (Exception exc)
         {
-          Log.LogTraceX(exc, "PortsHelper: port {0} unavailable for TcpListener. Error: {1}.", port, exc.Message);
+          Log.LogTrace(exc, "PortsHelper: port {0} unavailable for TcpListener. Error: {1}.", port, exc.Message);
           continue;
         }
 
@@ -80,7 +80,7 @@ namespace EventStore.Core.Tests.Helpers
         }
         catch (Exception exc)
         {
-          Log.LogTraceX(exc, "PortsHelper: port {0} unavailable for HttpListener. Error: {1}.", port, exc.Message);
+          Log.LogTrace(exc, "PortsHelper: port {0} unavailable for HttpListener. Error: {1}.", port, exc.Message);
           continue;
         }
 

@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>
     <AssemblyName>EventStore.ClusterNode.Services</AssemblyName>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Label="NuGet">
@@ -22,9 +21,8 @@
 
   <ItemGroup>
     <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
-    <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
+    <PackageReference Include="NLog.Extensions.Hosting" Version="$(NLogExtensionsHostingPackageVersion)" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="$(NLogExtensionsLoggingPackageVersion)" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(SystemConfigurationConfigurationManagerPackageVersion)" />
   </ItemGroup>
 
@@ -38,4 +36,5 @@
     </None>
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

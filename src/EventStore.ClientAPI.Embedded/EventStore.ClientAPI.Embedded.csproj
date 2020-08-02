@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI.Embedded</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Embedded</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -20,4 +19,6 @@
     <ProjectReference Include="..\EventStore.ClientAPI\EventStore.ClientAPI.csproj" />
     <ProjectReference Include="..\EventStore.Projections.Core\EventStore.Projections.Core.csproj" />
   </ItemGroup>
+
+  <Import Project="..\..\version.props" />
 </Project>

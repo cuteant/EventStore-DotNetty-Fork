@@ -12,8 +12,6 @@ using EventStore.Transport.Http;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Common;
 
-// ReSharper disable InconsistentNaming
-
 namespace EventStore.Core.Tests.Http.PersistentSubscription
 {
     [TestFixture, Category("LongRunning")]

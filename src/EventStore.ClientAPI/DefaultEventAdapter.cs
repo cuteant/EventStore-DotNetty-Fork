@@ -6,10 +6,10 @@ using System.Threading;
 using CuteAnt.Pool;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.Internal;
-using JsonExtensions;
-using JsonExtensions.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using SpanJson.Internal;
+using SpanJson.Serialization;
 
 namespace EventStore.ClientAPI
 {
@@ -96,7 +96,7 @@ namespace EventStore.ClientAPI
                 var metaData = metaSerializer.SerializeToByteArray(eventMeta);
                 var eventData = dataSerializer.SerializeToByteArray(message);
 
-                return new EventData(Guid.NewGuid(), StringUtils.ToCamelCase(actualType.Name), true, eventData, metaData);
+                return new EventData(Guid.NewGuid(), StringMutator.ToCamelCaseWithCache(actualType.Name), true, eventData, metaData);
             }
             finally
             {

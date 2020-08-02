@@ -10,19 +10,15 @@ namespace EventStore.Transport.Tcp
 {
     internal static class TransportTcpLoggingExtensions
     {
-        private static readonly Action<ILogger, int, double, double, long, long, long, TimeSpan, Exception> s_analyzeConnections =
-            LoggerMessageFactory.Define<int, double, double, long, long, long, TimeSpan>(LogLevel.Trace,
-            "\n# Total connections: {connections,3}. Out: {sendingSpeed:0.00}b/s  In: {receivingSpeed:0.00}b/s  Pending Send: {pendingSend}  " +
-            "In Send: {inSend}  Pending Received: {pendingReceived} Measure Time: {measureTime}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AnalyzeConnections(this ILogger logger, TcpStats stats)
         {
-            s_analyzeConnections(logger, stats.Connections, stats.SendingSpeed, stats.ReceivingSpeed,
-                stats.PendingSend, stats.InSend, stats.PendingSend, stats.MeasureTime, null);
+            logger.LogTrace("\n# Total connections: {connections,3}. Out: {sendingSpeed:0.00}b/s  In: {receivingSpeed:0.00}b/s  Pending Send: {pendingSend}  In Send: {inSend}  Pending Received: {pendingReceived} Measure Time: {measureTime}",
+                stats.Connections, stats.SendingSpeed, stats.ReceivingSpeed, stats.PendingSend, stats.InSend, stats.PendingSend, stats.MeasureTime);
         }
 
         private static readonly Action<ILogger, EndPoint, EndPoint, IChannelId, Exception> s_unableToAddChannelToConnectionGroup =
-            LoggerMessageFactory.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Warning,
+            LoggerMessage.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Warning, 0,
             "Unable to ADD channel [{localAddress}->{remoteAddress}](Id={channelId}) to connection group. May not shut down cleanly.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void UnableToAddChannelToConnectionGroup(this ILogger logger, IChannel channel)
@@ -31,7 +27,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, EndPoint, EndPoint, IChannelId, Exception> s_unableToRemoveChannelFromConnectionGroup =
-            LoggerMessageFactory.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Warning,
+            LoggerMessage.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Warning, 0,
             "Unable to REMOVE channel [{localAddress}->{remoteAddress}](Id={channelId}) from connection group. May not shut down cleanly.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void UnableToRemoveChannelFromConnectionGroup(this ILogger logger, IChannel channel)
@@ -40,7 +36,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, EndPoint, EndPoint, IChannelId, Exception> s_errorCaughtChannel =
-            LoggerMessageFactory.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Error,
+            LoggerMessage.Define<EndPoint, EndPoint, IChannelId>(LogLevel.Error, 0,
             "Error caught channel [{localAddress}->{remoteAddress}](Id={channelId})");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorCaughtChannel(this ILogger logger, IChannelHandlerContext context, Exception exception)
@@ -50,7 +46,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, string, EndPoint, EndPoint, IChannelId, Exception> s_dotNettyExceptionCaught =
-            LoggerMessageFactory.Define<string, EndPoint, EndPoint, IChannelId>(LogLevel.Information,
+            LoggerMessage.Define<string, EndPoint, EndPoint, IChannelId>(LogLevel.Information, 0,
             "{socketExcMsg} Channel [{localAddress}->{remoteAddress}](Id={channelId})");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DotNettyExceptionCaught(this ILogger logger, SocketException se, IChannelHandlerContext context)
@@ -67,7 +63,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, EndPoint, Exception> s_failedToBindToEndPoint =
-            LoggerMessageFactory.Define<EndPoint>(LogLevel.Error,
+            LoggerMessage.Define<EndPoint>(LogLevel.Error, 0,
             "Failed to bind to {listenAddress}; shutting down DotNetty transport.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void FailedToBindToEndPoint(this ILogger logger, Exception ex, EndPoint listenAddress)
@@ -75,44 +71,36 @@ namespace EventStore.Transport.Tcp
             s_failedToBindToEndPoint(logger, listenAddress, ex);
         }
 
-        private static readonly Action<ILogger, string, DateTime, IPEndPoint, IPEndPoint, Guid, long, long, Exception> s_analyzeConnectionSendAndReceivedBytes =
-            LoggerMessageFactory.Define<string, DateTime, IPEndPoint, IPEndPoint, Guid, long, long>(LogLevel.Trace,
-            "ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Received bytes: {totalBytesReceived}, Sent bytes: {totalBytesSent}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AnalyzeConnectionSendAndReceivedBytes(this ILogger logger, Type connectionType, DateTime dt, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, Guid connectionId, long totalBytesReceived, long totalBytesSent)
         {
-            s_analyzeConnectionSendAndReceivedBytes(logger, connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, totalBytesReceived, totalBytesSent, null);
+            logger.LogTrace("ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Received bytes: {totalBytesReceived}, Sent bytes: {totalBytesSent}",
+                connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, totalBytesReceived, totalBytesSent);
         }
 
-        private static readonly Action<ILogger, string, DateTime, IPEndPoint, IPEndPoint, Guid, int, int, Exception> s_analyzeConnectionSendCalls =
-            LoggerMessageFactory.Define<string, DateTime, IPEndPoint, IPEndPoint, Guid, int, int>(LogLevel.Trace,
-            "ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Send calls: {sendCalls}, callbacks: {sendCallbacks}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AnalyzeConnectionSendCalls(this ILogger logger, Type connectionType, DateTime dt, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, Guid connectionId, int sendCalls, int sendCallbacks)
         {
-            s_analyzeConnectionSendCalls(logger, connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, sendCalls, sendCallbacks, null);
+            logger.LogTrace("ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Send calls: {sendCalls}, callbacks: {sendCallbacks}",
+                connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, sendCalls, sendCallbacks);
         }
 
-        private static readonly Action<ILogger, string, DateTime, IPEndPoint, IPEndPoint, Guid, int, int, Exception> s_analyzeConnectionReceiveCalls =
-            LoggerMessageFactory.Define<string, DateTime, IPEndPoint, IPEndPoint, Guid, int, int>(LogLevel.Trace,
-            "ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Receive calls: {receiveCalls}, callbacks: {receiveCallbacks}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AnalyzeConnectionReceiveCalls(this ILogger logger, Type connectionType, DateTime dt, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, Guid connectionId, int receiveCalls, int receiveCallbacks)
         {
-            s_analyzeConnectionReceiveCalls(logger, connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, receiveCalls, receiveCallbacks, null);
+            logger.LogTrace("ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Receive calls: {receiveCalls}, callbacks: {receiveCallbacks}",
+                connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, receiveCalls, receiveCallbacks);
         }
 
-        private static readonly Action<ILogger, string, DateTime, IPEndPoint, IPEndPoint, Guid, DisassociateInfo, string, Exception> s_analyzeConnectionCloseReason =
-            LoggerMessageFactory.Define<string, DateTime, IPEndPoint, IPEndPoint, Guid, DisassociateInfo, string>(LogLevel.Trace,
-            "ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Close reason: [{disassociateInfo}] {reason}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AnalyzeConnectionCloseReason(this ILogger logger, Type connectionType, DateTime dt, IPEndPoint remoteEndPoint, IPEndPoint localEndPoint, Guid connectionId, DisassociateInfo disassociateInfo, string reason)
         {
-            s_analyzeConnectionCloseReason(logger, connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, disassociateInfo, reason, null);
+            logger.LogTrace("ES {connectionType} closed [{dateTime:HH:mm:ss.fff}: N{remoteEndPoint}, L{localEndPoint}, {connectionId:B}]:Close reason: [{disassociateInfo}] {reason}",
+                connectionType.Name, dt, remoteEndPoint, localEndPoint, connectionId, disassociateInfo, reason);
         }
 
         private static readonly Action<ILogger, IMonitoredTcpConnection, Exception> s_connectionIsFaulted =
-            LoggerMessageFactory.Define<IMonitoredTcpConnection>(LogLevel.Information,
+            LoggerMessage.Define<IMonitoredTcpConnection>(LogLevel.Information, 0,
             "# {connection} is faulted");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ConnectionIsFaulted(this ILogger logger, IMonitoredTcpConnection connection)
@@ -121,7 +109,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, IMonitoredTcpConnection, int, Exception> s_connectionPendingSend =
-            LoggerMessageFactory.Define<IMonitoredTcpConnection, int>(LogLevel.Information,
+            LoggerMessage.Define<IMonitoredTcpConnection, int>(LogLevel.Information, 0,
             "# {connection} {pendingSendBytes}kb pending send");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ConnectionPendingSend(this ILogger logger, IMonitoredTcpConnection connection, int pendingSendBytes)
@@ -130,7 +118,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, IMonitoredTcpConnection, int, Exception> s_connectionPendingReceived =
-            LoggerMessageFactory.Define<IMonitoredTcpConnection, int>(LogLevel.Information,
+            LoggerMessage.Define<IMonitoredTcpConnection, int>(LogLevel.Information, 0,
             "# {connection} {pendingReceivedBytes}kb are not dispatched");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ConnectionPendingReceived(this ILogger logger, IMonitoredTcpConnection connection, int pendingReceivedBytes)
@@ -139,7 +127,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, IMonitoredTcpConnection, int, Exception> s_connectionMissingReceiveCallback =
-            LoggerMessageFactory.Define<IMonitoredTcpConnection, int>(LogLevel.Error,
+            LoggerMessage.Define<IMonitoredTcpConnection, int>(LogLevel.Error, 0,
             "# {connection} {sinceLastReceive}ms since last Receive started. No completion callback received, but socket status is READY_FOR_RECEIVE");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ConnectionMissingReceiveCallback(this ILogger logger, IMonitoredTcpConnection connection, int sinceLastReceive)
@@ -148,7 +136,7 @@ namespace EventStore.Transport.Tcp
         }
 
         private static readonly Action<ILogger, IMonitoredTcpConnection, int, int, Exception> s_connectionMissingSendCallback =
-            LoggerMessageFactory.Define<IMonitoredTcpConnection, int, int>(LogLevel.Error,
+            LoggerMessage.Define<IMonitoredTcpConnection, int, int>(LogLevel.Error, 0,
             "# {connection} {sinceLastSend}ms since last send started. No completion callback received, but socket status is READY_FOR_SEND. In send: {inSendBytes}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ConnectionMissingSendCallback(this ILogger logger, IMonitoredTcpConnection connection, int sinceLastSend, int inSendBytes)

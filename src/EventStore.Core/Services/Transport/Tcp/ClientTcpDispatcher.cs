@@ -135,9 +135,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             var events = new Event[dto.Events == null ? 0 : dto.Events.Length];
             for (int i = 0; i < events.Length; ++i)
             {
-                // ReSharper disable PossibleNullReferenceException
                 var e = dto.Events[i];
-                // ReSharper restore PossibleNullReferenceException
                 events[i] = new Event(e.EventId, e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
             }
             return new ClientMessage.WriteEvents(Guid.NewGuid(), package.CorrelationId, envelope, dto.RequireMaster,
@@ -237,9 +235,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             var events = new Event[dto.Events == null ? 0 : dto.Events.Length];
             for (int i = 0; i < events.Length; ++i)
             {
-                // ReSharper disable PossibleNullReferenceException
                 var e = dto.Events[i];
-                // ReSharper restore PossibleNullReferenceException
                 events[i] = new Event(e.EventId, e.EventType, e.DataContentType == 1, e.Data, e.Metadata);
             }
             return new ClientMessage.TransactionWrite(Guid.NewGuid(), package.CorrelationId, envelope, dto.RequireMaster,

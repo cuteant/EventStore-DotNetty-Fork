@@ -305,9 +305,7 @@ namespace EventStore.Core
             SubscribeWorkers(bus =>
             {
                 var tcpSendService = new TcpSendService();
-                // ReSharper disable RedundantTypeArgumentsOfMethod
                 bus.Subscribe<TcpMessage.TcpSend>(tcpSendService);
-                // ReSharper restore RedundantTypeArgumentsOfMethod
             });
 
             var httpAuthenticationProviders = new List<HttpAuthenticationProvider>
@@ -517,12 +515,9 @@ namespace EventStore.Core
                                                         !vNodeSettings.DisableScavengeMerging,
                                                         unsafeIgnoreHardDeletes: vNodeSettings.UnsafeIgnoreHardDeletes);
 
-            // ReSharper disable RedundantTypeArgumentsOfMethod
             _mainBus.Subscribe<ClientMessage.ScavengeDatabase>(storageScavenger);
             _mainBus.Subscribe<ClientMessage.StopDatabaseScavenge>(storageScavenger);
             _mainBus.Subscribe<SystemMessage.StateChangeMessage>(storageScavenger);
-            // ReSharper restore RedundantTypeArgumentsOfMethod
-
 
             // TIMER
             _timeProvider = new RealTimeProvider();

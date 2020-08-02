@@ -13,6 +13,7 @@ using EventStore.ClientAPI.Common;
 using EventStore.ClientAPI.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.ClientAPI
 {

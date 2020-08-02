@@ -8,7 +8,7 @@ using System.Reflection;
 using CuteAnt.Pool;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.SystemData;
-using JsonExtensions.Utilities;
+using SpanJson.Internal;
 
 namespace EventStore.ClientAPI
 {
@@ -127,7 +127,7 @@ namespace EventStore.ClientAPI
 
             var fields = typeFields.Select(x => new Tuple<string, FieldInfo>(x.Name, x))
                 .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(WithSpaces(x.Name), x)))
-                .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(StringUtils.ToSnakeCase(x.Name), x)))
+                .Concat(typeFields.Select(x => new Tuple<string, FieldInfo>(StringMutator.ToSnakeCaseWithCache(x.Name), x)))
                 .GroupBy(x => x.Item1)
                 .ToDictionary(x => x.First().Item1, x => x.First().Item2, StringComparer.OrdinalIgnoreCase);
 

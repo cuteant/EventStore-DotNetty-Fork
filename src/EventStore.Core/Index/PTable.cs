@@ -621,21 +621,21 @@ namespace EventStore.Core.Index
             return new IndexEntryKey(stream, version);
         }
 
-        private Range LocateRecordRange(in IndexEntryKey key, out IndexEntryKey lowKey, out IndexEntryKey highKey)
+        private EventStore.Core.Data.Range LocateRecordRange(in IndexEntryKey key, out IndexEntryKey lowKey, out IndexEntryKey highKey)
         {
             lowKey = new IndexEntryKey(ulong.MaxValue,long.MaxValue);
             highKey = new IndexEntryKey(ulong.MinValue,long.MinValue);
 
             var midpoints = _midpoints;
             if (midpoints == null)
-                return new Range(0, Count - 1);
+                return new EventStore.Core.Data.Range(0, Count - 1);
             long lowerMidpoint = LowerMidpointBound(midpoints, key);
             long upperMidpoint = UpperMidpointBound(midpoints, key);
 
             lowKey = midpoints[lowerMidpoint].Key;
             highKey = midpoints[upperMidpoint].Key;
 
-            return new Range(midpoints[lowerMidpoint].ItemIndex, midpoints[upperMidpoint].ItemIndex);
+            return new EventStore.Core.Data.Range(midpoints[lowerMidpoint].ItemIndex, midpoints[upperMidpoint].ItemIndex);
         }
 
         private long LowerMidpointBound(Midpoint[] midpoints, in IndexEntryKey key)

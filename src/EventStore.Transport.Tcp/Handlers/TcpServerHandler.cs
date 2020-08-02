@@ -21,7 +21,7 @@ namespace EventStore.Transport.Tcp
         private void InitInbound(IChannel channel)
         {
             // disable automatic reads
-            channel.Configuration.AutoRead = false;
+            channel.Configuration.IsAutoRead = false;
 
             Init(channel, out var connection);
             TrySetStatus(connection);

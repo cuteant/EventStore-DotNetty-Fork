@@ -164,7 +164,7 @@ namespace EventStore.BufferManagement
                     _buffers.Push(chunk);
                 }
 
-                if (_logger.IsDebugLevelEnabled())
+                if (_logger.IsEnabled(LogLevel.Debug))
                 {
                     _logger.LogDebug("Segments count: {0}, buffers count: {1}, should be when full: {2}",
                                       _segments.Count,

@@ -126,7 +126,6 @@ namespace EventStore.ClientAPI.Internal
 
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
 
@@ -134,12 +133,10 @@ namespace EventStore.ClientAPI.Internal
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
                                                          stream, expectedVersion, evt, userCredentials));
             return await source.Task.ConfigureAwait(false);
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -147,13 +144,11 @@ namespace EventStore.ClientAPI.Internal
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
                                                          stream, expectedVersion, events, userCredentials));
             return await source.Task.ConfigureAwait(false);
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public async Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, EventData evt,
             UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
 
@@ -161,13 +156,11 @@ namespace EventStore.ClientAPI.Internal
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
                                                                     stream, expectedVersion, evt, userCredentials));
             return await source.Task.ConfigureAwait(false);
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public async Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events,
             UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -175,7 +168,6 @@ namespace EventStore.ClientAPI.Internal
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
                                                                     stream, expectedVersion, events, userCredentials));
             return await source.Task.ConfigureAwait(false);
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         #endregion
@@ -200,7 +192,6 @@ namespace EventStore.ClientAPI.Internal
 
         async Task IEventStoreTransactionConnection.TransactionalWriteAsync(EventStoreTransaction transaction, IEnumerable<EventData> events, UserCredentials userCredentials)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -208,7 +199,6 @@ namespace EventStore.ClientAPI.Internal
             EnqueueOperation(new TransactionalWriteOperation(source, _settings.RequireMaster,
                                                              transaction.TransactionId, events, userCredentials));
             await source.Task.ConfigureAwait(false);
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         async Task<WriteResult> IEventStoreTransactionConnection.CommitTransactionAsync(EventStoreTransaction transaction, UserCredentials userCredentials)

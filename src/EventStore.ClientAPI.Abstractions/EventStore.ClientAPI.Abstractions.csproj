@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\version.client.props" />
   <Import Project="..\nuget.client.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.DateTimeUtilities.Sources\CuteAnt.Extensions.DateTimeUtilities.Sources.projitems" Label="Shared" />
   
@@ -70,4 +69,6 @@ Goals:
       <LastGenOutput>FuncMatchBuilder.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
+  <Import Project="..\version.client.props" />
 </Project>

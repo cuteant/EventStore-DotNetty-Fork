@@ -46,9 +46,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void SubscribeSenders(HttpMessagePipe pipe)
         {
-            // ReSharper disable RedundantTypeArgumentsOfMethod
             pipe.RegisterSender<GossipMessage.SendGossip>(this);
-            // ReSharper restore RedundantTypeArgumentsOfMethod
         }
 
         public void Send(GossipMessage.SendGossip message, IPEndPoint endPoint)

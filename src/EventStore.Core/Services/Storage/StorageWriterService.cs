@@ -25,6 +25,7 @@ using EventStore.Core.TransactionLog.LogRecords;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.Core.Services.Storage
 {

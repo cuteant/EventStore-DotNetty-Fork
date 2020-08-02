@@ -44,7 +44,9 @@ namespace EventStore.ClusterNode
         protected override void PreInit(ClusterNodeOptions options)
         {
             var loggerFactory = new LoggerFactory();
+#pragma warning disable CS0618 // 类型或成员已过时
             loggerFactory.AddNLog();
+#pragma warning restore CS0618 // 类型或成员已过时
             TraceLogger.Initialize(loggerFactory);
             Log = TraceLogger.GetLogger<EventStoreService>();
 

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.Exceptions;
 using EventStore.Core.Tests.ClientAPI.Helpers;
 using EventStore.Core.Tests.Helpers;
+using EventStore.Core.Tests.Services.VNode;
 using NUnit.Framework;
 
 namespace EventStore.Core.Tests.ClientAPI
@@ -117,8 +119,8 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
                 var x = TestEvent.NewTestEvent();
-                var events = new[] { x,x,x,x,x,x};
-                Assert.AreEqual(5,store.AppendToStreamAsync(stream, ExpectedVersion.Any, events).Result.NextExpectedVersion);
+                var events = new[] { x, x, x, x, x, x };
+                Assert.AreEqual(5, store.AppendToStreamAsync(stream, ExpectedVersion.Any, events).Result.NextExpectedVersion);
             }
         }
 
@@ -262,14 +264,14 @@ namespace EventStore.Core.Tests.ClientAPI
             using (var store = BuildConnection(_node))
             {
                 store.ConnectAsync().Wait();
- 
+
                 var append = store.AppendToStreamAsync(stream, 1, new[] { TestEvent.NewTestEvent() });
                 var aex = Assert.Throws<AggregateException>(() => append.Wait());
-				Assert.IsInstanceOf<WrongExpectedVersionException>(aex.InnerException);
-				var wev = (WrongExpectedVersionException) aex.InnerException;
-				Assert.AreEqual(1, wev.ExpectedVersion);
-				Assert.AreEqual(ExpectedVersion.NoStream, wev.ActualVersion);
-				
+                Assert.IsInstanceOf<WrongExpectedVersionException>(aex.InnerException);
+                var wev = (WrongExpectedVersionException)aex.InnerException;
+                Assert.AreEqual(1, wev.ExpectedVersion);
+                Assert.AreEqual(ExpectedVersion.NoStream, wev.ActualVersion);
+
             }
         }
 
@@ -282,7 +284,7 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
                 store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Wait();
- 
+
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.StreamExists, new[] { TestEvent.NewTestEvent() });
                 Assert.DoesNotThrow(append.Wait);
             }
@@ -296,10 +298,11 @@ namespace EventStore.Core.Tests.ClientAPI
             using (var store = BuildConnection(_node))
             {
                 store.ConnectAsync().Wait();
-                for(var i = 0; i < 5; i++) {
+                for (var i = 0; i < 5; i++)
+                {
                     store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent()).Wait();
                 }
- 
+
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.StreamExists, new[] { TestEvent.NewTestEvent() });
                 Assert.DoesNotThrow(append.Wait);
             }
@@ -314,7 +317,7 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
                 store.SetStreamMetadataAsync(stream, ExpectedVersion.Any, new StreamMetadata(10, null, null, null, null)).Wait();
- 
+
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.StreamExists, new[] { TestEvent.NewTestEvent() });
                 Assert.DoesNotThrow(append.Wait);
             }
@@ -328,11 +331,11 @@ namespace EventStore.Core.Tests.ClientAPI
             using (var store = BuildConnection(_node))
             {
                 store.ConnectAsync().Wait();
- 
+
                 var append = store.AppendToStreamAsync(stream, ExpectedVersion.StreamExists, new[] { TestEvent.NewTestEvent() });
                 var aex = Assert.Throws<AggregateException>(() => append.Wait());
                 Assert.IsInstanceOf<WrongExpectedVersionException>(aex.InnerException);
-                var wev = (WrongExpectedVersionException) aex.InnerException;
+                var wev = (WrongExpectedVersionException)aex.InnerException;
                 Assert.AreEqual(ExpectedVersion.StreamExists, wev.ExpectedVersion);
                 Assert.AreEqual(ExpectedVersion.NoStream, wev.ActualVersion);
             }
@@ -393,7 +396,7 @@ namespace EventStore.Core.Tests.ClientAPI
             {
                 store.ConnectAsync().Wait();
 
-                var result = store.ConditionalAppendToStreamAsync(stream, 7, new[] {TestEvent.NewTestEvent()}).Result;
+                var result = store.ConditionalAppendToStreamAsync(stream, 7, new[] { TestEvent.NewTestEvent() }).Result;
 
                 Assert.AreEqual(ConditionalWriteStatus.VersionMismatch, result.Status);
             }
@@ -444,7 +447,6 @@ namespace EventStore.Core.Tests.ClientAPI
             return TestConnection.To(node, _tcpType);
         }
 
-
         [OneTimeSetUp]
         public override void TestFixtureSetUp()
         {
@@ -461,160 +463,162 @@ namespace EventStore.Core.Tests.ClientAPI
         }
 
         [Test]
-        public void should_allow_appending_zero_events_to_stream_with_no_problems()
+        public async Task should_allow_appending_zero_events_to_stream_with_no_problems()
         {
             const string stream = "should_allow_appending_zero_events_to_stream_with_no_problems";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(-1, store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new EventData[0]).Result.NextExpectedVersion);
+                await store.ConnectAsync();
 
-                var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false).Result;
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new EventData[0]);
+                Assert.AreEqual(-1, result.NextExpectedVersion);
+
+                var read = await store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
                 Assert.That(read.Events.Length, Is.EqualTo(0));
             }
         }
 
         [Test]
-        public void should_create_stream_with_no_stream_exp_ver_on_first_write_if_does_not_exist()
+        public async Task should_create_stream_with_no_stream_exp_ver_on_first_write_if_does_not_exist()
         {
             const string stream = "should_create_stream_with_no_stream_exp_ver_on_first_write_if_does_not_exist";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(0, store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, TestEvent.NewTestEvent());
+                Assert.AreEqual(0, result.NextExpectedVersion);
 
-                var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
-                Assert.That(read.Result.Events.Length, Is.EqualTo(1));
+                var read = await store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
+                Assert.That(read.Events.Length, Is.EqualTo(1));
             }
         }
 
         [Test]
-        public void should_create_stream_with_any_exp_ver_on_first_write_if_does_not_exist()
+        public async Task should_create_stream_with_any_exp_ver_on_first_write_if_does_not_exist()
         {
             const string stream = "should_create_stream_with_any_exp_ver_on_first_write_if_does_not_exist";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(0, store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent());
+                Assert.AreEqual(0, result.NextExpectedVersion);
 
-                var read = store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
-                Assert.That(read.Result.Events.Length, Is.EqualTo(1));
+                var read = await store.ReadStreamEventsForwardAsync(stream, 0, 2, resolveLinkTos: false);
+                Assert.That(read.Events.Length, Is.EqualTo(1));
             }
         }
 
         [Test]
-        public void should_fail_writing_with_correct_exp_ver_to_deleted_stream()
+        public async Task should_fail_writing_with_correct_exp_ver_to_deleted_stream()
         {
             const string stream = "should_fail_writing_with_correct_exp_ver_to_deleted_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
+                await store.ConnectAsync();
 
-                var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                await store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
 
-                var append = store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new[] { TestEvent.NewTestEvent() });
-                Assert.That(() => append.Wait(), Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<StreamDeletedException>());
+                await AssertEx.ThrowsAsync<StreamDeletedException>(async () => await store.AppendToStreamAsync(stream, ExpectedVersion.NoStream, new[] { TestEvent.NewTestEvent() }));
             }
         }
 
         [Test]
-        public void should_fail_writing_with_any_exp_ver_to_deleted_stream()
+        public async Task should_fail_writing_with_any_exp_ver_to_deleted_stream()
         {
             const string stream = "should_fail_writing_with_any_exp_ver_to_deleted_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
+                await store.ConnectAsync();
 
-                var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                await store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
 
-                var append = store.AppendToStreamAsync(stream, ExpectedVersion.Any, new[] { TestEvent.NewTestEvent() });
-                Assert.That(() => append.Wait(), Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<StreamDeletedException>());
+                await AssertEx.ThrowsAsync<StreamDeletedException>(async () => await store.AppendToStreamAsync(stream, ExpectedVersion.Any, new[] { TestEvent.NewTestEvent() }));
             }
         }
 
         [Test]
-        public void should_fail_writing_with_invalid_exp_ver_to_deleted_stream()
+        public async Task should_fail_writing_with_invalid_exp_ver_to_deleted_stream()
         {
             const string stream = "should_fail_writing_with_invalid_exp_ver_to_deleted_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
+                await store.ConnectAsync();
 
-                var delete = store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
-                Assert.DoesNotThrow(delete.Wait);
+                await store.DeleteStreamAsync(stream, ExpectedVersion.EmptyStream, hardDelete: true);
 
-                var append = store.AppendToStreamAsync(stream, 5, new[] { TestEvent.NewTestEvent() });
-                Assert.That(() => append.Wait(), Throws.Exception.TypeOf<AggregateException>().With.InnerException.TypeOf<StreamDeletedException>());
+                await AssertEx.ThrowsAsync<StreamDeletedException>(() => store.AppendToStreamAsync(stream, 5, new[] { TestEvent.NewTestEvent() }));
             }
         }
 
         [Test]
-        public void should_append_with_correct_exp_ver_to_existing_stream()
+        public async Task should_append_with_correct_exp_ver_to_existing_stream()
         {
             const string stream = "should_append_with_correct_exp_ver_to_existing_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(0, store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
-                Assert.AreEqual(1, store.AppendToStreamAsync(stream, 0, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent());
+                Assert.AreEqual(0, result.NextExpectedVersion);
+                result = await store.AppendToStreamAsync(stream, 0, TestEvent.NewTestEvent());
+                Assert.AreEqual(1, result.NextExpectedVersion);
             }
         }
 
         [Test]
-        public void should_append_with_any_exp_ver_to_existing_stream()
+        public async Task should_append_with_any_exp_ver_to_existing_stream()
         {
             const string stream = "should_append_with_any_exp_ver_to_existing_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(0, store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
-                Assert.AreEqual(1, store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent());
+                Assert.AreEqual(0, result.NextExpectedVersion);
+                result = await store.AppendToStreamAsync(stream, ExpectedVersion.Any, TestEvent.NewTestEvent());
+                Assert.AreEqual(1, result.NextExpectedVersion);
             }
         }
 
         [Test]
-        public void should_return_log_position_when_writing()
+        public async Task should_return_log_position_when_writing()
         {
             const string stream = "should_return_log_position_when_writing";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                var result = store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Result;
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent());
                 Assert.IsTrue(0 < result.LogPosition.PreparePosition);
                 Assert.IsTrue(0 < result.LogPosition.CommitPosition);
             }
         }
 
         [Test]
-        public void should_fail_appending_with_wrong_exp_ver_to_existing_stream()
+        public async Task should_fail_appending_with_wrong_exp_ver_to_existing_stream()
         {
             const string stream = "should_fail_appending_with_wrong_exp_ver_to_existing_stream";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
-                Assert.AreEqual(0, store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent()).Result.NextExpectedVersion);
+                await store.ConnectAsync();
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, TestEvent.NewTestEvent());
+                Assert.AreEqual(0, result.NextExpectedVersion);
 
-                var append = store.AppendToStreamAsync(stream, 1, new[] { TestEvent.NewTestEvent() });
-                var aex = Assert.Throws<AggregateException>(() => append.Wait());
-                Assert.IsInstanceOf<WrongExpectedVersionException>(aex.InnerException);
-                var wev = (WrongExpectedVersionException) aex.InnerException;
+                var wev = await AssertEx.ThrowsAsync<WrongExpectedVersionException>(() =>
+                    store.AppendToStreamAsync(stream, 1, TestEvent.NewTestEvent()));
                 Assert.AreEqual(1, wev.ExpectedVersion);
                 Assert.AreEqual(0, wev.ActualVersion);
             }
         }
 
         [Test]
-        public void can_append_multiple_events_at_once()
+        public async Task can_append_multiple_events_at_once()
         {
             const string stream = "can_append_multiple_events_at_once";
             using (var store = BuildConnection(_node))
             {
-                store.ConnectAsync().Wait();
+                await store.ConnectAsync();
 
                 var events = Enumerable.Range(0, 100).Select(i => TestEvent.NewTestEvent(i.ToString(), i.ToString()));
-                Assert.AreEqual(99, store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, events).Result.NextExpectedVersion);
+                var result = await store.AppendToStreamAsync(stream, ExpectedVersion.EmptyStream, events);
+                Assert.AreEqual(99, result.NextExpectedVersion);
             }
         }
     }

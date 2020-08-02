@@ -9,6 +9,7 @@ using EventStore.Common.Utils;
 using EventStore.Core.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.Core.Data
 {

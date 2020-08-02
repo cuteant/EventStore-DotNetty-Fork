@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.ReaderWriterLockSlim.Sources\CuteAnt.Extensions.ReaderWriterLockSlim.Sources.projitems" Label="Shared" />
@@ -8,7 +7,7 @@
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Async.Sources\CuteAnt.Extensions.Async.Sources.projitems" Label="Shared" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.Core</RootNamespace>
     <AssemblyName>EventStore.Core</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -21,26 +20,15 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netfx' ">
-    <Reference Include="System" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="CuteAnt.Runtime" Version="$(CuteAntRuntimePackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
-    <ProjectReference Include="..\..\etc\SimpleSyndicate.UriTemplate\SimpleSyndicate.UriTemplate.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\etc\HdrHistogram\HdrHistogram.csproj" />
+    <ProjectReference Include="..\..\etc\SimpleSyndicate.UriTemplate\SimpleSyndicate.UriTemplate.csproj" />
     <ProjectReference Include="..\EventStore.Native\EventStore.Native.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Http\EventStore.Transport.Http.csproj" />
     <ProjectReference Include="..\EventStore.Transport.Tcp\EventStore.Transport.Tcp.csproj" />
@@ -61,4 +49,5 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

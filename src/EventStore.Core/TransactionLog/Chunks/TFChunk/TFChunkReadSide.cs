@@ -513,11 +513,11 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 return res.ActualPos;
             }
 
-            private static Range LocatePosRange(Midpoint[] midpoints, long pos)
+            private static EventStore.Core.Data.Range LocatePosRange(Midpoint[] midpoints, long pos)
             {
                 int lowerMidpoint = LowerMidpointBound(midpoints, pos);
                 int upperMidpoint = UpperMidpointBound(midpoints, pos);
-                return new Range(midpoints[lowerMidpoint].ItemIndex, midpoints[upperMidpoint].ItemIndex);
+                return new EventStore.Core.Data.Range(midpoints[lowerMidpoint].ItemIndex, midpoints[upperMidpoint].ItemIndex);
             }
 
             /// <summary>

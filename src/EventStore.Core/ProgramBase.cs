@@ -16,9 +16,7 @@ namespace EventStore.Core
     public abstract class ProgramBase<TOptions>
       where TOptions : class, IOptions, new()
     {
-        // ReSharper disable StaticFieldInGenericType
         protected ILogger Log { get; set; }
-        // ReSharper restore StaticFieldInGenericType
 
         private int _exitCode;
         private readonly ManualResetEventSlim _exitEvent = new ManualResetEventSlim(false);

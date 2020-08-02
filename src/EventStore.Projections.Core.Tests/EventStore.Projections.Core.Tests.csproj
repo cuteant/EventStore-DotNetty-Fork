@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.Projections.Core.Tests</RootNamespace>
     <AssemblyName>EventStore.Projections.Core.Tests</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -13,18 +13,12 @@
     <DefineConstants>$(DefineConstants);UNOFFICIALTESTING</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkPackageVersion)" />
     <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
     <PackageReference Include="NUnit" Version="$(NUnitPackageVersion)" />
     <PackageReference Include="NUnit3TestAdapter" Version="$(NUnit3TestAdapterPackageVersion)" />
-    <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="$(NLogExtensionsLoggingPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>

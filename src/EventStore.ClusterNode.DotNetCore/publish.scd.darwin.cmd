@@ -1,1 +1,1 @@
-dotnet publish -c Release -f netcoreapp2.2 --self-contained true -o ../../Artifacts/osx-x64  -r osx-x64 /p:NoBuild=false
+dotnet publish -c Release -f netcoreapp3.1 --self-contained true -o ../../Artifacts/osx-x64  -r osx-x64 /p:NoBuild=false

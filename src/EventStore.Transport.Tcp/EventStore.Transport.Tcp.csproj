@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;netstandard2.0;net471;net451</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net471;net451</TargetFrameworks>
     <RootNamespace>EventStore.Transport.Tcp</RootNamespace>
     <AssemblyName>EventStore.Transport.Tcp</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -19,8 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="MessagePack.Unofficial" Version="$(MessagePackUnofficialPackageVersion)" />
-    <PackageReference Include="DotNetty.Handlers.Unofficial" Version="$(DotNettyHandlersUnofficialPackageVersion)" />
-    <PackageReference Include="DotNetty.Transport.Libuv.Unofficial" Version="$(DotNettyTransportLibuvUnofficialPackageVersion)" />
+    <PackageReference Include="SpanNetty.Handlers" Version="$(SpanNettyHandlersPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,4 +40,5 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

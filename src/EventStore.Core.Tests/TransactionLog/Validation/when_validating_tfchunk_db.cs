@@ -458,8 +458,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                 actualDataSize: config.ChunkSize,
                 contents: contents);
                 DbUtil.CreateOngoingChunk(config, 1, GetFilePathFor("chunk-000001.000000"));
-                /**
-                Corrupt the prelast completed chunk by modifying bytes of its content
+                /*
+                 * Corrupt the prelast completed chunk by modifying bytes of its content
                  */
                 using (Stream stream = File.Open(GetFilePathFor("chunk-000000.000000"), FileMode.Open))
                 {
@@ -470,8 +470,8 @@ namespace EventStore.Core.Tests.TransactionLog.Validation
                     stream.Position = ChunkHeader.Size + 15; //arbitrary choice of position to modify
                     stream.Write(data, 0, data.Length);
                 }
-                /**
-                Exception being thrown in another thread, using the output to check for the exception
+                /*
+                 * Exception being thrown in another thread, using the output to check for the exception
                  */
                 var output="";
                 using (StringWriter sw = new StringWriter())

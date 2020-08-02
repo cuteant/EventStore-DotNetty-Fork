@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
   
   <PropertyGroup>
@@ -20,4 +19,6 @@
     <PackageReference Include="MessagePack.Span.Abstractions" Version="$(MessagePackSpanAbstractionsPackageVersion)" />
     <PackageReference Include="MessagePackAnalyzer" Version="$(MessagePackAnalyzerPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
+
+  <Import Project="..\..\version.props" />
 </Project>

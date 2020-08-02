@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.Projections.Core.Services.Processing
 {

@@ -64,9 +64,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         protected void AddUnwrapper<T>(TcpCommand command, Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, T> unwrapper, ClientVersion version) 
             where T : Message
         {
-// ReSharper disable RedundantCast
             _unwrappers[(byte)version][(byte) command] = (Func<TcpPackage, IEnvelope, IPrincipal, string, string, TcpConnectionManager, Message>) unwrapper;
-// ReSharper restore RedundantCast
         }
 
         public TcpPackage WrapMessage(Message message, byte version)

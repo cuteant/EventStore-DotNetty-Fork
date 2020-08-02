@@ -8,7 +8,6 @@ namespace EventStore.Core.TransactionLog.Unbuffered
 {
     internal static class MacCaching
     {
-        // ReSharper disable once InconsistentNaming
         private const uint MAC_F_NOCACHE = 48;
 
         [DllImport("libc")]

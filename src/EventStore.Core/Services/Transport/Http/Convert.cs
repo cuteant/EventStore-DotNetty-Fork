@@ -12,6 +12,7 @@ using EventStore.Transport.Http.Atom;
 using EventStore.Transport.Http.Codecs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.Core.Services.Transport.Http
 {

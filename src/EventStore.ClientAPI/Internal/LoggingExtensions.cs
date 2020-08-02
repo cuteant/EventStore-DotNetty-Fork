@@ -103,7 +103,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, GossipSeed, int, string, Exception> s_respondedWithHttpStatus =
-            LoggerMessageFactory.Define<GossipSeed, int, string>(LogLevel.Information,
+            LoggerMessage.Define<GossipSeed, int, string>(LogLevel.Information, 0,
             "[{endPoint}] responded with {httpStatusCode} ({statusDescription})");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void RespondedWithHttpStatus(this ILogger logger, GossipSeed endPoint, EventStore.ClientAPI.Transport.Http.HttpResponse response)
@@ -112,7 +112,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, int, string, NodeEndPoints, Exception> s_discoveringAttemptSuccessful =
-            LoggerMessageFactory.Define<int, string, NodeEndPoints>(LogLevel.Information,
+            LoggerMessage.Define<int, string, NodeEndPoints>(LogLevel.Information, 0,
             "Discovering attempt {attempt}{maxDiscoverAttemptsStr} successful: best candidate is {endPoints}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DiscoveringAttemptSuccessful(this ILogger logger, int attempt, string maxDiscoverAttemptsStr, in NodeEndPoints endPoints)
@@ -121,7 +121,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, int, string, Exception> s_discoveringAttemptFailed =
-            LoggerMessageFactory.Define<int, string>(LogLevel.Information,
+            LoggerMessage.Define<int, string>(LogLevel.Information, 0,
             "Discovering attempt {attempt}{maxDiscoverAttemptsStr} failed: no candidate found.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DiscoveringAttemptFailed(this ILogger logger, int attempt, string maxDiscoverAttemptsStr)
@@ -130,7 +130,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, int, string, Exception> s_discoveringAttemptFailedWithError =
-            LoggerMessageFactory.Define<int, string>(LogLevel.Information,
+            LoggerMessage.Define<int, string>(LogLevel.Information, 0,
             "Discovering attempt {attempt}{maxDiscoverAttemptsStr} failed with error: ");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DiscoveringAttemptFailed(this ILogger logger, int attempt, string maxDiscoverAttemptsStr, Exception exc)
@@ -139,7 +139,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, IPEndPoint, string, ClusterMessages.VNodeState, Exception> s_discoveringFoundBestChoice =
-            LoggerMessageFactory.Define<IPEndPoint, string, ClusterMessages.VNodeState>(LogLevel.Information,
+            LoggerMessage.Define<IPEndPoint, string, ClusterMessages.VNodeState>(LogLevel.Information, 0,
             "Discovering: found best choice [{normTcp},{secTcp}] ({state}).");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DiscoveringFoundBestChoice(this ILogger logger, IPEndPoint normTcp, IPEndPoint secTcp, ClusterMessages.VNodeState state)
@@ -148,7 +148,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, string, Exception> s_noHandlerFoundForEventType =
-            LoggerMessageFactory.Define<string>(LogLevel.Warning,
+            LoggerMessage.Define<string>(LogLevel.Warning, 0,
             "No handler found for event type {eventTypeName}, the default hander has been used.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void NoHandlerFoundForEventTypeTheDefaultHanderHasBeenUsed(this ILogger logger, Type eventType)
@@ -157,7 +157,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, string, Guid, long, string, Exception> s_canotDeserializeTheRecordedEvent =
-            LoggerMessageFactory.Define<string, Guid, long, string>(LogLevel.Warning,
+            LoggerMessage.Define<string, Guid, long, string>(LogLevel.Warning, 0,
             "Can't deserialize the recorded event: StreamId - {eventStreamId}, EventId - {eventId}, EventNumber - {eventNumber}, EventType - {eventType}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void CanotDeserializeTheRecordedEvent(this ILogger logger, TcpClientMessageDto.EventRecord systemRecord, Exception exc)
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, string, Exception> s_noHandlerFo1undForEventTypeError =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "No handler found for event type {eventTypeName}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void NoHandlerFoundForEventType(this ILogger logger, Type eventType)
@@ -175,7 +175,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, string, Exception> s_failedToCreateInstanceOfType =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "Failed to create instance of type: {typeFullName}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void FailedToCreateInstanceOfType(this ILogger logger, TypeInfo typeInfo, Exception exception)
@@ -184,7 +184,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, Exception> s_exceptionDuringExecutingUserCallback =
-            LoggerMessageFactory.Define(LogLevel.Error,
+            LoggerMessage.Define(LogLevel.Error, 0,
             "Exception during executing user callback: ");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ExceptionDuringExecutingUserCallback(this ILogger logger, Exception exception)
@@ -193,7 +193,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, TcpClientMessageDto.NotHandled.NotHandledReason, Exception> s_unknownNotHandledReason =
-            LoggerMessageFactory.Define<TcpClientMessageDto.NotHandled.NotHandledReason>(LogLevel.Error,
+            LoggerMessage.Define<TcpClientMessageDto.NotHandled.NotHandledReason>(LogLevel.Error, 0,
             "Unknown NotHandledReason: {reason}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void UnknownNotHandledReason(this ILogger logger, TcpClientMessageDto.NotHandled.NotHandledReason reason)
@@ -202,7 +202,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, GossipSeed, Exception> s_failed_to_get_cluster_info_deserialization =
-            LoggerMessageFactory.Define<GossipSeed>(LogLevel.Error,
+            LoggerMessage.Define<GossipSeed>(LogLevel.Error, 0,
             "Failed to get cluster info from [{endPoint}]: deserialization error:");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void Failed_to_get_cluster_info_deserialization(this ILogger logger, GossipSeed endPoint, Exception exception)
@@ -211,7 +211,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, GossipSeed, Exception> s_failed_to_get_cluster_info_request_failed =
-            LoggerMessageFactory.Define<GossipSeed>(LogLevel.Error,
+            LoggerMessage.Define<GossipSeed>(LogLevel.Error, 0,
             "Failed to get cluster info from [{endPoint}]: request failed, error:");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void Failed_to_get_cluster_info_request_failed(this ILogger logger, GossipSeed endPoint, Exception exception)

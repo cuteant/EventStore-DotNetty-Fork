@@ -57,7 +57,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_errorWhileClosingStream =
-            LoggerMessageFactory.Define<string>(LogLevel.Information,
+            LoggerMessage.Define<string>(LogLevel.Information, 0,
             "Error while closing stream : {errMsg}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorWhileClosingStream(this ILogger logger, Exception exception)
@@ -66,7 +66,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, string, Exception> s_attemptingToAddPermissionsUsingNetsh =
-            LoggerMessageFactory.Define<string, string>(LogLevel.Information,
+            LoggerMessage.Define<string, string>(LogLevel.Information, 0,
             "Attempting to add permissions for {address} using netsh {args}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AttemptingToAddPermissionsUsingNetsh(this ILogger logger, string address, string args)
@@ -75,7 +75,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_httpServerIsUpAndListeningOn =
-            LoggerMessageFactory.Define<string>(LogLevel.Information,
+            LoggerMessage.Define<string>(LogLevel.Information, 0,
             "HTTP server is up and listening on [{prefixes}]");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void HttpServerIsUpAndListeningOn(this ILogger logger, HttpListener listener)
@@ -84,7 +84,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_retryingHttpServerOn =
-            LoggerMessageFactory.Define<string>(LogLevel.Information,
+            LoggerMessage.Define<string>(LogLevel.Information, 0,
             "Retrying HTTP server on [{prefixes}]...");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void RetryingHttpServerOn(this ILogger logger, HttpListener listener)
@@ -93,7 +93,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_startingHttpServerOn =
-            LoggerMessageFactory.Define<string>(LogLevel.Information,
+            LoggerMessage.Define<string>(LogLevel.Information, 0,
             "Starting HTTP server on [{prefixes}]...");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void StartingHttpServerOn(this ILogger logger, HttpListener listener)
@@ -102,7 +102,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_beginGetContextError =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "BeginGetContext error. Status : {status}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void BeginGetContextError(this ILogger logger, Exception e, bool isListening)
@@ -111,7 +111,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, Exception> s_processRequestError =
-            LoggerMessageFactory.Define(LogLevel.Error,
+            LoggerMessage.Define(LogLevel.Error, 0,
             "ProcessRequest error");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ProcessRequestError(this ILogger logger, Exception e)
@@ -120,7 +120,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, Exception> s_errorWhileShuttingDownHttpServer =
-            LoggerMessageFactory.Define(LogLevel.Error,
+            LoggerMessage.Define(LogLevel.Error, 0,
             "Error while shutting down http server");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorWhileShuttingDownHttpServer(this ILogger logger, Exception e)
@@ -129,7 +129,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, Uri, Exception> s_failedToSetupForwardedResponseParameters =
-            LoggerMessageFactory.Define<Uri>(LogLevel.Error,
+            LoggerMessage.Define<Uri>(LogLevel.Error, 0,
             "Failed to set up forwarded response parameters for '{requestedUrl}'.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void FailedToSetupForwardedResponseParameters(this ILogger logger, Uri requestedUrl, Exception e)
@@ -138,7 +138,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, long, Exception> s_attemptToSetInvalidContentLength =
-            LoggerMessageFactory.Define<long>(LogLevel.Error,
+            LoggerMessage.Define<long>(LogLevel.Error, 0,
             "Attempt to set invalid value '{length}' as content length.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AttemptToSetInvalidContentLength(this ILogger logger, long length, ArgumentOutOfRangeException e)
@@ -147,7 +147,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, Exception> s_invalidResponseType =
-            LoggerMessageFactory.Define(LogLevel.Error,
+            LoggerMessage.Define(LogLevel.Error, 0,
             "Invalid response type.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void InvalidResponseType(this ILogger logger, ArgumentOutOfRangeException e)
@@ -156,7 +156,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_descriptionStringDidnotPassValidation =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "Description string '{desc}' did not pass validation. Status description was not set.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DescriptionStringDidnotPassValidation(this ILogger logger, string desc, ArgumentException e)
@@ -165,7 +165,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, Exception> s_attemptToSetInvalidHttpStatusCodeOccurred =
-            LoggerMessageFactory.Define(LogLevel.Error,
+            LoggerMessage.Define(LogLevel.Error, 0,
             "Attempt to set invalid HTTP status code occurred.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void AttemptToSetInvalidHttpStatusCodeOccurred(this ILogger logger, ProtocolViolationException e)
@@ -174,7 +174,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_errorSerializingObjectOfType =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "Error serializing object of type {typeName}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void ErrorSerializingObjectOfType<T>(this ILogger logger, Exception e)
@@ -183,7 +183,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, string, Exception> s_isNotAValidSerialized =
-            LoggerMessageFactory.Define<string, string>(LogLevel.Error,
+            LoggerMessage.Define<string, string>(LogLevel.Error, 0,
             "'{text}' is not a valid serialized {typeName}");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void IsNotAValidSerialized<T>(this ILogger logger, string text, Exception e)
@@ -192,7 +192,7 @@ namespace EventStore.Transport.Http
         }
 
         private static readonly Action<ILogger, string, Exception> s_isNotAValidSerialized0 =
-            LoggerMessageFactory.Define<string>(LogLevel.Error,
+            LoggerMessage.Define<string>(LogLevel.Error, 0,
             "'{text}' is not a valid serialized");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void IsNotAValidSerialized(this ILogger logger, byte[] json, Exception e)

@@ -13,7 +13,7 @@ using EventStore.Transport.Http.Atom;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using SpanJson.Serialization;
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
@@ -97,7 +97,6 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
             if (disableHTTPCaching)
             {
-                // ReSharper disable once RedundantNameQualifier
                 Transport.Http.Configure.DisableHTTPCaching = true;
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotNetty.Buffers;
@@ -127,9 +128,7 @@ namespace EventStore.Transport.Tcp
             {
                 // free all of the connection objects we were holding onto
                 ConnectionGroup.Clear();
-#pragma warning disable 4014 // shutting down the worker groups can take up to 10 seconds each. Let that happen asnychronously.
-                _clientWorkerGroup?.ShutdownGracefullyAsync();
-#pragma warning restore 4014
+                _clientWorkerGroup?.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5));
             }
         }
 
@@ -157,7 +156,7 @@ namespace EventStore.Transport.Tcp
                     ? new TcpSocketChannel(addressFamily)
                     : new TcpSocketChannel());
             }
-            client.Handler(new ActionChannelInitializer<ISocketChannel>(channel => SetClientPipeline(channel)));
+            client.Handler(new ActionChannelInitializer<IChannel>(channel => SetClientPipeline(channel)));
 
             if (Settings.ReceiveBufferSize.HasValue) { client.Option(ChannelOption.SoRcvbuf, Settings.ReceiveBufferSize.Value); }
             if (Settings.SendBufferSize.HasValue) { client.Option(ChannelOption.SoSndbuf, Settings.SendBufferSize.Value); }
@@ -167,16 +166,14 @@ namespace EventStore.Transport.Tcp
             return client;
         }
 
-        private void SetClientPipeline(ISocketChannel channel)
+        private void SetClientPipeline(IChannel channel)
         {
             if (_useSsl)
             {
                 var tlsSettings = new ClientTlsSettings(_sslTargetHost);
-                if (!_sslValidateServer)
-                {
-                    tlsSettings.ServerCertificateValidation = (cert, chain, errors) => true ;
-            }
-                var tlsHandler = new TlsHandler(tlsSettings);
+                var tlsHandler = !_sslValidateServer
+                    ? new TlsHandler(stream => new SslStream(stream, true, (sender, cert, chain, errors) => true), new ClientTlsSettings(_sslTargetHost))
+                    : new TlsHandler(tlsSettings);
 
                 channel.Pipeline.AddFirst("TlsHandler", tlsHandler);
             }

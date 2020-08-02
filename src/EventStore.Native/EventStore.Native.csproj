@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.Core</RootNamespace>
     <AssemblyName>EventStore.Native</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,10 +15,7 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netfx' ">
-    <PackageReference Include="Mono.Posix" Version="$(MonoPosixPackageVersion)" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(ImportLibs)' == 'netcore' ">
+  <ItemGroup>
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="$(SystemDiagnosticsPerformanceCounterPackageVersion)" />
     <PackageReference Include="Mono.Posix.NETStandard" Version="$(MonoPosixNETStandardPackageVersion)" />
   </ItemGroup>
@@ -42,4 +38,5 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

@@ -21,7 +21,9 @@ namespace EventStore.Core.Tests
             SetUpDebugListeners();
             //LogManager.SetLogFactory(x => new ConsoleLogger());
             var logFactory = new LoggerFactory();
+#pragma warning disable CS0618 // 类型或成员已过时
             logFactory.AddNLog();
+#pragma warning restore CS0618 // 类型或成员已过时
             TraceLogger.Initialize(logFactory);
 
             Application.AddDefines(new[] { Application.AdditionalCommitChecks });

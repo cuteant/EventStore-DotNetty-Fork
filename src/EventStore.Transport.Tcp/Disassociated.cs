@@ -1,5 +1,4 @@
-﻿using System;
-using CuteAnt.Pool;
+﻿using DotNetty.Common.Internal;
 
 namespace EventStore.Transport.Tcp
 {

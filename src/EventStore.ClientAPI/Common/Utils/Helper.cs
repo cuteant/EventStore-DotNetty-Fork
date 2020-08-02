@@ -17,9 +17,7 @@ namespace EventStore.ClientAPI.Common.Utils
             {
                 action();
             }
-            // ReSharper disable EmptyGeneralCatchClause
             catch (Exception)
-            // ReSharper restore EmptyGeneralCatchClause
             {
             }
         }

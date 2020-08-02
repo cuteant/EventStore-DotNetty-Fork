@@ -7,6 +7,7 @@ using CuteAnt.Text;
 using EventStore.ClientAPI.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.ClientAPI
 {

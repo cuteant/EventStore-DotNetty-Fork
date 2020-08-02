@@ -55,7 +55,7 @@ namespace EventStore.Transport.Tcp
 
                 ConnectionGroup.TryAdd(newServerChannel);
 
-                newServerChannel.Configuration.AutoRead = true;
+                newServerChannel.Configuration.IsAutoRead = true;
 
                 Interlocked.Exchange(ref _serverChannel, newServerChannel);
             }
@@ -97,10 +97,8 @@ namespace EventStore.Transport.Tcp
             {
                 // free all of the connection objects we were holding onto
                 ConnectionGroup.Clear();
-#pragma warning disable 4014 // shutting down the worker groups can take up to 10 seconds each. Let that happen asnychronously.
-                _serverBossGroup?.ShutdownGracefullyAsync();
-                _serverWorkerGroup?.ShutdownGracefullyAsync();
-#pragma warning restore 4014
+                _serverBossGroup?.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5));
+                _serverWorkerGroup?.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(5));
             }
         }
 
@@ -127,7 +125,7 @@ namespace EventStore.Transport.Tcp
 
                 var ch = await _serverBootstrap.BindAsync(_listenAddress).ConfigureAwait(false);
                 ConnectionGroup.TryAdd(ch);
-                ch.Configuration.AutoRead = true;
+                ch.Configuration.IsAutoRead = true;
                 Interlocked.Exchange(ref _serverChannel, ch);
             }
             catch
@@ -177,7 +175,7 @@ namespace EventStore.Transport.Tcp
                   //.Option(ChannelOption.SoLinger, Settings.TcpLinger)
                   .Option(ChannelOption.Allocator, Settings.EnableBufferPooling ? (IByteBufferAllocator)PooledByteBufferAllocator.Default : UnpooledByteBufferAllocator.Default)
                   .Handler(new ServerChannelRebindHandler(DoBind))
-                  .ChildHandler(new ActionChannelInitializer<ISocketChannel>(SetServerPipeline));
+                  .ChildHandler(new ActionChannelInitializer<IChannel>(channel => SetServerPipeline(channel)));
 
             if (Settings.ReceiveBufferSize.HasValue) { server.Option(ChannelOption.SoRcvbuf, Settings.ReceiveBufferSize.Value); }
             if (Settings.SendBufferSize.HasValue) { server.Option(ChannelOption.SoSndbuf, Settings.SendBufferSize.Value); }
@@ -188,7 +186,7 @@ namespace EventStore.Transport.Tcp
             return server;
         }
 
-        private void SetServerPipeline(ISocketChannel channel)
+        private void SetServerPipeline(IChannel channel)
         {
             if (_certificate != null)
             {

@@ -11,8 +11,6 @@ using System.Linq;
 using HttpStatusCode = System.Net.HttpStatusCode;
 using EventStore.Transport.Http;
 
-// ReSharper disable InconsistentNaming
-
 namespace EventStore.Core.Tests.Http.PersistentSubscription
 {
     class when_nacking_a_message : with_subscription_having_events

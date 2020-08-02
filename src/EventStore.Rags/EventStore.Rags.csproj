@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.Rags</RootNamespace>
     <AssemblyName>EventStore.Rags</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -20,4 +19,5 @@
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

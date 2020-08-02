@@ -30,17 +30,20 @@ namespace EventStore.Core.Tests.ClientAPI.Helpers
         private static ConnectionSettingsBuilder Settings(TcpType tcpType, UserCredentials userCredentials)
         {
             var settings = ConnectionSettings.Create()
-                                             .SetDefaultUserCredentials(userCredentials)
-                                             //.UseCustomLogger(ClientApiLoggerBridge.Default)
-                                             .EnableVerboseLogging()
-                                             .LimitReconnectionsTo(10)
-                                             .LimitRetriesForOperationTo(100)
-                                             .SetTimeoutCheckPeriodTo(TimeSpan.FromMilliseconds(100))
-                                             .SetReconnectionDelayTo(TimeSpan.Zero)
-                                             .FailOnNoServerResponse()
-                                             .SetOperationTimeoutTo(TimeSpan.FromDays(1));
+                .DisableLibuv()
+                .SetDefaultUserCredentials(userCredentials)
+                //.UseCustomLogger(ClientApiLoggerBridge.Default)
+                .EnableVerboseLogging()
+                .LimitReconnectionsTo(10)
+                .LimitRetriesForOperationTo(100)
+                .SetTimeoutCheckPeriodTo(TimeSpan.FromMilliseconds(100))
+                .SetReconnectionDelayTo(TimeSpan.Zero)
+                .FailOnNoServerResponse()
+                .SetOperationTimeoutTo(TimeSpan.FromDays(1));
             if (tcpType == TcpType.Ssl)
+            {
                 settings.UseSslConnection("ES", false);
+            }
             return settings;
         }
     }

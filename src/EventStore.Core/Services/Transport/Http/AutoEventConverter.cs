@@ -11,6 +11,7 @@ using EventStore.Transport.Http.Codecs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 using Formatting = Newtonsoft.Json.Formatting;
 
 namespace EventStore.Core.Services.Transport.Http

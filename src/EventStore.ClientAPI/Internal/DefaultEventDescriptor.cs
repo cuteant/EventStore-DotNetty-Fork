@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using JsonExtensions;
+using SpanJson.Internal;
+using SpanJson.Linq;
 
 namespace EventStore.ClientAPI
 {
@@ -21,11 +22,44 @@ namespace EventStore.ClientAPI
 
         public TMeta AsMetaData<TMeta>() where TMeta : IEventMetadata => (TMeta)_eventMeta;
 
-        public T GetValue<T>(string key) => _eventContext.Deserialize<T>(key);
+        public T GetValue<T>(string key) => GetValue<T>(key, default);
 
-        public T GetValue<T>(string key, T defaultValue) => _eventContext.Deserialize(key, defaultValue);
+        public T GetValue<T>(string key, T defaultValue)
+        {
+            if (null == key) { goto Defalut; }
 
-        public bool TryGetValue<T>(string key, out T value) => _eventContext.TryDeserialize(key, out value);
+            if (_eventContext.TryGetValue(key, out object rawValue) || TryGetValueCamelCase(key, _eventContext, out rawValue))
+            {
+                return JToken.FromObject(rawValue).ToObject<T>();
+            }
+
+        Defalut:
+            return defaultValue; ;
+        }
+
+        public bool TryGetValue<T>(string key, out T value)
+        {
+            if (null == key) { goto Defalut; }
+
+            if (_eventContext.TryGetValue(key, out object rawValue) || TryGetValueCamelCase(key, _eventContext, out rawValue))
+            {
+                value = JToken.FromObject(rawValue).ToObject<T>();
+                return true;
+            }
+
+        Defalut:
+            value = default; return false;
+        }
+
+        private static bool TryGetValueCamelCase(string key, IDictionary<string, object> dictionary, out object value)
+        {
+            if (char.IsUpper(key[0]))
+            {
+                var camelCaseKey = StringMutator.ToCamelCaseWithCache(key);
+                return dictionary.TryGetValue(camelCaseKey, out value);
+            }
+            value = null; return false;
+        }
     }
 
     internal sealed class NullEventDescriptor : IEventDescriptor

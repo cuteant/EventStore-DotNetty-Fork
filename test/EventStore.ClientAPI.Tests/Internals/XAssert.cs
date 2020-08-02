@@ -11,7 +11,6 @@ using System.Linq;
 using Akka.TestKit.Xunit2;
 using Xunit;
 
-// ReSharper disable once CheckNamespace
 namespace Akka.TestKit
 {
     public static class XAssert

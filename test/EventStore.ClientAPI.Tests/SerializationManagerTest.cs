@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.Tests
             Assert.Equal("cat1", eventData.Type);
             Assert.True(eventData.IsJson);
             var metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
-            Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
+            Assert.Equal(((CombGuid)context["Id"]).ToString(CombGuidFormatStringType.Comb32Digits), metadata.Context["Id"].ToString());
             Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
             Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
             Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());
@@ -75,7 +75,7 @@ namespace EventStore.ClientAPI.Tests
 
             var eventMetaJson = Encoding.UTF8.GetString(eventData.Metadata);
             var metadata = JsonConvert.DeserializeObject<EventMetadata>(eventMetaJson);
-            Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
+            Assert.Equal(((CombGuid)context["Id"]).ToString(CombGuidFormatStringType.Comb32Digits), metadata.Context["Id"].ToString());
             Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
             Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
             Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI.Tests
             Assert.Equal("cat", eventData.Type);
             Assert.True(eventData.IsJson);
             var metadata = eventAdapter.ToEventMetadata(eventData.Metadata);
-            Assert.Equal(context["Id"].ToString(), metadata.Context["Id"].ToString());
+            Assert.Equal(((CombGuid)context["Id"]).ToString(CombGuidFormatStringType.Comb32Digits), metadata.Context["Id"].ToString());
             Assert.Equal(context["Id1"].ToString(), metadata.Context["Id1"].ToString());
             Assert.Equal(context["age"].ToString(), metadata.Context["age"].ToString());
             Assert.Equal(context["FullName"].ToString(), metadata.Context["FullName"].ToString());

@@ -64,10 +64,8 @@ namespace EventStore.Core.Services.Transport.Http
             if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if (null == httpAuthenticationProviders) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpAuthenticationProviders); }
 
-            // ReSharper disable RedundantTypeArgumentsOfMethod
             var requestAuthenticationManager = new IncomingHttpRequestAuthenticationManager(httpAuthenticationProviders);
             bus.Subscribe<IncomingHttpRequestMessage>(requestAuthenticationManager);
-            // ReSharper restore RedundantTypeArgumentsOfMethod
 
             var requestProcessor = new AuthenticatedHttpRequestProcessor();
             bus.Subscribe<AuthenticatedHttpRequestMessage>(requestProcessor);

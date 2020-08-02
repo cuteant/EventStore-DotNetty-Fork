@@ -43,7 +43,7 @@ namespace EventStore.Core
         }
 
         private static readonly Action<ILogger, string, TimeSpan, string, int, int, string, Exception> s_mergingOfChunks =
-            LoggerMessageFactory.Define<string, TimeSpan, string, int, int, string>(LogLevel.Trace,
+            LoggerMessage.Define<string, TimeSpan, string, int, int, string>(LogLevel.Trace, 0,
                 "Merging of chunks:"
                 + "\n{oldChunksList}"
                 + "\ncompleted in {elapsed}."
@@ -55,7 +55,7 @@ namespace EventStore.Core
         }
 
         private static readonly Action<ILogger, string, TimeSpan, int, int, string, Exception> s_mergingOfChunksButSwitchingWasPreventedForNewChunk =
-            LoggerMessageFactory.Define<string, TimeSpan, int, int, string>(LogLevel.Trace,
+            LoggerMessage.Define<string, TimeSpan, int, int, string>(LogLevel.Trace, 0,
                 "Merging of chunks:"
                 + "\n{oldChunksList}"
                 + "\ncompleted in {elapsed}."
@@ -79,7 +79,7 @@ namespace EventStore.Core
         }
 
         private static readonly Action<ILogger, string, string, int, string, Exception> s_showBusMsg =
-            LoggerMessageFactory.Define<string, string, int, string>(LogLevel.Trace,
+            LoggerMessage.Define<string, string, int, string>(LogLevel.Trace, 0,
                 "SLOW BUS MSG [{bus}]: {message} - {elapsed}ms. Handler: {handler}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void SlowBusMsg(this ILogger logger, string name, Message message, int elapsed, IMessageHandler handler)

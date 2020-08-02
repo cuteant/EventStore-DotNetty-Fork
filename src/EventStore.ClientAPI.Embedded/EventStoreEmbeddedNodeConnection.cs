@@ -155,7 +155,6 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -169,7 +168,6 @@ namespace EventStore.ClientAPI.Embedded
                 stream, expectedVersion, events.ConvertToEvents(), user));
 
             return source.Task;
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
@@ -179,7 +177,6 @@ namespace EventStore.ClientAPI.Embedded
 
         public Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -193,7 +190,6 @@ namespace EventStore.ClientAPI.Embedded
                 stream, expectedVersion, events.ConvertToEvents(), user));
 
             return source.Task;
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         public Task<EventStoreTransaction> StartTransactionAsync(string stream, long expectedVersion, UserCredentials userCredentials = null)
@@ -220,7 +216,6 @@ namespace EventStore.ClientAPI.Embedded
 
         Task IEventStoreTransactionConnection.TransactionalWriteAsync(EventStoreTransaction transaction, IEnumerable<EventData> events, UserCredentials userCredentials)
         {
-            // ReSharper disable PossibleMultipleEnumeration
             if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
             if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
@@ -234,8 +229,6 @@ namespace EventStore.ClientAPI.Embedded
                 false, transaction.TransactionId, events.ConvertToEvents(), user));
 
             return source.Task;
-
-            // ReSharper restore PossibleMultipleEnumeration
         }
 
         Task<WriteResult> IEventStoreTransactionConnection.CommitTransactionAsync(EventStoreTransaction transaction, UserCredentials userCredentials)

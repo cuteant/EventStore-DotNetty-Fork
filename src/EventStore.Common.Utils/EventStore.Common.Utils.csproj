@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
   
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.Common.Utils</RootNamespace>
     <AssemblyName>EventStore.Common.Utils</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -16,4 +15,5 @@
     <PackageTags>eventstore</PackageTags>
   </PropertyGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

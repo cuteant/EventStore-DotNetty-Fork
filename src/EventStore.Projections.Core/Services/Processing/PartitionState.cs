@@ -1,8 +1,8 @@
 ﻿using System;
-using System.IO;
 using EventStore.Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SpanJson.Serialization;
 
 namespace EventStore.Projections.Core.Services.Processing
 {

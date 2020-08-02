@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using SpanJson.Serialization;
 using Formatting = Newtonsoft.Json.Formatting;
 
 namespace EventStore.Common.Utils
@@ -18,28 +19,29 @@ namespace EventStore.Common.Utils
 
         static Json()
         {
-            FromSettings = new JsonSerializerSettings
+
+            FromSettings = JsonComplexSerializer.Instance.CreateDeserializerSettings(settings =>
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                DateParseHandling = DateParseHandling.None,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None,
-                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
-            };
+                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                settings.DateParseHandling = DateParseHandling.None;
+                settings.NullValueHandling = NullValueHandling.Ignore;
+                settings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                settings.MissingMemberHandling = MissingMemberHandling.Ignore;
+                settings.TypeNameHandling = TypeNameHandling.None;
+            });
+            FromSettings.Converters.Add(new StringEnumConverter());
             _deserializerPool = JsonConvertX.GetJsonSerializerPool(FromSettings);
-            ToSettings = new JsonSerializerSettings
+            ToSettings = JsonComplexSerializer.Instance.CreateSerializerSettings(settings =>
             {
-                Formatting = Formatting.Indented,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                DateFormatHandling = DateFormatHandling.IsoDateFormat,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None,
-                Converters = new JsonConverter[] { JsonConvertX.DefaultStringEnumConverter, JsonConvertX.DefaultCombGuidConverter }
-            };
+                settings.Formatting = Formatting.Indented;
+                settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                settings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                settings.NullValueHandling = NullValueHandling.Ignore;
+                settings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                settings.MissingMemberHandling = MissingMemberHandling.Ignore;
+                settings.TypeNameHandling = TypeNameHandling.None;
+            });
+            ToSettings.Converters.Add(new StringEnumConverter());
             _serializerPool = JsonConvertX.GetJsonSerializerPool(ToSettings);
         }
 

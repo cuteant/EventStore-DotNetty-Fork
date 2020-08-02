@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\version.uri.props" />
   <Import Project="..\nuget.uri.props" />
   
   <PropertyGroup>
@@ -16,4 +15,5 @@
     <PackageTags>UriTemplate UriTemplateMatch</PackageTags>
   </PropertyGroup>
 
+  <Import Project="..\version.uri.props" />
 </Project>

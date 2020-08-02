@@ -10,7 +10,6 @@ namespace EventStore.Core.Bus
     /// A much better concurrent queue than <see cref="System.Collections.Concurrent.ConcurrentQueue{T}"/> for multi producer single consumer scenarios.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    // ReSharper disable once InconsistentNaming
     public sealed class MPSCMessageQueue : ISingleConsumerMessageQueue
     {
         const int CacheLineSize = 64;

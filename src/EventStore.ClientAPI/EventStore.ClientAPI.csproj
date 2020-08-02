@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\version.client.props" />
   <Import Project="..\nuget.client.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Logging.Sources\CuteAnt.Extensions.Logging.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.TaskFactory.Sources\CuteAnt.Extensions.TaskFactory.Sources.projitems" Label="Shared" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.StreamReaderAndWriter.Sources\CuteAnt.Extensions.StreamReaderAndWriter.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net471;net451</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
     <AssemblyName>EventStore.ClientAPI</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -34,7 +33,7 @@ Goals:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CuteAnt.JsonExtensions" Version="$(CuteAntJsonExtensionsPackageVersion)" />
+    <PackageReference Include="SpanJson.Extensions" Version="$(SpanJsonExtensionsPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="$(SystemThreadingTasksDataflowPackageVersion)" />
   </ItemGroup>
@@ -48,4 +47,5 @@ Goals:
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
+  <Import Project="..\version.client.props" />
 </Project>

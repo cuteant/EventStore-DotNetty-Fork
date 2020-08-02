@@ -20,9 +20,7 @@ namespace EventStore.ClusterNode
     public abstract class EventStoreServiceBase<TOptions> : IEventStoreService
       where TOptions : class, IOptions, new()
     {
-        // ReSharper disable StaticFieldInGenericType
         protected static ILogger Log { get; set; }
-        // ReSharper restore StaticFieldInGenericType
 
         protected abstract string GetLogsDirectory(TOptions options);
         protected abstract string GetComponentName(TOptions options);

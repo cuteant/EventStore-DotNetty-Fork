@@ -56,7 +56,7 @@ namespace EventStore.Transport.Tcp
             {
                 var listener = s.Result;
                 RegisterListener(channel, listener);
-                channel.Configuration.AutoRead = true; // turn reads back on
+                channel.Configuration.IsAutoRead = true; // turn reads back on
             }, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.NotOnCanceled | TaskContinuationOptions.NotOnFaulted);
             connection = conn;
         }

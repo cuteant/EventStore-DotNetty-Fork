@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\version.props" />
   <Import Project="..\..\nuget.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.2;net471</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <RootNamespace>EventStore.ClusterNode</RootNamespace>
     <AssemblyName>EventStore.ClusterNode</AssemblyName>
     <IsPackable>false</IsPackable>
@@ -16,21 +15,18 @@
     <!--<ThreadPoolMinThreads>100</ThreadPoolMinThreads>
     <ThreadPoolMaxThreads>25</ThreadPoolMaxThreads>-->
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net471' ">
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>..\app2.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="$(NLogDevPackageVersion)" />
-    <PackageReference Include="NLog.Extensions.Logging.Unofficial" Version="$(NLogExtensionsLoggingUnofficialPackageVersion)" />
     <PackageReference Include="Serilog" Version="$(SerilogPackageVersion)" />
     <PackageReference Include="Serilog.Settings.AppSettings" Version="$(SerilogSettingsAppSettingsPackageVersion)" />
-    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="$(SerilogSinksColoredConsolePackageVersion)" />
-    <PackageReference Include="Serilog.Sinks.Literate" Version="$(SerilogSinksLiteratePackageVersion)" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="$(SerilogSinksConsolePackageVersion)" />
+    <PackageReference Include="Serilog.Sinks.File" Version="$(SerilogSinksFilePackageVersion)" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="$(SerilogSinksRollingFilePackageVersion)" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="$(SystemDiagnosticsEventLogPackageVersion)" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="$(SystemServiceProcessServiceControllerPackageVersion)" />
     <PackageReference Include="Topshelf.Serilog" Version="$(TopshelfSerilogPackageVersion)" />
   </ItemGroup>
 
@@ -179,4 +175,5 @@
     <Folder Include="projections\" />
   </ItemGroup>
 
+  <Import Project="..\..\version.props" />
 </Project>

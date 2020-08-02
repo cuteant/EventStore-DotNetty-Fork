@@ -13,7 +13,7 @@ namespace EventStore.Transport.Tcp
         /// <summary>Address of the remote endpoint</summary>
         public IPEndPoint RemoteEndPoint { get; }
 
-        public bool IsInitialized => _channel.Open;
+        public bool IsInitialized => _channel.IsOpen;
         public bool IsClosed
         {
             get => c_true == Volatile.Read(ref _closed);
@@ -31,9 +31,9 @@ namespace EventStore.Transport.Tcp
         public int ReceiveCalls { get { return _recvAsyncs; } }
         public int ReceiveCallbacks { get { return _recvAsyncCallbacks; } }
 
-        public bool IsReadyForSend => _channel.Active;
+        public bool IsReadyForSend => _channel.IsActive;
 
-        public bool IsReadyForReceive => _channel.Active;
+        public bool IsReadyForReceive => _channel.IsActive;
 
         public bool IsFaulted => false;
         //{

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
+using SpanJson.Serialization;
 
 namespace EventStore.Transport.Http.Atom
 {

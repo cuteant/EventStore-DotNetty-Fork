@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\version.client.props" />
   <Import Project="..\nuget.client.props" />
   <Import Project="..\..\..\CuteAnt.Extensions.Common\src\CuteAnt.Extensions.Reflection.Sources\CuteAnt.Extensions.Reflection.Sources.projitems" Label="Shared" />
   
   <PropertyGroup>
-    <TargetFrameworks>net471;net451;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net471</TargetFrameworks>
     <RootNamespace>EventStore.ClientAPI</RootNamespace>
     <AssemblyName>EventStore.ClientAPI.Consumer</AssemblyName>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -24,10 +23,12 @@ Goals:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Polly.Unofficial" Version="$(PollyUnofficialPackageVersion)" />
+    <PackageReference Include="Polly" Version="$(PollyPackageVersion)" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\EventStore.ClientAPI\EventStore.ClientAPI.csproj" />
   </ItemGroup>
+
+  <Import Project="..\version.client.props" />
 </Project>
