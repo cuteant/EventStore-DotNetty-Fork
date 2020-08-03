@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using CuteAnt.AsyncEx;
-using MessagePack;
-using MessagePack.Resolvers;
-using EventStore.Transport.Tcp.Messages;
-using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Common.Utils;
+using EventStore.ClientAPI.Internal;
 using EventStore.ClientAPI.Transport.Tcp;
-using EventStore.ClientAPI.Common.MatchHandler;
+using EventStore.Transport.Tcp.Messages;
+using MessagePack;
 
 namespace EventStore.ClientAPI.Benchmarks
 {
-    [Config(typeof(CoreConfig))]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [MemoryDiagnoser]
+    [RPlotExporter]
+    [BenchmarkCategory("ByteBuffer")]
     public class MatchHandlerBenchmark
     {
         private MessageA _msgA;

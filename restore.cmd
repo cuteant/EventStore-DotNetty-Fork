@@ -16,32 +16,23 @@ call Ensure-DotNetSdk.cmd
 
 SET SOLUTION=%CMDHOME%\EventStore.sln
 
-:: Set DateTime suffix for debug builds
-for /f %%j in ('powershell -NoProfile -ExecutionPolicy ByPass Get-Date -format "{yyMMddHHmm}"') do set DATE_SUFFIX=%%j
-SET AdditionalConfigurationProperties=;VersionDateSuffix=%DATE_SUFFIX%
+@echo ===== Restoring %SOLUTION% =====
 
-@echo ===== Building %SOLUTION% =====
-
-@echo Build %BuildConfiguration% ==============================
+@echo Restore %BuildConfiguration% ==============================
 SET STEP=Restore %BuildConfiguration%
 
 call %_dotnet% restore %BUILD_FLAGS% /bl:%BuildConfiguration%-Restore.binlog /p:Configuration=%BuildConfiguration%%AdditionalConfigurationProperties% "%SOLUTION%"
 @if ERRORLEVEL 1 GOTO :ErrorStop
 @echo RESTORE ok for %BuildConfiguration% %SOLUTION%
 
-SET STEP=Build %BuildConfiguration%
-call %_dotnet% build --no-restore %BUILD_FLAGS% /bl:%BuildConfiguration%-Build.binlog /p:Configuration=%BuildConfiguration%%AdditionalConfigurationProperties% "%SOLUTION%"
-@if ERRORLEVEL 1 GOTO :ErrorStop
-@echo BUILD ok for %BuildConfiguration% %SOLUTION%
-
 
 :BuildFinished
-@echo ===== Build succeeded for %SOLUTION% =====
+@echo ===== Restore succeeded for %SOLUTION% =====
 @GOTO :EOF
 
 :ErrorStop
 set RC=%ERRORLEVEL%
 if "%STEP%" == "" set STEP=%BuildConfiguration%
-@echo ===== Build FAILED for %SOLUTION% -- %STEP% with error %RC% - CANNOT CONTINUE =====
+@echo ===== Restore FAILED for %SOLUTION% -- %STEP% with error %RC% - CANNOT CONTINUE =====
 exit /B %RC%
 :EOF

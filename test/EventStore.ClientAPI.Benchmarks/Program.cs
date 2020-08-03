@@ -13,7 +13,16 @@ namespace EventStore.ClientAPI.Benchmarks
     {
         static void Main(string[] args)
         {
-            //BenchmarkSwitcher.FromAssembly(typeof(Program).GetTypeInfo().Assembly).Run(args);
+            if (args == null || args.Length == 0)
+            {   // if no args, we're probably using Ctrl+F5 in the IDE; enlargen thyself!
+                try
+                {
+                    Console.WindowWidth = Console.LargestWindowWidth - 20;
+                }
+                catch { }
+            }
+
+            //BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
 
             var mb = new MatchHandlerBenchmark();
             mb.GlobalSetup();

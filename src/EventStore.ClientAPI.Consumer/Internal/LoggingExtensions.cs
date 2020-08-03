@@ -7,7 +7,7 @@ namespace EventStore.ClientAPI
     internal static class ConsumerLoggingExtensions
     {
         private static readonly Action<ILogger, string, DateTime, Exception> s_caughtUpOnStreamAt =
-            LoggerMessage.Define<string, DateTime>(LogLevel.Information,
+            LoggerMessage.Define<string, DateTime>(LogLevel.Information, 0,
             "Caught up on {streamId} at {dateTime}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void CaughtUpOnStreamAt(this ILogger logger, string streamId)
@@ -16,7 +16,7 @@ namespace EventStore.ClientAPI
         }
 
         private static readonly Action<ILogger, string, string, Exception> s_subscriptionWasClosedByTheClient =
-            LoggerMessage.Define<string, string>(LogLevel.Information,
+            LoggerMessage.Define<string, string>(LogLevel.Information, 0,
             "Subscription to {streamId} was closed by the client. {message}.");
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void SubscriptionWasClosedByTheClient(this ILogger logger, string streamId, string message)
