@@ -90,6 +90,7 @@ namespace EventStore.Core.Tests.Http.PersistentSubscription
         }
         protected override void When()
         {
+            SetDefaultCredentials(null);
             GetJson<JObject>(
                SubscriptionPath,
                ContentType.CompetingJson);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Principal;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
@@ -11,6 +12,8 @@ using EventStore.Core.Services.Transport.Http.Messages;
 using EventStore.Core.Settings;
 using EventStore.Transport.Http.EntityManagement;
 using EventStore.Transport.Http.Server;
+using Microsoft.Extensions.Logging;
+using Mono.Posix;
 
 namespace EventStore.Core.Services.Transport.Http
 {
@@ -20,6 +23,7 @@ namespace EventStore.Core.Services.Transport.Http
                                IHandle<HttpMessage.PurgeTimedOutRequests>
     {
         private static readonly TimeSpan UpdateInterval = TimeSpan.FromSeconds(1);
+        private static readonly ILogger Log = TraceLogger.GetLogger<HttpService>();
 
         public bool IsListening { get { return _server.IsListening; } }
         public IEnumerable<string> ListenPrefixes { get { return _server._listenPrefixes; } }
@@ -36,9 +40,11 @@ namespace EventStore.Core.Services.Transport.Http
 
         private IPAddress _advertiseAsAddress;
         private int _advertiseAsPort;
+        private bool _disableAuthorization;
 
         public HttpService(ServiceAccessibility accessibility, IPublisher inputBus, IUriRouter uriRouter,
-                           MultiQueuedHandler multiQueuedHandler, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort, params string[] prefixes)
+            MultiQueuedHandler multiQueuedHandler, bool logHttpRequests, IPAddress advertiseAsAddress,
+            int advertiseAsPort, bool disableAuthorization, params string[] prefixes)
         {
             if (null == inputBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputBus); }
             if (null == uriRouter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriRouter); }
@@ -57,6 +63,8 @@ namespace EventStore.Core.Services.Transport.Http
 
             _advertiseAsAddress = advertiseAsAddress;
             _advertiseAsPort = advertiseAsPort;
+
+            _disableAuthorization = disableAuthorization;
         }
 
         public static void CreateAndSubscribePipeline(IBus bus, HttpAuthenticationProvider[] httpAuthenticationProviders)
@@ -83,7 +91,7 @@ namespace EventStore.Core.Services.Transport.Http
             else
             {
                 Application.Exit(ExitCode.Error,
-                                 string.Format("HTTP async server failed to start listening at [{0}].", 
+                                 string.Format("HTTP async server failed to start listening at [{0}].",
                                                string.Join(", ", _server._listenPrefixes)));
             }
         }
@@ -141,9 +149,36 @@ namespace EventStore.Core.Services.Transport.Http
 
             _uriRouter.RegisterAction(action, (man, match) =>
             {
-                handler(man, match);
+                if (_disableAuthorization || Authorized(man.User, action.RequiredAuthorizationLevel))
+                {
+                    handler(man, match);
+                }
+                else
+                {
+                    man.ReplyStatus(EventStore.Transport.Http.HttpStatusCode.Unauthorized, "Unauthorized", (exc) =>
+                    {
+                        Log.Error_while_sending_reply_http_service(exc);
+                    });
+                }
                 return new RequestParams(ESConsts.HttpTimeout);
             });
+        }
+
+        private bool Authorized(IPrincipal user, AuthorizationLevel requiredAuthorizationLevel)
+        {
+            switch (requiredAuthorizationLevel)
+            {
+                case AuthorizationLevel.None:
+                    return true;
+                case AuthorizationLevel.User:
+                    return user != null;
+                case AuthorizationLevel.Ops:
+                    return user != null && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
+                case AuthorizationLevel.Admin:
+                    return user != null && user.IsInRole(SystemRoles.Admins);
+                default:
+                    return false;
+            }
         }
 
         public List<UriToActionMatch> GetAllUriMatches(Uri uri)

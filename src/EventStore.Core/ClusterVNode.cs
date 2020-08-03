@@ -347,7 +347,7 @@ namespace EventStore.Core
             // EXTERNAL HTTP
             _externalHttpService = new HttpService(ServiceAccessibility.Public, _mainQueue, new TrieUriRouter(),
                                                    _workersHandler, vNodeSettings.LogHttpRequests, vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalIPAs,
-                                                   vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalHttpPortAs, vNodeSettings.ExtHttpPrefixes);
+                                                   vNodeSettings.GossipAdvertiseInfo.AdvertiseExternalHttpPortAs, vNodeSettings.DisableFirstLevelHttpAuthorization, vNodeSettings.ExtHttpPrefixes);
             _externalHttpService.SetupController(persistentSubscriptionController);
             if (vNodeSettings.AdminOnPublic)
             {
@@ -374,7 +374,7 @@ namespace EventStore.Core
             {
                 _internalHttpService = new HttpService(ServiceAccessibility.Private, _mainQueue, new TrieUriRouter(),
                                                        _workersHandler, vNodeSettings.LogHttpRequests, vNodeSettings.GossipAdvertiseInfo.AdvertiseInternalIPAs,
-                                                       vNodeSettings.GossipAdvertiseInfo.AdvertiseInternalHttpPortAs, vNodeSettings.IntHttpPrefixes);
+                                                       vNodeSettings.GossipAdvertiseInfo.AdvertiseInternalHttpPortAs, vNodeSettings.DisableFirstLevelHttpAuthorization, vNodeSettings.IntHttpPrefixes);
                 _internalHttpService.SetupController(adminController);
                 _internalHttpService.SetupController(pingController);
                 _internalHttpService.SetupController(infoController);
@@ -677,11 +677,7 @@ namespace EventStore.Core
 
         public Task<ClusterVNode> StartAndWaitUntilReady()
         {
-#if NET_4_5_GREATER
             var tcs = new TaskCompletionSource<ClusterVNode>(TaskCreationOptions.RunContinuationsAsynchronously);
-#else
-            var tcs = new TaskCompletionSource<ClusterVNode>();
-#endif
 
             _mainBus.Subscribe(new AdHocHandler<SystemMessage.SystemReady>(
                     _ => tcs.TrySetResult(this)));

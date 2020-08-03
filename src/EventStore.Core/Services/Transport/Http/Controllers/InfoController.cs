@@ -34,8 +34,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         public void Subscribe(IHttpService service)
         {
             if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
-            service.RegisterAction(new ControllerAction("/info", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetInfo);
-            service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetOptions);
+            service.RegisterAction(new ControllerAction("/info", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetInfo);
+            service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnGetOptions);
         }
 
 
@@ -63,7 +63,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private void OnGetOptions(HttpEntityManager entity, UriTemplateMatch match)
         {
-            if (entity.User != null && entity.User.IsInRole(SystemRoles.Admins))
+            if (entity.User != null && (entity.User.IsInRole(SystemRoles.Operations) || entity.User.IsInRole(SystemRoles.Admins)))
             {
                 entity.ReplyTextContent(Codec.Json.To(Filter(GetOptionsInfo(_options), new[] { "CertificatePassword" })),
                                         HttpStatusCode.OK,

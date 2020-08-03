@@ -16,12 +16,13 @@ using NUnit.Framework;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 using HttpStatusCode = System.Net.HttpStatusCode;
+using EventStore.Core.Tests.Http.Users.users;
 
 namespace EventStore.Core.Tests.Http.Streams
 {
     namespace feed
     {
-        public abstract class SpecificationWithLongFeed : HttpBehaviorSpecification
+        public abstract class SpecificationWithLongFeed : with_admin_user
         {
             protected int _numberOfEvents;
 
@@ -260,7 +261,7 @@ namespace EventStore.Core.Tests.Http.Streams
             private List<JToken> _entries;
             protected override void When()
             {
-                _feed = GetJson<JObject>("/streams/" + LinkedStreamName + "/0/forward/10", accept: ContentType.Json);
+                _feed = GetJson<JObject>("/streams/" + LinkedStreamName + "/0/forward/10", accept: ContentType.Json, credentials: DefaultData.AdminNetworkCredentials);
                 _entries = _feed != null ? _feed["entries"].ToList() : new List<JToken>();
             }
 
@@ -503,7 +504,7 @@ namespace EventStore.Core.Tests.Http.Streams
             protected override void When()
             {
                 var uri = MakeUrl("/streams/" + LinkedStreamName + "/0/forward/10", "embed=content");
-                _feed = GetJson<JObject>(uri.ToString(), accept: ContentType.Json);
+                _feed = GetJson<JObject>(uri.ToString(), accept: ContentType.Json, credentials: DefaultData.AdminNetworkCredentials);
                 _entries = _feed != null ? _feed["entries"].ToList() : new List<JToken>();
             }
 
@@ -538,7 +539,7 @@ namespace EventStore.Core.Tests.Http.Streams
             private List<JToken> _entries;
             protected override void When()
             {
-                _feed = GetJson<JObject>("/streams/" + LinkedStreamName + "/0/backward/1", accept: ContentType.Json);
+                _feed = GetJson<JObject>("/streams/" + LinkedStreamName + "/0/backward/1", accept: ContentType.Json, credentials: DefaultData.AdminNetworkCredentials);
                 _entries = _feed != null? _feed["entries"].ToList() : new List<JToken>();
             }
 
@@ -574,7 +575,7 @@ namespace EventStore.Core.Tests.Http.Streams
             protected override void When()
             {
                 var uri = MakeUrl("/streams/" + LinkedStreamName + "/0/backward/1", "embed=content");
-                _feed = GetJson<JObject>(uri.ToString(), accept: ContentType.Json);
+                _feed = GetJson<JObject>(uri.ToString(), accept: ContentType.Json, credentials: DefaultData.AdminNetworkCredentials);
                 _entries = _feed != null ? _feed["entries"].ToList() : new List<JToken>();
             }
 
@@ -715,7 +716,7 @@ namespace EventStore.Core.Tests.Http
     public class when_running_the_node_advertising_a_different_ip_as
     {
         [TestFixture, Category("LongRunning")]
-        public class when_retrieving_feed_head_and_http_advertise_ip_is_set : HttpBehaviorSpecification
+        public class when_retrieving_feed_head_and_http_advertise_ip_is_set : with_admin_user
         {
             private JObject _feed;
             private IPAddress advertisedAddress = IPAddress.Parse("192.168.10.1");

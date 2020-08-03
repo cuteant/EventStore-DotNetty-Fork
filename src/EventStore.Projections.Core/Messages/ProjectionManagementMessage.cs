@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Messages
 
         public static class Command
         {
-            public abstract class ControlMessage: Message
+            public abstract class ControlMessage : Message
             {
                 private static readonly int TypeId = Interlocked.Increment(ref NextMsgId);
                 public override int MsgTypeId { get { return TypeId; } }
@@ -338,7 +338,7 @@ namespace EventStore.Projections.Core.Messages
 
                 private readonly string _name;
 
-                public GetQuery(IEnvelope envelope, string name, RunAs runAs):
+                public GetQuery(IEnvelope envelope, string name, RunAs runAs) :
                     base(envelope, runAs)
                 {
                     _name = name;
@@ -357,7 +357,7 @@ namespace EventStore.Projections.Core.Messages
 
                 private readonly string _name;
 
-                public GetConfig(IEnvelope envelope, string name, RunAs runAs):
+                public GetConfig(IEnvelope envelope, string name, RunAs runAs) :
                     base(envelope, runAs)
                 {
                     _name = name;
@@ -386,7 +386,7 @@ namespace EventStore.Projections.Core.Messages
 
                 public UpdateConfig(IEnvelope envelope, string name, bool emitEnabled, bool trackEmittedStreams, int checkpointAfterMs,
                     int checkpointHandledThreshold, int checkpointUnhandledBytesThreshold, int pendingEventsThreshold,
-                    int maxWriteBatchLength, int maxAllowedWritesInFlight, RunAs runAs):
+                    int maxWriteBatchLength, int maxAllowedWritesInFlight, RunAs runAs) :
                     base(envelope, runAs)
                 {
                     _name = name;
@@ -684,20 +684,25 @@ namespace EventStore.Projections.Core.Messages
 
             public static bool ValidateRunAs(ProjectionMode mode, ReadWrite readWrite, IPrincipal existingRunAs, Command.ControlMessage message, bool replace = false)
             {
+                //if (mode > ProjectionMode.Transient && readWrite == ReadWrite.Write
+                //    && (message.RunAs == null || message.RunAs.Principal == null
+                //        || !message.RunAs.Principal.IsInRole(SystemRoles.Admins)))
+                //{
                 if (mode > ProjectionMode.Transient && readWrite == ReadWrite.Write
-                    && (message.RunAs == null || message.RunAs.Principal == null
-                        || !message.RunAs.Principal.IsInRole(SystemRoles.Admins)))
+                    && (message.RunAs is null || message.RunAs.Principal is null
+                        || !(message.RunAs.Principal.IsInRole(SystemRoles.Admins) || message.RunAs.Principal.IsInRole(SystemRoles.Operations))
+                    ))
                 {
                     message.Envelope.ReplyWith(new NotAuthorized());
                     return false;
                 }
 
-                if (replace && message.RunAs.Principal == null)
+                if (replace && message.RunAs.Principal is null)
                 {
                     message.Envelope.ReplyWith(new NotAuthorized());
                     return false;
                 }
-                if (replace && message.RunAs.Principal != null)
+                if (replace && message.RunAs.Principal is object)
                     return true; // enable this operation while no projection permissions are defined
 
                 return true;
@@ -882,7 +887,7 @@ namespace EventStore.Projections.Core.Messages
 
         public static class Internal
         {
-            public class CleanupExpired: Message
+            public class CleanupExpired : Message
             {
                 private static readonly int TypeId = System.Threading.Interlocked.Increment(ref NextMsgId);
                 public override int MsgTypeId { get { return TypeId; } }

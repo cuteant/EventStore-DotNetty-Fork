@@ -37,10 +37,10 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected override void SubscribeCore(IHttpService service)
         {
-            service.RegisterAction(new ControllerAction("/gossip", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetGossip);
+            service.RegisterAction(new ControllerAction("/gossip", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetGossip);
             if (service.Accessibility == ServiceAccessibility.Private)
             {
-                service.RegisterAction(new ControllerAction("/gossip", HttpMethod.Post, SupportedCodecs, SupportedCodecs), OnPostGossip);
+                service.RegisterAction(new ControllerAction("/gossip", HttpMethod.Post, SupportedCodecs, SupportedCodecs, AuthorizationLevel.None), OnPostGossip);
             }
         }
 

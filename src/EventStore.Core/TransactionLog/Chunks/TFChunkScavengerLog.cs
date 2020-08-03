@@ -43,7 +43,14 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             var metadataEventId = Guid.NewGuid();
             var metaStreamId = SystemStreams.MetastreamOf(_streamName);
-            var metadata = new StreamMetadata(maxAge: _scavengeHistoryMaxAge);
+            var acl = new StreamAcl(
+                new string[] { "$ops" },
+                new string[] { },
+                new string[] { },
+                new string[] { },
+                new string[] { }
+            );
+            var metadata = new StreamMetadata(maxAge: _scavengeHistoryMaxAge, acl: acl);
             var metaStreamEvent = new Event(metadataEventId, SystemEventTypes.StreamMetadata, isJson: true,
                 data: metadata.ToJsonBytes(), metadata: null);
             _ioDispatcher.WriteEvent(metaStreamId, ExpectedVersion.Any, metaStreamEvent, SystemAccount.Principal, m =>

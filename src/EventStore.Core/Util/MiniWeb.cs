@@ -32,7 +32,7 @@ namespace EventStore.Core.Util
         {
             var pattern = _localWebRootPath + "/{*remaining_path}";
             if (Logger.IsTraceLevelEnabled()) Logger.BindingMiniWeb(pattern);
-            service.RegisterAction(new ControllerAction(pattern, HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.ManualEncoding }), OnStaticContent);
+            service.RegisterAction(new ControllerAction(pattern, HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.ManualEncoding }, AuthorizationLevel.None), OnStaticContent);
         }
 
         private void OnStaticContent(HttpEntityManager http, UriTemplateMatch match)

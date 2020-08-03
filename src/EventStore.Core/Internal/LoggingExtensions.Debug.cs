@@ -501,9 +501,15 @@ namespace EventStore.Core
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Setting_ops_read_permission_for_the_scavenges_stream(this ILogger logger)
+        {
+            logger.LogDebug("Setting $ops read permission for the {stream} stream", SystemStreams.ScavengesStream);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void Max_age_already_set_for_the_stream(this ILogger logger)
         {
-            logger.LogDebug("Max age already set for the {stream} stream.", SystemStreams.ScavengesStream);
+            logger.LogDebug("Max age and $ops read permission already set for the {stream} stream.", SystemStreams.ScavengesStream);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -546,6 +552,18 @@ namespace EventStore.Core
         internal static void DroppingIdempotentWriteToStream(this ILogger logger, in Core.Services.Storage.ReaderIndex.CommitCheckResult result)
         {
             logger.LogDebug("Dropping idempotent write to stream {@stream}, startEventNumber: {@startEventNumber}, endEventNumber: {@endEventNumber} since the original write has not yet been replicated.", result.EventStreamId, result.StartEventNumber, result.EndEventNumber);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Setting_ops_read_permission_on_last_scavenges_streams(this ILogger logger, int count)
+        {
+            logger.LogDebug("Setting $ops read permission on last {count} $scavenges-<scavenge id> streams.", count);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Error_while_sending_reply_http_service(this ILogger logger, Exception exc)
+        {
+            logger.LogDebug("Error while sending reply (http service): {exc}.", exc.Message);
         }
     }
 }

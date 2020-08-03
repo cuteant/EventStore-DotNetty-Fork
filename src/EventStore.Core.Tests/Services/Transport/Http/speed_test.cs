@@ -16,7 +16,7 @@ using NUnit.Framework;
 
 namespace EventStore.Core.Tests.Services.Transport.Http
 {
-    public class FakeController: IHttpController
+    public class FakeController : IHttpController
     {
         private readonly IUriRouter _router;
         public static readonly ICodec[] SupportedCodecs = new ICodec[] { Codec.Json, Codec.Xml, Codec.ApplicationXml, Codec.Text };
@@ -99,7 +99,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
         {
             if (_router == null)
             {
-                _http.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs), (x, y) =>
+                _http.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), (x, y) =>
                 {
                     x.Reply(new byte[0], 200, "", "", Helper.UTF8NoBom, null, e => new Exception());
                     CountdownEvent.SafeSignal();
@@ -107,7 +107,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             }
             else
             {
-                _router.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs), (x, y) =>
+                _router.RegisterAction(new ControllerAction(route, verb, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), (x, y) =>
                 {
                     CountdownEvent.SafeSignal();
                     return new RequestParams(TimeSpan.Zero);
@@ -136,10 +136,10 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             IPublisher inputBus = new NoopPublisher();
             var bus = InMemoryBus.CreateTest();
             var queue = new QueuedHandlerThreadPool(bus, "Test", true, TimeSpan.FromMilliseconds(50));
-            var multiQueuedHandler = new MultiQueuedHandler(new IQueuedHandler[]{queue}, null);
-            var providers = new HttpAuthenticationProvider[] {new AnonymousHttpAuthenticationProvider()};
+            var multiQueuedHandler = new MultiQueuedHandler(new IQueuedHandler[] { queue }, null);
+            var providers = new HttpAuthenticationProvider[] { new AnonymousHttpAuthenticationProvider() };
             var httpService = new HttpService(ServiceAccessibility.Public, inputBus,
-                                              new TrieUriRouter(), multiQueuedHandler, false, null, 0, "http://localhost:12345/");
+                                              new TrieUriRouter(), multiQueuedHandler, false, null, 0, false, "http://localhost:12345/");
             HttpService.CreateAndSubscribePipeline(bus, providers);
 
             var fakeController = new FakeController(iterations, null);
@@ -150,7 +150,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
             var rnd = new Random();
             var sw = Stopwatch.StartNew();
 
-            var timeout =TimeSpan.FromMilliseconds(10000);
+            var timeout = TimeSpan.FromMilliseconds(10000);
             var httpClient = new HttpAsyncClient(timeout);
             for (int i = 0; i < iterations; ++i)
             {
@@ -159,7 +159,7 @@ namespace EventStore.Core.Tests.Services.Transport.Http
                 switch (route.Item2)
                 {
                     case HttpMethod.Get:
-                        httpClient.Get(route.Item1, x => { }, x => { throw new Exception();});
+                        httpClient.Get(route.Item1, x => { }, x => { throw new Exception(); });
                         break;
                     case HttpMethod.Post:
                         httpClient.Post(route.Item1, "abracadabra", ContentType.Json, x => { }, x => { throw new Exception(); });

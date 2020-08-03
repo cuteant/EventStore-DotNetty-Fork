@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 using EventStore.Core.Messages;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Transport.Http.Controllers
 {
@@ -17,7 +16,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         public void Subscribe(IHttpService service)
         {
             if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
-            service.RegisterAction(new ControllerAction("/ping", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetPing);
+            service.RegisterAction(new ControllerAction("/ping", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetPing);
         }
 
         private void OnGetPing(HttpEntityManager entity, UriTemplateMatch match)

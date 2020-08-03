@@ -260,7 +260,7 @@ namespace EventStore.Core.Index
                 TryProcessAwaitingTables();
 
                 if (_additionalReclaim)
-                    ThreadPoolScheduler.Schedule(ReclaimMemoryIfNeeded, _awaitingMemTables);
+                    ThreadPoolScheduler.Schedule(s => ReclaimMemoryIfNeeded(s), _awaitingMemTables);
             }
         }
 
@@ -288,7 +288,7 @@ namespace EventStore.Core.Index
 
         private void TryProcessAwaitingTables()
         {
-            lock(_awaitingTablesLock)
+            lock (_awaitingTablesLock)
             {
                 if (!_backgroundRunning)
                 {
@@ -327,7 +327,7 @@ namespace EventStore.Core.Index
                             _indexCacheDepth, _skipIndexVerify);
                     }
                     else
-                        ptable = (PTable) tableItem.Table;
+                        ptable = (PTable)tableItem.Table;
 
                     var indexmapFile = Path.Combine(_directory, IndexMapFilename);
                     MergeResult mergeResult;
@@ -409,7 +409,7 @@ namespace EventStore.Core.Index
             {
                 // Since scavenging indexes is the only place the ExistsAt optimization makes sense (and takes up a lot of memory), we can clear it after an index scavenge has completed. 
                 TFChunkReaderExistsAtOptimizer.Instance.DeOptimizeAll();
-                
+
                 lock (_awaitingTablesLock)
                 {
                     _backgroundRunning = false;
@@ -509,14 +509,8 @@ namespace EventStore.Core.Index
             return new Tuple<string, bool>(((TransactionLog.LogRecords.PrepareLogRecord)result.LogRecord).EventStreamId, true);
         }
 
-#if NETCOREAPP
         private void ReclaimMemoryIfNeeded(List<TableItem> awaitingMemTables)
         {
-#else
-        private void ReclaimMemoryIfNeeded(object state)
-        {
-            var awaitingMemTables = (List<TableItem>)state;
-#endif
             var toPutOnDisk = awaitingMemTables.OfType<IMemTable>().Count() - MaxMemoryTables;
             var traceEnabled = Log.IsTraceLevelEnabled();
             for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
@@ -774,7 +768,8 @@ namespace EventStore.Core.Index
             {
                 _indexMap.InOrder().ToList().ForEach(x => x.MarkForDestruction());
                 var fileName = Path.Combine(_directory, IndexMapFilename);
-                if(File.Exists(fileName)){
+                if (File.Exists(fileName))
+                {
                     File.SetAttributes(fileName, FileAttributes.Normal);
                     File.Delete(fileName);
                 }
@@ -853,7 +848,8 @@ namespace EventStore.Core.Index
             string path = Path.Combine(_directory, ForceIndexVerifyFilename);
             try
             {
-                if(File.Exists(path)){
+                if (File.Exists(path))
+                {
                     File.SetAttributes(path, FileAttributes.Normal);
                     File.Delete(path);
                 }

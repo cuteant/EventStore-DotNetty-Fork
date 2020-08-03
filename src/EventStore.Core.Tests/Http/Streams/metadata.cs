@@ -6,11 +6,12 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.Xml.Linq;
 using EventStore.Common.Utils;
+using EventStore.Core.Tests.Http.Users.users;
 
 namespace EventStore.Core.Tests.Http.Streams
 {
     [TestFixture]
-    public class when_posting_metadata_as_json_to_non_existing_stream : HttpBehaviorSpecification
+    public class when_posting_metadata_as_json_to_non_existing_stream : with_admin_user
     {
         private HttpWebResponse _response;
 
@@ -89,7 +90,7 @@ namespace EventStore.Core.Tests.Http.Streams
     {
         protected override void When()
         {
-			Get(TestStream + "/metadata", null, null, DefaultData.AdminNetworkCredentials, false);
+            Get(TestStream + "/metadata", null, null, DefaultData.AdminNetworkCredentials, false);
         }
 
         [Test]

@@ -24,10 +24,10 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
 
-            service.RegisterAction(new ControllerAction("/stats", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetFreshStats);
-            service.RegisterAction(new ControllerAction("/stats/replication", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetReplicationStats);
-            service.RegisterAction(new ControllerAction("/stats/tcp", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetTcpConnectionStats);
-            service.RegisterAction(new ControllerAction("/stats/{*statPath}", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs), OnGetFreshStats);
+            service.RegisterAction(new ControllerAction("/stats", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetFreshStats);
+            service.RegisterAction(new ControllerAction("/stats/replication", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetReplicationStats);
+            service.RegisterAction(new ControllerAction("/stats/tcp", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetTcpConnectionStats);
+            service.RegisterAction(new ControllerAction("/stats/{*statPath}", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetFreshStats);
         }
 
         private void OnGetTcpConnectionStats(HttpEntityManager entity, UriTemplateMatch match)

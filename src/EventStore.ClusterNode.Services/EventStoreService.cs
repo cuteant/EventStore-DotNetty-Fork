@@ -289,6 +289,7 @@ namespace EventStore.ClusterNode
             if (options.SkipIndexScanOnReads) { builder.SkipIndexScanOnReads(); }
             if (options.ReduceFileCachePressure) { builder.ReduceFileCachePressure(); }
             if (options.StructuredLog) { builder.WithStructuredLogging(options.StructuredLog); }
+            if (options.DisableFirstLevelHttpAuthorization) { builder.DisableFirstLevelHttpAuthorization(); }
 
             if (!options.EnableLibuv) { builder.DisableLibuv(); }
             if (options.DnsUseIpv6) { builder.WithDnsUseIpv6(); }

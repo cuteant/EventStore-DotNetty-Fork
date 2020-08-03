@@ -1,7 +1,6 @@
 ﻿using System;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
-using EventStore.Core.Messaging;
 using EventStore.Transport.Http;
 using EventStore.Transport.Http.Codecs;
 using EventStore.Transport.Http.EntityManagement;
@@ -23,10 +22,10 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected override void SubscribeCore(IHttpService service)
         {
-            service.RegisterAction(new ControllerAction("/admin/shutdown", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs), OnPostShutdown);
-            service.RegisterAction(new ControllerAction("/admin/scavenge?startFromChunk={startFromChunk}&threads={threads}", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs), OnPostScavenge);
-            service.RegisterAction(new ControllerAction("/admin/scavenge/{scavengeId}", HttpMethod.Delete, Codec.NoCodecs, SupportedCodecs), OnStopScavenge);
-            service.RegisterAction(new ControllerAction("/admin/mergeindexes", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs), OnPostMergeIndexes);
+            service.RegisterAction(new ControllerAction("/admin/shutdown", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnPostShutdown);
+            service.RegisterAction(new ControllerAction("/admin/scavenge?startFromChunk={startFromChunk}&threads={threads}", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnPostScavenge);
+            service.RegisterAction(new ControllerAction("/admin/scavenge/{scavengeId}", HttpMethod.Delete, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnStopScavenge);
+            service.RegisterAction(new ControllerAction("/admin/mergeindexes", HttpMethod.Post, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnPostMergeIndexes);
         }
 
         private void OnPostShutdown(HttpEntityManager entity, UriTemplateMatch match)

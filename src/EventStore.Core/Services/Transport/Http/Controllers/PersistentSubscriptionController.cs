@@ -37,20 +37,20 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected override void SubscribeCore(IHttpService service)
         {
-            Register(service, "/subscriptions", HttpMethod.Get, GetAllSubscriptionInfo, Codec.NoCodecs, DefaultCodecs);
-            Register(service, "/subscriptions/{stream}", HttpMethod.Get, GetSubscriptionInfoForStream, Codec.NoCodecs, DefaultCodecs);
-            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Put, PutSubscription, DefaultCodecs, DefaultCodecs);
-            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Post, PostSubscription, DefaultCodecs, DefaultCodecs);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Delete, DeleteSubscription);
-            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs);
-            Register(service, "/subscriptions/{stream}/{subscription}?embed={embed}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs);
-            Register(service, "/subscriptions/{stream}/{subscription}/{count}?embed={embed}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs);
-            Register(service, "/subscriptions/{stream}/{subscription}/info", HttpMethod.Get, GetSubscriptionInfo, Codec.NoCodecs, DefaultCodecs);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack/{messageid}", HttpMethod.Post, AckMessage);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack/{messageid}?action={action}", HttpMethod.Post, NackMessage);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack?ids={messageids}", HttpMethod.Post, AckMessages);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack?ids={messageids}&action={action}", HttpMethod.Post, NackMessages);
-            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/replayParked", HttpMethod.Post, ReplayParkedMessages);
+            Register(service, "/subscriptions", HttpMethod.Get, GetAllSubscriptionInfo, Codec.NoCodecs, DefaultCodecs, AuthorizationLevel.User);
+            Register(service, "/subscriptions/{stream}", HttpMethod.Get, GetSubscriptionInfoForStream, Codec.NoCodecs, DefaultCodecs, AuthorizationLevel.User);
+            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Put, PutSubscription, DefaultCodecs, DefaultCodecs, AuthorizationLevel.Ops);
+            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Post, PostSubscription, DefaultCodecs, DefaultCodecs, AuthorizationLevel.Ops);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Delete, AuthorizationLevel.Ops, DeleteSubscription);
+            Register(service, "/subscriptions/{stream}/{subscription}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs, AuthorizationLevel.User);
+            Register(service, "/subscriptions/{stream}/{subscription}?embed={embed}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs, AuthorizationLevel.User);
+            Register(service, "/subscriptions/{stream}/{subscription}/{count}?embed={embed}", HttpMethod.Get, GetNextNMessages, Codec.NoCodecs, AtomCodecs, AuthorizationLevel.User);
+            Register(service, "/subscriptions/{stream}/{subscription}/info", HttpMethod.Get, GetSubscriptionInfo, Codec.NoCodecs, DefaultCodecs, AuthorizationLevel.User);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack/{messageid}", HttpMethod.Post, AuthorizationLevel.User, AckMessage);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack/{messageid}?action={action}", HttpMethod.Post, AuthorizationLevel.User, NackMessage);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/ack?ids={messageids}", HttpMethod.Post, AuthorizationLevel.User, AckMessages);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/nack?ids={messageids}&action={action}", HttpMethod.Post, AuthorizationLevel.User, NackMessages);
+            RegisterUrlBased(service, "/subscriptions/{stream}/{subscription}/replayParked", HttpMethod.Post, AuthorizationLevel.User, ReplayParkedMessages);
         }
 
         private static readonly Dictionary<string, ClientMessages.NakAction> _nakActionMap =

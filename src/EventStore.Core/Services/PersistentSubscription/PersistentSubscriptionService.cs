@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.Principal;
 using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
@@ -129,6 +130,11 @@ namespace EventStore.Core.Services.PersistentSubscription
             _started = false;
         }
 
+        public bool IsUserOpsOrAdmin(IPrincipal user)
+        {
+            return user != null && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
+        }
+
         public void Handle(ClientMessage.UnsubscribeFromStream message)
         {
             if (!_started) return;
@@ -140,10 +146,8 @@ namespace EventStore.Core.Services.PersistentSubscription
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             if (Log.IsDebugLevelEnabled()) Log.Creating_persistent_subscription(key);
-            //TODO revisit for permissions. maybe make admin only?
-            var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
-            if (!streamAccess.Granted)
+            if (!IsUserOpsOrAdmin(message.User))
             {
                 message.Envelope.ReplyWith(new ClientMessage.CreatePersistentSubscriptionCompleted(message.CorrelationId,
                                     ClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.AccessDenied,
@@ -219,9 +223,8 @@ namespace EventStore.Core.Services.PersistentSubscription
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             if (Log.IsDebugLevelEnabled()) Log.Updating_persistent_subscription(key);
-            var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
-            if (!streamAccess.Granted)
+            if (!IsUserOpsOrAdmin(message.User))
             {
                 message.Envelope.ReplyWith(new ClientMessage.UpdatePersistentSubscriptionCompleted(message.CorrelationId,
                                     ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.AccessDenied,
@@ -341,9 +344,8 @@ namespace EventStore.Core.Services.PersistentSubscription
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             if (Log.IsDebugLevelEnabled()) Log.Deleting_persistent_subscription(key);
-            var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
-            if (!streamAccess.Granted)
+            if (!IsUserOpsOrAdmin(message.User))
             {
                 message.Envelope.ReplyWith(new ClientMessage.DeletePersistentSubscriptionCompleted(message.CorrelationId,
                                     ClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.AccessDenied,
@@ -574,9 +576,8 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
             if (Log.IsDebugLevelEnabled()) Log.Replaying_parked_messages_for_persistent_subscription(key);
-            var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
-            if (!streamAccess.Granted)
+            if (!IsUserOpsOrAdmin(message.User))
             {
                 message.Envelope.ReplyWith(new ClientMessage.ReplayMessagesReceived(message.CorrelationId,
                                     ClientMessage.ReplayMessagesReceived.ReplayMessagesReceivedResult.AccessDenied,
@@ -600,9 +601,8 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(ClientMessage.ReplayParkedMessage message)
         {
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
-            var streamAccess = _readIndex.CheckStreamAccess(SystemStreams.SettingsStream, StreamAccessType.Write, message.User);
 
-            if (!streamAccess.Granted)
+            if (!IsUserOpsOrAdmin(message.User))
             {
                 message.Envelope.ReplyWith(new ClientMessage.ReplayMessagesReceived(message.CorrelationId,
                                     ClientMessage.ReplayMessagesReceived.ReplayMessagesReceivedResult.AccessDenied,

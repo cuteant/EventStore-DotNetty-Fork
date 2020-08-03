@@ -192,6 +192,9 @@ namespace EventStore.ClusterNode
         [ArgDescription(Opts.AuthenticationConfigFileDescr, Opts.AuthGroup)]
         public string AuthenticationConfig { get; set; }
 
+        [ArgDescription(Opts.DisableFirstLevelHttpAuthorizationDescr, Opts.AuthGroup)]
+        public bool DisableFirstLevelHttpAuthorization { get; set; }
+
         [ArgDescription(Opts.PrepareTimeoutMsDescr, Opts.DbGroup)]
         public int PrepareTimeoutMs { get; set; }
         [ArgDescription(Opts.CommitTimeoutMsDescr, Opts.DbGroup)]
@@ -332,6 +335,7 @@ namespace EventStore.ClusterNode
 
             AuthenticationType = Opts.AuthenticationTypeDefault;
             AuthenticationConfig = Opts.AuthenticationConfigFileDefault;
+            DisableFirstLevelHttpAuthorization = Opts.DisableFirstLevelHttpAuthorizationDefault;
 
             UnsafeIgnoreHardDelete = Opts.UnsafeIgnoreHardDeleteDefault;
             UnsafeDisableFlushToDisk = Opts.UnsafeDisableFlushToDiskDefault;

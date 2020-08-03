@@ -14,7 +14,7 @@ namespace EventStore.Core.Util
         public const string AppGroup = "Application Options";
         public const string DbGroup = "Database Options";
         public const string ProjectionsGroup = "Projections Options";
-        public const string AuthGroup = "Authentication Options";
+        public const string AuthGroup = "Authentication/Authorization Options";
         public const string InterfacesGroup = "Interface Options";
         public const string CertificatesGroup = "Certificate Options";
         public const string ClusterGroup = "Cluster Options";
@@ -46,10 +46,10 @@ namespace EventStore.Core.Util
         public static readonly string[] DefinesDefault = new string[0];
 
         public const string ShowHelpDescr = "Show help.";
-        public const bool   ShowHelpDefault = false;
+        public const bool ShowHelpDefault = false;
 
         public const string ShowVersionDescr = "Show version.";
-        public const bool   ShowVersionDefault = false;
+        public const bool ShowVersionDefault = false;
 
         public const string MonoMinThreadpoolSizeDescr = "Minimum number of worker threads when running under mono. Set to 0 to leave machine defaults.";
         public const int MonoMinThreadpoolSizeDefault = 10;
@@ -73,19 +73,19 @@ namespace EventStore.Core.Util
         public const bool GossipOnSingleNodeDefault = false;
 
         public const string StatsPeriodDescr = "The number of seconds between statistics gathers.";
-        public const int    StatsPeriodDefault = 30;
+        public const int StatsPeriodDefault = 30;
 
         public const string CachedChunksDescr = "The number of chunks to cache in unmanaged memory.";
-        public const int    CachedChunksDefault = -1;
+        public const int CachedChunksDefault = -1;
 
         public const string ChunksCacheSizeDescr = "The amount of unmanaged memory to use for caching chunks in bytes.";
-        public const int    ChunksCacheSizeDefault = TFConsts.ChunksCacheSize;
+        public const int ChunksCacheSizeDefault = TFConsts.ChunksCacheSize;
 
         public const string MinFlushDelayMsDescr = "The minimum flush delay in milliseconds.";
         public static double MinFlushDelayMsDefault = TFConsts.MinFlushDelayMs.TotalMilliseconds;
 
         public const string NodePriorityDescr = "The node priority used during master election";
-        public const int    NodePriorityDefault = 0;
+        public const int NodePriorityDefault = 0;
 
         public const string DisableScavengeMergeDescr = "Disables the merging of chunks when scavenge is running";
         public static readonly bool DisableScavengeMergeDefault = false;
@@ -97,7 +97,7 @@ namespace EventStore.Core.Util
         public const string IndexPathDescr = "The path the index should be loaded/saved to.";
 
         public const string InMemDbDescr = "Keep everything in memory, no directories or files are created.";
-        public const bool   InMemDbDefault = false;
+        public const bool InMemDbDefault = false;
 
         public const string EnableTrustedAuthDescr = "Enables trusted authentication by an intermediary in the HTTP";
         public const bool EnableTrustedAuthDefault = false;
@@ -118,7 +118,7 @@ namespace EventStore.Core.Util
         public const bool WriteThroughDefault = false;
 
         public const string ChunkInitialReaderCountDescr = "The initial number of readers to start when opening a TFChunk";
-        public const int ChunkInitialReaderCountDefault  = 5;
+        public const int ChunkInitialReaderCountDefault = 5;
 
         public const string UnbufferedDescr = "Enables Unbuffered/DirectIO when writing to the file system, this bypasses filesystem caches.";
         public const bool UnbufferedDefault = false;
@@ -130,16 +130,16 @@ namespace EventStore.Core.Util
         public const ProjectionType RunProjectionsDefault = ProjectionType.None;
 
         public const string ProjectionThreadsDescr = "The number of threads to use for projections.";
-        public const int    ProjectionThreadsDefault = 3;
+        public const int ProjectionThreadsDefault = 3;
 
         public const string FaultOutOfOrderProjectionsDescr = "Fault the projection if the Event number that was expected in the stream differs from what is received. This may happen if events have been deleted or expired";
         public const bool FaultOutOfOrderProjectionsDefault = false;
 
         public const string ProjectionsQueryExpiryDescr = "The number of minutes a query can be idle before it expires";
-        public const int    ProjectionsQueryExpiryDefault = 5;
+        public const int ProjectionsQueryExpiryDefault = 5;
 
         public const string WorkerThreadsDescr = "The number of threads to use for pool of worker services.";
-        public const int    WorkerThreadsDefault = 5;
+        public const int WorkerThreadsDefault = 5;
 
         public const string IntHttpPrefixesDescr = "The prefixes that the internal HTTP server should respond to.";
         public static readonly string[] IntHttpPrefixesDefault = new string[0];
@@ -173,9 +173,9 @@ namespace EventStore.Core.Util
 
         public const string ReduceFileCachePressureDescr = "Change the way the DB files are opened to reduce their stickiness in the system file cache.";
         public static readonly bool ReduceFileCachePressureDefault = false;
-	    
-	    public const string InitializationThreadsDescr = "Number of threads to be used to initialize the database. Will be capped at host processor count.";
-	    public static readonly int InitializationThreadsDefault = 1;
+
+        public const string InitializationThreadsDescr = "Number of threads to be used to initialize the database. Will be capped at host processor count.";
+        public static readonly int InitializationThreadsDefault = 1;
 
         //Loading certificates from files
         public const string CertificateFileDescr = "The path to certificate file.";
@@ -204,13 +204,13 @@ namespace EventStore.Core.Util
         public static readonly IPAddress IpDefault = IPAddress.Loopback;
 
         public const string TcpPortDescr = "The port to run the TCP server on.";
-        public const int    TcpPortDefault = 1113;
+        public const int TcpPortDefault = 1113;
 
         public const string SecureTcpPortDescr = "The port to run the secure TCP server on.";
-        public const int    SecureTcpPortDefault = 0;
+        public const int SecureTcpPortDefault = 0;
 
         public const string HttpPortDescr = "The port to run the HTTP server on.";
-        public const int    HttpPortDefault = 2113;
+        public const int HttpPortDefault = 2113;
 
         /*
          *  CLUSTER OPTIONS
@@ -240,22 +240,22 @@ namespace EventStore.Core.Util
         public static readonly IPAddress ExternalIpDefault = IPAddress.Loopback;
 
         public const string InternalHttpPortDescr = "Internal HTTP Port.";
-        public const int    InternalHttpPortDefault = 2112;
+        public const int InternalHttpPortDefault = 2112;
 
         public const string ExternalHttpPortDescr = "External HTTP Port.";
-        public const int    ExternalHttpPortDefault = 2113;
+        public const int ExternalHttpPortDefault = 2113;
 
         public const string InternalTcpPortDescr = "Internal TCP Port.";
-        public const int    InternalTcpPortDefault = 1112;
+        public const int InternalTcpPortDefault = 1112;
 
         public const string InternalSecureTcpPortDescr = "Internal Secure TCP Port.";
-        public const int    InternalSecureTcpPortDefault = 0;
+        public const int InternalSecureTcpPortDefault = 0;
 
         public const string ExternalTcpPortDescr = "External TCP Port.";
-        public const int    ExternalTcpPortDefault = 1113;
+        public const int ExternalTcpPortDefault = 1113;
 
         public const string ExternalSecureTcpPortDescr = "External Secure TCP Port.";
-        public const int    ExternalSecureTcpPortDefault = 0;
+        public const int ExternalSecureTcpPortDefault = 0;
 
         public const string ExternalIpAdvertiseAsDescr = "Advertise External Tcp Address As.";
         public static readonly IPAddress ExternalIpAdvertiseAsDefault = null;
@@ -281,14 +281,14 @@ namespace EventStore.Core.Util
         public const string InternalHttpPortAdvertiseAsDescr = "Advertise Internal Http Port As.";
         public static readonly int InternalHttpPortAdvertiseAsDefault = 0;
 
-		public const string ClusterSizeDescr = "The number of nodes in the cluster.";
-        public const int    ClusterSizeDefault = 1;
+        public const string ClusterSizeDescr = "The number of nodes in the cluster.";
+        public const int ClusterSizeDefault = 1;
 
         public const string CommitCountDescr = "The number of nodes which must acknowledge commits before acknowledging to a client.";
-        public const int    CommitCountDefault = -1;
+        public const int CommitCountDefault = -1;
 
         public const string PrepareCountDescr = "The number of nodes which must acknowledge prepares.";
-        public const int    PrepareCountDefault = -1;
+        public const int PrepareCountDefault = -1;
 
         public const string InternalManagerIpDescr = null;
         public static readonly IPAddress InternalManagerIpDefault = IPAddress.Loopback;
@@ -297,40 +297,40 @@ namespace EventStore.Core.Util
         public static readonly IPAddress ExternalManagerIpDefault = IPAddress.Loopback;
 
         public const string InternalManagerHttpPortDescr = null;
-        public const int    InternalManagerHttpPortDefault = 30777;
+        public const int InternalManagerHttpPortDefault = 30777;
 
         public const string ExternalManagerHttpPortDescr = null;
-        public const int    ExternalManagerHttpPortDefault = 30778;
+        public const int ExternalManagerHttpPortDefault = 30778;
 
         public const string UseInternalSslDescr = "Whether to use secure internal communication.";
-        public const bool   UseInternalSslDefault = false;
+        public const bool UseInternalSslDefault = false;
 
         public const string DisableInsecureTCPDescr = "Whether to disable insecure TCP communication";
-        public const bool   DisableInsecureTCPDefault = false;
+        public const bool DisableInsecureTCPDefault = false;
 
         public const string SslTargetHostDescr = "Target host of server's SSL certificate.";
         public static readonly string SslTargetHostDefault = "n/a";
 
         public const string SslValidateServerDescr = "Whether to validate that server's certificate is trusted.";
-        public const bool   SslValidateServerDefault = true;
+        public const bool SslValidateServerDefault = true;
 
-		public const string DiscoverViaDnsDescr = "Whether to use DNS lookup to discover other cluster nodes.";
- 	    public const bool DiscoverViaDnsDefault = true;
+        public const string DiscoverViaDnsDescr = "Whether to use DNS lookup to discover other cluster nodes.";
+        public const bool DiscoverViaDnsDefault = true;
 
- 		public const string ClusterDnsDescr = "DNS name from which other nodes can be discovered.";
- 		public const string ClusterDnsDefault = "fake.dns";
+        public const string ClusterDnsDescr = "DNS name from which other nodes can be discovered.";
+        public const string ClusterDnsDefault = "fake.dns";
 
-	    public const int ClusterGossipPortDefault = 30777;
-	    public const string ClusterGossipPortDescr = "The port on which cluster nodes' managers are running.";
+        public const int ClusterGossipPortDefault = 30777;
+        public const string ClusterGossipPortDescr = "The port on which cluster nodes' managers are running.";
 
- 	    public const string GossipSeedDescr = "Endpoints for other cluster nodes from which to seed gossip";
- 		public static readonly IPEndPoint[] GossipSeedDefault = new IPEndPoint[0];
+        public const string GossipSeedDescr = "Endpoints for other cluster nodes from which to seed gossip";
+        public static readonly IPEndPoint[] GossipSeedDefault = new IPEndPoint[0];
 
         /*
          *  MANAGER OPTIONS
          */
         public const string EnableWatchdogDescr = "Enable the node supervisor";
-        public const bool   EnableWatchdogDefault = true;
+        public const bool EnableWatchdogDefault = true;
 
         public const string WatchdogConfigDescr = "Location of the watchdog configuration";
         public static readonly string WatchdogConfigDefault = string.Empty;
@@ -355,14 +355,19 @@ namespace EventStore.Core.Util
         public const string OptimizeIndexMergeDescr =
             "Makes index merges faster and reduces disk pressure during merges.";
         public static readonly bool OptimizeIndexMergeDefault = false;
-		/*
-		 * Authentication Options
-		 */
-	    public const string AuthenticationTypeDescr = "The type of authentication to use.";
-	    public static readonly string AuthenticationTypeDefault = "internal";
 
-	    public const string AuthenticationConfigFileDescr = "Path to the configuration file for authentication configuration (if applicable).";
-		public static readonly string AuthenticationConfigFileDefault = string.Empty;
+        /*
+         * Authentication/Authorization Options
+         */
+        public const string AuthenticationTypeDescr = "The type of authentication to use.";
+        public static readonly string AuthenticationTypeDefault = "internal";
+
+        public const string AuthenticationConfigFileDescr = "Path to the configuration file for authentication configuration (if applicable).";
+        public static readonly string AuthenticationConfigFileDefault = string.Empty;
+
+        public const string DisableFirstLevelHttpAuthorizationDescr = "Disables first level authorization checks on all HTTP endpoints. This option can be enabled for backwards compatibility with EventStore 5.0.1 or earlier.";
+        public static readonly bool DisableFirstLevelHttpAuthorizationDefault = false;
+
         /*
          * Scavenge options
          */

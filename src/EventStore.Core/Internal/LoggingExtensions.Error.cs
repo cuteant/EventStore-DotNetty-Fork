@@ -55,14 +55,19 @@ namespace EventStore.Core
             s_exceptionInStorageWriter(logger, ex);
         }
 
+        private static readonly Action<ILogger, double, string, OperationResult, Exception> s_failedToWriteTheMaxageOfDaysAndSetOpsPermissionForTheStream =
+            LoggerMessage.Define<double, string, OperationResult>(LogLevel.Error, 0,
+                "Failed to write the $maxAge of {days} days and set $ops permission for the {stream} stream. Reason: {reason}");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void FailedToWriteTheMaxageOfDaysAndSetOpsPermissionForTheStream(this ILogger logger, double totalDays, OperationResult result)
+        {
+            s_failedToWriteTheMaxageOfDaysAndSetOpsPermissionForTheStream(logger, totalDays, SystemStreams.ScavengesStream, result, null);
+        }
+
         private static readonly Action<ILogger, double, string, OperationResult, Exception> s_failedToWriteTheMaxageOfDaysMetadataForTheStream =
             LoggerMessage.Define<double, string, OperationResult>(LogLevel.Error, 0,
                 "Failed to write the $maxAge of {days} days metadata for the {stream} stream. Reason: {reason}");
         [MethodImpl(MethodImplOptions.NoInlining)]
-        internal static void FailedToWriteTheMaxageOfDaysMetadataForTheStream(this ILogger logger, double totalDays, OperationResult result)
-        {
-            s_failedToWriteTheMaxageOfDaysMetadataForTheStream(logger, totalDays, SystemStreams.ScavengesStream, result, null);
-        }
         internal static void FailedToWriteTheMaxageOfDaysMetadataForTheStream(this ILogger logger, double totalDays, string stream, OperationResult result)
         {
             s_failedToWriteTheMaxageOfDaysMetadataForTheStream(logger, totalDays, stream, result, null);
@@ -889,6 +894,15 @@ namespace EventStore.Core
         internal static void VerySlowQueueMsg(this ILogger logger, QueueStatsCollector queueStats, int totalMilliseconds, int queueCnt, int currentQueueCnt)
         {
             s_verySlowQueueMsg(logger, queueStats.Name, queueStats.InProgressMessage.Name, totalMilliseconds, queueCnt, currentQueueCnt, null);
+        }
+
+        private static readonly Action<ILogger, string, OperationResult, Exception> s_failedToSetOpsReadPermission =
+            LoggerMessage.Define<string, OperationResult>(LogLevel.Error, 0,
+                "Failed to set $ops read permission for the {stream} stream. Reason: {reason}");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void FailedToSetOpsReadPermission(this ILogger logger, string stream, OperationResult reason)
+        {
+            s_failedToSetOpsReadPermission(logger, stream, reason, null);
         }
     }
 }

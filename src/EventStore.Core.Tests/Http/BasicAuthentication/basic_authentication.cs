@@ -3,22 +3,12 @@ using System.Net;
 using EventStore.Core.Services;
 using NUnit.Framework;
 using Newtonsoft.Json.Linq;
+using EventStore.Core.Tests.Http.Users.users;
 
 namespace EventStore.Core.Tests.Http.BasicAuthentication
 {
     namespace basic_authentication
     {
-        public abstract class with_admin_user : HttpBehaviorSpecification
-        {
-            protected readonly ICredentials _admin = new NetworkCredential(
-                SystemUsers.Admin, SystemUsers.DefaultAdminPassword);
-
-            protected override bool GivenSkipInitializeStandardUsersCheck()
-            {
-                return false;
-            }
-        }
-
         [TestFixture, Category("LongRunning")]
         class when_requesting_an_unprotected_resource : with_admin_user
         {
@@ -28,6 +18,7 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
 
             protected override void When()
             {
+                SetDefaultCredentials(null);
                 GetJson<JObject>("/test-anonymous");
             }
 
@@ -53,6 +44,7 @@ namespace EventStore.Core.Tests.Http.BasicAuthentication
 
             protected override void When()
             {
+                SetDefaultCredentials(null);
                 GetJson<JObject>("/test1");
             }
 

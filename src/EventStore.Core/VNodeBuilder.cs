@@ -76,6 +76,7 @@ namespace EventStore.Core
         protected StatsStorage _statsStorage;
 
         protected IAuthenticationProviderFactory _authenticationProviderFactory;
+        protected bool _disableFirstLevelHttpAuthorization;
         protected bool _disableScavengeMerging;
         protected int _scavengeHistoryMaxAge;
         protected bool _adminOnPublic;
@@ -185,6 +186,7 @@ namespace EventStore.Core
             _statsPeriod = TimeSpan.FromSeconds(Opts.StatsPeriodDefault);
 
             _authenticationProviderFactory = new InternalAuthenticationProviderFactory();
+            _disableFirstLevelHttpAuthorization = Opts.DisableFirstLevelHttpAuthorizationDefault;
             _disableScavengeMerging = Opts.DisableScavengeMergeDefault;
             _scavengeHistoryMaxAge = Opts.ScavengeHistoryMaxAgeDefault;
             _adminOnPublic = Opts.AdminOnExtDefault;
@@ -1052,6 +1054,16 @@ namespace EventStore.Core
         }
 
         /// <summary>
+        /// Disables first level authorization checks on all HTTP endpoints.
+        /// </summary>
+        /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
+        public VNodeBuilder DisableFirstLevelHttpAuthorization()
+        {
+            _disableFirstLevelHttpAuthorization = true;
+            return this;
+        }
+
+        /// <summary>
         /// Sets whether or not to use unbuffered/directio
         /// </summary>
         /// <returns>A <see cref="VNodeBuilder"/> with the options set</returns>
@@ -1470,7 +1482,8 @@ namespace EventStore.Core
                     _initializationThreads,
                     _faultOutOfOrderProjections,
                     _structuredLog,
-                    _maxAutoMergeIndexLevel);
+                    _maxAutoMergeIndexLevel,
+                    _disableFirstLevelHttpAuthorization);
 
             var infoController = new InfoController(options, _projectionType);
 

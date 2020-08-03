@@ -61,27 +61,27 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         }
 
         protected void Register(IHttpService service, string uriTemplate, string httpMethod,
-          Action<HttpEntityManager, UriTemplateMatch> handler, ICodec[] requestCodecs, ICodec[] responseCodecs)
+          Action<HttpEntityManager, UriTemplateMatch> handler, ICodec[] requestCodecs, ICodec[] responseCodecs, AuthorizationLevel requiredAuthorizationLevel)
         {
-            service.RegisterAction(new ControllerAction(uriTemplate, httpMethod, requestCodecs, responseCodecs), handler);
+            service.RegisterAction(new ControllerAction(uriTemplate, httpMethod, requestCodecs, responseCodecs, requiredAuthorizationLevel), handler);
         }
 
         protected void RegisterCustom(IHttpService service, string uriTemplate, string httpMethod,
           Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler,
-          ICodec[] requestCodecs, ICodec[] responseCodecs)
+          ICodec[] requestCodecs, ICodec[] responseCodecs, AuthorizationLevel requiredAuthorizationLevel)
         {
-            service.RegisterCustomAction(new ControllerAction(uriTemplate, httpMethod, requestCodecs, responseCodecs), handler);
+            service.RegisterCustomAction(new ControllerAction(uriTemplate, httpMethod, requestCodecs, responseCodecs, requiredAuthorizationLevel), handler);
         }
 
         protected void RegisterUrlBased(IHttpService service, string uriTemplate, string httpMethod,
-          Action<HttpEntityManager, UriTemplateMatch> action)
+          AuthorizationLevel requiredAuthorizationLevel, Action<HttpEntityManager, UriTemplateMatch> action)
         {
-            Register(service, uriTemplate, httpMethod, action, Codec.NoCodecs, DefaultCodecs);
+            Register(service, uriTemplate, httpMethod, action, Codec.NoCodecs, DefaultCodecs, requiredAuthorizationLevel);
         }
 
         protected static string MakeUrl(HttpEntityManager http, string path)
         {
-            if((uint)path.Length > 0u && path[0] == '/') path = path.Substring(1);
+            if ((uint)path.Length > 0u && path[0] == '/') path = path.Substring(1);
             var hostUri = http.ResponseUrl;
             var builder = new UriBuilder(hostUri.Scheme, hostUri.Host, hostUri.Port, hostUri.LocalPath + path);
             return builder.Uri.AbsoluteUri;
