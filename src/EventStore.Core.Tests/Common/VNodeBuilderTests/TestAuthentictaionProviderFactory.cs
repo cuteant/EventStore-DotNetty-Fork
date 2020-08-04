@@ -7,7 +7,7 @@ namespace EventStore.Core.Tests.Common.VNodeBuilderTests
 {
     public class TestAuthenticationProviderFactory : IAuthenticationProviderFactory
     {
-        public IAuthenticationProvider BuildAuthenticationProvider(IPublisher mainQueue, ISubscriber mainBus, IPublisher workersQueue, InMemoryBus[] workerBusses)
+        public IAuthenticationProvider BuildAuthenticationProvider(IPublisher mainQueue, ISubscriber mainBus, IPublisher workersQueue, InMemoryBus[] workerBuses, bool logFailedAuthenticationAttempts)
         {
             return new TestAuthenticationProvider();
         }

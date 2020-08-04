@@ -13,12 +13,13 @@ namespace EventStore.Core.Authentication
 {
     public class InternalAuthenticationProviderFactory : IAuthenticationProviderFactory
     {
-        public IAuthenticationProvider BuildAuthenticationProvider(IPublisher mainQueue, ISubscriber mainBus, IPublisher workersQueue, InMemoryBus[] workerBusses)
+        public IAuthenticationProvider BuildAuthenticationProvider(IPublisher mainQueue, ISubscriber mainBus, IPublisher workersQueue, InMemoryBus[] workerBuses, bool logFailedAuthenticationAttempts)
         {
             var passwordHashAlgorithm = new Rfc2898PasswordHashAlgorithm();
             var dispatcher = new IODispatcher(mainQueue, new PublishEnvelope(workersQueue, crossThread: true));
 
-            foreach (var bus in workerBusses) {
+            foreach (var bus in workerBuses)
+            {
                 bus.Subscribe(dispatcher.ForwardReader);
                 bus.Subscribe(dispatcher.BackwardReader);
                 bus.Subscribe(dispatcher.Writer);
@@ -47,8 +48,8 @@ namespace EventStore.Core.Authentication
             mainBus.Subscribe<UserManagementMessage.Get>(userManagement);
             mainBus.Subscribe<UserManagementMessage.GetAll>(userManagement);
             mainBus.Subscribe<SystemMessage.BecomeMaster>(userManagement);
-            
-            var provider = new InternalAuthenticationProvider(dispatcher, passwordHashAlgorithm, ESConsts.CachedPrincipalCount);
+
+            var provider = new InternalAuthenticationProvider(dispatcher, passwordHashAlgorithm, ESConsts.CachedPrincipalCount, logFailedAuthenticationAttempts);
             var passwordChangeNotificationReader = new PasswordChangeNotificationReader(mainQueue, dispatcher);
             mainBus.Subscribe<SystemMessage.SystemStart>(passwordChangeNotificationReader);
             mainBus.Subscribe<SystemMessage.BecomeShutdown>(passwordChangeNotificationReader);
@@ -60,7 +61,8 @@ namespace EventStore.Core.Authentication
         {
             var usersController = new UsersController(httpSendService, mainQueue, networkSendQueue);
             externalHttpService.SetupController(usersController);
-            if(internalHttpService != null) {
+            if (internalHttpService != null)
+            {
                 internalHttpService.SetupController(usersController);
             }
         }

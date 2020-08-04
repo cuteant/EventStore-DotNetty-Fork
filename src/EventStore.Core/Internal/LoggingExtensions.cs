@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using EventStore.Core.Services.PersistentSubscription;
 using Microsoft.Extensions.Logging;
+using EventStore.Core.Authentication;
 
 namespace EventStore.Core
 {
@@ -77,6 +78,30 @@ namespace EventStore.Core
         internal static void Timeout_reading_stream(this ILogger logger)
         {
             s_timeout_reading_stream(logger, Core.Services.UserManagement.UserManagementService.UserPasswordNotificationsStreamId, null);
+        }
+
+        private static readonly Action<ILogger, string, string, Exception> s_authenticationFailed =
+            LoggerMessage.Define<string, string>(LogLevel.Warning, 0,
+                "Authentication Failed for {id}: {reason}");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void AuthenticationFailed_Invalid_user(this ILogger logger, AuthenticationRequest authenticationRequest)
+        {
+            s_authenticationFailed(logger, authenticationRequest.Id, "Invalid user.", null);
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void AuthenticationFailed_The_system_is_not_ready(this ILogger logger, AuthenticationRequest authenticationRequest)
+        {
+            s_authenticationFailed(logger, authenticationRequest.Id, "The system is not ready.", null);
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void AuthenticationFailed_The_account_is_disabled(this ILogger logger, AuthenticationRequest authenticationRequest)
+        {
+            s_authenticationFailed(logger, authenticationRequest.Id, "The account is disabled.", null);
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void AuthenticationFailed_Invalid_credentials_supplied(this ILogger logger, AuthenticationRequest authenticationRequest)
+        {
+            s_authenticationFailed(logger, authenticationRequest.Id, "Invalid credentials supplied.", null);
         }
 
         private static readonly Action<ILogger, Exception> s_unexpected_error_in_StorageWriterService =

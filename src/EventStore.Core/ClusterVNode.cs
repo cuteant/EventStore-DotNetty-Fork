@@ -244,7 +244,7 @@ namespace EventStore.Core
             _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(storageChaser);
 
             // AUTHENTICATION INFRASTRUCTURE - delegate to plugins
-            _internalAuthenticationProvider = vNodeSettings.AuthenticationProviderFactory.BuildAuthenticationProvider(_mainQueue, _mainBus, _workersHandler, _workerBuses);
+            _internalAuthenticationProvider = vNodeSettings.AuthenticationProviderFactory.BuildAuthenticationProvider(_mainQueue, _mainBus, _workersHandler, _workerBuses, vNodeSettings.LogFailedAuthenticationAttempts);
 
             if (null == _internalAuthenticationProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authenticationProvider); }
 

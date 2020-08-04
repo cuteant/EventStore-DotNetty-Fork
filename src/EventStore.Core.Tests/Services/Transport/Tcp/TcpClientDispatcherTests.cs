@@ -35,8 +35,8 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             _connection = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher().Build(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(), new InternalAuthenticationProvider(
-                                new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), new StubPasswordHashAlgorithm(), 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, Opts.ConnectionPendingSendBytesThresholdDefault, Opts.ConnectionQueueSizeThresholdDefault);
+                                new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), new StubPasswordHashAlgorithm(), 1, false),
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, Opts.ConnectionPendingSendBytesThresholdDefault, Opts.ConnectionQueueSizeThresholdDefault); ;
         }
 
         [Test]

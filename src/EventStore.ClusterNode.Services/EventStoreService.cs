@@ -183,6 +183,15 @@ namespace EventStore.ClusterNode
                 builder = builder.RunOnDisk(options.Db);
             }
 
+            if (options.WriteStatsToDb)
+            {
+                builder = builder.WithStatsStorage(StatsStorage.StreamAndFile);
+            }
+            else
+            {
+                builder = builder.WithStatsStorage(StatsStorage.File);
+            }
+
             builder.WithInternalTcpOn(intTcp)
                    .WithInternalSecureTcpOn(intSecTcp)
                    .WithExternalTcpOn(extTcp)
@@ -216,7 +225,6 @@ namespace EventStore.ClusterNode
                    .WithProjectionQueryExpirationOf(TimeSpan.FromMinutes(options.ProjectionsQueryExpiry))
                    .WithTfCachedChunks(options.CachedChunks)
                    .WithTfChunksCacheSize(options.ChunksCacheSize)
-                   .WithStatsStorage(StatsStorage.StreamAndFile)
                    .AdvertiseInternalIPAs(options.IntIpAdvertiseAs)
                    .AdvertiseExternalIPAs(options.ExtIpAdvertiseAs)
                    .AdvertiseInternalHttpPortAs(options.IntHttpPortAdvertiseAs)
@@ -273,6 +281,7 @@ namespace EventStore.ClusterNode
             if (options.DisableHTTPCaching) { builder.DisableHTTPCaching(); }
             if (options.DisableScavengeMerging) { builder.DisableScavengeMerging(); }
             if (options.LogHttpRequests) { builder.EnableLoggingOfHttpRequests(); }
+            if (options.LogFailedAuthenticationAttempts) { builder.EnableLoggingOfFailedAuthenticationAttempts(); }
             if (options.EnableHistograms) { builder.EnableHistograms(); }
             if (options.UnsafeIgnoreHardDelete) { builder.WithUnsafeIgnoreHardDelete(); }
             if (options.UnsafeDisableFlushToDisk) { builder.WithUnsafeDisableFlushToDisk(); }

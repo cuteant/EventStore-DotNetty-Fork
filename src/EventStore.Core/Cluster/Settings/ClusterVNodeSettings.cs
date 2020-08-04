@@ -22,6 +22,7 @@ namespace EventStore.Core.Cluster.Settings
         public readonly bool StartStandardProjections;
         public readonly bool DisableHTTPCaching;
         public readonly bool LogHttpRequests;
+        public readonly bool LogFailedAuthenticationAttempts;
 
         public readonly bool DiscoverViaDns;
         public readonly string ClusterDns;
@@ -154,7 +155,8 @@ namespace EventStore.Core.Cluster.Settings
                                     bool faultOutOfOrderProjections = false,
                                     bool structuredLog = false,
                                     int maxAutoMergeIndexLevel = 1000,
-                                    bool disableFirstLevelHttpAuthorization = false)
+                                    bool disableFirstLevelHttpAuthorization = false,
+                                    bool logFailedAuthenticationAttempts = false)
         {
             if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
             if (null == internalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
@@ -193,6 +195,7 @@ namespace EventStore.Core.Cluster.Settings
             StartStandardProjections = startStandardProjections;
             DisableHTTPCaching = disableHTTPCaching;
             LogHttpRequests = logHttpRequests;
+            LogFailedAuthenticationAttempts = logFailedAuthenticationAttempts;
             AdditionalConsumerStrategies = additionalConsumerStrategies ?? new IPersistentSubscriptionConsumerStrategyFactory[0];
 
             DiscoverViaDns = discoverViaDns;

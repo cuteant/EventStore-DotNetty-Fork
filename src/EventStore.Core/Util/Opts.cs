@@ -171,6 +171,9 @@ namespace EventStore.Core.Util
         public const string LogHttpRequestsDescr = "Log Http Requests and Responses before processing them.";
         public static readonly bool LogHttpRequestsDefault = false;
 
+        public const string LogFailedAuthenticationAttemptsDescr = "Log the failed authentication attempts.";
+        public static readonly bool LogFailedAuthenticationAttemptsDefault = false;
+
         public const string SkipIndexScanOnReadsDescr = "Skip Index Scan on Reads. This skips the index scan which was used to stop reading duplicates.";
         public static readonly bool SkipIndexScanOnReadsDefault = false;
 
@@ -376,5 +379,8 @@ namespace EventStore.Core.Util
          */
         public const string MaxAutoMergeIndexLevelDescr = "During large Index Merge operations, writes may be slowed down. Set this to the maximum index file level for which automatic merges should happen.  Merging indexes above this level should be done manually.";
         public static readonly int MaxAutoMergeIndexLevelDefault = int.MaxValue;
+
+        public const string WriteStatsToDbDescr = "Set this option to write statistics to the database.";
+        public const bool WriteStatsToDbDefault = true;
     }
 }

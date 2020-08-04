@@ -7,20 +7,25 @@ using EventStore.Core.DataStructures;
 using EventStore.Core.Helpers;
 using EventStore.Core.Messages;
 using EventStore.Core.Services.UserManagement;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Authentication
 {
     public class InternalAuthenticationProvider : IAuthenticationProvider, IHandle<InternalAuthenticationProviderMessages.ResetPasswordCache>
     {
+        private static readonly ILogger Log = TraceLogger.GetLogger<InternalAuthenticationProvider>();
+
         private readonly IODispatcher _ioDispatcher;
         private readonly PasswordHashAlgorithm _passwordHashAlgorithm;
+        private readonly bool _logFailedAuthenticationAttempts;
         private readonly LRUCache<string, Tuple<string, IPrincipal>> _userPasswordsCache;
 
-        public InternalAuthenticationProvider(IODispatcher ioDispatcher, PasswordHashAlgorithm passwordHashAlgorithm, int cacheSize)
+        public InternalAuthenticationProvider(IODispatcher ioDispatcher, PasswordHashAlgorithm passwordHashAlgorithm, int cacheSize, bool logFailedAuthenticationAttempts)
         {
             _ioDispatcher = ioDispatcher;
             _passwordHashAlgorithm = passwordHashAlgorithm;
             _userPasswordsCache = new LRUCache<string, Tuple<string, IPrincipal>>(cacheSize);
+            _logFailedAuthenticationAttempts = logFailedAuthenticationAttempts;
         }
 
         public void Authenticate(AuthenticationRequest authenticationRequest)
@@ -43,15 +48,17 @@ namespace EventStore.Core.Authentication
         {
             try
             {
-                if (completed.Result == ReadStreamResult.StreamDeleted || 
+                if (completed.Result == ReadStreamResult.StreamDeleted ||
                     completed.Result == ReadStreamResult.NoStream ||
                     completed.Result == ReadStreamResult.AccessDenied)
                 {
+                    if (_logFailedAuthenticationAttempts) { Log.AuthenticationFailed_Invalid_user(authenticationRequest); }
                     authenticationRequest.Unauthorized();
                     return;
                 }
                 if (completed.Result == ReadStreamResult.Error)
                 {
+                    if (_logFailedAuthenticationAttempts) { Log.AuthenticationFailed_The_system_is_not_ready(authenticationRequest); }
                     authenticationRequest.NotReady();
                     return;
                 }
@@ -62,9 +69,14 @@ namespace EventStore.Core.Authentication
                     return;
                 }
                 if (userData.Disabled)
+                {
+                    if (_logFailedAuthenticationAttempts) { Log.AuthenticationFailed_The_account_is_disabled(authenticationRequest); }
                     authenticationRequest.Unauthorized();
+                }
                 else
+                {
                     AuthenticateWithPasswordHash(authenticationRequest, userData);
+                }
             }
             catch
             {
@@ -76,6 +88,7 @@ namespace EventStore.Core.Authentication
         {
             if (!_passwordHashAlgorithm.Verify(authenticationRequest.SuppliedPassword, userData.Hash, userData.Salt))
             {
+                if (_logFailedAuthenticationAttempts) { Log.AuthenticationFailed_Invalid_credentials_supplied(authenticationRequest); }
                 authenticationRequest.Unauthorized();
                 return;
             }
@@ -103,6 +116,7 @@ namespace EventStore.Core.Authentication
         {
             if (authenticationRequest.SuppliedPassword != correctPassword)
             {
+                if (_logFailedAuthenticationAttempts) { Log.AuthenticationFailed_Invalid_credentials_supplied(authenticationRequest); }
                 authenticationRequest.Unauthorized();
                 return;
             }
