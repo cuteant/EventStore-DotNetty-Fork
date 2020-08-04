@@ -330,7 +330,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             lock (_lock)
             {
-                RemoveProcessingMessages(correlationId, processedEventIds);
+                RemoveProcessingMessages(processedEventIds);
                 TryMarkCheckpoint(false);
                 TryReadingNewBatch();
                 TryPushingMessagesToClients();
@@ -347,7 +347,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                     if (infoEnabled) Log.Message_NAKed_id_action_to_take(id, action, reason);
                     HandleNackedMessage(action, id, reason);
                 }
-                RemoveProcessingMessages(correlationId, processedEventIds);
+                RemoveProcessingMessages(processedEventIds);
                 TryMarkCheckpoint(false);
                 TryReadingNewBatch();
                 TryPushingMessagesToClients();
@@ -404,7 +404,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 lock (_lock)
                 {
                     _outstandingMessages.Remove(e.OriginalEvent.EventId);
-                    _pushClients.RemoveProcessingMessage(e.OriginalEvent.EventId);
+                    _pushClients.RemoveProcessingMessages(e.OriginalEvent.EventId);
                     TryPushingMessagesToClients();
                 }
             });
@@ -497,9 +497,9 @@ namespace EventStore.Core.Services.PersistentSubscription
             //TODO CC Stop subscription?
         }
 
-        private void RemoveProcessingMessages(Guid correlationId, Guid[] processedEventIds)
+        private void RemoveProcessingMessages(Guid[] processedEventIds)
         {
-            _pushClients.RemoveProcessingMessages(correlationId, processedEventIds);
+            _pushClients.RemoveProcessingMessages(processedEventIds);
             foreach (var id in processedEventIds)
             {
                 _outstandingMessages.Remove(id);
@@ -540,7 +540,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (Log.IsDebugLevelEnabled()) { Log.RetryingMessage(SubscriptionId, @event); }
             _outstandingMessages.Remove(@event.OriginalEvent.EventId);
-            _pushClients.RemoveProcessingMessage(@event.OriginalEvent.EventId);
+            _pushClients.RemoveProcessingMessages(@event.OriginalEvent.EventId);
             _streamBuffer.AddRetry(new OutstandingMessage(@event.OriginalEvent.EventId, null, @event, count + 1));
         }
 

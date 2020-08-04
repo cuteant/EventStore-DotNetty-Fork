@@ -645,6 +645,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     LiveBufferCount = stat.LiveBufferCount,
                     RetryBufferCount = stat.RetryBufferCount,
                     TotalInFlightMessages = stat.TotalInFlightMessages,
+                    OutstandingMessagesCount = stat.OutstandingMessagesCount,
                     ParkedMessageUri = MakeUrl(manager, string.Format(parkedMessageUriTemplate, escapedStreamId, escapedGroupName)),
                     GetMessagesUri = MakeUrl(manager, $"/subscriptions/{escapedStreamId}/{escapedGroupName}/{DefaultNumberOfMessagesToGet}"),
                     Config = new SubscriptionConfigData
@@ -788,6 +789,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             public long LiveBufferCount { get; set; }
             public int RetryBufferCount { get; set; }
             public int TotalInFlightMessages { get; set; }
+            public int OutstandingMessagesCount { get; set; }
             public List<ConnectionInfo> Connections { get; set; }
         }
 

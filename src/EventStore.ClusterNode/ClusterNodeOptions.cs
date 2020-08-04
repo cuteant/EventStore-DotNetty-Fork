@@ -75,6 +75,8 @@ namespace EventStore.ClusterNode
         public bool GossipOnSingleNode { get; set; }
         [ArgDescription(Opts.ConnectionPendingSendBytesThresholdDescr, Opts.InterfacesGroup)]
         public int ConnectionPendingSendBytesThreshold { get; set; }
+        [ArgDescription(Opts.ConnectionQueueSizeThresholdDescr, Opts.InterfacesGroup)]
+        public int ConnectionQueueSizeThreshold { get; set; }
 
 
         [ArgDescription(Opts.ForceDescr, Opts.AppGroup)]
@@ -370,6 +372,7 @@ namespace EventStore.ClusterNode
             StructuredLog = Opts.StructuredLogDefault;
 
             ConnectionPendingSendBytesThreshold = Opts.ConnectionPendingSendBytesThresholdDefault;
+            ConnectionQueueSizeThreshold = Opts.ConnectionQueueSizeThresholdDefault;
             ChunkInitialReaderCount = Opts.ChunkInitialReaderCountDefault;
 
             MaxAutoMergeIndexLevel = Opts.MaxAutoMergeIndexLevelDefault;

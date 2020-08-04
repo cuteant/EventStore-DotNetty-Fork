@@ -49,22 +49,24 @@ namespace EventStore.Core.Index
             Interlocked.Add(ref _count, collection.Count);
 
             var stream = collection[0].Stream; // NOTE: all entries should have the same stream
-            SortedList<Entry, byte> list;
-            if (!_hash.TryGetValue(stream, out list))
-            {
-                list = new SortedList<Entry, byte>(MemTableComparer);
-                _hash.AddOrUpdate(stream, list, (x, y) => { throw new Exception("This should never happen as MemTable updates are single-threaded."); });
-            }
-
-            if (!Monitor.TryEnter(list, 10000))
-                ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException();
+            SortedList<Entry, byte> list = null;
             try
             {
+                if (!_hash.TryGetValue(stream, out list))
+                {
+                    list = new SortedList<Entry, byte>(MemTableComparer);
+                    if (!Monitor.TryEnter(list, 10000)) { ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException(); }
+                    _hash.AddOrUpdate(stream, list, (x, y) => { throw new Exception("This should never happen as MemTable updates are single-threaded."); });
+                }
+                else
+                {
+                    if (!Monitor.TryEnter(list, 10000)) { ThrowHelper.ThrowUnableToAcquireLockInReasonableTimeException(); }
+                }
+
                 for (int i = 0, n = collection.Count; i < n; ++i)
                 {
                     var entry = collection[i];
-                    if (entry.Stream != stream)
-                        ThrowHelper.ThrowException_NotAllIndexEntriesInABulkHaveTheSameStreamHash();
+                    if (entry.Stream != stream) { ThrowHelper.ThrowException_NotAllIndexEntriesInABulkHaveTheSameStreamHash(); }
                     if ((ulong)entry.Version > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Version); }
                     if ((ulong)entry.Position > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.entry_Position); }
                     list.Add(new Entry(entry.Version, entry.Position), 0);
@@ -72,7 +74,7 @@ namespace EventStore.Core.Index
             }
             finally
             {
-                Monitor.Exit(list);
+                if (list != null) { Monitor.Exit(list); }
             }
         }
 
@@ -214,7 +216,8 @@ namespace EventStore.Core.Index
             return ret;
         }
 
-        private ulong GetHash(ulong hash){
+        private ulong GetHash(ulong hash)
+        {
             return _version == PTableVersions.IndexV1 ? hash >> 32 : hash;
         }
 

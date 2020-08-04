@@ -255,7 +255,8 @@ namespace EventStore.Core
                     var extTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.ExternalTcp, _workersHandler,
                                                        TcpServiceType.External, TcpSecurityType.Normal, new ClientTcpDispatcher().Build(),
                                                        vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
-                                                       _internalAuthenticationProvider, null, vNodeSettings.ConnectionPendingSendBytesThreshold);
+                                                       _internalAuthenticationProvider, null, vNodeSettings.ConnectionPendingSendBytesThreshold,
+                                                       vNodeSettings.ConnectionQueueSizeThreshold);
                     _mainBus.Subscribe<SystemMessage.SystemInit>(extTcpService);
                     _mainBus.Subscribe<SystemMessage.SystemStart>(extTcpService);
                     _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(extTcpService);
@@ -267,7 +268,8 @@ namespace EventStore.Core
                     var extSecTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
                                                           TcpServiceType.External, TcpSecurityType.Secure, new ClientTcpDispatcher().Build(),
                                                           vNodeSettings.ExtTcpHeartbeatInterval, vNodeSettings.ExtTcpHeartbeatTimeout,
-                                                          _internalAuthenticationProvider, vNodeSettings.Certificate, vNodeSettings.ConnectionPendingSendBytesThreshold);
+                                                          _internalAuthenticationProvider, vNodeSettings.Certificate, vNodeSettings.ConnectionPendingSendBytesThreshold,
+                                                          vNodeSettings.ConnectionQueueSizeThreshold);
                     _mainBus.Subscribe<SystemMessage.SystemInit>(extSecTcpService);
                     _mainBus.Subscribe<SystemMessage.SystemStart>(extSecTcpService);
                     _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(extSecTcpService);
@@ -281,7 +283,8 @@ namespace EventStore.Core
                                                            TcpServiceType.Internal, TcpSecurityType.Normal,
                                                            new InternalTcpDispatcher().Build(),
                                                            vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
-                                                           _internalAuthenticationProvider, null, ESConsts.UnrestrictedPendingSendBytes);
+                                                           _internalAuthenticationProvider, null, ESConsts.UnrestrictedPendingSendBytes,
+                                                           ESConsts.MaxConnectionQueueSize);
                         _mainBus.Subscribe<SystemMessage.SystemInit>(intTcpService);
                         _mainBus.Subscribe<SystemMessage.SystemStart>(intTcpService);
                         _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(intTcpService);
@@ -294,7 +297,8 @@ namespace EventStore.Core
                                                               TcpServiceType.Internal, TcpSecurityType.Secure,
                                                               new InternalTcpDispatcher().Build(),
                                                               vNodeSettings.IntTcpHeartbeatInterval, vNodeSettings.IntTcpHeartbeatTimeout,
-                                                              _internalAuthenticationProvider, vNodeSettings.Certificate, ESConsts.UnrestrictedPendingSendBytes);
+                                                              _internalAuthenticationProvider, vNodeSettings.Certificate, ESConsts.UnrestrictedPendingSendBytes,
+                                                              ESConsts.MaxConnectionQueueSize);
                         _mainBus.Subscribe<SystemMessage.SystemInit>(intSecTcpService);
                         _mainBus.Subscribe<SystemMessage.SystemStart>(intSecTcpService);
                         _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(intSecTcpService);

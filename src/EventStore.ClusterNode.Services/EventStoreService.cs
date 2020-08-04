@@ -227,6 +227,7 @@ namespace EventStore.ClusterNode
                    .AdvertiseExternalSecureTCPPortAs(options.ExtSecureTcpPortAdvertiseAs)
                    .HavingReaderThreads(options.ReaderThreadsCount)
                    .WithConnectionPendingSendBytesThreshold(options.ConnectionPendingSendBytesThreshold)
+                   .WithConnectionQueueSizeThreshold(options.ConnectionQueueSizeThreshold)
                    .WithChunkInitialReaderCount(options.ChunkInitialReaderCount)
                    .WithInitializationThreads(options.InitializationThreads)
                    .WithWriteBufferHighWaterMark(options.WriteBufferHighWaterMark)

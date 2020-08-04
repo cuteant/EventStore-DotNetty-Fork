@@ -33,7 +33,7 @@ namespace EventStore.Core.Tests.Helpers
         public static readonly Stopwatch StartingTime = new Stopwatch();
         public static readonly Stopwatch StoppingTime = new Stopwatch();
 
-        public const int ChunkSize = 1024*1024;
+        public const int ChunkSize = 1024 * 1024;
         public const int CachedChunkSize = ChunkSize + ChunkHeader.Size + ChunkFooter.Size;
 
         private static readonly ILogger Log = TraceLogger.GetLogger<MiniClusterNode>();
@@ -92,7 +92,7 @@ namespace EventStore.Core.Tests.Helpers
                                              ExternalTcpEndPoint, ExternalTcpSecEndPoint,
                                              InternalHttpEndPoint, ExternalHttpEndPoint,
                                              null, null, 0, 0),
-                new[] {InternalHttpEndPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA) }, new[]{ExternalHttpEndPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA) }, enableTrustedAuth, ssl_connections.GetCertificate(), 1, false,
+                new[] { InternalHttpEndPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA) }, new[] { ExternalHttpEndPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA) }, enableTrustedAuth, ssl_connections.GetCertificate(), 1, false,
                 "", gossipSeeds, TFConsts.MinFlushDelayMs, 3, 2, 2, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10),
                 false, false, "", false, TimeSpan.FromHours(1), StatsStorage.None, 0,
                 new InternalAuthenticationProviderFactory(), disableScavengeMerging: true, scavengeHistoryMaxAge: 30, adminOnPublic: true,
@@ -102,14 +102,16 @@ namespace EventStore.Core.Tests.Helpers
                 intTcpHeartbeatTimeout: TimeSpan.FromSeconds(2), intTcpHeartbeatInterval: TimeSpan.FromSeconds(2),
                 verifyDbHash: false, maxMemtableEntryCount: memTableSize, hashCollisionReadLimit: Opts.HashCollisionReadLimitDefault,
                 startStandardProjections: false, disableHTTPCaching: false, logHttpRequests: false,
-                connectionPendingSendBytesThreshold: Opts.ConnectionPendingSendBytesThresholdDefault, chunkInitialReaderCount: Opts.ChunkInitialReaderCountDefault, transportSettings: Utils.Create());
+                connectionPendingSendBytesThreshold: Opts.ConnectionPendingSendBytesThresholdDefault,
+                connectionQueueSizeThreshold: Opts.ConnectionQueueSizeThresholdDefault, chunkInitialReaderCount: Opts.ChunkInitialReaderCountDefault,
+                transportSettings: Utils.Create());
 
             Log.LogInformation(
                 "\n{0,-25} {1} ({2}/{3}, {4})\n" + "{5,-25} {6} ({7})\n" + "{8,-25} {9} ({10}-bit)\n"
                 + "{11,-25} {12}\n" + "{13,-25} {14}\n" + "{15,-25} {16}\n" + "{17,-25} {18}\n" + "{19,-25} {20}\n\n",
                 "ES VERSION:", VersionInfo.Version, VersionInfo.Branch, VersionInfo.Hashtag, VersionInfo.Timestamp,
                 "OS:", OS.OsFlavor, Environment.OSVersion, "RUNTIME:", OS.GetRuntimeVersion(),
-                Marshal.SizeOf(typeof (IntPtr))*8, "GC:",
+                Marshal.SizeOf(typeof(IntPtr)) * 8, "GC:",
                 GC.MaxGeneration == 0
                     ? "NON-GENERATION (PROBABLY BOEHM)"
                     : string.Format("{0} GENERATIONS", GC.MaxGeneration + 1), "DBPATH:", _dbPath, "ExTCP ENDPOINT:",
@@ -202,20 +204,20 @@ namespace EventStore.Core.Tests.Helpers
                 var chaserCheckFilename = Path.Combine(dbPath, Checkpoint.Chaser + ".chk");
                 var epochCheckFilename = Path.Combine(dbPath, Checkpoint.Epoch + ".chk");
                 var truncateCheckFilename = Path.Combine(dbPath, Checkpoint.Truncate + ".chk");
-//#if DESKTOPCLR
+                //#if DESKTOPCLR
                 writerChk = new MemoryMappedFileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
                 chaserChk = new MemoryMappedFileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
                 epochChk = new MemoryMappedFileCheckpoint(
                     epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
                 truncateChk = new MemoryMappedFileCheckpoint(
                     truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
-//#else
-//                writerChk = new FileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
-//                chaserChk = new FileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
-//                epochChk = new FileCheckpoint(epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
-//                truncateChk = new FileCheckpoint(
-//                    truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
-//#endif
+                //#else
+                //                writerChk = new FileCheckpoint(writerCheckFilename, Checkpoint.Writer, cached: true);
+                //                chaserChk = new FileCheckpoint(chaserCheckFilename, Checkpoint.Chaser, cached: true);
+                //                epochChk = new FileCheckpoint(epochCheckFilename, Checkpoint.Epoch, cached: true, initValue: -1);
+                //                truncateChk = new FileCheckpoint(
+                //                    truncateCheckFilename, Checkpoint.Truncate, cached: true, initValue: -1);
+                //#endif
             }
             var nodeConfig = new TFChunkDbConfig(
                 dbPath, new VersionedPatternFileNamingStrategy(dbPath, "chunk-"), chunkSize, chunksCacheSize, writerChk,

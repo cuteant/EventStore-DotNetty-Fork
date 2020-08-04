@@ -24,7 +24,9 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
     public class TcpConnectionManagerTests
     {
         private int _connectionPendingSendBytesThreshold = 10 * 1024;
+        private int _connectionQueueSizeThreshold = 50000;
 
+        [Test]
         public void when_handling_trusted_write_on_external_service()
         {
             var package = new TcpPackage(TcpCommand.WriteEvents, TcpFlags.TrustedWrite, Guid.NewGuid(), null, null, new byte[] { });
@@ -34,7 +36,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var tcpConnectionManager = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher().Build(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(), new InternalAuthenticationProvider(new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), new StubPasswordHashAlgorithm(), 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold);
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold, _connectionQueueSizeThreshold);
 
             tcpConnectionManager.ProcessPackage(package);
 
@@ -44,6 +46,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             Assert.AreEqual(receivedPackage.Command, TcpCommand.BadRequest, "Expected Bad Request but got {0}", receivedPackage.Command);
         }
 
+        [Test]
         public void when_handling_trusted_write_on_internal_service()
         {
             ManualResetEvent waiter = new ManualResetEvent(false);
@@ -68,7 +71,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var tcpConnectionManager = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.Internal, new ClientTcpDispatcher().Build(),
                 publisher, dummyConnection, publisher, new InternalAuthenticationProvider(new Core.Helpers.IODispatcher(publisher, new NoopEnvelope()), new StubPasswordHashAlgorithm(), 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold);
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold, _connectionQueueSizeThreshold);
 
             tcpConnectionManager.ProcessPackage(package);
 
@@ -98,7 +101,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
                 TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) =>
                 {
                     mre.Set();
-                }, _connectionPendingSendBytesThreshold);
+                }, _connectionPendingSendBytesThreshold, _connectionQueueSizeThreshold);
 
             tcpConnectionManager.SendMessage(message);
 
@@ -122,7 +125,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var tcpConnectionManager = new TcpConnectionManager(
                 Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher().Build(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(), new InternalAuthenticationProvider(new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1),
-                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold);
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { }, _connectionPendingSendBytesThreshold, _connectionQueueSizeThreshold);
 
             tcpConnectionManager.SendMessage(message);
 
@@ -151,7 +154,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
                 TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) =>
                 {
                     mre.Set();
-                }, ESConsts.UnrestrictedPendingSendBytes);
+                }, ESConsts.UnrestrictedPendingSendBytes, ESConsts.MaxConnectionQueueSize);
 
             tcpConnectionManager.SendMessage(message);
 
@@ -159,6 +162,69 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             var receivedPackage = data.AsTcpPackage();
 
             Assert.AreEqual(receivedPackage.Command, TcpCommand.ReadEventCompleted, "Expected ReadEventCompleted but got {0}", receivedPackage.Command);
+        }
+
+        [Test]
+        public void when_send_queue_size_is_smaller_than_threshold_should_not_close_connection()
+        {
+            var mre = new ManualResetEventSlim();
+
+            var messageSize = _connectionPendingSendBytesThreshold;
+            var evnt = new EventRecord(0, 0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "testStream", 0, DateTime.Now,
+                PrepareFlags.None, "eventType", new byte[messageSize], new byte[0]);
+            var record = ResolvedEvent.ForUnresolvedEvent(evnt, null);
+            var message = new ClientMessage.ReadEventCompleted(Guid.NewGuid(), "testStream", ReadEventResult.Success,
+                record, StreamMetadata.Empty, false, "");
+
+            var dummyConnection = new DummyTcpConnection();
+            dummyConnection.SendQueueSize = ESConsts.MaxConnectionQueueSize - 1;
+
+            var tcpConnectionManager = new TcpConnectionManager(
+                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
+                InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(),
+                new InternalAuthenticationProvider(
+                    new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1),
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { mre.Set(); },
+                ESConsts.UnrestrictedPendingSendBytes, ESConsts.MaxConnectionQueueSize);
+
+            tcpConnectionManager.SendMessage(message);
+
+            var data = dummyConnection.ReceivedData;
+            var receivedPackage = data.AsTcpPackage();
+
+            Assert.AreEqual(receivedPackage.Command, TcpCommand.ReadEventCompleted,
+                "Expected ReadEventCompleted but got {0}", receivedPackage.Command);
+        }
+
+        [Test]
+        public void when_send_queue_size_is_larger_than_threshold_should_close_connection()
+        {
+            var mre = new ManualResetEventSlim();
+
+            var messageSize = _connectionPendingSendBytesThreshold;
+            var evnt = new EventRecord(0, 0, Guid.NewGuid(), Guid.NewGuid(), 0, 0, "testStream", 0, DateTime.Now,
+                PrepareFlags.None, "eventType", new byte[messageSize], new byte[0]);
+            var record = ResolvedEvent.ForUnresolvedEvent(evnt, null);
+            var message = new ClientMessage.ReadEventCompleted(Guid.NewGuid(), "testStream", ReadEventResult.Success,
+                record, StreamMetadata.Empty, false, "");
+
+            var dummyConnection = new DummyTcpConnection();
+            dummyConnection.SendQueueSize = ESConsts.MaxConnectionQueueSize + 1;
+
+            var tcpConnectionManager = new TcpConnectionManager(
+                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
+                InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(),
+                new InternalAuthenticationProvider(
+                    new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1),
+                TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), (man, err) => { mre.Set(); },
+                ESConsts.UnrestrictedPendingSendBytes, ESConsts.MaxConnectionQueueSize);
+
+            tcpConnectionManager.SendMessage(message);
+
+            if (!mre.Wait(2000))
+            {
+                Assert.Fail("Timed out waiting for connection to close");
+            }
         }
     }
 
@@ -204,12 +270,11 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             }
         }
 
+        private int _sendQueueSize;
         public int SendQueueSize
         {
-            get
-            {
-                return 0;
-            }
+            get { return _sendQueueSize; }
+            set { _sendQueueSize = value; }
         }
 
         private int _pendingSendBytes;

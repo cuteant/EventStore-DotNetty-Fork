@@ -20,7 +20,6 @@ namespace EventStore.Core.Services.Transport.Tcp
     /// heartbeats, message framing and dispatch to the memory bus.</summary>
     public class TcpConnectionManager : IHandle<TcpMessage.Heartbeat>, IHandle<TcpMessage.HeartbeatTimeout>, ITcpPackageListener
     {
-        public const int ConnectionQueueSizeThreshold = 50000;
         public static readonly TimeSpan ConnectionTimeout = TimeSpan.FromMilliseconds(1000);
 
         private static readonly ILogger Log = TraceLogger.GetLogger<TcpConnectionManager>();
@@ -50,6 +49,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         private readonly TimeSpan _heartbeatInterval;
         private readonly TimeSpan _heartbeatTimeout;
         private readonly int _connectionPendingSendBytesThreshold;
+        private readonly int _connectionQueueSizeThreshold;
 
         private readonly IAuthenticationProvider _authProvider;
         private UserCredentials _defaultUser;
@@ -65,7 +65,8 @@ namespace EventStore.Core.Services.Transport.Tcp
                                     TimeSpan heartbeatInterval,
                                     TimeSpan heartbeatTimeout,
                                     Action<TcpConnectionManager, DisassociateInfo> onConnectionClosed,
-                                    int connectionPendingSendBytesThreshold)
+                                    int connectionPendingSendBytesThreshold,
+                                    int connectionQueueSizeThreshold)
         {
             if (null == dispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcher); }
             if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
@@ -88,6 +89,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _connectionPendingSendBytesThreshold = connectionPendingSendBytesThreshold;
+            _connectionQueueSizeThreshold = connectionQueueSizeThreshold;
 
             _connectionClosed = onConnectionClosed;
 
@@ -133,6 +135,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             _heartbeatInterval = heartbeatInterval;
             _heartbeatTimeout = heartbeatTimeout;
             _connectionPendingSendBytesThreshold = ESConsts.UnrestrictedPendingSendBytes;
+            _connectionQueueSizeThreshold = ESConsts.MaxConnectionQueueSize;
 
             _connectionEstablished = onConnectionEstablished;
             _connectionClosed = onConnectionClosed;
@@ -348,7 +351,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             int queueSendBytes;
             if (checkQueueSize)
             {
-                if ((queueSize = _connection.SendQueueSize) > ConnectionQueueSizeThreshold)
+                if ((queueSize = _connection.SendQueueSize) > _connectionQueueSizeThreshold)
                 {
                     SendBadRequestAndClose(Guid.Empty, $"Connection queue size is too large: {queueSize}.");
                     return;
