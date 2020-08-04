@@ -106,7 +106,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 _writeAs = writeAs;
                 _maxWriteBatchLength = maxWriteBatchLength;
                 _logger = logger;
-                if (streamMetadata != null)
+                if (streamMetadata is object)
                 {
                     this.maxCount = streamMetadata.MaxCount;
                     this.maxAge = streamMetadata.MaxAge;
@@ -153,8 +153,8 @@ namespace EventStore.Projections.Core.Services.Processing
             if (null == writerConfiguration) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerConfiguration); }
             if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.upositionTaggerrl); }
             if (null == fromCheckpointPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fromCheckpointPosition); }
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (null == readyHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readyHandler); }
 
             _streamId = streamId;
@@ -176,14 +176,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void EmitEvents(EmittedEvent[] events)
         {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
             CheckpointTag groupCausedBy = null;
             foreach (var @event in events)
             {
-                if (groupCausedBy == null)
+                if (groupCausedBy is null)
                 {
                     groupCausedBy = @event.CausedByTag;
-                    if (!(_lastQueuedEventPosition != null && groupCausedBy > _lastQueuedEventPosition) && !(_lastQueuedEventPosition == null && groupCausedBy >= _fromCheckpointPosition))
+                    if (!(_lastQueuedEventPosition is object && groupCausedBy > _lastQueuedEventPosition) && !(_lastQueuedEventPosition is null && groupCausedBy >= _fromCheckpointPosition))
                         throw new InvalidOperationException($"Invalid event order.  '{@event.CausedByTag}' goes after '{_lastQueuedEventPosition}'");
                     _lastQueuedEventPosition = groupCausedBy;
                 }
@@ -294,16 +294,16 @@ namespace EventStore.Projections.Core.Services.Processing
 
             var newPhysicalStream = message.LastEventNumber == ExpectedVersion.NoStream;
             _retrievedNextEventNumber = newPhysicalStream
-                ? (message.StreamMetadata != null ? (message.StreamMetadata.TruncateBefore ?? 0) : 0)
+                ? (message.StreamMetadata is object ? (message.StreamMetadata.TruncateBefore ?? 0) : 0)
                 : message.LastEventNumber + 1;
 
-            if (_lastCommittedOrSubmittedEventPosition == null)
+            if (_lastCommittedOrSubmittedEventPosition is null)
             {
                 var parsed = default(CheckpointTagVersion);
                 if (!newPhysicalStream && (uint)message.Events.Length > 0u)
                 {
                     parsed = message.Events[0].Event.Metadata.ParseCheckpointTagVersionExtraJson(_projectionVersion);
-                    if (parsed.Tag == null)
+                    if (parsed.Tag is null)
                     {
                         Failed($"The '{_streamId}' stream managed by projection {_projectionVersion.ProjectionId} has been written to from the outside.");
                         return;
@@ -369,7 +369,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 if (IsV1StreamCreatedEvent(e))
                     continue;
 
-                if (checkpointTagVersion.Tag == null)
+                if (checkpointTagVersion.Tag is null)
                 {
                     Failed($"A unstamped event found. Stream: '{message.EventStreamId}'. EventNumber: '{e.OriginalEventNumber}'");
                     return true;
@@ -396,7 +396,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private static bool IsV1StreamCreatedEvent(in EventStore.Core.Data.ResolvedEvent e)
         {
-            return e.Link == null && e.OriginalEventNumber == 0
+            return e.Link is null && e.OriginalEventNumber == 0
                    && (e.OriginalEvent.EventType == SystemEventTypes.V1__StreamCreatedImplicit__
                        || e.OriginalEvent.EventType == SystemEventTypes.V1__StreamCreated__);
         }
@@ -406,7 +406,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_started && !_awaitingListEventsCompleted && !_awaitingWriteCompleted
                 && !_awaitingMetadataWriteCompleted && _pendingWrites.Count > 0)
             {
-                if (_lastCommittedOrSubmittedEventPosition == null)
+                if (_lastCommittedOrSubmittedEventPosition is null)
                     SubmitListEvents(_fromCheckpointPosition);
                 else
                     SubmitWriteEventsInRecovery();
@@ -562,7 +562,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
                     var expectedTag = e.ExpectedTag;
                     var causedByTag = e.CausedByTag;
-                    if (expectedTag != null)
+                    if (expectedTag is object)
                     {
                         if (DetectConcurrencyViolations(expectedTag))
                         {
@@ -579,7 +579,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     {
                         events.Add(
                             new Event(
-                                e.EventId, e.EventType, e.IsJson, e.Data != null ? Helper.UTF8NoBom.GetBytes(e.Data) : null,
+                                e.EventId, e.EventType, e.IsJson, e.Data is object ? Helper.UTF8NoBom.GetBytes(e.Data) : null,
                                 e.CausedByTag.ToJsonBytes(_projectionVersion, MetadataWithCausedByAndCorrelationId(e))));
                     }
                     catch (ArgumentException ex)
@@ -606,7 +606,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             var extraMetaData = emittedEvent.ExtraMetaData();
             var correlationIdFound = false;
-            if (extraMetaData != null)
+            if (extraMetaData is object)
             {
                 foreach (var valuePair in from pair in extraMetaData
                                           where pair.Key != "$causedBy"
@@ -727,7 +727,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     return;
                 }
                 var topAlreadyCommitted = ValidateEmittedEventInRecoveryMode(eventToWrite);
-                if (topAlreadyCommitted == null)
+                if (topAlreadyCommitted is null)
                 {
                     continue; // means skipped one already comitted item due to deleted stream handling
                 }

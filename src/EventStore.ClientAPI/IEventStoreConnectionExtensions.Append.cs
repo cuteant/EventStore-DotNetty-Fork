@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI
         public static WriteResult AppendToStream(this IEventStoreConnectionBase connection,
           string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return AsyncContext.Run(
                       async (conn, streamId, version, credentials, eventArray)
                         => await conn.AppendToStreamAsync(streamId, version, eventArray, credentials).ConfigureAwait(false),
@@ -53,7 +53,7 @@ namespace EventStore.ClientAPI
         public static WriteResult AppendToStream(this IEventStoreConnectionBase connection,
           string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return AsyncContext.Run(
                       async (conn, streamId, version, eventList, credentials)
                         => await conn.AppendToStreamAsync(streamId, version, eventList, credentials).ConfigureAwait(false),
@@ -82,7 +82,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> AppendToStreamAsync(this IEventStoreConnectionBase connection,
             string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return connection.AppendToStreamAsync(stream, expectedVersion, events, userCredentials);
         }
 
@@ -108,7 +108,7 @@ namespace EventStore.ClientAPI
         public static ConditionalWriteResult ConditionalAppendToStream(this IEventStoreConnectionBase connection,
           string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return AsyncContext.Run(
                       async (conn, streamId, version, eventList, credentials)
                         => await conn.ConditionalAppendToStreamAsync(streamId, version, eventList, credentials).ConfigureAwait(false),
@@ -137,7 +137,7 @@ namespace EventStore.ClientAPI
         public static Task<ConditionalWriteResult> ConditionalAppendToStreamAsync(this IEventStoreConnectionBase connection,
             string stream, long expectedVersion, UserCredentials userCredentials, params EventData[] events)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             return connection.ConditionalAppendToStreamAsync(stream, expectedVersion, events, userCredentials);
         }
 

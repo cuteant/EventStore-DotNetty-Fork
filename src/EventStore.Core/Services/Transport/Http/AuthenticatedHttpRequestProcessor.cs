@@ -78,7 +78,7 @@ namespace EventStore.Core.Services.Transport.Http
 
                 var match = allMatches.LastOrDefault(
                     m => m.ControllerAction.HttpMethod.Equals(request.HttpMethod, StringComparison.OrdinalIgnoreCase));
-                if (match == null)
+                if (match is null)
                 {
                     MethodNotAllowed(httpEntity, allowedMethods);
                     return;
@@ -86,10 +86,10 @@ namespace EventStore.Core.Services.Transport.Http
 
                 ICodec requestCodec = null;
                 var supportedRequestCodecs = match.ControllerAction.SupportedRequestCodecs;
-                if (supportedRequestCodecs != null && 0u < (uint)supportedRequestCodecs.Length)
+                if (supportedRequestCodecs is object && 0u < (uint)supportedRequestCodecs.Length)
                 {
                     requestCodec = SelectRequestCodec(request.HttpMethod, request.ContentType, supportedRequestCodecs);
-                    if (requestCodec == null)
+                    if (requestCodec is null)
                     {
                         BadContentType(httpEntity, "Invalid or missing Content-Type");
                         return;
@@ -99,7 +99,7 @@ namespace EventStore.Core.Services.Transport.Http
                                                            request.AcceptTypes,
                                                            match.ControllerAction.SupportedResponseCodecs,
                                                            match.ControllerAction.DefaultResponseCodec);
-                if (responseCodec == null)
+                if (responseCodec is null)
                 {
                     BadCodec(httpEntity, "Requested URI is not available in requested format");
                     return;
@@ -192,7 +192,7 @@ namespace EventStore.Core.Services.Transport.Http
         {
             if (string.IsNullOrEmpty(contentType))
             {
-                return supportedCodecs != null && 0u < (uint)supportedCodecs.Length ? null : Codec.NoCodec;
+                return supportedCodecs is object && 0u < (uint)supportedCodecs.Length ? null : Codec.NoCodec;
             }
             #region ## 苦竹 修改 ##
             if (_httpMethods.Contains(method))
@@ -219,18 +219,18 @@ namespace EventStore.Core.Services.Transport.Http
         private ICodec SelectResponseCodec(NameValueCollection query, string[] acceptTypes, ICodec[] supported, ICodec @default)
         {
             var requestedFormat = GetFormatOrDefault(query);
-            if (requestedFormat == null && acceptTypes.IsEmpty()) { return @default; }
+            if (requestedFormat is null && acceptTypes.IsEmpty()) { return @default; }
 
-            if (requestedFormat != null)
+            if (requestedFormat is object)
             {
                 return supported.FirstOrDefault(c => c.SuitableForResponse(MediaType.Parse(requestedFormat)));
             }
 
             return acceptTypes.Select(MediaType.TryParse)
-                              .Where(x => x != null)
+                              .Where(x => x is object)
                               .OrderByDescending(v => v.Priority)
                               .Select(type => supported.FirstOrDefault(codec => codec.SuitableForResponse(type)))
-                              .FirstOrDefault(corresponding => corresponding != null);
+                              .FirstOrDefault(corresponding => corresponding is object);
         }
 
         private static readonly Dictionary<string, string> _contentTypeMap =
@@ -246,8 +246,8 @@ namespace EventStore.Core.Services.Transport.Http
           };
         private string GetFormatOrDefault(NameValueCollection query)
         {
-            var format = (query != null && query.Count > 0) ? query.Get("format") : null;
-            if (format == null) return null;
+            var format = (query is object && query.Count > 0) ? query.Get("format") : null;
+            if (format is null) return null;
             if (_contentTypeMap.TryGetValue(format, out string ct))
             {
                 return ct;

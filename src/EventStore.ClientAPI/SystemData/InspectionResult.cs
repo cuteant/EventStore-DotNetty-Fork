@@ -14,11 +14,11 @@ namespace EventStore.ClientAPI.SystemData
         {
             if (decision == InspectionDecision.Reconnect)
             {
-                if (null == tcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
+                if (tcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
             }
             else
             {
-                if (tcpEndPoint != null) { CoreThrowHelper.ThrowArgumentException_TcpEndPointIsNotNullForDecision(decision); }
+                if (tcpEndPoint is object) { CoreThrowHelper.ThrowArgumentException_TcpEndPointIsNotNullForDecision(decision); }
             }
 
             Decision = decision;

@@ -16,10 +16,10 @@ namespace EventStore.Transport.Http.EntityManagement
                                      Action<HttpEntityManager, byte[]> onReadSuccess, 
                                      Action<Exception> onError)
         {
-            if (null == inputStream) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputStream); }
-            if (null == outputStream) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputStream); }
-            if (null == onReadSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (inputStream is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputStream); }
+            if (outputStream is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputStream); }
+            if (onReadSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             InputStream = inputStream;
             OutputStream = outputStream;

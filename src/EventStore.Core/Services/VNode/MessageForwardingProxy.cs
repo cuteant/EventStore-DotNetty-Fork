@@ -56,8 +56,8 @@ namespace EventStore.Core.Services.VNode
 
             public Forwarding(Guid clientCorrId, IEnvelope envelope, TimeSpan timeoutTimestamp, Message timeoutMessage)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
-                if (null == timeoutMessage) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeoutMessage); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (timeoutMessage is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeoutMessage); }
 
                 ClientCorrId = clientCorrId;
                 Envelope = envelope;

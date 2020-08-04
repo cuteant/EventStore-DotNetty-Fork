@@ -18,7 +18,7 @@ namespace System
         UriTemplateLiteralQueryValue(string value)
             : base(UriTemplatePartType.Literal)
         {
-            Fx.Assert(value != null, "bad literal value");
+            Fx.Assert(value is object, "bad literal value");
             this.value = value;
         }
         public static UriTemplateLiteralQueryValue CreateFromUriTemplate(string value)
@@ -47,7 +47,7 @@ namespace System
         public override bool Equals(object obj)
         {
             UriTemplateLiteralQueryValue lqv = obj as UriTemplateLiteralQueryValue;
-            if (lqv == null)
+            if (lqv is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;
@@ -64,7 +64,7 @@ namespace System
 
         public override bool IsEquivalentTo(UriTemplateQueryValue other)
         {
-            if (other == null)
+            if (other is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;
@@ -74,7 +74,7 @@ namespace System
                 return false;
             }
             UriTemplateLiteralQueryValue otherAsLiteral = other as UriTemplateLiteralQueryValue;
-            Fx.Assert(otherAsLiteral != null, "The nature requires that this will be OK");
+            Fx.Assert(otherAsLiteral is object, "The nature requires that this will be OK");
             return (CompareTo(otherAsLiteral) == 0);
         }
         public override void Lookup(string value, NameValueCollection boundParameters)

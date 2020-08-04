@@ -23,7 +23,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
         public SubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source,
@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
         public SubscriptionOperation2(TaskCompletionSource<EventStoreSubscription> source,
@@ -69,7 +69,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -96,7 +96,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             var msg = (StartSubscriptionMessage<TEvent>)msgWrapper.Message;
 
-            return msg.EventAppeared != null
+            return msg.EventAppeared is object
                  ? new SubscriptionOperation<TEvent>(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
                                                      msg.EventAppeared, msg.SubscriptionDropped, connection, eventAdapter)
                  : new SubscriptionOperation<TEvent>(msg.Source, msg.StreamId, msg.Settings, msg.UserCredentials,
@@ -114,7 +114,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppeared, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
         public SubscriptionOperation(TaskCompletionSource<EventStoreSubscription> source,
@@ -124,7 +124,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -199,7 +199,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             var dto = new TcpClientMessageDto.SubscribeToStream(_streamId, _resolveLinkTos);
             return new TcpPackage(
-                TcpCommand.SubscribeToStream, _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
+                TcpCommand.SubscribeToStream, _userCredentials is object ? TcpFlags.Authenticated : TcpFlags.None,
                 _correlationId, _userCredentials?.Username, _userCredentials?.Password, dto.Serialize());
         }
 

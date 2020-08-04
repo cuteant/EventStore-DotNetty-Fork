@@ -21,7 +21,7 @@ namespace System
         UriTemplateLiteralPathSegment(string segment)
             : base(segment, UriTemplatePartType.Literal, segment.EndsWith("/", StringComparison.Ordinal))
         {
-            Fx.Assert(segment != null, "bad literal segment");
+            Fx.Assert(segment is object, "bad literal segment");
             if (this.EndsWithSlash)
             {
                 this.segment = segment.Remove(segment.Length - 1);
@@ -68,7 +68,7 @@ namespace System
 
         public string AsUnescapedString()
         {
-            Fx.Assert(this.segment != null, "this should only be called by Bind\\Lookup");
+            Fx.Assert(this.segment is object, "this should only be called by Bind\\Lookup");
             return Uri.UnescapeDataString(this.segment);
         }
         public override void Bind(string[] values, ref int valueIndex, StringBuilder path)
@@ -91,7 +91,7 @@ namespace System
         public override bool Equals(object obj)
         {
             UriTemplateLiteralPathSegment lps = obj as UriTemplateLiteralPathSegment;
-            if (lps == null)
+            if (lps is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;
@@ -109,7 +109,7 @@ namespace System
 
         public override bool IsEquivalentTo(UriTemplatePathSegment other, bool ignoreTrailingSlash)
         {
-            if (other == null)
+            if (other is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;
@@ -119,7 +119,7 @@ namespace System
                 return false;
             }
             UriTemplateLiteralPathSegment otherAsLiteral = other as UriTemplateLiteralPathSegment;
-            Fx.Assert(otherAsLiteral != null, "The nature requires that this will be OK");
+            Fx.Assert(otherAsLiteral is object, "The nature requires that this will be OK");
             return IsMatch(otherAsLiteral, ignoreTrailingSlash);
         }
         public override bool IsMatch(UriTemplateLiteralPathSegment segment, bool ignoreTrailingSlash)

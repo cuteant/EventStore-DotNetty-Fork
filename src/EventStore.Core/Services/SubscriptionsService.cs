@@ -50,9 +50,9 @@ namespace EventStore.Core.Services
 
         public SubscriptionsService(IPublisher bus, IQueuedHandler queuedHandler, IReadIndex readIndex)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == queuedHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
-            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (queuedHandler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
+            if (readIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
 
             _bus = bus;
             _busEnvelope = new PublishEnvelope(bus);
@@ -90,13 +90,13 @@ namespace EventStore.Core.Services
                 subscriptions.RemoveAll(x => x.ConnectionId == message.Connection.ConnectionId);
                 if (0u >= (uint)subscriptions.Count) // schedule removal of list instance
                 {
-                    if (subscriptionGroupsToRemove == null)
+                    if (subscriptionGroupsToRemove is null)
                         subscriptionGroupsToRemove = new List<string>();
                     subscriptionGroupsToRemove.Add(subscriptionGroup.Key);
                 }
             }
 
-            if (subscriptionGroupsToRemove != null)
+            if (subscriptionGroupsToRemove is object)
             {
                 for (int i = 0, n = subscriptionGroupsToRemove.Count; i < n; ++i)
                 {
@@ -222,13 +222,13 @@ namespace EventStore.Core.Services
 
                         if (0u >= (uint)pollTopic.Count) // schedule removal of list instance
                         {
-                            if (pollTopicsToRemove == null) { pollTopicsToRemove = new List<string>(); }
+                            if (pollTopicsToRemove is null) { pollTopicsToRemove = new List<string>(); }
                             pollTopicsToRemove.Add(pollTopicKeyVal.Key);
                         }
                     }
                 }
             }
-            if (pollTopicsToRemove != null)
+            if (pollTopicsToRemove is object)
             {
                 for (int i = 0, n = pollTopicsToRemove.Count; i < n; ++i)
                 {
@@ -332,7 +332,7 @@ namespace EventStore.Core.Services
                 {
                     if (commitPosition <= poller.LastCommitPosition || eventNumber <= poller.LastEventNumber)
                     {
-                        if (survivors == null) { survivors = new List<PollSubscription>(); }
+                        if (survivors is null) { survivors = new List<PollSubscription>(); }
                         survivors.Add(poller);
                     }
                     else
@@ -341,7 +341,7 @@ namespace EventStore.Core.Services
                     }
                 }
                 _pollTopics.Remove(streamId);
-                if (survivors != null) { _pollTopics.Add(streamId, survivors); }
+                if (survivors is object) { _pollTopics.Add(streamId, survivors); }
             }
         }
 

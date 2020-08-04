@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static FeedElement ToStreamEventForwardFeed(ClientMessage.ReadStreamEventsForwardCompleted msg, Uri requestedUrl, EmbedLevel embedContent)
         {
-            if (null == msg) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
+            if (msg is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
 
             var msgEvents = msg.Events;
             string escapedStreamId = Uri.EscapeDataString(msg.EventStreamId);
@@ -32,7 +32,7 @@ namespace EventStore.Core.Services.Transport.Http
             feed.StreamId = msg.EventStreamId;
             feed.SetId(self);
             var zeroIdx = 0;
-            feed.SetUpdated((uint)zeroIdx < (uint)msgEvents.Length && msgEvents[zeroIdx].Event != null ? msgEvents[zeroIdx].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            feed.SetUpdated((uint)zeroIdx < (uint)msgEvents.Length && msgEvents[zeroIdx].Event is object ? msgEvents[zeroIdx].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
             feed.SetHeadOfStream(msg.IsEndOfStream);
 
@@ -60,7 +60,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static FeedElement ToStreamEventBackwardFeed(ClientMessage.ReadStreamEventsBackwardCompleted msg, Uri requestedUrl, EmbedLevel embedContent, bool headOfStream)
         {
-            if (null == msg) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
+            if (msg is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.msg); }
 
             string escapedStreamId = Uri.EscapeDataString(msg.EventStreamId);
             var self = HostName.Combine(requestedUrl, "/streams/{0}", escapedStreamId);
@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.Transport.Http
             feed.SetTitle(string.Format("Event stream '{0}'", msg.EventStreamId));
             feed.StreamId = msg.EventStreamId;
             feed.SetId(self);
-            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event != null ? msg.Events[0].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event is object ? msg.Events[0].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
             feed.SetHeadOfStream(headOfStream); //TODO AN: remove this ?
             feed.SetSelfUrl(self);
@@ -103,7 +103,7 @@ namespace EventStore.Core.Services.Transport.Http
             var feed = new FeedElement();
             feed.SetTitle("All events");
             feed.SetId(self);
-            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event != null ? msg.Events[msg.Events.Length - 1].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event is object ? msg.Events[msg.Events.Length - 1].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
 
             feed.AddLink("self", self);
@@ -129,7 +129,7 @@ namespace EventStore.Core.Services.Transport.Http
             var feed = new FeedElement();
             feed.SetTitle(string.Format("All events"));
             feed.SetId(self);
-            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event != null ? msg.Events[0].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event is object ? msg.Events[0].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
 
             feed.AddLink("self", self);
@@ -156,10 +156,10 @@ namespace EventStore.Core.Services.Transport.Http
             var feed = new FeedElement();
             feed.SetTitle(string.Format("Messages for '{0}/{1}'", streamId, groupName));
             feed.SetId(self);
-            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event != null ? msg.Events[msg.Events.Length - 1].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
+            feed.SetUpdated(msg.Events.Length > 0 && msg.Events[0].Event is object ? msg.Events[msg.Events.Length - 1].Event.TimeStamp : DateTime.MinValue.ToUniversalTime());
             feed.SetAuthor(AtomSpecs.Author);
 
-            if (msg.Events != null && msg.Events.Length > 0)
+            if (msg.Events is object && msg.Events.Length > 0)
             {
                 var ackAllQueryString = String.Format("?ids={0}", String.Join(",", msg.Events.Select(x => x.OriginalEvent.EventId)));
                 var ackAll = HostName.Combine(requestedUrl, "/subscriptions/{0}/{1}/ack", escapedStreamId, escapedGroupName) + ackAllQueryString;
@@ -200,7 +200,7 @@ namespace EventStore.Core.Services.Transport.Http
                                     Codec.EventStoreXmlCodec.ContentType,
                                     Codec.EventStoreJsonCodec.ContentType);
 
-            if (subscriptions != null)
+            if (subscriptions is object)
             {
                 foreach (var group in subscriptions)
                 {
@@ -214,13 +214,13 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static EntryElement ToEntry(in ResolvedEvent eventLinkPair, Uri requestedUrl, EmbedLevel embedContent, bool singleEntry = false)
         {
-            if (requestedUrl == null)
+            if (requestedUrl is null)
                 return null;
 
             var evnt = eventLinkPair.Event;
             var link = eventLinkPair.Link;
             EntryElement entry;
-            if (embedContent > EmbedLevel.Content && evnt != null)
+            if (embedContent > EmbedLevel.Content && evnt is object)
             {
                 var richEntry = new RichEntryElement();
                 entry = richEntry;
@@ -232,7 +232,7 @@ namespace EventStore.Core.Services.Transport.Http
                 richEntry.PositionEventNumber = eventLinkPair.OriginalEvent.EventNumber;
                 richEntry.PositionStreamId = eventLinkPair.OriginalEvent.EventStreamId;
                 richEntry.IsJson = (evnt.Flags & PrepareFlags.IsJson) != 0;
-                if (embedContent >= EmbedLevel.Body && eventLinkPair.Event != null)
+                if (embedContent >= EmbedLevel.Body && eventLinkPair.Event is object)
                 {
                     if (richEntry.IsJson)
                     {
@@ -289,7 +289,7 @@ namespace EventStore.Core.Services.Transport.Http
                             // ignore - we tried
                         }
                         var lnk = eventLinkPair.Link;
-                        if (lnk != null)
+                        if (lnk is object)
                         {
                             try
                             {
@@ -313,14 +313,14 @@ namespace EventStore.Core.Services.Transport.Http
             {
                 entry = new EntryElement();
             }
-            if (evnt != null && link == null)
+            if (evnt is object && link is null)
             {
                 SetEntryProperties(evnt.EventStreamId, evnt.EventNumber, evnt.TimeStamp, requestedUrl, entry);
                 entry.SetSummary(evnt.EventType);
                 if ((singleEntry || embedContent == EmbedLevel.Content) && ((evnt.Flags & PrepareFlags.IsJson) != 0))
                     entry.SetContent(AutoEventConverter.CreateDataDto(eventLinkPair));
             }
-            else if (link != null)
+            else if (link is object)
             {
                 var eventLoc = GetLinkData(Encoding.UTF8.GetString(link.Data));
                 SetEntryProperties(eventLoc.Item1, eventLoc.Item2, link.TimeStamp, requestedUrl, entry);
@@ -331,8 +331,8 @@ namespace EventStore.Core.Services.Transport.Http
 
         private static Tuple<string, long> GetLinkData(string link)
         {
-            if (null == link) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.link); }
-            var loc = link.IndexOf("@", StringComparison.Ordinal);
+            if (link is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.link); }
+            var loc = link.IndexOf('@');
             if (loc == -1) throw new Exception(String.Format("Unable to parse link {0}", link));
             var position = long.Parse(link.Substring(0, loc));
             var stream = link.Substring(loc + 1, link.Length - loc - 1);
@@ -406,7 +406,7 @@ namespace EventStore.Core.Services.Transport.Http
         }
         public void AddStreamSubscription(string href, params string[] supportedContentTypes)
         {
-            if (Links.StreamSubscription == null) Links.StreamSubscription = new List<Link>();
+            if (Links.StreamSubscription is null) Links.StreamSubscription = new List<Link>();
 
             Links.StreamSubscription.Add(new Link(href, supportedContentTypes));
         }

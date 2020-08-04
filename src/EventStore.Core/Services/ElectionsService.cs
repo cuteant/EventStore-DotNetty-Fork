@@ -76,13 +76,13 @@ namespace EventStore.Core.Services
                                 Func<long> getLastCommitPosition,
                                 int nodePriority)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (nodeInfo is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
             if ((uint)(clusterSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
-            if (null == getLastCommitPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (chaserCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (getLastCommitPosition is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
 
             _publisher = publisher;
             _nodeInfo = nodeInfo;
@@ -150,7 +150,9 @@ namespace EventStore.Core.Services
             if (_state == ElectionsState.Shutdown) return;
             if (_state == ElectionsState.ElectingLeader) return;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Elections_starting_elections();
+#endif
             ShiftToLeaderElection(_lastAttemptedView + 1);
         }
 
@@ -159,15 +161,19 @@ namespace EventStore.Core.Services
             if (_state == ElectionsState.Shutdown) return;
             if (message.View != _lastAttemptedView) return;
             // we are still on the same view, but we selected master
-            if (_state != ElectionsState.ElectingLeader && _master != null) return;
+            if (_state != ElectionsState.ElectingLeader && _master is object) return;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Elections_timed_out(message.View, _state, _master);
+#endif
             ShiftToLeaderElection(_lastAttemptedView + 1);
         }
 
         private void ShiftToLeaderElection(int view)
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Elections_shift_to_leader_election(view);
+#endif
 
             _state = ElectionsState.ElectingLeader;
             _vcReceived.Clear();
@@ -201,7 +207,9 @@ namespace EventStore.Core.Services
 
             if (message.AttemptedView <= _lastInstalledView) return;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Elections_viewchange_from(message);
+#endif
 
             if (message.AttemptedView > _lastAttemptedView)
             {
@@ -210,7 +218,9 @@ namespace EventStore.Core.Services
 
             if (_vcReceived.Add(message.ServerId) && _vcReceived.Count == _clusterSize / 2 + 1)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) Log.ElectionsMajority_of_viewchange(message.AttemptedView);
+#endif
                 if (AmILeaderOf(_lastAttemptedView)) { ShiftToPreparePhase(); }
             }
         }
@@ -241,13 +251,17 @@ namespace EventStore.Core.Services
 
             if (AmILeaderOf(_lastAttemptedView))
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) { Log.ElectionsViewchangeproof_From_jumping_to_lead1er_state(message); }
+#endif
 
                 ShiftToPreparePhase();
             }
             else
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) { Log.ElectionsViewchangeproof_From_jumping_to_non_leader_state(message); }
+#endif
 
                 ShiftToRegNonLeader();
             }
@@ -261,7 +275,9 @@ namespace EventStore.Core.Services
 
         private void ShiftToPreparePhase()
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToPreparePhase(_lastAttemptedView);
+#endif
 
             _lastInstalledView = _lastAttemptedView;
             _prepareOkReceived.Clear();
@@ -277,7 +293,9 @@ namespace EventStore.Core.Services
             if (message.View != _lastAttemptedView) return;
             if (_servers.All(x => x.InstanceId != message.ServerId)) return; // unknown instance
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.ElectionsPrepareFrom(_lastAttemptedView, message);
+#endif
 
             if (_state == ElectionsState.ElectingLeader) // install the view
             {
@@ -299,7 +317,9 @@ namespace EventStore.Core.Services
 
         private void ShiftToRegNonLeader()
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToReg_Nonleader(_lastAttemptedView);
+#endif
 
             _state = ElectionsState.NonLeader;
             _lastInstalledView = _lastAttemptedView;
@@ -311,7 +331,9 @@ namespace EventStore.Core.Services
             if (_state != ElectionsState.ElectingLeader) return;
             if (msg.View != _lastAttemptedView) return;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) { Log.ElectionsPrepare_okFrom(msg); }
+#endif
 
             if (!_prepareOkReceived.ContainsKey(msg.ServerId))
             {
@@ -325,7 +347,9 @@ namespace EventStore.Core.Services
 
         private void ShiftToRegLeader()
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.ElectionsShiftToRegLeader(_lastAttemptedView);
+#endif
 
             _state = ElectionsState.Leader;
             SendProposal();
@@ -337,18 +361,22 @@ namespace EventStore.Core.Services
             _masterProposal = null;
 
             var master = GetBestMasterCandidate();
-            if (master == null)
+            if (master is null)
             {
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.NomasterCandidateWhenTryingToSendProposal(_lastAttemptedView);
+#endif
                 return;
             }
 
             _masterProposal = master;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled())
             {
                 Log.ElectionsSendingProposalCandidate(_lastAttemptedView, master, this);
             }
+#endif
 
             var proposal = new ElectionMessage.Proposal(_nodeInfo.InstanceId, _nodeInfo.InternalHttp,
                                                         master.InstanceId, master.InternalHttp,
@@ -373,7 +401,7 @@ namespace EventStore.Core.Services
 
                 }
                 var master = _servers.FirstOrDefault(x => x.IsAlive && x.InstanceId == _lastElectedMaster && x.State == VNodeState.Master);
-                if (master != null)
+                if (master is object)
                 {
                     return new MasterCandidate(master.InstanceId, master.InternalHttpEndPoint,
                                                master.EpochNumber, master.EpochPosition, master.EpochId,
@@ -389,7 +417,7 @@ namespace EventStore.Core.Services
                                          .ThenByDescending(x => x.ChaserCheckpoint)
                                          .ThenByDescending(x => x.ServerId)
                                          .FirstOrDefault();
-            if (best == null) return null;
+            if (best is null) return null;
             return new MasterCandidate(best.ServerId, best.ServerInternalHttp,
                                        best.EpochNumber, best.EpochPosition, best.EpochId,
                                        best.LastCommitPosition, best.WriterCheckpoint, best.ChaserCheckpoint, best.NodePriority);
@@ -399,7 +427,7 @@ namespace EventStore.Core.Services
                                         MasterCandidate candidate)
         {
             var master = _servers.FirstOrDefault(x => x.IsAlive && x.InstanceId == _lastElectedMaster && x.State == VNodeState.Master);
-            if (master != null)
+            if (master is object)
             {
                 if (candidate.InstanceId == master.InstanceId
                     || candidate.EpochNumber > master.EpochNumber
@@ -408,10 +436,12 @@ namespace EventStore.Core.Services
                     return true;
                 }
 
+#if DEBUG
                 if (Log.IsDebugLevelEnabled())
                 {
                     Log.ElectionsNotLegitimateMasterProposalFrom(view, proposingServerEndPoint, proposingServerId, candidate, master);
                 }
+#endif
 
                 return false;
             }
@@ -421,10 +451,12 @@ namespace EventStore.Core.Services
             var ownInfo = GetOwnInfo();
             if (!IsCandidateGoodEnough(candidate, ownInfo))
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled())
                 {
                     Log.ElectionsNotLegitimateMasterProposalFrom(view, proposingServerEndPoint, proposingServerId, candidate, ownInfo);
                 }
+#endif
 
                 return false;
             }
@@ -461,12 +493,14 @@ namespace EventStore.Core.Services
                 return;
             }
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled())
             {
                 Log.ElectionsProposalFrom(_lastAttemptedView, message, candidate, this);
             }
+#endif
 
-            if (_masterProposal == null)
+            if (_masterProposal is null)
             {
                 _masterProposal = candidate;
                 _acceptsReceived.Clear();
@@ -488,15 +522,17 @@ namespace EventStore.Core.Services
         {
             if (_state == ElectionsState.Shutdown) return;
             if (message.View != _lastInstalledView) return;
-            if (_masterProposal == null) return;
+            if (_masterProposal is null) return;
             if (_masterProposal.InstanceId != message.MasterId) return;
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) { Log.ElectionsAcceptFrom(message); }
+#endif
 
             if (_acceptsReceived.Add(message.ServerId) && _acceptsReceived.Count == _clusterSize / 2 + 1)
             {
                 var master = _servers.FirstOrDefault(x => x.InstanceId == _masterProposal.InstanceId);
-                if (master != null)
+                if (master is object)
                 {
                     _master = _masterProposal.InstanceId;
                     if (Log.IsInformationLevelEnabled()) { Log.Elections_done_elected_master(message.View, _masterProposal, this); }
@@ -513,9 +549,9 @@ namespace EventStore.Core.Services
             var chaserCheckpoint = _chaserCheckpoint.Read();
             var lastCommitPosition = _getLastCommitPosition();
             return new MasterCandidate(_nodeInfo.InstanceId, _nodeInfo.InternalHttp,
-                                       lastEpoch == null ? -1 : lastEpoch.EpochNumber,
-                                       lastEpoch == null ? -1 : lastEpoch.EpochPosition,
-                                       lastEpoch == null ? Guid.Empty : lastEpoch.EpochId,
+                                       lastEpoch is null ? -1 : lastEpoch.EpochNumber,
+                                       lastEpoch is null ? -1 : lastEpoch.EpochPosition,
+                                       lastEpoch is null ? Guid.Empty : lastEpoch.EpochId,
                                        lastCommitPosition, writerCheckpoint, chaserCheckpoint, _nodePriority);
         }
 

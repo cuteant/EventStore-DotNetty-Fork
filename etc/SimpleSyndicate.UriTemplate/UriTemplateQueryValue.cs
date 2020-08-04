@@ -40,7 +40,7 @@ namespace System
         public static UriTemplateQueryValue CreateFromUriTemplate(string value, UriTemplate template)
         {
             // Checking for empty value
-            if (value == null)
+            if (value is null)
             {
                 return UriTemplateQueryValue.Empty;
             }
@@ -65,7 +65,7 @@ namespace System
 
         public static bool IsNullOrEmpty(UriTemplateQueryValue utqv)
         {
-            if (utqv == null)
+            if (utqv is null)
             {
                 return true;
             }

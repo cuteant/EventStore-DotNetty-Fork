@@ -24,13 +24,13 @@ namespace EventStore.Core.DataStructures
 
         public PairingHeap(IComparer<T> comparer): this(null, comparer)
         {
-            if (comparer == null)
+            if (comparer is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.comparer);
         }
 
         public PairingHeap(Func<T, T, bool> compare): this(null, compare)
         {
-            if (compare == null)
+            if (compare is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.compare);
         }
 
@@ -40,7 +40,7 @@ namespace EventStore.Core.DataStructures
 
         public PairingHeap(IEnumerable<T> items, Func<T, T, bool> compare)
         {
-            if (compare == null)
+            if (compare is null)
             {
                 var comparer = Comparer<T>.Default;
                 _compare = (x, y) => comparer.Compare(x, y) < 0;
@@ -50,7 +50,7 @@ namespace EventStore.Core.DataStructures
                 _compare = compare;
             }
 
-            if (items != null)
+            if (items is object)
             {
                 foreach (var item in items)
                 {
@@ -64,7 +64,7 @@ namespace EventStore.Core.DataStructures
             var comp = comparer ?? Comparer<T>.Default;
             _compare = (x, y) => comp.Compare(x, y) < 0;
 
-            if (items != null)
+            if (items is object)
             {
                 foreach (var item in items)
                 {
@@ -111,9 +111,9 @@ namespace EventStore.Core.DataStructures
 
         private HeapNode Meld(HeapNode heap1, HeapNode heap2)
         {
-            if (heap1 == null)
+            if (heap1 is null)
                 return heap2;
-            if (heap2 == null)
+            if (heap2 is null)
                 return heap1;
 
             if (_compare(heap1.Item, heap2.Item))
@@ -135,7 +135,7 @@ namespace EventStore.Core.DataStructures
             HeapNode tail = null;
             HeapNode cur = node;
 
-            while (cur != null && cur.Next != null)
+            while (cur is object && cur.Next is object)
             {
                 var n1 = cur;
                 var n2 = cur.Next;
@@ -146,7 +146,7 @@ namespace EventStore.Core.DataStructures
                 tail = n2;
             }
 
-            while (tail != null)
+            while (tail is object)
             {
                 var n = tail;
                 tail = tail.Next.Next;
@@ -175,7 +175,7 @@ namespace EventStore.Core.DataStructures
             {
                 if ((uint)count > Consts.TooBigOrNegative)
                     ThrowHelper.ThrowArgumentOutOfRangeException();
-                if (creator == null)
+                if (creator is null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.creator);
 
                 _count = count;

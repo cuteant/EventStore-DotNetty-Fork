@@ -55,8 +55,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.ViewChange message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/viewchange"),
                         Codec.Json.To(new ElectionMessageDto.ViewChangeDto(message)),
@@ -67,8 +67,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.ViewChangeProof message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/viewchangeproof"),
                         Codec.Json.To(new ElectionMessageDto.ViewChangeProofDto(message)),
@@ -79,8 +79,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.Prepare message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/prepare"),
                         Codec.Json.To(new ElectionMessageDto.PrepareDto(message)),
@@ -91,8 +91,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.PrepareOk message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/prepareok"),
                         Codec.Json.To(new ElectionMessageDto.PrepareOkDto(message)),
@@ -103,8 +103,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.Proposal message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/proposal"),
                         Codec.Json.To(new ElectionMessageDto.ProposalDto(message)),
@@ -115,8 +115,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(ElectionMessage.Accept message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _client.Post(endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/elections/accept"),
                         Codec.Json.To(new ElectionMessageDto.AcceptDto(message)),
@@ -132,7 +132,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             manager.AsyncState = new PostState(body =>
             {
                 var dto = manager.RequestCodec.From<TDto>(body);
-                return dto != null ? unwrapper(dto) : null;
+                return dto is object ? unwrapper(dto) : null;
             });
             manager.ReadTextRequestAsync(
                 OnPostRequestRead,
@@ -144,7 +144,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var state = (PostState)manager.AsyncState;
             var message = state.Unwrapper(body);
 
-            if (message != null)
+            if (message is object)
             {
                 Publish(message);
                 SendOk(manager);
@@ -191,7 +191,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
             public PostState(Func<string, Message> unwrapper)
             {
-                if (unwrapper == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.unwrapper); }
+                if (unwrapper is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.unwrapper); }
                 Unwrapper = unwrapper;
             }
         }

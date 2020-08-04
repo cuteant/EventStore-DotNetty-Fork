@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.v8
                         errorMessage = message;
                     };
             Js1.ReportErrors(scriptHandle, _reportErrorCallback);
-            if (errorCode != null)
+            if (errorCode is object)
             {
                 if (disposeScriptOnException)
                 {

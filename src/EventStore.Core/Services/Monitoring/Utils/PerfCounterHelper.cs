@@ -48,7 +48,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
 
             var processInstanceName = GetProcessInstanceName(ProcessCategory, ProcessIdCounterName);
 
-            if (processInstanceName != null)
+            if (processInstanceName is object)
             {
                 _procCpuCounter = CreatePerfCounter(ProcessCategory, "% Processor Time", processInstanceName);
                 _procThreadsCounter = CreatePerfCounter(ProcessCategory, "Thread Count", processInstanceName);
@@ -56,7 +56,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
 
             var netInstanceName = GetProcessInstanceName(DotNetMemoryCategory, DotNetProcessIdCounterName);
 
-            if (netInstanceName != null)
+            if (netInstanceName is object)
             {
                 _thrownExceptionsRateCounter =
                     CreatePerfCounter(".NET CLR Exceptions", "# of Exceps Thrown / sec", netInstanceName);
@@ -111,7 +111,7 @@ namespace EventStore.Core.Services.Monitoring.Utils
                     {
                         var instanceDataCollection = category[counterName];
 
-                        if (instanceDataCollection.Values != null)
+                        if (instanceDataCollection.Values is object)
                         {
                             foreach (InstanceData item in instanceDataCollection.Values)
 
@@ -151,36 +151,36 @@ namespace EventStore.Core.Services.Monitoring.Utils
                 return;
             }
 
-            if (_procCpuCounter != null)
+            if (_procCpuCounter is object)
             {
                 var processInstanceName = GetProcessInstanceName(ProcessCategory, ProcessIdCounterName);
 
-                if (processInstanceName != null)
+                if (processInstanceName is object)
                 {
-                    if (_procCpuCounter != null) _procCpuCounter.InstanceName = processInstanceName;
-                    if (_procThreadsCounter != null) _procThreadsCounter.InstanceName = processInstanceName;
+                    if (_procCpuCounter is object) _procCpuCounter.InstanceName = processInstanceName;
+                    if (_procThreadsCounter is object) _procThreadsCounter.InstanceName = processInstanceName;
                 }
             }
 
-            if (_gcLargeHeapSizeCounter != null)
+            if (_gcLargeHeapSizeCounter is object)
             {
                 var netInstanceName = GetProcessInstanceName(DotNetMemoryCategory, DotNetProcessIdCounterName);
 
-                if (netInstanceName != null)
+                if (netInstanceName is object)
                 {
-                    if (_thrownExceptionsRateCounter != null)
+                    if (_thrownExceptionsRateCounter is object)
                         _thrownExceptionsRateCounter.InstanceName = netInstanceName;
-                    if (_contentionsRateCounter != null) _contentionsRateCounter.InstanceName = netInstanceName;
-                    if (_gcGen0ItemsCounter != null) _gcGen0ItemsCounter.InstanceName = netInstanceName;
-                    if (_gcGen1ItemsCounter != null) _gcGen1ItemsCounter.InstanceName = netInstanceName;
-                    if (_gcGen2ItemsCounter != null) _gcGen2ItemsCounter.InstanceName = netInstanceName;
-                    if (_gcGen0SizeCounter != null) _gcGen0SizeCounter.InstanceName = netInstanceName;
-                    if (_gcGen1SizeCounter != null) _gcGen1SizeCounter.InstanceName = netInstanceName;
-                    if (_gcGen2SizeCounter != null) _gcGen2SizeCounter.InstanceName = netInstanceName;
-                    if (_gcLargeHeapSizeCounter != null) _gcLargeHeapSizeCounter.InstanceName = netInstanceName;
-                    if (_gcAllocationSpeedCounter != null) _gcAllocationSpeedCounter.InstanceName = netInstanceName;
-                    if (_gcTimeInGcCounter != null) _gcTimeInGcCounter.InstanceName = netInstanceName;
-                    if (_gcTotalBytesInHeapsCounter != null) _gcTotalBytesInHeapsCounter.InstanceName = netInstanceName;
+                    if (_contentionsRateCounter is object) _contentionsRateCounter.InstanceName = netInstanceName;
+                    if (_gcGen0ItemsCounter is object) _gcGen0ItemsCounter.InstanceName = netInstanceName;
+                    if (_gcGen1ItemsCounter is object) _gcGen1ItemsCounter.InstanceName = netInstanceName;
+                    if (_gcGen2ItemsCounter is object) _gcGen2ItemsCounter.InstanceName = netInstanceName;
+                    if (_gcGen0SizeCounter is object) _gcGen0SizeCounter.InstanceName = netInstanceName;
+                    if (_gcGen1SizeCounter is object) _gcGen1SizeCounter.InstanceName = netInstanceName;
+                    if (_gcGen2SizeCounter is object) _gcGen2SizeCounter.InstanceName = netInstanceName;
+                    if (_gcLargeHeapSizeCounter is object) _gcLargeHeapSizeCounter.InstanceName = netInstanceName;
+                    if (_gcAllocationSpeedCounter is object) _gcAllocationSpeedCounter.InstanceName = netInstanceName;
+                    if (_gcTimeInGcCounter is object) _gcTimeInGcCounter.InstanceName = netInstanceName;
+                    if (_gcTotalBytesInHeapsCounter is object) _gcTotalBytesInHeapsCounter.InstanceName = netInstanceName;
                 }
             }
         }

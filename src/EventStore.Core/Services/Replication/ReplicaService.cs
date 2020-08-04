@@ -61,12 +61,12 @@ namespace EventStore.Core.Services.Replication
                                 TimeSpan heartbeatInterval)
             : base(settings, useSsl, sslTargetHost, sslValidateServer)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
-            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
-            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
-            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (networkSendQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (authProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (nodeInfo is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
 
             _tcpDispatcher = new InternalTcpDispatcher(); _tcpDispatcher.Build();
 
@@ -120,7 +120,7 @@ namespace EventStore.Core.Services.Replication
 
         private void Disconnect()
         {
-            if (_connection != null)
+            if (_connection is object)
             {
                 _connection.Stop($"Node state changed to {_state}. Closing replication connection.");
                 _connection = null;
@@ -148,7 +148,7 @@ namespace EventStore.Core.Services.Replication
 
             var masterEndPoint = GetMasterEndPoint(master, _useSsl);
 
-            if (_connection != null)
+            if (_connection is object)
             {
                 _connection.Stop($"Reconnecting from old master [{_connection.RemoteEndPoint}] to new master: [{masterEndPoint}].");
             }
@@ -182,8 +182,8 @@ namespace EventStore.Core.Services.Replication
 
         private static IPEndPoint GetMasterEndPoint(VNodeInfo master, bool useSsl)
         {
-            if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
-            if (useSsl && master.InternalSecureTcp == null)
+            if (master is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
+            if (useSsl && master.InternalSecureTcp is null)
             {
                 Log.InternalSecureConnectionsAreRequired(master);
             }
@@ -207,7 +207,7 @@ namespace EventStore.Core.Services.Replication
             }
 
             var chunk = _db.Manager.GetChunkFor(logPosition);
-            if (chunk == null) ThrowHelper.ThrowException_ChunkWasNullDuringSubscribing(logPosition);
+            if (chunk is null) ThrowHelper.ThrowException_ChunkWasNullDuringSubscribing(logPosition);
             SendTcpMessage(_connection,
                            new ReplicationMessage.SubscribeReplica(
                                    logPosition, chunk.ChunkHeader.ChunkId, epochs, _nodeInfo.InternalTcp,
@@ -217,7 +217,7 @@ namespace EventStore.Core.Services.Replication
         public void Handle(ReplicationMessage.AckLogPosition message)
         {
             if (!_state.IsReplica()) ThrowHelper.ThrowException(ExceptionResource.StateIsNotReplica);
-            if (_connection == null) ThrowHelper.ThrowException(ExceptionResource.ConnectionIsNull);
+            if (_connection is null) ThrowHelper.ThrowException(ExceptionResource.ConnectionIsNull);
             SendTcpMessage(_connection, message);
         }
 
@@ -225,7 +225,7 @@ namespace EventStore.Core.Services.Replication
         {
             if (_state == VNodeState.Slave)
             {
-                Debug.Assert(_connection != null, "_connection == null");
+                Debug.Assert(_connection is object, "_connection is null");
                 SendTcpMessage(_connection, message);
             }
         }
@@ -234,7 +234,7 @@ namespace EventStore.Core.Services.Replication
         {
             if (_state == VNodeState.Slave)
             {
-                Debug.Assert(_connection != null, "_connection == null");
+                Debug.Assert(_connection is object, "_connection is null");
                 SendTcpMessage(_connection, message);
             }
         }
@@ -245,7 +245,7 @@ namespace EventStore.Core.Services.Replication
             {
                 case VNodeState.PreReplica:
                     {
-                        if (_connection != null)
+                        if (_connection is object)
                         {
                             SendTcpMessage(_connection, message.Message);
                         }
@@ -257,7 +257,7 @@ namespace EventStore.Core.Services.Replication
                 case VNodeState.Clone:
                 case VNodeState.Slave:
                     {
-                        Debug.Assert(_connection != null, "Connection manager is null in slave/clone/catching up state");
+                        Debug.Assert(_connection is object, "Connection manager is null in slave/clone/catching up state");
                         SendTcpMessage(_connection, message.Message);
                         break;
                     }

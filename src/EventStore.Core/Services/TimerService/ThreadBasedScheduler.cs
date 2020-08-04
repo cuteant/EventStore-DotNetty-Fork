@@ -26,7 +26,7 @@ namespace EventStore.Core.Services.TimerService
 
         public ThreadBasedScheduler(ITimeProvider timeProvider)
         {
-            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
+            if (timeProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
             _timeProvider = timeProvider;
 
             _timerThread = new Thread(DoTiming);

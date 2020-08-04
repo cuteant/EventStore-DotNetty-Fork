@@ -61,7 +61,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1) => handler(_, arg1));
             _state = State.MatchAnyAdded;
             return true;
@@ -130,7 +130,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2) => handler(_, arg1, arg2));
             _state = State.MatchAnyAdded;
             return true;
@@ -203,7 +203,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3) => handler(_, arg1, arg2, arg3));
             _state = State.MatchAnyAdded;
             return true;
@@ -280,7 +280,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4) => handler(_, arg1, arg2, arg3, arg4));
             _state = State.MatchAnyAdded;
             return true;
@@ -361,7 +361,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5) => handler(_, arg1, arg2, arg3, arg4, arg5));
             _state = State.MatchAnyAdded;
             return true;
@@ -446,7 +446,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5, arg6) => handler(_, arg1, arg2, arg3, arg4, arg5, arg6));
             _state = State.MatchAnyAdded;
             return true;
@@ -535,7 +535,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5, arg6, arg7) => handler(_, arg1, arg2, arg3, arg4, arg5, arg6, arg7));
             _state = State.MatchAnyAdded;
             return true;
@@ -628,7 +628,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) => handler(_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8));
             _state = State.MatchAnyAdded;
             return true;
@@ -725,7 +725,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) => handler(_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9));
             _state = State.MatchAnyAdded;
             return true;
@@ -826,7 +826,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TArg9, TArg10> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: (_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) => handler(_, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10));
             _state = State.MatchAnyAdded;
             return true;

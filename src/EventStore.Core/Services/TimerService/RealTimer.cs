@@ -15,7 +15,7 @@ namespace EventStore.Core.Services.TimerService
 
         private void InvokeCallback(object state)
         {
-            if (_callback != null)
+            if (_callback is object)
                 _callback();
         }
 

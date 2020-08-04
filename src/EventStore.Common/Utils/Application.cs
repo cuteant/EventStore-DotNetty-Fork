@@ -29,7 +29,7 @@ namespace EventStore.Common.Utils
 
         public static void RegisterExitAction(Action<int> exitAction)
         {
-            if (null == exitAction) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.exitAction);
+            if (exitAction is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.exitAction);
 
             _exit = exitAction;
         }

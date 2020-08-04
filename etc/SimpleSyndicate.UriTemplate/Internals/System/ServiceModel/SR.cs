@@ -113,7 +113,7 @@ namespace System.ServiceModel
         public static string GetString(string message1, UriTemplate message2)
         {
             string message = GetString(message1);
-            if (message2 != null)
+            if (message2 is object)
             {
                 message = message + message2.ToString() + "\n\n";
             }

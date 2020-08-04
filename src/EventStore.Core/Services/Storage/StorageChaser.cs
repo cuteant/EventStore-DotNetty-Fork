@@ -61,11 +61,11 @@ namespace EventStore.Core.Services.Storage
                              IIndexCommitterService indexCommitterService,
                              IEpochManager epochManager)
         {
-            if (null == masterBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterBus); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (null == chaser) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaser); }
-            if (null == indexCommitterService) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitterService); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (masterBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterBus); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (chaser is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaser); }
+            if (indexCommitterService is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitterService); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
 
             _masterBus = masterBus;
             _writerCheckpoint = writerCheckpoint;

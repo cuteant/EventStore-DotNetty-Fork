@@ -37,7 +37,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool resolveLinkTos = true)
             : base(publisher, eventReaderCorrelationId, readAs, stopOnEof)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             _from = @from;
             _deliverEndOfTfPosition = deliverEndOfTFPosition;
             _resolveLinkTos = resolveLinkTos;

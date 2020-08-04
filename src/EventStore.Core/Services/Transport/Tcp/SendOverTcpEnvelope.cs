@@ -12,15 +12,15 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public SendOverTcpEnvelope(TcpConnectionManager manager, IPublisher networkSendQueue)
         {
-            if (null == manager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.manager); }
-            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (manager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.manager); }
+            if (networkSendQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
             _networkSendQueue = networkSendQueue;
             _manager = manager;
         }
 
         public void ReplyWith<T>(T message) where T : Message
         {
-            if (_manager != null && !_manager.IsClosed)
+            if (_manager is object && !_manager.IsClosed)
             {
                 _networkSendQueue.Publish(new TcpMessage.TcpSend(_manager, message));
             }

@@ -34,8 +34,8 @@ namespace EventStore.ClientAPI.Internal
 
         public StartConnectionMessage(TaskCompletionSource<object> task, IEndPointDiscoverer endPointDiscoverer)
         {
-            if (null == task) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.task); }
-            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
+            if (task is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.task); }
+            if (endPointDiscoverer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             Task = task;
             EndPointDiscoverer = endPointDiscoverer;
@@ -88,7 +88,7 @@ namespace EventStore.ClientAPI.Internal
 
         public TcpConnectionEstablishedMessage(TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             Connection = connection;
         }
     }
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI.Internal
 
         public TcpConnectionClosedMessage(TcpPackageConnection connection, DisassociateInfo error)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             Connection = connection;
             Error = error;
         }
@@ -122,7 +122,7 @@ namespace EventStore.ClientAPI.Internal
 
         public StartOperationMessage(IClientOperation operation, int maxRetries, TimeSpan timeout)
         {
-            if (null == operation) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
+            if (operation is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
             Operation = operation;
             MaxRetries = maxRetries;
             Timeout = timeout;
@@ -263,7 +263,7 @@ namespace EventStore.ClientAPI.Internal
           int maxRetries, TimeSpan timeout)
           : this(source, streamId, settings, userCredentials, subscriptionDropped, maxRetries, timeout)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             EventAppeared = eventAppeared;
         }
@@ -274,7 +274,7 @@ namespace EventStore.ClientAPI.Internal
           int maxRetries, TimeSpan timeout)
           : this(source, streamId, settings, userCredentials, subscriptionDropped, maxRetries, timeout)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             EventAppearedAsync = eventAppearedAsync;
         }
@@ -284,8 +284,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
           int maxRetries, TimeSpan timeout)
         {
-            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (source is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             Source = source;
             StreamId = streamId;
@@ -402,10 +402,10 @@ namespace EventStore.ClientAPI.Internal
           Action<PersistentEventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped,
           int maxRetries, TimeSpan timeout)
         {
-            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (source is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             SubscriptionId = subscriptionId;
             Settings = settings;

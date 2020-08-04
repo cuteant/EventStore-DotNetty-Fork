@@ -34,8 +34,8 @@ namespace EventStore.Projections.Core.Services.Management
 
         public ProjectionManagerResponseReader(IPublisher publisher, IODispatcher ioDispatcher, int numberOfWorkers)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
             _numberOfWorkers = numberOfWorkers;
@@ -44,7 +44,7 @@ namespace EventStore.Projections.Core.Services.Management
         public void Handle(ProjectionManagementMessage.Starting message)
         {
             var debugEnabled = Log.IsDebugLevelEnabled();
-            if (_cancellationScope != null)
+            if (_cancellationScope is object)
             {
                 if (debugEnabled) Log.ThereWasAnActiveCancellationScopeCancellingNow();
                 _cancellationScope.Cancel();

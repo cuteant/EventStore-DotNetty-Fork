@@ -65,7 +65,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns></returns>
         public string GetRelLink(string rel)
         {
-            if (Links == null) CoreThrowHelper.ThrowException();
+            if (Links is null) CoreThrowHelper.ThrowException();
 
             var link = Links.SingleOrDefault(x => string.Equals(x.Rel, rel, StringComparison.OrdinalIgnoreCase));
 

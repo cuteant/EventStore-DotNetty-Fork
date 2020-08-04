@@ -33,7 +33,7 @@ namespace EventStore.BufferManagement
         /// <param name="bufferPool">The buffer pool used as underlying storage.</param>
         public BufferPoolStream(BufferPool bufferPool)
         {
-            if (bufferPool == null) 
+            if (bufferPool is null) 
                 throw new ArgumentNullException("bufferPool");
             _bufferPool = bufferPool;
         }

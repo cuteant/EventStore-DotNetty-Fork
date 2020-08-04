@@ -22,7 +22,7 @@ namespace EventStore.Transport.Http.Codecs
         internal CustomCodec(ICodec codec, string contentType, Encoding encoding, bool hasEventIds, bool hasEventTypes)
         {
             if (null == codec) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.codec); }
-            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (contentType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
             _hasEventTypes = hasEventTypes;
             _hasEventIds = hasEventIds;
             _codec = codec;
@@ -37,7 +37,7 @@ namespace EventStore.Transport.Http.Codecs
 
         public bool CanParse(MediaType format)
         {
-            return format != null && format.Matches(ContentType, Encoding);
+            return format is object && format.Matches(ContentType, Encoding);
         }
 
         public bool SuitableForResponse(MediaType component)

@@ -22,7 +22,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected EventReader(IPublisher publisher, Guid eventReaderCorrelationId, IPrincipal readAs, bool stopOnEof)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (eventReaderCorrelationId == Guid.Empty)
                 throw new ArgumentException("eventReaderCorrelationId");
             _publisher = publisher;

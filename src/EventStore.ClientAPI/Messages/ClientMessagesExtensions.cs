@@ -61,7 +61,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent[] ToRawResolvedEvents(this TcpClientMessageDto.ResolvedEvent[] events)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return Empty.ResolvedEvents;
             }
@@ -78,7 +78,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent[] ToRawResolvedEvents(this TcpClientMessageDto.ResolvedIndexedEvent[] events)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return Empty.ResolvedEvents;
             }
@@ -213,9 +213,9 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
                 systemRecord = evnt.Link;
-                var linkMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var linkMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
 
                 var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_eventDeserializerCache.GetOrAdd(eventType, s_createEventDeserializer);
@@ -229,9 +229,9 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
                 systemRecord = evnt.Link;
-                var linkMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var linkMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
 
                 var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_eventDeserializerCache.GetOrAdd(eventType, s_createEventDeserializer);
@@ -271,9 +271,9 @@ namespace EventStore.ClientAPI.Messages
             try
             {
                 var systemRecord = evnt.Event;
-                var eventMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var eventMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
                 systemRecord = evnt.Link;
-                var linkMeta = systemRecord != null ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
+                var linkMeta = systemRecord is object ? eventAdapter.ToEventMetadata(systemRecord.Metadata) : null;
 
                 var eventType = TypeUtils.ResolveType((linkMeta ?? eventMeta).ClrEventType);
                 var deserializer = s_persistentEventDeserializerCache.GetOrAdd(eventType, s_createPersistentEventDeserializer);
@@ -338,7 +338,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<object>[] ToResolvedEvents(this TcpClientMessageDto.ResolvedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<object>>.Instance;
             }
@@ -355,7 +355,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<object>[] ToResolvedEvents(this TcpClientMessageDto.ResolvedIndexedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<object>>.Instance;
             }
@@ -376,7 +376,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static IResolvedEvent2[] ToResolvedEvents2(this TcpClientMessageDto.ResolvedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<IResolvedEvent2>.Instance;
             }
@@ -393,7 +393,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static IResolvedEvent2[] ToResolvedEvents2(this TcpClientMessageDto.ResolvedIndexedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<IResolvedEvent2>.Instance;
             }
@@ -414,7 +414,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<T>>.Instance;
             }
@@ -431,7 +431,7 @@ namespace EventStore.ClientAPI.Messages
 
         internal static ClientAPI.ResolvedEvent<T>[] ToResolvedEvents<T>(this TcpClientMessageDto.ResolvedIndexedEvent[] events, IEventAdapter eventAdapter)
         {
-            if (events == null || 0u >= (uint)events.Length)
+            if (events is null || 0u >= (uint)events.Length)
             {
                 return EmptyArray<ClientAPI.ResolvedEvent<T>>.Instance;
             }

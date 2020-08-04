@@ -120,7 +120,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private Mode CalculateMode()
         {
-            if (Streams == null || Streams.Count == 0)
+            if (Streams is null || Streams.Count == 0)
             {
                 if (Position.CommitPosition == Int64.MinValue && Position.PreparePosition == Int64.MinValue)
                 {
@@ -675,7 +675,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     jsonWriter.WriteEndArray();
                     break;
             }
-            if (extraMetaData != null)
+            if (extraMetaData is object)
             {
                 foreach (var pair in extraMetaData)
                 {
@@ -820,12 +820,12 @@ namespace EventStore.Projections.Core.Services.Processing
                     case "$m":
                         Check(reader.Read(), reader);
                         var readMode = (string)reader.Value;
-                        if (!string.Equals(readMode, "bs", StringComparison.Ordinal))
+                        if (!string.Equals(readMode, "bs"))
                             throw new ApplicationException($"Unknown checkpoint tag mode: {readMode}");
                         byStreamMode = true;
                         break;
                     default:
-                        if (extra == null)
+                        if (extra is null)
                         {
                             extra = new Dictionary<string, JToken>(StringComparer.Ordinal);
                         }

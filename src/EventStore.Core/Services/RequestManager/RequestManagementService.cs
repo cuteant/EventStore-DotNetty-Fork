@@ -48,7 +48,7 @@ namespace EventStore.Core.Services.RequestManager
                                             TimeSpan commitTimeout,
                                             bool betterOrdering)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if ((uint)prepareCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.prepareCount); }
 
             _bus = bus;
@@ -170,7 +170,7 @@ namespace EventStore.Core.Services.RequestManager
             if (_currentRequests.TryGetValue(correlationId, out manager))
             {
                 var x = manager as IHandle<T>;
-                if (x != null)
+                if (x is object)
                 {
                     // message received for a dead request?
                     x.Handle(message);

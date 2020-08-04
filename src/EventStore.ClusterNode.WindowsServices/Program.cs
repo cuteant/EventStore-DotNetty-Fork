@@ -25,7 +25,7 @@ namespace EventStore.ClusterNode
                 if (!string.IsNullOrWhiteSpace(dependsOnServices))
                 {
                     var otherServices = dependsOnServices.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (otherServices != null && otherServices.Length > 0)
+                    if (otherServices is object && otherServices.Length > 0)
                     {
                         foreach (var item in otherServices)
                         {

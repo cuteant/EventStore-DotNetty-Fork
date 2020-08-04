@@ -9,7 +9,7 @@ namespace EventStore.ClientAPI.Internal
 
         public StaticEndPointDiscoverer(IPEndPoint endPoint, bool isSsl)
         {
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
             _task = Task.FromResult(new NodeEndPoints(isSsl ? null : endPoint, isSsl ? endPoint : null));
         }
 

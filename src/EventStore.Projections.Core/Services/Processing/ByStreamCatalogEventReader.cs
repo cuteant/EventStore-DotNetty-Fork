@@ -89,9 +89,9 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void TakeNextStreamIfRequired()
         {
-            if (_dataNextSequenceNumber == EventNumber.DeletedStream || _dataStreamName == null)
+            if (_dataNextSequenceNumber == EventNumber.DeletedStream || _dataStreamName is null)
             {
-                if (_dataStreamName != null)
+                if (_dataStreamName is object)
                     SendPartitionEof(
                         _dataStreamName,
                         CheckpointTag.FromByStreamPosition(

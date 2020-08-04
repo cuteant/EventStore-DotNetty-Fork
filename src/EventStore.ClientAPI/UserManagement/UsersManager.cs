@@ -27,7 +27,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <param name="client"></param>
         public UsersManager(EndPoint httpEndPoint, TimeSpan operationTimeout, bool tlsTerminatedEndpoint = false, IHttpClient client = null)
         {
-            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
+            if (httpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
             _client = new UsersClient(operationTimeout, client);
             _httpEndPoint = httpEndPoint;
@@ -116,7 +116,7 @@ namespace EventStore.ClientAPI.UserManagement
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
-            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (groups is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             if (string.IsNullOrEmpty(password)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             return _client.CreateUser(_httpEndPoint, new UserCreationInformation(login, fullName, groups, password),
                 userCredentials, _httpSchema);
@@ -134,7 +134,7 @@ namespace EventStore.ClientAPI.UserManagement
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
-            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (groups is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             return _client.UpdateUser(_httpEndPoint, login, new UserUpdateInformation(fullName, groups), userCredentials, _httpSchema);
         }
 

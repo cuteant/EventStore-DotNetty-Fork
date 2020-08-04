@@ -36,21 +36,21 @@ namespace EventStore.ClientAPI.Consumers
         protected override void Initialize(IEventStoreBus bus, PersistentSubscription subscription)
         {
             if (string.IsNullOrEmpty(subscription.SubscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_SubscriptionId); }
-            if (null == subscription.PersistentSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_PersistentSettings); }
+            if (subscription.PersistentSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_PersistentSettings); }
 
             base.Initialize(bus, subscription);
         }
 
         public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Func<EventStorePersistentSubscription, ResolvedEvent<object>, int?, Task> eventAppearedAsync)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             Initialize(bus, subscription);
             _eventAppearedAsync = eventAppearedAsync;
         }
 
         public void Initialize(IEventStoreBus bus, PersistentSubscription subscription, Action<EventStorePersistentSubscription, ResolvedEvent<object>, int?> eventAppeared)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             Initialize(bus, subscription);
             _eventAppeared = eventAppeared;
         }
@@ -138,7 +138,7 @@ namespace EventStore.ClientAPI.Consumers
                 {
                     if (string.IsNullOrEmpty(Subscription.Topic))
                     {
-                        if (RegisterEventHandlers != null)
+                        if (RegisterEventHandlers is object)
                         {
                             esSubscription2 = await Bus.PersistentSubscribeAsync(Subscription.StreamId, Subscription.SubscriptionId, Subscription.Settings, RegisterEventHandlers,
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),
@@ -153,7 +153,7 @@ namespace EventStore.ClientAPI.Consumers
                     }
                     else
                     {
-                        if (RegisterEventHandlers != null)
+                        if (RegisterEventHandlers is object)
                         {
                             esSubscription2 = await Bus.PersistentSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, RegisterEventHandlers,
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),
@@ -171,7 +171,7 @@ namespace EventStore.ClientAPI.Consumers
                 {
                     if (string.IsNullOrEmpty(Subscription.Topic))
                     {
-                        if (_eventAppearedAsync != null)
+                        if (_eventAppearedAsync is object)
                         {
                             esSubscription = await Bus.PersistentSubscribeAsync(Subscription.StreamId, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),
@@ -186,7 +186,7 @@ namespace EventStore.ClientAPI.Consumers
                     }
                     else
                     {
-                        if (_eventAppearedAsync != null)
+                        if (_eventAppearedAsync is object)
                         {
                             esSubscription = await Bus.PersistentSubscribeAsync(Subscription.StreamId, Subscription.Topic, Subscription.SubscriptionId, Subscription.Settings, _eventAppearedAsync,
                                     async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),

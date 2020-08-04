@@ -314,7 +314,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         /// <returns>A new <see cref="PersistentSubscriptionParamsBuilder"></see></returns>
         public PersistentSubscriptionParamsBuilder WithNamedConsumerStrategy(IPersistentSubscriptionConsumerStrategy consumerStrategy)
         {
-            if (null == consumerStrategy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumerStrategy); }
+            if (consumerStrategy is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumerStrategy); }
             _consumerStrategy = consumerStrategy;
             return this;
         }

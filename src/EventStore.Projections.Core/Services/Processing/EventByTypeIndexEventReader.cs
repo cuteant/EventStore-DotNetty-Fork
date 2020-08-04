@@ -319,7 +319,7 @@ namespace EventStore.Projections.Core.Services.Processing
             private void ProcessBuffersAndContinue(string eventStreamId)
             {
                 ProcessBuffers();
-                if (eventStreamId != null) { _eventsRequested.Remove(eventStreamId); }
+                if (eventStreamId is object) { _eventsRequested.Remove(eventStreamId); }
                 _reader.PauseOrContinueProcessing();
                 CheckSwitch();
             }
@@ -377,7 +377,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
             private bool BeforeTheLastKnownIndexCheckpoint(in TFPos tfPosition)
             {
-                return _lastKnownIndexCheckpointPosition != null && tfPosition <= _lastKnownIndexCheckpointPosition;
+                return _lastKnownIndexCheckpointPosition is object && tfPosition <= _lastKnownIndexCheckpointPosition;
             }
 
             private void ReadIndexCheckpointStreamCompleted(ReadStreamResult result, in EventStore.Core.Data.ResolvedEvent[] events)
@@ -405,7 +405,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         if (0u >= (uint)events.Length)
                         {
                             _indexStreamEof = true;
-                            if (_lastKnownIndexCheckpointPosition == null)
+                            if (_lastKnownIndexCheckpointPosition is null)
                             {
                                 _lastKnownIndexCheckpointPosition = default(TFPos);
                             }
@@ -464,7 +464,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     {
                         _buffers.TryGetValue(streamId, out Queue<PendingEvent> buffer);
 
-                        if ((buffer == null || buffer.Count == 0))
+                        if ((buffer is null || buffer.Count == 0))
                         {
                             if (_eofs[streamId])
                             {
@@ -609,7 +609,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 if (_disposed) { return false; }
                 if (_reader.Paused || _reader.PauseRequested) { return false; }
-                var shouldSwitch = _lastKnownIndexCheckpointPosition != null
+                var shouldSwitch = _lastKnownIndexCheckpointPosition is object
                            && _streamToEventType.Keys.All(
                                v =>
                                _eofs[v]
@@ -690,13 +690,13 @@ namespace EventStore.Projections.Core.Services.Processing
                             {
                                 var link = @event.Link;
                                 var data = @event.Event;
-                                var byStream = link != null && _streamToEventType.ContainsKey(link.EventStreamId);
+                                var byStream = link is object && _streamToEventType.ContainsKey(link.EventStreamId);
                                 var isDeleteStreamEvent = StreamDeletedHelper.IsStreamDeletedEvent(
                                     @event.OriginalStreamId, @event.OriginalEvent.EventType,
                                     @event.OriginalEvent.Data, out string adjustedPositionStreamId);
-                                if (data == null) { continue; }
+                                if (data is null) { continue; }
                                 var eventType = isDeleteStreamEvent ? "$deleted" : data.EventType;
-                                var byEvent = link == null && _eventTypes.Contains(eventType);
+                                var byEvent = link is null && _eventTypes.Contains(eventType);
                                 var originalTfPosition = @event.OriginalPosition.Value;
                                 if (byStream)
                                 { // ignore data just update positions

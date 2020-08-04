@@ -60,9 +60,9 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         internal PersistentSubscriptionService(IQueuedHandler queuedHandler, IReadIndex readIndex, IODispatcher ioDispatcher, IPublisher bus, PersistentSubscriptionConsumerStrategyRegistry consumerStrategyRegistry)
         {
-            if (null == queuedHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
-            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
-            if (null == ioDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher); }
+            if (queuedHandler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queuedHandler); }
+            if (readIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (ioDispatcher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher); }
 
             _queuedHandler = queuedHandler;
             _readIndex = readIndex;
@@ -89,14 +89,18 @@ namespace EventStore.Core.Services.PersistentSubscription
             _state = message.State;
 
             if (message.State == VNodeState.Master) return;
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Persistent_subscriptions_received_state_change_to(_state);
+#endif
             ShutdownSubscriptions();
             Stop();
         }
 
         public void Handle(SystemMessage.BecomeMaster message)
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Persistent_subscriptions_Became_Master_so_now_handling_subscriptions();
+#endif
             InitToEmpty();
             _handleTick = true;
             _bus.Publish(_tickRequestMessage);
@@ -113,7 +117,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void ShutdownSubscriptions()
         {
-            if (_subscriptionsById == null) return;
+            if (_subscriptionsById is null) return;
             foreach (var subscription in _subscriptionsById.Values)
             {
                 subscription.Shutdown();
@@ -132,7 +136,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public bool IsUserOpsOrAdmin(IPrincipal user)
         {
-            return user != null && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
+            return user is object && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
         }
 
         public void Handle(ClientMessage.UnsubscribeFromStream message)
@@ -145,7 +149,9 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Creating_persistent_subscription(key);
+#endif
 
             if (!IsUserOpsOrAdmin(message.User))
             {
@@ -162,7 +168,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 return;
             }
 
-            if (string.IsNullOrEmpty(message.EventStreamId) || string.Equals(message.EventStreamId, "$all", StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(message.EventStreamId) || string.Equals(message.EventStreamId, "$all"))
             {
                 message.Envelope.ReplyWith(new ClientMessage.CreatePersistentSubscriptionCompleted(message.CorrelationId,
                     ClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.Fail,
@@ -193,7 +199,9 @@ namespace EventStore.Core.Services.PersistentSubscription
                                     message.NamedConsumerStrategy,
                                     ToTimeout(message.MessageTimeoutMilliseconds)
                                     );
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.New_persistent_subscription(key);
+#endif
             _config.Updated = DateTime.Now;
             _config.UpdatedBy = message.User.Identity.Name;
             _config.Entries.Add(new PersistentSubscriptionEntry
@@ -222,7 +230,9 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Updating_persistent_subscription(key);
+#endif
 
             if (!IsUserOpsOrAdmin(message.User))
             {
@@ -343,7 +353,9 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (!_started) { return; }
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Deleting_persistent_subscription(key);
+#endif
 
             if (!IsUserOpsOrAdmin(message.User))
             {
@@ -412,8 +424,10 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(TcpMessage.ConnectionClosed message)
         {
             //TODO CC make a map for this
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Persistent_subscription_lost_connection_from(message);
-            if (_subscriptionsById == null) return; //havn't built yet.
+#endif
+            if (_subscriptionsById is null) return; //havn't built yet.
             foreach (var subscription in _subscriptionsById.Values)
             {
                 subscription.RemoveClientByConnectionId(message.Connection.ConnectionId);
@@ -447,12 +461,14 @@ namespace EventStore.Core.Services.PersistentSubscription
                 message.Envelope.ReplyWith(new ClientMessage.SubscriptionDropped(message.CorrelationId, SubscriptionDropReason.SubscriberMaxCountReached));
                 return;
             }
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.New_connection_to_persistent_subscription(key, message.ConnectionId);
+#endif
             var lastEventNumber = _readIndex.GetStreamLastEventNumber(message.EventStreamId);
             var lastCommitPos = _readIndex.LastCommitPosition;
             var subscribedMessage = new ClientMessage.PersistentSubscriptionConfirmation(key, message.CorrelationId, lastCommitPos, lastEventNumber);
             message.Envelope.ReplyWith(subscribedMessage);
-            var name = message.User == null ? "anonymous" : message.User.Identity.Name;
+            var name = message.User is null ? "anonymous" : message.User.Identity.Name;
             subscription.AddClient(message.CorrelationId, message.ConnectionId, message.Envelope, message.AllowedInFlightMessages, name, message.From);
         }
 
@@ -575,7 +591,9 @@ namespace EventStore.Core.Services.PersistentSubscription
         public void Handle(ClientMessage.ReplayAllParkedMessages message)
         {
             var key = BuildSubscriptionGroupKey(message.EventStreamId, message.GroupName);
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Replaying_parked_messages_for_persistent_subscription(key);
+#endif
 
             if (!IsUserOpsOrAdmin(message.User))
             {
@@ -681,7 +699,9 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void SaveConfiguration(Action continueWith)
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Saving_persistent_subscription_configuration();
+#endif
             var data = _config.GetSerializedForm();
             var ev = new Event(Guid.NewGuid(), "PersistentConfig1", true, data, new byte[0]);
             var metadata = new StreamMetadata(maxCount: 2);
@@ -718,7 +738,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 );
                 return;
             }
-            if (!_subscriptionTopics.TryGetValue(message.EventStreamId, out List<PersistentSubscription> subscribers) || subscribers == null)
+            if (!_subscriptionTopics.TryGetValue(message.EventStreamId, out List<PersistentSubscription> subscribers) || subscribers is null)
             {
                 message.Envelope.ReplyWith(new MonitoringMessage.GetPersistentSubscriptionStatsCompleted(
                     MonitoringMessage.GetPersistentSubscriptionStatsCompleted.OperationStatus.NotFound, null)
@@ -726,7 +746,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 return;
             }
             var subscription = subscribers.FirstOrDefault(x => x.GroupName == message.GroupName);
-            if (subscription == null)
+            if (subscription is null)
             {
                 message.Envelope.ReplyWith(new MonitoringMessage.GetPersistentSubscriptionStatsCompleted(
                     MonitoringMessage.GetPersistentSubscriptionStatsCompleted.OperationStatus.NotFound, null)

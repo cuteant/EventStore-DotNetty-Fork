@@ -119,7 +119,7 @@ namespace HdrHistogram
             var intervalMax = histogram.GetMaxValue() / maxValueUnitRatio;
 
             var binary = Convert.ToBase64String(compressedArray);
-            var payload = histogram.Tag == null
+            var payload = histogram.Tag is null
                 ? $"{startTimeStampSec:F3},{intervalLength:F3},{intervalMax:F3},{binary}"
                 : $"Tag={histogram.Tag},{startTimeStampSec:F3},{intervalLength:F3},{intervalMax:F3},{binary}";
             _log.WriteLine(payload);

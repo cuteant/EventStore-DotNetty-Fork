@@ -127,7 +127,7 @@ namespace EventStore.Core.TransactionLog.Checkpoint
         protected virtual void OnFlushed(long obj)
         {
             var onFlushed = Flushed;
-            if (onFlushed != null)
+            if (onFlushed is object)
                 onFlushed.Invoke(obj);
         }
 

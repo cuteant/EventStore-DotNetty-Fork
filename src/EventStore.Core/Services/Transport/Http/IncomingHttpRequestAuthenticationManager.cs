@@ -22,10 +22,9 @@ namespace EventStore.Core.Services.Transport.Http
         {
             try
             {
-                foreach (var provider in _providers)
+                for (int idx = 0; idx < _providers.Length; idx++)
                 {
-                    if (provider.Authenticate(message))
-                        break;
+                    if (_providers[idx].Authenticate(message)) { break; }
                 }
             }
             catch 

@@ -47,8 +47,8 @@ namespace EventStore.Core.Bus
                                       TimeSpan? threadStopWaitTimeout = null,
                                       string groupName = null)
         {
-            if (null == consumer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumer); }
-            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (consumer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumer); }
+            if (name is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
 
             _consumer = consumer;
 
@@ -62,7 +62,7 @@ namespace EventStore.Core.Bus
 
         public Task Start()
         {
-            if (_thread != null)
+            if (_thread is object)
                 ThrowHelper.ThrowInvalidOperationException_AlreadyAThreadRunning();
 
             _queueMonitor.Register(this);
@@ -93,7 +93,9 @@ namespace EventStore.Core.Bus
                 _queueStats.Start();
                 Thread.BeginThreadAffinity(); // ensure we are not switching between OS threads. Required at least for v8.
 
+#if DEBUG
                 var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
                 while (!_stop)
                 {
                     Message msg = null;
@@ -126,7 +128,9 @@ namespace EventStore.Core.Bus
                                 var elapsed = DateTime.UtcNow - start;
                                 if (elapsed > _slowMsgThreshold)
                                 {
+#if DEBUG
                                     if (traceEnabled) Log.ShowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
+#endif
                                     if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(msg is SystemMessage.SystemInit))
                                         Log.VerySlowQueueMsg(_queueStats, (int)elapsed.TotalMilliseconds, cnt, _queue.Count);
                                 }
@@ -166,7 +170,7 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            //if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            //if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 #if DEBUG
             _queueStats.Enqueued();
 #endif

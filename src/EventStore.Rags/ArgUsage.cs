@@ -39,7 +39,7 @@ namespace EventStore.Rags
               Aliases.Add("-" + Name.ToLowerInvariant());
             }
             var argAliases = Property.HasAttr<ArgAliasAttribute>() ? Property.Attr<ArgAliasAttribute>().Aliases : null;
-            if(argAliases != null)
+            if(argAliases is object)
             {
                 Aliases.AddRange(argAliases.Select(x=> "-" + NameTranslators.CombineByPascalCase(x, "-")));
             }
@@ -67,10 +67,10 @@ namespace EventStore.Rags
 
         public static ConsoleString GetStyledUsage<T>(string exeName = null)
         {
-            if (exeName == null)
+            if (exeName is null)
             {
                 var assembly = Assembly.GetEntryAssembly();
-                if (assembly == null)
+                if (assembly is null)
                 {
                     throw new InvalidOperationException("EventStore.Rags could not determine the name of your executable automatically.  This may happen if you run GetUsage<T>() from within unit tests.  Use GetUsageT>(string exeName) in unit tests to avoid this exception.");
                 }

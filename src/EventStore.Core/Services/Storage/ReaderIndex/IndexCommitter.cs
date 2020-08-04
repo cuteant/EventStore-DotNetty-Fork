@@ -71,7 +71,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (infoEnabled) Log.ReadIndexBuilding();
 
             _indexRebuild = true;
+#if DEBUG
             var debugEnabled = Log.IsDebugLevelEnabled();
+#endif
             using (var reader = _backend.BorrowReader())
             {
                 var startPosition = Math.Max(0, _persistedCommitPos);
@@ -123,11 +125,15 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                         processed += 1L;
                         if (DateTime.UtcNow - lastTime > reportPeriod || 0ul >= (ulong)(processed % 100000L))
                         {
+#if DEBUG
                             if (debugEnabled) { Log.ReadIndexRebuilding(processed, result.RecordPostPosition, startPosition, buildToPosition); }
+#endif
                             lastTime = DateTime.UtcNow;
                         }
                     }
+#if DEBUG
                     if (debugEnabled) Log.ReadIndex_rebuilding_done(processed, startTime);
+#endif
                 }
                 finally
                 {
@@ -191,7 +197,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 {
                     if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
 
-                    if (streamId == null)
+                    if (streamId is null)
                     {
                         streamId = prepare.EventStreamId;
                     }
@@ -402,7 +408,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     int prepareIndex = (int)(indexEntry.Version - indexEntries[0].Version);
                     var prepare = prepares[prepareIndex];
                     PrepareLogRecord indexedPrepare = GetPrepare(reader, indexEntry.Position);
-                    if (indexedPrepare != null && indexedPrepare.EventStreamId == prepare.EventStreamId)
+                    if (indexedPrepare is object && indexedPrepare.EventStreamId == prepare.EventStreamId)
                     {
                         if (Debugger.IsAttached)
                         {

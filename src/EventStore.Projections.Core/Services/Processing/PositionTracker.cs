@@ -19,7 +19,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void UpdateByCheckpointTagForward(CheckpointTag newTag)
         {
-            if (_lastTag == null)
+            if (_lastTag is null)
                 throw new InvalidOperationException("Initial position was not set");
             if (newTag <= _lastTag)
                 throw new InvalidOperationException(
@@ -29,7 +29,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void UpdateByCheckpointTagInitial(CheckpointTag checkpointTag)
         {
-            if (_lastTag != null)
+            if (_lastTag is object)
                 throw new InvalidOperationException("Position tagger has be already updated");
             InternalUpdate(checkpointTag);
         }

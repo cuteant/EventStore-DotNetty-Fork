@@ -91,12 +91,12 @@ namespace EventStore.Core.Services.Storage
             IIndexWriter indexWriter,
             IEpochManager epochManager)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == subscribeToBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscribeToBus); }
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == writer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
-            if (null == indexWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexWriter); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (subscribeToBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscribeToBus); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (writer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
+            if (indexWriter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexWriter); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
 
             Bus = bus;
             _subscribeToBus = subscribeToBus;
@@ -156,7 +156,9 @@ namespace EventStore.Core.Services.Storage
         {
             if (BlockWriter && !(message is SystemMessage.StateChangeMessage))
             {
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) { Log.BlockingMessageInStorageWriterService(message); }
+#endif
                 return;
             }
 
@@ -256,10 +258,12 @@ namespace EventStore.Core.Services.Storage
             }
 
             var totalTime = message.TotalTimeWasted + sw.Elapsed;
+#if DEBUG
             if (Log.IsDebugLevelEnabled() && (totalTime < TimeSpan.FromSeconds(5) || 0u >= (uint)((int)totalTime.TotalSeconds % 30))) // too verbose otherwise
             {
                 Log.Still_waiting_for_chaser_to_catch_up_already_for(totalTime);
             }
+#endif
 
             Bus.Publish(new SystemMessage.WaitForChaserToCatchUp(message.CorrelationId, totalTime));
         }
@@ -638,7 +642,9 @@ namespace EventStore.Core.Services.Storage
                     break;
                 case CommitDecision.IdempotentNotReady:
                     //just drop the write and wait for the client to retry
+#if DEBUG
                     if (Log.IsDebugLevelEnabled()) { Log.DroppingIdempotentWriteToStream(result); }
+#endif
                     break;
                 default:
                     ThrowHelper.ThrowArgumentOutOfRangeException(); break;

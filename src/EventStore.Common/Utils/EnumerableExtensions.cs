@@ -19,10 +19,10 @@ namespace EventStore.Common.Utils
 
         public static bool IsEmpty<T>(this IEnumerable<T> collection)
         {
-            if (collection == null)
+            if (collection is null)
                 return true;
             var coll = collection as ICollection;
-            if (coll != null)
+            if (coll is object)
                 return coll.Count == 0;
             return !collection.Any();
         }

@@ -9,7 +9,7 @@ namespace EventStore.Rags
         public static IEnumerable<OptionSource> Parse<T>(string[] args)
         {
             var ret = new List<OptionSource>();
-            if (args == null || args.Length == 0)
+            if (args is null || args.Length == 0)
             {
                 return ret;
             }
@@ -93,7 +93,7 @@ namespace EventStore.Rags
             var propertyName = key.TrimStart(new char[] { '-' }).Replace("-", "");
             var possibleBooleanProperty = typeof(T).GetProperties()
                                             .FirstOrDefault(x => x.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
-            if (possibleBooleanProperty == null) return false;
+            if (possibleBooleanProperty is null) return false;
             return possibleBooleanProperty.PropertyType == typeof(bool);
         }
     }

@@ -53,9 +53,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public IndexReader(IIndexBackend backend, ITableIndex tableIndex, StreamMetadata metastreamMetadata, int hashCollisionReadLimit, bool skipIndexScanOnRead)
         {
-            if (null == backend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
-            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
-            if (null == metastreamMetadata) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metastreamMetadata); }
+            if (backend is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
+            if (tableIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (metastreamMetadata is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metastreamMetadata); }
 
             _backend = backend;
             _tableIndex = tableIndex;
@@ -111,7 +111,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
 
             PrepareLogRecord prepare = ReadPrepareInternal(reader, streamId, eventNumber);
-            if (prepare != null)
+            if (prepare is object)
             {
                 if (metadata.MaxAge.HasValue && prepare.TimeStamp < DateTime.UtcNow - metadata.MaxAge.Value)
                 {
@@ -146,7 +146,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             var reader1 = reader;
             var recordsQuery = _tableIndex.GetRange(streamId, eventNumber, eventNumber)
                                           .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader1, x.Position) })
-                                          .Where(x => x.Prepare != null && x.Prepare.EventStreamId == streamId)
+                                          .Where(x => x.Prepare is object && x.Prepare.EventStreamId == streamId)
                                           .GroupBy(x => x.Version).Select(x => x.Last()).ToList();
             //if (recordsQuery.Count() == 1)
             if ((uint)recordsQuery.Count == 1u)
@@ -162,14 +162,14 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (_tableIndex.TryGetOneValue(streamId, eventNumber, out long position))
             {
                 var rec = ReadPrepareInternal(reader, position);
-                if (rec != null && rec.EventStreamId == streamId) { return rec; }
+                if (rec is object && rec.EventStreamId == streamId) { return rec; }
 
                 foreach (var indexEntry in _tableIndex.GetRange(streamId, eventNumber, eventNumber))
                 {
                     Interlocked.Increment(ref _hashCollisions);
                     if (indexEntry.Position == position) { continue; }
                     rec = ReadPrepareInternal(reader, indexEntry.Position);
-                    if (rec != null && rec.EventStreamId == streamId) { return rec; }
+                    if (rec is object && rec.EventStreamId == streamId) { return rec; }
                 }
             }
             return null;
@@ -236,7 +236,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 var recordsQuery = _tableIndex.GetRange(streamId, startEventNumber, endEventNumber)
                                               .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader, x.Position) })
-                                              .Where(x => x.Prepare != null && x.Prepare.EventStreamId == streamId);
+                                              .Where(x => x.Prepare is object && x.Prepare.EventStreamId == streamId);
                 if (!skipIndexScanOnRead)
                 {
                     recordsQuery = recordsQuery.OrderByDescending(x => x.Version)
@@ -317,7 +317,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
                 var recordsQuery = _tableIndex.GetRange(streamId, startEventNumber, endEventNumber)
                                               .Select(x => new { x.Version, Prepare = ReadPrepareInternal(reader, x.Position) })
-                                              .Where(x => x.Prepare != null && x.Prepare.EventStreamId == streamId);
+                                              .Where(x => x.Prepare is object && x.Prepare.EventStreamId == streamId);
                 if (!skipIndexScanOnRead)
                 {
                     recordsQuery = recordsQuery.OrderByDescending(x => x.Version)
@@ -419,7 +419,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
             var isPublic = roles.Contains(x => x == SystemRoles.All);
             if (isPublic) return new StreamAccess(true, true);
-            if (user == null) return new StreamAccess(false);
+            if (user is null) return new StreamAccess(false);
             if (user.IsInRole(SystemRoles.Admins)) return new StreamAccess(true);
             for (int i = 0; i < roles.Length; ++i)
             {
@@ -456,7 +456,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
 
             var cache = _backend.TryGetStreamLastEventNumber(streamId);
-            if (cache.LastEventNumber != null)
+            if (cache.LastEventNumber is object)
             {
                 Interlocked.Increment(ref _cachedStreamInfo);
                 return cache.LastEventNumber.GetValueOrDefault();
@@ -481,7 +481,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
 
             var rec = ReadPrepareInternal(reader, latestEntry.Position);
-            if (rec == null) ThrowHelper.ThrowException(ExceptionResource.Could_not_read_latest_stream_prepare);
+            if (rec is null) ThrowHelper.ThrowException(ExceptionResource.Could_not_read_latest_stream_prepare);
 
             int count = 0;
             long startVersion = 0;
@@ -494,7 +494,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             foreach (var indexEntry in _tableIndex.GetRange(streamId, startVersion, long.MaxValue, limit: _hashCollisionReadLimit + 1))
             {
                 var r = ReadPrepareInternal(reader, indexEntry.Position);
-                if (r != null && r.EventStreamId == streamId)
+                if (r is object && r.EventStreamId == streamId)
                 {
                     if (latestVersion == long.MinValue)
                     {
@@ -533,7 +533,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             if (SystemStreams.IsMetastream(streamId)) { return _metastreamMetadata; }
 
             var cache = _backend.TryGetStreamMetadata(streamId);
-            if (cache.Metadata != null)
+            if (cache.Metadata is object)
             {
                 Interlocked.Increment(ref _cachedStreamInfo);
                 return cache.Metadata;
@@ -560,7 +560,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             }
 
             PrepareLogRecord prepare = ReadPrepareInternal(reader, metastreamId, metaEventNumber);
-            if (prepare == null)
+            if (prepare is null)
             {
                 ThrowHelper.ThrowException_ReadPrepareInternalCouldNotFindMetaevent(metaEventNumber, metastreamId);
             }

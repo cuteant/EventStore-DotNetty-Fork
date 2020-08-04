@@ -34,7 +34,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                             int lastEventNumberCacheCapacity,
                             int metadataCacheCapacity)
         {
-            if (null == readers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readers); }
+            if (readers is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readers); }
 
             _readers = readers;
             _streamLastEventNumberCache = new LRUCache<string, EventNumberCached>(lastEventNumberCacheCapacity);

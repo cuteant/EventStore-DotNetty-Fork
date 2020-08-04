@@ -60,7 +60,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentException">Any of the disposables in the <paramref name="disposables"/> collection is null.</exception>
         public CompositeDisposable(IEnumerable<IDisposable> disposables)
         {
-            if (disposables == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.disposables); }
+            if (disposables is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.disposables); }
 
             _disposables = new List<IDisposable>(disposables);
 
@@ -84,7 +84,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public void Add(IDisposable item)
         {
-            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
+            if (item is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             var shouldDispose = false;
             lock (_gate)
@@ -108,7 +108,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public bool Remove(IDisposable item)
         {
-            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
+            if (item is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             var shouldDispose = false;
 
@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI.Internal
                             _disposables = new List<IDisposable>(_disposables.Capacity / 2);
 
                             foreach (var d in old)
-                                if (d != null)
+                                if (d is object)
                                     _disposables.Add(d);
                         }
                     }
@@ -166,10 +166,10 @@ namespace EventStore.ClientAPI.Internal
                 }
             }
 
-            if (currentDisposables != null)
+            if (currentDisposables is object)
             {
                 foreach (var d in currentDisposables)
-                    if (d != null)
+                    if (d is object)
                         d.Dispose();
             }
         }
@@ -188,7 +188,7 @@ namespace EventStore.ClientAPI.Internal
             }
 
             foreach (var d in currentDisposables)
-                if (d != null)
+                if (d is object)
                     d.Dispose();
         }
 
@@ -200,7 +200,7 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentNullException"><paramref name="item"/> is null.</exception>
         public bool Contains(IDisposable item)
         {
-            if (item == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
+            if (item is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.item); }
 
             lock (_gate)
             {
@@ -217,12 +217,12 @@ namespace EventStore.ClientAPI.Internal
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is less than zero. -or - <paramref name="arrayIndex"/> is larger than or equal to the array length.</exception>
         public void CopyTo(IDisposable[] array, int arrayIndex)
         {
-            if (array == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array); }
+            if (array is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array); }
             if ((uint)arrayIndex >= (uint)array.Length) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex); }
 
             lock (_gate)
             {
-                Array.Copy(_disposables.Where(d => d != null).ToArray(), 0, array, arrayIndex, array.Length - arrayIndex);
+                Array.Copy(_disposables.Where(d => d is object).ToArray(), 0, array, arrayIndex, array.Length - arrayIndex);
             }
         }
 
@@ -244,7 +244,7 @@ namespace EventStore.ClientAPI.Internal
 
             lock (_gate)
             {
-                res = _disposables.Where(d => d != null).ToList();
+                res = _disposables.Where(d => d is object).ToList();
             }
 
             return res.GetEnumerator();

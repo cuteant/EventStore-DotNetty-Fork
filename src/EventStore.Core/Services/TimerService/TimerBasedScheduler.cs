@@ -16,8 +16,8 @@ namespace EventStore.Core.Services.TimerService
 
         public TimerBasedScheduler(ITimer timer, ITimeProvider timeProvider)
         {
-            if (null == timer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timer); }
-            if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
+            if (timer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timer); }
+            if (timeProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
 
             _timer = timer;
             _timeProvider = timeProvider;

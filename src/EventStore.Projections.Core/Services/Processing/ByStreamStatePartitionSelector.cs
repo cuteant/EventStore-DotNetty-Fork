@@ -9,11 +9,11 @@ namespace EventStore.Projections.Core.Services.Processing
         public override string GetStatePartition(EventReaderSubscriptionMessage.CommittedEventReceived @event)
         {
 
-            if (@event.Data.ResolvedLinkTo && @event.Data.PositionMetadata != null)
+            if (@event.Data.ResolvedLinkTo && @event.Data.PositionMetadata is object)
             {
                 var extra = @event.Data.PositionMetadata.ParseCheckpointExtraJson();
                 JToken v;
-                if (extra != null && extra.TryGetValue("$o", out v))
+                if (extra is object && extra.TryGetValue("$o", out v))
                 {
                     //TODO: handle exceptions properly
                     var originalStream = (string) ((JValue) v).Value;

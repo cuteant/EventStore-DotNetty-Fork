@@ -10,7 +10,7 @@ namespace EventStore.Rags
 
         public static bool TranslateBool(string prop, string val)
         {
-            return val != null && !string.Equals(val, "false", StringComparison.OrdinalIgnoreCase) && !string.Equals(val, "0", StringComparison.Ordinal);
+            return val is object && !string.Equals(val, "false", StringComparison.OrdinalIgnoreCase) && !string.Equals(val, "0", StringComparison.Ordinal);
         }
 
         public static IPEndPoint TranslateIPEndPoint(string prop, string val)

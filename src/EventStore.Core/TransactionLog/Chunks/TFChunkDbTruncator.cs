@@ -13,7 +13,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkDbTruncator(TFChunkDbConfig config)
         {
-            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
+            if (config is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
             _config = config;
         }
 
@@ -59,10 +59,12 @@ namespace EventStore.Core.TransactionLog.Chunks
             var infoEnabled = Log.IsInformationLevelEnabled();
             // we need to remove excessive chunks from largest number to lowest one, so in case of crash
             // mid-process, we don't end up with broken non-sequential chunks sequence.
-            for (int i = oldLastChunkNum; i > newLastChunkNum; i -= 1)
+            for (int idx = oldLastChunkNum; idx > newLastChunkNum; idx -= 1)
             {
-                foreach (var chunkFile in _config.FileNamingStrategy.GetAllVersionsFor(i))
+                var chunksToDelete = _config.FileNamingStrategy.GetAllVersionsFor(idx);
+                for (int chunkFileIdx = 0; chunkFileIdx < chunksToDelete.Length; chunkFileIdx++)
                 {
+                    string chunkFile = chunksToDelete[chunkFileIdx];
                     if (infoEnabled) Log.FileWillBeDeletedDuringTruncatedbProcedure(chunkFile);
                     File.SetAttributes(chunkFile, FileAttributes.Normal);
                     File.Delete(chunkFile);
@@ -70,7 +72,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             }
 
             // it's not bad if there is no file, it could have been deleted on previous run
-            if (newLastChunkHeader != null)
+            if (newLastChunkHeader is object)
             {
                 // if the chunk we want to truncate into is already scavenged 
                 // we have to truncate (i.e., delete) the whole chunk, not just part of it
@@ -81,11 +83,12 @@ namespace EventStore.Core.TransactionLog.Chunks
                     // we need to delete EVERYTHING from ChunkStartNumber up to newLastChunkNum, inclusive
                     if (infoEnabled) { Log.SettingTruncatecheckpointAndDeletingAllChunksFromInclusively(truncateChk, newLastChunkHeader.ChunkStartNumber); }
 
-                    for (int i = newLastChunkNum; i >= newLastChunkHeader.ChunkStartNumber; --i)
+                    for (int idx = newLastChunkNum; idx >= newLastChunkHeader.ChunkStartNumber; --idx)
                     {
-                        var chunksToDelete = _config.FileNamingStrategy.GetAllVersionsFor(i);
-                        foreach (var chunkFile in chunksToDelete)
+                        var chunksToDelete = _config.FileNamingStrategy.GetAllVersionsFor(idx);
+                        for (int chunkFileIdx = 0; chunkFileIdx < chunksToDelete.Length; chunkFileIdx++)
                         {
+                            string chunkFile = chunksToDelete[chunkFileIdx];
                             if (infoEnabled) Log.FileWillBeDeletedDuringTruncatedbProcedure(chunkFile);
                             File.SetAttributes(chunkFile, FileAttributes.Normal);
                             File.Delete(chunkFile);

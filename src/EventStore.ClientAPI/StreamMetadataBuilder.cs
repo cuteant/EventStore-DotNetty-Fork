@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI
             _aclDelete = aclDelete;
             _aclMetaRead = aclMetaRead;
             _aclMetaWrite = aclMetaWrite;
-            _customMetadata = customMetadata == null ? new Dictionary<string, JToken>(StringComparer.Ordinal) : new Dictionary<string, JToken>(customMetadata, StringComparer.Ordinal);
+            _customMetadata = customMetadata is null ? new Dictionary<string, JToken>(StringComparer.Ordinal) : new Dictionary<string, JToken>(customMetadata, StringComparer.Ordinal);
         }
         /// <summary>
         /// Builds a <see cref="StreamMetadata"/> from a <see cref="StreamMetadataBuilder"/>.
@@ -66,11 +66,11 @@ namespace EventStore.ClientAPI
         /// </summary>
         public StreamMetadata Build()
         {
-            var acl = this._aclRead == null
-                      && this._aclWrite == null
-                      && this._aclDelete == null
-                      && this._aclMetaRead == null
-                      && this._aclMetaWrite == null
+            var acl = this._aclRead is null
+                      && this._aclWrite is null
+                      && this._aclDelete is null
+                      && this._aclMetaRead is null
+                      && this._aclMetaWrite is null
                 ? null
                 : new StreamAcl(this._aclRead, this._aclWrite, this._aclDelete, this._aclMetaRead, this._aclMetaWrite);
             return new StreamMetadata(this._maxCount, this._maxAge, this._truncateBefore, this._cacheControl, acl, this._customMetadata);
@@ -126,7 +126,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetReadRole(string role)
         {
-            _aclRead = role == null ? null : new[] { role };
+            _aclRead = role is null ? null : new[] { role };
             return this;
         }
         /// <summary>
@@ -146,7 +146,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetWriteRole(string role)
         {
-            _aclWrite = role == null ? null : new[] { role };
+            _aclWrite = role is null ? null : new[] { role };
             return this;
         }
         /// <summary>
@@ -166,7 +166,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetDeleteRole(string role)
         {
-            _aclDelete = role == null ? null : new[] { role };
+            _aclDelete = role is null ? null : new[] { role };
             return this;
         }
         /// <summary>
@@ -186,7 +186,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMetadataReadRole(string role)
         {
-            _aclMetaRead = role == null ? null : new[] { role };
+            _aclMetaRead = role is null ? null : new[] { role };
             return this;
         }
         /// <summary>
@@ -206,7 +206,7 @@ namespace EventStore.ClientAPI
         /// <returns>The builder.</returns>
         public StreamMetadataBuilder SetMetadataWriteRole(string role)
         {
-            _aclMetaWrite = role == null ? null : new[] { role };
+            _aclMetaWrite = role is null ? null : new[] { role };
             return this;
         }
         /// <summary>

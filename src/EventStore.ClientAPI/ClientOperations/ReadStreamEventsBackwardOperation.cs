@@ -14,7 +14,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                       bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -40,7 +40,7 @@ namespace EventStore.ClientAPI.ClientOperations
                                                       bool requireMaster, UserCredentials userCredentials, IEventAdapter eventAdapter)
           : base(source, stream, fromEventNumber, maxCount, resolveLinkTos, requireMaster, userCredentials)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 

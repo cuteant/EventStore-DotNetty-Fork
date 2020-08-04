@@ -60,7 +60,7 @@ namespace EventStore.Core.Index
 
         private void VerifyStructure()
         {
-            if (_map.SelectMany(level => level).Any(item => item == null))
+            if (_map.SelectMany(level => level).Any(item => item is null))
             {
                 ThrowHelper.ThrowCorruptIndexException_InternalIndexmapStructureCorruption();
             }
@@ -176,7 +176,7 @@ namespace EventStore.Core.Index
                     version = IndexMapVersion;
                     var tables = loadPTables ? LoadPTables(reader, filename, checkpoints, cacheDepth, skipIndexVerify, threads) : new List<List<PTable>>();
 
-                    if (!loadPTables && reader.ReadLine() != null)
+                    if (!loadPTables && reader.ReadLine() is object)
                     {
                         ThrowHelper.ThrowCorruptIndexException_NegativePrepareCommitCheckpointInNonEmptyIndexMap(checkpoints);
                     }
@@ -190,7 +190,7 @@ namespace EventStore.Core.Index
         {
             // read stored MD5 hash and convert it from string to byte array
             string text;
-            if ((text = reader.ReadLine()) == null)
+            if ((text = reader.ReadLine()) is null)
             {
                 ThrowHelper.ThrowCorruptIndexException_IndexMapFileIsEmpty();
             }
@@ -221,7 +221,7 @@ namespace EventStore.Core.Index
         private static int ReadVersion(TextReader reader)
         {
             string text;
-            if ((text = reader.ReadLine()) == null)
+            if ((text = reader.ReadLine()) is null)
             {
                 ThrowHelper.ThrowCorruptIndexException_CorruptedVersion();
             }
@@ -232,7 +232,7 @@ namespace EventStore.Core.Index
         {
             // read and check prepare/commit checkpoint
             string text;
-            if ((text = reader.ReadLine()) == null)
+            if ((text = reader.ReadLine()) is null)
             {
                 ThrowHelper.ThrowCorruptIndexException_CorruptedCommitCheckpoint();
             }
@@ -267,7 +267,7 @@ namespace EventStore.Core.Index
         {
             // all next lines are PTables sorted by levels
             string text;
-            while ((text = reader.ReadLine()) != null)
+            while ((text = reader.ReadLine()) is object)
             {
                 yield return text;
             }
@@ -308,7 +308,7 @@ namespace EventStore.Core.Index
                         catch (Exception)
                         {
                             // if PTable file path was correct, but data is corrupted, we still need to dispose opened streams
-                            if (ptable != null)
+                            if (ptable is object)
                                 ptable.Dispose();
 
                             throw;
@@ -320,7 +320,7 @@ namespace EventStore.Core.Index
                     {
                         for (int j = 0; j < tables[i].Count; ++j)
                         {
-                            if (tables[i][j] == null)
+                            if (tables[i][j] is null)
                             {
                                 ThrowHelper.ThrowCorruptIndexException_IndexmapIsMissingContiguousLevelPosition(i, j);
                             }
@@ -341,7 +341,7 @@ namespace EventStore.Core.Index
                 {
                     for (int j = 0; j < tables[i].Count; ++j)
                     {
-                        if (tables[i][j] != null)
+                        if (tables[i][j] is object)
                             tables[i][j].Dispose();
                     }
                 }
@@ -434,7 +434,7 @@ namespace EventStore.Core.Index
             //or we have at least one entry at the max level and tables at a level above it
             // or we have any tables > max level
             var tablesExistAtMaxLevelOrAbove = (uint)_map.Count > (uint)_maxTableLevelsForAutomaticMerge
-                    && _map[_maxTableLevelsForAutomaticMerge] != null;
+                    && _map[_maxTableLevelsForAutomaticMerge] is object;
             bool moreThanOneEntryAtMaxLevel = tablesExistAtMaxLevelOrAbove
                                               && (uint)_map[_maxTableLevelsForAutomaticMerge].Count > 1u;
             bool atLeastOneEntryAtMaxLevelAndOneAboveIt = tablesExistAtMaxLevelOrAbove && (uint)_map[_maxTableLevelsForAutomaticMerge].Count == 1u
@@ -589,7 +589,7 @@ namespace EventStore.Core.Index
 
                         PTable scavenged = PTable.Scavenged(oldTable, filename, upgradeHash, existsAt, recordExistsAt, version, out long spaceSaved, indexCacheDepth, skipIndexVerify, ct);
 
-                        if (scavenged == null)
+                        if (scavenged is null)
                         {
                             return ScavengeResult.Failed(oldTable, level, i);
                         }

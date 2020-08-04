@@ -59,10 +59,10 @@ namespace EventStore.Core.Services.Transport.Http
                                   Func<HttpResponseFormatterArgs, Message, object> formatter,
                                   Func<HttpResponseConfiguratorArgs, Message, ResponseConfiguration> configurator)
         {
-            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
-            if (null == entity) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entity); }
-            if (null == formatter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.formatter); }
-            if (null == configurator) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.configurator); }
+            if (networkSendQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (entity is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entity); }
+            if (formatter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.formatter); }
+            if (configurator is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.configurator); }
 
             _networkSendQueue = networkSendQueue;
             _entity = entity;
@@ -72,7 +72,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void ReplyWith<T>(T message) where T : Message
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             var responseConfiguration = _configurator(_entity, message);
             var data = _formatter(_entity, message);
             _networkSendQueue.Publish(new HttpMessage.HttpSend(_entity, responseConfiguration, data, message));
@@ -127,7 +127,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void ReplyWith<T>(T message) where T : Message
         {
-            if (message is TExpectedResponseMessage || _notMatchingEnvelope == null)
+            if (message is TExpectedResponseMessage || _notMatchingEnvelope is null)
                 _httpEnvelope.ReplyWith(message);
             else
                 _notMatchingEnvelope.ReplyWith(message);

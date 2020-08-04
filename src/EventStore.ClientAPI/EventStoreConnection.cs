@@ -39,11 +39,11 @@ namespace EventStore.ClientAPI
         {
             var settings = ConnectionString.GetConnectionSettings(connectionString, builder);
             var uri = GetUriFromConnectionString(connectionString);
-            if (uri == null && (settings.GossipSeeds == null || 0u >= (uint)settings.GossipSeeds.Length))
+            if (uri is null && (settings.GossipSeeds is null || 0u >= (uint)settings.GossipSeeds.Length))
             {
                 throw new Exception($"Did not find ConnectTo or GossipSeeds in the connection string.\n'{connectionString}'");
             }
-            if (uri != null && settings.GossipSeeds != null && (uint)settings.GossipSeeds.Length > 0u)
+            if (uri is object && settings.GossipSeeds is object && (uint)settings.GossipSeeds.Length > 0u)
             {
                 throw new NotSupportedException($"Setting ConnectTo as well as GossipSeeds on the connection string is currently not supported.\n{connectionString}");
             }
@@ -56,7 +56,7 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, string connectionName = null)
         {
-            if (connectionSettings.GossipSeeds == null || 0u >= (uint)connectionSettings.GossipSeeds.Length)
+            if (connectionSettings.GossipSeeds is null || 0u >= (uint)connectionSettings.GossipSeeds.Length)
             {
                 throw new ArgumentException("No gossip seeds specified", nameof(connectionSettings));
             }
@@ -73,11 +73,11 @@ namespace EventStore.ClientAPI
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, Uri uri, string connectionName = null)
         {
             connectionSettings = connectionSettings ?? ConnectionSettings.Default;
-            if (uri != null)
+            if (uri is object)
             {
                 var scheme = uri.Scheme.ToLowerInvariant();
                 var credential = GetCredentialFromUri(uri);
-                if (credential != null)
+                if (credential is object)
                 {
                     connectionSettings = new ConnectionSettings(connectionSettings.VerboseLogging,
                         connectionSettings.MaxQueueSize, connectionSettings.MaxConcurrentItems,
@@ -113,7 +113,7 @@ namespace EventStore.ClientAPI
                 }
                 throw new Exception($"Unknown scheme for connection '{scheme}'");
             }
-            if (connectionSettings.GossipSeeds != null && (uint)connectionSettings.GossipSeeds.Length > 0u)
+            if (connectionSettings.GossipSeeds is object && (uint)connectionSettings.GossipSeeds.Length > 0u)
             {
                 var clusterSettings = new ClusterSettings(connectionSettings.GossipSeeds,
                     connectionSettings.MaxDiscoverAttempts,
@@ -134,7 +134,7 @@ namespace EventStore.ClientAPI
                 if (0u >= (uint)entries.Length) { throw new Exception($"Unable to parse IP address or lookup DNS host for '{uri.Host}'"); }
                 //pick an IPv4 address, if one exists
                 ipaddress = entries.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
-                if (ipaddress == null) { throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'"); }
+                if (ipaddress is null) { throw new Exception($"Could not get an IPv4 address for host '{uri.Host}'"); }
             }
             var port = uri.IsDefaultPort ? 2113 : uri.Port;
             return new IPEndPoint(ipaddress, port);
@@ -142,7 +142,7 @@ namespace EventStore.ClientAPI
 
         private static UserCredentials GetCredentialFromUri(Uri uri)
         {
-            if (uri == null || string.IsNullOrEmpty(uri.UserInfo)) { return null; }
+            if (uri is null || string.IsNullOrEmpty(uri.UserInfo)) { return null; }
             var pieces = uri.UserInfo.Split(':');
             if (pieces.Length != 2) { throw new Exception($"Unable to parse user information '{uri.UserInfo}'"); }
             return new UserCredentials(pieces[0], pieces[1]);
@@ -152,7 +152,7 @@ namespace EventStore.ClientAPI
         {
             var connto = ConnectionString.GetConnectionStringInfo(connectionString)
                                          .FirstOrDefault(x => string.Equals(x.Key, "CONNECTTO", StringComparison.OrdinalIgnoreCase)).Value;
-            return connto == null ? null : new Uri(connto);
+            return connto is null ? null : new Uri(connto);
         }
         /// <summary>Creates a new <see cref="IEventStoreConnection2"/> to single node using default <see cref="ConnectionSettings"/>.</summary>
         /// <param name="connectionName">Optional name of connection (will be generated automatically, if not provided)</param>
@@ -170,8 +170,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, IPEndPoint tcpEndPoint, string connectionName = null)
         {
-            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
-            if (null == tcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
+            if (connectionSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (tcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndPoint); }
             return new EventStoreNodeConnection(connectionSettings, null, new StaticEndPointDiscoverer(tcpEndPoint, connectionSettings.UseSslConnection), connectionName);
         }
 
@@ -183,8 +183,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection2"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, ClusterSettings clusterSettings, string connectionName = null)
         {
-            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
-            if (null == clusterSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterSettings); }
+            if (connectionSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (clusterSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterSettings); }
 
             var endPointDiscoverer = new ClusterDnsEndPointDiscoverer(clusterSettings.ClusterDns,
                                                                       clusterSettings.MaxDiscoverAttempts,
@@ -204,8 +204,8 @@ namespace EventStore.ClientAPI
         /// <returns>a new <see cref="IEventStoreConnection"/></returns>
         public static IEventStoreConnection2 Create(ConnectionSettings connectionSettings, IEndPointDiscoverer endPointDiscoverer, string connectionName = null)
         {
-            if (null == connectionSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
-            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
+            if (connectionSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionSettings); }
+            if (endPointDiscoverer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             return new EventStoreNodeConnection(connectionSettings, null, endPointDiscoverer, connectionName);
         }

@@ -13,9 +13,9 @@ namespace EventStore.ClientAPI.Transport.Http
 
         public ClientOperationState(HttpRequestMessage request, Action<HttpResponse> onSuccess, Action<Exception> onError)
         {
-            if (null == request) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (request is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             Request = request;
             OnSuccess = onSuccess;

@@ -211,7 +211,7 @@ namespace EventStore.Projections.Core.Services.Http
                 (o, s) =>
                 {
                     var config = http.RequestCodec.From<ProjectionConfigData>(s);
-                    if(config == null)
+                    if(config is null)
                     {
                         SendBadRequest(o, "Failed to parse the projection config");
                         return;
@@ -421,10 +421,10 @@ namespace EventStore.Projections.Core.Services.Http
 
         private ResponseConfiguration StateConfigurator(ICodec codec, ProjectionManagementMessage.ProjectionState state)
         {
-            if (state.Exception != null)
+            if (state.Exception is object)
                 return Configure.InternalServerError();
             else
-                return state.Position != null
+                return state.Position is object
                            ? Configure.Ok("application/json", Helper.UTF8NoBom, null, null, false,
                                           new KeyValuePair<string, string>(SystemHeaders.ProjectionPosition, state.Position.ToJsonString()))
                            : Configure.Ok("application/json", Helper.UTF8NoBom, null, null, false);
@@ -432,10 +432,10 @@ namespace EventStore.Projections.Core.Services.Http
 
         private ResponseConfiguration ResultConfigurator(ICodec codec, ProjectionManagementMessage.ProjectionResult state)
         {
-            if (state.Exception != null)
+            if (state.Exception is object)
                 return Configure.InternalServerError();
             else
-                return state.Position != null
+                return state.Position is object
                            ? Configure.Ok("application/json", Helper.UTF8NoBom, null, null, false,
                                           new KeyValuePair<string, string>(SystemHeaders.ProjectionPosition, state.Position.ToJsonString()))
                            : Configure.Ok("application/json", Helper.UTF8NoBom, null, null, false);
@@ -450,7 +450,7 @@ namespace EventStore.Projections.Core.Services.Http
 
         private string StateFormatter(ICodec codec, ProjectionManagementMessage.ProjectionState state)
         {
-            if (state.Exception != null)
+            if (state.Exception is object)
                 return state.Exception.ToString();
             else
                 return state.State;
@@ -458,7 +458,7 @@ namespace EventStore.Projections.Core.Services.Http
 
         private string ResultFormatter(ICodec codec, ProjectionManagementMessage.ProjectionResult state)
         {
-            if (state.Exception != null)
+            if (state.Exception is object)
                 return state.Exception.ToString();
             else
                 return state.Result;
@@ -638,7 +638,7 @@ namespace EventStore.Projections.Core.Services.Http
 
         public static T EatException<T>(Func<T> func, T defaultValue = default(T))
         {
-            if (null == func) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
+            if (func is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
             try
             {
                 return func();

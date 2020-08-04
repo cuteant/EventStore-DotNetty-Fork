@@ -52,7 +52,7 @@ namespace System
         }
         public UriTemplate(string template, bool ignoreTrailingSlash, IDictionary<string, string> additionalDefaults)
         {
-            if (template == null)
+            if (template is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("template");
             }
@@ -201,9 +201,9 @@ namespace System
             }
 
             // Process additional defaults (if has some) :
-            if (additionalDefaults != null)
+            if (additionalDefaults is object)
             {
-                if (this.variables == null)
+                if (this.variables is null)
                 {
                     if (additionalDefaults.Count > 0)
                     {
@@ -215,7 +215,7 @@ namespace System
                     foreach (KeyValuePair<string, string> kvp in additionalDefaults)
                     {
                         string uppercaseKey = kvp.Key.ToUpperInvariant();
-                        if ((this.variables.DefaultValues != null) && this.variables.DefaultValues.ContainsKey(uppercaseKey))
+                        if ((this.variables.DefaultValues is object) && this.variables.DefaultValues.ContainsKey(uppercaseKey))
                         {
                             throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgument("additionalDefaults",
                                 SR.GetString(SR.UTAdditionalDefaultIsInvalid, kvp.Key, this.originalTemplate));
@@ -238,7 +238,7 @@ namespace System
                         }
                         else
                         {
-                            if (this.additionalDefaults == null)
+                            if (this.additionalDefaults is null)
                             {
                                 this.additionalDefaults = new Dictionary<string, string>(additionalDefaults.Count, StringComparer.OrdinalIgnoreCase);
                             }
@@ -249,7 +249,7 @@ namespace System
             }
 
             // Validate defaults (if should)
-            if ((this.variables != null) && (this.variables.DefaultValues != null))
+            if ((this.variables is object) && (this.variables.DefaultValues is object))
             {
                 this.variables.ValidateDefaults(out this.firstOptionalSegment);
             }
@@ -263,7 +263,7 @@ namespace System
         {
             get
             {
-                if (this.defaults == null)
+                if (this.defaults is null)
                 {
                     Interlocked.CompareExchange<IDictionary<string, string>>(ref this.defaults, new UriTemplateDefaults(this), null);
                 }
@@ -281,7 +281,7 @@ namespace System
         {
             get
             {
-                if (this.variables == null)
+                if (this.variables is null)
                 {
                     return VariablesCollection.EmptyCollection;
                 }
@@ -295,7 +295,7 @@ namespace System
         {
             get
             {
-                if (this.variables == null)
+                if (this.variables is null)
                 {
                     return VariablesCollection.EmptyCollection;
                 }
@@ -310,14 +310,14 @@ namespace System
         {
             get
             {
-                return (this.variables == null);
+                return (this.variables is null);
             }
         }
         internal bool HasWildcard
         {
             get
             {
-                return (this.wildcard != null);
+                return (this.wildcard is object);
             }
         }
 
@@ -328,7 +328,7 @@ namespace System
         }
         public Uri BindByName(Uri baseAddress, IDictionary<string, string> parameters, bool omitDefaults)
         {
-            if (baseAddress == null)
+            if (baseAddress is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("baseAddress");
             }
@@ -339,7 +339,7 @@ namespace System
             }
 
             BindInformation bindInfo;
-            if (this.variables == null)
+            if (this.variables is null)
             {
                 bindInfo = PrepareBindInformation(parameters, omitDefaults);
             }
@@ -355,7 +355,7 @@ namespace System
         }
         public Uri BindByName(Uri baseAddress, NameValueCollection parameters, bool omitDefaults)
         {
-            if (baseAddress == null)
+            if (baseAddress is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("baseAddress");
             }
@@ -366,7 +366,7 @@ namespace System
             }
 
             BindInformation bindInfo;
-            if (this.variables == null)
+            if (this.variables is null)
             {
                 bindInfo = PrepareBindInformation(parameters, omitDefaults);
             }
@@ -378,7 +378,7 @@ namespace System
         }
         public Uri BindByPosition(Uri baseAddress, params string[] values)
         {
-            if (baseAddress == null)
+            if (baseAddress is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("baseAddress");
             }
@@ -389,7 +389,7 @@ namespace System
             }
 
             BindInformation bindInfo;
-            if (this.variables == null)
+            if (this.variables is null)
             {
                 if (values.Length > 0)
                 {
@@ -420,11 +420,11 @@ namespace System
         //  it to two distinct methods, each will be called in a different case.
         public bool IsEquivalentTo(UriTemplate other)
         {
-            if (other == null)
+            if (other is null)
             {
                 return false;
             }
-            if (other.segments == null || other.queries == null)
+            if (other.segments is null || other.queries is null)
             {
                 // they never are null, but PreSharp is complaining, 
                 // and warning suppression isn't working
@@ -444,7 +444,7 @@ namespace System
 
         public UriTemplateMatch Match(Uri baseAddress, Uri candidate)
         {
-            if (baseAddress == null)
+            if (baseAddress is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("baseAddress");
             }
@@ -453,7 +453,7 @@ namespace System
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgument("baseAddress", SR.GetString(
                     SR.UTBadBaseAddress));
             }
-            if (candidate == null)
+            if (candidate is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("candidate");
             }
@@ -513,7 +513,7 @@ namespace System
         internal string AddPathVariable(UriTemplatePartType sourceNature, string varDeclaration,
             out bool hasDefaultValue)
         {
-            if (this.variables == null)
+            if (this.variables is null)
             {
                 this.variables = new VariablesCollection(this);
             }
@@ -521,7 +521,7 @@ namespace System
         }
         internal string AddQueryVariable(string varDeclaration)
         {
-            if (this.variables == null)
+            if (this.variables is null)
             {
                 this.variables = new VariablesCollection(this);
             }
@@ -534,7 +534,7 @@ namespace System
             UriTemplateMatch result = new UriTemplateMatch();
             result.RequestUri = uri;
             result.BaseUri = baseUri;
-            if (uriQuery != null)
+            if (uriQuery is object)
             {
                 result.SetQueryParameters(uriQuery);
             }
@@ -545,7 +545,7 @@ namespace System
             {
                 this.segments[i].Lookup(result.RelativePathSegments[i], result.BoundVariables);
             }
-            if (this.wildcard != null)
+            if (this.wildcard is object)
             {
                 this.wildcard.Lookup(numMatchedSegments, result.RelativePathSegments,
                     result.BoundVariables);
@@ -562,7 +562,7 @@ namespace System
                     //UriTemplateHelpers.AssertCanonical(varName);
                 }
             }
-            if (this.additionalDefaults != null)
+            if (this.additionalDefaults is object)
             {
                 foreach (KeyValuePair<string, string> kvp in this.additionalDefaults)
                 {
@@ -634,7 +634,7 @@ namespace System
         {
             UriBuilder result = new UriBuilder(baseAddress);
             int parameterIndex = 0;
-            int lastPathParameter = ((this.variables == null) ? -1 : this.variables.PathSegmentVariableNames.Count - 1);
+            int lastPathParameter = ((this.variables is null) ? -1 : this.variables.PathSegmentVariableNames.Count - 1);
             int lastPathParameterToBind;
             if (lastPathParameter == -1)
             {
@@ -682,13 +682,13 @@ namespace System
                 // We're done; skip to the beggining of the query parameters
                 parameterIndex = lastPathParameter + 1;
             }
-            else if (this.segments.Count > 0 || this.wildcard != null)
+            else if (this.segments.Count > 0 || this.wildcard is object)
             {
                 for (int i = 0; i < this.segments.Count; i++)
                 {
                     this.segments[i].Bind(parameters, ref parameterIndex, pathString);
                 }
-                if (this.wildcard != null)
+                if (this.wildcard is object)
                 {
                     this.wildcard.Bind(parameters, ref parameterIndex, pathString);
                 }
@@ -699,14 +699,14 @@ namespace System
             }
             result.Path = pathString.ToString();
             // Binding the query :
-            if ((this.queries.Count != 0) || (extraQueryParameters != null))
+            if ((this.queries.Count != 0) || (extraQueryParameters is object))
             {
                 StringBuilder query = new StringBuilder("");
                 foreach (string key in this.queries.Keys)
                 {
                     this.queries[key].Bind(key, parameters, ref parameterIndex, query);
                 }
-                if (extraQueryParameters != null)
+                if (extraQueryParameters is object)
                 {
                     foreach (string key in extraQueryParameters.Keys)
                     {
@@ -728,7 +728,7 @@ namespace System
                 result.Query = query.ToString();
             }
             // Adding the fragment (if needed)
-            if (this.fragment != null)
+            if (this.fragment is object)
             {
                 result.Fragment = this.fragment;
             }
@@ -739,8 +739,8 @@ namespace System
         {
             Fx.Assert(!this.HasWildcard, "There are no terminal default when ends with wildcard");
             Fx.Assert(numMatchedSegments < this.segments.Count, "Otherwise - no defaults to bind");
-            Fx.Assert(this.variables != null, "Otherwise - no default values to bind");
-            Fx.Assert(this.variables.DefaultValues != null, "Otherwise - no default values to bind");
+            Fx.Assert(this.variables is object, "Otherwise - no default values to bind");
+            Fx.Assert(this.variables.DefaultValues is object, "Otherwise - no default values to bind");
             for (int i = numMatchedSegments; i < this.segments.Count; i++)
             {
                 switch (this.segments[i].Nature)
@@ -748,7 +748,7 @@ namespace System
                     case UriTemplatePartType.Variable:
                         {
                             UriTemplateVariablePathSegment vps = this.segments[i] as UriTemplateVariablePathSegment;
-                            Fx.Assert(vps != null, "How can that be? That its nature");
+                            Fx.Assert(vps is object, "How can that be? That its nature");
                             this.variables.LookupDefault(vps.VarName, boundParameters);
                         }
                         break;
@@ -857,7 +857,7 @@ namespace System
 
         BindInformation PrepareBindInformation(IDictionary<string, string> parameters, bool omitDefaults)
         {
-            if (parameters == null)
+            if (parameters is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("parameters");
             }
@@ -879,7 +879,7 @@ namespace System
         }
         BindInformation PrepareBindInformation(NameValueCollection parameters, bool omitDefaults)
         {
-            if (parameters == null)
+            if (parameters is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("parameters");
             }
@@ -902,8 +902,8 @@ namespace System
         void ProcessDefaultsAndCreateBindInfo(bool omitDefaults, IDictionary<string, string> extraParameters,
             out BindInformation bindInfo)
         {
-            Fx.Assert(extraParameters != null, "We are expected to create it at the calling PrepareBindInformation");
-            if (this.additionalDefaults != null)
+            Fx.Assert(extraParameters is object, "We are expected to create it at the calling PrepareBindInformation");
+            if (this.additionalDefaults is object)
             {
                 if (omitDefaults)
                 {
@@ -943,7 +943,7 @@ namespace System
             {
                 return escapedValue;
             }
-            if (this.unescapedDefaults == null)
+            if (this.unescapedDefaults is null)
             {
                 this.unescapedDefaults = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
             }
@@ -1013,14 +1013,14 @@ namespace System
             public UriTemplateDefaults(UriTemplate template)
             {
                 this.defaults = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                if ((template.variables != null) && (template.variables.DefaultValues != null))
+                if ((template.variables is object) && (template.variables.DefaultValues is object))
                 {
                     foreach (KeyValuePair<string, string> kvp in template.variables.DefaultValues)
                     {
                         this.defaults.Add(kvp.Key, kvp.Value);
                     }
                 }
-                if (template.additionalDefaults != null)
+                if (template.additionalDefaults is object)
                 {
                     foreach (KeyValuePair<string, string> kvp in template.additionalDefaults)
                     {
@@ -1156,7 +1156,7 @@ namespace System
             {
                 get
                 {
-                    if (emptyStringCollection == null)
+                    if (emptyStringCollection is null)
                     {
                         emptyStringCollection = new ReadOnlyCollection<string>(new List<string>());
                     }
@@ -1175,7 +1175,7 @@ namespace System
             {
                 get
                 {
-                    if (this.pathSegmentVariableNamesSnapshot == null)
+                    if (this.pathSegmentVariableNamesSnapshot is null)
                     {
                         Interlocked.CompareExchange<ReadOnlyCollection<string>>(ref this.pathSegmentVariableNamesSnapshot, new ReadOnlyCollection<string>(
                             this.pathSegmentVariableNames), null);
@@ -1187,7 +1187,7 @@ namespace System
             {
                 get
                 {
-                    if (this.queryValueVariableNamesSnapshot == null)
+                    if (this.queryValueVariableNamesSnapshot is null)
                     {
                         Interlocked.CompareExchange<ReadOnlyCollection<string>>(ref this.queryValueVariableNamesSnapshot, new ReadOnlyCollection<string>(
                             this.queryValueVariableNames), null);
@@ -1200,7 +1200,7 @@ namespace System
             {
                 int varIndex = this.pathSegmentVariableNames.IndexOf(varName);
                 Fx.Assert(varIndex != -1, "Adding default value is restricted to path variables");
-                if ((this.owner.wildcard != null) && this.owner.wildcard.HasVariable &&
+                if ((this.owner.wildcard is object) && this.owner.wildcard.HasVariable &&
                     (varIndex == this.pathSegmentVariableNames.Count - 1))
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new InvalidOperationException(
@@ -1218,7 +1218,7 @@ namespace System
                 {
                     value = null;
                 }
-                if (this.defaultValues == null)
+                if (this.defaultValues is null)
                 {
                     this.defaultValues = new Dictionary<string, string>();
                 }
@@ -1231,7 +1231,7 @@ namespace System
                 string varName;
                 string defaultValue;
                 ParseVariableDeclaration(varDeclaration, out varName, out defaultValue);
-                hasDefaultValue = (defaultValue != null);
+                hasDefaultValue = (defaultValue is object);
                 if (varName.IndexOf(UriTemplate.WildcardPath, StringComparison.Ordinal) != -1)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new FormatException(
@@ -1258,7 +1258,7 @@ namespace System
                     {
                         defaultValue = null;
                     }
-                    if (this.defaultValues == null)
+                    if (this.defaultValues is null)
                     {
                         this.defaultValues = new Dictionary<string, string>();
                     }
@@ -1276,7 +1276,7 @@ namespace System
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new FormatException(
                         SR.GetString(SR.UTInvalidWildcardInVariableOrLiteral, this.owner.originalTemplate, UriTemplate.WildcardPath)));
                 }
-                if (defaultValue != null)
+                if (defaultValue is object)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new InvalidOperationException(
                         SR.GetString(SR.UTDefaultValueToQueryVar, this.owner.originalTemplate,
@@ -1301,7 +1301,7 @@ namespace System
 
             public BindInformation PrepareBindInformation(IDictionary<string, string> parameters, bool omitDefaults)
             {
-                if (parameters == null)
+                if (parameters is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("parameters");
                 }
@@ -1318,7 +1318,7 @@ namespace System
             }
             public BindInformation PrepareBindInformation(NameValueCollection parameters, bool omitDefaults)
             {
-                if (parameters == null)
+                if (parameters is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("parameters");
                 }
@@ -1335,7 +1335,7 @@ namespace System
             }
             public BindInformation PrepareBindInformation(params string[] parameters)
             {
-                if (parameters == null)
+                if (parameters is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("values");
                 }
@@ -1371,7 +1371,7 @@ namespace System
             }
             public void ValidateDefaults(out int firstOptionalSegment)
             {
-                Fx.Assert(this.defaultValues != null, "We are checking this condition from the c'tor");
+                Fx.Assert(this.defaultValues is object, "We are checking this condition from the c'tor");
                 Fx.Assert(this.pathSegmentVariableNames.Count > 0, "Otherwise, how can we have default values");
                 // Finding the first valid nullable defaults
                 for (int i = this.pathSegmentVariableNames.Count - 1; (i >= 0) && (this.firstNullablePathVariable == -1); i--)
@@ -1382,7 +1382,7 @@ namespace System
                     {
                         this.firstNullablePathVariable = i + 1;
                     }
-                    else if (defaultValue != null)
+                    else if (defaultValue is object)
                     {
                         this.firstNullablePathVariable = i + 1;
                     }
@@ -1400,7 +1400,7 @@ namespace System
                         string defaultValue;
                         if (this.defaultValues.TryGetValue(varName, out defaultValue))
                         {
-                            if (defaultValue == null)
+                            if (defaultValue is null)
                             {
                                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new InvalidOperationException(
                                     SR.GetString(SR.UTNullableDefaultMustBeFollowedWithNullables, this.owner.originalTemplate,
@@ -1451,7 +1451,7 @@ namespace System
                             break;
                         }
                         UriTemplateVariablePathSegment vps = (ps as UriTemplateVariablePathSegment);
-                        Fx.Assert(vps != null, "Should be; that's his nature");
+                        Fx.Assert(vps is object, "Should be; that's his nature");
                         if (!this.defaultValues.ContainsKey(vps.VarName))
                         {
                             break;
@@ -1463,7 +1463,7 @@ namespace System
 
             void AddAdditionalDefaults(ref IDictionary<string, string> extraParameters)
             {
-                if (extraParameters == null)
+                if (extraParameters is null)
                 {
                     extraParameters = this.owner.additionalDefaults;
                 }
@@ -1484,14 +1484,14 @@ namespace System
                 // First step - loading defaults
                 for (int i = 0; i < this.pathSegmentVariableNames.Count; i++)
                 {
-                    if (string.IsNullOrEmpty(normalizedParameters[i]) && (this.defaultValues != null))
+                    if (string.IsNullOrEmpty(normalizedParameters[i]) && (this.defaultValues is object))
                     {
                         this.defaultValues.TryGetValue(this.pathSegmentVariableNames[i], out normalizedParameters[i]);
                     }
                 }
                 // Second step - calculating bind constrains
                 lastNonDefaultPathParameter = this.pathSegmentVariableNames.Count - 1;
-                if ((this.defaultValues != null) &&
+                if ((this.defaultValues is object) &&
                     (this.owner.segments[this.owner.segments.Count - 1].Nature != UriTemplatePartType.Literal))
                 {
                     bool foundNonDefaultPathParameter = false;
@@ -1603,7 +1603,7 @@ namespace System
                     normalizedParameters[this.pathSegmentVariableNames.Count + queryVarIndex] = (string.IsNullOrEmpty(value) ? string.Empty : value);
                     return;
                 }
-                if (extraParameters == null)
+                if (extraParameters is null)
                 {
                     extraParameters = new Dictionary<string, string>(UriTemplateHelpers.GetQueryKeyComparer());
                 }
@@ -1616,7 +1616,7 @@ namespace System
                 int lastNonNullablePathParameter;
                 LoadDefaultsAndValidate(normalizedParameters, out lastNonDefaultPathParameter,
                     out lastNonNullablePathParameter);
-                if (this.owner.additionalDefaults != null)
+                if (this.owner.additionalDefaults is object)
                 {
                     if (omitDefaults)
                     {
@@ -1632,7 +1632,7 @@ namespace System
             }
             void RemoveAdditionalDefaults(ref IDictionary<string, string> extraParameters)
             {
-                if (extraParameters == null)
+                if (extraParameters is null)
                 {
                     return;
                 }

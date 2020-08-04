@@ -377,7 +377,7 @@ namespace System
             }
             public int GetHashCode(string obj)
             {
-                if (obj == null)
+                if (obj is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("obj");
                 }

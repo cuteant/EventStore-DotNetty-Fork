@@ -206,7 +206,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void DeliverSafeJoinPosition(long? safeJoinPosition)
         {
-            if (_stopOnEof || safeJoinPosition == null || safeJoinPosition == -1)
+            if (_stopOnEof || safeJoinPosition is null || safeJoinPosition == -1)
                 return; //TODO: this should not happen, but StorageReader does not return it now
             _publisher.Publish(
                 new ReaderSubscriptionMessage.CommittedEventDistributed(

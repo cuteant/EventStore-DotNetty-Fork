@@ -121,7 +121,7 @@ namespace EventStore.ClientAPI
             // FirstAttribute 可获取动态添加的attr
             var streamAttr = expectedType.FirstAttribute<StreamAttribute>();
             string streamId = null;
-            if (streamAttr != null)
+            if (streamAttr is object)
             {
                 streamId = streamAttr.StreamId;
             }
@@ -139,7 +139,7 @@ namespace EventStore.ClientAPI
                     streamAttr = implementedInterface.FirstAttribute<StreamAttribute>();
                     streamId = streamAttr.StreamId;
                 }
-                if (null == streamId) { streamId = RuntimeTypeNameFormatter.Serialize(expectedType); }
+                if (streamId is null) { streamId = RuntimeTypeNameFormatter.Serialize(expectedType); }
             }
             if (s_streamMapCache.TryAdd(expectedType, streamId)) { return streamId; }
 
@@ -152,11 +152,11 @@ namespace EventStore.ClientAPI
 
         internal static EventData[] ToEventDatas(this IEventAdapter eventAdapter, IList<object> events, IList<Dictionary<string, object>> eventContexts)
         {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventContexts is object && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
 
             var evts = new EventData[events.Count];
-            if (eventContexts != null)
+            if (eventContexts is object)
             {
                 for (var idx = 0; idx < events.Count; idx++)
                 {
@@ -175,11 +175,11 @@ namespace EventStore.ClientAPI
 
         internal static EventData[] ToEventDatas(this IEventAdapter eventAdapter, IList<object> events, IList<IEventMetadata> eventMetas = null)
         {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventMetas is object && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
 
             var evts = new EventData[events.Count];
-            if (eventMetas == null)
+            if (eventMetas is null)
             {
                 for (var idx = 0; idx < events.Count; idx++)
                 {
@@ -198,11 +198,11 @@ namespace EventStore.ClientAPI
 
         internal static EventData[] ToEventDatas<TEvent>(this IEventAdapter eventAdapter, IList<TEvent> events, IList<Dictionary<string, object>> eventContexts)
         {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (eventContexts != null && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventContexts is object && events.Count != eventContexts.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventContexts); }
 
             var evts = new EventData[events.Count];
-            if (eventContexts != null)
+            if (eventContexts is object)
             {
                 for (var idx = 0; idx < events.Count; idx++)
                 {
@@ -221,11 +221,11 @@ namespace EventStore.ClientAPI
 
         internal static EventData[] ToEventDatas<TEvent>(this IEventAdapter eventAdapter, IList<TEvent> events, IList<IEventMetadata> eventMetas = null)
         {
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
-            if (eventMetas != null && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (eventMetas is object && events.Count != eventMetas.Count) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.eventMetas); }
 
             var evts = new EventData[events.Count];
-            if (eventMetas == null)
+            if (eventMetas is null)
             {
                 for (var idx = 0; idx < events.Count; idx++)
                 {
@@ -288,7 +288,7 @@ namespace EventStore.ClientAPI
             eventDescriptor = (null == meta) ? NullEventDescriptor.Instance : new DefaultEventDescriptor(meta);
 
             obj = null;
-            if (null == data || 0u >= (uint)data.Length) { return; }
+            if (data is null || 0u >= (uint)data.Length) { return; }
 
             try { obj = eventAdapter.Adapt(data, meta); }
             catch (Exception exc) { CoreThrowHelper.ThrowEventDataDeserializationException(exc); }

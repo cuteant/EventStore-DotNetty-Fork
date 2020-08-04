@@ -52,7 +52,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 if ((uint)onReadCompleted.Events.Length > 0u)
                 {
                     var checkpoint = onReadCompleted.Events.Where(v => v.Event.EventType == ProjectionEventTypes.ProjectionCheckpoint).Select(x => x.Event).FirstOrDefault();
-                    if (checkpoint != null)
+                    if (checkpoint is object)
                     {
                         deleteFromPosition = checkpoint.Data.ParseJson<int>();
                     }

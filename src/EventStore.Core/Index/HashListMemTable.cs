@@ -40,7 +40,7 @@ namespace EventStore.Core.Index
 
         public void AddEntries(IList<IndexEntry> entries)
         {
-            if (null == entries) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entries); }
+            if (entries is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.entries); }
             if ((uint)(entries.Count - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.entries_Count); }
 
             var collection = entries.Select(x => new IndexEntry(GetHash(x.Stream), x.Version, x.Position)).ToList();
@@ -74,7 +74,7 @@ namespace EventStore.Core.Index
             }
             finally
             {
-                if (list != null) { Monitor.Exit(list); }
+                if (list is object) { Monitor.Exit(list); }
             }
         }
 

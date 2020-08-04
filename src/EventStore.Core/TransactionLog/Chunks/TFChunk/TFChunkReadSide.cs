@@ -134,7 +134,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             private bool _optimizeCache;
             private BloomFilter _logPositionsBloomFilter;
 
-            private bool CacheIsOptimized { get { return _optimizeCache && _logPositionsBloomFilter != null; }}
+            private bool CacheIsOptimized { get { return _optimizeCache && _logPositionsBloomFilter is object; }}
 
             public TFChunkReadSideScavenged(TFChunk chunk, bool optimizeCache)
               : base(chunk)
@@ -157,12 +157,12 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             }
 
             public void OptimizeExistsAt(){
-                if(_optimizeCache && _logPositionsBloomFilter == null)
+                if(_optimizeCache && _logPositionsBloomFilter is null)
                     _logPositionsBloomFilter = PopulateBloomFilter();
             }
 
             public void DeOptimizeExistsAt(){
-                if(_logPositionsBloomFilter != null)
+                if(_logPositionsBloomFilter is object)
                     _logPositionsBloomFilter = null;
             }
 
@@ -184,7 +184,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                     }
                 }
 
-                if (bf == null){
+                if (bf is null){
                     if (s_logger.IsWarningLevelEnabled()) s_logger.Could_not_create_bloom_filter_for_chunk(Chunk.FileName, mapCount);
                     return null;
                 }
@@ -211,7 +211,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 }
                 finally
                 {
-                    if (workItem != null)
+                    if (workItem is object)
                         Chunk.ReturnReaderWorkItem(workItem);
                 }
             }
@@ -267,7 +267,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
                 }
                 finally
                 {
-                    if (workItem != null)
+                    if (workItem is object)
                     {
                         Chunk.ReturnReaderWorkItem(workItem);
                     }
@@ -344,7 +344,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             private int TranslateExactPosition(ReaderWorkItem workItem, long pos)
             {
                 var midpoints = _midpoints;
-                if (workItem.IsMemory || midpoints == null)
+                if (workItem.IsMemory || midpoints is null)
                 {
                     return TranslateExactWithoutMidpoints(workItem, pos, 0, Chunk.ChunkFooter.MapCount - 1);
                 }
@@ -463,7 +463,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
             private int TranslateClosestForwardPosition(ReaderWorkItem workItem, long logicalPosition)
             {
                 var midpoints = _midpoints;
-                if (workItem.IsMemory || midpoints == null)
+                if (workItem.IsMemory || midpoints is null)
                 {
                     return TranslateClosestForwardWithoutMidpoints(workItem, logicalPosition, 0, Chunk.ChunkFooter.MapCount - 1);
                 }
@@ -574,7 +574,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
             protected TFChunkReadSide(TFChunk chunk)
             {
-                if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
+                if (chunk is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
                 Chunk = chunk;
             }
 

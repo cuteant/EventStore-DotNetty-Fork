@@ -27,7 +27,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool resolvedFromLinkTo, string eventStreamId, string eventName, bool isStreamDeletedEvent = false)
         {
             return (PassesSource(resolvedFromLinkTo, eventStreamId, eventName))
-                   && ((_allEvents || _events != null && _events.Contains(eventName))
+                   && ((_allEvents || _events is object && _events.Contains(eventName))
                        && (!isStreamDeletedEvent || _includeDeletedStreamEvents));
         }
 

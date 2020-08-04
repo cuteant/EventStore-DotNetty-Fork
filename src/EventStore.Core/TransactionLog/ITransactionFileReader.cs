@@ -33,7 +33,7 @@ namespace EventStore.Core.TransactionLog
 
         void IDisposable.Dispose()
         {
-            if (_pool != null)
+            if (_pool is object)
                 _pool.Return(Reader);
         }
 

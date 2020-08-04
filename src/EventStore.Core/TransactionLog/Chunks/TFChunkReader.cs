@@ -22,8 +22,8 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkReader(TFChunkDb db, ICheckpoint writerCheckpoint, long initialPosition = 0, bool optimizeReadSideCache = false)
         {
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
             if ((ulong)initialPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialPosition); }
 
             _db = db;

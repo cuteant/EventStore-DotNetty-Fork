@@ -72,7 +72,7 @@ namespace EventStore.ClientAPI.Embedded
         public void NotifyEventsProcessed(Guid processedEvent) => NotifyEventsProcessed(new Guid[] { processedEvent });
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
-            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
+            if (processedEvents is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
 
             Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
                 ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),
@@ -86,8 +86,8 @@ namespace EventStore.ClientAPI.Embedded
         }
         public void NotifyEventsFailed(Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
         {
-            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
-            if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
+            if (processedEvents is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
+            if (reason is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
 
             Publisher.PublishWithAuthentication(_authenticationProvider, _userCredentials,
                 ex => DropSubscription(EventStore.Core.Services.SubscriptionDropReason.AccessDenied, ex),

@@ -31,11 +31,11 @@ namespace EventStore.Core.Services.VNode
             var stateNum = (int) state;
             
             Dictionary<Type, Action<VNodeState, Message>> stateHandlers = _handlers[stateNum];
-            if (stateHandlers == null)
+            if (stateHandlers is null)
                 stateHandlers = _handlers[stateNum] = new Dictionary<Type, Action<VNodeState, Message>>();
 
             //var existingHandler = stateHandlers[typeof (TActualMessage)];
-            //stateHandlers[typeof (TActualMessage)] = existingHandler == null
+            //stateHandlers[typeof (TActualMessage)] = existingHandler is null
             //                                            ? handler
             //                                            : (s, m) => { existingHandler(s, m); handler(s, m); };
 
@@ -48,10 +48,10 @@ namespace EventStore.Core.Services.VNode
         {
             var stateNum = (int)state;
             //var existingHandler = _defaultHandlers[stateNum];
-            //_defaultHandlers[stateNum] = existingHandler == null
+            //_defaultHandlers[stateNum] = existingHandler is null
             //                                ? handler
             //                                : (s, m) => { existingHandler(s, m); handler(s, m); };
-            if (_defaultHandlers[stateNum] != null)
+            if (_defaultHandlers[stateNum] is object)
                 ThrowHelper.ThrowInvalidOperationException_DefaultHandlerAlreadyDefinedForState(state);
             _defaultHandlers[stateNum] = handler;
         }

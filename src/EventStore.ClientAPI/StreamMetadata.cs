@@ -119,7 +119,7 @@ namespace EventStore.ClientAPI
         /// <returns>An instance of <see cref="StreamMetadataBuilder"/>.</returns>
         public StreamMetadataBuilder Copy()
         {
-            if (Acl == null)
+            if (Acl is null)
             {
                 return new StreamMetadataBuilder(
                     MaxCount,
@@ -170,7 +170,7 @@ namespace EventStore.ClientAPI
         /// <returns>True if the key exists, false otherwise.</returns>
         public bool TryGetValue<T>(string key, out T value)
         {
-            if (null == key) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
+            if (key is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
 
             if (!_customMetadata.TryGetValue(key, out JToken token))
             {
@@ -205,7 +205,7 @@ namespace EventStore.ClientAPI
         /// <returns>True if the key exists, false otherwise.</returns>
         public bool TryGetValueAsRawJsonString(string key, out string value)
         {
-            if (null == key) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
+            if (key is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key); }
 
             if (!_customMetadata.TryGetValue(key, out JToken token))
             {
@@ -286,7 +286,7 @@ namespace EventStore.ClientAPI
                 jsonWriter.WritePropertyName(SystemMetadata.CacheControl);
                 jsonWriter.WriteValue((long)CacheControl.Value.TotalSeconds);
             }
-            if (Acl != null)
+            if (Acl is object)
             {
                 jsonWriter.WritePropertyName(SystemMetadata.Acl);
                 WriteAcl(jsonWriter, Acl);
@@ -312,7 +312,7 @@ namespace EventStore.ClientAPI
 
         private static void WriteAclRoles(JsonTextWriter jsonWriter, string propertyName, string[] roles)
         {
-            if (roles == null) return;
+            if (roles is null) return;
             jsonWriter.WritePropertyName(propertyName);
             if (roles.Length == 1)
             {
@@ -392,7 +392,7 @@ namespace EventStore.ClientAPI
                             }
                         default:
                             {
-                                if (customMetadata == null)
+                                if (customMetadata is null)
                                 {
                                     customMetadata = new Dictionary<string, JToken>(StringComparer.Ordinal);
                                 }

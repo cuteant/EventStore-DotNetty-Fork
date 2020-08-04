@@ -122,7 +122,9 @@ namespace EventStore.Core.Messaging
                 DescendantsByType.Add(typeIdMap.Key, DescendantsByTypeId[typeIdMap.Value]);
             }
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) { Log.MessageHierarchyInitializationTook(sw.Elapsed); }
+#endif
         }
 
         static Type[] LoadAvailableTypes(Assembly assembly)
@@ -153,7 +155,7 @@ namespace EventStore.Core.Messaging
             if (MsgTypeIdByType.TryGetValue(msgType, out int typeId)) { return typeId; }
 
             var msgTypeField = msgType.GetFields(BindingFlags.Static | BindingFlags.NonPublic).FirstOrDefault(x => x.Name == "TypeId");
-            if (msgTypeField == null)
+            if (msgTypeField is null)
             {
                 if (Log.IsInformationLevelEnabled()) Log.Message_doesnot_have_TypeId_field(msgType);
                 ThrowHelper.ThrowException_MessageDoesntHaveTypeIdField(msgType);

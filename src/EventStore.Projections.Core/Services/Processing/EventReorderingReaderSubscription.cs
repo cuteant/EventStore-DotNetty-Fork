@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(ReaderSubscriptionMessage.CommittedEventDistributed message)
         {
-            if (message.Data == null)
+            if (message.Data is null)
                 throw new NotSupportedException();
             ReaderSubscriptionMessage.CommittedEventDistributed existing;
             // ignore duplicate messages (when replaying from heading event distribution point)

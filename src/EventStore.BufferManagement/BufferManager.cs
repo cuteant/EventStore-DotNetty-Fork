@@ -49,7 +49,7 @@ namespace EventStore.BufferManagement
             get
             {
                 //default to 1024 1kb buffers if people don't want to manage it on their own;
-                if (_defaultBufferManager == null)
+                if (_defaultBufferManager is null)
                     _defaultBufferManager = new BufferManager(1024, 1024, 1);
                 return _defaultBufferManager;
             }
@@ -61,7 +61,7 @@ namespace EventStore.BufferManagement
         /// <param name="manager">The new default buffer manager.</param>
         public static void SetDefaultBufferManager(BufferManager manager)
         {
-            if (manager == null)
+            if (manager is null)
                 throw new ArgumentNullException("manager");
             _defaultBufferManager = manager;
         }
@@ -261,7 +261,7 @@ namespace EventStore.BufferManagement
         /// <param name="buffersToReturn">The <see cref="ArraySegment{T}"></see> to return to the cache</param>
         public void CheckIn(IEnumerable<ArraySegment<byte>> buffersToReturn)
         {
-            if (buffersToReturn == null)
+            if (buffersToReturn is null)
                 throw new ArgumentNullException("buffersToReturn");
 
             foreach (var buf in buffersToReturn)
@@ -274,7 +274,7 @@ namespace EventStore.BufferManagement
         //[Conditional("DEBUG")]
         private void CheckBuffer(ArraySegment<byte> buffer)
         {
-            if (buffer.Array == null || buffer.Count == 0 || buffer.Array.Length < buffer.Offset + buffer.Count)
+            if (buffer.Array is null || buffer.Count == 0 || buffer.Array.Length < buffer.Offset + buffer.Count)
                 throw new Exception("Attempt to check in invalid buffer");
             if (buffer.Count != _chunkSize)
                 throw new ArgumentException("Buffer was not of the same chunk size as the buffer manager", "buffer");

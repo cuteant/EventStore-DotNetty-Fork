@@ -31,13 +31,13 @@ namespace EventStore.Projections.Core.Services.Management
                     break;
                 case "native":
                     var type = Type.GetType(rest);
-                    if (type == null)
+                    if (type is null)
                     {
                         //TODO: explicitly list all the assemblies to look for handlers
                         type =
                             AppDomain.CurrentDomain.GetAssemblies()
                                      .Select(v => v.GetType(rest))
-                                     .FirstOrDefault(v => v != null);
+                                     .FirstOrDefault(v => v is object);
                     }
                     var handler = Activator.CreateInstance(type, source, logger);
                     result = (IProjectionStateHandler)handler;

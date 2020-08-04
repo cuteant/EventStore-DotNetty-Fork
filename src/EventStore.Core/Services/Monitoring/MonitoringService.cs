@@ -73,13 +73,13 @@ namespace EventStore.Core.Services.Monitoring
                                    IPEndPoint tcpEndpoint,
                                    IPEndPoint tcpSecureEndpoint)
         {
-            if (null == monitoringQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.monitoringQueue); }
-            if (null == statsCollectionBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsCollectionBus); }
-            if (null == mainBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainBus); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (monitoringQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.monitoringQueue); }
+            if (statsCollectionBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsCollectionBus); }
+            if (mainBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainBus); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
             if (string.IsNullOrEmpty(dbPath)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dbPath); }
-            if (null == nodeEndpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeEndpoint); }
-            if (null == tcpEndpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndpoint); }
+            if (nodeEndpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeEndpoint); }
+            if (tcpEndpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpEndpoint); }
 
             _monitoringQueue = monitoringQueue;
             _statsCollectionBus = statsCollectionBus;
@@ -111,7 +111,7 @@ namespace EventStore.Core.Services.Monitoring
             try
             {
                 var stats = CollectStats();
-                if (stats != null)
+                if (stats is object)
                 {
                     var rawStats = stats.GetStats(useGrouping: false, useMetadata: false);
 
@@ -266,7 +266,9 @@ namespace EventStore.Core.Services.Monitoring
                 case OperationResult.Success:
                 case OperationResult.WrongExpectedVersion: // already created
                     {
+#if DEBUG
                         if (Log.IsTraceLevelEnabled()) Log.CreatedStatsStream(_nodeStatsStream, message.Result);
+#endif
                         _statsStreamCreated = true;
                         break;
                     }
@@ -274,7 +276,9 @@ namespace EventStore.Core.Services.Monitoring
                 case OperationResult.CommitTimeout:
                 case OperationResult.ForwardTimeout:
                     {
+#if DEBUG
                         if (Log.IsDebugLevelEnabled()) Log.Failed_to_create_stats_stream(_nodeStatsStream, message);
+#endif
                         SetStatsStreamMetadata();
                         break;
                     }
@@ -301,7 +305,7 @@ namespace EventStore.Core.Services.Monitoring
                 if (!TryGetMemoizedStats(out StatsContainer stats))
                 {
                     stats = CollectStats();
-                    if (stats != null)
+                    if (stats is object)
                     {
                         _memoizedStats = stats;
                         _lastStatsRequestTime = DateTime.UtcNow;
@@ -309,14 +313,14 @@ namespace EventStore.Core.Services.Monitoring
                 }
 
                 Dictionary<string, object> selectedStats = null;
-                if (stats != null)
+                if (stats is object)
                 {
                     selectedStats = stats.GetStats(message.UseGrouping, message.UseMetadata);
                     if (message.UseGrouping) { selectedStats = message.StatsSelector(selectedStats); }
                 }
 
                 message.Envelope.ReplyWith(
-                    new MonitoringMessage.GetFreshStatsCompleted(success: selectedStats != null, stats: selectedStats));
+                    new MonitoringMessage.GetFreshStatsCompleted(success: selectedStats is object, stats: selectedStats));
             }
             catch (Exception ex)
             {
@@ -331,7 +335,7 @@ namespace EventStore.Core.Services.Monitoring
                 if (!TryGetMemoizedTcpConnections(out IMonitoredTcpConnection[] connections))
                 {
                     connections = TcpConnectionMonitor.Default.GetTcpConnectionStats();
-                    if (connections != null)
+                    if (connections is object)
                     {
                         _memoizedTcpConnections = connections;
                         _lastTcpConnectionsRequestTime = DateTime.UtcNow;
@@ -348,7 +352,7 @@ namespace EventStore.Core.Services.Monitoring
                     }
                     else
                     {
-                        isExternalConnection = _tcpSecureEndpoint != null && _tcpSecureEndpoint.Port == conn.LocalEndPoint.Port;
+                        isExternalConnection = _tcpSecureEndpoint is object && _tcpSecureEndpoint.Port == conn.LocalEndPoint.Port;
                     }
                     connStats.Add(new MonitoringMessage.TcpConnectionStats
                     {
@@ -376,7 +380,7 @@ namespace EventStore.Core.Services.Monitoring
 
         private bool TryGetMemoizedStats(out StatsContainer stats)
         {
-            if (_memoizedStats == null || DateTime.UtcNow - _lastStatsRequestTime > MemoizePeriod)
+            if (_memoizedStats is null || DateTime.UtcNow - _lastStatsRequestTime > MemoizePeriod)
             {
                 stats = null;
                 return false;
@@ -387,7 +391,7 @@ namespace EventStore.Core.Services.Monitoring
 
         private bool TryGetMemoizedTcpConnections(out IMonitoredTcpConnection[] connections)
         {
-            if (_memoizedTcpConnections == null || DateTime.UtcNow - _lastTcpConnectionsRequestTime > MemoizePeriod)
+            if (_memoizedTcpConnections is null || DateTime.UtcNow - _lastTcpConnectionsRequestTime > MemoizePeriod)
             {
                 connections = null;
                 return false;

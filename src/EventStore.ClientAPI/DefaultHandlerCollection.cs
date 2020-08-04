@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI
 
         public IHandlerRegistration Add<TEvent>(Func<IResolvedEvent<TEvent>, Task> handler)
         {
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             if (_handlers.ContainsKey(typeof(TEvent)))
             {
@@ -43,7 +43,7 @@ namespace EventStore.ClientAPI
 
         public IHandlerRegistration Add<TEvent>(Action<IResolvedEvent<TEvent>> handler)
         {
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             Add<TEvent>(async iEvent =>
             {
@@ -73,7 +73,7 @@ namespace EventStore.ClientAPI
                 lock (_thisLock)
                 {
                     var hander = Match(eventType);
-                    if (hander != null) { return hander; }
+                    if (hander is object) { return hander; }
                     _handlers.Add(eventType, s_emptyHandler);
                     if (s_logger.IsWarningLevelEnabled()) { s_logger.NoHandlerFoundForEventTypeTheDefaultHanderHasBeenUsed(eventType); }
                     return s_emptyHandler;
@@ -86,7 +86,7 @@ namespace EventStore.ClientAPI
                     lock (_thisLock)
                     {
                         var hander = Match(eventType);
-                        if (hander != null) { return hander; }
+                        if (hander is object) { return hander; }
                         _noMatching.Add(eventType);
                     }
                 }
@@ -102,7 +102,7 @@ namespace EventStore.ClientAPI
             // no exact handler match found, so let's see if we can find a handler that
             // handles a supertype of the consumed event.
             var handlerType = _handlers.Keys.FirstOrDefault(type => type.IsAssignableFrom(eventType));
-            if (handlerType != null)
+            if (handlerType is object)
             {
                 var hander = _handlers[handlerType];
                 _handlers.Add(eventType, hander);

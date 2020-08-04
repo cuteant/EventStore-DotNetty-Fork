@@ -27,7 +27,7 @@ namespace EventStore.Core.Helpers
 
         public LengthPrefixSuffixFramer(Action<BinaryReader> packageHandler, int maxPackageSize = TFConsts.MaxLogRecordSize)
         {
-            if (null == packageHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.packageHandler); }
+            if (packageHandler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.packageHandler); }
             if ((uint)(maxPackageSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxPackageSize); }
 
             _maxPackageSize = maxPackageSize;
@@ -46,7 +46,7 @@ namespace EventStore.Core.Helpers
 
         public void UnFrameData(IEnumerable<ArraySegment<byte>> data)
         {
-            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
+            if (data is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             foreach (ArraySegment<byte> buffer in data)
             {

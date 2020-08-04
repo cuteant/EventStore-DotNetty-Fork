@@ -78,12 +78,12 @@ namespace EventStore.Core.Services.Transport.Tcp
             int connectionQueueSizeThreshold)
             : base(transportSettings, certificate)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == serverEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serverEndPoint); }
-            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
-            if (null == dispatcherFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcherFactory); }
-            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
-            if (securityType == TcpSecurityType.Secure && certificate == null)
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (serverEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serverEndPoint); }
+            if (networkSendQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (dispatcherFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcherFactory); }
+            if (authProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (securityType == TcpSecurityType.Secure && certificate is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
 
             _publisher = publisher;

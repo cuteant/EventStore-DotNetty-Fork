@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Messages;
 using EventStore.Core.Messaging;
 using EventStore.Core.Services.Storage.ReaderIndex;
 using EventStore.Core.TransactionLog.Checkpoint;
+using Microsoft.Extensions.Logging;
 
 namespace EventStore.Core.Services.Storage
 {
@@ -25,11 +24,11 @@ namespace EventStore.Core.Services.Storage
 
         public StorageReaderService(IPublisher bus, ISubscriber subscriber, IReadIndex readIndex, int threadCount, ICheckpoint writerCheckpoint)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == subscriber) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriber); }
-            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (subscriber is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriber); }
+            if (readIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
             if ((uint)(threadCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.threadCount); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _bus = bus;
             _readIndex = readIndex;

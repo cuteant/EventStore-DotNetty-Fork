@@ -22,7 +22,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected override void SubscribeCore(IHttpService service)
         {
-            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
+            if (service is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
 
             service.RegisterAction(new ControllerAction("/stats", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetFreshStats);
             service.RegisterAction(new ControllerAction("/stats/replication", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetReplicationStats);
@@ -82,7 +82,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
             return dict =>
             {
-                if (null == dict) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dict); }
+                if (dict is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dict); }
 
                 foreach (string groupName in groups)
                 {
@@ -92,7 +92,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
                     dict = item as Dictionary<string, object>;
 
-                    if (dict == null)
+                    if (dict is null)
                         return null;
                 }
 

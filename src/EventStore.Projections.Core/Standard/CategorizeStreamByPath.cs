@@ -63,7 +63,7 @@ namespace EventStore.Projections.Core.Standard
                 return false; // not our event
 
             var category = _streamCategoryExtractor.GetCategoryByStreamId(data.PositionStreamId);
-            if (category == null)
+            if (category is null)
                 return true; // handled but not interesting
 
             emittedEvents = new[]

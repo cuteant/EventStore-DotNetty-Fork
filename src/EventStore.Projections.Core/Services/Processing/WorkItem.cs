@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override void Process(int onStage, Action<int, object> readyForStage)
         {
-            if (_checkpointTag == null)
+            if (_checkpointTag is null)
                 throw new InvalidOperationException("CheckpointTag has not been initialized");
             _complete = readyForStage;
             _onStage = onStage;

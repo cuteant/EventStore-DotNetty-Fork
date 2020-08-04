@@ -42,7 +42,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override IEnumerable<KeyValuePair<string, string>> ExtraMetaData()
         {
-            return _metadata == null ? null : _metadata.Metadata;
+            return _metadata is null ? null : _metadata.Metadata;
         }
 
         public override string ToString()

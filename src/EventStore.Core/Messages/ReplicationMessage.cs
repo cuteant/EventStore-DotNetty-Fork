@@ -28,10 +28,10 @@ namespace EventStore.Core.Messages
                                     Guid masterId, Guid subscriptionId, bool isPromotable)
             {
                 if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
-                if (null == lastEpochs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
+                if (lastEpochs is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (null == replicaEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicaEndPoint); }
+                if (replicaEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicaEndPoint); }
 
                 LogPosition = logPosition;
                 ChunkId = chunkId;
@@ -105,11 +105,11 @@ namespace EventStore.Core.Messages
                                               bool isPromotable)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
-                if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
                 if ((ulong)logPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.logPosition); }
-                if (null == lastEpochs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
-                if (null == replicaEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicaEndPoint); }
+                if (lastEpochs is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lastEpochs); }
+                if (replicaEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicaEndPoint); }
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
 
@@ -137,7 +137,7 @@ namespace EventStore.Core.Messages
             public ReconnectToMaster(Guid stateCorrelationId, VNodeInfo master)
             {
                 if (Guid.Empty == stateCorrelationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.stateCorrelationId); }
-                if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
+                if (master is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
                 StateCorrelationId = stateCorrelationId;
                 Master = master;
             }
@@ -223,7 +223,7 @@ namespace EventStore.Core.Messages
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
                 if ((ulong)subscriptionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
-                if (null == masterEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterEndPoint); }
+                if (masterEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterEndPoint); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -291,7 +291,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (null == chunkHeader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
+                if (chunkHeader is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -332,7 +332,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (null == rawBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
+                if (rawBytes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
                 if (0u >= (uint)rawBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
 
                 MasterId = masterId;
@@ -379,7 +379,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == masterId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterId); }
                 if (Guid.Empty == subscriptionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.subscriptionId); }
-                if (null == dataBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
+                if (dataBytes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
                 if (0u >= (uint)dataBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
 
                 MasterId = masterId;

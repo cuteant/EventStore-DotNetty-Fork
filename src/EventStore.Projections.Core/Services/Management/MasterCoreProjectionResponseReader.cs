@@ -33,7 +33,7 @@ namespace EventStore.Projections.Core.Services.Management
             Guid workerId,
             Guid masterProjectionId)
         {
-            if (null == publisher) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (null == ioDispatcher) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;

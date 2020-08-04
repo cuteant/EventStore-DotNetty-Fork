@@ -27,7 +27,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
         {
             get
             {
-                if (_state == null)
+                if (_state is null)
                     return 0;
 
                 return _state.AvailableCapacity;
@@ -57,7 +57,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy
 
         public ConsumerPushResult PushMessageToClient(in ResolvedEvent ev, int retryCount)
         {
-            if (_state == null)
+            if (_state is null)
             {
                 return ConsumerPushResult.NoMoreCapacity;
             }

@@ -79,7 +79,7 @@ namespace EventStore.Core.Internal {
         }
         
         /// <summary>
-        ///   查找类似 _connection == null 的本地化字符串。
+        ///   查找类似 _connection is null 的本地化字符串。
         /// </summary>
         internal static string ConnectionIsNull {
             get {

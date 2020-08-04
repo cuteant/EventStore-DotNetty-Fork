@@ -87,7 +87,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         private static DiskIo GetOnWindows(ILogger log)
         {
-            if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
+            if (log is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
 
             IO_COUNTERS counters;
             Process proc = null;
@@ -103,7 +103,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             }
             finally
             {
-                if (proc != null) { proc.Dispose(); }
+                if (proc is object) { proc.Dispose(); }
             }
             return new DiskIo(counters.ReadTransferCount, counters.WriteTransferCount,
                               counters.ReadOperationCount, counters.WriteOperationCount);

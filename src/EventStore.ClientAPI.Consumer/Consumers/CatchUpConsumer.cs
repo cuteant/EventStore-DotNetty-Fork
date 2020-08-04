@@ -34,14 +34,14 @@ namespace EventStore.ClientAPI.Consumers
 
         public void Initialize(IEventStoreBus bus, CatchUpSubscription subscription, Func<EventStoreCatchUpSubscription, ResolvedEvent<object>, Task> eventAppearedAsync)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             Initialize(bus, subscription);
             _eventAppearedAsync = eventAppearedAsync;
         }
 
         public void Initialize(IEventStoreBus bus, CatchUpSubscription subscription, Action<EventStoreCatchUpSubscription, ResolvedEvent<object>> eventAppeared)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             Initialize(bus, subscription);
             _eventAppeared = eventAppeared;
         }
@@ -74,7 +74,7 @@ namespace EventStore.ClientAPI.Consumers
                 {
                     if (string.IsNullOrEmpty(Subscription.Topic))
                     {
-                        if (RegisterEventHandlers != null)
+                        if (RegisterEventHandlers is object)
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
                                     _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
@@ -91,7 +91,7 @@ namespace EventStore.ClientAPI.Consumers
                     }
                     else
                     {
-                        if (RegisterEventHandlers != null)
+                        if (RegisterEventHandlers is object)
                         {
                             esSubscription2 = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, RegisterEventHandlers,
                                     _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
@@ -111,7 +111,7 @@ namespace EventStore.ClientAPI.Consumers
                 {
                     if (string.IsNullOrEmpty(Subscription.Topic))
                     {
-                        if (_eventAppearedAsync != null)
+                        if (_eventAppearedAsync is object)
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
                                     _ => s_logger.CaughtUpOnStreamAt(_.StreamId),
@@ -128,7 +128,7 @@ namespace EventStore.ClientAPI.Consumers
                     }
                     else
                     {
-                        if (_eventAppearedAsync != null)
+                        if (_eventAppearedAsync is object)
                         {
                             esSubscription = Bus.CatchUpSubscribe(Subscription.StreamId, Subscription.Topic, lastCheckpoint, Subscription.Settings, _eventAppearedAsync,
                                     _ => s_logger.CaughtUpOnStreamAt(_.StreamId),

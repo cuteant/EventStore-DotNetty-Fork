@@ -40,8 +40,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void CacheAndLockPartitionState(string partition, PartitionState data, CheckpointTag at)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
-            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (data is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
             EnsureCanLockPartitionAt(partition, at);
 
             _partitionStates[partition] = Tuple.Create(data, at);
@@ -54,8 +54,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void CachePartitionState(string partition, PartitionState data)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
-            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (data is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             _partitionStates[partition] = Tuple.Create(data, _zeroPosition);
             _cachedItemCount = _partitionStates.Count;
@@ -66,12 +66,12 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionState TryGetAndLockPartitionState(string partition, CheckpointTag lockAt)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             Tuple<PartitionState, CheckpointTag> stateData;
             if (!_partitionStates.TryGetValue(partition, out stateData))
                 return null;
             EnsureCanLockPartitionAt(partition, lockAt);
-            if (lockAt != null && lockAt <= stateData.Item2)
+            if (lockAt is object && lockAt <= stateData.Item2)
                 throw new InvalidOperationException(
                     string.Format(
                         "Attempt to relock the '{0}' partition state locked at the '{1}' position at the earlier position '{2}'",
@@ -88,7 +88,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public PartitionState TryGetPartitionState(string partition)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             Tuple<PartitionState, CheckpointTag> stateData;
             if (!_partitionStates.TryGetValue(partition, out stateData))
                 return null;
@@ -104,7 +104,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     string.Format(
                         "Partition '{0}' state was requested as locked but it is missing in the cache.", partition));
             }
-            if (stateData.Item2 != null && stateData.Item2 <= _unlockedBefore)
+            if (stateData.Item2 is object && stateData.Item2 <= _unlockedBefore)
                 throw new InvalidOperationException(
                     string.Format(
                         "Partition '{0}' state was requested as locked but it is cached as unlocked", partition));
@@ -141,12 +141,12 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void EnsureCanLockPartitionAt(string partition, CheckpointTag at)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
-            if (at == null && partition != "")
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (at is null && partition != "")
                 throw new InvalidOperationException("Only the root partition can be locked forever");
-            if (partition == "" && at != null)
+            if (partition == "" && at is object)
                 throw new InvalidOperationException("Root partition must be locked forever");
-            if (at != null && at <= _unlockedBefore)
+            if (at is object && at <= _unlockedBefore)
                 throw new InvalidOperationException(
                     string.Format(
                         "Attempt to lock the '{0}' partition state at the position '{1}' before the unlocked position '{2}'",

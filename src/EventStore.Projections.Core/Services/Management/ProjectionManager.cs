@@ -98,7 +98,7 @@ namespace EventStore.Projections.Core.Services.Management
           ITimeProvider timeProvider, ProjectionType runProjections, IODispatcher ioDispatcher, TimeSpan projectionQueryExpiry, bool initializeSystemProjections = true)
         {
             if (null == inputQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputQueue); }
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (null == queueMap) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queueMap); }
             if (queueMap.Count == 0) throw new ArgumentException("At least one queue is required", nameof(queueMap));
 
@@ -212,7 +212,7 @@ namespace EventStore.Projections.Core.Services.Management
                 return;
             }
 
-            if (message.Name == null)
+            if (message.Name is null)
             {
                 message.Envelope.ReplyWith(
                     new ProjectionManagementMessage.OperationFailed("Projection name is required"));
@@ -235,7 +235,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -272,7 +272,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -291,7 +291,7 @@ namespace EventStore.Projections.Core.Services.Management
                 _logger.UpdatingProjectionSourceTo(message);
             }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -308,7 +308,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (_logger.IsInformationLevelEnabled()) _logger.DisablingProjection(message.Name);
 
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -325,7 +325,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (_logger.IsInformationLevelEnabled()) _logger.EnablingProjection(message.Name);
 
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 _logger.DbgProjectionNotFound(message.Name);
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
@@ -343,7 +343,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (_logger.IsInformationLevelEnabled()) _logger.AbortingProjection(message.Name);
 
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -360,7 +360,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (_logger.IsInformationLevelEnabled()) _logger.SettingRunAs1AccountForProjection(message.Name);
 
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 _logger.DbgProjectionNotFound(message.Name);
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
@@ -384,7 +384,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (_logger.IsInformationLevelEnabled()) _logger.ResettingProjection(message.Name);
 
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 _logger.DbgProjectionNotFound(message.Name);
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
@@ -402,7 +402,7 @@ namespace EventStore.Projections.Core.Services.Management
             if (!string.IsNullOrEmpty(message.Name))
             {
                 var projection = GetProjection(message.Name);
-                if (projection == null)
+                if (projection is null)
                 {
                     message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
                 }
@@ -417,7 +417,7 @@ namespace EventStore.Projections.Core.Services.Management
                                 let projection = projectionNameValue.Value
                                 where !projection.Deleted
                                 where
-                                    message.Mode == null || message.Mode == projection.Mode
+                                    message.Mode is null || message.Mode == projection.Mode
                                     || (message.Mode.GetValueOrDefault() == ProjectionMode.AllNonTransient
                                         && projection.Mode != ProjectionMode.Transient)
                                 let status = projection.GetStatistics()
@@ -430,7 +430,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -444,7 +444,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -458,7 +458,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }
@@ -473,7 +473,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (!_projectionsStarted) { return; }
             var projection = GetProjection(message.Name);
-            if (projection == null)
+            if (projection is null)
             {
                 message.Envelope.ReplyWith(new ProjectionManagementMessage.NotFound());
             }

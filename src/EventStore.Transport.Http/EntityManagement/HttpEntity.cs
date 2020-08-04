@@ -20,8 +20,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public HttpEntity(HttpListenerRequest request, HttpListenerResponse response, IPrincipal user, bool logHttpRequests, IPAddress advertiseAsAddress, int advertiseAsPort)
         {
-            if (null == request) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
-            if (null == response) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
+            if (request is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.request); }
+            if (response is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
 
             _logHttpRequests = logHttpRequests;
             RequestedUrl = BuildRequestedUrl(request.Url, request.Headers, advertiseAsAddress, advertiseAsPort);
@@ -40,7 +40,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 uriBuilder.Path = string.Empty;
             }
 
-            if (advertiseAsAddress != null)
+            if (advertiseAsAddress is object)
             {
                 uriBuilder.Host = advertiseAsAddress.ToString();
             }

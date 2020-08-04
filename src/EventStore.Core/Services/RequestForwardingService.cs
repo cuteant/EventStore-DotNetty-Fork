@@ -23,8 +23,8 @@ namespace EventStore.Core.Services
 
         public RequestForwardingService(IPublisher bus, MessageForwardingProxy forwardingProxy, TimeSpan tickInterval)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == forwardingProxy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (forwardingProxy is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
             if ((uint)tickInterval.Milliseconds > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.tickInterval); }
 
             _bus = bus;

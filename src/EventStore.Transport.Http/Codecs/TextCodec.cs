@@ -12,7 +12,7 @@ namespace EventStore.Transport.Http.Codecs
         public bool HasEventTypes { get { return false; }}
         public bool CanParse(MediaType format)
         {
-            return format != null && format.Matches(ContentType, Encoding);
+            return format is object && format.Matches(ContentType, Encoding);
         }
 
         public bool SuitableForResponse(MediaType component)
@@ -30,7 +30,7 @@ namespace EventStore.Transport.Http.Codecs
 
         public string To<T>(T value)
         {
-            return ((object) value) != null ? value.ToString() : null;
+            return ((object) value) is object ? value.ToString() : null;
         }
     }
 }

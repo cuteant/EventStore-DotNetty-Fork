@@ -31,9 +31,9 @@ namespace EventStore.ClientAPI.Transport.Http
             Action<HttpResponse> onSuccess, Action<Exception> onException,
             string hostHeader = "")
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Get, url, userCredentials, onSuccess, onException, hostHeader);
         }
@@ -41,11 +41,11 @@ namespace EventStore.ClientAPI.Transport.Http
         public void Post(string url, string body, string contentType, UserCredentials userCredentials,
             Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
-            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (body is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (contentType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Post, url, body, contentType, userCredentials, onSuccess, onException);
         }
@@ -53,9 +53,9 @@ namespace EventStore.ClientAPI.Transport.Http
         public void Delete(string url, UserCredentials userCredentials,
             Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Delete, url, userCredentials, onSuccess, onException);
         }
@@ -63,11 +63,11 @@ namespace EventStore.ClientAPI.Transport.Http
         public void Put(string url, string body, string contentType, UserCredentials userCredentials,
             Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
-            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (body is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (contentType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Put, url, body, contentType, userCredentials, onSuccess, onException);
         }
@@ -79,7 +79,7 @@ namespace EventStore.ClientAPI.Transport.Http
             request.RequestUri = new Uri(url);
             request.Method = new System.Net.Http.HttpMethod(method);
 
-            if (userCredentials != null)
+            if (userCredentials is object)
                 AddAuthenticationHeader(request, userCredentials);
 
             if (!string.IsNullOrWhiteSpace(hostHeader))
@@ -96,7 +96,7 @@ namespace EventStore.ClientAPI.Transport.Http
             request.RequestUri = new Uri(url);
             request.Method = new System.Net.Http.HttpMethod(method);
 
-            if (userCredentials != null)
+            if (userCredentials is object)
                 AddAuthenticationHeader(request, userCredentials);
 
             var bodyBytes = UTF8NoBom.GetBytes(body);
@@ -113,7 +113,7 @@ namespace EventStore.ClientAPI.Transport.Http
 
         private void AddAuthenticationHeader(HttpRequestMessage request, UserCredentials userCredentials)
         {
-            if (null == userCredentials) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.userCredentials); }
+            if (userCredentials is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.userCredentials); }
 
             var httpAuthentication = string.Format("{0}:{1}", userCredentials.Username, userCredentials.Password);
             var encodedCredentials = Convert.ToBase64String(Helper.UTF8NoBom.GetBytes(httpAuthentication));

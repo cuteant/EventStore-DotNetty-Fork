@@ -117,19 +117,19 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration EventEntry(HttpResponseConfiguratorArgs entity, Message message, bool headEvent)
         {
             var msg = message as ClientMessage.ReadEventCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
                     case ReadEventResult.Success:
                         var codec = entity.ResponseCodec;
-                        if (msg.Record.Event == null && msg.Record.Link != null)
+                        if (msg.Record.Event is null && msg.Record.Link is object)
                         {
                             return NotFound();
                         }
                         if (headEvent)
                         {
-                            var etag = msg.Record.OriginalEvent != null ? GetPositionETag(msg.Record.OriginalEventNumber, codec.ContentType) : String.Empty;
+                            var etag = msg.Record.OriginalEvent is object ? GetPositionETag(msg.Record.OriginalEventNumber, codec.ContentType) : String.Empty;
                             var cacheSeconds = GetCacheSeconds(msg.StreamMetadata);
                             return Ok(codec.ContentType, codec.Encoding, etag, cacheSeconds, msg.IsCachePublic);
                         }
@@ -148,7 +148,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -161,7 +161,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration GetStreamEventsBackward(HttpResponseConfiguratorArgs entity, Message message, bool headOfStream)
         {
             var msg = message as ClientMessage.ReadStreamEventsBackwardCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -187,7 +187,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -195,7 +195,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration GetStreamEventsForward(HttpResponseConfiguratorArgs entity, Message message)
         {
             var msg = message as ClientMessage.ReadStreamEventsForwardCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -221,7 +221,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -229,7 +229,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration ReadAllEventsBackwardCompleted(HttpResponseConfiguratorArgs entity, Message message, bool headOfTf)
         {
             var msg = message as ClientMessage.ReadAllEventsBackwardCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -251,7 +251,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -259,7 +259,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration ReadAllEventsForwardCompleted(HttpResponseConfiguratorArgs entity, Message message, bool headOfTf)
         {
             var msg = message as ClientMessage.ReadAllEventsForwardCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -281,7 +281,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -293,7 +293,7 @@ namespace EventStore.Core.Services.Transport.Http
 
         private static int? GetCacheSeconds(StreamMetadata metadata)
         {
-            return metadata != null && metadata.CacheControl.HasValue
+            return metadata is object && metadata.CacheControl.HasValue
                            ? (int) metadata.CacheControl.Value.TotalSeconds
                            : (int?) null;
         }
@@ -301,7 +301,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration WriteEventsCompleted(HttpResponseConfiguratorArgs entity, Message message, string eventStreamId)
         {
             var msg = message as ClientMessage.WriteEventsCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -328,7 +328,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -336,7 +336,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration DeleteStreamCompleted(HttpResponseConfiguratorArgs entity, Message message)
         {
             var msg = message as ClientMessage.DeleteStreamCompleted;
-            if (msg != null)
+            if (msg is object)
             {
                 switch (msg.Result)
                 {
@@ -359,7 +359,7 @@ namespace EventStore.Core.Services.Transport.Http
                 }
             }
             var notHandled = message as ClientMessage.NotHandled;
-            if (notHandled != null)
+            if (notHandled is object)
                 return HandleNotHandled(entity.RequestedUrl, notHandled);
             return InternalServerError();
         }
@@ -375,7 +375,7 @@ namespace EventStore.Core.Services.Transport.Http
                 case TcpClientMessageDto.NotHandled.NotHandledReason.NotMaster:
                 {
                     var masterInfo = notHandled.AdditionalInfo as TcpClientMessageDto.NotHandled.MasterInfo;
-                    if (masterInfo == null)
+                    if (masterInfo is null)
                         return InternalServerError("No master info available in response");
                     return TemporaryRedirect(requestedUri, masterInfo.ExternalHttpAddress, masterInfo.ExternalHttpPort);
                 }
@@ -387,7 +387,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration GetFreshStatsCompleted(HttpResponseConfiguratorArgs entity, Message message)
         {
             var completed = message as MonitoringMessage.GetFreshStatsCompleted;
-            if (completed == null)
+            if (completed is null)
                 return InternalServerError();
 
             var cacheSeconds = (int)MonitoringService.MemoizePeriod.TotalSeconds;
@@ -399,7 +399,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration GetReplicationStatsCompleted(HttpResponseConfiguratorArgs entity, Message message)
         {
             var completed = message as ReplicationMessage.GetReplicationStatsCompleted;
-            if (completed == null)
+            if (completed is null)
                 return InternalServerError();
 
             var cacheSeconds = (int)MonitoringService.MemoizePeriod.TotalSeconds;
@@ -409,7 +409,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static ResponseConfiguration GetFreshTcpConnectionStatsCompleted(HttpResponseConfiguratorArgs entity, Message message)
         {
             var completed = message as MonitoringMessage.GetFreshTcpConnectionStatsCompleted;
-            if (completed == null)
+            if (completed is null)
                 return InternalServerError();
 
             var cacheSeconds = (int)MonitoringService.MemoizePeriod.TotalSeconds;

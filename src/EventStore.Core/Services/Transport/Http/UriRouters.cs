@@ -20,8 +20,8 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void RegisterAction(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
-            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (action is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             var segments = new Uri("http://fake" + action.UriTemplate, UriKind.Absolute).Segments;
             RouterNode node = _root;
@@ -29,7 +29,7 @@ namespace EventStore.Core.Services.Transport.Http
             {
                 var segment = Uri.UnescapeDataString(segm);
                 string path = segment.StartsWith("{*", StringComparison.Ordinal) ? GreedyPlaceholder
-                            : segment.StartsWith("{", StringComparison.Ordinal) ? Placeholder
+                            : segment.StartsWith('{') ? Placeholder
                             : segment;
 
                 RouterNode child;
@@ -68,7 +68,7 @@ namespace EventStore.Core.Services.Transport.Http
             if (index == segments.Length)
             {
                 // /stats/ should match /stats/{*greedyStatsPath}
-                if (uri.OriginalString.EndsWith("/", StringComparison.Ordinal) && node.Children.TryGetValue(GreedyPlaceholder, out child))
+                if (uri.OriginalString.EndsWith('/') && node.Children.TryGetValue(GreedyPlaceholder, out child))
                     AddMatchingRoutes(child.LeafRoutes, baseAddress, uri, matches);
 
                 AddMatchingRoutes(node.LeafRoutes, baseAddress, uri, matches);
@@ -89,7 +89,7 @@ namespace EventStore.Core.Services.Transport.Http
             {
                 var route = routes[i];
                 var match = route.UriTemplate.Match(baseAddress, uri);
-                if (match != null)
+                if (match is object)
                     matches.Add(new UriToActionMatch(match, route.Action, route.Handler));
             }
         }
@@ -120,7 +120,7 @@ namespace EventStore.Core.Services.Transport.Http
             {
                 var route = _actions[i];
                 var match = route.UriTemplate.Match(baseAddress, uri);
-                if (match != null)
+                if (match is object)
                     matches.Add(new UriToActionMatch(match, route.Action, route.Handler));
             }
             return matches;

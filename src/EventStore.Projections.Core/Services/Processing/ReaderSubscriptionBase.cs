@@ -41,7 +41,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool stopOnEof,
             int? stopAfterNEvents)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (null == readerStrategy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerStrategy); }
             if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
             if (checkpointProcessedEventsThreshold > 0 && stopAfterNEvents > 0)
@@ -138,7 +138,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 if (_checkpointUnhandledBytesThreshold > 0
                    && timeDifference > _checkpointAfter
-                   && (_lastPassedOrCheckpointedEventPosition != null
+                   && (_lastPassedOrCheckpointedEventPosition is object
                        && message.Data.Position.PreparePosition - _lastPassedOrCheckpointedEventPosition.Value
                        > _checkpointUnhandledBytesThreshold))
                     SuggestCheckpoint(message);
@@ -146,7 +146,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     PublishProgress(roundedProgress);
             }
             // initialize checkpointing based on first message 
-            if (_lastPassedOrCheckpointedEventPosition == null)
+            if (_lastPassedOrCheckpointedEventPosition is null)
                 _lastPassedOrCheckpointedEventPosition = message.Data.Position.PreparePosition;
         }
 

@@ -194,7 +194,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (hasBeenProcessed)
             {
                 var newPartitionState = new PartitionState(newState, projectionResult, message.CheckpointTag);
-                var newSharedPartitionState = newSharedState != null
+                var newSharedPartitionState = newSharedState is object
                     ? new PartitionState(newSharedState, null, message.CheckpointTag)
                     : null;
 
@@ -341,9 +341,9 @@ namespace EventStore.Projections.Core.Services.Processing
                 }
             }
             _stopwatch.Stop();
-            if (eventsEmittedOnInitialization != null)
+            if (eventsEmittedOnInitialization is object)
             {
-                if (emittedEvents == null || 0u >= (uint)emittedEvents.Length)
+                if (emittedEvents is null || 0u >= (uint)emittedEvents.Length)
                     emittedEvents = eventsEmittedOnInitialization;
                 else
                     emittedEvents = eventsEmittedOnInitialization.Concat(emittedEvents).ToArray();
@@ -406,7 +406,7 @@ namespace EventStore.Projections.Core.Services.Processing
             var newState = _partitionStateCache.GetLockedPartitionState(partition);
             _handlerPartition = partition;
             var initialized = false;
-            if (newState != null && !String.IsNullOrEmpty(newState.State))
+            if (newState is object && !String.IsNullOrEmpty(newState.State))
                 _projectionStateHandler.Load(newState.State);
             else
             {
@@ -418,7 +418,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_isBiState)
             {
                 var newSharedState = _partitionStateCache.GetLockedPartitionState("");
-                if (newSharedState != null && !String.IsNullOrEmpty(newSharedState.State))
+                if (newSharedState is object && !String.IsNullOrEmpty(newSharedState.State))
                     _projectionStateHandler.LoadShared(newSharedState.State);
                 else
                     _projectionStateHandler.InitializeShared();
@@ -449,7 +449,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     SetFaulting(faultedReason, ex);
                     emittedEvents = null;
                 }
-                if (emittedEvents != null && (uint)emittedEvents.Length > 0u)
+                if (emittedEvents is object && (uint)emittedEvents.Length > 0u)
                 {
                     if (!ValidateEmittedEvents(emittedEvents))
                         return;
@@ -469,7 +469,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override void Dispose()
         {
-            if (_projectionStateHandler != null)
+            if (_projectionStateHandler is object)
                 _projectionStateHandler.Dispose();
         }
 

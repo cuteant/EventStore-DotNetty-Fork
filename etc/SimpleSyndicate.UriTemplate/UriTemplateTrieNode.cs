@@ -38,7 +38,7 @@ namespace System
             bool allowDuplicateEquivalentUriTemplates)
         {
             // given a UTT at MakeReadOnly time, build the trie
-            // note that root.onFailure == null;
+            // note that root.onFailure is null;
             UriTemplateTrieNode root = new UriTemplateTrieNode(0);
             foreach (KeyValuePair<UriTemplate, object> kvp in keyValuePairs)
             {
@@ -157,7 +157,7 @@ namespace System
             {
                 if (TryMatch(wireData, location, out answer, out nextStep))
                 {
-                    if (answer != null)
+                    if (answer is object)
                     {
                         for (int i = 0; i < answer.Items.Count; i++)
                         {
@@ -173,14 +173,14 @@ namespace System
                 }
                 else
                 {
-                    Fx.Assert(nextStep.LocationsSet != null, "This should be set to a valid value by TryMatch");
+                    Fx.Assert(nextStep.LocationsSet is object, "This should be set to a valid value by TryMatch");
                     if (CheckMultipleMatches(nextStep.LocationsSet, wireData, candidates))
                     {
                         return true;
                     }
                     location = GetFailureLocationFromLocationsSet(nextStep.LocationsSet);
                 }
-            } while ((location != null) && (location.node.depth >= initialDepth));
+            } while ((location is object) && (location.node.depth >= initialDepth));
 
             // we walked the whole trie down and found nothing
             return false;
@@ -257,19 +257,19 @@ namespace System
                 {
                     IList<IList<UriTemplateTrieLocation>> compoundLocationsSet;
 
-                    if (considerLiteral && currentLocation.node.nextLiteralSegment != null &&
+                    if (considerLiteral && currentLocation.node.nextLiteralSegment is object &&
                         currentLocation.node.nextLiteralSegment.ContainsKey(curWireSeg))
                     {
                         nextStep = new SingleLocationOrLocationsSet(currentLocation.node.nextLiteralSegment[curWireSeg]);
                         return false;
                     }
-                    else if (considerCompound && currentLocation.node.nextCompoundSegment != null &&
+                    else if (considerCompound && currentLocation.node.nextCompoundSegment is object &&
                         AscendingSortedCompoundSegmentsCollection<UriTemplateTrieLocation>.Lookup(currentLocation.node.nextCompoundSegment, curWireSeg, out compoundLocationsSet))
                     {
                         nextStep = new SingleLocationOrLocationsSet(compoundLocationsSet);
                         return false;
                     }
-                    else if (considerVariable && currentLocation.node.nextVariableSegment != null &&
+                    else if (considerVariable && currentLocation.node.nextVariableSegment is object &&
                         !curWireSeg.IsNullOrEmpty())
                     {
                         nextStep = new SingleLocationOrLocationsSet(currentLocation.node.nextVariableSegment);
@@ -293,14 +293,14 @@ namespace System
 
                     Fx.Assert(!curWireSeg.EndsWithSlash, "!curWireSeg.EndsWithSlash");
                     Fx.Assert(!curWireSeg.IsNullOrEmpty(), "!curWireSeg.IsNullOrEmpty()");
-                    if (considerLiteral && currentLocation.node.finalLiteralSegment != null &&
+                    if (considerLiteral && currentLocation.node.finalLiteralSegment is object &&
                         currentLocation.node.finalLiteralSegment.ContainsKey(curWireSeg))
                     {
                         // matches e.g. WIRE("path1/path2") and TEMPLATE("path1/path2")
                         success = currentLocation.node.finalLiteralSegment[curWireSeg];
                         return true;
                     }
-                    else if (considerCompound && currentLocation.node.finalCompoundSegment != null &&
+                    else if (considerCompound && currentLocation.node.finalCompoundSegment is object &&
                         AscendingSortedCompoundSegmentsCollection<UriTemplatePathPartiallyEquivalentSet>.Lookup(currentLocation.node.finalCompoundSegment, curWireSeg, out compoundPathEquivalentSets))
                     {
                         // matches e.g. WIRE("path1/path2") and TEMPLATE("path1/p{var}th2")
@@ -344,9 +344,9 @@ namespace System
 
         static UriTemplateTrieLocation GetFailureLocationFromLocationsSet(IList<IList<UriTemplateTrieLocation>> locationsSet)
         {
-            Fx.Assert(locationsSet != null, "Shouldn't be called on null set");
+            Fx.Assert(locationsSet is object, "Shouldn't be called on null set");
             Fx.Assert(locationsSet.Count > 0, "Shouldn't be called on empty set");
-            Fx.Assert(locationsSet[0] != null, "Shouldn't be called on a set with null sub-lists");
+            Fx.Assert(locationsSet[0] is object, "Shouldn't be called on a set with null sub-lists");
             Fx.Assert(locationsSet[0].Count > 0, "Shouldn't be called on a set with empty sub-lists");
 
             return locationsSet[0][0].node.onFailure;
@@ -366,14 +366,14 @@ namespace System
                 Validate(current.endOfPath, allowDuplicateEquivalentUriTemplates);
                 Validate(current.finalVariableSegment, allowDuplicateEquivalentUriTemplates);
                 Validate(current.star, allowDuplicateEquivalentUriTemplates);
-                if (current.finalLiteralSegment != null)
+                if (current.finalLiteralSegment is object)
                 {
                     foreach (KeyValuePair<UriTemplateLiteralPathSegment, UriTemplatePathPartiallyEquivalentSet> kvp in current.finalLiteralSegment)
                     {
                         Validate(kvp.Value, allowDuplicateEquivalentUriTemplates);
                     }
                 }
-                if (current.finalCompoundSegment != null)
+                if (current.finalCompoundSegment is object)
                 {
                     IList<IList<UriTemplatePathPartiallyEquivalentSet>> pesLists = current.finalCompoundSegment.Values;
                     for (int i = 0; i < pesLists.Count; i++)
@@ -390,7 +390,7 @@ namespace System
                     }
                 }
                 // deal with children of this node
-                if (current.nextLiteralSegment != null)
+                if (current.nextLiteralSegment is object)
                 {
                     foreach (KeyValuePair<UriTemplateLiteralPathSegment, UriTemplateTrieLocation> kvp in current.nextLiteralSegment)
                     {
@@ -401,7 +401,7 @@ namespace System
                         nodesQueue.Enqueue(kvp.Value.node);
                     }
                 }
-                if (current.nextCompoundSegment != null)
+                if (current.nextCompoundSegment is object)
                 {
                     IList<IList<UriTemplateTrieLocation>> locations = current.nextCompoundSegment.Values;
                     for (int i = 0; i < locations.Count; i++)
@@ -426,7 +426,7 @@ namespace System
                         }
                     }
                 }
-                if (current.nextVariableSegment != null)
+                if (current.nextVariableSegment is object)
                 {
                     Fx.Assert(current.nextVariableSegment.locationWithin == UriTemplateTrieIntraNodeLocation.BeforeLiteral, "forward-pointers should always point to a BeforeLiteral location");
                     Fx.Assert(current.nextVariableSegment.node.depth == current.depth + 1, "current.nextVariableSegment.node.depth == current.depth + 1");
@@ -478,7 +478,7 @@ namespace System
 
         static UriTemplate FindAnyUriTemplate(UriTemplateTrieNode node)
         {
-            while (node != null)
+            while (node is object)
             {
                 if (node.endOfPath.Items.Count > 0)
                 {
@@ -492,32 +492,32 @@ namespace System
                 {
                     return node.star.Items[0].Key;
                 }
-                if (node.finalLiteralSegment != null)
+                if (node.finalLiteralSegment is object)
                 {
                     UriTemplatePathPartiallyEquivalentSet pes =
                         GetAnyDictionaryValue<UriTemplatePathPartiallyEquivalentSet>(node.finalLiteralSegment);
                     Fx.Assert(pes.Items.Count > 0, "Otherwise, why creating the dictionary?");
                     return pes.Items[0].Key;
                 }
-                if (node.finalCompoundSegment != null)
+                if (node.finalCompoundSegment is object)
                 {
                     UriTemplatePathPartiallyEquivalentSet pes = node.finalCompoundSegment.GetAnyValue();
                     Fx.Assert(pes.Items.Count > 0, "Otherwise, why creating the collection?");
                     return pes.Items[0].Key;
                 }
 
-                if (node.nextLiteralSegment != null)
+                if (node.nextLiteralSegment is object)
                 {
                     UriTemplateTrieLocation location =
                         GetAnyDictionaryValue<UriTemplateTrieLocation>(node.nextLiteralSegment);
                     node = location.node;
                 }
-                else if (node.nextCompoundSegment != null)
+                else if (node.nextCompoundSegment is object)
                 {
                     UriTemplateTrieLocation location = node.nextCompoundSegment.GetAnyValue();
                     node = location.node;
                 }
-                else if (node.nextVariableSegment != null)
+                else if (node.nextVariableSegment is object)
                 {
                     node = node.nextVariableSegment.node;
                 }
@@ -540,13 +540,13 @@ namespace System
 
         void AddFinalCompoundSegment(UriTemplateCompoundPathSegment cps, KeyValuePair<UriTemplate, object> kvp)
         {
-            Fx.Assert(cps != null, "must be - based on the segment nature");
-            if (this.finalCompoundSegment == null)
+            Fx.Assert(cps is object, "must be - based on the segment nature");
+            if (this.finalCompoundSegment is null)
             {
                 this.finalCompoundSegment = new AscendingSortedCompoundSegmentsCollection<UriTemplatePathPartiallyEquivalentSet>();
             }
             UriTemplatePathPartiallyEquivalentSet pes = this.finalCompoundSegment.Find(cps);
-            if (pes == null)
+            if (pes is null)
             {
                 pes = new UriTemplatePathPartiallyEquivalentSet(this.depth + 1);
                 this.finalCompoundSegment.Add(cps, pes);
@@ -555,14 +555,14 @@ namespace System
         }
         void AddFinalLiteralSegment(UriTemplateLiteralPathSegment lps, KeyValuePair<UriTemplate, object> kvp)
         {
-            Fx.Assert(lps != null, "must be - based on the segment nature");
-            if (this.finalLiteralSegment != null && this.finalLiteralSegment.ContainsKey(lps))
+            Fx.Assert(lps is object, "must be - based on the segment nature");
+            if (this.finalLiteralSegment is object && this.finalLiteralSegment.ContainsKey(lps))
             {
                 this.finalLiteralSegment[lps].Items.Add(kvp);
             }
             else
             {
-                if (this.finalLiteralSegment == null)
+                if (this.finalLiteralSegment is null)
                 {
                     this.finalLiteralSegment = new Dictionary<UriTemplateLiteralPathSegment, UriTemplatePathPartiallyEquivalentSet>();
                 }
@@ -573,13 +573,13 @@ namespace System
         }
         UriTemplateTrieNode AddNextCompoundSegment(UriTemplateCompoundPathSegment cps)
         {
-            Fx.Assert(cps != null, "must be - based on the segment nature");
-            if (this.nextCompoundSegment == null)
+            Fx.Assert(cps is object, "must be - based on the segment nature");
+            if (this.nextCompoundSegment is null)
             {
                 this.nextCompoundSegment = new AscendingSortedCompoundSegmentsCollection<UriTemplateTrieLocation>();
             }
             UriTemplateTrieLocation nextLocation = this.nextCompoundSegment.Find(cps);
-            if (nextLocation == null)
+            if (nextLocation is null)
             {
                 UriTemplateTrieNode nextNode = new UriTemplateTrieNode(this.depth + 1);
                 nextNode.onFailure = new UriTemplateTrieLocation(this, UriTemplateTrieIntraNodeLocation.AfterCompound);
@@ -590,14 +590,14 @@ namespace System
         }
         UriTemplateTrieNode AddNextLiteralSegment(UriTemplateLiteralPathSegment lps)
         {
-            Fx.Assert(lps != null, "must be - based on the segment nature");
-            if (this.nextLiteralSegment != null && this.nextLiteralSegment.ContainsKey(lps))
+            Fx.Assert(lps is object, "must be - based on the segment nature");
+            if (this.nextLiteralSegment is object && this.nextLiteralSegment.ContainsKey(lps))
             {
                 return this.nextLiteralSegment[lps].node;
             }
             else
             {
-                if (this.nextLiteralSegment == null)
+                if (this.nextLiteralSegment is null)
                 {
                     this.nextLiteralSegment = new Dictionary<UriTemplateLiteralPathSegment, UriTemplateTrieLocation>();
                 }
@@ -609,7 +609,7 @@ namespace System
         }
         UriTemplateTrieNode AddNextVariableSegment()
         {
-            if (this.nextVariableSegment != null)
+            if (this.nextVariableSegment is object)
             {
                 return this.nextVariableSegment.node;
             }
@@ -740,14 +740,14 @@ namespace System
                     {
                         if (this.items.Values[i][j].Segment.IsMatch(wireData))
                         {
-                            if (sameOrderResults == null)
+                            if (sameOrderResults is null)
                             {
                                 sameOrderResults = new List<T>();
                             }
                             sameOrderResults.Add(this.items.Values[i][j].Value);
                         }
                     }
-                    if (sameOrderResults != null)
+                    if (sameOrderResults is object)
                     {
                         results.Add(sameOrderResults);
                     }
@@ -772,7 +772,7 @@ namespace System
                 UriTemplateLiteralPathSegment wireData, out IList<IList<T>> results)
             {
                 results = collection.Find(wireData);
-                return ((results != null) && (results.Count > 0));
+                return ((results is object) && (results.Count > 0));
             }
 
             struct CollectionItem

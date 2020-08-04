@@ -19,7 +19,7 @@ namespace EventStore.Common.Utils
             if (value.GetType() == typeof(string))
             {
                 var valueAsString = value as string;
-                if (valueAsString != null)
+                if (valueAsString is object)
                 {
                     var ipEndPointList = valueAsString.Split(new[] { "," }, StringSplitOptions.None).Select(x => (IPEndPoint)new IPEndPointConverter().ConvertFrom(x));
                     return ipEndPointList.ToArray();

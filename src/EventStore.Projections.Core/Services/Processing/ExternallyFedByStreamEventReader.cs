@@ -59,7 +59,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 throw new InvalidOperationException("Paused or pause requested");
 
             TakeNextStreamIfRequired();
-            if (!_disposed && _dataStreamName != null)
+            if (!_disposed && _dataStreamName is object)
             {
                 _dataReadRequestId = _ioDispatcher.ReadForward(
                     _dataStreamName, _dataNextSequenceNumber, _maxReadCount, _resolveLinkTos, ReadAs,
@@ -69,9 +69,9 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void TakeNextStreamIfRequired()
         {
-            if (_dataNextSequenceNumber == EventNumber.DeletedStream || _dataStreamName == null)
+            if (_dataNextSequenceNumber == EventNumber.DeletedStream || _dataStreamName is null)
             {
-                if (_dataStreamName != null)
+                if (_dataStreamName is object)
                     SendPartitionEof(
                         _dataStreamName,
                         CheckpointTag.FromByStreamPosition(
@@ -217,7 +217,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void EnsureLimitingCommitPositionSet(long limitingCommitPosition)
         {
-            if (_limitingCommitPosition != null && _limitingCommitPosition.GetValueOrDefault() != limitingCommitPosition)
+            if (_limitingCommitPosition is object && _limitingCommitPosition.GetValueOrDefault() != limitingCommitPosition)
                 throw new InvalidOperationException(
                     string.Format(
                         "ExternallyFedByStreamEventReader cannot be used with different limiting commit positions.  "

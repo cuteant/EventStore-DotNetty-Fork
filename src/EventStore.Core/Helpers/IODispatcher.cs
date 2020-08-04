@@ -234,7 +234,7 @@ namespace EventStore.Core.Helpers
                         {
                             case ReadStreamResult.Success:
                             case ReadStreamResult.NoStream:
-                                if (completed.Events != null && (uint)completed.Events.Length > 0u)
+                                if (completed.Events is object && (uint)completed.Events.Length > 0u)
                                     WriteEvents(streamId, expectedVersion, events, principal, action);
                                 else
                                     UpdateStreamAcl(
@@ -348,7 +348,7 @@ namespace EventStore.Core.Helpers
 
             public void Finish(Guid key){
                 var queue = GetQueue(key);
-                if (queue == null) return;
+                if (queue is null) return;
                 queue.IsBusy = false;
 
                 CleanupQueue(key, queue);
@@ -436,7 +436,7 @@ namespace EventStore.Core.Helpers
             if (_writerQueueSet.IsBusy(key)) return;
             if (!_writerQueueSet.HasPendingWrites(key)) return;
             var write = _writerQueueSet.Dequeue(key);
-            if (write != null)
+            if (write is object)
             {
                 Writer.Publish(write, (msg) => Handle(key, msg));
             }

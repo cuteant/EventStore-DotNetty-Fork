@@ -14,13 +14,13 @@ namespace EventStore.Core.Services.Transport.Http
         public static string TextMessage(HttpResponseFormatterArgs entity, Message message)
         {
             var textMessage = message as HttpMessage.TextMessage;
-            return textMessage != null ? entity.ResponseCodec.To(textMessage) : String.Empty;
+            return textMessage is object ? entity.ResponseCodec.To(textMessage) : String.Empty;
         }
 
         public static object EventEntry(HttpResponseFormatterArgs entity, Message message, EmbedLevel embed)
         {
             var msg = message as ClientMessage.ReadEventCompleted;
-            if (msg == null || msg.Result != ReadEventResult.Success || msg.Record.Event == null)
+            if (msg is null || msg.Result != ReadEventResult.Success || msg.Record.Event is null)
                 return entity.ResponseCodec.To(Empty.Result);
 
             switch (entity.ResponseCodec.ContentType)
@@ -37,7 +37,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string GetStreamEventsBackward(HttpResponseFormatterArgs entity, Message message, EmbedLevel embed, bool headOfStream)
         {
             var msg = message as ClientMessage.ReadStreamEventsBackwardCompleted;
-            if (msg == null || msg.Result != ReadStreamResult.Success)
+            if (msg is null || msg.Result != ReadStreamResult.Success)
                 return String.Empty;
 
             return entity.ResponseCodec.To(Convert.ToStreamEventBackwardFeed(msg, entity.ResponseUrl, embed, headOfStream));
@@ -46,7 +46,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string GetStreamEventsForward(HttpResponseFormatterArgs entity, Message message, EmbedLevel embed)
         {
             var msg = message as ClientMessage.ReadStreamEventsForwardCompleted;
-            if (msg == null || msg.Result != ReadStreamResult.Success)
+            if (msg is null || msg.Result != ReadStreamResult.Success)
                 return String.Empty;
                 
             return entity.ResponseCodec.To(Convert.ToStreamEventForwardFeed(msg, entity.ResponseUrl, embed));
@@ -55,7 +55,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string ReadAllEventsBackwardCompleted(HttpResponseFormatterArgs entity, Message message, EmbedLevel embed)
         {
             var msg = message as ClientMessage.ReadAllEventsBackwardCompleted;
-            if (msg == null || msg.Result != ReadAllResult.Success)
+            if (msg is null || msg.Result != ReadAllResult.Success)
                 return String.Empty;
 
             return entity.ResponseCodec.To(Convert.ToAllEventsBackwardFeed(msg, entity.ResponseUrl, embed));
@@ -64,7 +64,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string ReadAllEventsForwardCompleted(HttpResponseFormatterArgs entity, Message message, EmbedLevel embed)
         {
             var msg = message as ClientMessage.ReadAllEventsForwardCompleted;
-            if (msg == null || msg.Result != ReadAllResult.Success)
+            if (msg is null || msg.Result != ReadAllResult.Success)
                 return String.Empty;
 
             return entity.ResponseCodec.To(Convert.ToAllEventsForwardFeed(msg, entity.ResponseUrl, embed)); 
@@ -83,7 +83,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string GetFreshStatsCompleted(HttpResponseFormatterArgs entity, Message message)
         {
             var completed = message as MonitoringMessage.GetFreshStatsCompleted;
-            if (completed == null || !completed.Success)
+            if (completed is null || !completed.Success)
                 return String.Empty;
 
             return entity.ResponseCodec.To(completed.Stats);
@@ -102,7 +102,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string GetFreshTcpConnectionStatsCompleted(HttpResponseFormatterArgs entity, Message message)
         {
             var completed = message as MonitoringMessage.GetFreshTcpConnectionStatsCompleted;
-            if (completed == null)
+            if (completed is null)
                 return String.Empty;
 
             return entity.ResponseCodec.To(completed.ConnectionStats);
@@ -116,7 +116,7 @@ namespace EventStore.Core.Services.Transport.Http
                                                   typeof(GossipMessage.SendGossip).Name));
 
             var sendGossip = message as GossipMessage.SendGossip;
-            return sendGossip != null
+            return sendGossip is object
                        ? entity.ResponseCodec.To(new ClusterInfoDto(sendGossip.ClusterInfo, sendGossip.ServerEndPoint))
                        : string.Empty;
         }
@@ -124,7 +124,7 @@ namespace EventStore.Core.Services.Transport.Http
         public static string ReadNextNPersistentMessagesCompleted(HttpResponseFormatterArgs entity, Message message, string streamId, string groupName, int count, EmbedLevel embed)
         {
             var msg = message as ClientMessage.ReadNextNPersistentMessagesCompleted;
-            if (msg == null || msg.Result != ClientMessage.ReadNextNPersistentMessagesCompleted.ReadNextNPersistentMessagesResult.Success)
+            if (msg is null || msg.Result != ClientMessage.ReadNextNPersistentMessagesCompleted.ReadNextNPersistentMessagesResult.Success)
                 return String.Empty;
 
             return entity.ResponseCodec.To(Convert.ToNextNPersistentMessagesFeed(msg, entity.ResponseUrl, streamId, groupName, count, embed));

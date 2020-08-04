@@ -49,7 +49,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
                                             TimeSpan commitTimeout,
                                             bool betterOrdering)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             if ((uint)(prepareCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareCount); }
 
             Publisher = publisher;
@@ -138,7 +138,9 @@ namespace EventStore.Core.Services.RequestManager.Managers
 
         public void Handle(StorageMessage.AlreadyCommitted message)
         {
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.IdempotentWriteToStreamClientcorrelationid(_clientCorrId, message);
+#endif
             CompleteSuccessRequest(message.FirstEventNumber, message.LastEventNumber, -1, -1);
             //TODO GFY WE NEED TO GET THE LOG POSITION HERE WHEN ITS AN IDEMPOTENT WRITE
         }

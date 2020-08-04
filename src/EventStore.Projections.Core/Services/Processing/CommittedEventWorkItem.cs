@@ -30,7 +30,7 @@ namespace EventStore.Projections.Core.Services.Processing
         protected override void GetStatePartition()
         {
             _partition = _statePartitionSelector.GetStatePartition(_message);
-            if (_partition == null)
+            if (_partition is null)
                 // skip processing of events not mapped to any partition
                 NextStage();
             else
@@ -39,7 +39,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void Load(CheckpointTag checkpointTag)
         {
-            if (_partition == null)
+            if (_partition is null)
             {
                 NextStage();
                 return;
@@ -56,20 +56,20 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void ProcessEvent()
         {
-            if (_partition == null)
+            if (_partition is null)
             {
                 NextStage();
                 return;
             }
             var eventProcessedResult = _projection.ProcessCommittedEvent(_message, _partition);
-            if (eventProcessedResult != null)
+            if (eventProcessedResult is object)
                 SetEventProcessedResult(eventProcessedResult);
             NextStage();
         }
 
         protected override void WriteOutput()
         {
-            if (_partition == null)
+            if (_partition is null)
             {
                 NextStage();
                 return;

@@ -20,7 +20,7 @@ namespace EventStore.Transport.Tcp.Messages
         public readonly string Password;
         public readonly byte[] Data;
 
-        public int Length => Data != null ? Data.Length + 18 : 18; // ignore login/pwd
+        public int Length => Data is object ? Data.Length + 18 : 18; // ignore login/pwd
 
         public TcpPackage() { }
 
@@ -34,12 +34,12 @@ namespace EventStore.Transport.Tcp.Messages
             if ((flags & TcpFlags.Authenticated) != 0)
             {
                 if (null == login) { ThrowArgumentNullException_Login(); }
-                if (null == password) { ThrowArgumentNullException_Password(); }
+                if (password is null) { ThrowArgumentNullException_Password(); }
             }
             else
             {
-                if (login != null) { ThrowArgumentException_Login(); }
-                if (password != null) { ThrowArgumentException_Password(); }
+                if (login is object) { ThrowArgumentException_Login(); }
+                if (password is object) { ThrowArgumentException_Password(); }
             }
 
             Command = command;

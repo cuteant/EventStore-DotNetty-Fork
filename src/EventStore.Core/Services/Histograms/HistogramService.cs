@@ -36,7 +36,7 @@ namespace EventStore.Core.Services.Histograms
         public static void SetValue(string name, long value)
         {
             if (value >= NUMBEROFNS) return;
-            if(name == null) return;
+            if(name is null) return;
             HistogramBase hist;
             if(!Histograms.TryGetValue(name, out hist)) {
                 return;
@@ -101,7 +101,7 @@ namespace EventStore.Core.Services.Histograms
 
         public void Dispose()
         {
-            if (Histogram == null) return;
+            if (Histogram is null) return;
             lock (Histogram)
             {
                 var valueToRecord = (((double)Watch.ElapsedTicks - Start) / Stopwatch.Frequency) * 1000000000;

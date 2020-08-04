@@ -84,7 +84,7 @@ namespace EventStore.ClientAPI
             Log.LogDebug("Catch-up Subscription {0} to {1}: dropping subscription, reason: {2} {3}.",
                       SubscriptionName,
                       IsSubscribedToAll ? "<all>" : StreamId,
-                      reason, error == null ? string.Empty : error.ToString());
+                      reason, error is null ? string.Empty : error.ToString());
         }
     }
 

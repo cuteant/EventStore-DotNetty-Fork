@@ -86,7 +86,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (message.Events.Length > 0)
             {
                 var checkpoint = message.Events.Where(v => v.Event.EventType == ProjectionEventTypes.ProjectionCheckpoint).Select(x => x.Event).FirstOrDefault();
-                if (checkpoint != null)
+                if (checkpoint is object)
                 {
                     var parsed = checkpoint.Metadata.ParseCheckpointTagVersionExtraJson(_projectionVersion);
                     if (parsed.Version.ProjectionId != _projectionVersion.ProjectionId
@@ -120,7 +120,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected void CheckpointLoaded(CheckpointTag checkpointTag, string checkpointData)
         {
-            if (checkpointTag == null) // no checkpoint data found
+            if (checkpointTag is null) // no checkpoint data found
             {
                 checkpointData = null;
             }

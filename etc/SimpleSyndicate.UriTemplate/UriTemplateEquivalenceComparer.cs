@@ -18,7 +18,7 @@ namespace System
         {
             get
             {
-                if (instance == null)
+                if (instance is null)
                 {
                     // lock-free, fine if we allocate more than one
                     instance = new UriTemplateEquivalenceComparer();
@@ -29,15 +29,15 @@ namespace System
 
         public bool Equals(UriTemplate x, UriTemplate y)
         {
-            if (x == null)
+            if (x is null)
             {
-                return y == null;
+                return y is null;
             }
             return x.IsEquivalentTo(y);
         }
         public int GetHashCode(UriTemplate obj)
         {
-            if (obj == null)
+            if (obj is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("obj");
             }

@@ -34,7 +34,7 @@ namespace EventStore.Projections.Core.Standard
             try{
                 obj = JObject.Parse(source);
                 string prop = obj["correlationIdProperty"].Value<string>();
-                if(prop != null){
+                if(prop is object){
                     correlationIdProperty = prop;
                     return true;
                 } else{
@@ -99,11 +99,11 @@ namespace EventStore.Projections.Core.Standard
                 return false;
             }
 
-            if(metadata[_correlationIdProperty] == null)
+            if(metadata[_correlationIdProperty] is null)
                 return false;
 
             string correlationId = metadata[_correlationIdProperty].Value<string>();
-            if (correlationId == null)
+            if (correlationId is null)
                 return false;
 
             string linkTarget;

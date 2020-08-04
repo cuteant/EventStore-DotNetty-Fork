@@ -17,8 +17,8 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         internal TFChunkBulkReader(TFChunk.TFChunk chunk, Stream streamToUse)
         {
-            if (chunk == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
-            if (streamToUse == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamToUse); }
+            if (chunk is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
+            if (streamToUse is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamToUse); }
             _chunk = chunk;
             _stream = streamToUse;
         }
@@ -59,7 +59,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public BulkReadResult ReadNextRawBytes(int count, byte[] buffer)
         {
-            if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
+            if (buffer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
             var nCount = (uint)count;
             if (nCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
@@ -75,7 +75,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public BulkReadResult ReadNextDataBytes(int count, byte[] buffer)
         {
-            if (null == buffer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
+            if (buffer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.buffer); }
             uint nCount = (uint)count;
             if (nCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 

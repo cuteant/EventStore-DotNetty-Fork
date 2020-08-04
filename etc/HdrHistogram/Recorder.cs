@@ -196,7 +196,7 @@ namespace HdrHistogram
                 _recordingPhaser.ReaderLock();
 
                 // Make sure we have an inactive version to flip in:
-                if (_inactiveHistogram == null)
+                if (_inactiveHistogram is null)
                 {
                     _inactiveHistogram = _histogramFactory(_instanceId,
                         _activeHistogram.LowestTrackableValue,

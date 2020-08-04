@@ -21,7 +21,7 @@ namespace EventStore.Projections.Core.Services.Processing
             string partition)
             : base(null)
         {
-            if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+            if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
             _publisher = publisher;
             _partition = partition;
             _correlationId = correlationId;

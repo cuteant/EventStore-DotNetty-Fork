@@ -15,8 +15,8 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
     internal class TcpPackageConnection : DotNettyClientTransport, ITcpPackageListener
     {
-        public bool IsClosed { get { return _connection != null ? _connection.IsClosed : true; } }
-        public int SendQueueSize { get { return _connection != null ? _connection.SendQueueSize : 0; } }
+        public bool IsClosed { get { return _connection is object ? _connection.IsClosed : true; } }
+        public int SendQueueSize { get { return _connection is object ? _connection.SendQueueSize : 0; } }
         public IPEndPoint RemoteEndPoint { get { return _remoteEndPoint; } }
         public IPEndPoint LocalEndPoint { get { return _connection?.LocalEndPoint; } }
         public Guid ConnectionId { get; private set; }
@@ -38,8 +38,8 @@ namespace EventStore.ClientAPI.Transport.Tcp
             IConnectionEventHandler connEventHandler)
             : base(settings, ssl, targetHost, validateServer)
         {
-            if (null == remoteEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.remoteEndPoint); }
-            if (null == connEventHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connEventHandler); }
+            if (remoteEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.remoteEndPoint); }
+            if (connEventHandler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connEventHandler); }
 
             _remoteEndPoint = remoteEndPoint;
             _connEventHandler = connEventHandler;
@@ -58,7 +58,9 @@ namespace EventStore.ClientAPI.Transport.Tcp
 
                 Interlocked.Exchange(ref _connection, conn);
 
+#if DEBUG
                 if (_log.IsDebugLevelEnabled()) { _log.ConnectToEstablished(conn); }
+#endif
                 _connEventHandler.OnConnectionEstablished(this);
             }
             catch (InvalidConnectionException exc)
@@ -72,7 +74,9 @@ namespace EventStore.ClientAPI.Transport.Tcp
         private void OnConnectionClosed(ITcpConnection connection, DisassociateInfo error)
         {
             if (Interlocked.Exchange(ref _isClosed, 1) == 1) { return; }
+#if DEBUG
             if (_log.IsDebugLevelEnabled()) { _log.ConnectionWasClosed(connection, error); }
+#endif
             _connEventHandler.OnConnectionClosed(this, error);
         }
 
@@ -86,19 +90,21 @@ namespace EventStore.ClientAPI.Transport.Tcp
             _connection.Close(disassociated);
             _connEventHandler.OnError(this, disassociated.Error);
 
+#if DEBUG
             if (_log.IsDebugLevelEnabled()) _log.ConnectionWillBeClosed(disassociated, RemoteEndPoint, LocalEndPoint, ConnectionId);
+#endif
         }
 
         public void EnqueueSend(TcpPackage package)
         {
-            if (_connection == null) { CoreThrowHelper.ThrowInvalidOperationException_FailedConnection(); }
+            if (_connection is null) { CoreThrowHelper.ThrowInvalidOperationException_FailedConnection(); }
 
             _connection.EnqueueSend(package);
         }
 
         public void Close(string reason)
         {
-            if (null == _connection) { return; }
+            if (_connection is null) { return; }
 
             _connection.Close(DisassociateInfo.Success, reason);
         }

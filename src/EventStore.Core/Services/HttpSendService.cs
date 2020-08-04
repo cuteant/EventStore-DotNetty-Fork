@@ -34,7 +34,7 @@ namespace EventStore.Core.Services
 
         public HttpSendService(HttpMessagePipe httpPipe, bool forwardRequests)
         {
-            if (null == httpPipe) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPipe); }
+            if (httpPipe is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPipe); }
             _httpPipe = httpPipe;
             _forwardRequests = forwardRequests;
         }
@@ -69,10 +69,12 @@ namespace EventStore.Core.Services
             {
                 _httpPipe.Push(message.Message, message.EndPoint);
             }
+#if DEBUG
             else
             {
                 if (Log.IsDebugLevelEnabled()) { Log.Dropping_HTTP_send_message_due_to_TTL_being_over(message); }
             }
+#endif
         }
 
         public void Handle(HttpMessage.HttpSend message)
@@ -92,7 +94,12 @@ namespace EventStore.Core.Services
                 message.HttpEntityManager.ReplyStatus(
                     code,
                     deniedToHandle.Details,
-                    exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
+                    exc =>
+                    {
+#if DEBUG
+                        if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc);
+#endif
+                    });
                 HistogramService.SetValue(_httpSendHistogram,
                     (long)((((double)_watch.ElapsedTicks - start) / Stopwatch.Frequency) * 1000000000));
             }
@@ -109,7 +116,12 @@ namespace EventStore.Core.Services
                         config.Description,
                         config.ContentType,
                         config.Headers,
-                        exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
+                        exc =>
+                        {
+#if DEBUG
+                            if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc);
+#endif
+                        });
                 }
                 else
                 {
@@ -119,7 +131,12 @@ namespace EventStore.Core.Services
                         config.Description,
                         config.ContentType,
                         config.Headers,
-                        exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); });
+                        exc =>
+                        {
+#if DEBUG
+                            if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc);
+#endif
+                        });
                 }
                 HistogramService.SetValue(_httpSendHistogram,
                    (long)((((double)_watch.ElapsedTicks - start) / Stopwatch.Frequency) * 1000000000));
@@ -132,7 +149,7 @@ namespace EventStore.Core.Services
             var config = message.Configuration;
 
             message.HttpEntityManager.BeginReply(config.Code, config.Description, config.ContentType, config.Encoding, config.Headers);
-            //if (message.Envelope != null)
+            //if (message.Envelope is object)
             message.Envelope?.ReplyWith(new HttpMessage.HttpCompleted(message.CorrelationId, message.HttpEntityManager));
         }
 
@@ -141,10 +158,15 @@ namespace EventStore.Core.Services
             var response = message.Data;
             message.HttpEntityManager.ContinueReplyTextContent(
                 response,
-                exc => { if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc); },
+                exc =>
+                {
+#if DEBUG
+                    if (Log.IsDebugLevelEnabled()) Log.Error_occurred_while_replying_to_HTTP_with_message(message, exc);
+#endif
+                },
                 () =>
                 {
-                    //if (message.Envelope != null)
+                    //if (message.Envelope is object)
                     message.Envelope?.ReplyWith(new HttpMessage.HttpCompleted(message.CorrelationId, message.HttpEntityManager));
                 });
         }
@@ -152,14 +174,14 @@ namespace EventStore.Core.Services
         public void Handle(HttpMessage.HttpEndSend message)
         {
             message.HttpEntityManager.EndReply();
-            //if (message.Envelope != null)
+            //if (message.Envelope is object)
             message.Envelope?.ReplyWith(new HttpMessage.HttpCompleted(message.CorrelationId, message.HttpEntityManager));
         }
 
         bool IHttpForwarder.ForwardRequest(HttpEntityManager manager)
         {
             var masterInfo = _masterInfo;
-            if (_forwardRequests && masterInfo != null)
+            if (_forwardRequests && masterInfo is object)
             {
                 var srcUrl = manager.RequestedUrl;
                 var srcBase = new Uri($"{srcUrl.Scheme}://{srcUrl.Host}:{srcUrl.Port}/", UriKind.Absolute);
@@ -262,7 +284,12 @@ namespace EventStore.Core.Services
                            return;
                        }
 
-                       manager1.ForwardReply(response, exc => { if (state.Item3.IsDebugLevelEnabled()) state.Item3.Error_forwarding_response_for(manager1.RequestedUrl, exc); });
+                       manager1.ForwardReply(response, exc =>
+                       {
+#if DEBUG
+                           if (state.Item3.IsDebugLevelEnabled()) state.Item3.Error_forwarding_response_for(manager1.RequestedUrl, exc);
+#endif
+                       });
                    }, Tuple.Create(manager, s_forwardReplyFailed, Log));
         }
     }

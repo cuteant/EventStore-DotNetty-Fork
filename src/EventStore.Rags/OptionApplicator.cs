@@ -12,8 +12,8 @@ namespace EventStore.Rags
             foreach (var option in source)
             {
                 var property = properties.FirstOrDefault(x => x.Name.Equals(option.Name, System.StringComparison.OrdinalIgnoreCase));
-                if (property == null) continue;
-                if (option.Value == null) continue;
+                if (property is null) continue;
+                if (option.Value is null) continue;
                 if (option.IsTyped)
                 {
                     property.SetValue(revived, option.Value, null);

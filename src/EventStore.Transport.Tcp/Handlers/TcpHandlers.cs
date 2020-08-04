@@ -66,12 +66,12 @@ namespace EventStore.Transport.Tcp
             _connection.NotifyReceiveCompleted(readableBytes);
             try
             {
-                if (readableBytes > 0 && _listener != null)
+                if (readableBytes > 0 && _listener is object)
                 {
                     var packages = MessagePackSerializer.Deserialize<List<TcpPackage>>(buf.UnreadSpan, DefaultResolver);
-                    foreach (var package in packages)
+                    for (int idx = 0; idx < packages.Count; idx++)
                     {
-                        _listener.Notify(package);
+                        _listener.Notify(packages[idx]);
                     }
                 }
                 _connection.NotifyReceiveDispatched(readableBytes);

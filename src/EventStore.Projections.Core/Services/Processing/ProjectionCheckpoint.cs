@@ -50,8 +50,8 @@ namespace EventStore.Projections.Core.Services.Processing
             int maximumAllowedWritesInFlight,
             ILogger logger = null)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (null == readyHandler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readyHandler); }
             if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.positionTagger); }
             if (from.CommitPosition < from.PreparePosition) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.from); }
@@ -150,7 +150,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     : _writeQueueIds[_emittedStreams.Count % _maximumAllowedWritesInFlight];
 
                 IEmittedStreamsWriter writer;
-                if (writeQueueId == null)
+                if (writeQueueId is null)
                     writer = new EmittedStreamsWriter(_ioDispatcher);
                 else
                     writer = new QueuedEmittedStreamsWriter(_ioDispatcher, writeQueueId.Value);
@@ -208,14 +208,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Dispose()
         {
-            if (_emittedStreams != null)
+            if (_emittedStreams is object)
                 foreach (var stream in _emittedStreams.Values)
                     stream.Dispose();
         }
 
         public void Handle(CoreProjectionProcessingMessage.EmittedStreamAwaiting message)
         {
-            if (_awaitingStreams == null)
+            if (_awaitingStreams is null)
                 _awaitingStreams = ThreadLocalList<IEnvelope>.NewInstance();
             _awaitingStreams.Add(message.Envelope);
         }
@@ -224,7 +224,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             var awaitingStreams = _awaitingStreams;
             _awaitingStreams = null; // still awaiting will re-register
-            if (awaitingStreams != null)
+            if (awaitingStreams is object)
             {
                 try
                 {

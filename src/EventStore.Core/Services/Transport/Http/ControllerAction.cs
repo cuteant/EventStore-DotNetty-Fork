@@ -20,10 +20,10 @@ namespace EventStore.Core.Services.Transport.Http
                                 ICodec[] responseCodecs,
                                 AuthorizationLevel requiredAuthorizationLevel)
         {
-            if (null == uriTemplate) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriTemplate); }
-            if (null == httpMethod) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpMethod); }
-            if (null == requestCodecs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.requestCodecs); }
-            if (null == responseCodecs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.responseCodecs); }
+            if (uriTemplate is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriTemplate); }
+            if (httpMethod is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpMethod); }
+            if (requestCodecs is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.requestCodecs); }
+            if (responseCodecs is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.responseCodecs); }
 
             UriTemplate = uriTemplate;
             HttpMethod = httpMethod;

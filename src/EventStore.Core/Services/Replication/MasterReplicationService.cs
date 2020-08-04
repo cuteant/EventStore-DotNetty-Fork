@@ -75,11 +75,11 @@ namespace EventStore.Core.Services.Replication
                                            IEpochManager epochManager,
                                            int clusterSize)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == tcpSendPublisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpSendPublisher); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (tcpSendPublisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tcpSendPublisher); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
             if ((uint)(clusterSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterSize); }
 
             _publisher = publisher;
@@ -158,7 +158,7 @@ namespace EventStore.Core.Services.Replication
                 if (!conn.IsSsl)
                 {
                     var subscription = _subscriptions.FirstOrDefault(x => x.Value.ConnectionId == conn.ConnectionId);
-                    if (subscription.Value != null)
+                    if (subscription.Value is object)
                     {
                         var stats = new ReplicationMessage.ReplicationStats(subscription.Key, conn.ConnectionId, subscription.Value.ReplicaEndPoint.ToString(), conn.SendQueueSize,
                                             conn.TotalBytesSent, conn.TotalBytesReceived, conn.PendingSendBytes, conn.PendingReceivedBytes);
@@ -214,7 +214,7 @@ namespace EventStore.Core.Services.Replication
                     break;
                 }
             }
-            if (commonEpoch == null)
+            if (commonEpoch is null)
             {
                 Log.NoCommonEpochFoundForReplica(replicaEndPoint, subscriptionId, logPosition, epochs, masterCheckpoint, _epochManager);
                 return 0;
@@ -222,7 +222,7 @@ namespace EventStore.Core.Services.Replication
 
             // if afterCommonEpoch is present, logPosition > afterCommonEpoch.EpochPosition, 
             // so safe position is definitely the start of afterCommonEpoch
-            var replicaPosition = afterCommonEpoch == null ? logPosition : afterCommonEpoch.EpochPosition;
+            var replicaPosition = afterCommonEpoch is null ? logPosition : afterCommonEpoch.EpochPosition;
 
             if (commonEpoch.EpochNumber == _epochManager.LastEpochNumber)
             {
@@ -230,11 +230,11 @@ namespace EventStore.Core.Services.Replication
             }
 
             var nextEpoch = _epochManager.GetEpoch(commonEpoch.EpochNumber + 1, throwIfNotFound: false);
-            if (nextEpoch == null)
+            if (nextEpoch is null)
             {
                 nextEpoch = _epochManager.GetEpochWithAllEpochs(commonEpoch.EpochNumber + 1, throwIfNotFound: false);
             }
-            if (nextEpoch == null)
+            if (nextEpoch is null)
             {
                 ReplicaEpochsProvidedEpochsWhichAreNotInEpochManager(logPosition, epochs, replicaEndPoint, subscriptionId,
                     _epochManager, masterCheckpoint, afterCommonEpoch, commonEpoch);
@@ -269,7 +269,7 @@ namespace EventStore.Core.Services.Replication
                                     replicaEndPoint, subscriptionId, logPosition,
                                     string.Join("\n", epochs.Select(x => x.AsString())),
                                     string.Join("\n", epochManager.GetLastEpochs(int.MaxValue).Select(x => x.AsString())), masterCheckpoint,
-                                    commonEpoch.AsString(), afterCommonEpoch == null ? "<none>" : afterCommonEpoch.AsString());
+                                    commonEpoch.AsString(), afterCommonEpoch is null ? "<none>" : afterCommonEpoch.AsString());
             Log.LogError(msg);
             throw GetException();
             Exception GetException()
@@ -293,7 +293,7 @@ namespace EventStore.Core.Services.Replication
             try
             {
                 var chunk = _db.Manager.GetChunkFor(logPosition);
-                Debug.Assert(chunk != null, string.Format("Chunk for LogPosition {0} (0x{0:X}) is null in MasterReplicationService! Replica: [{1},C:{2},S:{3}]",
+                Debug.Assert(chunk is object, string.Format("Chunk for LogPosition {0} (0x{0:X}) is null in MasterReplicationService! Replica: [{1},C:{2},S:{3}]",
                                                           logPosition, sub.ReplicaEndPoint, sub.ConnectionId, sub.SubscriptionId));
                 var bulkReader = chunk.AcquireReader();
                 if (chunk.ChunkHeader.IsScavenged && (chunkId == Guid.Empty || chunkId != chunk.ChunkHeader.ChunkId))
@@ -333,7 +333,7 @@ namespace EventStore.Core.Services.Replication
 
                 sub.EOFSent = false;
                 var oldBulkReader = Interlocked.Exchange(ref sub.BulkReader, bulkReader);
-                if (oldBulkReader != null) { oldBulkReader.Release(); }
+                if (oldBulkReader is object) { oldBulkReader.Release(); }
                 return sub.LogPosition;
             }
             catch (FileBeingDeletedException)
@@ -436,7 +436,7 @@ namespace EventStore.Core.Services.Replication
                     continue;
                 }
 
-                if (subscription.BulkReader == null) ThrowHelper.ThrowException(ExceptionResource.BulkReader_is_null_for_subscription);
+                if (subscription.BulkReader is null) ThrowHelper.ThrowException(ExceptionResource.BulkReader_is_null_for_subscription);
 
                 try
                 {
@@ -463,10 +463,10 @@ namespace EventStore.Core.Services.Replication
         private bool TrySendLogBulk(ReplicaSubscription subscription, long masterCheckpoint)
         {
             /*
-            if (subscription == null) throw new 1Exception("subscription == null");
-            if (subscription.BulkReader == null) throw new 1Exception("subscription.BulkReader == null");
-            if (subscription.BulkReader.Chunk == null) throw new 1Exception("subscription.BulkReader.Chunk == null");
-            if (subscription.DataBuffer == null) throw new 1Exception("subscription.DataBuffer == null");
+            if (subscription is null) throw new 1Exception("subscription is null");
+            if (subscription.BulkReader is null) throw new 1Exception("subscription.BulkReader is null");
+            if (subscription.BulkReader.Chunk is null) throw new 1Exception("subscription.BulkReader.Chunk is null");
+            if (subscription.DataBuffer is null) throw new 1Exception("subscription.DataBuffer is null");
             */
 
             var bulkReader = subscription.BulkReader;

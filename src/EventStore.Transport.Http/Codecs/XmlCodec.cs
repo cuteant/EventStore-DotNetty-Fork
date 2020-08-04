@@ -34,7 +34,7 @@ namespace EventStore.Transport.Http.Codecs
 
         public bool CanParse(MediaType format)
         {
-            return format != null && format.Matches(ContentType, Encoding);
+            return format is object && format.Matches(ContentType, Encoding);
         }
 
         public bool SuitableForResponse(MediaType component)
@@ -66,7 +66,7 @@ namespace EventStore.Transport.Http.Codecs
 
         public string To<T>(T value)
         {
-            if ((object)value == null)
+            if ((object)value is null)
                 return null;
 
             if ((object)value == Empty.Result)
@@ -78,7 +78,7 @@ namespace EventStore.Transport.Http.Codecs
                 using (var writer = new XmlTextWriter(memory, Helper.UTF8NoBom))
                 {
                     var serializable = value as IXmlSerializable;
-                    if (serializable != null)
+                    if (serializable is object)
                     {
                         writer.WriteStartDocument();
                         serializable.WriteXml(writer);

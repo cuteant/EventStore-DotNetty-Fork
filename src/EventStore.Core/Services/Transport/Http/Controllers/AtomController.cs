@@ -150,15 +150,15 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             if (manager.ResponseCodec.ContentType == ContentType.DescriptionDocJson)
             {
                 var stream = match.BoundVariables["stream"];
-                var accepts = manager.HttpEntity.Request.AcceptTypes == null || manager.HttpEntity.Request.AcceptTypes.Contains(ContentType.Any);
+                var accepts = manager.HttpEntity.Request.AcceptTypes is null || manager.HttpEntity.Request.AcceptTypes.Contains(ContentType.Any);
                 var responseStatusCode = accepts ? HttpStatusCode.NotAcceptable : HttpStatusCode.OK;
-                var responseMessage = manager.HttpEntity.Request.AcceptTypes == null ? "We are unable to represent the stream in the format requested." : "Description Document";
+                var responseMessage = manager.HttpEntity.Request.AcceptTypes is null ? "We are unable to represent the stream in the format requested." : "Description Document";
                 var envelope = new SendToHttpEnvelope(
                     _networkSendQueue, manager,
                     (args, message) =>
                     {
                         var m = message as MonitoringMessage.GetPersistentSubscriptionStatsCompleted;
-                        if (m == null)
+                        if (m is null)
                         {
                             throw new Exception($"Could not get subscriptions for stream {stream}");
                         }
@@ -208,7 +208,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"{SystemHeaders.EventType} header in wrong format.");
                 return;
             }
-            if (!manager.RequestCodec.HasEventTypes && includedType == null)
+            if (!manager.RequestCodec.HasEventTypes && includedType is null)
             {
                 SendBadRequest(manager, "Must include an event type with the request either in body or as ES-EventType header.");
                 return;
@@ -350,8 +350,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"Invalid stream name '{stream}'");
                 return;
             }
-            if (evNum != null &&
-              !string.Equals(evNum, "head", StringComparison.Ordinal) &&
+            if (evNum is object &&
+              !string.Equals(evNum, "head") &&
               (!long.TryParse(evNum, out eventNumber) || eventNumber < 0))
             {
                 SendBadRequest(manager, $"'{evNum}' is not valid event number");
@@ -436,7 +436,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 return;
             }
             GetIncludedType(manager, out string foo);
-            if (!(foo == null || foo == SystemEventTypes.StreamMetadata))
+            if (!(foo is null || foo == SystemEventTypes.StreamMetadata))
             {
                 SendBadRequest(manager, "Bad Request. You should not include an event type for metadata.");
                 return;
@@ -469,8 +469,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, "Stream must be non-empty string and should not be metastream");
                 return;
             }
-            if (evNum != null &&
-              !string.Equals(evNum, "head", StringComparison.Ordinal) &&
+            if (evNum is object &&
+              !string.Equals(evNum, "head") &&
               (!long.TryParse(evNum, out eventNumber) || eventNumber < 0))
             {
                 SendBadRequest(manager, $"'{evNum}' is not valid event number");
@@ -505,7 +505,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 SendBadRequest(manager, $"Invalid stream name '{stream}'");
                 return;
             }
-            if (evNum != null && evNum != "head" && (!long.TryParse(evNum, out eventNumber) || eventNumber < 0))
+            if (evNum is object && evNum != "head" && (!long.TryParse(evNum, out eventNumber) || eventNumber < 0))
             {
                 SendBadRequest(manager, $"'{evNum}' is not valid event number");
                 return;
@@ -586,7 +586,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             int count = AtomSpecs.FeedPageSize;
             var embed = GetEmbedLevel(manager, match);
 
-            if (pos != null && !string.Equals(pos, "head", StringComparison.Ordinal)
+            if (pos is object && !string.Equals(pos, "head")
                 && (!TFPos.TryParse(pos, out position) || position.PreparePosition < 0 || position.CommitPosition < 0))
             {
                 SendBadRequest(manager, $"Invalid position argument: {pos}");
@@ -656,7 +656,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private bool GetExpectedVersion(HttpEntityManager manager, out long expectedVersion)
         {
             var expVer = manager.HttpEntity.Request.Headers[SystemHeaders.ExpectedVersion];
-            if (expVer == null)
+            if (expVer is null)
             {
                 expectedVersion = ExpectedVersion.Any;
                 return true;
@@ -667,7 +667,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private bool GetIncludedId(HttpEntityManager manager, out Guid includedId)
         {
             var id = manager.HttpEntity.Request.Headers[SystemHeaders.EventId];
-            if (id == null)
+            if (id is null)
             {
                 includedId = Guid.Empty;
                 return true;
@@ -677,7 +677,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private bool GetIncludedType(HttpEntityManager manager, out string includedType)
         {
             var type = manager.HttpEntity.Request.Headers[SystemHeaders.EventType];
-            if (type == null)
+            if (type is null)
             {
                 includedType = null;
                 return true;
@@ -691,7 +691,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             requireMaster = false;
             var onlyMaster = manager.HttpEntity.Request.Headers[SystemHeaders.RequireMaster];
-            if (onlyMaster == null) { return true; }
+            if (onlyMaster is null) { return true; }
             if (string.Equals(onlyMaster, "True", StringComparison.OrdinalIgnoreCase))
             {
                 requireMaster = true;
@@ -705,7 +705,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             longPollTimeout = null;
             var longPollHeader = manager.HttpEntity.Request.Headers[SystemHeaders.LongPoll];
-            if (longPollHeader == null) { return true; }
+            if (longPollHeader is null) { return true; }
             if (int.TryParse(longPollHeader, out int longPollSec) && longPollSec > 0)
             {
                 longPollTimeout = TimeSpan.FromSeconds(longPollSec);
@@ -718,7 +718,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             resolveLinkTos = true;
             var onlyMaster = manager.HttpEntity.Request.Headers[SystemHeaders.ResolveLinkTos];
-            if (onlyMaster == null) { return true; }
+            if (onlyMaster is null) { return true; }
             if (string.Equals(onlyMaster, "False", StringComparison.OrdinalIgnoreCase))
             {
                 resolveLinkTos = false;
@@ -732,7 +732,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             hardDelete = false;
             var hardDel = manager.HttpEntity.Request.Headers[SystemHeaders.HardDelete];
-            if (hardDel == null) { return true; }
+            if (hardDel is null) { return true; }
             if (string.Equals(hardDel, "True", StringComparison.OrdinalIgnoreCase))
             {
                 hardDelete = true;

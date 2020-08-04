@@ -24,11 +24,11 @@ namespace EventStore.ClientAPI.Embedded
         {
             try
             {
-                if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+                if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
                 var response = message as TResponse;
 
-                if (response != null)
+                if (response is object)
                     InspectResponse(response);
                 else
                     Fail(EmbeddedThrowHelper.GetNoResultException<TResponse>(message));

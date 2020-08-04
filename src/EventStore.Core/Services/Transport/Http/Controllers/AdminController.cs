@@ -30,15 +30,15 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private void OnPostShutdown(HttpEntityManager entity, UriTemplateMatch match)
         {
-            if (entity.User != null && (entity.User.IsInRole(SystemRoles.Admins) || entity.User.IsInRole(SystemRoles.Operations)))
+            if (entity.User is object && (entity.User.IsInRole(SystemRoles.Admins) || entity.User.IsInRole(SystemRoles.Operations)))
             {
                 if (Log.IsInformationLevelEnabled()) Log.RequestShutDownOfNodeBecauseShutdownCommandHasBeenReceived();
                 Publish(new ClientMessage.RequestShutdown(exitProcess: true, shutdownHttp: true));
-                entity.ReplyStatus(HttpStatusCode.OK, "OK", LogReplyError);
+                entity.ReplyStatus(HttpStatusCode.OK, "OK", exc => LogReplyError(exc));
             }
             else
             {
-                entity.ReplyStatus(HttpStatusCode.Unauthorized, "Unauthorized", LogReplyError);
+                entity.ReplyStatus(HttpStatusCode.Unauthorized, "Unauthorized", exc => LogReplyError(exc));
             }
         }
 
@@ -72,19 +72,19 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             int startFromChunk = 0;
 
             var startFromChunkVariable = match.BoundVariables["startFromChunk"];
-            if (startFromChunkVariable != null)
+            if (startFromChunkVariable is object)
             {
                 if (!int.TryParse(startFromChunkVariable, out startFromChunk) || (uint)startFromChunk > Consts.TooBigOrNegative)
                 {
                     SendBadRequest(entity, "startFromChunk must be a positive integer");
                     return;
                 }
-            } 
-            
+            }
+
             int threads = 1;
 
             var threadsVariable = match.BoundVariables["threads"];
-            if (threadsVariable != null)
+            if (threadsVariable is object)
             {
                 if (!int.TryParse(threadsVariable, out threads) || threads < 1)
                 {
@@ -153,7 +153,9 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private void LogReplyError(Exception exc)
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Error_while_closing_HTTP_connection_admin_controller(exc);
+#endif
         }
     }
 }

@@ -14,24 +14,24 @@ namespace EventStore.Core.Messages
         //public partial class ResolvedIndexedEvent
         //{
         //    public ResolvedIndexedEvent(Data.EventRecord eventRecord, Data.EventRecord linkRecord)
-        //        : this(eventRecord != null ? new EventRecord(eventRecord) : null,
-        //               linkRecord != null ? new EventRecord(linkRecord) : null)
+        //        : this(eventRecord is object ? new EventRecord(eventRecord) : null,
+        //               linkRecord is object ? new EventRecord(linkRecord) : null)
         //    {
         //    }
         //}
 
         public static TcpClientMessageDto.ResolvedEvent ToResolvedEvent(this Data.ResolvedEvent pair)
         {
-            return new TcpClientMessageDto.ResolvedEvent(pair.Event != null ? pair.Event.ToEventRecord() : null,
-                       pair.Link != null ? pair.Link.ToEventRecord() : null,
+            return new TcpClientMessageDto.ResolvedEvent(pair.Event is object ? pair.Event.ToEventRecord() : null,
+                       pair.Link is object ? pair.Link.ToEventRecord() : null,
                        pair.OriginalPosition.Value.CommitPosition,
                        pair.OriginalPosition.Value.PreparePosition);
         }
         //public partial class ResolvedEvent
         //{
         //    public ResolvedEvent(Data.ResolvedEvent pair)
-        //        : this(pair.Event != null ? new EventRecord(pair.Event) : null,
-        //               pair.Link != null ? new EventRecord(pair.Link) : null,
+        //        : this(pair.Event is object ? new EventRecord(pair.Event) : null,
+        //               pair.Link is object ? new EventRecord(pair.Link) : null,
         //               pair.OriginalPosition.Value.CommitPosition,
         //               pair.OriginalPosition.Value.PreparePosition)
         //    {
@@ -111,8 +111,8 @@ namespace EventStore.Core.Messages
         //        {
         //            ExternalTcpAddress = externalTcpEndPoint.Address.ToString();
         //            ExternalTcpPort = externalTcpEndPoint.Port;
-        //            ExternalSecureTcpAddress = externalSecureTcpEndPoint == null ? null : externalSecureTcpEndPoint.Address.ToString();
-        //            ExternalSecureTcpPort = externalSecureTcpEndPoint == null ? (int?)null : externalSecureTcpEndPoint.Port;
+        //            ExternalSecureTcpAddress = externalSecureTcpEndPoint is null ? null : externalSecureTcpEndPoint.Address.ToString();
+        //            ExternalSecureTcpPort = externalSecureTcpEndPoint is null ? (int?)null : externalSecureTcpEndPoint.Port;
         //            ExternalHttpAddress = externalHttpEndPoint.Address.ToString();
         //            ExternalHttpPort = externalHttpEndPoint.Port;
         //        }

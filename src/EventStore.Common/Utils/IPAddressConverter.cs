@@ -16,7 +16,7 @@ namespace EventStore.Common.Utils
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
         {
             var valueAsString = value as string;
-            if (valueAsString != null)
+            if (valueAsString is object)
             {
                 return IPAddress.Parse(valueAsString);
             }

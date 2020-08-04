@@ -13,7 +13,7 @@ namespace EventStore.ClientAPI.Embedded
             this IPublisher publisher, IAuthenticationProvider authenticationProvider, UserCredentials userCredentials,
             Action<Exception> setException, Func<IPrincipal, Message> onUser)
         {
-            if (userCredentials == null)
+            if (userCredentials is null)
             {
                 var message = onUser(null);
 

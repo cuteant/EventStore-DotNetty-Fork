@@ -32,7 +32,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         public void SetMemStream(UnmanagedMemoryStream memStream)
         {
             _memStream = memStream;
-            if (_fileStream == null)
+            if (_fileStream is null)
             {
                 _workingStream = memStream;
             }
@@ -41,13 +41,13 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         public void AppendData(byte[] buf, int offset, int len)
         {
             // as we are always append-only, stream's position should be right here
-            if (_fileStream != null)
+            if (_fileStream is object)
             {
                 _fileStream.Write(buf, 0, len);
             }
             //MEMORY
             var memStream = _memStream;
-            if (memStream != null)
+            if (memStream is object)
             {
                 memStream.Write(buf, 0, len);
             }
@@ -55,13 +55,13 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         public void ResizeStream(int fileSize)
         {
-            if (_fileStream != null)
+            if (_fileStream is object)
             {
                 _fileStream.SetLength(fileSize);
             }
 
             var memStream = _memStream;
-            if (memStream != null)
+            if (memStream is object)
             {
                 memStream.SetLength(fileSize);
             }
@@ -69,7 +69,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         public void Dispose()
         {
-            if (_fileStream != null)
+            if (_fileStream is object)
             {
                 _fileStream.Dispose();
             }
@@ -79,7 +79,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
 
         public void FlushToDisk()
         {
-            if (_fileStream == null) return;
+            if (_fileStream is null) return;
             if (_fileStream is FileStream fs)
             {
                 fs.FlushToDisk(); //because of broken flush in filestream in 3.5
@@ -93,7 +93,7 @@ namespace EventStore.Core.TransactionLog.Chunks.TFChunk
         public void DisposeMemStream()
         {
             var memStream = _memStream;
-            if (memStream != null)
+            if (memStream is object)
             {
                 memStream.Dispose();
                 _memStream = null;

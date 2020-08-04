@@ -27,10 +27,10 @@ namespace EventStore.Core.Services.Gossip
                                  TimeSpan allowedTimeDifference)
             : base(bus, gossipSeedSource, nodeInfo, interval, allowedTimeDifference)
         {
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
-            if (null == epochManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
-            if (null == getLastCommitPosition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (chaserCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (epochManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epochManager); }
+            if (getLastCommitPosition is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
 
             _writerCheckpoint = writerCheckpoint;
             _chaserCheckpoint = chaserCheckpoint;
@@ -55,9 +55,9 @@ namespace EventStore.Core.Services.Gossip
                                        _getLastCommitPosition(),
                                        _writerCheckpoint.Read(),
                                        _chaserCheckpoint.Read(),
-                                       lastEpoch == null ? -1 : lastEpoch.EpochPosition,
-                                       lastEpoch == null ? -1 : lastEpoch.EpochNumber,
-                                       lastEpoch == null ? Guid.Empty : lastEpoch.EpochId,
+                                       lastEpoch is null ? -1 : lastEpoch.EpochPosition,
+                                       lastEpoch is null ? -1 : lastEpoch.EpochNumber,
+                                       lastEpoch is null ? Guid.Empty : lastEpoch.EpochId,
                                        _nodePriority);
         }
 

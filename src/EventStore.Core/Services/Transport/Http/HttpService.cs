@@ -46,9 +46,9 @@ namespace EventStore.Core.Services.Transport.Http
             MultiQueuedHandler multiQueuedHandler, bool logHttpRequests, IPAddress advertiseAsAddress,
             int advertiseAsPort, bool disableAuthorization, params string[] prefixes)
         {
-            if (null == inputBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputBus); }
-            if (null == uriRouter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriRouter); }
-            if (null == prefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefixes); }
+            if (inputBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputBus); }
+            if (uriRouter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.uriRouter); }
+            if (prefixes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefixes); }
 
             _accessibility = accessibility;
             _inputBus = inputBus;
@@ -69,8 +69,8 @@ namespace EventStore.Core.Services.Transport.Http
 
         public static void CreateAndSubscribePipeline(IBus bus, HttpAuthenticationProvider[] httpAuthenticationProviders)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == httpAuthenticationProviders) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpAuthenticationProviders); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (httpAuthenticationProviders is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpAuthenticationProviders); }
 
             var requestAuthenticationManager = new IncomingHttpRequestAuthenticationManager(httpAuthenticationProviders);
             bus.Subscribe<IncomingHttpRequestMessage>(requestAuthenticationManager);
@@ -130,22 +130,22 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void SetupController(IHttpController controller)
         {
-            if (null == controller) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.controller); }
+            if (controller is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.controller); }
             controller.Subscribe(this);
         }
 
         public void RegisterCustomAction(ControllerAction action, Func<HttpEntityManager, UriTemplateMatch, RequestParams> handler)
         {
-            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (action is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             _uriRouter.RegisterAction(action, handler);
         }
 
         public void RegisterAction(ControllerAction action, Action<HttpEntityManager, UriTemplateMatch> handler)
         {
-            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (action is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             _uriRouter.RegisterAction(action, (man, match) =>
             {
@@ -171,11 +171,11 @@ namespace EventStore.Core.Services.Transport.Http
                 case AuthorizationLevel.None:
                     return true;
                 case AuthorizationLevel.User:
-                    return user != null;
+                    return user is object;
                 case AuthorizationLevel.Ops:
-                    return user != null && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
+                    return user is object && (user.IsInRole(SystemRoles.Admins) || user.IsInRole(SystemRoles.Operations));
                 case AuthorizationLevel.Admin:
-                    return user != null && user.IsInRole(SystemRoles.Admins);
+                    return user is object && user.IsInRole(SystemRoles.Admins);
                 default:
                     return false;
             }

@@ -30,14 +30,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void FromCategory(string categoryName)
         {
-            if (_categories == null)
+            if (_categories is null)
                 _categories = new List<string>();
             _categories.Add(categoryName);
         }
 
         public void FromStream(string streamName)
         {
-            if (_streams == null)
+            if (_streams is null)
                 _streams = new List<string>();
             _streams.Add(streamName);
         }
@@ -64,7 +64,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void IncludeEvent(string eventName)
         {
-            if (_events == null)
+            if (_events is null)
                 _events = new List<string>();
             _events.Add(eventName);
         }
@@ -132,12 +132,12 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public string[] Categories
         {
-            get { return _categories != null ? _categories.ToArray() : null; }
+            get { return _categories is object ? _categories.ToArray() : null; }
         }
 
         public string[] Streams
         {
-            get { return _streams != null ? _streams.ToArray() : null; }
+            get { return _streams is object ? _streams.ToArray() : null; }
         }
 
         public string CatalogStream
@@ -157,7 +157,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             get
             {
-                return _events != null ? _events.ToArray() : null; }
+                return _events is object ? _events.ToArray() : null; }
         }
 
         public bool ByStreams
@@ -319,8 +319,8 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             unchecked
             {
-                int hashCode = (ResultStreamName != null ? ResultStreamName.GetHashCode() : 0);
-                hashCode = (hashCode*397) ^ (PartitionResultStreamNamePattern != null ? PartitionResultStreamNamePattern.GetHashCode() : 0);
+                int hashCode = (ResultStreamName is object ? ResultStreamName.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (PartitionResultStreamNamePattern is object ? PartitionResultStreamNamePattern.GetHashCode() : 0);
                 hashCode = (hashCode*397) ^ ReorderEvents.GetHashCode();
                 hashCode = (hashCode*397) ^ ProcessingLag;
                 hashCode = (hashCode*397) ^ IsBiState.GetHashCode();

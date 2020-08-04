@@ -25,7 +25,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkManager(TFChunkDbConfig config)
         {
-            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
+            if (config is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
             _config = config;
         }
 
@@ -129,7 +129,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk AddNewChunk(ChunkHeader chunkHeader, int fileSize)
         {
-            if (null == chunkHeader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
+            if (chunkHeader is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeader); }
             if ((uint)(fileSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.fileSize); }
 
             lock (_chunksLocker)
@@ -155,7 +155,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void AddChunk(TFChunk.TFChunk chunk)
         {
-            if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
+            if (chunk is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
 
             lock (_chunksLocker)
             {
@@ -171,7 +171,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk SwitchChunk(TFChunk.TFChunk chunk, bool verifyHash, bool removeChunksWithGreaterNumbers)
         {
-            if (null == chunk) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
+            if (chunk is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunk); }
             if (!chunk.IsReadOnly)
             {
                 ThrowHelper.ThrowArgumentException_PassedTFChunkIsNotCompleted(chunk);
@@ -227,7 +227,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                     var oldChunksCount = _chunksCount;
                     _chunksCount = newChunk.ChunkHeader.ChunkEndNumber + 1;
                     RemoveChunks(chunkHeader.ChunkEndNumber + 1, oldChunksCount - 1, "Excessive");
-                    if (_chunks[_chunksCount] != null)
+                    if (_chunks[_chunksCount] is object)
                     {
                         ThrowHelper.ThrowException_ExcessiveChunkFoundAfterRawReplicationSwitch(_chunksCount);
                     }
@@ -245,7 +245,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             for (int i = chunkStartNumber; i <= chunkEndNumber;)
             {
                 var chunk = _chunks[i];
-                if (chunk != null)
+                if (chunk is object)
                 {
                     var chunkHeader = chunk.ChunkHeader;
                     if (chunkHeader.ChunkStartNumber < chunkStartNumber || chunkHeader.ChunkEndNumber > chunkEndNumber)
@@ -271,7 +271,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 if (!ReferenceEquals(previousRemovedChunk, oldChunk))
                 {
                     // Once we've swapped all entries for the previousRemovedChunk we can safely delete it.
-                    if (previousRemovedChunk != null)
+                    if (previousRemovedChunk is object)
                     {
                         previousRemovedChunk.MarkForDeletion();
                         if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, previousRemovedChunk);
@@ -281,7 +281,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 }
             }
 
-            if (previousRemovedChunk != null)
+            if (previousRemovedChunk is object)
             {
                 // Delete the last chunk swapped out now it's fully replaced.
                 previousRemovedChunk.MarkForDeletion();
@@ -298,7 +298,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             for (int i = chunkStartNumber; i <= chunkEndNumber; i += 1)
             {
                 var oldChunk = Interlocked.Exchange(ref _chunks[i], null);
-                if (oldChunk != null && !ReferenceEquals(lastRemovedChunk, oldChunk))
+                if (oldChunk is object && !ReferenceEquals(lastRemovedChunk, oldChunk))
                 {
                     oldChunk.MarkForDeletion();
                     if (infoEnabled) Log.ChunkIsMarkedForDeletion(chunkExplanation, oldChunk);
@@ -332,7 +332,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             }
 
             var chunk = _chunks[chunkNum];
-            if (chunk == null)
+            if (chunk is null)
             {
                 ThrowHelper.ThrowException_RequestedChunkForLogPositionWhichIsNotPresentInTFChunkManager(logPosition);
             }
@@ -348,7 +348,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             }
 
             var chunk = _chunks[chunkNum];
-            if (chunk == null)
+            if (chunk is null)
             {
                 ThrowHelper.ThrowException_RequestedChunkWhichIsNotPresentInTFChunkManager(chunkNum);
             }
@@ -358,7 +358,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunk.TFChunk GetChunkForOrDefault(string path)
         {
-            return _chunks != null ? _chunks.FirstOrDefault(c => c != null && c.FileName == path) : null;
+            return _chunks is object ? _chunks.FirstOrDefault(c => c is object && c.FileName == path) : null;
         }
 
         public void Dispose()
@@ -367,7 +367,7 @@ namespace EventStore.Core.TransactionLog.Chunks
             {
                 for (int i = 0; i < _chunksCount; ++i)
                 {
-                    if (_chunks[i] != null) { _chunks[i].Dispose(); }
+                    if (_chunks[i] is object) { _chunks[i].Dispose(); }
                 }
             }
         }

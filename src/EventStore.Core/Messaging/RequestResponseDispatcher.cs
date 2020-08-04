@@ -66,7 +66,7 @@ namespace EventStore.Core.Messaging
 
         public void Cancel(Guid requestId)
         {
-            if (_cancelMessageFactory != null)
+            if (_cancelMessageFactory is object)
             {
                 _publisher.Publish(_cancelMessageFactory(requestId));
             }
@@ -76,7 +76,7 @@ namespace EventStore.Core.Messaging
 
         public void CancelAll()
         {
-            if (_cancelMessageFactory != null)
+            if (_cancelMessageFactory is object)
             {
                 var keys = _map.Keys;
                 foreach (var id in keys)

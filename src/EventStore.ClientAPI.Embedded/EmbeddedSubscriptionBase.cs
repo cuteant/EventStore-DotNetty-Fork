@@ -29,9 +29,9 @@ namespace EventStore.ClientAPI.Embedded
         protected EmbeddedSubscriptionBase(IPublisher publisher, Guid connectionId, TaskCompletionSource<TSubscription> source,
             string streamId, Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped, bool asynchronous)
         {
-            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
-            if (null == streamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (source is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (streamId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamId); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
 
             Publisher = publisher;
             StreamId = streamId;
@@ -72,7 +72,7 @@ namespace EventStore.ClientAPI.Embedded
         public async Task EventAppeared((EventStore.Core.Data.ResolvedEvent resolvedEvent, int? retryCount) resolvedEventWrapper)
         {
             var resolvedEvent = resolvedEventWrapper.resolvedEvent;
-            var e = resolvedEvent.OriginalPosition == null
+            var e = resolvedEvent.OriginalPosition is null
                 ? resolvedEvent.ConvertToClientResolvedIndexEvent().ToRawResolvedEvent()
                 : resolvedEvent.ConvertToClientResolvedEvent().ToRawResolvedEvent();
             await EnqueueMessage((true, e, resolvedEventWrapper.retryCount, SubscriptionDropReason.Unknown, null)).ConfigureAwait(false);
@@ -82,7 +82,7 @@ namespace EventStore.ClientAPI.Embedded
         {
             if (lastCommitPosition < -1)
                 EmbeddedThrowHelper.ThrowArgumentOutOfRangeException_InvalidLastCommitPosition(lastCommitPosition);
-            if (Subscription != null)
+            if (Subscription is object)
                 EmbeddedThrowHelper.ThrowException_DoubleConfirmationOfSubscription();
 
             Subscription = CreateVolatileSubscription(lastCommitPosition, lastEventNumber);
@@ -103,16 +103,16 @@ namespace EventStore.ClientAPI.Embedded
 
                 if (reason != SubscriptionDropReason.UserInitiated)
                 {
-                    if (exception == null) EmbeddedThrowHelper.ThrowException_NoExceptionProvidedForSubscriptionDropReason(reason);
+                    if (exception is null) EmbeddedThrowHelper.ThrowException_NoExceptionProvidedForSubscriptionDropReason(reason);
                     _source.TrySetException(exception);
                 }
 
-                if (reason == SubscriptionDropReason.UserInitiated && Subscription != null)
+                if (reason == SubscriptionDropReason.UserInitiated && Subscription is object)
                 {
                     Publisher.Publish(new CoreClientMessage.UnsubscribeFromStream(Guid.NewGuid(), CorrelationId, new NoopEnvelope(), SystemAccount.Principal));
                 }
 
-                if (Subscription != null)
+                if (Subscription is object)
                 {
                     EnqueueMessage((false, new ResolvedEvent(true), default(int?), reason, exception)).ConfigureAwait(false).GetAwaiter().GetResult();
                 }

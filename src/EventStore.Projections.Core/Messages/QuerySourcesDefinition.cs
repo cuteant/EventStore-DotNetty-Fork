@@ -35,65 +35,65 @@ namespace EventStore.Projections.Core.Messages
 
         bool IQuerySources.DefinesStateTransform
         {
-            get { return Options != null && Options.DefinesStateTransform; }
+            get { return Options is object && Options.DefinesStateTransform; }
         }
 
         bool IQuerySources.DefinesCatalogTransform
         {
-            get { return Options != null && Options.DefinesCatalogTransform; }
+            get { return Options is object && Options.DefinesCatalogTransform; }
         }
 
         bool IQuerySources.ProducesResults
         {
-            get { return Options != null && Options.ProducesResults; }
+            get { return Options is object && Options.ProducesResults; }
         }
 
         bool IQuerySources.DefinesFold
         {
-            get { return Options != null && Options.DefinesFold; }
+            get { return Options is object && Options.DefinesFold; }
         }
 
         bool IQuerySources.HandlesDeletedNotifications
         {
-            get { return Options != null && Options.HandlesDeletedNotifications; }
+            get { return Options is object && Options.HandlesDeletedNotifications; }
         }
 
         bool IQuerySources.IncludeLinksOption
         {
-            get { return Options != null && Options.IncludeLinks; }
+            get { return Options is object && Options.IncludeLinks; }
         }
 
         bool IQuerySources.DisableParallelismOption
         {
-            get { return Options != null && Options.DisableParallelism; }
+            get { return Options is object && Options.DisableParallelism; }
         }
 
         string IQuerySources.ResultStreamNameOption
         {
-            get { return Options != null ? Options.ResultStreamName : null; }
+            get { return Options is object ? Options.ResultStreamName : null; }
         }
 
         string IQuerySources.PartitionResultStreamNamePatternOption
         {
-            get { return Options != null ? Options.PartitionResultStreamNamePattern : null; }
+            get { return Options is object ? Options.PartitionResultStreamNamePattern : null; }
         }
 
         bool IQuerySources.ReorderEventsOption
         {
             get
             {
-                return Options != null && Options.ReorderEvents;
+                return Options is object && Options.ReorderEvents;
             }
         }
 
         int? IQuerySources.ProcessingLagOption
         {
-            get { return Options != null ? Options.ProcessingLag : null; }
+            get { return Options is object ? Options.ProcessingLag : null; }
         }
 
         bool IQuerySources.IsBiState
         {
-            get { return Options != null ? Options.IsBiState : false; }
+            get { return Options is object ? Options.IsBiState : false; }
         }
 
         [DataMember(Name = "options")]

@@ -148,7 +148,7 @@ namespace EventStore.Projections.Core.Services.Management
         {
             if (id == Guid.Empty) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.id); }
             if (string.IsNullOrEmpty(name)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
-            if (null == output) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
+            if (output is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
             if (null == getStateDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getStateDispatcher); }
             if (null == getResultDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getResultDispatcher); }
             _workerId = workerId;
@@ -190,7 +190,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private bool IsMultiStream
         {
-            get { return PersistedProjectionState.SourceDefinition != null && PersistedProjectionState.SourceDefinition.Streams != null && PersistedProjectionState.SourceDefinition.Streams.Length > 1; }
+            get { return PersistedProjectionState.SourceDefinition is object && PersistedProjectionState.SourceDefinition.Streams is object && PersistedProjectionState.SourceDefinition.Streams.Length > 1; }
         }
 
         public bool Deleted
@@ -279,7 +279,7 @@ namespace EventStore.Projections.Core.Services.Management
         public ProjectionStatistics GetStatistics()
         {
             ProjectionStatistics status;
-            if (_lastReceivedStatistics == null)
+            if (_lastReceivedStatistics is null)
             {
                 status = new ProjectionStatistics
                 {
@@ -359,7 +359,7 @@ namespace EventStore.Projections.Core.Services.Management
             var projectionOutputConfig = new ProjectionOutputConfig
             {
                 ResultStreamName =
-                    PersistedProjectionState.SourceDefinition == null
+                    PersistedProjectionState.SourceDefinition is null
                         ? ""
                         : new ProjectionNamesBuilder(_name, PersistedProjectionState.SourceDefinition).GetResultStreamName()
             };
@@ -513,7 +513,7 @@ namespace EventStore.Projections.Core.Services.Management
             }
             if (PersistedProjectionState.DeleteEmittedStreams)
             {
-                if (_emittedStreamsDeleter == null)
+                if (_emittedStreamsDeleter is null)
                 {
                     _emittedStreamsDeleter = new EmittedStreamsDeleter(
                         _ioDispatcher,
@@ -612,7 +612,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private void SetLastReplyEnvelope(IEnvelope envelope)
         {
-            if (_lastReplyEnvelope != null)
+            if (_lastReplyEnvelope is object)
                 _lastReplyEnvelope.ReplyWith(
                     new ProjectionManagementMessage.OperationFailed("Aborted by subsequent operation"));
             _lastReplyEnvelope = envelope;
@@ -685,7 +685,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private void FixUpOldProjectionRunAs(PersistedState persistedState)
         {
-            if (persistedState.RunAs == null || string.IsNullOrEmpty(persistedState.RunAs.Name))
+            if (persistedState.RunAs is null || string.IsNullOrEmpty(persistedState.RunAs.Name))
             {
                 _runAs = SystemAccount.Principal;
                 persistedState.RunAs = SerializedRunAs.SerializePrincipal(ProjectionManagementMessage.RunAs.System);
@@ -694,7 +694,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private void FixUpOldFormat(ClientMessage.ReadStreamEventsBackwardCompleted completed, PersistedState persistedState)
         {
-            if (persistedState.Version == null)
+            if (persistedState.Version is null)
             {
                 persistedState.Version = completed.Events[0].Event.EventNumber;
                 persistedState.Epoch = -1;
@@ -901,7 +901,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private CoreProjectionManagementMessage.CreatePrepared CreatePreparedMessage(ProjectionConfig config)
         {
-            if (PersistedProjectionState.SourceDefinition == null)
+            if (PersistedProjectionState.SourceDefinition is null)
                 throw new Exception(
                     "The projection cannot be loaded as stopped as it was stored in the old format.  Update the projection query text to force prepare");
 
@@ -1093,7 +1093,7 @@ namespace EventStore.Projections.Core.Services.Management
 
         private void Reply()
         {
-            if (_lastReplyEnvelope != null)
+            if (_lastReplyEnvelope is object)
                 _lastReplyEnvelope.ReplyWith(new ProjectionManagementMessage.Updated(_name));
             _lastReplyEnvelope = null;
             if (Deleted)
@@ -1127,14 +1127,14 @@ namespace EventStore.Projections.Core.Services.Management
 
         public static implicit operator SerializedRunAs(ProjectionManagementMessage.RunAs runAs)
         {
-            return runAs == null ? null : SerializePrincipal(runAs);
+            return runAs is null ? null : SerializePrincipal(runAs);
         }
 
         public static implicit operator ProjectionManagementMessage.RunAs(SerializedRunAs runAs)
         {
-            if (runAs == null)
+            if (runAs is null)
                 return null;
-            if (runAs.Name == null)
+            if (runAs.Name is null)
                 return ProjectionManagementMessage.RunAs.Anonymous;
             if (runAs.Name == "$system") //TODO: make sure nobody else uses it
                 return ProjectionManagementMessage.RunAs.System;
@@ -1145,15 +1145,15 @@ namespace EventStore.Projections.Core.Services.Management
 
         public static SerializedRunAs SerializePrincipal(ProjectionManagementMessage.RunAs runAs)
         {
-            if (runAs == null)
+            if (runAs is null)
                 return null;
-            if (runAs.Principal == null)
+            if (runAs.Principal is null)
                 return null; // anonymous
             if (runAs.Principal == SystemAccount.Principal)
                 return new SerializedRunAs { Name = "$system" };
 
             var genericPrincipal = runAs.Principal as OpenGenericPrincipal;
-            if (genericPrincipal == null)
+            if (genericPrincipal is null)
                 throw new ArgumentException(
                     "OpenGenericPrincipal is the only supported principal type in projections", "runAs");
             return new SerializedRunAs { Name = runAs.Principal.Identity.Name, Roles = genericPrincipal.Roles };
@@ -1161,9 +1161,9 @@ namespace EventStore.Projections.Core.Services.Management
 
         public static IPrincipal DeserializePrincipal(SerializedRunAs runAs)
         {
-            if (runAs == null)
+            if (runAs is null)
                 return null;
-            if (runAs.Name == null)
+            if (runAs.Name is null)
                 return null;
             if (runAs.Name == "$system") //TODO: make sure nobody else uses it
                 return SystemAccount.Principal;

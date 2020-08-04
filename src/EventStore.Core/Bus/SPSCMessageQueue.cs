@@ -112,7 +112,7 @@ namespace EventStore.Core.Bus
             {
                 var index = (int) (current & (count - 1));
                 var stored = array[index].Item;
-                if (stored != null)
+                if (stored is object)
                 {
                     segment[i] = stored;
 

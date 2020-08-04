@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public BoundedCache(int maxCachedEntries, long maxDataSize, Func<TValue, long> valueSize)
         {
-            if (null == valueSize) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.valueSize); }
+            if (valueSize is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.valueSize); }
             if ((uint)(maxCachedEntries - 1) >= Consts.TooBigOrNegative)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxCachedEntries);
             if ((ulong)(maxDataSize - 1) >= Consts.TooBigOrNegativeUL)

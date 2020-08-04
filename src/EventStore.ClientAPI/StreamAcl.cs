@@ -59,11 +59,11 @@ namespace EventStore.ClientAPI
         /// <param name="metaReadRole">Role and user permitted to read stream metadata</param>
         /// <param name="metaWriteRole">Role and user permitted to write stream metadata</param>
         public StreamAcl(string readRole, string writeRole, string deleteRole, string metaReadRole, string metaWriteRole)
-            : this(readRole == null ? null : new[] { readRole },
-                   writeRole == null ? null : new[] { writeRole },
-                   deleteRole == null ? null : new[] { deleteRole },
-                   metaReadRole == null ? null : new[] { metaReadRole },
-                   metaWriteRole == null ? null : new[] { metaWriteRole })
+            : this(readRole is null ? null : new[] { readRole },
+                   writeRole is null ? null : new[] { writeRole },
+                   deleteRole is null ? null : new[] { deleteRole },
+                   metaReadRole is null ? null : new[] { metaReadRole },
+                   metaWriteRole is null ? null : new[] { metaWriteRole })
         {
         }
 
@@ -94,11 +94,11 @@ namespace EventStore.ClientAPI
         public override string ToString()
         {
             return string.Format("Read: {0}, Write: {1}, Delete: {2}, MetaRead: {3}, MetaWrite: {4}",
-                                 ReadRoles == null ? "<null>" : "[" + string.Join(",", ReadRoles) + "]",
-                                 WriteRoles == null ? "<null>" : "[" + string.Join(",", WriteRoles) + "]",
-                                 DeleteRoles == null ? "<null>" : "[" + string.Join(",", DeleteRoles) + "]",
-                                 MetaReadRoles == null ? "<null>" : "[" + string.Join(",", MetaReadRoles) + "]",
-                                 MetaWriteRoles == null ? "<null>" : "[" + string.Join(",", MetaWriteRoles) + "]");
+                                 ReadRoles is null ? "<null>" : "[" + string.Join(",", ReadRoles) + "]",
+                                 WriteRoles is null ? "<null>" : "[" + string.Join(",", WriteRoles) + "]",
+                                 DeleteRoles is null ? "<null>" : "[" + string.Join(",", DeleteRoles) + "]",
+                                 MetaReadRoles is null ? "<null>" : "[" + string.Join(",", MetaReadRoles) + "]",
+                                 MetaWriteRoles is null ? "<null>" : "[" + string.Join(",", MetaWriteRoles) + "]");
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

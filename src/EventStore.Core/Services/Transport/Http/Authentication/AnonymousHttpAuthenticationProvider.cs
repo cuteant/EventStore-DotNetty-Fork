@@ -7,7 +7,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
         public override bool Authenticate(IncomingHttpRequestMessage message)
         {
             var entity = message.Entity;
-            if (entity.User == null)
+            if (entity.User is null)
             {
                 Authenticated(message, user: null);
                 return true;

@@ -65,7 +65,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             if (_httpForwarder.ForwardRequest(http)) { return; }
             var envelope = CreateReplyEnvelope<UserManagementMessage.UserDetailsResult>(http);
-            if (http.User == null)
+            if (http.User is null)
             {
                 envelope.ReplyWith(new UserManagementMessage.UserDetailsResult(UserManagementMessage.Error.Unauthorized));
                 return;

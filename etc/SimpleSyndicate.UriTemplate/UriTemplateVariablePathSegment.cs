@@ -41,7 +41,7 @@ namespace System
 
         public override bool IsEquivalentTo(UriTemplatePathSegment other, bool ignoreTrailingSlash)
         {
-            if (other == null)
+            if (other is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;

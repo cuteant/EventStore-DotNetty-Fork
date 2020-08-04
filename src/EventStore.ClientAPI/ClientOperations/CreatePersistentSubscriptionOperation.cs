@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI.ClientOperations
           string stream, string groupName, PersistentSubscriptionSettings settings, UserCredentials userCredentials)
           : base(source, TcpCommand.CreatePersistentSubscription, TcpCommand.CreatePersistentSubscriptionCompleted, userCredentials)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             _resolveLinkTos = settings.ResolveLinkTos;
             _stream = stream;

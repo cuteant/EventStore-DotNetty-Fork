@@ -366,7 +366,7 @@ namespace EventStore.Core
                 for (var suffixIndex = 0; suffixIndex < byteSize.Suffixes.Length; suffixIndex++)
                 {
                     var suffix = byteSize.Suffixes[suffixIndex];
-                    if (string.Equals(unit, suffix, StringComparison.Ordinal))
+                    if (string.Equals(unit, suffix))
                     {
                         return byteSize.Factor * long.Parse(value);
                     }

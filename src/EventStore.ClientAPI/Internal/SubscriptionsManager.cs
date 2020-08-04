@@ -23,7 +23,7 @@ namespace EventStore.ClientAPI.Internal
 
         public SubscriptionItem(ISubscriptionOperation operation, int maxRetries, TimeSpan timeout)
         {
-            if (null == operation) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
+            if (operation is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
 
             Operation = operation;
             MaxRetries = maxRetries;
@@ -48,18 +48,22 @@ namespace EventStore.ClientAPI.Internal
         private static readonly ILogger s_logger = TraceLogger.GetLogger<SubscriptionsManager>();
         private readonly string _connectionName;
         private readonly ConnectionSettings _settings;
+#if DEBUG
         private readonly bool _verboseLogging;
+#endif
         private readonly Dictionary<Guid, SubscriptionItem> _activeSubscriptions = new Dictionary<Guid, SubscriptionItem>();
         private readonly Queue<SubscriptionItem> _waitingSubscriptions = new Queue<SubscriptionItem>();
         private readonly List<SubscriptionItem> _retryPendingSubscriptions = new List<SubscriptionItem>();
 
         public SubscriptionsManager(string connectionName, ConnectionSettings settings)
         {
-            if (null == connectionName) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (connectionName is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionName); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             _connectionName = connectionName;
             _settings = settings;
+#if DEBUG
             _verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
+#endif
         }
 
         public bool TryGetActiveSubscription(Guid correlationId, out SubscriptionItem subscription)
@@ -104,7 +108,7 @@ namespace EventStore.ClientAPI.Internal
 
         public void CheckTimeoutsAndRetry(TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var retrySubscriptions = ThreadLocalList<SubscriptionItem>.NewInstance();
             var removeSubscriptions = ThreadLocalList<SubscriptionItem>.NewInstance();
@@ -167,7 +171,9 @@ namespace EventStore.ClientAPI.Internal
         public bool RemoveSubscription(SubscriptionItem subscription)
         {
             var res = _activeSubscriptions.Remove(subscription.CorrelationId);
+#if DEBUG
             if (_verboseLogging) LogRemoveSubscription(subscription, res);
+#endif
             return res;
         }
 
@@ -175,19 +181,25 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!RemoveSubscription(subscription))
             {
+#if DEBUG
                 if (_verboseLogging) LogRemoveSubscriptionFailedWhenTryingToRetry(subscription);
+#endif
                 return;
             }
 
             if (subscription.MaxRetries >= 0 && subscription.RetryCount >= subscription.MaxRetries)
             {
+#if DEBUG
                 if (_verboseLogging) LogRetriesLimitReachedWhenTryingToRetry(subscription);
+#endif
                 subscription.Operation.DropSubscription(SubscriptionDropReason.SubscribingError,
                                                         CoreThrowHelper.GetRetriesLimitReachedException(subscription));
                 return;
             }
 
+#if DEBUG
             if (_verboseLogging) LogRetryingSubscription(subscription);
+#endif
             _retryPendingSubscriptions.Add(subscription);
         }
 
@@ -198,11 +210,13 @@ namespace EventStore.ClientAPI.Internal
 
         public void StartSubscription(SubscriptionItem subscription, TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             if (subscription.IsSubscribed)
             {
+#if DEBUG
                 if (_verboseLogging) LogStartSubscriptionRemovingDueToAlreadySubscribed(subscription);
+#endif
                 RemoveSubscription(subscription);
                 return;
             }
@@ -215,13 +229,17 @@ namespace EventStore.ClientAPI.Internal
 
             if (!subscription.Operation.Subscribe(subscription.CorrelationId, connection))
             {
+#if DEBUG
                 if (_verboseLogging) LogStartSubscriptionRemovingAsCouldNotSubscribe(subscription);
+#endif
                 RemoveSubscription(subscription);
             }
+#if DEBUG
             else
             {
                 if (_verboseLogging) LogStartSubscriptionSubscribing(subscription);
             }
+#endif
         }
 
         private void LogDebug(string message, params object[] parameters)

@@ -39,7 +39,9 @@ namespace EventStore.ClientAPI
         private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
 
         /// <summary>Whether or not to use verbose logging (useful during debugging).</summary>
+#if DEBUG
         protected readonly bool Verbose;
+#endif
         private readonly string _subscriptionName;
         internal readonly CatchUpSubscriptionSettings _settings;
 
@@ -105,7 +107,7 @@ namespace EventStore.ClientAPI
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
             : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             EventAppeared = eventAppeared;
 
@@ -127,7 +129,7 @@ namespace EventStore.ClientAPI
             Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
             : this(connection, streamId, userCredentials, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             EventAppearedAsync = eventAppearedAsync;
 
@@ -139,7 +141,7 @@ namespace EventStore.ClientAPI
         private EventStoreCatchUpSubscription(IEventStoreConnection connection, string streamId, UserCredentials userCredentials,
             Action<TSubscription> liveProcessingStarted, Action<TSubscription, SubscriptionDropReason, Exception> subscriptionDropped, CatchUpSubscriptionSettings settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _connection = connection;
 
             _streamId = string.IsNullOrEmpty(streamId) ? string.Empty : streamId;
@@ -150,7 +152,9 @@ namespace EventStore.ClientAPI
 
             _liveProcessingStarted = liveProcessingStarted;
             _subscriptionDropped = subscriptionDropped;
+#if DEBUG
             Verbose = settings.VerboseLogging && Log.IsDebugLevelEnabled();
+#endif
             _subscriptionName = settings.SubscriptionName ?? String.Empty;
 
             _historicalQueue = new BufferBlock<TResolvedEvent>(settings.ToBufferBlockOptions());
@@ -191,7 +195,9 @@ namespace EventStore.ClientAPI
 
         internal Task StartAsync()
         {
+#if DEBUG
             if (Verbose) LogCatchupSubscriptionStarting();
+#endif
             return RunSubscriptionAsync();
         }
 
@@ -205,7 +211,9 @@ namespace EventStore.ClientAPI
         public void Stop(TimeSpan timeout)
         {
             Stop();
+#if DEBUG
             if (Verbose) LogWaitingOnSubscriptionToStop();
+#endif
             if (!_stopped.Wait(timeout))
             {
                 CoreThrowHelper.ThrowTimeoutException_CouldNotStopSubscriptionsInTime(GetType());
@@ -223,7 +231,9 @@ namespace EventStore.ClientAPI
         /// <summary>Attempts to stop the subscription without blocking for completion of stop.</summary>
         public void Stop()
         {
+#if DEBUG
             if (Verbose) { LogCatchupSubscriptionRequestingStop(); }
+#endif
 
             ShouldStop = true;
             EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
@@ -241,7 +251,9 @@ namespace EventStore.ClientAPI
 
         private async Task LoadHistoricalEventsAsync()
         {
+#if DEBUG
             if (Verbose) LogWaitingOnSubscriptionRunning();
+#endif
 
             _stopped.Reset();
             var link = Interlocked.Exchange(ref _liveLinks, null);
@@ -256,7 +268,9 @@ namespace EventStore.ClientAPI
 
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) LogWaitingOnSubscriptionPullingEvents();
+#endif
 
                 try
                 {
@@ -289,7 +303,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) LogWaitingOnSubscriptionPullingEventsIfLeft();
+#endif
 
                 var subscription = InnerSubscription;
                 await ReadEventsTillAsync(_settings.ResolveLinkTos, _userCredentials, subscription.LastCommitPosition, subscription.LastEventNumber).ConfigureAwait(false);
@@ -320,11 +336,15 @@ namespace EventStore.ClientAPI
                 return;
             }
 
+#if DEBUG
             if (Verbose) LogProcessingLiveEvents();
+#endif
 
             _liveProcessingStarted?.Invoke(this as TSubscription);
 
+#if DEBUG
             if (Verbose) LogHookingToConnectionConnected();
+#endif
 
             Interlocked.Exchange(ref _liveLinks, _liveQueue.LinkTo(_liveTargetBlock));
         }
@@ -335,7 +355,9 @@ namespace EventStore.ClientAPI
 
         protected async Task EnqueuePushedEventAsync(EventStoreSubscription subscription, TResolvedEvent e)
         {
+#if DEBUG
             if (Verbose) { LogEventAppeared(e); }
+#endif
 
             if (InputCount >= MaxPushQueueSize)
             {
@@ -363,10 +385,10 @@ namespace EventStore.ClientAPI
         {
             // if drop data was already set -- no need to enqueue drop again, somebody did that already
             var dropData = new DropData(reason, error);
-            if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
+            if (Interlocked.CompareExchange(ref _dropData, dropData, null) is null)
             {
                 var liveLinks = Volatile.Read(ref _liveLinks);
-                if (liveLinks != null)
+                if (liveLinks is object)
                 {
                     _liveQueue.SendAsync(DropSubscriptionEvent);
                 }
@@ -394,7 +416,9 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
+#if DEBUG
                 if (Verbose) LogExceptionOccurredInSubscription(exc);
+#endif
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
         }
@@ -403,7 +427,7 @@ namespace EventStore.ClientAPI
         private void DropSubscriptionArtificial()
         {
             var dropData = Volatile.Read(ref _dropData);
-            if (dropData == null)
+            if (dropData is null)
             {
                 dropData = new DropData(SubscriptionDropReason.Unknown, new Exception("Drop reason not specified."));
                 Interlocked.Exchange(ref _dropData, dropData);
@@ -428,7 +452,9 @@ namespace EventStore.ClientAPI
             }
             catch (Exception exc)
             {
+#if DEBUG
                 if (Verbose) LogExceptionOccurredInSubscription(exc);
+#endif
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
         }
@@ -439,14 +465,16 @@ namespace EventStore.ClientAPI
 
         private void ProcessHistoricalQueue(TResolvedEvent e)
         {
-            if (_lastHistoricalEventError != null) { return; }
+            if (_lastHistoricalEventError is object) { return; }
             try
             {
                 TryProcess(e);
             }
             catch (Exception exc)
             {
+#if DEBUG
                 if (Verbose) LogExceptionOccurredInSubscription(exc);
+#endif
                 Interlocked.Exchange(ref _lastHistoricalEventError, exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
@@ -458,14 +486,16 @@ namespace EventStore.ClientAPI
 
         private async Task ProcessHistoricalQueueAsync(TResolvedEvent e)
         {
-            if (_lastHistoricalEventError != null) { return; }
+            if (_lastHistoricalEventError is object) { return; }
             try
             {
                 await TryProcessAsync(e).ConfigureAwait(false);
             }
             catch (Exception exc)
             {
+#if DEBUG
                 if (Verbose) LogExceptionOccurredInSubscription(exc);
+#endif
                 Interlocked.Exchange(ref _lastHistoricalEventError, exc);
                 DropSubscription(SubscriptionDropReason.EventHandlerException, exc);
             }
@@ -479,7 +509,9 @@ namespace EventStore.ClientAPI
         {
             if (Interlocked.CompareExchange(ref _isDropped, c_on, c_off) == c_off)
             {
+#if DEBUG
                 if (Verbose) { LogDroppingSubscription(reason, error); }
+#endif
 
                 InnerSubscription?.Unsubscribe();
                 _subscriptionDropped?.Invoke(this as TSubscription, reason, error);
@@ -545,7 +577,7 @@ namespace EventStore.ClientAPI
                                                   CatchUpSubscriptionSettings settings)
           : base(connection, string.Empty, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
             IsSubscribedToAll = true;
             _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
@@ -561,7 +593,7 @@ namespace EventStore.ClientAPI
                                                   CatchUpSubscriptionSettings settings)
           : base(connection, string.Empty, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
             IsSubscribedToAll = true;
             _lastProcessedPosition = fromPositionExclusive ?? new Position(-1, -1);
@@ -585,7 +617,9 @@ namespace EventStore.ClientAPI
         private async Task<bool> ReadEventsCallbackAsync(AllEventsSlice slice, long? lastCommitPosition)
         {
             bool shouldStopOrDone = ShouldStop || await ProcessEventsAsync(lastCommitPosition, slice).ConfigureAwait(false);
+#if DEBUG
             if (shouldStopOrDone && Verbose) { LogFinishedReadingEvents(); }
+#endif
             return shouldStopOrDone;
         }
 
@@ -593,7 +627,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
+#endif
 
                 var subscription = await _innerConnection.SubscribeToAllAsync(
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -614,8 +650,8 @@ namespace EventStore.ClientAPI
         {
             foreach (var e in slice.Events)
             {
-                if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
-                if (null == _lastHistoricalEventError)
+                if (e.OriginalPosition is null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
+                if (_lastHistoricalEventError is null)
                 {
                     await _historicalQueue.SendAsync(e).ConfigureAwait(false);
                 }
@@ -624,11 +660,11 @@ namespace EventStore.ClientAPI
                     throw _lastHistoricalEventError;
                 }
             }
-            //if (EventAppeared != null)
+            //if (EventAppeared is object)
             //{
             //  foreach (var e in slice.Events)
             //  {
-            //    if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
+            //    if (e.OriginalPosition is null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
             //    TryProcess(e);
             //  }
             //}
@@ -636,14 +672,14 @@ namespace EventStore.ClientAPI
             //{
             //  foreach (var e in slice.Events)
             //  {
-            //    if (e.OriginalPosition == null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
+            //    if (e.OriginalPosition is null) CoreThrowHelper.ThrowException_SubscriptionEventCameUpWithNoOriginalPosition(SubscriptionName);
             //    await TryProcessAsync(e).ConfigureAwait(false);
             //  }
             //}
 
             _nextReadPosition = slice.NextPosition;
 
-            var done = lastCommitPosition == null
+            var done = lastCommitPosition is null
                 ? slice.IsEndOfStream
                 : slice.NextPosition >= new Position(lastCommitPosition.Value, lastCommitPosition.Value);
 
@@ -660,7 +696,9 @@ namespace EventStore.ClientAPI
         /// <inheritdoc />
         protected override void TryProcess(in ResolvedEvent e)
         {
+#if DEBUG
             bool processed = false;
+#endif
             if (e.OriginalPosition > _lastProcessedPosition)
             {
                 try
@@ -673,15 +711,21 @@ namespace EventStore.ClientAPI
                     throw;
                 }
                 _lastProcessedPosition = e.OriginalPosition.Value;
+#if DEBUG
                 processed = true;
+#endif
             }
+#if DEBUG
             if (Verbose) { LogProcessEvent(processed, e); }
+#endif
         }
 
         /// <inheritdoc />
         protected override async Task TryProcessAsync(ResolvedEvent e)
         {
+#if DEBUG
             bool processed = false;
+#endif
             if (e.OriginalPosition > _lastProcessedPosition)
             {
                 try
@@ -694,9 +738,13 @@ namespace EventStore.ClientAPI
                     throw;
                 }
                 _lastProcessedPosition = e.OriginalPosition.Value;
+#if DEBUG
                 processed = true;
+#endif
             }
+#if DEBUG
             if (Verbose) { LogProcessEvent(processed, e); }
+#endif
         }
     }
 
@@ -766,7 +814,9 @@ namespace EventStore.ClientAPI
         protected async Task<bool> ReadEventsCallbackAsync(TStreamEventsSlice slice, long? lastEventNumber)
         {
             bool shouldStopOrDone = ShouldStop || await ProcessEventsAsync(lastEventNumber, slice).ConfigureAwait(false);
+#if DEBUG
             if (shouldStopOrDone && Verbose) { LogFinishedReadingEvents(); }
+#endif
             return shouldStopOrDone;
         }
 
@@ -787,7 +837,7 @@ namespace EventStore.ClientAPI
                             throw _lastHistoricalEventError;
                         }
                     }
-                    //if (EventAppeared != null)
+                    //if (EventAppeared is object)
                     //{
                     //  foreach (var e in slice.Events)
                     //  {
@@ -802,7 +852,7 @@ namespace EventStore.ClientAPI
                     //  }
                     //}
                     Interlocked.Exchange(ref _nextReadEventNumber, slice.NextEventNumber);
-                    done = lastEventNumber == null ? slice.IsEndOfStream : slice.NextEventNumber > lastEventNumber;
+                    done = lastEventNumber is null ? slice.IsEndOfStream : slice.NextEventNumber > lastEventNumber;
                     break;
 
                 case SliceReadStatus.StreamNotFound:
@@ -832,7 +882,9 @@ namespace EventStore.ClientAPI
         /// <inheritdoc />
         protected override void TryProcess(in TResolvedEvent e)
         {
+#if DEBUG
             bool processed = false;
+#endif
             if (e.OriginalEventNumber > LastProcessedEventNumber)
             {
                 Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
@@ -846,15 +898,21 @@ namespace EventStore.ClientAPI
                     throw;
                 }
                 Interlocked.Exchange(ref _lastProcessedEventNumber, e.OriginalEventNumber);
+#if DEBUG
                 processed = true;
+#endif
             }
+#if DEBUG
             if (Verbose) { LogProcessEvent(processed, e); }
+#endif
         }
 
         /// <inheritdoc />
         protected override async Task TryProcessAsync(TResolvedEvent e)
         {
+#if DEBUG
             bool processed = false;
+#endif
             if (e.OriginalEventNumber > LastProcessedEventNumber)
             {
                 Interlocked.Exchange(ref _processingEventNumber, e.OriginalEventNumber);
@@ -868,9 +926,13 @@ namespace EventStore.ClientAPI
                     throw;
                 }
                 Interlocked.Exchange(ref _lastProcessedEventNumber, e.OriginalEventNumber);
+#if DEBUG
                 processed = true;
+#endif
             }
+#if DEBUG
             if (Verbose) { LogProcessEvent(processed, e); }
+#endif
         }
     }
 
@@ -897,7 +959,7 @@ namespace EventStore.ClientAPI
                                                      CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -911,7 +973,7 @@ namespace EventStore.ClientAPI
                                                      CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -933,7 +995,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
+#endif
 
                 var subscription = await _innerConnection.SubscribeToStreamAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -974,7 +1038,7 @@ namespace EventStore.ClientAPI
                                                CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -988,7 +1052,7 @@ namespace EventStore.ClientAPI
                                                CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -1010,7 +1074,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
+#endif
 
                 var subscription = await _innerConnection.VolatileSubscribeAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -1051,7 +1117,7 @@ namespace EventStore.ClientAPI
                                                 CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -1065,7 +1131,7 @@ namespace EventStore.ClientAPI
                                                 CatchUpSubscriptionSettings settings)
           : base(connection, streamId, fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -1087,7 +1153,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
+#endif
 
                 var subscription = await _innerConnection.InternalVolatileSubscribeAsync(StreamId,
                     _settings.ResolveLinkTos ? SubscriptionSettings.ResolveLinkTosSettings : SubscriptionSettings.Default,
@@ -1131,7 +1199,7 @@ namespace EventStore.ClientAPI
               fromEventNumberExclusive, userCredentials, eventAppeared, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -1147,7 +1215,7 @@ namespace EventStore.ClientAPI
               fromEventNumberExclusive, userCredentials, eventAppearedAsync, liveProcessingStarted, subscriptionDropped, settings)
         {
             _topic = topic;
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _innerConnection = connection;
         }
 
@@ -1171,7 +1239,9 @@ namespace EventStore.ClientAPI
         {
             if (!ShouldStop)
             {
+#if DEBUG
                 if (Verbose) Log.CatchupSubscriptionSubscribing(SubscriptionName, IsSubscribedToAll, StreamId);
+#endif
 
                 var subscription = string.IsNullOrEmpty(_topic)
                     ? await _innerConnection.VolatileSubscribeAsync<TEvent>(

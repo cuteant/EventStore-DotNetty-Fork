@@ -30,9 +30,9 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public AllReader(IIndexBackend backend, IIndexCommitter indexCommitter, ICheckpoint replicationCheckpoint)
         {
-            if (null == backend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
-            if (null == indexCommitter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
-            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
+            if (backend is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.backend); }
+            if (indexCommitter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
+            if (replicationCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
             _backend = backend;
             _indexCommitter = indexCommitter;
             _replicationCheckpoint = replicationCheckpoint;

@@ -64,9 +64,9 @@ namespace EventStore.Core.Services.Transport.Http
                 var deserializedData = Codec.Json.From<object>((string)dto.data);
                 var deserializedMetadata = Codec.Json.From<object>((string)dto.metadata);
 
-                if (deserializedData != null)
+                if (deserializedData is object)
                     dto.data = deserializedData;
-                if (deserializedMetadata != null)
+                if (deserializedMetadata is object)
                     dto.metadata = deserializedMetadata;
             }
             return dto;

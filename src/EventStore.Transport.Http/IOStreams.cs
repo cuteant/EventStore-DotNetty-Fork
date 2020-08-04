@@ -10,14 +10,14 @@ namespace EventStore.Transport.Http
 
         public static void SafelyDispose(params Stream[] streams)
         {
-            if (streams == null || streams.Length == 0)
+            if (streams is null || streams.Length == 0)
                 return;
 
             foreach (var stream in streams)
             {
                 try
                 {
-                    if (stream != null)
+                    if (stream is object)
                         stream.Dispose();
                 }
                 catch (Exception e)

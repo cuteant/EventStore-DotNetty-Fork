@@ -67,9 +67,9 @@ namespace EventStore.Transport.Tcp
             _pendingReceivedOnLastRun = 0;
             _anySendBlockedOnLastRun = false;
 
-            foreach (var connection in connections)
+            for (int idx = 0; idx < connections.Length; idx++)
             {
-                AnalyzeConnection(connection);
+                AnalyzeConnection(connections[idx]);
             }
 
             var stats = new TcpStats(connections.Length,

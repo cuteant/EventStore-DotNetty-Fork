@@ -12,9 +12,9 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkChaser(TFChunkDb db, ICheckpoint writerCheckpoint, ICheckpoint chaserCheckpoint, bool optimizeReadSideCache)
         {
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
-            if (null == chaserCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (chaserCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chaserCheckpoint); }
 
             _chaserCheckpoint = chaserCheckpoint;
             _reader = new TFChunkReader(db, writerCheckpoint, _chaserCheckpoint.Read(), optimizeReadSideCache);

@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Services.Processing
             Guid subscriptionId, string partition, string resultBody, CheckpointTag causedBy, Guid causedByGuid,
             string correlationId)
         {
-            if (resultBody != null)
+            if (resultBody is object)
                 WriteResult(partition, resultBody, causedBy, causedByGuid, correlationId);
         }
 
@@ -38,7 +38,7 @@ namespace EventStore.Projections.Core.Services.Processing
             string partition, string resultBody, CheckpointTag causedBy, Guid causedByGuid, string correlationId)
         {
             var resultEvents = ResultUpdated(partition, resultBody, causedBy);
-            if (resultEvents != null)
+            if (resultEvents is object)
                 _coreProjectionCheckpointManager.EventsEmitted(resultEvents, causedByGuid, correlationId);
         }
 
@@ -80,7 +80,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 if (result.Partition != "" && result.OldState.CausedBy == _zeroCheckpointTag)
                 {
                     var resultEvents = RegisterNewPartition(result.Partition, result.CheckpointTag);
-                    if (resultEvents != null)
+                    if (resultEvents is object)
                         _coreProjectionCheckpointManager.EventsEmitted(
                             resultEvents, Guid.Empty, correlationId: null);
                 }

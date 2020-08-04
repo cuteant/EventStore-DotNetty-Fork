@@ -64,10 +64,10 @@ namespace EventStore.Core.Data
             if ((ulong)transactionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionPosition); }
             if (ThrowHelper.IsInvalidCheckpoint(transactionOffset))
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.transactionOffset);
-            if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+            if (eventStreamId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
             if ((ulong)eventNumber > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.eventNumber); }
             if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
-            if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
+            if (data is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
             EventNumber = eventNumber;
             LogPosition = logPosition;

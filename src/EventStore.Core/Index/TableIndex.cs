@@ -73,10 +73,10 @@ namespace EventStore.Core.Index
             int initializationThreads = 1)
         {
             if (string.IsNullOrEmpty(directory)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.directory); }
-            if (null == memTableFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.memTableFactory); }
-            if (null == lowHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lowHasher); }
-            if (null == highHasher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.highHasher); }
-            if (null == tfReaderFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tfReaderFactory); }
+            if (memTableFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.memTableFactory); }
+            if (lowHasher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.lowHasher); }
+            if (highHasher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.highHasher); }
+            if (tfReaderFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tfReaderFactory); }
             if ((uint)(initializationThreads - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
             if (maxTablesPerLevel <= 1) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.maxTablesPerLevel); }
             if (indexCacheDepth > 28 || indexCacheDepth < 8) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.indexCacheDepth); }
@@ -119,10 +119,12 @@ namespace EventStore.Core.Index
                 return;
             }
 
+#if DEBUG
             if (ShouldForceIndexVerify() && Log.IsDebugLevelEnabled())
             {
                 Log.Forcing_verification_of_index_files();
             }
+#endif
 
             CreateIfDoesNotExist(_directory);
             var indexmapFile = Path.Combine(_directory, IndexMapFilename);
@@ -253,7 +255,9 @@ namespace EventStore.Core.Index
                 newTables.AddRange(_awaitingMemTables.Select(
                     (x, i) => 0u >= (uint)i ? new TableItem(x.Table, prepareCheckpoint, commitPos, x.Level) : x));
 
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.SwitchingMemTableCurrentlyAwaitingTables(newTables.Count);
+#endif
 
                 _awaitingMemTables = newTables;
                 if (_inMem) return;
@@ -270,7 +274,7 @@ namespace EventStore.Core.Index
             {
 
                 var (maxLevel, highest) = _indexMap.GetTableForManualMerge();
-                if (highest == null) return; //no work to do
+                if (highest is null) return; //no work to do
 
                 //These values are actually ignored later as manual merge will never change the checkpoint as no
                 //new entries are added, but they can be helpful to see when the manual merge was called
@@ -309,7 +313,9 @@ namespace EventStore.Core.Index
                     //ISearchTable table;
                     lock (_awaitingTablesLock)
                     {
+#if DEBUG
                         if (Log.IsTraceLevelEnabled()) Log.AwaitingTablesQueueSizeIs(_awaitingMemTables.Count);
+#endif
                         if ((uint)_awaitingMemTables.Count == 1u)
                         {
                             return;
@@ -320,7 +326,7 @@ namespace EventStore.Core.Index
 
                     PTable ptable;
                     var memtable = tableItem.Table as IMemTable;
-                    if (memtable != null)
+                    if (memtable is object)
                     {
                         memtable.MarkForConversion();
                         ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(),
@@ -361,7 +367,9 @@ namespace EventStore.Core.Index
                         if (!ReferenceEquals(corrTable.Table, ptable) && corrTable.Table is PTable pTable)
                             pTable.MarkForDestruction();
 
+#if DEBUG
                         if (Log.IsTraceLevelEnabled()) Log.ThereAreNowAwaitingTables(memTables.Count);
+#endif
                         _awaitingMemTables = memTables;
                     }
 
@@ -512,13 +520,17 @@ namespace EventStore.Core.Index
         private void ReclaimMemoryIfNeeded(List<TableItem> awaitingMemTables)
         {
             var toPutOnDisk = awaitingMemTables.OfType<IMemTable>().Count() - MaxMemoryTables;
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
             for (var i = awaitingMemTables.Count - 1; i >= 1 && toPutOnDisk > 0; i--)
             {
                 var memtable = awaitingMemTables[i].Table as IMemTable;
-                if (memtable == null || !memtable.MarkForConversion()) { continue; }
+                if (memtable is null || !memtable.MarkForConversion()) { continue; }
 
+#if DEBUG
                 if (traceEnabled) Log.PuttingAwaitingFileAsPTableInsteadOfMemTable(memtable.Id);
+#endif
 
                 var ptable = PTable.FromMemtable(memtable, _fileNameProvider.GetFilenameNewTable(), _indexCacheDepth, _skipIndexVerify);
                 var swapped = false;
@@ -763,7 +775,7 @@ namespace EventStore.Core.Index
                 ThrowHelper.ThrowTimeoutException(ExceptionResource.Could_not_finish_background_thread_in_reasonable_time);
             }
             if (_inMem) { return; }
-            if (_indexMap == null) { return; }
+            if (_indexMap is null) { return; }
             if (removeFiles)
             {
                 _indexMap.InOrder().ToList().ForEach(x => x.MarkForDestruction());
@@ -821,7 +833,9 @@ namespace EventStore.Core.Index
 
         private void ForceIndexVerifyOnNextStartup()
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Forcing_index_verification_on_next_startup();
+#endif
             string path = Path.Combine(_directory, ForceIndexVerifyFilename);
             try
             {

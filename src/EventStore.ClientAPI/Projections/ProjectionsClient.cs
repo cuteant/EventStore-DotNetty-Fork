@@ -63,7 +63,7 @@ namespace EventStore.ClientAPI.Projections
                     {
                         if (x.IsFaulted) throw x.Exception;
                         var r = JObject.Parse(x.Result);
-                        return r["projections"] != null ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
+                        return r["projections"] is object ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
                     });
         }
 
@@ -74,7 +74,7 @@ namespace EventStore.ClientAPI.Projections
                     {
                         if (x.IsFaulted) throw x.Exception;
                         var r = JObject.Parse(x.Result);
-                        return r["projections"] != null ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
+                        return r["projections"] is object ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
                     });
         }
 
@@ -85,7 +85,7 @@ namespace EventStore.ClientAPI.Projections
                     {
                         if (x.IsFaulted) throw x.Exception;
                         var r = JObject.Parse(x.Result);
-                        return r["projections"] != null ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
+                        return r["projections"] is object ? r["projections"].ToObject<List<ProjectionDetails>>() : null;
                     });
         }
 

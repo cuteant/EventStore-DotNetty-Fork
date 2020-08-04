@@ -75,10 +75,10 @@ namespace EventStore.Core.Cluster
                            long lastCommitPosition, long writerCheckpoint, long chaserCheckpoint,
                            long epochPosition, int epochNumber, Guid epochId, int nodePriority)
         {
-            if (null == internalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
-            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
-            if (null == internalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
-            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
+            if (internalTcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
+            if (externalTcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (internalHttpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
+            if (externalHttpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
 
             InstanceId = instanceId;
 
@@ -129,13 +129,13 @@ namespace EventStore.Core.Cluster
 
         public bool Is(IPEndPoint endPoint)
         {
-            return endPoint != null
+            return endPoint is object
                    && (InternalHttpEndPoint.Equals(endPoint)
                        || ExternalHttpEndPoint.Equals(endPoint)
                        || InternalTcpEndPoint.Equals(endPoint)
-                       || (InternalSecureTcpEndPoint != null && InternalSecureTcpEndPoint.Equals(endPoint))
+                       || (InternalSecureTcpEndPoint is object && InternalSecureTcpEndPoint.Equals(endPoint))
                        || ExternalTcpEndPoint.Equals(endPoint)
-                       || (ExternalSecureTcpEndPoint != null && ExternalSecureTcpEndPoint.Equals(endPoint)));
+                       || (ExternalSecureTcpEndPoint is object && ExternalSecureTcpEndPoint.Equals(endPoint)));
         }
 
         public MemberInfo Updated(VNodeState? state = null, 
@@ -158,9 +158,9 @@ namespace EventStore.Core.Cluster
                                   lastCommitPosition ?? LastCommitPosition,
                                   writerCheckpoint ?? WriterCheckpoint,
                                   chaserCheckpoint ?? ChaserCheckpoint,
-                                  epoch != null ? epoch.EpochPosition : EpochPosition,
-                                  epoch != null ? epoch.EpochNumber : EpochNumber,
-                                  epoch != null ? epoch.EpochId : EpochId,
+                                  epoch is object ? epoch.EpochPosition : EpochPosition,
+                                  epoch is object ? epoch.EpochNumber : EpochNumber,
+                                  epoch is object ? epoch.EpochId : EpochId,
                                   NodePriority);
         }
 
@@ -172,8 +172,8 @@ namespace EventStore.Core.Cluster
                                      InternalHttpEndPoint, ExternalHttpEndPoint, TimeStamp);
             return string.Format("VND {0:B} <{1}> [{2}, {3}, {4}, {5}, {6}, {7}, {8}] {9}/{10}/{11}/E{12}@{13}:{14:B} | {15:yyyy-MM-dd HH:mm:ss.fff}",
                                  InstanceId, IsAlive ? "LIVE" : "DEAD", State,
-                                 InternalTcpEndPoint, InternalSecureTcpEndPoint == null ? "n/a" : InternalSecureTcpEndPoint.ToString(),
-                                 ExternalTcpEndPoint, ExternalSecureTcpEndPoint == null ? "n/a" : ExternalSecureTcpEndPoint.ToString(),
+                                 InternalTcpEndPoint, InternalSecureTcpEndPoint is null ? "n/a" : InternalSecureTcpEndPoint.ToString(),
+                                 ExternalTcpEndPoint, ExternalSecureTcpEndPoint is null ? "n/a" : ExternalSecureTcpEndPoint.ToString(),
                                  InternalHttpEndPoint, ExternalHttpEndPoint,
                                  LastCommitPosition, WriterCheckpoint, ChaserCheckpoint,
                                  EpochNumber, EpochPosition, EpochId,
@@ -216,9 +216,9 @@ namespace EventStore.Core.Cluster
                 result = (result*397) ^ State.GetHashCode();
                 result = (result*397) ^ IsAlive.GetHashCode();
                 result = (result*397) ^ InternalTcpEndPoint.GetHashCode();
-                result = (result*397) ^ (InternalSecureTcpEndPoint != null ? InternalSecureTcpEndPoint.GetHashCode() : 0);
+                result = (result*397) ^ (InternalSecureTcpEndPoint is object ? InternalSecureTcpEndPoint.GetHashCode() : 0);
                 result = (result*397) ^ ExternalTcpEndPoint.GetHashCode();
-                result = (result*397) ^ (ExternalSecureTcpEndPoint != null ? ExternalSecureTcpEndPoint.GetHashCode() : 0);
+                result = (result*397) ^ (ExternalSecureTcpEndPoint is object ? ExternalSecureTcpEndPoint.GetHashCode() : 0);
                 result = (result*397) ^ InternalHttpEndPoint.GetHashCode();
                 result = (result*397) ^ ExternalHttpEndPoint.GetHashCode();
                 result = (result*397) ^ EpochPosition.GetHashCode();

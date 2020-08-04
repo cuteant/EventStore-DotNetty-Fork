@@ -23,7 +23,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void Load(CheckpointTag checkpointTag)
         {
-            if (_partition == null)
+            if (_partition is null)
                 throw new NotSupportedException();
             _projection.BeginGetPartitionStateAt(_partition, _checkpointTag, LoadCompleted, lockLoaded: false);
         }

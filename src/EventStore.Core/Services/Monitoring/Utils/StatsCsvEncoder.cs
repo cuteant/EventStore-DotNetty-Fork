@@ -40,11 +40,11 @@ namespace EventStore.Core.Services.Monitoring.Utils
 
         private static string TryGetInvariantString(object obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return string.Empty;
 
             var convertible = obj as IConvertible;
-            if (convertible != null)
+            if (convertible is object)
                 return convertible.ToString(CultureInfo.InvariantCulture);
 
             return obj.ToString();

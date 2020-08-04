@@ -1033,7 +1033,7 @@ namespace EventStore.Transport.Tcp.Messages
                 {
                     get
                     {
-                        return ExternalSecureTcpAddress == null || ExternalSecureTcpPort == null
+                        return ExternalSecureTcpAddress is null || ExternalSecureTcpPort is null
                                 ? null
                                 : new IPEndPoint(IPAddress.Parse(ExternalSecureTcpAddress), ExternalSecureTcpPort.Value);
                     }
@@ -1059,8 +1059,8 @@ namespace EventStore.Transport.Tcp.Messages
                 {
                     ExternalTcpAddress = externalTcpEndPoint.Address.ToString();
                     ExternalTcpPort = externalTcpEndPoint.Port;
-                    ExternalSecureTcpAddress = externalSecureTcpEndPoint == null ? null : externalSecureTcpEndPoint.Address.ToString();
-                    ExternalSecureTcpPort = externalSecureTcpEndPoint == null ? (int?)null : externalSecureTcpEndPoint.Port;
+                    ExternalSecureTcpAddress = externalSecureTcpEndPoint is null ? null : externalSecureTcpEndPoint.Address.ToString();
+                    ExternalSecureTcpPort = externalSecureTcpEndPoint is null ? (int?)null : externalSecureTcpEndPoint.Port;
                     ExternalHttpAddress = externalHttpEndPoint.Address.ToString();
                     ExternalHttpPort = externalHttpEndPoint.Port;
                 }

@@ -12,7 +12,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
         public static void EatException(Action action)
         {
-            if (null == action) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
+            if (action is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action); }
             try
             {
                 action();
@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI.Common.Utils
 
         public static T EatException<T>(Func<T> func, T defaultValue = default(T))
         {
-            if (null == func) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
+            if (func is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
             try
             {
                 return func();

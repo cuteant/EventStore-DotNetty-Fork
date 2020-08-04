@@ -968,7 +968,7 @@ namespace EventStore.Core
             throw GetException();
             Exception GetException()
             {
-                return new Exception("_master == null");
+                return new Exception("_master is null");
             }
         }
 

@@ -11,7 +11,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public static DataflowBlockOptions ToBufferBlockOptions(this SubscriptionSettings settings)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             return new DataflowBlockOptions
             {
@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public static DataflowBlockOptions ToDataflowBlockOptions(this SubscriptionSettings settings)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             return new DataflowBlockOptions
             {
@@ -44,7 +44,7 @@ namespace EventStore.ClientAPI
         /// <returns></returns>
         public static ExecutionDataflowBlockOptions ToExecutionDataflowBlockOptions(this SubscriptionSettings settings, bool singleProducerConstrained = false)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
 
             return new ExecutionDataflowBlockOptions
             {

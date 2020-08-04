@@ -12,7 +12,7 @@ namespace EventStore.Rags
         {
             get
             {
-                if (_translators != null) return _translators;
+                if (_translators is object) return _translators;
                 _translators = new Dictionary<Type, Func<string, string, object>>();
                 LoadDefaultTranslators();
                 return _translators;
@@ -21,7 +21,7 @@ namespace EventStore.Rags
 
         public static void Register<T>(Func<string, string, T> translator)
         {
-            if (translator == null) throw new ArgumentNullException("translator");
+            if (translator is null) throw new ArgumentNullException("translator");
             _translators.Add(typeof (T), (x,y) => translator(x,y));
         }
 

@@ -116,7 +116,7 @@ namespace EventStore.Transport.Tcp
 
         private async void DoBind()
         {
-            if (_listenAddress == null) { return; }
+            if (_listenAddress is null) { return; }
 
             try
             {
@@ -188,7 +188,7 @@ namespace EventStore.Transport.Tcp
 
         private void SetServerPipeline(IChannel channel)
         {
-            if (_certificate != null)
+            if (_certificate is object)
             {
                 channel.Pipeline.AddFirst("TlsHandler", TlsHandler.Server(_certificate));
             }

@@ -159,27 +159,27 @@ namespace EventStore.Core.Cluster.Settings
                                     bool logFailedAuthenticationAttempts = false)
         {
             if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
-            if (null == internalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
-            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
-            if (null == internalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
-            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
-            if (null == intHttpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.intHttpPrefixes); }
-            if (null == extHttpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.extHttpPrefixes); }
-            if ((internalSecureTcpEndPoint != null || externalSecureTcpEndPoint != null) && null == certificate)
+            if (internalTcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcpEndPoint); }
+            if (externalTcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (internalHttpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttpEndPoint); }
+            if (externalHttpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
+            if (intHttpPrefixes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.intHttpPrefixes); }
+            if (extHttpPrefixes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.extHttpPrefixes); }
+            if ((internalSecureTcpEndPoint is object || externalSecureTcpEndPoint is object) && certificate is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
             if (workerThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.workerThreads); }
-            if (null == clusterDns) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterDns); }
-            if (null == gossipSeeds) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeeds); }
+            if (clusterDns is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.clusterDns); }
+            if (gossipSeeds is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeeds); }
             if (clusterNodeCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.clusterNodeCount); }
             if (prepareAckCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.prepareAckCount); }
             if (commitAckCount <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitAckCount); }
             if (initializationThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.initializationThreads); }
-            if (null == gossipAdvertiseInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipAdvertiseInfo); }
+            if (gossipAdvertiseInfo is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipAdvertiseInfo); }
 
             if (discoverViaDns && string.IsNullOrWhiteSpace(clusterDns))
                 throw new ArgumentException("Either DNS Discovery must be disabled (and seeds specified), or a cluster DNS name must be provided.");
 
-            if (useSsl && null == sslTargetHost)
+            if (useSsl && sslTargetHost is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sslTargetHost);
 
             NodeInfo = new VNodeInfo(instanceId, debugIndex,
@@ -313,7 +313,7 @@ namespace EventStore.Core.Cluster.Settings
                                  string.Join(", ", IntHttpPrefixes),
                                  string.Join(", ", ExtHttpPrefixes),
                                  EnableTrustedAuth,
-                                 Certificate == null ? "n/a" : Certificate.ToString(true),
+                                 Certificate is null ? "n/a" : Certificate.ToString(true),
                                  LogHttpRequests,
                                  WorkerThreads, DiscoverViaDns, ClusterDns,
                                  string.Join(",", GossipSeeds.Select(x => x.ToString())),

@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI.Internal
 
         public OperationItem(IClientOperation operation, int maxRetries, TimeSpan timeout)
         {
-            if (null == operation) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
+            if (operation is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.operation); }
 
             Operation = operation;
             MaxRetries = maxRetries;
@@ -56,7 +56,9 @@ namespace EventStore.ClientAPI.Internal
 
         private readonly string _connectionName;
         private readonly ConnectionSettings _settings;
+#if DEBUG
         private readonly bool _verboseLogging;
+#endif
         private readonly Dictionary<Guid, OperationItem> _activeOperations = new Dictionary<Guid, OperationItem>();
         private readonly ConcurrentQueue<OperationItem> _waitingOperations = new ConcurrentQueue<OperationItem>();
         private readonly List<OperationItem> _retryPendingOperations = new List<OperationItem>();
@@ -65,11 +67,13 @@ namespace EventStore.ClientAPI.Internal
 
         public OperationsManager(string connectionName, ConnectionSettings settings)
         {
-            if (null == connectionName) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (connectionName is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connectionName); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             _connectionName = connectionName;
             _settings = settings;
+#if DEBUG
             _verboseLogging = _settings.VerboseLogging && s_logger.IsDebugLevelEnabled();
+#endif
         }
 
         public bool TryGetActiveOperation(Guid correlationId, out OperationItem operation)
@@ -100,13 +104,15 @@ namespace EventStore.ClientAPI.Internal
             {
                 foreach (var operation in _activeOperations.Values)
                 {
-                    if (connection != null && operation.ConnectionId != connection.ConnectionId)
+                    if (connection is object && operation.ConnectionId != connection.ConnectionId)
                     {
                         retryOperations.Add(operation);
                     }
                     else if (operation.Timeout > TimeSpan.Zero && DateTime.UtcNow - operation.LastUpdated > _settings.OperationTimeout)
                     {
+#if DEBUG
                         if (_verboseLogging) LogOperationNeverGotResponseFromServer(operation);
+#endif
 
                         if (_settings.FailOnNoServerResponse)
                         {
@@ -125,7 +131,7 @@ namespace EventStore.ClientAPI.Internal
                     RemoveOperation(operation);
                 }
 
-                if (connection == null) { return; }
+                if (connection is null) { return; }
 
                 foreach (var operation in retryOperations)
                 {
@@ -146,7 +152,9 @@ namespace EventStore.ClientAPI.Internal
                     var oldCorrId = operation.CorrelationId;
                     operation.CorrelationId = Guid.NewGuid();
                     operation.RetryCount += 1;
+#if DEBUG
                     if (_verboseLogging) LogRetrying(oldCorrId, operation);
+#endif
                     ScheduleOperation(operation, connection);
                 }
                 _retryPendingOperations.Clear();
@@ -159,7 +167,9 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!RemoveOperation(operation)) { return; }
 
+#if DEBUG
             if (_verboseLogging) LogScheduleOperationRetryFor(operation);
+#endif
             if (operation.MaxRetries >= 0 && operation.RetryCount >= operation.MaxRetries)
             {
                 operation.Operation.Fail(CoreThrowHelper.GetRetriesLimitReachedException(operation));
@@ -172,17 +182,21 @@ namespace EventStore.ClientAPI.Internal
         {
             if (!_activeOperations.Remove(operation.CorrelationId))
             {
+#if DEBUG
                 if (_verboseLogging) LogRemoveOperationFailedFor(operation);
+#endif
                 return false;
             }
+#if DEBUG
             if (_verboseLogging) LogRemoveOperationSucceededFor(operation);
+#endif
             _totalOperationCount = _activeOperations.Count + _waitingOperations.Count;
             return true;
         }
 
         public void TryScheduleWaitingOperations(TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             lock (_lock)
             {
                 // We don't want to transmit or retain expired requests, so we trim any from before the cutoff implied by the current time
@@ -192,13 +206,13 @@ namespace EventStore.ClientAPI.Internal
                 while (_activeOperations.Count < _settings.MaxConcurrentItems)
                 {
                     if (!_waitingOperations.TryDequeue(out operation)) { break; }
-                    if (cutoff == null || !TryExpireItem(cutoff.Value, operation))
+                    if (cutoff is null || !TryExpireItem(cutoff.Value, operation))
                     {
                         ExecuteOperation(operation, connection);
                     }
                 }
 
-                if (cutoff != null)
+                if (cutoff is object)
                 {
                     // In case the active operations queue is at capacity, we trim expired items from the front of the queue
                     while (_waitingOperations.TryPeek(out operation) && TryExpireItem(cutoff.Value, operation))
@@ -214,7 +228,9 @@ namespace EventStore.ClientAPI.Internal
         {
             if (operation.CreatedTime > cutoffDate) { return false; }
 
+#if DEBUG
             if (_verboseLogging) { LogRequestExpired(operation); }
+#endif
             operation.Operation.Fail(CoreThrowHelper.GetOperationExpiredException(_connectionName, operation));
             return true;
         }
@@ -226,19 +242,23 @@ namespace EventStore.ClientAPI.Internal
             _activeOperations.Add(operation.CorrelationId, operation);
 
             var package = operation.Operation.CreateNetworkPackage(operation.CorrelationId);
+#if DEBUG
             if (_verboseLogging) LogExecuteOperationPackage(package, operation);
+#endif
             connection.EnqueueSend(package);
         }
 
         public void EnqueueOperation(OperationItem operation)
         {
+#if DEBUG
             if (_verboseLogging) LogEnqueueOperationWaiting(operation);
+#endif
             _waitingOperations.Enqueue(operation);
         }
 
         public void ScheduleOperation(OperationItem operation, TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             _waitingOperations.Enqueue(operation);
             TryScheduleWaitingOperations(connection);
         }

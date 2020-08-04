@@ -17,7 +17,7 @@ namespace EventStore.ClientAPI
     /// <param name="secureTcpEndPoint">The ssl endpoint of the node</param>
     public NodeEndPoints(IPEndPoint tcpEndPoint, IPEndPoint secureTcpEndPoint)
     {
-      if ((tcpEndPoint ?? secureTcpEndPoint) == null) ThrowHelper.ThrowArgumentException_BothEndpointsAreNull();
+      if ((tcpEndPoint ?? secureTcpEndPoint) is null) ThrowHelper.ThrowArgumentException_BothEndpointsAreNull();
       TcpEndPoint = tcpEndPoint;
       SecureTcpEndPoint = secureTcpEndPoint;
     }
@@ -26,8 +26,8 @@ namespace EventStore.ClientAPI
     public override string ToString()
     {
       return string.Format("[{0}, {1}]",
-          TcpEndPoint == null ? "n/a" : TcpEndPoint.ToString(),
-          SecureTcpEndPoint == null ? "n/a" : SecureTcpEndPoint.ToString());
+          TcpEndPoint is null ? "n/a" : TcpEndPoint.ToString(),
+          SecureTcpEndPoint is null ? "n/a" : SecureTcpEndPoint.ToString());
     }
   }
 }

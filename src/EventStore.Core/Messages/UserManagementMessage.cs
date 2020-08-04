@@ -269,7 +269,7 @@ namespace EventStore.Core.Messages
             public UserDetailsResultHttpFormatted(UserDetailsResult msg, Func<string, string> makeAbsoluteUrl) :
                 base(msg.Success, msg.Error)
             {
-                if (msg.Data != null)
+                if (msg.Data is object)
                     Data = new UserDataHttpFormated(msg.Data, makeAbsoluteUrl);
             }
 

@@ -100,8 +100,8 @@ namespace EventStore.Projections.Core.Services.Processing
             string effectiveProjectionName,
             ITimeProvider timeProvider)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (null == subscriptionDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionDispatcher); }
 
             _projectionProcessingStrategy = projectionProcessingStrategy;
@@ -173,7 +173,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _startOnLoad = true;
 
             var slaveProjectionDefinitions = _projectionProcessingStrategy.GetSlaveProjections();
-            if (slaveProjectionDefinitions != null)
+            if (slaveProjectionDefinitions is object)
             {
                 GoToState(State.StartSlaveProjectionsRequested);
             }
@@ -232,7 +232,7 @@ namespace EventStore.Projections.Core.Services.Processing
             info.BufferedEvents = 0;
             info.PartitionsCached = _partitionStateCache.CachedItemCount;
             _enrichStatistics(info);
-            if (_projectionProcessingPhase != null)
+            if (_projectionProcessingPhase is object)
                 _projectionProcessingPhase.GetStatistics(info);
         }
 
@@ -249,7 +249,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(CoreProjectionManagementMessage.GetState message)
         {
-            if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase == null)
+            if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase is null)
             {
                 _publisher.Publish(
                     new CoreProjectionStatusMessage.StateReport(
@@ -266,7 +266,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void Handle(CoreProjectionManagementMessage.GetResult message)
         {
-            if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase == null)
+            if (_state == State.LoadStateRequested || _state == State.StateLoaded || _projectionProcessingPhase is null)
             {
                 _publisher.Publish(
                     new CoreProjectionStatusMessage.ResultReport(
@@ -292,9 +292,9 @@ namespace EventStore.Projections.Core.Services.Processing
             try
             {
                 var checkpointTag = message.CheckpointTag;
-                var phase = checkpointTag == null ? 0 : checkpointTag.Phase;
+                var phase = checkpointTag is null ? 0 : checkpointTag.Phase;
                 var projectionProcessingPhase = _projectionProcessingPhases[phase];
-                if (checkpointTag == null)
+                if (checkpointTag is null)
                     checkpointTag = projectionProcessingPhase.MakeZeroCheckpointTag();
                 checkpointTag = projectionProcessingPhase.AdjustTag(checkpointTag);
                 //TODO: initialize projection state here (test it)
@@ -311,7 +311,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 GoToState(State.StateLoaded);
                 if (_startOnLoad)
                 {
-                    if (_slaveProjections != null)
+                    if (_slaveProjections is object)
                         _projectionProcessingPhase.AssignSlaves(_slaveProjections);
                     _projectionProcessingPhase.Subscribe(checkpointTag, fromCheckpoint: true);
                 }
@@ -365,18 +365,18 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void EnsureUnsubscribed()
         {
-            if (_projectionProcessingPhase != null)
+            if (_projectionProcessingPhase is object)
                 _projectionProcessingPhase.EnsureUnsubscribed();
         }
 
 
         private void StopSlaveProjections()
         {
-            if (_masterProjectionResponseReader != null)
+            if (_masterProjectionResponseReader is object)
                 _masterProjectionResponseReader.Stop();
             //TODO: encapsulate into StopSlaveProjections message?
             var slaveProjections = _slaveProjections;
-            if (slaveProjections != null)
+            if (slaveProjections is object)
             {
                 _slaveProjections = null;
                 foreach (var group in slaveProjections.Channels)
@@ -424,7 +424,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
 
 
-            if (_projectionProcessingPhase != null) // null while loading state
+            if (_projectionProcessingPhase is object) // null while loading state
                 switch (state)
                 {
                     case State.LoadStateRequested:
@@ -608,7 +608,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 var nextPhase = _projectionProcessingPhases[completedPhaseIndex + 1];
                 var nextPhaseZeroPosition = nextPhase.MakeZeroCheckpointTag();
                 BeginPhase(nextPhase, nextPhaseZeroPosition,null);
-                if (_slaveProjections != null)
+                if (_slaveProjections is object)
                     _projectionProcessingPhase.AssignSlaves(_slaveProjections);
                 _projectionProcessingPhase.Subscribe(nextPhaseZeroPosition, fromCheckpoint: false);
             }
@@ -656,7 +656,7 @@ namespace EventStore.Projections.Core.Services.Processing
             _disposed = true;
             EnsureUnsubscribed();
             StopSlaveProjections();
-            if (_projectionProcessingPhase != null)
+            if (_projectionProcessingPhase is object)
                 _projectionProcessingPhase.Dispose();
         }
 
@@ -716,9 +716,9 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void SetCurrentCheckpointSuggestedWorkItem(CheckpointSuggestedWorkItem checkpointSuggestedWorkItem)
         {
-            if (_checkpointSuggestedWorkItem != null && checkpointSuggestedWorkItem != null)
+            if (_checkpointSuggestedWorkItem is object && checkpointSuggestedWorkItem is object)
                 throw new InvalidOperationException("Checkpoint in progress");
-            if (_checkpointSuggestedWorkItem == null && checkpointSuggestedWorkItem == null)
+            if (_checkpointSuggestedWorkItem is null && checkpointSuggestedWorkItem is null)
                 throw new InvalidOperationException("No checkpoint in progress");
             _checkpointSuggestedWorkItem = checkpointSuggestedWorkItem;
         }
@@ -726,7 +726,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private void CompleteCheckpointSuggestedWorkItem()
         {
             var workItem = _checkpointSuggestedWorkItem;
-            if (workItem != null)
+            if (workItem is object)
             {
                 _checkpointSuggestedWorkItem = null;
                 workItem.CheckpointCompleted();

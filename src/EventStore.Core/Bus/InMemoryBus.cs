@@ -48,7 +48,7 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<IMessageHandler> handlers;
             if (!_typeHash.TryGetValue(typeof(T), out handlers))
@@ -64,13 +64,13 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<IMessageHandler> handlers;
             if (_typeHash.TryGetValue(typeof(T), out handlers))
             {
                 var messageHandler = handlers.FirstOrDefault(x => x.IsSame<T>(handler));
-                if (messageHandler != null)
+                if (messageHandler is object)
                     handlers.Remove(messageHandler);
             }
             }
@@ -103,7 +103,9 @@ namespace EventStore.Core.Bus
             List<IMessageHandler> handlers;
             if (_typeHash.TryGetValue(type, out handlers))
             {
+#if DEBUG
                 var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
                 for (int i = 0, n = handlers.Count; i < n; ++i)
                 {
                     var handler = handlers[i];
@@ -114,8 +116,10 @@ namespace EventStore.Core.Bus
                         handler.TryHandle(message);
 
                         var elapsed = DateTime.UtcNow - start;
+#if DEBUG
                         if (traceEnabled && elapsed > _slowMsgThreshold)
                             Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
+#endif
                     }
                     else
                     {
@@ -165,7 +169,7 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<Type> descendants;
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out descendants))
@@ -188,7 +192,7 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             List<Type> descendants;
             if (!MessageHierarchy.Descendants.TryGetValue(typeof(T), out descendants))
@@ -200,7 +204,7 @@ namespace EventStore.Core.Bus
                 if (_typeHash.TryGetValue(descendant, out handlers))
                 {
                     var messageHandler = handlers.FirstOrDefault(x => x.IsSame<T>(handler));
-                    if (messageHandler != null)
+                    if (messageHandler is object)
                         handlers.Remove(messageHandler);
                 }
             }
@@ -214,7 +218,7 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             PublishByType(message, message.GetType());
         }
 
@@ -224,7 +228,9 @@ namespace EventStore.Core.Bus
             if (!_typeHash.TryGetValue(type, out handlers)) 
                 return;
 
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
             for (int i = 0, n = handlers.Count; i < n; ++i)
             {
                 var handler = handlers[i];
@@ -235,10 +241,12 @@ namespace EventStore.Core.Bus
                     handler.TryHandle(message);
 
                     var elapsed = DateTime.UtcNow - start;
+#if DEBUG
                     if (traceEnabled && elapsed > _slowMsgThreshold)
                     {
                         Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                     }
+#endif
                 }
                 else
                 {
@@ -289,7 +297,7 @@ namespace EventStore.Core.Bus
         public void Subscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof (T)];
             for (int i = 0; i < descendants.Length; ++i)
@@ -304,14 +312,14 @@ namespace EventStore.Core.Bus
         public void Unsubscribe<T>(IHandle<T> handler) where T : Message
         {
             lock(_handlersLock){
-            if (null == handler) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
+            if (handler is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler); }
 
             int[] descendants = MessageHierarchy.DescendantsByType[typeof(T)];
             for (int i = 0; i < descendants.Length; ++i)
             {
                 var handlers = _handlers[descendants[i]];
                 var messageHandler = handlers.FirstOrDefault(x => x.IsSame<T>(handler));
-                if (messageHandler != null)
+                if (messageHandler is object)
                     handlers.Remove(messageHandler);
             }
             }
@@ -324,10 +332,12 @@ namespace EventStore.Core.Bus
 
         public void Publish(Message message)
         {
-            //if (message == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message);
+            //if (message is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message);
 
             var handlers = _handlers[message.MsgTypeId];
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
             for (int i = 0, n = handlers.Count; i < n; ++i)
             {
                 var handler = handlers[i];
@@ -340,7 +350,9 @@ namespace EventStore.Core.Bus
                     var elapsed = DateTime.UtcNow - start;
                     if (elapsed > _slowMsgThreshold)
                     {
+#if DEBUG
                         if (traceEnabled) Log.SlowBusMsg(Name, message, (int)elapsed.TotalMilliseconds, handler);
+#endif
                         if (elapsed > QueuedHandler.VerySlowMsgThreshold && !(message is SystemMessage.SystemInit))
                             Log.Very_slow_bus_msg(Name, message, (int)elapsed.TotalMilliseconds, handler);
                     }

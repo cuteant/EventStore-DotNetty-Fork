@@ -105,7 +105,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void Serialize(ref MessagePackWriter writer, ref int idx, TcpPackage value, IFormatterResolver formatterResolver)
         {
-            if (value == null) { writer.WriteNil(ref idx); return; }
+            if (value is null) { writer.WriteNil(ref idx); return; }
 
             var flags = value.Flags;
             writer.WriteByte((byte)value.Command, ref idx);

@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.Consumers
                     return false;
                 }
                 var sleepDurationProvider = retryPolicy.SleepDurationProvider;
-                if (sleepDurationProvider != null)
+                if (sleepDurationProvider is object)
                 {
                     var delay = sleepDurationProvider(retryAttempts);
                     await Task.Delay(delay).ConfigureAwait(false);

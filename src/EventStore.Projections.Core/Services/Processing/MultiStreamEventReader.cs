@@ -217,7 +217,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private void ProcessBuffers()
         {
             if (_disposed) { return; }
-            if (_safePositionToJoin == null) { return; }
+            if (_safePositionToJoin is null) { return; }
             while (true)
             {
                 var anyNonEmpty = false;
@@ -237,10 +237,10 @@ namespace EventStore.Projections.Core.Services.Processing
 
                     var currentStreamId = buffer.Key;
 
-                    if (head != null)
+                    if (head is object)
                     {
                         var itemPosition = GetItemPosition(head);
-                        if (_safePositionToJoin != null
+                        if (_safePositionToJoin is object
                             && itemPosition.CompareTo(_safePositionToJoin.GetValueOrDefault()) <= 0
                             && itemPosition.CompareTo(minPosition) < 0)
                         {
@@ -330,7 +330,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void DeliverSafePositionToJoin()
         {
-            if (_stopOnEof || _safePositionToJoin == null) { return; }
+            if (_stopOnEof || _safePositionToJoin is null) { return; }
             // deliver if already available
             _publisher.Publish(
                 new ReaderSubscriptionMessage.CommittedEventDistributed(
@@ -340,7 +340,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private void UpdateSafePositionToJoin(string streamId, long? preparePosition)
         {
             _preparePositions[streamId] = preparePosition;
-            if (_preparePositions.All(v => v.Value != null))
+            if (_preparePositions.All(v => v.Value is object))
             {
                 _safePositionToJoin = _preparePositions.Min(v => v.Value.GetValueOrDefault());
             }

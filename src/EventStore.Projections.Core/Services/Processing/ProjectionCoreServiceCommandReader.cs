@@ -26,8 +26,8 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public ProjectionCoreServiceCommandReader(IPublisher publisher, IODispatcher ioDispatcher, string workerId)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             _coreServiceId = workerId;
             _publisher = publisher;
             _ioDispatcher = ioDispatcher;
@@ -83,9 +83,9 @@ namespace EventStore.Projections.Core.Services.Processing
                     throw new Exception("Control reader failed. Read result: " + readResultForward.Result);
                 }
 
-                if (readResultForward.Events != null && readResultForward.Events.Length > 0)
+                if (readResultForward.Events is object && readResultForward.Events.Length > 0)
                 {
-                    var doWriteRegistration = readResultForward.Events.Any(v => string.Equals(v.Event.EventType, "$response-reader-started", StringComparison.Ordinal));
+                    var doWriteRegistration = readResultForward.Events.Any(v => string.Equals(v.Event.EventType, "$response-reader-started"));
                     fromEventNumber = readResultForward.NextEventNumber;
                     subscribeFrom = readResultForward.TfLastCommitPosition;
                     if (doWriteRegistration)

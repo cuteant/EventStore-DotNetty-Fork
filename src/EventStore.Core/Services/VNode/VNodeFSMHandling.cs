@@ -1,5 +1,4 @@
 ﻿using System;
-using EventStore.Common.Utils;
 using EventStore.Core.Bus;
 using EventStore.Core.Data;
 using EventStore.Core.Messaging;
@@ -19,8 +18,10 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition Do(Action<VNodeState, TMessage> handler)
         {
-            foreach (var state in _stateDef.States)
+            var states = _stateDef.States;
+            for (int idx = 0; idx < states.Length; idx++)
             {
+                VNodeState state = states[idx];
                 if (_defaultHandler)
                     _stateDef.FSM.AddDefaultHandler(state, (s, m) => handler(s, (TMessage)m));
                 else
@@ -31,8 +32,10 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition Do(Action<TMessage> handler)
         {
-            foreach (var state in _stateDef.States)
+            var states = _stateDef.States;
+            for (int idx = 0; idx < states.Length; idx++)
             {
+                VNodeState state = states[idx];
                 if (_defaultHandler)
                     _stateDef.FSM.AddDefaultHandler(state, (s, m) => handler((TMessage)m));
                 else
@@ -43,8 +46,10 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition Ignore()
         {
-            foreach (var state in _stateDef.States)
+            var states = _stateDef.States;
+            for (int idx = 0; idx < states.Length; idx++)
             {
+                VNodeState state = states[idx];
                 if (_defaultHandler)
                     _stateDef.FSM.AddDefaultHandler(state, (s, m) => { });
                 else
@@ -55,8 +60,10 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition Throw()
         {
-            foreach (var state in _stateDef.States)
+            var states = _stateDef.States;
+            for (int idx = 0; idx < states.Length; idx++)
             {
+                VNodeState state = states[idx];
                 if (_defaultHandler)
                     _stateDef.FSM.AddDefaultHandler(state, (s, m) => { throw new NotSupportedException(); });
                 else
@@ -67,7 +74,7 @@ namespace EventStore.Core.Services.VNode
 
         public VNodeFSMStatesDefinition ForwardTo(IPublisher publisher)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
             return Do(publisher.Publish);
         }
     }

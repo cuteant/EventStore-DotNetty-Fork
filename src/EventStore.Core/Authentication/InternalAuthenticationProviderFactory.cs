@@ -61,7 +61,7 @@ namespace EventStore.Core.Authentication
         {
             var usersController = new UsersController(httpSendService, mainQueue, networkSendQueue);
             externalHttpService.SetupController(usersController);
-            if (internalHttpService != null)
+            if (internalHttpService is object)
             {
                 internalHttpService.SetupController(usersController);
             }

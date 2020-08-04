@@ -57,7 +57,7 @@ namespace EventStore.ClientAPI.Embedded
 
         private static ClientMessage.EventRecord ToClientMessageEventRecord(this EventRecord eventRecord)
         {
-            if (eventRecord == null) return null;
+            if (eventRecord is null) return null;
             return new ClientMessage.EventRecord(
                 eventRecord.EventStreamId, eventRecord.EventNumber,
                 eventRecord.EventId, eventRecord.EventType, eventRecord.IsJson ? 1 : 0,

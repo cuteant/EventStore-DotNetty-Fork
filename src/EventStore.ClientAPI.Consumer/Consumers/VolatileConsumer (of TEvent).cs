@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI.Consumers
         public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription,
           Func<EventStoreSubscription, ResolvedEvent<TEvent>, Task> resolvedEventAppearedAsync)
         {
-            if (null == resolvedEventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppearedAsync); }
+            if (resolvedEventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppearedAsync); }
             Initialize(bus, subscription);
             _resolvedEventAppearedAsync = resolvedEventAppearedAsync;
         }
@@ -38,21 +38,21 @@ namespace EventStore.ClientAPI.Consumers
         public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription,
           Action<EventStoreSubscription, ResolvedEvent<TEvent>> resolvedEventAppeared)
         {
-            if (null == resolvedEventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppeared); }
+            if (resolvedEventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppeared); }
             Initialize(bus, subscription);
             _resolvedEventAppeared = resolvedEventAppeared;
         }
 
         public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             Initialize(bus, subscription);
             _resolvedEventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
         }
 
         public void Initialize(IEventStoreBus bus, VolatileSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             Initialize(bus, subscription);
             _resolvedEventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
         }
@@ -63,7 +63,7 @@ namespace EventStore.ClientAPI.Consumers
 
             try
             {
-                if (_resolvedEventAppearedAsync != null)
+                if (_resolvedEventAppearedAsync is object)
                 {
                     _esSubscription = await Bus.VolatileSubscribeAsync<TEvent>(Subscription.Topic, Subscription.Settings, _resolvedEventAppearedAsync,
                             async (sub, reason, exception) => await SubscriptionDroppedAsync(sub.ProcessingEventNumber, reason, exception).ConfigureAwait(false),

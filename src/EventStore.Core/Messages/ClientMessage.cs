@@ -59,7 +59,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == internalCorrId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.internalCorrId); }
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 InternalCorrId = internalCorrId;
                 CorrelationId = correlationId;
@@ -89,7 +89,7 @@ namespace EventStore.Core.Messages
             {
                 if (Guid.Empty == internalCorrId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.internalCorrId); }
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 InternalCorrId = internalCorrId;
                 CorrelationId = correlationId;
@@ -114,7 +114,7 @@ namespace EventStore.Core.Messages
 
             public TcpForwardMessage(Message message)
             {
-                if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+                if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
                 Message = message;
             }
@@ -155,7 +155,7 @@ namespace EventStore.Core.Messages
             {
                 if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
                 if (expectedVersion < Data.ExpectedVersion.StreamExists || expectedVersion == Data.ExpectedVersion.Invalid) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.expectedVersion);
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 EventStreamId = eventStreamId;
                 ExpectedVersion = expectedVersion;
@@ -166,7 +166,7 @@ namespace EventStore.Core.Messages
                                string eventStreamId, long expectedVersion, Event @event,
                                IPrincipal user, string login = null, string password = null)
                 : this(internalCorrId, correlationId, envelope, requireMaster, eventStreamId, expectedVersion,
-                       @event == null ? null : new[] { @event }, user, login, password)
+                       @event is null ? null : new[] { @event }, user, login, password)
             {
             }
 
@@ -304,7 +304,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, requireMaster, user, login, password)
             {
                 if ((ulong)transactionId > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.transactionId); }
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 TransactionId = transactionId;
                 Events = events;
@@ -584,7 +584,7 @@ namespace EventStore.Core.Messages
                                                     string error, long nextEventNumber, long lastEventNumber, bool isEndOfStream,
                                                     long tfLastCommitPosition)
             {
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 if (result != ReadStreamResult.Success)
                 {
@@ -681,7 +681,7 @@ namespace EventStore.Core.Messages
                                                      bool isEndOfStream,
                                                      long tfLastCommitPosition)
             {
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 if (result != ReadStreamResult.Success)
                 {
@@ -755,13 +755,13 @@ namespace EventStore.Core.Messages
             public readonly TFPos PrevPos;
             public readonly long TfLastCommitPosition;
 
-            public bool IsEndOfStream { get { return Events == null || (uint)MaxCount > (uint)Events.Length; } }
+            public bool IsEndOfStream { get { return Events is null || (uint)MaxCount > (uint)Events.Length; } }
 
             public ReadAllEventsForwardCompleted(Guid correlationId, ReadAllResult result, string error, ResolvedEvent[] events,
                                                  StreamMetadata streamMetadata, bool isCachePublic, int maxCount,
                                                  in TFPos currentPos, in TFPos nextPos, in TFPos prevPos, long tfLastCommitPosition)
             {
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 CorrelationId = correlationId;
                 Result = result;
@@ -823,13 +823,13 @@ namespace EventStore.Core.Messages
             public readonly TFPos PrevPos;
             public readonly long TfLastCommitPosition;
 
-            public bool IsEndOfStream { get { return Events == null || (uint)MaxCount > (uint)Events.Length; } }
+            public bool IsEndOfStream { get { return Events is null || (uint)MaxCount > (uint)Events.Length; } }
 
             public ReadAllEventsBackwardCompleted(Guid correlationId, ReadAllResult result, string error, ResolvedEvent[] events,
                                                   StreamMetadata streamMetadata, bool isCachePublic, int maxCount,
                                                   in TFPos currentPos, in TFPos nextPos, in TFPos prevPos, long tfLastCommitPosition)
             {
-                if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+                if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
                 CorrelationId = correlationId;
                 Result = result;
@@ -1125,7 +1125,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, user)
             {
                 if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (null == processedEventIds) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEventIds); }
+                if (processedEventIds is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEventIds); }
 
                 SubscriptionId = subscriptionId;
                 ProcessedEventIds = processedEventIds;
@@ -1181,7 +1181,7 @@ namespace EventStore.Core.Messages
                 : base(internalCorrId, correlationId, envelope, user)
             {
                 if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (null == processedEventIds) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEventIds); }
+                if (processedEventIds is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEventIds); }
 
                 SubscriptionId = subscriptionId;
                 ProcessedEventIds = processedEventIds;
@@ -1372,7 +1372,7 @@ namespace EventStore.Core.Messages
 
             public MergeIndexes(IEnvelope envelope, Guid correlationId, IPrincipal user)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 CorrelationId = correlationId;
                 User = user;
@@ -1417,7 +1417,7 @@ namespace EventStore.Core.Messages
 
             public ScavengeDatabase(IEnvelope envelope, Guid correlationId, IPrincipal user, int startFromChunk, int threads)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 CorrelationId = correlationId;
                 User = user;
@@ -1438,7 +1438,7 @@ namespace EventStore.Core.Messages
 
             public StopDatabaseScavenge(IEnvelope envelope, Guid correlationId, IPrincipal user, string scavengeId)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 CorrelationId = correlationId;
                 User = user;

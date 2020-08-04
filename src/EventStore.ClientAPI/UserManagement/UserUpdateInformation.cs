@@ -9,7 +9,7 @@
         public UserUpdateInformation(string fullName, string[] groups)
         {
             if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
-            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (groups is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             FullName = fullName;
             Groups = groups;
         }

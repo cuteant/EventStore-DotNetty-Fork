@@ -11,14 +11,14 @@ namespace EventStore.Core.Services.Transport.Http
 
         public void RegisterSender<T>(ISender<T> sender) where T : Message
         {
-            if (null == sender) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
+            if (sender is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
             _senders.TryAdd(typeof (T), new MessageSender<T>(sender));
         }
 
         public void Push(Message message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             var type = message.GetType();
             IMessageSender sender;
@@ -45,14 +45,14 @@ namespace EventStore.Core.Services.Transport.Http
 
         public MessageSender(ISender<T> sender)
         {
-            if (null == sender) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
+            if (sender is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sender); }
             _sender = sender;
         }
 
         public void Send(Message message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             _sender.Send((T) message, endPoint);
         }

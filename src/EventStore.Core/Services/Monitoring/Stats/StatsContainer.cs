@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
         public void Add(IDictionary<string, object> statGroup)
         {
-            if (null == statGroup) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statGroup); }
+            if (statGroup is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statGroup); }
 
             foreach (var stat in statGroup)
                 _stats.Add(stat.Key, stat.Value);
@@ -66,13 +66,13 @@ namespace EventStore.Core.Services.Monitoring.Stats
                 kvp =>
                 {
                     var statInfo = kvp.Value as StatMetadata;
-                    return statInfo == null ? kvp.Value : statInfo.Value;
+                    return statInfo is null ? kvp.Value : statInfo.Value;
                 });
         }
 
         public static Dictionary<string, object> Group(Dictionary<string, object> input)
         {
-            if (null == input) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
+            if (input is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
 
             if (input.IsEmpty())
                 return input;
@@ -109,7 +109,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
             foreach (var entry in groupContainer)
             {
                 var subgroup = entry.Value as Dictionary<string, object>;
-                if (subgroup != null)
+                if (subgroup is object)
                     result[entry.Key] = Group(subgroup);
                 else
                     result[entry.Key] = entry.Value;
@@ -132,7 +132,7 @@ namespace EventStore.Core.Services.Monitoring.Stats
 
             public int GetHashCode(string obj)
             {
-                return obj != null ? obj.ToUpperInvariant().GetHashCode() : -1;
+                return obj is object ? obj.ToUpperInvariant().GetHashCode() : -1;
             }
         }
     }

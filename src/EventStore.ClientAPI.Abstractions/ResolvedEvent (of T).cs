@@ -18,7 +18,7 @@ namespace EventStore.ClientAPI
         public RecordedEvent<T> OriginalEvent => Link ?? Event;
 
         /// <summary>Indicates whether this <see cref="ResolvedEvent"/> is a resolved link event.</summary>
-        public bool IsResolved => Link != null && Event != null;
+        public bool IsResolved => Link is object && Event is object;
 
         /// <summary>The logical position of the <see cref="OriginalEvent"/>.</summary>
         public readonly Position? OriginalPosition;

@@ -17,7 +17,7 @@ namespace EventStore.Projections.Core.Standard
         {
             if (!string.IsNullOrWhiteSpace(source))
                 throw new InvalidOperationException("Empty source expected");
-            if (logger != null)
+            if (logger is object)
             {
 //                logger("Index events by event type projection handler has been initialized");
             }

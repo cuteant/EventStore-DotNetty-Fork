@@ -31,9 +31,9 @@ namespace EventStore.Transport.Http.Client
 
         public void Get(string url, IEnumerable<KeyValuePair<string,string>> headers, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Get, url, headers, onSuccess, onException);
         }
@@ -46,31 +46,31 @@ namespace EventStore.Transport.Http.Client
         public void Post(string url, string body, string contentType, IEnumerable<KeyValuePair<string,string>> headers, 
                          Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
-            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (body is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (contentType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Post, url, body, contentType, headers, onSuccess, onException);
         }
 
         public void Delete(string url, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Receive(HttpMethod.Delete, url, null, onSuccess, onException);
         }
 
         public void Put(string url, string body, string contentType, Action<HttpResponse> onSuccess, Action<Exception> onException)
         {
-            if (null == url) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
-            if (null == body) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
-            if (null == contentType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
-            if (null == onSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
-            if (null == onException) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
+            if (url is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.url); }
+            if (body is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.body); }
+            if (contentType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.contentType); }
+            if (onSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onSuccess); }
+            if (onException is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onException); }
 
             Send(HttpMethod.Put, url, body, contentType, null, onSuccess, onException);
         }
@@ -87,7 +87,7 @@ namespace EventStore.Transport.Http.Client
             request.Method = new System.Net.Http.HttpMethod(method);
             request.RequestUri = new Uri(url);
 
-            if(headers != null)
+            if(headers is object)
             {
                 foreach(var header in headers)
                 {
@@ -114,7 +114,7 @@ namespace EventStore.Transport.Http.Client
 
             request.Content = content;
 
-            if(headers != null)
+            if(headers is object)
             {
                 foreach (var header in headers)
                 {

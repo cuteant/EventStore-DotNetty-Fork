@@ -8,7 +8,7 @@ namespace EventStore.Core.Messaging
 
         public CallbackEnvelope(Action<Message> callback)
         {
-            if (null == callback) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.callback); }
+            if (callback is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.callback); }
             _callback = callback;
         }
 

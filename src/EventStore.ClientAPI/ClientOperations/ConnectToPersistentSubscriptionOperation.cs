@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -93,7 +93,7 @@ namespace EventStore.ClientAPI.ClientOperations
           IHasTcpPackageConnection getConnection, IEventAdapter eventAdapter)
           : base(source, groupName, streamId, settings, userCredentials, eventAppearedAsync, subscriptionDropped, getConnection)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
         }
 
@@ -167,7 +167,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             var dto = new TcpClientMessageDto.ConnectToPersistentSubscription(_groupName, _streamId, _bufferSize);
             return new TcpPackage(TcpCommand.ConnectToPersistentSubscription,
-                                  _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
+                                  _userCredentials is object ? TcpFlags.Authenticated : TcpFlags.None,
                                   _correlationId,
                                   _userCredentials?.Username,
                                   _userCredentials?.Password,
@@ -234,7 +234,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void NotifyEventsProcessed(Guid[] processedEvents)
         {
-            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
+            if (processedEvents is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
 
             var count = processedEvents.Length;
             var rawIds = new Guid[count];
@@ -250,7 +250,7 @@ namespace EventStore.ClientAPI.ClientOperations
         private void NotifyEventsProcessed(TcpClientMessageDto.PersistentSubscriptionAckEvents dto)
         {
             var package = new TcpPackage(TcpCommand.PersistentSubscriptionAckEvents,
-                                  _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
+                                  _userCredentials is object ? TcpFlags.Authenticated : TcpFlags.None,
                                   _correlationId,
                                   _userCredentials?.Username,
                                   _userCredentials?.Password,
@@ -260,7 +260,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void NotifyEventsFailed(Guid processedEvent, PersistentSubscriptionNakEventAction action, string reason)
         {
-            if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
+            if (reason is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
 
             var dto = new TcpClientMessageDto.PersistentSubscriptionNakEvents(
                 _subscriptionId,
@@ -272,8 +272,8 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public void NotifyEventsFailed(Guid[] processedEvents, PersistentSubscriptionNakEventAction action, string reason)
         {
-            if (null == processedEvents) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
-            if (null == reason) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
+            if (processedEvents is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.processedEvents); }
+            if (reason is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.reason); }
 
             var count = processedEvents.Length;
             var rawIds = new Guid[count];
@@ -293,7 +293,7 @@ namespace EventStore.ClientAPI.ClientOperations
         private void NotifyEventsFailed(TcpClientMessageDto.PersistentSubscriptionNakEvents dto)
         {
             var package = new TcpPackage(TcpCommand.PersistentSubscriptionNakEvents,
-                                  _userCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
+                                  _userCredentials is object ? TcpFlags.Authenticated : TcpFlags.None,
                                   _correlationId,
                                   _userCredentials?.Username,
                                   _userCredentials?.Password,

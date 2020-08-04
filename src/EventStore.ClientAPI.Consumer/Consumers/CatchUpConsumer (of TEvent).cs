@@ -32,7 +32,7 @@ namespace EventStore.ClientAPI.Consumers
         public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription,
             Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> resolvedEventAppearedAsync)
         {
-            if (null == resolvedEventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppearedAsync); }
+            if (resolvedEventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppearedAsync); }
             Initialize(bus, subscription);
             _resolvedEventAppearedAsync = resolvedEventAppearedAsync;
         }
@@ -40,21 +40,21 @@ namespace EventStore.ClientAPI.Consumers
         public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription,
             Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> resolvedEventAppeared)
         {
-            if (null == resolvedEventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppeared); }
+            if (resolvedEventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resolvedEventAppeared); }
             Initialize(bus, subscription);
             _resolvedEventAppeared = resolvedEventAppeared;
         }
 
         public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription, Func<TEvent, Task> eventAppearedAsync)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             Initialize(bus, subscription);
             _resolvedEventAppearedAsync = (sub, resolvedEvent) => eventAppearedAsync(resolvedEvent.Body);
         }
 
         public void Initialize(IEventStoreBus bus, CatchUpSubscription<TEvent> subscription, Action<TEvent> eventAppeared)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             Initialize(bus, subscription);
             _resolvedEventAppeared = (sub, resolvedEvent) => eventAppeared(resolvedEvent.Body);
         }
@@ -83,7 +83,7 @@ namespace EventStore.ClientAPI.Consumers
 
             try
             {
-                if (_resolvedEventAppearedAsync != null)
+                if (_resolvedEventAppearedAsync is object)
                 {
                     esSubscription = Bus.CatchUpSubscribe<TEvent>(Subscription.Topic, lastCheckpoint, Subscription.Settings, _resolvedEventAppearedAsync,
                             _ => s_logger.CaughtUpOnStreamAt(_.StreamId),

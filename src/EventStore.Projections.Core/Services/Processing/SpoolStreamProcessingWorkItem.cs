@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Services.Processing
             bool definesCatalogTransform)
             : base(Guid.NewGuid())
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (null == resultWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.resultWriter); }
             if (null == slaves) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.slaves); }
             if (null == spoolProcessingResponseDispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.spoolProcessingResponseDispatcher); }
@@ -98,7 +98,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void WriteOutput()
         {
-            if (_resultMessage != null)
+            if (_resultMessage is object)
             {
                 _resultWriter.WriteEofResult(
                     _subscriptionId, _resultMessage.Partition, _resultMessage.Result, _resultMessage.Position,

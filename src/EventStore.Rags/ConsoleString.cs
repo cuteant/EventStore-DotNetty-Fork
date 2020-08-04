@@ -293,7 +293,7 @@ namespace EventStore.Rags
         /// <returns>The first index of the given substring or -1 if the substring was not found.</returns>
         public int IndexOf(string toFind)
         {
-            if (toFind == null) return -1;
+            if (toFind is null) return -1;
             if (toFind == "") return 0;
 
             int j = 0;
@@ -446,7 +446,7 @@ namespace EventStore.Rags
         /// <returns>A new, concatenated ConsoleString</returns>
         public static ConsoleString operator +(ConsoleString a, ConsoleString b)
         {
-            if (a == null) return b;
+            if (a is null) return b;
             a.Append(b);
             return a;
         }
@@ -459,7 +459,7 @@ namespace EventStore.Rags
         /// <returns>A new, concatenated ConsoleString</returns>
         public static ConsoleString operator +(ConsoleString a, string b)
         {
-            if (a == null) return b != null ? new ConsoleString(b) : null;
+            if (a is null) return b is object ? new ConsoleString(b) : null;
             a.Append(b);
             return a;
         }

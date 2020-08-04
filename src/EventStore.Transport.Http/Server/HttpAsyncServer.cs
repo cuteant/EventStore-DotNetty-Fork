@@ -89,7 +89,7 @@ namespace EventStore.Transport.Http.Server
 
             var aclProcess = Process.Start(startInfo);
 
-            if (aclProcess != null)
+            if (aclProcess is object)
                 aclProcess.WaitForExit();
 #endif
         }
@@ -196,7 +196,7 @@ namespace EventStore.Transport.Http.Server
         private void OnRequestReceived(HttpListenerContext context)
         {
             var handler = RequestReceived;
-            if (handler != null)
+            if (handler is object)
                 handler(this, context);
         }
     }

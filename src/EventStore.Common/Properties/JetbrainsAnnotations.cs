@@ -67,7 +67,7 @@ namespace System
     /// </summary>
     /// <example><code>
     /// public void Foo(string param) {
-    ///   if (param == null)
+    ///   if (param is null)
     ///     throw new ArgumentNullException("par"); // Warning: Cannot resolve symbol
     /// }
     /// </code></example>
@@ -214,7 +214,7 @@ namespace System
     ///   public void Test() {
     ///     var ca1 = new NoEquality();
     ///     var ca2 = new NoEquality();
-    ///     if (ca1 != null) { // OK
+    ///     if (ca1 is object) { // OK
     ///       bool condition = ca1 == ca2; // Warning
     ///     }
     ///   }

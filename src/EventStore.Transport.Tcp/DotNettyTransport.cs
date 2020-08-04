@@ -21,7 +21,7 @@ namespace EventStore.Transport.Tcp
 
         public DotNettyTransport(DotNettyTransportSettings settings)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             Logger = TraceLogger.GetLogger(this.GetType());
             ConnectionGroup = new ConcurrentHashSet<IChannel>(ChannelComparer.Default);
 
@@ -60,7 +60,7 @@ namespace EventStore.Transport.Tcp
         {
             var resolved = await Dns.GetHostEntryAsync(address.Host).ConfigureAwait(false);
             var found = resolved.AddressList.LastOrDefault(a => a.AddressFamily == addressFamily);
-            if (found == null)
+            if (found is null)
             {
                 throw new KeyNotFoundException($"Couldn't resolve IP endpoint from provided DNS name '{address}' with address family of '{addressFamily}'");
             }

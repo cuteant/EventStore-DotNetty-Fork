@@ -137,7 +137,7 @@ namespace System
         }
         public override bool IsEquivalentTo(UriTemplatePathSegment other, bool ignoreTrailingSlash)
         {
-            if (other == null)
+            if (other is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;
@@ -147,7 +147,7 @@ namespace System
                 return false;
             }
             UriTemplateCompoundPathSegment otherAsCompound = other as UriTemplateCompoundPathSegment;
-            if (otherAsCompound == null)
+            if (otherAsCompound is null)
             {
                 // if other can't be cast as a compound then it can't be equivalent
                 return false;
@@ -210,7 +210,7 @@ namespace System
                 {
                     return false;
                 }
-                if (boundParameters != null)
+                if (boundParameters is object)
                 {
                     string varValue = segment.Substring(segmentPosition, nextLiteralPosition - segmentPosition);
                     boundParameters.Add(this.varLitPairs[pairIndex].VarName, varValue);
@@ -221,7 +221,7 @@ namespace System
             {
                 if (string.IsNullOrEmpty(this.varLitPairs[varLitPairs.Count - 1].Literal))
                 {
-                    if (boundParameters != null)
+                    if (boundParameters is object)
                     {
                         boundParameters.Add(this.varLitPairs[varLitPairs.Count - 1].VarName,
                             segment.Substring(segmentPosition));
@@ -231,7 +231,7 @@ namespace System
                 else if ((segmentPosition + this.varLitPairs[varLitPairs.Count - 1].Literal.Length < segment.Length) &&
                     segment.EndsWith(this.varLitPairs[varLitPairs.Count - 1].Literal, StringComparison.Ordinal))
                 {
-                    if (boundParameters != null)
+                    if (boundParameters is object)
                     {
                         boundParameters.Add(this.varLitPairs[varLitPairs.Count - 1].VarName,
                             segment.Substring(segmentPosition, segment.Length - segmentPosition - this.varLitPairs[varLitPairs.Count - 1].Literal.Length));
@@ -284,7 +284,7 @@ namespace System
         //  for certain wire candidates.
         int IComparable<UriTemplateCompoundPathSegment>.CompareTo(UriTemplateCompoundPathSegment other)
         {
-            Fx.Assert(other != null, "We are only expected to get here for comparing real compound segments");
+            Fx.Assert(other is object, "We are only expected to get here for comparing real compound segments");
 
             switch (this.csClass)
             {

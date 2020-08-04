@@ -151,7 +151,9 @@ namespace EventStore.Transport.Tcp
 
             NotifyClosed();
 
+#if DEBUG
             if (s_logger.IsTraceLevelEnabled()) { AnalyzeConnection(disassociated); }
+#endif
 
             _channel.CloseAsync().Ignore();
 

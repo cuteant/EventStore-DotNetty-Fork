@@ -47,7 +47,7 @@ namespace EventStore.Core.Bus
 #endif
         public QueueStatsCollector(string name, string groupName = null)
         {
-            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (name is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
 
             Name = name;
             GroupName = groupName;
@@ -270,11 +270,16 @@ namespace EventStore.Core.Bus
         private static void WaitStop(int multiplier = 1){
             Debug.Assert(_idleDetectionEnabled, "_idleDetectionEnabled was false when WaitStop() entered");
             lock(_notifyStopLock){
-                var counter = 0; var isDebugEnabled = _logger.IsDebugLevelEnabled();
-                while(_totalStarted > 0){
+                var counter = 0;
+#if DEBUG
+                var isDebugEnabled = _logger.IsDebugLevelEnabled();
+#endif
+                while (_totalStarted > 0){
                     if (!Monitor.Wait(_notifyStopLock, 100))
                     {
+#if DEBUG
                         if (isDebugEnabled) { _logger.LogDebug("Waiting for STOP state..."); }
+#endif
                         counter++;
                         if (counter > 150 * multiplier)
                             ThrowHelper.ThrowApplicationException_InfiniteWaitStop();
@@ -318,15 +323,15 @@ namespace EventStore.Core.Bus
 #if DEBUG
         private static bool AreCheckpointsDifferent(int index)
         {
-            return _writerCheckpoint[index] != null && _chaserCheckpoint[index] != null
+            return _writerCheckpoint[index] is object && _chaserCheckpoint[index] is object
                    && _writerCheckpoint[index].ReadNonFlushed() != _chaserCheckpoint[index].Read();
         }
 
         private static bool AnyCheckpointsDifferent()
         {
-            long c1 = _writerCheckpoint[0] != null ? _writerCheckpoint[0].ReadNonFlushed() : -1;
-            long c2 = _writerCheckpoint[1] != null ? _writerCheckpoint[1].ReadNonFlushed() : -1;
-            long c3 = _writerCheckpoint[2] != null ? _writerCheckpoint[2].ReadNonFlushed() : -1;
+            long c1 = _writerCheckpoint[0] is object ? _writerCheckpoint[0].ReadNonFlushed() : -1;
+            long c2 = _writerCheckpoint[1] is object ? _writerCheckpoint[1].ReadNonFlushed() : -1;
+            long c3 = _writerCheckpoint[2] is object ? _writerCheckpoint[2].ReadNonFlushed() : -1;
 
             return (c2 != -1 && c1 != c2) || (c2 != -1 && c3 != -1 && c2 != c3);
         }

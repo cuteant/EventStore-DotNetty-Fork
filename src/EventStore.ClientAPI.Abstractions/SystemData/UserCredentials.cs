@@ -17,8 +17,8 @@ namespace EventStore.ClientAPI.SystemData
         /// <param name="password"></param>
         public UserCredentials(string username, string password)
         {
-            if (null == username) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.username); }
-            if (null == password) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
+            if (username is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.username); }
+            if (password is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             Username = username;
             Password = password;
         }

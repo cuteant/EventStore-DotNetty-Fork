@@ -26,8 +26,8 @@ namespace EventStore.Core.Services.UserManagement
 
         public void Run(Action<UserManagementMessage.Error, UserManagementMessage.UserData[]> completed)
         {
-            if (completed == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.completed); }
-            if (_onCompleted != null) ThrowHelper.ThrowInvalidOperationException_AllUsersReaderCannotBeReused();
+            if (completed is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.completed); }
+            if (_onCompleted is object) ThrowHelper.ThrowInvalidOperationException_AllUsersReaderCannotBeReused();
 
             _onCompleted = completed;
 

@@ -52,13 +52,13 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         public PersistentSubscription(PersistentSubscriptionParams persistentSubscriptionParams)
         {
-            if (null == persistentSubscriptionParams.StreamReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventLoader); }
-            if (null == persistentSubscriptionParams.CheckpointReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointReader); }
-            if (null == persistentSubscriptionParams.CheckpointWriter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointWriter); }
-            if (null == persistentSubscriptionParams.MessageParker) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.messageParker); }
-            if (null == persistentSubscriptionParams.SubscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == persistentSubscriptionParams.EventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
-            if (null == persistentSubscriptionParams.GroupName) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
+            if (persistentSubscriptionParams.StreamReader is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventLoader); }
+            if (persistentSubscriptionParams.CheckpointReader is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointReader); }
+            if (persistentSubscriptionParams.CheckpointWriter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpointWriter); }
+            if (persistentSubscriptionParams.MessageParker is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.messageParker); }
+            if (persistentSubscriptionParams.SubscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+            if (persistentSubscriptionParams.EventStreamId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+            if (persistentSubscriptionParams.GroupName is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
             _nextEventToPullFrom = 0;
             _totalTimeWatch = new Stopwatch();
             _settings = persistentSubscriptionParams;
@@ -84,10 +84,14 @@ namespace EventStore.Core.Services.PersistentSubscription
             lock (_lock)
             {
                 _state = PersistentSubscriptionState.Behind;
+#if DEBUG
                 var debugEnabled = Log.IsDebugLevelEnabled();
+#endif
                 if (!checkpoint.HasValue)
                 {
+#if DEBUG
                     if (debugEnabled) Log.SubscriptionNoCheckpointFound(_settings);
+#endif
                     _nextEventToPullFrom = _settings.StartFrom >= 0 ? _settings.StartFrom : 0;
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, _settings.StartFrom >= 0);
                     TryReadingNewBatch();
@@ -95,7 +99,9 @@ namespace EventStore.Core.Services.PersistentSubscription
                 else
                 {
                     _nextEventToPullFrom = checkpoint.Value + 1;
+#if DEBUG
                     if (debugEnabled) Log.SubscriptionReadCheckpoint(_settings.SubscriptionId, checkpoint.Value);
+#endif
                     _streamBuffer = new StreamBuffer(_settings.BufferSize, _settings.LiveBufferSize, -1, true);
                     TryReadingNewBatch();
                 }
@@ -450,7 +456,9 @@ namespace EventStore.Core.Services.PersistentSubscription
             {
                 if (0u >= (uint)(_state & PersistentSubscriptionState.ReplayingParkedMessages)) return;
 
+#if DEBUG
                 var debugEnabled = Log.IsDebugLevelEnabled();
+#endif
                 foreach (var ev in events)
                 {
                     if (ev.OriginalEventNumber == stopAt)
@@ -458,7 +466,9 @@ namespace EventStore.Core.Services.PersistentSubscription
                         break;
                     }
 
+#if DEBUG
                     if (debugEnabled) Log.RetryingEventOnSubscription(ev, _settings.SubscriptionId);
+#endif
                     _streamBuffer.AddRetry(new OutstandingMessage(ev.OriginalEvent.EventId, null, ev, 0));
                 }
 
@@ -538,7 +548,9 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         private void RetryMessage(in ResolvedEvent @event, int count)
         {
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) { Log.RetryingMessage(SubscriptionId, @event); }
+#endif
             _outstandingMessages.Remove(@event.OriginalEvent.EventId);
             _pushClients.RemoveProcessingMessages(@event.OriginalEvent.EventId);
             _streamBuffer.AddRetry(new OutstandingMessage(@event.OriginalEvent.EventId, null, @event, count + 1));

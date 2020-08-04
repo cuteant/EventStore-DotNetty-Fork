@@ -61,12 +61,12 @@ namespace EventStore.Core.Services.VNode
                                          ClusterVNodeSettings vnodeSettings, ClusterVNode node,
                                          MessageForwardingProxy forwardingProxy, ISubsystem[] subSystems)
         {
-            if (null == outputBus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputBus); }
-            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == vnodeSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vnodeSettings); }
-            if (null == node) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.node); }
-            if (null == forwardingProxy) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
+            if (outputBus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputBus); }
+            if (nodeInfo is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (vnodeSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vnodeSettings); }
+            if (node is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.node); }
+            if (forwardingProxy is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.forwardingProxy); }
 
             _outputBus = outputBus;
             _nodeInfo = nodeInfo;
@@ -82,7 +82,7 @@ namespace EventStore.Core.Services.VNode
                                             + 1 /* HttpService External*/;
             }
 
-            _subSystemInitsToExpect = _subSystems != null ? subSystems.Length : 0;
+            _subSystemInitsToExpect = _subSystems is object ? subSystems.Length : 0;
 
             _forwardingProxy = forwardingProxy;
             _forwardingTimeout = vnodeSettings.PrepareTimeout + vnodeSettings.CommitTimeout + TimeSpan.FromMilliseconds(300);
@@ -92,7 +92,7 @@ namespace EventStore.Core.Services.VNode
 
         public void SetMainQueue(IQueuedHandler mainQueue)
         {
-            if (null == mainQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainQueue); }
+            if (mainQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.mainQueue); }
 
             _mainQueue = mainQueue;
             _publishEnvelope = new PublishEnvelope(mainQueue);
@@ -314,7 +314,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomePreReplica message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.PreReplicaStateWaitingForChaserToCatchUp(_nodeInfo, _master);
@@ -325,7 +325,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeCatchingUp message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.VnodeIsCatchingUpMasterIs(_nodeInfo, _master);
@@ -335,7 +335,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeClone message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.VnodeIsCloneMasterIs(_nodeInfo, _master);
@@ -345,7 +345,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomeSlave message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.VnodeIsSlaveMasterIs(_nodeInfo, _master);
@@ -355,7 +355,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.BecomePreMaster message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.PreMasterStateWaitingForChaserToCatchUp(_nodeInfo);
@@ -367,7 +367,7 @@ namespace EventStore.Core.Services.VNode
         private void Handle(SystemMessage.BecomeMaster message)
         {
             if (_state == VNodeState.Master) ThrowHelper.ThrowException(ExceptionResource.We_should_not_BecomeMaster_twice_in_a_row);
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) { return; }
 
             if (Log.IsInformationLevelEnabled()) Log.VNodeIsMasterSparta(_nodeInfo);
@@ -417,7 +417,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(ElectionMessage.ElectionsDone message)
         {
-            if (_master != null && _master.InstanceId == message.Master.InstanceId)
+            if (_master is object && _master.InstanceId == message.Master.InstanceId)
             {
                 //if the master hasn't changed, we skip state changes through PreMaster or PreReplica
                 if (_master.InstanceId == _nodeInfo.InstanceId && _state == VNodeState.Master)
@@ -449,7 +449,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(UserManagementMessage.UserManagementServiceInitialized message)
         {
-            if (_subSystems != null)
+            if (_subSystems is object)
             {
                 foreach (var subsystem in _subSystems)
                 {
@@ -462,7 +462,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.SystemCoreReady message)
         {
-            if (_subSystems == null || 0u >= (uint)_subSystems.Length)
+            if (_subSystems is null || 0u >= (uint)_subSystems.Length)
             {
                 _outputBus.Publish(new SystemMessage.SystemReady());
             }
@@ -486,7 +486,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (message.RequireMaster)
             {
-                if (_master == null)
+                if (_master is null)
                     DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
                 else
                     DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -501,7 +501,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (message.RequireMaster)
             {
-                if (_master == null)
+                if (_master is null)
                     DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
                 else
                     DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -516,7 +516,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (message.RequireMaster)
             {
-                if (_master == null)
+                if (_master is null)
                     DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
                 else
                     DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -531,7 +531,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (message.RequireMaster)
             {
-                if (_master == null)
+                if (_master is null)
                     DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
                 else
                     DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -546,7 +546,7 @@ namespace EventStore.Core.Services.VNode
         {
             if (message.RequireMaster)
             {
-                if (_master == null)
+                if (_master is null)
                     DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
                 else
                     DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -559,7 +559,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(ClientMessage.CreatePersistentSubscription message)
         {
-            if (_master == null)
+            if (_master is null)
                 DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
             else
                 DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -567,7 +567,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(ClientMessage.ConnectToPersistentSubscription message)
         {
-            if (_master == null)
+            if (_master is null)
                 DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
             else
                 DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -575,7 +575,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(ClientMessage.UpdatePersistentSubscription message)
         {
-            if (_master == null)
+            if (_master is null)
                 DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
             else
                 DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -583,7 +583,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(ClientMessage.DeletePersistentSubscription message)
         {
-            if (_master == null)
+            if (_master is null)
                 DenyRequestBecauseNotReady(message.Envelope, message.CorrelationId);
             else
                 DenyRequestBecauseNotMaster(message.CorrelationId, message.Envelope);
@@ -673,7 +673,7 @@ namespace EventStore.Core.Services.VNode
 
         private void Handle(SystemMessage.VNodeConnectionLost message)
         {
-            if (_master != null && _master.Is(message.VNodeEndPoint)) // master connection failed
+            if (_master is object && _master.Is(message.VNodeEndPoint)) // master connection failed
             {
                 var msg = _state == VNodeState.PreReplica
                                   ? (Message)new ReplicationMessage.ReconnectToMaster(_stateCorrelationId, _master)
@@ -685,13 +685,15 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsMaster(GossipMessage.GossipUpdated message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (message.ClusterInfo.Members.Count(x => x.IsAlive && x.State == VNodeState.Master) > 1)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled())
                 {
                     Log.ThereAreFewMastersAccordingToGossipNeedToStartElections(_master, message);
                 }
+#endif
                 _mainQueue.Publish(new ElectionMessage.StartElections());
             }
 
@@ -700,11 +702,13 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsNonMaster(GossipMessage.GossipUpdated message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             var master = message.ClusterInfo.Members.FirstOrDefault(x => x.InstanceId == _master.InstanceId);
-            if (master == null || !master.IsAlive)
+            if (master is null || !master.IsAlive)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) Log.ThereIsNoMasterOrMasterIsDeadAccordingToGossip(_master);
+#endif
                 _mainQueue.Publish(new ElectionMessage.StartElections());
             }
 
@@ -726,7 +730,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsPreMaster(SystemMessage.ChaserCaughtUp message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) return;
 
             _outputBus.Publish(message);
@@ -735,7 +739,7 @@ namespace EventStore.Core.Services.VNode
 
         private void HandleAsPreReplica(SystemMessage.ChaserCaughtUp message)
         {
-            if (_master == null) ThrowHelper.ThrowException_MasterIsNull();
+            if (_master is null) ThrowHelper.ThrowException_MasterIsNull();
             if (_stateCorrelationId != message.CorrelationId) return;
 
             _outputBus.Publish(message);
@@ -813,10 +817,12 @@ namespace EventStore.Core.Services.VNode
             if (message.SubscriptionId == Guid.Empty) ThrowHelper.ThrowException(ExceptionResource.IReplicationMessage_with_empty_SubscriptionId_provided);
             if (message.SubscriptionId != _subscriptionId)
             {
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) { Log.IgnoringBecauseSubscriptionIdIsWrong(message, _subscriptionId); }
+#endif
                 return false;
             }
-            if (_master == null || _master.InstanceId != message.MasterId)
+            if (_master is null || _master.InstanceId != message.MasterId)
             {
                 FailedWhenMasterIsNull(message);
                 return false;

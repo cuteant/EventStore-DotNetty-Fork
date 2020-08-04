@@ -27,12 +27,12 @@ namespace EventStore.ClientAPI
             if (!string.IsNullOrWhiteSpace(metadata.CustomMetadata))
             {
                 String[] ss = metadata.CustomMetadata.Split(s_separators, StringSplitOptions.RemoveEmptyEntries);
-                if (ss != null || (uint)ss.Length > 0u)
+                if (ss is object || (uint)ss.Length > 0u)
                 {
                     foreach (var item in ss)
                     {
                         var kvs = item.Split(s_nameValueSeparator, StringSplitOptions.RemoveEmptyEntries);
-                        if (kvs != null && (uint)kvs.Length > 0u)
+                        if (kvs is object && (uint)kvs.Length > 0u)
                         {
                             if (kvs.Length == 2)
                             {

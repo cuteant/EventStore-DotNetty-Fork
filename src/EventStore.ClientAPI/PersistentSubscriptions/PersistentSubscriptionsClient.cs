@@ -31,7 +31,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
                 {
                     if (x.IsFaulted) throw x.Exception;
                     var r = JObject.Parse(x.Result);
-                    return r != null ? r.ToObject<PersistentSubscriptionDetails>() : null;
+                    return r is object ? r.ToObject<PersistentSubscriptionDetails>() : null;
                 });
         }
 
@@ -45,7 +45,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
                 {
                     if (x.IsFaulted) throw x.Exception;
                     var r = JArray.Parse(x.Result);
-                    return r != null ? r.ToObject<List<PersistentSubscriptionDetails>>() : null;
+                    return r is object ? r.ToObject<List<PersistentSubscriptionDetails>>() : null;
                 });
         }
 
@@ -57,7 +57,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
                 {
                     if (x.IsFaulted) throw x.Exception;
                     var r = JArray.Parse(x.Result);
-                    return r != null ? r.ToObject<List<PersistentSubscriptionDetails>>() : null;
+                    return r is object ? r.ToObject<List<PersistentSubscriptionDetails>>() : null;
                 });
         }
 

@@ -28,7 +28,7 @@ namespace EventStore.ClientAPI.PersistentSubscriptions
         public PersistentSubscriptionsManager(ILogger log, EndPoint httpEndPoint, TimeSpan operationTimeout, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
         {
             if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
-            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
+            if (httpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
             this._client = new PersistentSubscriptionsClient(log, operationTimeout);
             this._httpEndPoint = httpEndPoint;
             this._httpSchema = httpSchema;

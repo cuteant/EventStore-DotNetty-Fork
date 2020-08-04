@@ -73,7 +73,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public void EnqueueOutOfOrderTask(WorkItem workItem)
         {
-            if (_lastEnqueuedEventTag == null)
+            if (_lastEnqueuedEventTag is null)
                 throw new InvalidOperationException(
                     "Cannot enqueue an out-of-order task.  The projection position is currently unknown.");
             workItem.SetProjectionQueue(this);

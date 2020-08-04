@@ -28,7 +28,7 @@ namespace EventStore.Core.Util
 
         public static void ContinuousHashFor(MD5 md5, Stream s, int startPosition, long count)
         {
-            if (null == md5) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5); }
+            if (md5 is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5); }
             if ((ulong)count > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.count); }
 
             if (s.Position != startPosition)

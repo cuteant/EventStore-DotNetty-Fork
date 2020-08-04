@@ -33,8 +33,8 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (null == inputQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.inputQueue); }
             //if (null == runAs) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.runAs); }
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             if (null == timeProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.timeProvider); }
 
             var namingBuilder = new ProjectionNamesBuilder(_name, GetSourceDefinition());

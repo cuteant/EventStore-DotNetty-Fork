@@ -14,7 +14,7 @@ using EventStore.Core.TransactionLog.Unbuffered;
 
 namespace EventStore.Core.Index
 {
-    public enum FileType: byte
+    public enum FileType : byte
     {
         PTableFile = 1,
         ChunkFile = 2
@@ -67,7 +67,7 @@ namespace EventStore.Core.Index
         private readonly ManualResetEventSlim _destroyEvent = new ManualResetEventSlim(false);
         private volatile bool _deleteFile;
 
-        internal Midpoint[] GetMidPoints() {return _midpoints;}
+        internal Midpoint[] GetMidPoints() { return _midpoints; }
 
         private PTable(string filename,
                        Guid id,
@@ -87,7 +87,9 @@ namespace EventStore.Core.Index
             _id = id;
             _filename = filename;
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.LoadingPTabl1eStarted(skipIndexVerify, Filename);
+#endif
             var sw = Stopwatch.StartNew();
             _size = new FileInfo(_filename).Length;
 
@@ -135,9 +137,10 @@ namespace EventStore.Core.Index
                     readerWorkItem.Stream.Seek(readerWorkItem.Stream.Length - MD5Size - PTableFooter.GetSize(_version), SeekOrigin.Begin);
                     var footer = PTableFooter.FromStream(readerWorkItem.Stream);
                     if (footer.Version != header.Version)
-                        ThrowHelper.ThrowCorruptIndexException_PTableHeaderAndFooterVersionMismatch(header.Version,footer.Version);
+                        ThrowHelper.ThrowCorruptIndexException_PTableHeaderAndFooterVersionMismatch(header.Version, footer.Version);
 
-                    if(_version == PTableVersions.IndexV4){
+                    if (_version == PTableVersions.IndexV4)
+                    {
                         _indexEntrySize = IndexEntryV4Size;
                         _indexKeySize = IndexKeyV4Size;
                     }
@@ -145,17 +148,18 @@ namespace EventStore.Core.Index
                         ThrowHelper.ThrowInvalidOperationException_UnknownPTableVersion(_version);
 
                     _midpointsCached = footer.NumMidpointsCached;
-                    _midpointsCacheSize = _midpointsCached*_indexEntrySize;
+                    _midpointsCacheSize = _midpointsCached * _indexEntrySize;
                     readerWorkItem.Stream.Seek(previousPosition, SeekOrigin.Begin);
                 }
 
                 long indexEntriesTotalSize = (_size - PTableHeader.Size - _midpointsCacheSize - PTableFooter.GetSize(_version) - MD5Size);
 
-                if((ulong)indexEntriesTotalSize > Consts.TooBigOrNegativeUL)
+                if ((ulong)indexEntriesTotalSize > Consts.TooBigOrNegativeUL)
                 {
                     ThrowHelper.ThrowCorruptIndexException_TotalSizeOfIndexEntries(indexEntriesTotalSize, _size, _midpointsCacheSize, _version);
                 }
-                else if(indexEntriesTotalSize % _indexEntrySize != 0){
+                else if (indexEntriesTotalSize % _indexEntrySize != 0)
+                {
                     ThrowHelper.ThrowCorruptIndexException_TotalSizeOfIndexEntries(indexEntriesTotalSize, _indexEntrySize);
                 }
 
@@ -164,9 +168,10 @@ namespace EventStore.Core.Index
                 if (_version >= PTableVersions.IndexV4 && _count > 0 && _midpointsCached > 0 && _midpointsCached < 2)
                 {
                     //if there is at least 1 index entry with version>=4 and there are cached midpoints, there should always be at least 2 midpoints cached
-                    ThrowHelper.ThrowCorruptIndexException_LessThan2MidpointsCachedInPTable(_count,_midpointsCached);
+                    ThrowHelper.ThrowCorruptIndexException_LessThan2MidpointsCachedInPTable(_count, _midpointsCached);
                 }
-                else if(_count>=2 && _midpointsCached > _count){
+                else if (_count >= 2 && _midpointsCached > _count)
+                {
                     //if there are at least 2 index entries, midpoints count should be at most the number of index entries
                     ThrowHelper.ThrowCorruptIndexException_MoreMidpointsCachedInPTableThanIndexEntries(_midpointsCached, _count);
                 }
@@ -203,7 +208,9 @@ namespace EventStore.Core.Index
             {
                 Log.UnableToCreateMidpointsForPtable(Filename, Count, depth);
             }
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.LoadingPTable(_version, Filename, Count, calcdepth, sw.Elapsed);
+#endif
         }
 
         internal Midpoint[] CacheMidpointsAndVerifyHash(int depth, bool skipIndexVerify)
@@ -212,150 +219,180 @@ namespace EventStore.Core.Index
             if (!Helper.IsInRangeInclusive(depth, 0, 30) /*depth < 0 || depth > 30*/)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.depth);
             var count = Count;
-            if (0ul >= (ulong)count || 0u >= (uint)depth)
-                return null;
+            if (0ul >= (ulong)count || 0u >= (uint)depth) { return null; }
+#if DEBUG
             var debugEnabled = Log.IsDebugLevelEnabled();
-            if(skipIndexVerify && debugEnabled)
+            if (skipIndexVerify && debugEnabled)
             {
                 Log.Disabling_Verification_of_PTable();
             }
+#endif
 
             Stream stream = null;
             WorkItem workItem = null;
-            if(Runtime.IsUnixOrMac){
+            if (Runtime.IsUnixOrMac)
+            {
                 workItem = GetWorkItem();
                 stream = workItem.Stream;
             }
-            else{
+            else
+            {
                 stream = UnbufferedFileStream.Create(_filename, FileMode.Open, FileAccess.Read, FileShare.Read, false, 4096, 4096, false, 4096);
             }
 
-                try {
-                    int midpointsCount = 0;
-                    Midpoint[] midpoints = null;
-                    using (MD5 md5 = MD5.Create())
+            try
+            {
+                int midpointsCount = 0;
+                Midpoint[] midpoints = null;
+                using (MD5 md5 = MD5.Create())
+                {
+                    try
                     {
-                        try
-                        {
-                            midpointsCount = (int)Math.Max(2L, Math.Min((long)1 << depth, count));
-                            midpoints = new Midpoint[midpointsCount];
-                        }
-                        catch (OutOfMemoryException exc)
-                        {
-                            ThrowHelper.ThrowPossibleToHandleOutOfMemoryException_FailedToAllocateMemoryForMidpointCache(exc);
-                        }
+                        midpointsCount = (int)Math.Max(2L, Math.Min((long)1 << depth, count));
+                        midpoints = new Midpoint[midpointsCount];
+                    }
+                    catch (OutOfMemoryException exc)
+                    {
+                        ThrowHelper.ThrowPossibleToHandleOutOfMemoryException_FailedToAllocateMemoryForMidpointCache(exc);
+                    }
 
-                        if(skipIndexVerify && (_version >= PTableVersions.IndexV4)){
-                            if(_midpointsCached == midpointsCount){
-                                //index verification is disabled and cached midpoints with the same depth requested are available
-                                //so, we can load them directly from the PTable file
-                                if(debugEnabled) Log.LoadingCachedMidpointsFromPTable(_midpointsCached);
-                                long startOffset = stream.Length - MD5Size - PTableFooter.GetSize(_version) - _midpointsCacheSize;
-                                stream.Seek(startOffset,SeekOrigin.Begin);
-                                for(uint k=0;k<_midpointsCached;k++){
-                                    stream.Read(buffer, 0, _indexEntrySize);
-                                    if(_version != PTableVersions.IndexV4){
-                                        ThrowHelper.ThrowInvalidOperationException_UnknownPTableVersion(_version);
+                    if (skipIndexVerify && (_version >= PTableVersions.IndexV4))
+                    {
+                        if (_midpointsCached == midpointsCount)
+                        {
+                            //index verification is disabled and cached midpoints with the same depth requested are available
+                            //so, we can load them directly from the PTable file
+#if DEBUG
+                            if (debugEnabled) Log.LoadingCachedMidpointsFromPTable(_midpointsCached);
+#endif
+                            long startOffset = stream.Length - MD5Size - PTableFooter.GetSize(_version) - _midpointsCacheSize;
+                            stream.Seek(startOffset, SeekOrigin.Begin);
+                            for (uint k = 0; k < _midpointsCached; k++)
+                            {
+                                stream.Read(buffer, 0, _indexEntrySize);
+                                if (_version != PTableVersions.IndexV4)
+                                {
+                                    ThrowHelper.ThrowInvalidOperationException_UnknownPTableVersion(_version);
+                                }
+                                var key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 8), BitConverter.ToInt64(buffer, 0));
+                                var index = BitConverter.ToInt64(buffer, 8 + 8);
+                                midpoints[k] = new Midpoint(key, index);
+
+                                if (k > 0)
+                                {
+                                    if (midpoints[k].Key.GreaterThan(midpoints[k - 1].Key))
+                                    {
+                                        ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointLessThan(k, midpoints);
                                     }
-                                    var key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 8), BitConverter.ToInt64(buffer, 0));
-                                    var index = BitConverter.ToInt64(buffer, 8 + 8);
-                                    midpoints[k] = new Midpoint(key, index);
-
-                                    if(k>0){
-                                        if(midpoints[k].Key.GreaterThan(midpoints[k-1].Key)){
-                                            ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointLessThan(k, midpoints);
-                                        }
-                                        else if(midpoints[k-1].ItemIndex > midpoints[k].ItemIndex){
-                                            ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointGreaterThan(k, midpoints);
-                                        }
+                                    else if (midpoints[k - 1].ItemIndex > midpoints[k].ItemIndex)
+                                    {
+                                        ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointGreaterThan(k, midpoints);
                                     }
                                 }
+                            }
 
-                                return midpoints;
+                            return midpoints;
+                        }
+#if DEBUG
+                        else
+                        {
+                            if (debugEnabled) Log.SkippingLoadingOfCachedmidpointsFromPTable(_midpointsCached, midpointsCount);
+                        }
+#endif
+                    }
+
+                    if (!skipIndexVerify)
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        stream.Read(buffer, 0, PTableHeader.Size);
+                        md5.TransformBlock(buffer, 0, PTableHeader.Size, null, 0);
+                    }
+
+                    long previousNextIndex = long.MinValue;
+                    var previousKey = new IndexEntryKey(long.MaxValue, long.MaxValue);
+                    for (long k = 0; k < midpointsCount; ++k)
+                    {
+                        long nextIndex = GetMidpointIndex(k, count, midpointsCount);
+                        if (previousNextIndex != nextIndex)
+                        {
+                            if (!skipIndexVerify)
+                            {
+                                ReadUntilWithMd5(PTableHeader.Size + _indexEntrySize * nextIndex, stream, md5);
+                                stream.Read(buffer, 0, _indexKeySize);
+                                md5.TransformBlock(buffer, 0, _indexKeySize, null, 0);
                             }
                             else
-                                if (debugEnabled) Log.SkippingLoadingOfCachedmidpointsFromPTable(_midpointsCached, midpointsCount);
-                        }
+                            {
+                                stream.Seek(PTableHeader.Size + _indexEntrySize * nextIndex, SeekOrigin.Begin);
+                                stream.Read(buffer, 0, _indexKeySize);
+                            }
 
-                        if(!skipIndexVerify){
-                            stream.Seek(0, SeekOrigin.Begin);
-                            stream.Read(buffer, 0, PTableHeader.Size);
-                            md5.TransformBlock(buffer, 0, PTableHeader.Size, null, 0);
+                            IndexEntryKey key;
+                            if (_version == PTableVersions.IndexV1)
+                            {
+                                key = new IndexEntryKey(BitConverter.ToUInt32(buffer, 4), BitConverter.ToInt32(buffer, 0));
+                            }
+                            else if (_version == PTableVersions.IndexV2)
+                            {
+                                key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 4), BitConverter.ToInt32(buffer, 0));
+                            }
+                            else
+                            {
+                                key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 8), BitConverter.ToInt64(buffer, 0));
+                            }
+                            midpoints[k] = new Midpoint(key, nextIndex);
+                            previousNextIndex = nextIndex;
+                            previousKey = key;
                         }
-
-                        long previousNextIndex = long.MinValue;
-                        var previousKey = new IndexEntryKey(long.MaxValue, long.MaxValue);
-                        for (long k = 0; k < midpointsCount; ++k)
+                        else
                         {
-                            long nextIndex = GetMidpointIndex(k,count,midpointsCount);
-                            if (previousNextIndex != nextIndex) {
-                                if(!skipIndexVerify){
-                                    ReadUntilWithMd5(PTableHeader.Size + _indexEntrySize * nextIndex, stream, md5);
-                                    stream.Read(buffer, 0, _indexKeySize);
-                                    md5.TransformBlock(buffer, 0, _indexKeySize, null, 0);
-                                }
-                                else{
-                                    stream.Seek(PTableHeader.Size + _indexEntrySize * nextIndex, SeekOrigin.Begin);
-                                    stream.Read(buffer, 0, _indexKeySize);
-                                }
-
-                                IndexEntryKey key;
-                                if (_version == PTableVersions.IndexV1)
-                                {
-                                    key = new IndexEntryKey(BitConverter.ToUInt32(buffer, 4), BitConverter.ToInt32(buffer, 0));
-                                }
-                                else if (_version == PTableVersions.IndexV2)
-                                {
-                                    key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 4), BitConverter.ToInt32(buffer, 0));
-                                }
-                                else
-                                {
-                                    key = new IndexEntryKey(BitConverter.ToUInt64(buffer, 8), BitConverter.ToInt64(buffer, 0));
-                                }
-                                midpoints[k] = new Midpoint(key, nextIndex);
-                                previousNextIndex = nextIndex;
-                                previousKey = key;
-                            } else {
-                                midpoints[k] = new Midpoint(previousKey, previousNextIndex);
-                            }
-
-                            if(k>0){
-                                if(midpoints[k].Key.GreaterThan(midpoints[k-1].Key)){
-                                    ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointLessThan(k, midpoints);
-                                }
-                                else if(midpoints[k-1].ItemIndex > midpoints[k].ItemIndex){
-                                    ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointGreaterThan(k, midpoints);
-                                }
-                            }
+                            midpoints[k] = new Midpoint(previousKey, previousNextIndex);
                         }
 
-                        if(!skipIndexVerify){
-                            ReadUntilWithMd5(stream.Length - MD5Size, stream, md5);
-                            //verify hash (should be at stream.length - MD5Size)
-                            md5.TransformFinalBlock(Empty.ByteArray, 0, 0);
-                            var fileHash = new byte[MD5Size];
-                            stream.Read(fileHash, 0, MD5Size);
-                            ValidateHash(md5.Hash, fileHash);
+                        if (k > 0)
+                        {
+                            if (midpoints[k].Key.GreaterThan(midpoints[k - 1].Key))
+                            {
+                                ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointLessThan(k, midpoints);
+                            }
+                            else if (midpoints[k - 1].ItemIndex > midpoints[k].ItemIndex)
+                            {
+                                ThrowHelper.ThrowCorruptIndexException_ItemIndexForMidpointGreaterThan(k, midpoints);
+                            }
                         }
-
-                        return midpoints;
                     }
+
+                    if (!skipIndexVerify)
+                    {
+                        ReadUntilWithMd5(stream.Length - MD5Size, stream, md5);
+                        //verify hash (should be at stream.length - MD5Size)
+                        md5.TransformFinalBlock(Empty.ByteArray, 0, 0);
+                        var fileHash = new byte[MD5Size];
+                        stream.Read(fileHash, 0, MD5Size);
+                        ValidateHash(md5.Hash, fileHash);
+                    }
+
+                    return midpoints;
                 }
-                catch
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+            finally
+            {
+                if (Runtime.IsUnixOrMac)
                 {
-                    Dispose();
-                    throw;
+                    if (workItem is object)
+                        ReturnWorkItem(workItem);
                 }
-                finally{
-                    if(Runtime.IsUnixOrMac){
-                        if(workItem != null)
-                            ReturnWorkItem(workItem);
-                    }
-                    else{
-                        if(stream != null)
-                            stream.Dispose();
-                    }
+                else
+                {
+                    if (stream is object)
+                        stream.Dispose();
                 }
+            }
         }
 
 
@@ -372,11 +409,11 @@ namespace EventStore.Core.Index
                 toRead -= read;
             }
         }
-        void ValidateHash(byte [] fromFile, byte[] computed)
+        void ValidateHash(byte[] fromFile, byte[] computed)
         {
-            if (computed == null)
+            if (computed is null)
                 ThrowHelper.ThrowCorruptIndexException_CalculatedMD5HashIsNull();
-            if (fromFile == null)
+            if (fromFile is null)
                 ThrowHelper.ThrowCorruptIndexException_ReadFromFileMD5HashIsNull();
 
             if ((uint)computed.Length != (uint)fromFile.Length)
@@ -442,7 +479,7 @@ namespace EventStore.Core.Index
             try
             {
                 IndexEntryKey lowBoundsCheck, highBoundsCheck;
-                var recordRange = LocateRecordRange(endKey,out lowBoundsCheck,out highBoundsCheck);
+                var recordRange = LocateRecordRange(endKey, out lowBoundsCheck, out highBoundsCheck);
 
                 long low = recordRange.Lower;
                 long high = recordRange.Upper;
@@ -452,17 +489,22 @@ namespace EventStore.Core.Index
                     IndexEntry midpoint = ReadEntry(_indexEntrySize, mid, workItem, _version);
                     var midpointKey = new IndexEntryKey(midpoint.Stream, midpoint.Version);
 
-                    if(midpointKey.GreaterThan(lowBoundsCheck)){
+                    if (midpointKey.GreaterThan(lowBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_LowBounds(midpointKey.Stream, midpointKey.Version, lowBoundsCheck.Stream, lowBoundsCheck.Version);
                     }
-                    else if(!midpointKey.GreaterEqualsThan(highBoundsCheck)){
+                    else if (!midpointKey.GreaterEqualsThan(highBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_HighBounds(midpointKey.Stream, midpointKey.Version, highBoundsCheck.Stream, highBoundsCheck.Version);
                     }
 
-                    if (midpointKey.GreaterThan(endKey)){
+                    if (midpointKey.GreaterThan(endKey))
+                    {
                         low = mid + 1;
                         lowBoundsCheck = midpointKey;
-                    } else {
+                    }
+                    else
+                    {
                         high = mid;
                         highBoundsCheck = midpointKey;
                     }
@@ -516,18 +558,22 @@ namespace EventStore.Core.Index
                     var midpoint = ReadEntry(_indexEntrySize, mid, workItem, _version);
                     var midpointKey = new IndexEntryKey(midpoint.Stream, midpoint.Version);
 
-                    if(midpointKey.GreaterThan(lowBoundsCheck)){
+                    if (midpointKey.GreaterThan(lowBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_LowBounds(midpointKey.Stream, midpointKey.Version, lowBoundsCheck.Stream, lowBoundsCheck.Version);
                     }
-                    else if(!midpointKey.GreaterEqualsThan(highBoundsCheck)){
+                    else if (!midpointKey.GreaterEqualsThan(highBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_HighBounds(midpointKey.Stream, midpointKey.Version, highBoundsCheck.Stream, highBoundsCheck.Version);
                     }
 
-                    if (midpointKey.SmallerThan(startKey)){
+                    if (midpointKey.SmallerThan(startKey))
+                    {
                         high = mid - 1;
                         highBoundsCheck = midpointKey;
                     }
-                    else {
+                    else
+                    {
                         low = mid;
                         lowBoundsCheck = midpointKey;
                     }
@@ -575,25 +621,29 @@ namespace EventStore.Core.Index
                     IndexEntry midpoint = ReadEntry(_indexEntrySize, mid, workItem, _version);
                     var midpointKey = new IndexEntryKey(midpoint.Stream, midpoint.Version);
 
-                    if(midpointKey.GreaterThan(lowBoundsCheck)){
+                    if (midpointKey.GreaterThan(lowBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_LowBounds(midpointKey.Stream, midpointKey.Version, lowBoundsCheck.Stream, lowBoundsCheck.Version);
                     }
-                    else if(!midpointKey.GreaterEqualsThan(highBoundsCheck)){
+                    else if (!midpointKey.GreaterEqualsThan(highBoundsCheck))
+                    {
                         ThrowHelper.ThrowMaybeCorruptIndexException_HighBounds(midpointKey.Stream, midpointKey.Version, highBoundsCheck.Stream, highBoundsCheck.Version);
                     }
 
-                    if (midpointKey.SmallerEqualsThan(endKey)){
+                    if (midpointKey.SmallerEqualsThan(endKey))
+                    {
                         high = mid;
                         highBoundsCheck = midpointKey;
                     }
-                    else{
+                    else
+                    {
                         low = mid + 1;
                         lowBoundsCheck = midpointKey;
                     }
                 }
 
                 PositionAtEntry(_indexEntrySize, high, workItem);
-                for (long i=high, n=Count; i<n; ++i)
+                for (long i = high, n = Count; i < n; ++i)
                 {
                     IndexEntry entry = ReadNextNoSeek(workItem, _version);
                     var candidateKey = new IndexEntryKey(entry.Stream, entry.Version);
@@ -612,7 +662,8 @@ namespace EventStore.Core.Index
             }
         }
 
-        private ulong GetHash(ulong hash){
+        private ulong GetHash(ulong hash)
+        {
             return _version == PTableVersions.IndexV1 ? hash >> 32 : hash;
         }
 
@@ -623,11 +674,11 @@ namespace EventStore.Core.Index
 
         private EventStore.Core.Data.Range LocateRecordRange(in IndexEntryKey key, out IndexEntryKey lowKey, out IndexEntryKey highKey)
         {
-            lowKey = new IndexEntryKey(ulong.MaxValue,long.MaxValue);
-            highKey = new IndexEntryKey(ulong.MinValue,long.MinValue);
+            lowKey = new IndexEntryKey(ulong.MaxValue, long.MaxValue);
+            highKey = new IndexEntryKey(ulong.MinValue, long.MinValue);
 
             var midpoints = _midpoints;
-            if (midpoints == null)
+            if (midpoints is null)
                 return new EventStore.Core.Data.Range(0, Count - 1);
             long lowerMidpoint = LowerMidpointBound(midpoints, key);
             long upperMidpoint = UpperMidpointBound(midpoints, key);
@@ -765,7 +816,7 @@ namespace EventStore.Core.Index
 
             public bool GreaterThan(in IndexEntryKey other)
             {
-                if(Stream == other.Stream)
+                if (Stream == other.Stream)
                 {
                     return Version > other.Version;
                 }
@@ -774,7 +825,7 @@ namespace EventStore.Core.Index
 
             public bool SmallerThan(in IndexEntryKey other)
             {
-                if(Stream == other.Stream)
+                if (Stream == other.Stream)
                 {
                     return Version < other.Version;
                 }
@@ -792,7 +843,7 @@ namespace EventStore.Core.Index
 
             public bool SmallerEqualsThan(in IndexEntryKey other)
             {
-                if(Stream == other.Stream)
+                if (Stream == other.Stream)
                 {
                     return Version <= other.Version;
                 }

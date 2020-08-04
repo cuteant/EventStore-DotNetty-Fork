@@ -34,7 +34,9 @@ namespace EventStore.ClientAPI.ClientOperations
 
         private readonly TaskCompletionSource<TSubscription> _source;
         private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
+#if DEBUG
         private readonly bool _verboseLogging;
+#endif
         private readonly int _maxQueueSize = 2000;
         private readonly BufferBlock<ResolvedEventWrapper> _bufferBlock;
         private readonly List<ActionBlock<ResolvedEventWrapper>> _actionBlocks;
@@ -55,7 +57,7 @@ namespace EventStore.ClientAPI.ClientOperations
             IHasTcpPackageConnection getConnection)
             : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             _eventAppeared = eventAppeared;
 
             var numActionBlocks = settings.NumActionBlocks;
@@ -99,7 +101,7 @@ namespace EventStore.ClientAPI.ClientOperations
             IHasTcpPackageConnection getConnection)
             : this(source, streamId, settings.ResolveLinkTos, userCredentials, subscriptionDropped, settings.VerboseLogging, getConnection)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             _eventAppearedAsync = eventAppearedAsync;
 
             var numActionBlocks = settings.NumActionBlocks;
@@ -142,7 +144,7 @@ namespace EventStore.ClientAPI.ClientOperations
             bool verboseLogging,
             IHasTcpPackageConnection getConnection)
         {
-            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (source is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
             if (null == getConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getConnection); }
 
             _source = source;
@@ -150,7 +152,9 @@ namespace EventStore.ClientAPI.ClientOperations
             _resolveLinkTos = resolveLinkTos;
             _userCredentials = userCredentials;
             _subscriptionDropped = subscriptionDropped ?? ((x, y, z) => { });
+#if DEBUG
             _verboseLogging = verboseLogging && _log.IsDebugLevelEnabled();
+#endif
             _getConnection = getConnection;
         }
 
@@ -161,9 +165,9 @@ namespace EventStore.ClientAPI.ClientOperations
 
         public bool Subscribe(Guid correlationId, TcpPackageConnection connection)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
-            if (_subscription != null || _unsubscribed != 0) { return false; }
+            if (_subscription is object || _unsubscribed != 0) { return false; }
 
             _correlationId = correlationId;
             connection.EnqueueSend(CreateSubscriptionPackage());
@@ -189,7 +193,7 @@ namespace EventStore.ClientAPI.ClientOperations
             try
             {
                 var result = await TryInspectPackageAsync(package).ConfigureAwait(false);
-                if (result != null) { return result; }
+                if (result is object) { return result; }
 
                 switch (package.Command)
                 {
@@ -237,7 +241,9 @@ namespace EventStore.ClientAPI.ClientOperations
                                      CoreThrowHelper.GetArgumentException_All(_streamId));
                     break;
                 default:
+#if DEBUG
                     if (_verboseLogging) _log.SubscriptionDroppedByServerReason(dto.Reason);
+#endif
                     DropSubscription(SubscriptionDropReason.Unknown,
                                      CoreThrowHelper.GetCommandNotExpectedException(dto.Reason));
                     break;
@@ -265,7 +271,7 @@ namespace EventStore.ClientAPI.ClientOperations
         [MethodImpl(MethodImplOptions.NoInlining)]
         private InspectionResult HandleNotHandledCommand(TcpPackage package)
         {
-            if (_subscription != null) { CoreThrowHelper.ThrowException_NotHandledCommandAppeared(); }
+            if (_subscription is object) { CoreThrowHelper.ThrowException_NotHandledCommandAppeared(); }
 
             var message = package.Data.Deserialize<TcpClientMessageDto.NotHandled>();
             switch (message.Reason)
@@ -302,7 +308,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         internal bool TimeOutSubscription()
         {
-            if (_subscription != null) { return false; }
+            if (_subscription is object) { return false; }
 
             DropSubscription(SubscriptionDropReason.SubscribingError, null);
             return true;
@@ -312,7 +318,9 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (0u >= (uint)Interlocked.CompareExchange(ref _unsubscribed, 1, 0))
             {
+#if DEBUG
                 if (_verboseLogging) { _log.ClosingSubscription(_correlationId, _streamId, reason, exc); }
+#endif
 
                 if (reason != SubscriptionDropReason.UserInitiated)
                 {
@@ -320,12 +328,12 @@ namespace EventStore.ClientAPI.ClientOperations
                     _source.TrySetException(exc);
                 }
 
-                if (reason == SubscriptionDropReason.UserInitiated && _subscription != null && connection != null)
+                if (reason == SubscriptionDropReason.UserInitiated && _subscription is object && connection is object)
                 {
                     connection.EnqueueSend(CreateUnsubscriptionPackage());
                 }
 
-                if (_subscription != null)
+                if (_subscription is object)
                 {
                     EnqueueMessage(new ResolvedEventWrapper(reason, exc));
                 }
@@ -338,12 +346,14 @@ namespace EventStore.ClientAPI.ClientOperations
             {
                 CoreThrowHelper.ThrowArgumentOutOfRangeException_InvalidLastCommitPositionOnSubscriptionConfirmation(lastCommitPosition);
             }
-            if (_subscription != null) { CoreThrowHelper.ThrowException_DoubleConfirmationOfSubscription(); }
+            if (_subscription is object) { CoreThrowHelper.ThrowException_DoubleConfirmationOfSubscription(); }
 
+#if DEBUG
             if (_verboseLogging)
             {
                 _log.SubscribedAtCommitPosition(_correlationId, _streamId, lastCommitPosition, lastEventNumber);
             }
+#endif
             var subscription = CreateSubscriptionObject(lastCommitPosition, lastEventNumber);
             Interlocked.Exchange(ref _subscription, subscription);
             _source.SetResult(subscription);
@@ -355,9 +365,11 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (_unsubscribed != 0) { return; }
 
-            if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
+            if (_subscription is null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
+#if DEBUG
             if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
+#endif
             EnqueueMessage(new ResolvedEventWrapper(e));
         }
 
@@ -365,9 +377,11 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (_unsubscribed != 0) { return TaskConstants.Completed; }
 
-            if (_subscription == null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
+            if (_subscription is null) { CoreThrowHelper.ThrowException_SubscriptionNotConfirmedButEventAppeared(); }
 
+#if DEBUG
             if (_verboseLogging) { _log.SubscribedEventAppeared(_correlationId, _streamId, e); }
+#endif
             return EnqueueMessageAsync(new ResolvedEventWrapper(e));
         }
 
@@ -413,12 +427,12 @@ namespace EventStore.ClientAPI.ClientOperations
                 }
                 else
                 {
-                    if (_bufferBlock != null)
+                    if (_bufferBlock is object)
                     {
                         _bufferBlock.Complete();
                         _links?.Dispose();
                     }
-                    else if (_actionBlocks != null && _actionBlocks.Count > 0)
+                    else if (_actionBlocks is object && _actionBlocks.Count > 0)
                     {
                         _actionBlocks[0]?.Complete();
                     }
@@ -446,12 +460,12 @@ namespace EventStore.ClientAPI.ClientOperations
                 }
                 else
                 {
-                    if (_bufferBlock != null)
+                    if (_bufferBlock is object)
                     {
                         _bufferBlock.Complete();
                         _links?.Dispose();
                     }
-                    else if (_actionBlocks != null && _actionBlocks.Count > 0)
+                    else if (_actionBlocks is object && _actionBlocks.Count > 0)
                     {
                         _actionBlocks[0]?.Complete();
                     }

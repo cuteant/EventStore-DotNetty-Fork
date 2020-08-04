@@ -13,7 +13,7 @@ namespace EventStore.Core.Services.Transport.Http.Authentication
             if (!string.IsNullOrEmpty(header))
             {
                 var principal = CreatePrincipal(header);
-                if (principal != null)
+                if (principal is object)
                     Authenticated(message, principal);
                 else
                     ReplyUnauthorized(message.Entity);

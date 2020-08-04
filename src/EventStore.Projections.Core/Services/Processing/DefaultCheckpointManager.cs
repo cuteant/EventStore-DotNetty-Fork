@@ -38,7 +38,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 publisher, projectionCorrelationId, projectionConfig, name, positionTagger, namingBuilder,
                 usePersistentCheckpoints)
         {
-            if (ioDispatcher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
+            if (ioDispatcher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ioDispatcher);
             _projectionVersion = projectionVersion;
             _runAs = runAs;
             _ioDispatcher = ioDispatcher;
@@ -173,14 +173,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void CapturePartitionStateUpdated(string partition, PartitionState oldState, PartitionState newState)
         {
-            if (_partitionStateUpdateManager == null)
+            if (_partitionStateUpdateManager is null)
                 _partitionStateUpdateManager = new PartitionStateUpdateManager(_namingBuilder);
             _partitionStateUpdateManager.StateUpdated(partition, newState, oldState.CausedBy);
         }
 
         protected override void EmitPartitionCheckpoints()
         {
-            if (_partitionStateUpdateManager != null)
+            if (_partitionStateUpdateManager is object)
             {
                 _partitionStateUpdateManager.EmitEvents(_currentCheckpoint);
                 _partitionStateUpdateManager = null;

@@ -58,10 +58,10 @@ namespace EventStore.Core.Services.Storage
 
         public IndexCommitterService(IIndexCommitter indexCommitter, IPublisher publisher, ICheckpoint replicationCheckpoint, ICheckpoint writerCheckpoint, int commitCount, ITableIndex tableIndex)
         {
-            if (null == indexCommitter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (indexCommitter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexCommitter); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (replicationCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
             if ((uint)(commitCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.commitCount); }
 
             _indexCommitter = indexCommitter;
@@ -150,7 +150,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     _indexCommitter.Commit(transaction.Prepares, isTfEof, true);
                 }
-                if(transaction.Commit != null)
+                if(transaction.Commit is object)
                 {
                     lastEventNumber = _indexCommitter.Commit(transaction.Commit, isTfEof, true);
                 }
@@ -345,7 +345,7 @@ namespace EventStore.Core.Services.Storage
                 var currentNode = commitAckNode;
                 var previousNode = commitAckNode.Previous;
 
-                while (previousNode != null && previousNode.Value.LogPosition > currentNode.Value.LogPosition)
+                while (previousNode is object && previousNode.Value.LogPosition > currentNode.Value.LogPosition)
                 {
                     _commitAcksLinkedList.Remove(previousNode);
                     _commitAcksLinkedList.AddAfter(currentNode, previousNode);
@@ -359,7 +359,7 @@ namespace EventStore.Core.Services.Storage
                 var currentNode = _commitAcksLinkedList.First;
                 var result = new List<CommitAckNode>();
 
-                while (currentNode != null)
+                while (currentNode is object)
                 {
                     result.Add(currentNode.Value);
                     currentNode = currentNode.Next;
@@ -377,7 +377,7 @@ namespace EventStore.Core.Services.Storage
                 }
                 var currentNode = commitAckNode;
                 // Ensure that we have all nodes at this position
-                while (currentNode.Next != null && currentNode.Next.Value.LogPosition == currentNode.Value.LogPosition)
+                while (currentNode.Next is object && currentNode.Next.Value.LogPosition == currentNode.Value.LogPosition)
                 {
                     currentNode = currentNode.Next;
                 }
@@ -387,7 +387,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     result.Add(currentNode.Value);
                     currentNode = currentNode.Previous;
-                } while (currentNode != null);
+                } while (currentNode is object);
 
                 result.Reverse();
                 return result;

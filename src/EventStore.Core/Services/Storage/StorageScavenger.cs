@@ -32,10 +32,10 @@ namespace EventStore.Core.Services.Storage
 
         public StorageScavenger(TFChunkDb db, ITableIndex tableIndex, IReadIndex readIndex, ITFChunkScavengerLogManager logManager, bool alwaysKeepScavenged, bool mergeChunks, bool unsafeIgnoreHardDeletes)
         {
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == logManager) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.logManager); }
-            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
-            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (logManager is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.logManager); }
+            if (tableIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (readIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
 
             _db = db;
             _tableIndex = tableIndex;
@@ -60,7 +60,7 @@ namespace EventStore.Core.Services.Storage
             {
                 lock (_lock)
                 {
-                    if (_currentScavenge != null)
+                    if (_currentScavenge is object)
                     {
                         message.Envelope.ReplyWith(new ClientMessage.ScavengeDatabaseResponse(message.CorrelationId,
                             ClientMessage.ScavengeDatabaseResponse.ScavengeResult.InProgress, _currentScavenge.ScavengeId));
@@ -87,7 +87,7 @@ namespace EventStore.Core.Services.Storage
             {                
                 lock (_lock)
                 {
-                    if (_currentScavenge != null && _currentScavenge.ScavengeId == message.ScavengeId)
+                    if (_currentScavenge is object && _currentScavenge.ScavengeId == message.ScavengeId)
                     {
                         _cancellationTokenSource.Cancel();
 
@@ -117,7 +117,7 @@ namespace EventStore.Core.Services.Storage
 
         private bool IsAllowed(IPrincipal user, Guid correlationId, IEnvelope envelope)
         {
-            if (user == null || (!user.IsInRole(SystemRoles.Admins) && !user.IsInRole(SystemRoles.Operations)))
+            if (user is null || (!user.IsInRole(SystemRoles.Admins) && !user.IsInRole(SystemRoles.Operations)))
             {
                 envelope.ReplyWith(new ClientMessage.ScavengeDatabaseResponse(correlationId, ClientMessage.ScavengeDatabaseResponse.ScavengeResult.Unauthorized, null));
                 return false;

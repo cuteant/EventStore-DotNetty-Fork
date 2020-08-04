@@ -10,11 +10,11 @@ namespace EventStore.Projections.Core.Standard
     {
         public IndexStreams(string source, Action<string, object[]> logger)
         {
-            var trimmedSource = source == null ? null : source.Trim();
+            var trimmedSource = source is null ? null : source.Trim();
             if (!string.IsNullOrEmpty(trimmedSource))
                 throw new InvalidOperationException(
                     "Cannot initialize categorize stream projection handler.  No source is allowed.");
-            if (logger != null)
+            if (logger is object)
             {
 //                logger(string.Format("Index streams projection handler has been initialized"));
             }

@@ -17,12 +17,12 @@ namespace EventStore.Core.TransactionLog.Chunks
  
         public TFChunkWriter(TFChunkDb db)
         {
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
 
             _db = db;
             _writerCheckpoint = db.Config.WriterCheckpoint;
             _currentChunk = db.Manager.GetChunkFor(_writerCheckpoint.Read());
-            if (_currentChunk == null)
+            if (_currentChunk is null)
                 ThrowHelper.ThrowInvalidOperationException_NoChunkGivenForExistingPosition();
         }
 
@@ -80,7 +80,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void Flush()
         {
-            if (_currentChunk == null) // the last chunk allocation failed
+            if (_currentChunk is null) // the last chunk allocation failed
                 return;
             _currentChunk.Flush();
             _writerCheckpoint.Flush();

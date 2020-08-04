@@ -37,17 +37,17 @@ namespace EventStore.Core.Services.Storage.EpochManager
                               int maxReaderCount,
                               Func<ITransactionFileReader> readerFactory)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
             if ((uint)cachedEpochCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cachedEpochCount); }
-            if (null == checkpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpoint); }
-            if (null == writer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
+            if (checkpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.checkpoint); }
+            if (writer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writer); }
             if ((uint)initialReaderCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.initialReaderCount); }
             if ((uint)(maxReaderCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.maxReaderCount); }
             if (initialReaderCount > maxReaderCount)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException_InitialReaderCountIsGreaterThanMaxReaderCount();
             }
-            if (null == readerFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerFactory); }
+            if (readerFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerFactory); }
 
             _bus = bus;
             CachedEpochCount = cachedEpochCount;
@@ -243,7 +243,9 @@ namespace EventStore.Core.Services.Storage.EpochManager
                     ThrowHelper.ThrowException_SecondWriteTryFailed(epoch.EpochPosition);
                 }
             }
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Writing_Epoch_previous_epoch_at(epochNumber, epoch.EpochPosition, epochId, lastEpochPosition);
+#endif
 
             _bus.Publish(new SystemMessage.EpochWritten(epoch));
             return epoch;
@@ -251,7 +253,7 @@ namespace EventStore.Core.Services.Storage.EpochManager
 
         public void SetLastEpoch(EpochRecord epoch)
         {
-            if (null == epoch) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
+            if (epoch is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
 
             lock (_locker)
             {
@@ -285,7 +287,9 @@ namespace EventStore.Core.Services.Storage.EpochManager
                 _checkpoint.Write(epoch.EpochPosition);
                 _checkpoint.Flush();
 
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) { Log.Update_Last_Epoch(epoch); }
+#endif
             }
         }
 

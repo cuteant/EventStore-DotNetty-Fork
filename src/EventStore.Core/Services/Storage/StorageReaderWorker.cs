@@ -43,9 +43,9 @@ namespace EventStore.Core.Services.Storage
 
         public StorageReaderWorker(IPublisher publisher, IReadIndex readIndex, ICheckpoint writerCheckpoint, int queueId)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == readIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (readIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readIndex); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _publisher = publisher;
             _readIndex = readIndex;
@@ -57,8 +57,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.Read_Event_operation_has_expired_for_Stream(msg);
+#endif
                 return;
             }
             msg.Envelope.ReplyWith(ReadEvent(msg));
@@ -68,8 +70,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.ReadStreamEventsForwardOperationHasExpiredForStream(msg);
+#endif
                 return;
             }
             using (HistogramService.Measure(_readerStreamRangeHistogram))
@@ -106,8 +110,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.Read_Stream_Events_Backward_operation_has_expired_for_Stream(msg);
+#endif
                 return;
             }
             msg.Envelope.ReplyWith(ReadStreamEventsBackward(msg));
@@ -117,8 +123,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.Read_All_Stream_Events_Forward_operation_has_expired_for_C(msg);
+#endif
                 return;
             }
             using (HistogramService.Measure(_readerAllRangeHistogram))
@@ -164,8 +172,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.Read_All_Stream_Events_Backward_operation_has_expired_for_C(msg);
+#endif
                 return;
             }
             msg.Envelope.ReplyWith(ReadAllEventsBackward(msg));
@@ -175,8 +185,10 @@ namespace EventStore.Core.Services.Storage
         {
             if (msg.Expires < DateTime.UtcNow)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled() && LogExpiredMessage(msg.Expires))
                     Log.Check_Stream_Access_operation_has_expired_for_Stream(msg);
+#endif
                 return;
             }
             msg.Envelope.ReplyWith(CheckStreamAccess(msg));
@@ -196,7 +208,7 @@ namespace EventStore.Core.Services.Storage
                     var record = result.Result == ReadEventResult.Success && msg.ResolveLinkTos
                                          ? ResolveLinkToEvent(result.Record, msg.User, null)
                                          : ResolvedEvent.ForUnresolvedEvent(result.Record);
-                    if (record == null)
+                    if (record is null)
                     {
                         return NoData(msg, ReadEventResult.AccessDenied);
                     }
@@ -245,7 +257,7 @@ namespace EventStore.Core.Services.Storage
                     var result = _readIndex.ReadStreamEventsForward(msg.EventStreamId, msg.FromEventNumber, msg.MaxCount);
                     CheckEventsOrder(msg, result);
                     var resolvedPairs = ResolveLinkToEvents(result.Records, msg.ResolveLinkTos, msg.User);
-                    if (resolvedPairs == null)
+                    if (resolvedPairs is null)
                     {
                         return NoData(msg, ReadStreamResult.AccessDenied, lastCommitPosition);
                     }
@@ -291,7 +303,7 @@ namespace EventStore.Core.Services.Storage
                         msg.MaxCount);
                     CheckEventsOrder(msg, result);
                     var resolvedPairs = ResolveLinkToEvents(result.Records, msg.ResolveLinkTos, msg.User);
-                    if (resolvedPairs == null)
+                    if (resolvedPairs is null)
                     {
                         return NoData(msg, ReadStreamResult.AccessDenied, lastCommitPosition);
                     }
@@ -343,7 +355,7 @@ namespace EventStore.Core.Services.Storage
 
                     var res = _readIndex.ReadAllEventsForward(pos, msg.MaxCount);
                     var resolved = ResolveReadAllResult(res.Records, msg.ResolveLinkTos, msg.User);
-                    if (resolved == null)
+                    if (resolved is null)
                     {
                         return NoData(msg, ReadAllResult.AccessDenied, pos, lastCommitPosition);
                     }
@@ -396,7 +408,7 @@ namespace EventStore.Core.Services.Storage
 
                     var res = _readIndex.ReadAllEventsBackward(pos, msg.MaxCount);
                     var resolved = ResolveReadAllResult(res.Records, msg.ResolveLinkTos, msg.User);
-                    if (resolved == null)
+                    if (resolved is null)
                     {
                         return NoData(msg, ReadAllResult.AccessDenied, pos, lastCommitPosition);
                     }
@@ -419,11 +431,11 @@ namespace EventStore.Core.Services.Storage
             string streamId = msg.EventStreamId;
             try
             {
-                if (msg.EventStreamId == null)
+                if (msg.EventStreamId is null)
                 {
-                    if (msg.TransactionId == null) ThrowHelper.ThrowException(ExceptionResource.No_transaction_ID_specified);
+                    if (msg.TransactionId is null) ThrowHelper.ThrowException(ExceptionResource.No_transaction_ID_specified);
                     streamId = _readIndex.GetEventStreamIdByTransactionId(msg.TransactionId.Value);
-                    if (streamId == null)
+                    if (streamId is null)
                     {
                         ThrowHelper.ThrowException_NoTransactionWithID(msg);
                     }
@@ -502,7 +514,7 @@ namespace EventStore.Core.Services.Storage
                 for (var i = 0; i < records.Length; i++)
                 {
                     var rec = ResolveLinkToEvent(records[i], user, null);
-                    if (rec == null) { return null; }
+                    if (rec is null) { return null; }
                     resolved[i] = rec.Value;
                 }
             }
@@ -555,7 +567,7 @@ namespace EventStore.Core.Services.Storage
                 {
                     var record = records[i];
                     var resolvedPair = ResolveLinkToEvent(record.Event, user, record.CommitPosition);
-                    if (resolvedPair == null) { return null; }
+                    if (resolvedPair is null) { return null; }
                     result[i] = resolvedPair.Value;
                 }
             }

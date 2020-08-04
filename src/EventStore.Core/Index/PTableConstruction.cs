@@ -22,7 +22,7 @@ namespace EventStore.Core.Index
 
         public static PTable FromMemtable(IMemTable table, string filename, int cacheDepth = 16, bool skipIndexVerify = false)
         {
-            if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
+            if (table is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
             if (string.IsNullOrEmpty(filename)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.filename); }
             if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
@@ -95,13 +95,15 @@ namespace EventStore.Core.Index
                     fs.FlushToDisk();
                 }
             }
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.DumpedMemTable(table.Id, table.Count, sw.Elapsed);
+#endif
             return new PTable(filename, table.Id, depth: cacheDepth, skipIndexVerify: skipIndexVerify);
         }
 
         public static PTable MergeTo(IList<PTable> tables, string outputFile, Func<string, ulong, ulong> upgradeHash, Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord, byte version, int cacheDepth = 16, bool skipIndexVerify = false)
         {
-            if (null == tables) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tables); }
+            if (tables is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tables); }
             if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
             if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
@@ -115,7 +117,9 @@ namespace EventStore.Core.Index
             if ((uint)tables.Count == 2u)
                 return MergeTo2(tables, numIndexEntries, indexEntrySize, outputFile, upgradeHash, existsAt, readRecord, version, cacheDepth, skipIndexVerify); // special case
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.PTables_merge_started();
+#endif
             var watch = Stopwatch.StartNew();
 
             var enumerators = tables.Select(table => new EnumerableTable(version, table, upgradeHash, existsAt, readRecord)).ToList();
@@ -202,7 +206,9 @@ namespace EventStore.Core.Index
                         f.FlushToDisk();
                     }
                 }
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.PTablesMergeFinished(watch.Elapsed, tables, dumpedEntryCount);
+#endif
                 return new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth, skipIndexVerify: skipIndexVerify);
             }
             finally
@@ -235,7 +241,9 @@ namespace EventStore.Core.Index
                                        Func<string, ulong, ulong> upgradeHash, Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord,
                                        byte version, int cacheDepth, bool skipIndexVerify)
         {
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.PTables_merge_started_specialized_for_less_then_2_tables();
+#endif
             var watch = Stopwatch.StartNew();
 
             var fileSizeUpToIndexEntries = GetFileSizeUpToIndexEntries(numIndexEntries, version);
@@ -323,7 +331,9 @@ namespace EventStore.Core.Index
                         f.FlushToDisk();
                     }
                 }
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.PTablesMergeFinished(watch.Elapsed, tables, dumpedEntryCount);
+#endif
                 return new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth, skipIndexVerify: skipIndexVerify);
             }
             finally
@@ -340,7 +350,7 @@ namespace EventStore.Core.Index
             Func<IndexEntry, bool> existsAt, Func<IndexEntry, Tuple<string, bool>> readRecord, byte version, out long spaceSaved,
             int cacheDepth = 16, bool skipIndexVerify = false, CancellationToken ct = default(CancellationToken))
         {
-            if (null == table) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
+            if (table is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.table); }
             if (string.IsNullOrEmpty(outputFile)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.outputFile); }
             if ((uint)cacheDepth > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.cacheDepth); }
 
@@ -349,7 +359,9 @@ namespace EventStore.Core.Index
 
             var fileSizeUpToIndexEntries = GetFileSizeUpToIndexEntries(numIndexEntries, version);
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.PTablesScavengeStartedWithEntries(numIndexEntries);
+#endif
             var watch = Stopwatch.StartNew();
             long keptCount = 0L;
             long droppedCount;
@@ -392,7 +404,9 @@ namespace EventStore.Core.Index
 
                         if (0ul >= (ulong)droppedCount && !forceKeep)
                         {
+#if DEBUG
                             if (Log.IsTraceLevelEnabled()) Log.PTableScavengeFinishedNoEntriesRemovedSoNotKeepingScavengedTable(watch.Elapsed);
+#endif
 
                             try
                             {
@@ -408,10 +422,12 @@ namespace EventStore.Core.Index
                             return null;
                         }
 
+#if DEBUG
                         if (Log.IsTraceLevelEnabled() && 0ul >= (ulong)droppedCount && forceKeep)
                         {
                             Log.Keeping_scavenged_index_even_though_it_isnot_smaller();
                         }
+#endif
 
                         //CALCULATE AND WRITE MIDPOINTS
                         if (version >= PTableVersions.IndexV4)
@@ -442,7 +458,9 @@ namespace EventStore.Core.Index
                     }
                 }
 
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.PTableScavengeFinishedInEntriesRemoved(watch.Elapsed, droppedCount, keptCount);
+#endif
                 var scavengedTable = new PTable(outputFile, Guid.NewGuid(), depth: cacheDepth,
                     skipIndexVerify: skipIndexVerify);
                 spaceSaved = table._size - scavengedTable._size;
@@ -551,12 +569,16 @@ namespace EventStore.Core.Index
                     AppendMidpointRecordTo(bs, buffer, version, pt, indexEntrySize);
                 }
                 midpointsWritten = midpoints.Count;
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) Log.Cached_index_midpoints_to_PTable(midpointsWritten);
+#endif
             }
+#if DEBUG
             else
             {
                 if (Log.IsDebugLevelEnabled()) Log.NotCachingIndexMidpointsToPtableDueToCountMismatch(numIndexEntries, dumpedEntryCount, requiredMidpointCount, midpoints.Count);
             }
+#endif
 
             bs.Flush();
             fs.SetLength(fs.Position + PTableFooter.GetSize(version));
@@ -650,7 +672,7 @@ namespace EventStore.Core.Index
 
             public void Dispose()
             {
-                if (_ptableEnumerator != null)
+                if (_ptableEnumerator is object)
                 {
                     _ptableEnumerator.Dispose();
                 }
@@ -660,7 +682,7 @@ namespace EventStore.Core.Index
             public bool MoveNext()
             {
                 var hasMovedToNext = _enumerator.MoveNext();
-                if (_list == null || hasMovedToNext) return hasMovedToNext;
+                if (_list is null || hasMovedToNext) return hasMovedToNext;
 
                 _enumerator.Dispose();
                 _list = ReadUntilDifferentHash(_mergedPTableVersion, _ptableEnumerator, _upgradeHash, _existsAt, _readRecord);

@@ -59,7 +59,7 @@ namespace EventStore.Core.DataStructures
             if ((uint)maxCount > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.maxCount); }
             if ((uint)initialCount > (uint)maxCount)
                 ThrowHelper.ThrowArgumentOutOfRangeException_InitialCountIsGreaterThanMaxCount();
-            if (null == factory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.factory); }
+            if (factory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.factory); }
 
             ObjectPoolName = objectPoolName;
             _maxCount = maxCount;

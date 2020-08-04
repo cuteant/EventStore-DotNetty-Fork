@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.VNode
                     return;
             } while (type != typeof(Message));
 
-            if (_defaultHandlers[stateNum] != null)
+            if (_defaultHandlers[stateNum] is object)
             {
                 _defaultHandlers[stateNum](state, message);
                 return;
@@ -53,7 +53,7 @@ namespace EventStore.Core.Services.VNode
                                Message message,
                                Type msgType)
         {
-            if (handlers == null)
+            if (handlers is null)
                 return false;
 
             Action<VNodeState, Message> handler;
@@ -80,7 +80,7 @@ namespace EventStore.Core.Services.VNode
             for (int i = 0; i < _handlers.Length; ++i)
             {
                 _handlers[i] = new Action<VNodeState, Message>[MessageHierarchy.MaxMsgTypeId + 1];
-                if (handlers[i] != null)
+                if (handlers[i] is object)
                 {
                     foreach (var handler in handlers[i])
                     {
@@ -105,7 +105,7 @@ namespace EventStore.Core.Services.VNode
                     return;
             }
 
-            if (_defaultHandlers[stateNum] != null)
+            if (_defaultHandlers[stateNum] is object)
             {
                 _defaultHandlers[stateNum](state, message);
                 return;
@@ -117,7 +117,7 @@ namespace EventStore.Core.Services.VNode
         private static bool TryHandle(VNodeState state, Action<VNodeState, Message>[] handlers, Message message, int msgTypeId)
         {
             Action<VNodeState, Message> handler = handlers[msgTypeId];
-            if (handler != null)
+            if (handler is object)
             {
                 handler(state, message);
                 return true;

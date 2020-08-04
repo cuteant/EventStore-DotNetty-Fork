@@ -35,7 +35,7 @@ namespace EventStore.ClientAPI.Transport.Http
             ContentEncoding = responseMessage.Content.Headers.ContentEncoding.FirstOrDefault();
             ContentLength = responseMessage.Content.Headers.ContentLength.Value;
 
-            if(responseMessage.Content.Headers.ContentType != null) 
+            if(responseMessage.Content.Headers.ContentType is object) 
             {
                 CharacterSet = responseMessage.Content.Headers.ContentType.CharSet;
                 ContentType = responseMessage.Content.Headers.ContentType.MediaType;

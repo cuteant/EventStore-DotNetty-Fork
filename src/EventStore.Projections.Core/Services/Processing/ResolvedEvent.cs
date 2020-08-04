@@ -43,31 +43,31 @@ namespace EventStore.Projections.Core.Services.Processing
             _positionStreamId = positionEvent.EventStreamId;
             _positionSequenceNumber = positionEvent.EventNumber;
             _eventStreamId = @event?.EventStreamId;
-            _eventSequenceNumber = @event != null ? @event.EventNumber : -1;
+            _eventSequenceNumber = @event is object ? @event.EventNumber : -1;
             _resolvedLinkTo = positionEvent != @event;
             _position = resolvedEvent.OriginalPosition ?? new TFPos(-1, positionEvent.LogPosition);
-            EventId = @event != null ? @event.EventId : Guid.Empty;
+            EventId = @event is object ? @event.EventId : Guid.Empty;
             EventType = @event?.EventType;
-            IsJson = @event != null && (@event.Flags & PrepareFlags.IsJson) != 0;
+            IsJson = @event is object && (@event.Flags & PrepareFlags.IsJson) != 0;
             Timestamp = positionEvent.TimeStamp;
 
             //TODO: handle utf-8 conversion exception
-            Data = @event != null && @event.Data != null ? Helper.UTF8NoBom.GetString(@event.Data) : null;
-            Metadata = @event != null && @event.Metadata != null ? Helper.UTF8NoBom.GetString(@event.Metadata) : null;
+            Data = @event is object && @event.Data is object ? Helper.UTF8NoBom.GetString(@event.Data) : null;
+            Metadata = @event is object && @event.Metadata is object ? Helper.UTF8NoBom.GetString(@event.Metadata) : null;
             PositionMetadata = _resolvedLinkTo
-                ? (positionEvent.Metadata != null ? Helper.UTF8NoBom.GetString(positionEvent.Metadata) : null)
+                ? (positionEvent.Metadata is object ? Helper.UTF8NoBom.GetString(positionEvent.Metadata) : null)
                 : null;
-            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
+            StreamMetadata = streamMetadata is object ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
 
             TFPos eventOrLinkTargetPosition;
             if (_resolvedLinkTo)
             {
                 Dictionary<string, JToken> extraMetadata = null;
-                if (positionEvent.Metadata != null && 0u < (uint)positionEvent.Metadata.Length)
+                if (positionEvent.Metadata is object && 0u < (uint)positionEvent.Metadata.Length)
                 {
                     //TODO: parse JSON only when unresolved link and just tag otherwise
                     CheckpointTag tag;
-                    if (resolvedEvent.Link != null && resolvedEvent.Event == null)
+                    if (resolvedEvent.Link is object && resolvedEvent.Event is null)
                     {
                         var checkpointTagJson =
                             positionEvent.Metadata.ParseCheckpointTagVersionExtraJson(default(ProjectionVersion));
@@ -87,7 +87,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         if (parsedPosition == new TFPos(long.MinValue, long.MinValue) && @event.Metadata.IsValidJson())
                         {
                             tag = @event.Metadata.ParseCheckpointTagJson();
-                            if (tag != null)
+                            if (tag is object)
                             {
                                 parsedPosition = tag.Position;
                             }
@@ -101,10 +101,10 @@ namespace EventStore.Projections.Core.Services.Processing
                 }
                 else
                 {
-                    eventOrLinkTargetPosition = @event != null ? new TFPos(-1, @event.LogPosition) : new TFPos(-1, positionEvent.LogPosition);
+                    eventOrLinkTargetPosition = @event is object ? new TFPos(-1, @event.LogPosition) : new TFPos(-1, positionEvent.LogPosition);
                 }
 
-                IsLinkToDeletedStreamTombstone = extraMetadata != null
+                IsLinkToDeletedStreamTombstone = extraMetadata is object
                                          && extraMetadata.TryGetValue("$deleted", out JToken deletedValue);
                 if (resolvedEvent.ResolveResult == ReadEventResult.NoStream
                     || resolvedEvent.ResolveResult == ReadEventResult.StreamDeleted || IsLinkToDeletedStreamTombstone)
@@ -144,10 +144,10 @@ namespace EventStore.Projections.Core.Services.Processing
             Timestamp = timestamp;
 
             //TODO: handle utf-8 conversion exception
-            Data = data != null ? Helper.UTF8NoBom.GetString(data) : null;
-            Metadata = metadata != null ? Helper.UTF8NoBom.GetString(metadata) : null;
-            PositionMetadata = positionMetadata != null ? Helper.UTF8NoBom.GetString(positionMetadata) : null;
-            StreamMetadata = streamMetadata != null ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
+            Data = data is object ? Helper.UTF8NoBom.GetString(data) : null;
+            Metadata = metadata is object ? Helper.UTF8NoBom.GetString(metadata) : null;
+            PositionMetadata = positionMetadata is object ? Helper.UTF8NoBom.GetString(positionMetadata) : null;
+            StreamMetadata = streamMetadata is object ? Helper.UTF8NoBom.GetString(streamMetadata) : null;
         }
 
 

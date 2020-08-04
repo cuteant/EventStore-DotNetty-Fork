@@ -1309,9 +1309,9 @@ namespace EventStore.Core
 
         private void EnsureHttpPrefixes()
         {
-            if (_intHttpPrefixes == null || _intHttpPrefixes.IsEmpty())
+            if (_intHttpPrefixes is null || _intHttpPrefixes.IsEmpty())
                 _intHttpPrefixes = new List<string>();
-            if (_extHttpPrefixes == null || _extHttpPrefixes.IsEmpty())
+            if (_extHttpPrefixes is null || _extHttpPrefixes.IsEmpty())
                 _extHttpPrefixes = new List<string>();
 
             if ((_internalHttp.Address.Equals(IPAddress.Parse("0.0.0.0")) ||
@@ -1355,7 +1355,7 @@ namespace EventStore.Core
 
         private GossipAdvertiseInfo EnsureGossipAdvertiseInfo()
         {
-            if (_gossipAdvertiseInfo == null)
+            if (_gossipAdvertiseInfo is null)
             {
                 IPAddress intIpAddressToAdvertise = _advertiseInternalIPAs ?? _internalTcp.Address;
                 IPAddress extIpAddressToAdvertise = _advertiseExternalIPAs ?? _externalTcp.Address;
@@ -1366,23 +1366,23 @@ namespace EventStore.Core
                     IPAddress nonLoopbackAddress = IPFinder.GetNonLoopbackAddress();
                     IPAddress addressToAdvertise = _clusterNodeCount > 1 ? nonLoopbackAddress : IPAddress.Loopback;
 
-                    if (_internalTcp.Address.Equals(IPAddress.Parse("0.0.0.0")) && _advertiseInternalIPAs == null)
+                    if (_internalTcp.Address.Equals(IPAddress.Parse("0.0.0.0")) && _advertiseInternalIPAs is null)
                     {
                         intIpAddressToAdvertise = addressToAdvertise;
                     }
-                    if (_externalTcp.Address.Equals(IPAddress.Parse("0.0.0.0")) && _advertiseExternalIPAs == null)
+                    if (_externalTcp.Address.Equals(IPAddress.Parse("0.0.0.0")) && _advertiseExternalIPAs is null)
                     {
                         extIpAddressToAdvertise = addressToAdvertise;
                     }
                 }
                 var intTcpPort = _advertiseInternalTcpPortAs > 0 ? _advertiseInternalTcpPortAs : _internalTcp.Port;
                 var intTcpEndPoint = new IPEndPoint(intIpAddressToAdvertise, intTcpPort);
-                var intSecureTcpPort = _advertiseInternalSecureTcpPortAs > 0 ? _advertiseInternalSecureTcpPortAs : _internalSecureTcp == null ? 0 : _internalSecureTcp.Port;
+                var intSecureTcpPort = _advertiseInternalSecureTcpPortAs > 0 ? _advertiseInternalSecureTcpPortAs : _internalSecureTcp is null ? 0 : _internalSecureTcp.Port;
                 var intSecureTcpEndPoint = new IPEndPoint(intIpAddressToAdvertise, intSecureTcpPort);
 
                 var extTcpPort = _advertiseExternalTcpPortAs > 0 ? _advertiseExternalTcpPortAs : _externalTcp.Port;
                 var extTcpEndPoint = new IPEndPoint(extIpAddressToAdvertise, extTcpPort);
-                var extSecureTcpPort = _advertiseExternalSecureTcpPortAs > 0 ? _advertiseExternalSecureTcpPortAs : _externalSecureTcp == null ? 0 : _externalSecureTcp.Port;
+                var extSecureTcpPort = _advertiseExternalSecureTcpPortAs > 0 ? _advertiseExternalSecureTcpPortAs : _externalSecureTcp is null ? 0 : _externalSecureTcp.Port;
                 var extSecureTcpEndPoint = new IPEndPoint(extIpAddressToAdvertise, extSecureTcpPort);
 
                 var intHttpPort = _advertiseInternalHttpPortAs > 0 ? _advertiseInternalHttpPortAs : _internalHttp.Port;
@@ -1537,13 +1537,13 @@ namespace EventStore.Core
             }
             else
             {
-                if ((_gossipSeeds == null || 0u >= (uint)_gossipSeeds.Count) && _clusterNodeCount > 1)
+                if ((_gossipSeeds is null || 0u >= (uint)_gossipSeeds.Count) && _clusterNodeCount > 1)
                 {
                     throw new Exception("DNS discovery is disabled, but no gossip seed endpoints have been specified. "
                                       + "Specify gossip seeds using the `GossipSeed` option.");
                 }
 
-                if (_gossipSeeds == null)
+                if (_gossipSeeds is null)
                     throw new ApplicationException("Gossip seeds cannot be null");
                 gossipSeedSource = new KnownEndpointGossipSeedSource(_gossipSeeds.ToArray());
             }

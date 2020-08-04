@@ -489,7 +489,7 @@ namespace EventStore.Core
         internal static void CloneAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, Guid masterId)
         {
             s_cloneAssignmentReceivedFrom(logger,
-                nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp == null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);
+                nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp is null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);
         }
 
         private static readonly Action<ILogger, IPEndPoint, IPEndPoint, string, Guid, Exception> s_slaveAssignmentReceivedFrom =
@@ -499,7 +499,7 @@ namespace EventStore.Core
         internal static void SlaveAssignmentReceivedFrom(this ILogger logger, VNodeInfo nodeInfo, VNodeInfo master, Guid masterId)
         {
             s_slaveAssignmentReceivedFrom(logger,
-                nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp == null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);
+                nodeInfo.InternalHttp, master.InternalTcp, master.InternalSecureTcp is null ? "n/a" : master.InternalSecureTcp.ToString(), masterId, null);
         }
 
         private static readonly Action<ILogger, Exception> s_noQuorumEmergedWithinTimeoutRetiring =

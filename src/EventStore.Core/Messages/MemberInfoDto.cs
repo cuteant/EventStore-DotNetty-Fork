@@ -50,11 +50,11 @@ namespace EventStore.Core.Messages
 
             InternalTcpIp = member.InternalTcpEndPoint.Address.ToString();
             InternalTcpPort = member.InternalTcpEndPoint.Port;
-            InternalSecureTcpPort = member.InternalSecureTcpEndPoint == null ? 0 : member.InternalSecureTcpEndPoint.Port;
+            InternalSecureTcpPort = member.InternalSecureTcpEndPoint is null ? 0 : member.InternalSecureTcpEndPoint.Port;
             
             ExternalTcpIp = member.ExternalTcpEndPoint.Address.ToString();
             ExternalTcpPort = member.ExternalTcpEndPoint.Port;
-            ExternalSecureTcpPort = member.ExternalSecureTcpEndPoint == null ? 0 : member.ExternalSecureTcpEndPoint.Port;
+            ExternalSecureTcpPort = member.ExternalSecureTcpEndPoint is null ? 0 : member.ExternalSecureTcpEndPoint.Port;
 
             InternalHttpIp = member.InternalHttpEndPoint.Address.ToString();
             InternalHttpPort = member.InternalHttpEndPoint.Port;

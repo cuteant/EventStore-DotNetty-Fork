@@ -89,7 +89,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override void Subscribe(CheckpointTag @from, bool fromCheckpoint)
         {
-            if (_slaves == null)
+            if (_slaves is null)
                 throw new InvalidOperationException(
                     "Cannot subscribe to event reader without assigned slave projections");
             base.Subscribe(@from, fromCheckpoint);

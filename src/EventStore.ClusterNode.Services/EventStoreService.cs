@@ -118,7 +118,7 @@ namespace EventStore.ClusterNode
 
         private void RegisterWebControllers(NodeSubsystems[] enabledNodeSubsystems, ClusterNodeOptions options)
         {
-            if (_node.InternalHttpService != null)
+            if (_node.InternalHttpService is object)
             {
                 _node.InternalHttpService.SetupController(new ClusterWebUiController(_node.MainQueue, enabledNodeSubsystems));
             }
@@ -154,7 +154,7 @@ namespace EventStore.ClusterNode
                 {
                     throw new Exception("You have chosen to disable the insecure TCP ports and haven't set 'UseInternalSsl'. The nodes in the cluster will not be able to communicate properly.");
                 }
-                if (extSecTcp == null || intSecTcp == null)
+                if (extSecTcp is null || intSecTcp is null)
                 {
                     throw new Exception("You have chosen to disable the insecure TCP ports and haven't setup the External or Internal Secure TCP Ports.");
                 }
@@ -162,7 +162,7 @@ namespace EventStore.ClusterNode
             if (options.UseInternalSsl)
             {
                 if (ReferenceEquals(options.SslTargetHost, Opts.SslTargetHostDefault)) throw new Exception("No SSL target host specified.");
-                if (intSecTcp == null) throw new Exception("Usage of internal secure communication is specified, but no internal secure endpoint is specified!");
+                if (intSecTcp is null) throw new Exception("Usage of internal secure communication is specified, but no internal secure endpoint is specified!");
             }
 
             VNodeBuilder builder;
@@ -502,7 +502,7 @@ namespace EventStore.ClusterNode
         {
             try
             {
-                if (_dbLock != null && _dbLock.IsAcquired) { _dbLock.Release(); }
+                if (_dbLock is object && _dbLock.IsAcquired) { _dbLock.Release(); }
             }
             catch (Exception exc)
             {
@@ -510,7 +510,7 @@ namespace EventStore.ClusterNode
             }
             //try
             //{
-            //    if (_clusterNodeMutex != null && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
+            //    if (_clusterNodeMutex is object && _clusterNodeMutex.IsAcquired) { _clusterNodeMutex.Release(); }
             //}
             //catch (Exception exc)
             //{

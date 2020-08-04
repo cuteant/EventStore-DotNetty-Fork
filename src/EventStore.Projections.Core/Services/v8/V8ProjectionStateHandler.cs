@@ -59,7 +59,7 @@ namespace EventStore.Projections.Core.Services.v8
 
             public ExtraMetaData GetExtraMetadata()
             {
-                if (metadata == null)
+                if (metadata is null)
                     return null;
                 return new ExtraMetaData(metadata);
             }
@@ -77,7 +77,7 @@ namespace EventStore.Projections.Core.Services.v8
             {
                 throw new ArgumentException("Failed to deserialize emitted event JSON", ex);
             }
-            if (_emittedEvents == null)
+            if (_emittedEvents is null)
                 _emittedEvents = new List<EmittedEventEnvelope>();
             _emittedEvents.Add(
                 new EmittedEventEnvelope(
@@ -90,7 +90,7 @@ namespace EventStore.Projections.Core.Services.v8
         {
             CheckDisposed();
             var sourcesDefinition = _query.GetSourcesDefintion();
-            if (sourcesDefinition == null)
+            if (sourcesDefinition is null)
                 throw new InvalidOperationException("Invalid query.  No source definition.");
             return sourcesDefinition;
         }
@@ -141,7 +141,7 @@ namespace EventStore.Projections.Core.Services.v8
         public string TransformCatalogEvent(CheckpointTag eventPosition, ResolvedEvent data)
         {
             CheckDisposed();
-            if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
+            if (data is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
 
             return _query.TransformCatalogEvent(
                 (data.Data ?? "").Trim(), // trimming data passed to a JS 
@@ -161,7 +161,7 @@ namespace EventStore.Projections.Core.Services.v8
             _eventPosition = eventPosition;
             _emittedEvents = null;
             Tuple<string, string> newStates = null;
-            if(data == null || data.Data == null){
+            if(data is null || data.Data is null){
                 newStates = _query.Push(
                 "",
                 new string[]{});
@@ -193,7 +193,7 @@ namespace EventStore.Projections.Core.Services.v8
             {
                 Console.Error.WriteLine(newState);
             }*/
-            emittedEvents = _emittedEvents == null ? null : _emittedEvents.ToArray();
+            emittedEvents = _emittedEvents is null ? null : _emittedEvents.ToArray();
             return true;
         }
 
@@ -202,7 +202,7 @@ namespace EventStore.Projections.Core.Services.v8
             CheckDisposed();
             _eventPosition = createPosition;
             _emittedEvents = null;
-            if(data == null || data.Data == null){
+            if(data is null || data.Data is null){
                 emittedEvents = null;
                 return true;
             }
@@ -214,7 +214,7 @@ namespace EventStore.Projections.Core.Services.v8
                     data.EventSequenceNumber.ToString(CultureInfo.InvariantCulture), data.Metadata ?? "",
                     data.PositionMetadata ?? "", partition, ""
                 });
-            emittedEvents = _emittedEvents == null ? null : _emittedEvents.ToArray();
+            emittedEvents = _emittedEvents is null ? null : _emittedEvents.ToArray();
             return true;
         }
 
@@ -249,9 +249,9 @@ namespace EventStore.Projections.Core.Services.v8
         public void Dispose()
         {
             _disposed = true;
-            if (_query != null)
+            if (_query is object)
                 _query.Dispose();
-            if (_prelude != null)
+            if (_prelude is object)
                 _prelude.Dispose();
         }
 

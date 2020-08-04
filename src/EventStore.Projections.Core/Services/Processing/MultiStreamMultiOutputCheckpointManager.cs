@@ -40,7 +40,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             base.Initialize();
             _lastOrderCheckpointTag = null;
-            if (_orderStream != null) _orderStream.Dispose();
+            if (_orderStream is object) _orderStream.Dispose();
             _orderStream = null;
         }
 
@@ -85,7 +85,7 @@ namespace EventStore.Projections.Core.Services.Processing
         public override void GetStatistics(ProjectionStatistics info)
         {
             base.GetStatistics(info);
-            if (_orderStream != null)
+            if (_orderStream is object)
             {
                 info.WritePendingEventsAfterCheckpoint += _orderStream.GetWritePendingEvents();
                 info.ReadsInProgress += _orderStream.GetReadsInProgress();
@@ -127,7 +127,7 @@ namespace EventStore.Projections.Core.Services.Processing
                                 var tag = parsed.AdjustBy(_positionTagger, _projectionVersion);
                                 //NOTE: even if this tag <= checkpointTag we set last tag
                                 // this is to know the exact last tag to request when writing
-                                if (_lastOrderCheckpointTag == null)
+                                if (_lastOrderCheckpointTag is null)
                                     _lastOrderCheckpointTag = tag;
 
                                 if (tag <= checkpointTag)

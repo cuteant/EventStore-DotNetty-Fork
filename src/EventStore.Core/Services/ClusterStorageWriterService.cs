@@ -45,7 +45,7 @@ namespace EventStore.Core.Services
                                                Func<long> getLastCommitPosition)
             : base(bus, subscribeToBus, minFlushDelay, db, writer, indexWriter, epochManager)
         {
-            if (getLastCommitPosition == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
+            if (getLastCommitPosition is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.getLastCommitPosition); }
             _getLastCommitPosition = getLastCommitPosition;
             _framer = new LengthPrefixSuffixFramer(OnLogRecordUnframed, TFConsts.MaxLogRecordSize);
 
@@ -59,7 +59,7 @@ namespace EventStore.Core.Services
         {
             if (message.State == VNodeState.PreMaster)
             {
-                if (_activeChunk != null)
+                if (_activeChunk is object)
                 {
                     _activeChunk.MarkForDeletion();
                     _activeChunk = null;
@@ -74,7 +74,7 @@ namespace EventStore.Core.Services
 
         public void Handle(ReplicationMessage.ReplicaSubscribed message)
         {
-            if (_activeChunk != null)
+            if (_activeChunk is object)
             {
                 _activeChunk.MarkForDeletion();
                 _activeChunk = null;
@@ -129,14 +129,14 @@ namespace EventStore.Core.Services
 
         private bool AreAnyCommittedRecordsTruncatedWithLastEpoch(long subscriptionPosition, EpochRecord lastEpoch, long lastCommitPosition)
         {
-            return lastEpoch != null && subscriptionPosition <= lastEpoch.EpochPosition && lastCommitPosition >= lastEpoch.EpochPosition;
+            return lastEpoch is object && subscriptionPosition <= lastEpoch.EpochPosition && lastCommitPosition >= lastEpoch.EpochPosition;
         }
 
         public void Handle(ReplicationMessage.CreateChunk message)
         {
             if (_subscriptionId != message.SubscriptionId) return;
 
-            if (_activeChunk != null)
+            if (_activeChunk is object)
             {
                 _activeChunk.MarkForDeletion();
                 _activeChunk = null;
@@ -165,7 +165,7 @@ namespace EventStore.Core.Services
         public void Handle(ReplicationMessage.RawChunkBulk message)
         {
             if (_subscriptionId != message.SubscriptionId) return;
-            if (_activeChunk == null) ReplicationFail(ExceptionResource.Physical_chunk_bulk_received_but);
+            if (_activeChunk is null) ReplicationFail(ExceptionResource.Physical_chunk_bulk_received_but);
 
             if (_activeChunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || _activeChunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
             {
@@ -188,7 +188,9 @@ namespace EventStore.Core.Services
 
             if (message.CompleteChunk)
             {
+#if DEBUG
                 if (Log.IsTraceLevelEnabled()) Log.CompletingRawChu1nk(message.ChunkStartNumber, message.ChunkEndNumber);
+#endif
                 Writer.CompleteReplicatedRawChunk(_activeChunk);
 
                 _subscriptionPos = _activeChunk.ChunkHeader.ChunkEndPosition;
@@ -209,7 +211,7 @@ namespace EventStore.Core.Services
             try
             {
                 if (_subscriptionId != message.SubscriptionId) return;
-                if (_activeChunk != null) ReplicationFail(ExceptionResource.Data_chunk_bulk_received_but);
+                if (_activeChunk is object) ReplicationFail(ExceptionResource.Data_chunk_bulk_received_but);
 
                 var chunk = Writer.CurrentChunk;
                 if (chunk.ChunkHeader.ChunkStartNumber != message.ChunkStartNumber || chunk.ChunkHeader.ChunkEndNumber != message.ChunkEndNumber)
@@ -230,7 +232,9 @@ namespace EventStore.Core.Services
 
                 if (message.CompleteChunk)
                 {
+#if DEBUG
                     if (Log.IsTraceLevelEnabled()) Log.CompletingDataChunk(message.ChunkStartNumber, message.ChunkEndNumber);
+#endif
                     Writer.CompleteChunk();
 
                     if (_framer.HasData)

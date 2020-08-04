@@ -68,11 +68,11 @@ namespace EventStore.Core.Services.Transport.Tcp
                                     int connectionPendingSendBytesThreshold,
                                     int connectionQueueSizeThreshold)
         {
-            if (null == dispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcher); }
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == openedConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.openedConnection); }
-            if (null == networkSendQueue) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
-            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (dispatcher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (openedConnection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.openedConnection); }
+            if (networkSendQueue is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.networkSendQueue); }
+            if (authProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
 
             ConnectionId = openedConnection.ConnectionId;
             ConnectionName = connectionName;
@@ -116,10 +116,10 @@ namespace EventStore.Core.Services.Transport.Tcp
                                     Action<TcpConnectionManager> onConnectionEstablished,
                                     Action<TcpConnectionManager, DisassociateInfo> onConnectionClosed)
         {
-            if (null == dispatcher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcher); }
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
-            if (null == openedConnection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.openedConnection); }
-            if (null == authProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
+            if (dispatcher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dispatcher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (openedConnection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.openedConnection); }
+            if (authProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authProvider); }
 
             ConnectionId = openedConnection.ConnectionId;
             ConnectionName = connectionName;
@@ -247,9 +247,9 @@ namespace EventStore.Core.Services.Transport.Tcp
                         {
                             _authProvider.Authenticate(new TcpAuthRequest(this, package, package.Login, package.Password));
                         }
-                        else if (defaultUser != null)
+                        else if (defaultUser is object)
                         {
-                            if (defaultUser.User != null)
+                            if (defaultUser.User is object)
                             {
                                 UnwrapAndPublishPackage(package, defaultUser.User, defaultUser.Login, defaultUser.Password);
                             }
@@ -280,7 +280,7 @@ namespace EventStore.Core.Services.Transport.Tcp
             {
                 error = ex.Message;
             }
-            if (message != null)
+            if (message is object)
             {
                 _publisher.Publish(message);
             }
@@ -309,7 +309,7 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void SendBadRequestAndClose(Guid correlationId, string message)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
             SendPackage(new TcpPackage(TcpCommand.BadRequest, correlationId, Helper.UTF8NoBom.GetBytes(message)), checkQueueSize: false);
             Log.ClosingConnectionDueToError(this, message);
@@ -318,14 +318,16 @@ namespace EventStore.Core.Services.Transport.Tcp
 
         public void SendBadRequest(Guid correlationId, string message)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
             SendPackage(new TcpPackage(TcpCommand.BadRequest, correlationId, Helper.UTF8NoBom.GetBytes(message)), checkQueueSize: false);
         }
 
         public void Stop(string reason = null)
         {
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) { LogClosingConnection(reason); }
+#endif
             _connection.Close(DisassociateInfo.Success, reason);
         }
 
@@ -340,7 +342,7 @@ namespace EventStore.Core.Services.Transport.Tcp
         public void SendMessage(Message message)
         {
             var package = _dispatcher.WrapMessage(message, _version);
-            if (package != null) { SendPackage(package); }
+            if (package is object) { SendPackage(package); }
         }
 
         private void SendPackage(TcpPackage package, bool checkQueueSize = true)

@@ -22,7 +22,7 @@ namespace System
         public override void Bind(string keyName, string[] values, ref int valueIndex, StringBuilder query)
         {
             Fx.Assert(valueIndex < values.Length, "Not enough values to bind");
-            if (values[valueIndex] == null)
+            if (values[valueIndex] is null)
             {
                 valueIndex++;
             }
@@ -34,7 +34,7 @@ namespace System
 
         public override bool IsEquivalentTo(UriTemplateQueryValue other)
         {
-            if (other == null)
+            if (other is null)
             {
                 Fx.Assert("why would we ever call this?");
                 return false;

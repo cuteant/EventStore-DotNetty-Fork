@@ -141,7 +141,7 @@ namespace HdrHistogram
         private static HistogramBase Create(Type histogramType, IHeader header, long minBarForHighestTrackableValue)
         {
             var constructor = TypeHelper.GetConstructor(histogramType, HistogramClassConstructorArgsTypes);
-            if (constructor == null)
+            if (constructor is null)
                 throw new ArgumentException("The target type does not have a supported constructor", nameof(histogramType));
 
             var highestTrackableValue = Math.Max(header.HighestTrackableValue, minBarForHighestTrackableValue);
@@ -169,7 +169,7 @@ namespace HdrHistogram
         private static ByteBuffer PayLoadSourceBuffer(ByteBuffer buffer, DeflateStream decompressor, int expectedCapacity, IHeader header)
         {
             ByteBuffer payLoadSourceBuffer;
-            if (decompressor == null)
+            if (decompressor is null)
             {
                 // No compressed source buffer. Payload is in buffer, after header.
                 if (expectedCapacity > buffer.Remaining())

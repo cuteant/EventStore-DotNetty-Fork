@@ -25,8 +25,8 @@ namespace EventStore.Core.Services.Monitoring
 
         public SystemStatsHelper(ILogger log, ICheckpoint writerCheckpoint, string dbPath)
         {
-            if (null == log) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
-            if (null == writerCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
+            if (log is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.log); }
+            if (writerCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.writerCheckpoint); }
 
             _log = log;
             _writerCheckpoint = writerCheckpoint;
@@ -41,7 +41,7 @@ namespace EventStore.Core.Services.Monitoring
             var process = Process.GetCurrentProcess();
 
             var diskIo = DiskIo.GetDiskIo(process.Id, _log);
-            if (diskIo != null)
+            if (diskIo is object)
             {
                 stats["proc-diskIo-readBytes"] = diskIo.ReadBytes;
                 stats["proc-diskIo-writtenBytes"] = diskIo.WrittenBytes;
@@ -66,7 +66,7 @@ namespace EventStore.Core.Services.Monitoring
             stats["es-checksumNonFlushed"] = _writerCheckpoint.ReadNonFlushed();
 
             var drive = EsDriveInfo.FromDirectory(_dbPath, _log);
-            if (drive != null)
+            if (drive is object)
             {
                 Func<string, string, string> driveStat = (diskName, stat) => string.Format("sys-drive-{0}-{1}", diskName.Replace("\\", "").Replace(":", ""), stat);
                 stats[driveStat(drive.DiskName, "availableBytes")] = drive.AvailableBytes;
@@ -91,8 +91,8 @@ namespace EventStore.Core.Services.Monitoring
                 stats[queueStat(queue.Name, "lengthCurrentTryPeak")] = queue.LengthCurrentTryPeak;
                 stats[queueStat(queue.Name, "lengthLifetimePeak")] = queue.LengthLifetimePeak;
                 stats[queueStat(queue.Name, "totalItemsProcessed")] = queue.TotalItemsProcessed;
-                stats[queueStat(queue.Name, "inProgressMessage")] = queue.InProgressMessageType != null ? queue.InProgressMessageType.Name : "<none>";
-                stats[queueStat(queue.Name, "lastProcessedMessage")] = queue.LastProcessedMessageType != null ? queue.LastProcessedMessageType.Name : "<none>";
+                stats[queueStat(queue.Name, "inProgressMessage")] = queue.InProgressMessageType is object ? queue.InProgressMessageType.Name : "<none>";
+                stats[queueStat(queue.Name, "lastProcessedMessage")] = queue.LastProcessedMessageType is object ? queue.LastProcessedMessageType.Name : "<none>";
             }
 
             return stats;

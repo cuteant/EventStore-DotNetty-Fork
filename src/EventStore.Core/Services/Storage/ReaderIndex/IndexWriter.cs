@@ -69,8 +69,8 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public IndexWriter(IIndexBackend indexBackend, IIndexReader indexReader)
         {
-            if (null == indexBackend) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexBackend); }
-            if (null == indexReader) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexReader); }
+            if (indexBackend is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexBackend); }
+            if (indexReader is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.indexReader); }
 
             _indexBackend = indexBackend;
             _indexReader = indexReader;
@@ -94,7 +94,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 try
                 {
                     PrepareLogRecord prepare = GetPrepare(reader, transactionPosition);
-                    if (prepare == null) { FailedReadFirstPrepare(transactionPosition, commitPosition); }
+                    if (prepare is null) { FailedReadFirstPrepare(transactionPosition, commitPosition); }
                     streamId = prepare.EventStreamId;
                     expectedVersion = prepare.ExpectedVersion;
                 }
@@ -216,7 +216,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                     }
 
                     var res = _indexReader.ReadPrepare(streamId, eventNumber);
-                    if (res != null && res.EventId == eventId) { continue; }
+                    if (res is object && res.EventId == eventId) { continue; }
 
                     var first = eventNumber == expectedVersion + 1;
                     if (!first)
@@ -268,7 +268,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
             {
                 if (prepare.Flags.HasNoneOf(PrepareFlags.StreamDelete | PrepareFlags.Data)) { continue; }
 
-                if (streamId == null)
+                if (streamId is null)
                 {
                     streamId = prepare.EventStreamId;
                 }
@@ -290,7 +290,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                 _streamVersions.Put(streamId, eventNumber, +1);
             }
 
-            if (lastPrepare != null && SystemStreams.IsMetastream(streamId))
+            if (lastPrepare is object && SystemStreams.IsMetastream(streamId))
             {
                 var rawMeta = lastPrepare.Data;
                 _streamRawMetas.Put(SystemStreams.OriginalStreamOf(streamId), new StreamMeta(rawMeta, null), +1);
@@ -461,7 +461,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
         {
             if (_streamRawMetas.TryGet(streamId, out StreamMeta meta))
             {
-                if (meta.Meta != null) { return meta.Meta; }
+                if (meta.Meta is object) { return meta.Meta; }
                 var m = Helper.EatException(() => StreamMetadata.FromJsonBytes(meta.RawMeta), StreamMetadata.Empty);
                 _streamRawMetas.Put(streamId, new StreamMeta(meta.RawMeta, m), 0);
                 return m;

@@ -10,14 +10,14 @@ namespace EventStore.Core.Services.Monitoring
 
         public StatsCollectorEnvelope(StatsContainer statsContainer)
         {
-            if (null == statsContainer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsContainer); }
+            if (statsContainer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsContainer); }
             _statsContainer = statsContainer;
         }
 
         public void ReplyWith<T>(T message) where T : Message
         {
             var msg = message as MonitoringMessage.InternalStatsRequestResponse;
-            if (msg != null)
+            if (msg is object)
                 _statsContainer.Add(msg.Stats);
         }
     }

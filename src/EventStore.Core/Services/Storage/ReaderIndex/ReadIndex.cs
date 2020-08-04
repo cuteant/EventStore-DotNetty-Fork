@@ -35,12 +35,12 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                          bool skipIndexScanOnReads,
                          ICheckpoint replicationCheckpoint)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == readerPool) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerPool); }
-            if (null == tableIndex) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (readerPool is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.readerPool); }
+            if (tableIndex is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.tableIndex); }
             if ((uint)streamInfoCacheCapacity > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.streamInfoCacheCapacity); }
             if ((ulong)(metastreamMaxCount - 1L) > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.metastreamMaxCount); }
-            if (null == replicationCheckpoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
+            if (replicationCheckpoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.replicationCheckpoint); }
 
             var metastreamMetadata = new StreamMetadata(maxCount: metastreamMaxCount);
 

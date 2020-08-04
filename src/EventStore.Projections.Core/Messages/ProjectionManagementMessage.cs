@@ -542,9 +542,9 @@ namespace EventStore.Projections.Core.Messages
 
                 public GetState(IEnvelope envelope, string name, string partition)
                 {
-                    if (envelope == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
-                    if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
-                    if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+                    if (envelope is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
+                    if (name is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
+                    if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                     _envelope = envelope;
                     _name = name;
                     _partition = partition;
@@ -577,9 +577,9 @@ namespace EventStore.Projections.Core.Messages
 
                 public GetResult(IEnvelope envelope, string name, string partition)
                 {
-                    if (envelope == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
-                    if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
-                    if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+                    if (envelope is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope);
+                    if (name is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
+                    if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                     _envelope = envelope;
                     _name = name;
                     _partition = partition;
@@ -685,7 +685,7 @@ namespace EventStore.Projections.Core.Messages
             public static bool ValidateRunAs(ProjectionMode mode, ReadWrite readWrite, IPrincipal existingRunAs, Command.ControlMessage message, bool replace = false)
             {
                 //if (mode > ProjectionMode.Transient && readWrite == ReadWrite.Write
-                //    && (message.RunAs == null || message.RunAs.Principal == null
+                //    && (message.RunAs is null || message.RunAs.Principal is null
                 //        || !message.RunAs.Principal.IsInRole(SystemRoles.Admins)))
                 //{
                 if (mode > ProjectionMode.Transient && readWrite == ReadWrite.Write
@@ -707,9 +707,9 @@ namespace EventStore.Projections.Core.Messages
 
                 return true;
 
-                //if (existingRunAs == null)
+                //if (existingRunAs is null)
                 //    return true;
-                //if (message.RunAs1.Principal == null
+                //if (message.RunAs1.Principal is null
                 //    || !string.Equals(
                 //        existingRunAs.Identity.Name, message.RunAs1.Principal.Identity.Name,
                 //        StringComparison.OrdinalIgnoreCase))

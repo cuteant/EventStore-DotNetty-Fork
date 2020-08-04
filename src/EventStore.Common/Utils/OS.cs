@@ -40,10 +40,10 @@ namespace EventStore.Common.Utils
         {
             return RuntimeInformation.FrameworkDescription;
             //var type = Type.GetType("Mono.Runtime");
-            //if (type != null)
+            //if (type is object)
             //{
             //    MethodInfo getDisplayNameMethod = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-            //    return getDisplayNameMethod != null ? (string)getDisplayNameMethod.Invoke(null, null) : "Mono <UNKNOWN>";
+            //    return getDisplayNameMethod is object ? (string)getDisplayNameMethod.Invoke(null, null) : "Mono <UNKNOWN>";
             //}
             //// must be .NET
             //return ".NET " + Environment.Version;

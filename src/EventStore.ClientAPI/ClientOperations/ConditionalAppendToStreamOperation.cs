@@ -18,7 +18,9 @@ namespace EventStore.ClientAPI.ClientOperations
         private readonly EventData _event;
         private readonly IEnumerable<EventData> _events;
 
+#if DEBUG
         private bool _wasCommitTimeout;
+#endif
 
         public ConditionalAppendToStreamOperation(TaskCompletionSource<ConditionalWriteResult> source,
                                                        bool requireMaster,
@@ -57,7 +59,7 @@ namespace EventStore.ClientAPI.ClientOperations
         protected override object CreateRequestDto()
         {
             TcpClientMessageDto.NewEvent[] dtos;
-            if (_event != null)
+            if (_event is object)
             {
                 dtos = new[] { new TcpClientMessageDto.NewEvent(_event.EventId, _event.Type, _event.IsJson ? 1 : 0, 0, _event.Data, _event.Metadata) };
             }
@@ -109,10 +111,12 @@ namespace EventStore.ClientAPI.ClientOperations
             switch (response.Result)
             {
                 case OperationResult.Success:
+#if DEBUG
                     if (_wasCommitTimeout)
                     {
                         if (Log.IsDebugLevelEnabled()) Log.IdempotentWriteSucceededFor(this);
                     }
+#endif
                     Succeed();
                     return new InspectionResult(InspectionDecision.EndOperation, "Success");
                 case OperationResult.PrepareTimeout:
@@ -120,7 +124,9 @@ namespace EventStore.ClientAPI.ClientOperations
                 case OperationResult.ForwardTimeout:
                     return new InspectionResult(InspectionDecision.Retry, "ForwardTimeout");
                 case OperationResult.CommitTimeout:
+#if DEBUG
                     _wasCommitTimeout = true;
+#endif
                     return new InspectionResult(InspectionDecision.Retry, "CommitTimeout");
                 case OperationResult.WrongExpectedVersion:
                     Succeed();

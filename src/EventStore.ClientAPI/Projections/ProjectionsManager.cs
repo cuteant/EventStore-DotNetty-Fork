@@ -27,7 +27,7 @@ namespace EventStore.ClientAPI.Projections
         public ProjectionsManager(EndPoint httpEndPoint, TimeSpan operationTimeout,
             string httpSchema = EndpointExtensions.HTTP_SCHEMA, IHttpClient client = null)
         {
-            if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
+            if (httpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
             _client = new ProjectionsClient(operationTimeout, client);
             _httpEndPoint = httpEndPoint;

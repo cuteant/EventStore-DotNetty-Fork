@@ -45,12 +45,12 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public override bool IsReady()
         {
-            return _eventNumber != null;
+            return _eventNumber is object;
         }
 
         public void SetTargetEventNumber(long eventNumber)
         {
-            if (_eventNumber != null)
+            if (_eventNumber is object)
                 throw new InvalidOperationException("Target event number has been already set");
             _eventNumber = eventNumber;
         }

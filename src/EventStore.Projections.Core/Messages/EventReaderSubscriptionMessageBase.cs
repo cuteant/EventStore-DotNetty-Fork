@@ -207,7 +207,7 @@ namespace EventStore.Projections.Core.Messages
                 float progress, long subscriptionMessageSequenceNumber, object source)
                 : base(subscriptionId, checkpointTag, progress, subscriptionMessageSequenceNumber, source)
             {
-                if (data == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
+                if (data is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data);
                 _data = data;
                 _eventCategory = eventCategory;
             }

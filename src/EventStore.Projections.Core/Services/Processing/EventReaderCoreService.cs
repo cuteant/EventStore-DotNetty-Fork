@@ -162,7 +162,7 @@ namespace EventStore.Projections.Core.Services.Processing
             }
 
             if (TrySubscribeHeadingEventReader(message, projectionId)) { return; }
-            if (message.Data != null)
+            if (message.Data is object)
             {
                 try
                 {
@@ -332,7 +332,7 @@ namespace EventStore.Projections.Core.Services.Processing
         private bool TrySubscribeHeadingEventReader(
             ReaderSubscriptionMessage.CommittedEventDistributed message, Guid projectionId)
         {
-            if (message.SafeTransactionFileReaderJoinPosition == null) { return false; }
+            if (message.SafeTransactionFileReaderJoinPosition is null) { return false; }
 
             if (!_runHeadingReader) { return false; }
 

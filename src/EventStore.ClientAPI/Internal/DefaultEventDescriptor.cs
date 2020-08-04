@@ -13,7 +13,7 @@ namespace EventStore.ClientAPI
 
         public DefaultEventDescriptor(IEventMetadata eventMeta)
         {
-            if (null == eventMeta) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMeta); }
+            if (eventMeta is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventMeta); }
             _eventMeta = eventMeta;
             _eventContext = eventMeta.Context ?? s_empty;
         }
@@ -26,7 +26,7 @@ namespace EventStore.ClientAPI
 
         public T GetValue<T>(string key, T defaultValue)
         {
-            if (null == key) { goto Defalut; }
+            if (key is null) { goto Defalut; }
 
             if (_eventContext.TryGetValue(key, out object rawValue) || TryGetValueCamelCase(key, _eventContext, out rawValue))
             {
@@ -39,7 +39,7 @@ namespace EventStore.ClientAPI
 
         public bool TryGetValue<T>(string key, out T value)
         {
-            if (null == key) { goto Defalut; }
+            if (key is null) { goto Defalut; }
 
             if (_eventContext.TryGetValue(key, out object rawValue) || TryGetValueCamelCase(key, _eventContext, out rawValue))
             {

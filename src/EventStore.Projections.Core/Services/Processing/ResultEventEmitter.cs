@@ -28,7 +28,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 var result =
                     new EmittedEventEnvelope(
-                        projectionResult == null
+                        projectionResult is null
                             ? new EmittedDataEvent(
                                 streamId, Guid.NewGuid(), "ResultRemoved", true, null, null, at, null)
                             : new EmittedDataEvent(
@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 var linkToEnvelope = new EmittedEventEnvelope(linkTo, _resultStreamMetadata);
                 var result =
                     new EmittedEventEnvelope(
-                        projectionResult == null
+                        projectionResult is null
                             ? new EmittedDataEvent(
                                 streamId, Guid.NewGuid(), "ResultRemoved", true, null, null, at, null,
                                 linkTo.SetTargetEventNumber)

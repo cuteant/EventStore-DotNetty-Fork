@@ -36,7 +36,7 @@
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
-            if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
+            if (groups is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             if (string.IsNullOrEmpty(password)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             LoginName = login;
             FullName = fullName;

@@ -59,7 +59,7 @@ namespace EventStore.ClientAPI.Internal
                 try
                 {
                     var endPoints = await DiscoverEndPoint(failedTcpEndPoint).ConfigureAwait(false);
-                    if (endPoints != null)
+                    if (endPoints is object)
                     {
                         if (infoEnabled) { _log.DiscoveringAttemptSuccessful(attempt, maxDiscoverAttemptsStr, endPoints.Value); }
 
@@ -82,19 +82,19 @@ namespace EventStore.ClientAPI.Internal
         private async Task<NodeEndPoints?> DiscoverEndPoint(IPEndPoint failedEndPoint)
         {
             var oldGossip = Interlocked.Exchange(ref _oldGossip, null);
-            var gossipCandidates = oldGossip != null
+            var gossipCandidates = oldGossip is object
                                            ? GetGossipCandidatesFromOldGossip(oldGossip, failedEndPoint)
                                            : await GetGossipCandidatesFromDns();
             for (int i = 0; i < gossipCandidates.Length; ++i)
             {
                 var gossip = TryGetGossipFrom(gossipCandidates[i]);
-                if (gossip == null || gossip.Members == null || 0u >= (uint)gossip.Members.Length)
+                if (gossip is null || gossip.Members is null || 0u >= (uint)gossip.Members.Length)
                 {
                     continue;
                 }
 
                 var bestNode = TryDetermineBestNode(gossip.Members, _nodePreference);
-                if (bestNode != null)
+                if (bestNode is object)
                 {
                     Interlocked.Exchange(ref _oldGossip, gossip.Members);
                     return bestNode;
@@ -108,7 +108,7 @@ namespace EventStore.ClientAPI.Internal
         {
             //_log.Debug("ClusterDnsEndPointDiscoverer: GetGossipCandidatesFromDns");
             GossipSeed[] endpoints;
-            if (_gossipSeeds != null && 0u < (uint)_gossipSeeds.Length)
+            if (_gossipSeeds is object && 0u < (uint)_gossipSeeds.Length)
             {
                 endpoints = _gossipSeeds;
             }
@@ -132,7 +132,7 @@ namespace EventStore.ClientAPI.Internal
             {
                 CoreThrowHelper.ThrowClusterException(_clusterDns, exc);
             }
-            if (addresses == null || 0u >= (uint)addresses.Length)
+            if (addresses is null || 0u >= (uint)addresses.Length)
             {
                 CoreThrowHelper.ThrowClusterException(_clusterDns);
             }
@@ -143,7 +143,7 @@ namespace EventStore.ClientAPI.Internal
         private GossipSeed[] GetGossipCandidatesFromOldGossip(IEnumerable<ClusterMessages.MemberInfoDto> oldGossip, IPEndPoint failedTcpEndPoint)
         {
             //_log.Debug("ClusterDnsEndPointDiscoverer: GetGossipCandidatesFromOldGossip, failedTcpEndPoint: {0}.", failedTcpEndPoint);
-            var gossipCandidates = failedTcpEndPoint == null
+            var gossipCandidates = failedTcpEndPoint is null
                     ? oldGossip.ToArray()
                     : oldGossip.Where(x => !(x.ExternalTcpPort == failedTcpEndPoint.Port
                                              && IPAddress.Parse(x.ExternalTcpIp).Equals(failedTcpEndPoint.Address)))

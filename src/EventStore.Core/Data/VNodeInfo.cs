@@ -21,10 +21,10 @@ namespace EventStore.Core.Data
                          IPEndPoint internalHttp, IPEndPoint externalHttp)
         {
             if (Guid.Empty == instanceId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.instanceId); }
-            if (null == internalTcp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcp); }
-            if (null == externalTcp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcp); }
-            if (null == internalHttp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttp); }
-            if (null == externalHttp) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttp); }
+            if (internalTcp is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalTcp); }
+            if (externalTcp is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcp); }
+            if (internalHttp is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.internalHttp); }
+            if (externalHttp is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttp); }
 
             DebugIndex = debugIndex;
             InstanceId = instanceId;
@@ -38,13 +38,13 @@ namespace EventStore.Core.Data
 
         public bool Is(IPEndPoint endPoint)
         {
-            return endPoint != null
+            return endPoint is object
                    && (InternalHttp.Equals(endPoint)
                        || ExternalHttp.Equals(endPoint)
                        || InternalTcp.Equals(endPoint)
-                       || (InternalSecureTcp != null && InternalSecureTcp.Equals(endPoint))
+                       || (InternalSecureTcp is object && InternalSecureTcp.Equals(endPoint))
                        || ExternalTcp.Equals(endPoint)
-                       || (ExternalSecureTcp != null && ExternalSecureTcp.Equals(endPoint)));
+                       || (ExternalSecureTcp is object && ExternalSecureTcp.Equals(endPoint)));
         }
 
         public override string ToString()

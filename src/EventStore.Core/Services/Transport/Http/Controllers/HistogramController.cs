@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Subscribe(IHttpService service)
         {
-            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
+            if (service is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             service.RegisterAction(new ControllerAction("/histogram/{name}", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnGetHistogram);
         }
 
@@ -23,7 +23,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var name = match.BoundVariables["name"];
 
             var histogram = Histograms.HistogramService.GetHistogram(name);
-            if (histogram == null)
+            if (histogram is null)
             {
                 entity.ReplyStatus(HttpStatusCode.NotFound, "Not found", _ => { });
                 return;

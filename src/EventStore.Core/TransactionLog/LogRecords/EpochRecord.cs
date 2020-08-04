@@ -10,17 +10,17 @@ namespace EventStore.Core.TransactionLog.LogRecords
         public static string AsString(this EpochRecord epoch)
         {
             return string.Format("E{0}@{1}:{2:B}",
-                                 epoch == null ? -1 : epoch.EpochNumber,
-                                 epoch == null ? -1 : epoch.EpochPosition,
-                                 epoch == null ? Guid.Empty : epoch.EpochId);
+                                 epoch is null ? -1 : epoch.EpochNumber,
+                                 epoch is null ? -1 : epoch.EpochPosition,
+                                 epoch is null ? Guid.Empty : epoch.EpochId);
         }
 
         public static string AsString(this Epoch epoch)
         {
             return string.Format("E{0}@{1}:{2:B}",
-                                 epoch == null ? -1 : epoch.EpochNumber,
-                                 epoch == null ? -1 : epoch.EpochPosition,
-                                 epoch == null ? Guid.Empty : epoch.EpochId);
+                                 epoch is null ? -1 : epoch.EpochNumber,
+                                 epoch is null ? -1 : epoch.EpochPosition,
+                                 epoch is null ? Guid.Empty : epoch.EpochId);
         }
     }
 

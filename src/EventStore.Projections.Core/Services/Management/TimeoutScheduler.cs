@@ -16,7 +16,7 @@ namespace EventStore.Projections.Core.Services.Management
         public void Tick()
         {
             var entry = _current;
-            if (entry != null)
+            if (entry is object)
             {
                 entry.Timeout -= 100;
                 if (entry.Timeout <= 0)

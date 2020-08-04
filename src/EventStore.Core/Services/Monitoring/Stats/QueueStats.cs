@@ -102,8 +102,8 @@ namespace EventStore.Core.Services.Monitoring.Stats
                                     AvgItemsPerSecond,
                                     AvgProcessingTime,
                                     IdleTimePercent,
-                                    InProgressMessageType == null ? "<none>" : InProgressMessageType.Name,
-                                    LastProcessedMessageType == null ? "<none>" : LastProcessedMessageType.Name);
+                                    InProgressMessageType is null ? "<none>" : InProgressMessageType.Name,
+                                    LastProcessedMessageType is null ? "<none>" : LastProcessedMessageType.Name);
             return str;
         }
     }

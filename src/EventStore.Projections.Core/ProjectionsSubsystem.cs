@@ -79,7 +79,7 @@ namespace EventStore.Projections.Core
             var tasks = new List<Task>();
             if(_subsystemStarted == false)
             {
-                if (_masterInputQueue != null)
+                if (_masterInputQueue is object)
                     tasks.Add(_masterInputQueue.Start());
                 foreach (var queue in _coreQueues)
                     tasks.Add(queue.Value.Start());
@@ -92,7 +92,7 @@ namespace EventStore.Projections.Core
         {
             if(_subsystemStarted)
             {
-                if (_masterInputQueue != null)
+                if (_masterInputQueue is object)
                     _masterInputQueue.Stop();
                 foreach (var queue in _coreQueues)
                     queue.Value.Stop();

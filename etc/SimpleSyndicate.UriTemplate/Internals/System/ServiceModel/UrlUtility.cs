@@ -20,12 +20,12 @@ namespace System.Runtime
 
         public static NameValueCollection ParseQueryString(string query, Encoding encoding)
         {
-            if (query == null)
+            if (query is null)
             {
                 throw Fx.Exception.ArgumentNull("query");
             }
 
-            if (encoding == null)
+            if (encoding is null)
             {
                 throw Fx.Exception.ArgumentNull("encoding");
             }
@@ -40,7 +40,7 @@ namespace System.Runtime
 
         public static string UrlEncode(string str)
         {
-            if (str == null)
+            if (str is null)
             {
                 return null;
             }
@@ -50,7 +50,7 @@ namespace System.Runtime
         // URL encodes a path portion of a URL string and returns the encoded string.
         public static string UrlPathEncode(string str)
         {
-            if (str == null)
+            if (str is null)
             {
                 return null;
             }
@@ -68,7 +68,7 @@ namespace System.Runtime
 
         public static string UrlEncode(string str, Encoding encoding)
         {
-            if (str == null)
+            if (str is null)
             {
                 return null;
             }
@@ -77,7 +77,7 @@ namespace System.Runtime
 
         public static string UrlEncodeUnicode(string str)
         {
-            if (str == null)
+            if (str is null)
                 return null;
             return UrlEncodeUnicodeStringToStringInternal(str, false);
 
@@ -129,7 +129,7 @@ namespace System.Runtime
             {
                 return str;
             }
-            if (e == null)
+            if (e is null)
             {
                 e = Encoding.UTF8;
             }
@@ -141,7 +141,7 @@ namespace System.Runtime
         //  Helper to encode spaces only
         static string UrlEncodeSpaces(string str)
         {
-            if (str != null && str.IndexOf(' ') >= 0)
+            if (str is object && str.IndexOf(' ') >= 0)
             {
                 str = str.Replace(" ", "%20");
             }
@@ -150,7 +150,7 @@ namespace System.Runtime
 
         public static byte[] UrlEncodeToBytes(string str, Encoding e)
         {
-            if (str == null)
+            if (str is null)
             {
                 return null;
             }
@@ -160,14 +160,14 @@ namespace System.Runtime
 
         //public static string UrlDecode(string str)
         //{
-        //    if (str == null)
+        //    if (str is null)
         //        return null;
         //    return UrlDecode(str, Encoding.UTF8);
         //}
 
         public static string UrlDecode(string str, Encoding e)
         {
-            if (str == null)
+            if (str is null)
             {
                 return null;
             }
@@ -446,7 +446,7 @@ namespace System.Runtime
                 //else
 
                 {
-                    if (_byteBuffer == null)
+                    if (_byteBuffer is null)
                     {
                         _byteBuffer = new byte[_bufferSize];
                     }
@@ -494,7 +494,7 @@ namespace System.Runtime
 
             internal void FillFromString(string s, bool urlencoded, Encoding encoding)
             {
-                int l = (s != null) ? s.Length : 0;
+                int l = (s is object) ? s.Length : 0;
                 int i = 0;
 
                 while (i < l)
@@ -578,7 +578,7 @@ namespace System.Runtime
                 {
                     key = GetKey(i);
 
-                    if (excludeKeys != null && key != null && excludeKeys[key] != null)
+                    if (excludeKeys is object && key is object && excludeKeys[key] is object)
                     {
                         continue;
                     }
@@ -589,7 +589,7 @@ namespace System.Runtime
                     keyPrefix = (!string.IsNullOrEmpty(key)) ? (key + "=") : string.Empty;
 
                     ArrayList values = (ArrayList)BaseGet(i);
-                    int numValues = (values != null) ? values.Count : 0;
+                    int numValues = (values is object) ? values.Count : 0;
 
                     if (s.Length > 0)
                     {

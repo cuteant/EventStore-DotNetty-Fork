@@ -87,7 +87,7 @@ namespace EventStore.ClusterNode
             catch (ApplicationInitializationException ex)
             {
                 var msg = $"Application initialization error: {FormatExceptionMessage(ex)}";
-                if (Log != null)
+                if (Log is object)
                 {
                     Log.LogCritical(ex, msg);
                 }
@@ -99,7 +99,7 @@ namespace EventStore.ClusterNode
             catch (Exception ex)
             {
                 var msg = "Unhandled exception while starting application:";
-                if (Log != null)
+                if (Log is object)
                 {
                     Log.LogCritical(ex, msg);
                     Log.LogCritical(ex, "{0}", FormatExceptionMessage(ex));
@@ -191,7 +191,7 @@ namespace EventStore.ClusterNode
             string msg = ex.Message;
             var exc = ex.InnerException;
             int cnt = 0;
-            while (exc != null)
+            while (exc is object)
             {
                 cnt += 1;
                 msg += "\n" + new string(' ', 2 * cnt) + exc.Message;

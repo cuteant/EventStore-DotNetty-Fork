@@ -10,7 +10,7 @@ namespace EventStore.Projections.Core.Standard
 
         public static StreamCategoryExtractor GetExtractor(string source, Action<string, object[]> logger)
         {
-            var trimmedSource = source == null ? null : source.Trim();
+            var trimmedSource = source is null ? null : source.Trim();
             if (string.IsNullOrEmpty(source))
                 throw new InvalidOperationException(
                     "Cannot initialize categorization projection handler.  "
@@ -20,7 +20,7 @@ namespace EventStore.Projections.Core.Standard
             if (trimmedSource.Length == 1)
             {
                 var separator = trimmedSource[0];
-                if (logger != null)
+                if (logger is object)
                 {
 /*
                     logger(

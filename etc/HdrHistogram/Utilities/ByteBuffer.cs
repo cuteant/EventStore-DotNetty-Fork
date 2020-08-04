@@ -188,7 +188,7 @@ namespace HdrHistogram.Utilities
         /// </exception>
         private static void CheckByteArgument(byte[] value, int startIndex, int bytesRequired)
         {
-            if (value == null)
+            if (value is null)
             {
                 throw new ArgumentNullException(nameof(value));
             }

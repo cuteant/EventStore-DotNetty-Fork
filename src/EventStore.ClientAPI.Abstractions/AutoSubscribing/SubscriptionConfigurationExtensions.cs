@@ -9,7 +9,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         public static PersistentSubscriptionSettings ToSettings(this PersistentSubscriptionConfigurationAttribute attr)
         {
             var builder = PersistentSubscriptionSettings.Create();
-            if (null == attr) { return builder.Build(); }
+            if (attr is null) { return builder.Build(); }
 
             var resolveLinkTos = ConfigUtils.ToNullableBool(attr.ResolveLinkTos);
             if (resolveLinkTos.HasValue)
@@ -68,7 +68,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             var maxSubscriberCount = ConfigUtils.ToNullableInt(attr.MaxSubscriberCount);
             if (maxSubscriberCount.HasValue) { builder.WithMaxSubscriberCountOf(maxSubscriberCount.Value); }
 
-            if (attr.NamedConsumerStrategy != null) { builder.WithNamedConsumerStrategy(attr.NamedConsumerStrategy); }
+            if (attr.NamedConsumerStrategy is object) { builder.WithNamedConsumerStrategy(attr.NamedConsumerStrategy); }
 
             return builder.Build();
         }
@@ -76,7 +76,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         public static SubscriptionSettings ToSettings(this ConnectToVolatileSubscriptionConfigurationAttribute attr)
         {
             var settings = new SubscriptionSettings();
-            if (null == attr) { return settings; }
+            if (attr is null) { return settings; }
 
             var maxMessagesPerTask = ConfigUtils.ToNullableInt(attr.MaxMessagesPerTask);
             if (maxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = maxMessagesPerTask.Value; }
@@ -112,7 +112,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
                 resolveLinkTos: resolveLinkTos ?? true,
                 subscriptionName: attr?.SubscriptionName ?? string.Empty,
                 verboseLogging: verboseLogging ?? false);
-            if (null == attr) { return settings; }
+            if (attr is null) { return settings; }
 
             var maxMessagesPerTask = ConfigUtils.ToNullableInt(attr.MaxMessagesPerTask);
             if (maxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = maxMessagesPerTask.Value; }
@@ -128,7 +128,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
             var settings = new ConnectToPersistentSubscriptionSettings(
                 bufferSize: bufferSize ?? 10,
                 autoAck: autoAck ?? true);
-            if (null == attr) { return settings; }
+            if (attr is null) { return settings; }
 
             var maxMessagesPerTask = ConfigUtils.ToNullableInt(attr.MaxMessagesPerTask);
             if (maxMessagesPerTask.HasValue) { settings.MaxMessagesPerTask = maxMessagesPerTask.Value; }
@@ -143,13 +143,13 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
         public static UserCredentials ToCredentials(this AutoSubscriberUserCredentialAttribute attr)
         {
-            if (null == attr) { return null; }
+            if (attr is null) { return null; }
             return new UserCredentials(attr.Username, attr.Password);
         }
 
         public static RetryPolicy ToRetryPolicy(this AutoSubscriberRetryPolicyAttribute attr)
         {
-            if (null == attr) { return null; }
+            if (attr is null) { return null; }
             switch (attr.ProviderType)
             {
                 case SleepDurationProviderType.FixedDuration:

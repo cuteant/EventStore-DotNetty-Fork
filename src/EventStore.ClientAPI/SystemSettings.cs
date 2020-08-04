@@ -156,12 +156,12 @@ namespace EventStore.ClientAPI
         private void WriteAsJson(JsonTextWriter jsonWriter)
         {
             jsonWriter.WriteStartObject();
-            if (UserStreamAcl != null)
+            if (UserStreamAcl is object)
             {
                 jsonWriter.WritePropertyName(SystemMetadata.UserStreamAcl);
                 StreamMetadata.WriteAcl(jsonWriter, UserStreamAcl);
             }
-            if (SystemStreamAcl != null)
+            if (SystemStreamAcl is object)
             {
                 jsonWriter.WritePropertyName(SystemMetadata.SystemStreamAcl);
                 StreamMetadata.WriteAcl(jsonWriter, SystemStreamAcl);

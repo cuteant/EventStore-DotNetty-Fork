@@ -224,7 +224,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 {
                     int code;
                     var m = message as ClientMessage.ReplayMessagesReceived;
-                    if (m == null) throw new Exception("unexpected message " + message);
+                    if (m is null) throw new Exception("unexpected message " + message);
                     switch (m.Result)
                     {
                         case ClientMessage.ReplayMessagesReceived.ReplayMessagesReceivedResult.Success:
@@ -263,7 +263,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 {
                     int code;
                     var m = message as ClientMessage.CreatePersistentSubscriptionCompleted;
-                    if (m == null) throw new Exception("unexpected message " + message);
+                    if (m is null) throw new Exception("unexpected message " + message);
                     switch (m.Result)
                     {
                         case ClientMessage.CreatePersistentSubscriptionCompleted.CreatePersistentSubscriptionResult.Success:
@@ -327,7 +327,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 {
                     int code;
                     var m = message as ClientMessage.UpdatePersistentSubscriptionCompleted;
-                    if (m == null) throw new Exception("unexpected message " + message);
+                    if (m is null) throw new Exception("unexpected message " + message);
                     switch (m.Result)
                     {
                         case ClientMessage.UpdatePersistentSubscriptionCompleted.UpdatePersistentSubscriptionResult.Success:
@@ -381,7 +381,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private SubscriptionConfigData ParseConfig(SubscriptionConfigData config)
         {
-            if (config == null)
+            if (config is null)
             {
                 return new SubscriptionConfigData();
             }
@@ -440,7 +440,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             var namedConsumerStrategy = data?.NamedConsumerStrategy;
             if (string.IsNullOrEmpty(namedConsumerStrategy))
             {
-                var preferRoundRobin = data == null || data.PreferRoundRobin;
+                var preferRoundRobin = data is null || data.PreferRoundRobin;
                 namedConsumerStrategy = preferRoundRobin
                     ? SystemConsumerStrategies.RoundRobin
                     : SystemConsumerStrategies.DispatchToSingle;
@@ -459,7 +459,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 {
                     int code;
                     var m = message as ClientMessage.DeletePersistentSubscriptionCompleted;
-                    if (m == null) throw new Exception("unexpected message " + message);
+                    if (m is null) throw new Exception("unexpected message " + message);
                     switch (m.Result)
                     {
                         case ClientMessage.DeletePersistentSubscriptionCompleted.DeletePersistentSubscriptionResult.Success:
@@ -528,7 +528,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         {
             int code;
             var m = message as MonitoringMessage.GetPersistentSubscriptionStatsCompleted;
-            if (m == null) throw new Exception("unexpected message " + message);
+            if (m is null) throw new Exception("unexpected message " + message);
             switch (m.Result)
             {
                 case MonitoringMessage.GetPersistentSubscriptionStatsCompleted.OperationStatus.Success:
@@ -570,7 +570,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                 {
                     int code;
                     var m = message as ClientMessage.ReadNextNPersistentMessagesCompleted;
-                    if (m == null) throw new Exception("unexpected message " + message);
+                    if (m is null) throw new Exception("unexpected message " + message);
                     switch (m.Result)
                     {
                         case ClientMessage.ReadNextNPersistentMessagesCompleted.ReadNextNPersistentMessagesResult.Success:
@@ -619,8 +619,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         string parkedMessageUriTemplate = "/streams/" + Uri.EscapeDataString("$persistentsubscription") + "-{0}::{1}-parked";
         private IEnumerable<SubscriptionInfo> ToDto(HttpEntityManager manager, MonitoringMessage.GetPersistentSubscriptionStatsCompleted message)
         {
-            if (message == null) yield break;
-            if (message.SubscriptionStats == null) yield break;
+            if (message is null) yield break;
+            if (message.SubscriptionStats is null) yield break;
 
             foreach (var stat in message.SubscriptionStats)
             {
@@ -667,7 +667,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     },
                     Connections = new List<ConnectionInfo>()
                 };
-                if (stat.Connections != null)
+                if (stat.Connections is object)
                 {
                     foreach (var connection in stat.Connections)
                     {
@@ -690,8 +690,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private IEnumerable<SubscriptionSummary> ToSummaryDto(HttpEntityManager manager, MonitoringMessage.GetPersistentSubscriptionStatsCompleted message)
         {
-            if (message == null) yield break;
-            if (message.SubscriptionStats == null) yield break;
+            if (message is null) yield break;
+            if (message.SubscriptionStats is null) yield break;
 
             foreach (var stat in message.SubscriptionStats)
             {
@@ -714,7 +714,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     GetMessagesUri = MakeUrl(manager, string.Format("/subscriptions/{0}/{1}/{2}", escapedStreamId, escapedGroupName, DefaultNumberOfMessagesToGet)),
                     TotalInFlightMessages = stat.TotalInFlightMessages,
                 };
-                if (stat.Connections != null)
+                if (stat.Connections is object)
                 {
                     info.ConnectionCount = stat.Connections.Count;
                 }

@@ -31,7 +31,9 @@ namespace EventStore.Core.Util
         public void RegisterControllerActions(IHttpService service)
         {
             var pattern = _localWebRootPath + "/{*remaining_path}";
+#if DEBUG
             if (Logger.IsTraceLevelEnabled()) Logger.BindingMiniWeb(pattern);
+#endif
             service.RegisterAction(new ControllerAction(pattern, HttpMethod.Get, Codec.NoCodecs, new ICodec[] { Codec.ManualEncoding }, AuthorizationLevel.None), OnStaticContent);
         }
 
@@ -49,7 +51,9 @@ namespace EventStore.Core.Util
                 contentLocalPath = contentLocalPath.Substring(_localWebRootPath.Length);
             }
 
+#if DEBUG
             //if (Logger.IsTraceLevelEnabled()) Logger.RequestedFromMiniWeb(contentLocalPath);
+#endif
             try
             {
                 var extensionToContentType = new Dictionary<string, string>(StringComparer.Ordinal)

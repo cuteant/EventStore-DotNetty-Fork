@@ -52,7 +52,9 @@ namespace EventStore.ClientAPI
         internal readonly Func<TSubscription, TResolvedEvent, int?, Task> _eventAppearedAsync;
         private readonly Action<TSubscription, SubscriptionDropReason, Exception> _subscriptionDropped;
         private readonly UserCredentials _userCredentials;
+#if DEBUG
         private readonly bool _verbose;
+#endif
         private readonly ConnectionSettings _connSettings;
         private readonly bool _autoAck;
 
@@ -102,7 +104,9 @@ namespace EventStore.ClientAPI
             _settings = settings;
             _subscriptionDropped = subscriptionDropped;
             _userCredentials = userCredentials;
+#if DEBUG
             _verbose = settings.VerboseLogging && _log.IsDebugLevelEnabled();
+#endif
             _connSettings = connSettings;
             _autoAck = settings.AutoAck;
         }
@@ -186,7 +190,9 @@ namespace EventStore.ClientAPI
         /// <exception cref="TimeoutException"></exception>
         public void Stop(TimeSpan timeout)
         {
+#if DEBUG
             if (_verbose) { _log.PersistentSubscriptionRequestingStop(_streamId); }
+#endif
 
             EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
 
@@ -202,7 +208,7 @@ namespace EventStore.ClientAPI
         {
             // if drop data was already set -- no need to enqueue drop again, somebody did that already
             var dropData = new DropData(reason, error);
-            if (Interlocked.CompareExchange(ref _dropData, dropData, null) == null)
+            if (Interlocked.CompareExchange(ref _dropData, dropData, null) is null)
             {
                 _targetBlock.SendAsync(DropSubscriptionEvent);
             }
@@ -222,7 +228,7 @@ namespace EventStore.ClientAPI
         {
             var isArtificialEvent = resolvedEvent.IsDropping;  // drop subscription artificial ResolvedEvent
             var dropData = Volatile.Read(ref _dropData);
-            if (isArtificialEvent || dropData != null)
+            if (isArtificialEvent || dropData is object)
             {
                 ProcessDropSubscription(isArtificialEvent, dropData);
                 return;
@@ -236,7 +242,9 @@ namespace EventStore.ClientAPI
                 {
                     _subscription.NotifyEventsProcessed(resolvedEvent.OriginalEventId);
                 }
+#if DEBUG
                 if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
+#endif
             }
             catch (Exception exc)
             {
@@ -249,7 +257,7 @@ namespace EventStore.ClientAPI
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void ProcessDropSubscription(bool isArtificialEvent, DropData dropData)
         {
-            if (isArtificialEvent && dropData == null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
+            if (isArtificialEvent && dropData is null) { CoreThrowHelper.ThrowException_DropReasonNotSpecified(); }
             DropSubscription(dropData.Reason, dropData.Error);
         }
 
@@ -257,7 +265,7 @@ namespace EventStore.ClientAPI
         {
             var isArtificialEvent = resolvedEvent.IsDropping;  // drop subscription artificial ResolvedEvent
             var dropData = Volatile.Read(ref _dropData);
-            if (isArtificialEvent || dropData != null)
+            if (isArtificialEvent || dropData is object)
             {
                 ProcessDropSubscription(isArtificialEvent, dropData);
                 return;
@@ -271,7 +279,9 @@ namespace EventStore.ClientAPI
                 {
                     _subscription.NotifyEventsProcessed(resolvedEvent.OriginalEventId);
                 }
+#if DEBUG
                 if (_verbose) { _log.PersistentSubscriptionProcessedEvent(_streamId, resolvedEvent); }
+#endif
             }
             catch (Exception exc)
             {
@@ -285,7 +295,9 @@ namespace EventStore.ClientAPI
         {
             if (0u >= (uint)Interlocked.CompareExchange(ref _isDropped, 1, 0))
             {
+#if DEBUG
                 if (_verbose) { _log.PersistentDroppingSubscriptionReason(_streamId, reason, error); }
+#endif
 
                 _subscription?.Unsubscribe();
                 _subscriptionDropped?.Invoke(this as TSubscription, reason, error);

@@ -21,7 +21,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             try
             {
                 var ret = data.ParseJson<PersistentSubscriptionConfig>();
-                if(ret.Version == null) ThrowHelper.ThrowBadConfigDataException_DeserializedButNoVersionPresent();
+                if(ret.Version is null) ThrowHelper.ThrowBadConfigDataException_DeserializedButNoVersionPresent();
 
                 UpdateIfRequired(ret);
 
@@ -37,7 +37,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         {
             if (ret.Version == "1")
             {
-                if (ret.Entries != null)
+                if (ret.Entries is object)
                 {
                     foreach (var persistentSubscriptionEntry in ret.Entries)
                     {

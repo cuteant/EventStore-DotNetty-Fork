@@ -18,7 +18,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void Reply(PartitionState state, CheckpointTag checkpointTag)
         {
-            if (state == null)
+            if (state is null)
                 _publisher.Publish(
                     new CoreProjectionStatusMessage.ResultReport(
                         _correlationId,

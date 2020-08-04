@@ -91,7 +91,7 @@ namespace EventStore.Projections.Core.Services.Processing
             EnsureStarted();
             if (message.CorrelationId != _eventReaderId)
                 return false;
-            if (message.Data == null)
+            if (message.Data is null)
                 return true;
 
             ValidateEventOrder(message);
@@ -206,7 +206,7 @@ namespace EventStore.Projections.Core.Services.Processing
                     {
                         var item = m as CommittedEventItem;
                         string message;
-                        if (item != null) {
+                        if (item is object) {
                             message = string.Format("The heading subscription failed to handle a recently cached event {0}:{1}@{2} because {3}",
                                                         item.Message.Data.EventStreamId, item.Message.Data.EventType, item.Message.Data.PositionSequenceNumber, ex.Message);
                         }else{

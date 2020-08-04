@@ -44,10 +44,10 @@ namespace EventStore.Core.Settings
                                    bool skipInitializeStandardUsersCheck = false,
                                    bool disableScavengeMerging = false)
         {
-            if (null == externalTcpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
-            if (null == externalHttpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
-            if (null == httpPrefixes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPrefixes); }
-            if (externalSecureTcpEndPoint != null && null == certificate)
+            if (externalTcpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalTcpEndPoint); }
+            if (externalHttpEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.externalHttpEndPoint); }
+            if (httpPrefixes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpPrefixes); }
+            if (externalSecureTcpEndPoint is object && certificate is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.certificate);
             if (workerThreads <= 0) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.workerThreads); }
 
@@ -86,11 +86,11 @@ namespace EventStore.Core.Settings
                                  + "StatsPeriod: {10}\n"
                                  + "StatsStorage: {11}",
                                  ExternalTcpEndPoint,
-                                 ExternalSecureTcpEndPoint == null ? "n/a" : ExternalSecureTcpEndPoint.ToString(),
+                                 ExternalSecureTcpEndPoint is null ? "n/a" : ExternalSecureTcpEndPoint.ToString(),
                                  ExternalHttpEndPoint,
                                  string.Join(", ", HttpPrefixes),
                                  EnableTrustedAuth,
-                                 Certificate == null ? "n/a" : Certificate.ToString(verbose: true),
+                                 Certificate is null ? "n/a" : Certificate.ToString(verbose: true),
                                  WorkerThreads,
                                  MinFlushDelay,
                                  PrepareTimeout,

@@ -19,7 +19,7 @@ namespace EventStore.Core.Bus
                                   Func<Message, int> queueHash = null)
         {
             if ((uint)(queueCount - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queueCount); }
-            if (null == queueFactory) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queueFactory); }
+            if (queueFactory is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queueFactory); }
 
             Queues = new IQueuedHandler[queueCount];
             for (int i = 0; i < Queues.Length; ++i)
@@ -37,7 +37,7 @@ namespace EventStore.Core.Bus
 
         public MultiQueuedHandler(IQueuedHandler[] queues, Func<Message, int> queueHash)
         {
-            if (null == queues) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queues); }
+            if (queues is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.queues); }
             if (0u >= (uint)queues.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.queues_Length); }
 
             Queues = queues;
@@ -78,7 +78,7 @@ namespace EventStore.Core.Bus
         public void Publish(Message message)
         {
             var affineMsg = message as IQueueAffineMessage;
-            int queueHash = affineMsg != null ? affineMsg.QueueId : _queueHash(message);
+            int queueHash = affineMsg is object ? affineMsg.QueueId : _queueHash(message);
             var queueNum = (int)((uint)queueHash % Queues.Length);
             Queues[queueNum].Publish(message);
         }

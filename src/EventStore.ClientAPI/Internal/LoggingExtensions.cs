@@ -22,7 +22,7 @@ namespace EventStore.ClientAPI
         internal static void PersistentDroppingSubscriptionReason(this ILogger logger, string streamId, SubscriptionDropReason reason, Exception error)
         {
             logger.LogDebug("Persistent Subscription to {0}: dropping subscription, reason: {1} {2}.",
-                streamId, reason, error == null ? string.Empty : error.ToString());
+                streamId, reason, error is null ? string.Empty : error.ToString());
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -144,7 +144,7 @@ namespace EventStore.ClientAPI
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void DiscoveringFoundBestChoice(this ILogger logger, IPEndPoint normTcp, IPEndPoint secTcp, ClusterMessages.VNodeState state)
         {
-            s_discoveringFoundBestChoice(logger, normTcp, secTcp == null ? "n/a" : secTcp.ToString(), state, null);
+            s_discoveringFoundBestChoice(logger, normTcp, secTcp is null ? "n/a" : secTcp.ToString(), state, null);
         }
 
         private static readonly Action<ILogger, string, Exception> s_noHandlerFoundForEventType =

@@ -35,7 +35,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
             writer.WriteStartElement("link");
             writer.WriteAttributeString("href", href);
 
-            if (rel != null)
+            if (rel is object)
                 writer.WriteAttributeString("rel", rel);
             writer.WriteEndElement();
         }

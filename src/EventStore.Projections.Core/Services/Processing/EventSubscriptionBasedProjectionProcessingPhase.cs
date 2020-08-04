@@ -333,7 +333,7 @@ namespace EventStore.Projections.Core.Services.Processing
             try
             {
                 var readerStrategy = _readerStrategy;
-                if (readerStrategy != null)
+                if (readerStrategy is object)
                 {
                     _subscribed = true;
                     _subscriptionDispatcher.PublishSubscribe(
@@ -389,9 +389,9 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected void SetFaulting(string faultedReason, Exception ex = null)
         {
-            if (_logger != null)
+            if (_logger is object)
             {
-                if (ex != null)
+                if (ex is object)
                 {
                     _logger.LogError(ex, faultedReason);
                 }
@@ -407,7 +407,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (!_projectionConfig.EmitEventEnabled)
             {
-                if (emittedEvents != null && (uint)emittedEvents.Length > 0u)
+                if (emittedEvents is object && (uint)emittedEvents.Length > 0u)
                 {
                     SetFaulting("'emit' is not allowed by the projection/configuration/mode");
                     return false;
@@ -444,7 +444,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (!ValidateEmittedEvents(emittedEvents))
                 return null;
 
-            bool eventsWereEmitted = emittedEvents != null;
+            bool eventsWereEmitted = emittedEvents is object;
             var oldState = _partitionStateCache.GetLockedPartitionState(partition);
             var oldSharedState = _isBiState ? _partitionStateCache.GetLockedPartitionState("") : null;
             bool changed = oldState.IsChanged(newPartitionState)
@@ -510,7 +510,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 var s = lockLoaded
                     ? _partitionStateCache.TryGetAndLockPartitionState(statePartition, at)
                     : _partitionStateCache.TryGetPartitionState(statePartition);
-                if (s != null)
+                if (s is object)
                     loadCompleted(s);
                 else
                 {
@@ -541,21 +541,21 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_state == PhaseState.Running)
             {
                 //TODO: move to separate projection method and cache result in work item
-                if (result != null)
+                if (result is object)
                 {
                     _resultWriter.AccountPartition(result);
-                    if (_projectionConfig.EmitEventEnabled && result.EmittedEvents != null)
+                    if (_projectionConfig.EmitEventEnabled && result.EmittedEvents is object)
                     {
                         _resultWriter.EventsEmitted(
                             result.EmittedEvents, result.CausedBy, result.CorrelationId);
                         _emittedStreamsTracker.TrackEmittedStream(result.EmittedEvents.Select(x => x.Event).ToArray());
                     }
-                    if (result.NewState != null)
+                    if (result.NewState is object)
                     {
                         _resultWriter.WriteRunningResult(result);
                         _checkpointManager.StateUpdated(result.Partition, result.OldState, result.NewState);
                     }
-                    if (result.NewSharedState != null)
+                    if (result.NewSharedState is object)
                     {
                         _checkpointManager.StateUpdated("", result.OldSharedState, result.NewSharedState);
                     }

@@ -9,7 +9,7 @@ namespace EventStore.Core.Bus
 
         public AdHocHandler(Action<T> handle)
         {
-            if (null == handle) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handle); }
+            if (handle is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handle); }
             _handle = handle;
         }
 

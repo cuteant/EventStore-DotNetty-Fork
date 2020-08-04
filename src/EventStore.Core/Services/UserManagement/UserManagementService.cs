@@ -294,7 +294,7 @@ namespace EventStore.Core.Services.UserManagement
                 message, (completed, data) =>
                     {
                         var updated = update(data);
-                        if (updated != null)
+                        if (updated is object)
                         {
                             WritePasswordChangedEventConditionalAnd(
                                 message, resetPasswordCache,
@@ -410,7 +410,7 @@ namespace EventStore.Core.Services.UserManagement
         {
             if (completed.Result == OperationResult.Success)
             {
-                if (after != null)
+                if (after is object)
                 {
                     after();
                 }
@@ -612,7 +612,7 @@ namespace EventStore.Core.Services.UserManagement
 
         private bool IsAdmin(IPrincipal principal)
         {
-            return principal != null && principal.IsInRole(SystemRoles.Admins);
+            return principal is object && principal.IsInRole(SystemRoles.Admins);
         }
     }
 }

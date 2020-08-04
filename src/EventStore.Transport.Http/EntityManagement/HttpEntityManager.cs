@@ -49,9 +49,9 @@ namespace EventStore.Transport.Http.EntityManagement
             HttpEntity httpEntity, string[] allowedMethods, Action<HttpEntity> onRequestSatisfied, ICodec requestCodec,
             ICodec responseCodec, bool logHttpRequests)
         {
-            if (null == httpEntity) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEntity); }
-            if (null == allowedMethods) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.allowedMethods); }
-            if (null == onRequestSatisfied) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onRequestSatisfied); }
+            if (httpEntity is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEntity); }
+            if (allowedMethods is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.allowedMethods); }
+            if (onRequestSatisfied is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onRequestSatisfied); }
 
             HttpEntity = httpEntity;
             TimeStamp = DateTime.UtcNow;
@@ -65,7 +65,7 @@ namespace EventStore.Transport.Http.EntityManagement
             _responseContentEncoding = GetRequestedContentEncoding(httpEntity);
             _logHttpRequests = logHttpRequests;
 
-            if (HttpEntity.Request != null && HttpEntity.Request.ContentLength64 == 0)
+            if (HttpEntity.Request is object && HttpEntity.Request.ContentLength64 == 0)
             {
                 LogRequest(new byte[0]);
             }
@@ -111,11 +111,11 @@ namespace EventStore.Transport.Http.EntityManagement
 
         private void SetContentType(string contentType, Encoding encoding)
         {
-            if (contentType == null) { return; }
+            if (contentType is null) { return; }
 
             try
             {
-                HttpEntity.Response.ContentType = contentType + (encoding != null ? ("; charset=" + encoding.WebName) : "");
+                HttpEntity.Response.ContentType = contentType + (encoding is object ? ("; charset=" + encoding.WebName) : "");
             }
             catch (ObjectDisposedException)
             {
@@ -205,8 +205,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ReadRequestAsync(Action<HttpEntityManager, byte[]> onReadSuccess, Action<Exception> onError)
         {
-            if (null == onReadSuccess) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (onReadSuccess is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onReadSuccess); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             var state = new ManagerOperationState(
                 HttpEntity.Request.InputStream, new MemoryStream(), onReadSuccess, onError);
@@ -219,7 +219,7 @@ namespace EventStore.Transport.Http.EntityManagement
             int code, string description, string contentType, Encoding encoding,
             IEnumerable<KeyValuePair<string, string>> headers)
         {
-            if (HttpEntity.Response == null) // test instance
+            if (HttpEntity.Response is null) // test instance
                 return false;
 
             bool isAlreadyProcessing = Interlocked.CompareExchange(ref _processing, 1, 0) == 1;
@@ -240,8 +240,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ContinueReply(byte[] response, Action<Exception> onError, Action onCompleted)
         {
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
-            if (null == onCompleted) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onCompleted); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (onCompleted is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onCompleted); }
 
             _currentOutputStream = HttpEntity.Response.OutputStream;
             ContinueWriteResponseAsync(response, () => { }, onError, onCompleted);
@@ -263,12 +263,12 @@ namespace EventStore.Transport.Http.EntityManagement
             byte[] response, int code, string description, string contentType, Encoding encoding,
             IEnumerable<KeyValuePair<string, string>> headers, Action<Exception> onError)
         {
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             if (!BeginReply(code, description, contentType, encoding, headers))
                 return;
 
-            if (response == null || response.Length == 0)
+            if (response is null || response.Length == 0)
             {
                 if (_logHttpRequests) LogResponse(new byte[0]);
                 SetResponseLength(0);
@@ -289,8 +289,8 @@ namespace EventStore.Transport.Http.EntityManagement
 
         public void ForwardReply(HttpResponseMessage response, Action<Exception> onError)
         {
-            if (null == response) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
-            if (null == onError) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
+            if (response is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.response); }
+            if (onError is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.onError); }
 
             if (Interlocked.CompareExchange(ref _processing, 1, 0) != 0)
                 return;
@@ -299,9 +299,9 @@ namespace EventStore.Transport.Http.EntityManagement
             {
                 HttpEntity.Response.StatusCode = (int)response.StatusCode;
                 HttpEntity.Response.StatusDescription = response.ReasonPhrase;
-                if(response.Content != null)
+                if(response.Content is object)
                 {
-                    if(response.Content.Headers.ContentType != null) {
+                    if(response.Content.Headers.ContentType is object) {
                         HttpEntity.Response.ContentType = response.Content.Headers.ContentType.MediaType;
                     }
 
@@ -370,14 +370,14 @@ namespace EventStore.Transport.Http.EntityManagement
         private void ContinueWriteResponseAsync(
             byte[] response, Action onSuccess, Action<Exception> onError, Action onCompleted)
         {
-            if (_asyncWriter == null)
+            if (_asyncWriter is null)
                 _asyncWriter = new AsyncQueuedBufferWriter(
                     _currentOutputStream, () => DisposeStreamAndCloseConnection("Close connection error"));
 
             _asyncWriter.Append(
                 response, errorIfAny =>
                     {
-                        if (errorIfAny == null)
+                        if (errorIfAny is null)
                             onSuccess();
                         else
                             onError(errorIfAny);
@@ -389,7 +389,7 @@ namespace EventStore.Transport.Http.EntityManagement
         {
             var state = copier.AsyncState;
 
-            if (copier.Error != null)
+            if (copier.Error is object)
             {
                 state.Dispose();
                 CloseConnection(exc => { if (Log.IsDebugLevelEnabled()) Log.CloseConnectionErrorAfterCrashInReadRequest(exc); });
@@ -444,7 +444,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 logBuilder.AppendFormat("From: {0}\n", HttpEntity.Request.RemoteEndPoint.ToString());
                 logBuilder.AppendFormat("{0} {1}\n", HttpEntity.Request.HttpMethod, HttpEntity.Request.Url);
                 logBuilder.AppendLine(CreateHeaderLog(HttpEntity.Request.Headers));
-                if (body != null && body.Length > 0)
+                if (body is object && body.Length > 0)
                 {
                     logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
                 }
@@ -461,7 +461,7 @@ namespace EventStore.Transport.Http.EntityManagement
                 logBuilder.AppendFormat("{0}\n", DateTime.Now);
                 logBuilder.AppendFormat("{0} {1}\n", HttpEntity.Response.StatusCode, HttpEntity.Response.StatusDescription);
                 logBuilder.AppendLine(CreateHeaderLog(HttpEntity.Response.Headers));
-                if (body != null && body.Length > 0)
+                if (body is object && body.Length > 0)
                 {
                     logBuilder.AppendLine(System.Text.Encoding.Default.GetString(body));
                 }
@@ -513,12 +513,12 @@ namespace EventStore.Transport.Http.EntityManagement
 
         private string GetRequestedContentEncoding(HttpEntity httpEntity)
         {
-            if (httpEntity==null || httpEntity.Request == null) return null;
+            if (httpEntity==null || httpEntity.Request is null) return null;
 
             var httpEntityRequest = httpEntity.Request;
             string contentEncoding = null;
             var values = httpEntityRequest.Headers.GetValues("Accept-Encoding");
-            if (values != null)
+            if (values is object)
             {
                 foreach (string value in values)
                 {

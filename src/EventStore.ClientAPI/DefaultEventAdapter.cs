@@ -51,9 +51,9 @@ namespace EventStore.ClientAPI
 
         public DefaultEventAdapter(JsonSerializerSettings serializerSettings, ArrayPool<char> charPool, ObjectPoolProvider objectPoolProvider)
         {
-            if (serializerSettings == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serializerSettings); }
-            if (charPool == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.charPool); }
-            if (objectPoolProvider == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.objectPoolProvider); }
+            if (serializerSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.serializerSettings); }
+            if (charPool is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.charPool); }
+            if (objectPoolProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.objectPoolProvider); }
 
             _metaSettings = new JsonSerializerSettings
             {
@@ -69,7 +69,7 @@ namespace EventStore.ClientAPI
                 Converters = new JsonConverter[] { new StringEnumConverter(), new CombGuidConverter() }
             };
 
-            if (serializerSettings.SerializationBinder == null)
+            if (serializerSettings.SerializationBinder is null)
             {
                 serializerSettings.SerializationBinder = JsonSerializationBinder.Instance;
             }
@@ -83,10 +83,10 @@ namespace EventStore.ClientAPI
 
         public override EventData Adapt(object message, EventMetadata eventMeta)
         {
-            if (message == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
 
             var actualType = message.GetType();
-            if (null == eventMeta) { eventMeta = new EventMetadata(); }
+            if (eventMeta is null) { eventMeta = new EventMetadata(); }
             eventMeta.ClrEventType = RuntimeTypeNameFormatter.Serialize(actualType);
 
             var metaSerializer = CreateMetaSerializer();
@@ -107,7 +107,7 @@ namespace EventStore.ClientAPI
 
         public override object Adapt(byte[] eventData, EventMetadata eventMeta)
         {
-            if (eventData == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventData); }
+            if (eventData is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventData); }
 
             TypeUtils.TryResolveType(eventMeta?.ClrEventType, out var dataType);
             var jsonSerializer = CreateDataSerializer();
@@ -122,7 +122,7 @@ namespace EventStore.ClientAPI
 
         public override IEventMetadata ToEventMetadata(byte[] metadata)
         {
-            if (metadata == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metadata); }
+            if (metadata is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.metadata); }
 
             var jsonSerializer = CreateMetaSerializer();
             try
@@ -134,7 +134,7 @@ namespace EventStore.ClientAPI
 
         protected virtual JsonSerializer CreateMetaSerializer()
         {
-            if (_metaSerializerPool == null)
+            if (_metaSerializerPool is null)
             {
                 Interlocked.Exchange(ref _metaSerializerPool, JsonConvertX.GetJsonSerializerPool(_metaSettings));
             }
@@ -146,7 +146,7 @@ namespace EventStore.ClientAPI
 
         protected virtual JsonSerializer CreateDataSerializer()
         {
-            if (_dataSerializerPool == null)
+            if (_dataSerializerPool is null)
             {
                 Interlocked.Exchange(ref _dataSerializerPool, JsonConvertX.GetJsonSerializerPool(_dataSettings));
             }

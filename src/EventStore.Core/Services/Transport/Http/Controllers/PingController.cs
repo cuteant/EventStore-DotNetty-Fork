@@ -15,7 +15,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Subscribe(IHttpService service)
         {
-            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
+            if (service is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             service.RegisterAction(new ControllerAction("/ping", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetPing);
         }
 

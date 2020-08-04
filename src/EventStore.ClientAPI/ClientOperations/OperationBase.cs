@@ -30,7 +30,7 @@ namespace EventStore.ClientAPI.ClientOperations
         protected OperationBase(TaskCompletionSource<TResult> source,
           TcpCommand requestCommand, TcpCommand responseCommand, UserCredentials userCredentials)
         {
-            if (null == source) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
+            if (source is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source); }
 
             Log = TraceLogger.GetLogger(this.GetType());
             _source = source;
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI.ClientOperations
         public TcpPackage CreateNetworkPackage(Guid correlationId)
         {
             return new TcpPackage(_requestCommand,
-                                  UserCredentials != null ? TcpFlags.Authenticated : TcpFlags.None,
+                                  UserCredentials is object ? TcpFlags.Authenticated : TcpFlags.None,
                                   correlationId,
                                   UserCredentials?.Username,
                                   UserCredentials?.Password,
@@ -83,7 +83,7 @@ namespace EventStore.ClientAPI.ClientOperations
         {
             if (0u >= (uint)Interlocked.CompareExchange(ref _completed, 1, 0))
             {
-                if (_response != null)
+                if (_response is object)
                     _source.SetResult(TransformResponse(_response));
                 else
                     _source.SetException(CoreThrowHelper.GetNoResultException());

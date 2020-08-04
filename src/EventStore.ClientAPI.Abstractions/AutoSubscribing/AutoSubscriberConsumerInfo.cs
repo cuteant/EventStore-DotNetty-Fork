@@ -11,9 +11,9 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
         public AutoSubscriberConsumerInfo(Type concreteType, Type interfaceType, string consumeMethodName, Type messageType = null)
         {
-            if (null == concreteType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.concreteType); }
-            if (null == interfaceType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.interfaceType); }
-            if (null == consumeMethodName) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumeMethodName); }
+            if (concreteType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.concreteType); }
+            if (interfaceType is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.interfaceType); }
+            if (consumeMethodName is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumeMethodName); }
             ConcreteType = concreteType;
             InterfaceType = interfaceType;
             ConsumeMethodName = consumeMethodName;

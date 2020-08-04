@@ -99,11 +99,11 @@ namespace EventStore.Core.Services.AwakeReaderService
                         {
                             _batchedReplies.Add(subscriber);
                             _map.Remove(subscriber.CorrelationId);
-                            if (toRemove == null) { toRemove = ThreadLocalList<AwakeServiceMessage.SubscribeAwake>.NewInstance(); }
+                            if (toRemove is null) { toRemove = ThreadLocalList<AwakeServiceMessage.SubscribeAwake>.NewInstance(); }
                             toRemove.Add(subscriber);
                         }
                     }
-                    if (toRemove != null)
+                    if (toRemove is object)
                     {
                         foreach (var item in toRemove)
                         {

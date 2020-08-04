@@ -11,7 +11,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventAsync(this IEventStoreBus connection, string stream, object @event,
             Dictionary<string, object> eventContext, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventData = connection.ToEventData(@event, eventContext);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData, userCredentials);
@@ -20,7 +20,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventAsync(this IEventStoreBus connection, string stream, object @event,
             IEventMetadata eventMeta = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventData = connection.ToEventData(@event, eventMeta);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData, userCredentials);
@@ -33,7 +33,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventAsync(this IEventStoreBus connection, string stream, string topic, object @event,
             Dictionary<string, object> eventContext, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventData = connection.ToEventData(@event, eventContext);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventData, userCredentials);
@@ -42,7 +42,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventAsync(this IEventStoreBus connection, string stream, string topic, object @event,
             IEventMetadata eventMeta = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventData = connection.ToEventData(@event, eventMeta);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventData, userCredentials);
@@ -55,7 +55,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, IList<object> events,
             IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -64,7 +64,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, IList<object> events,
             IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -73,7 +73,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, IList<TEvent> events,
             IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -82,7 +82,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, IList<TEvent> events,
             IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventDatas, userCredentials);
@@ -95,7 +95,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, string topic, IList<object> events,
             IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventDatas, userCredentials);
@@ -104,7 +104,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, string topic, IList<object> events,
             IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventDatas, userCredentials);
@@ -113,7 +113,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, string topic, IList<TEvent> events,
             IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventDatas, userCredentials);
@@ -122,7 +122,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, string topic, IList<TEvent> events,
             IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
             return connection.AppendToStreamAsync(stream.Combine(topic), ExpectedVersion.Any, eventDatas, userCredentials);
@@ -135,7 +135,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, int batchSize,
             IList<object> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
@@ -145,7 +145,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, int batchSize,
             IList<object> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
@@ -155,7 +155,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, int batchSize,
             IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
@@ -165,7 +165,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, int batchSize,
             IList<TEvent> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
@@ -179,7 +179,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, string topic, int batchSize,
             IList<object> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
@@ -189,7 +189,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync(this IEventStoreBus connection, string stream, string topic, int batchSize,
             IList<object> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);
@@ -199,7 +199,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, string topic, int batchSize,
             IList<TEvent> events, IList<Dictionary<string, object>> eventContexts, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventContexts);
@@ -209,7 +209,7 @@ namespace EventStore.ClientAPI
         public static Task<WriteResult> SendEventsAsync<TEvent>(this IEventStoreBus connection, string stream, string topic, int batchSize,
             IList<TEvent> events, IList<IEventMetadata> eventMetas = null, UserCredentials userCredentials = null)
         {
-            if (null == connection) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
+            if (connection is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.connection); }
             if ((uint)(batchSize - 1) >= Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.batchSize); }
 
             var eventDatas = connection.ToEventDatas(events, eventMetas);

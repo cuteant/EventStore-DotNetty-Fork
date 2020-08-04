@@ -13,7 +13,7 @@ namespace EventStore.Transport.Http
             }
             catch (WebException e)
             {
-                if (e.Response != null)
+                if (e.Response is object)
                     return e.Response;//for 404 and 500
 
                 throw;

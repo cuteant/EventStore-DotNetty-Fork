@@ -79,12 +79,12 @@ namespace EventStore.Transport.Http
                 {
                     try
                     {
-                        if (item.Buffer != null)
+                        if (item.Buffer is object)
                             _outputStream.BeginWrite(item.Buffer, 0, item.Buffer.Length, WriteCompleted, item);
                         else
                         {
                             Dispose();
-                            if (item.OnCompletion != null) 
+                            if (item.OnCompletion is object) 
                                 item.OnCompletion(null);
                         }
                     }
@@ -126,7 +126,7 @@ namespace EventStore.Transport.Http
         {
             try
             {
-                if (item.OnCompletion != null)
+                if (item.OnCompletion is object)
                     item.OnCompletion(_error);
             }
             catch (Exception ex)
@@ -139,7 +139,7 @@ namespace EventStore.Transport.Http
         {
             if (Interlocked.CompareExchange(ref _disposed, 1, 0) != 0)
                 return;
-            if (_onDispose != null)
+            if (_onDispose is object)
                 _onDispose();
         }
     }

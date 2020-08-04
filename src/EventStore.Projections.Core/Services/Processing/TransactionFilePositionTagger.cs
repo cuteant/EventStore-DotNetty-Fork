@@ -75,7 +75,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 throw new ArgumentException(
                     string.Format("Invalid checkpoint tag phase.  Expected: {0} Was: {1}", Phase, previous.Phase));
 
-            if (partitionDeleted.DeleteLinkOrEventPosition == null)
+            if (partitionDeleted.DeleteLinkOrEventPosition is null)
                 throw new ArgumentException("Invalid partiton deleted message. deleteEventOrLinkTargetPosition required");
 
             return CheckpointTag.FromPosition(previous.Phase, partitionDeleted.DeleteLinkOrEventPosition.Value);

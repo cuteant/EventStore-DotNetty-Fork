@@ -64,7 +64,7 @@ namespace EventStore.Rags
             if (cachedAttributes.ContainsKey(cacheKey))
             {
                 var cachedValue = cachedAttributes[cacheKey] as List<T>;
-                if (cachedValue != null) return cachedValue;
+                if (cachedValue is object) return cachedValue;
             }
 
             var freshValue = (from attr in info.GetCustomAttributes(true)
@@ -93,10 +93,10 @@ namespace EventStore.Rags
             if (enumField.DeclaringType.IsEnum == false) throw new ArgumentException("The given field '" + enumField.Name + "' is not an enum field.");
 
             var shortcutAttrs = enumField.Attrs<ArgShortcut>();
-            var noShortcutPolicy = shortcutAttrs.SingleOrDefault(s => s.Shortcut == null);
-            var shortcutVals = shortcutAttrs.Where(s => s.Shortcut != null).Select(s => s.Shortcut).ToList();
+            var noShortcutPolicy = shortcutAttrs.SingleOrDefault(s => s.Shortcut is null);
+            var shortcutVals = shortcutAttrs.Where(s => s.Shortcut is object).Select(s => s.Shortcut).ToList();
 
-            if (noShortcutPolicy != null && shortcutVals.Count > 0) throw new InvalidArgDefinitionException("You can't have an ArgShortcut attribute with a null shortcut and then define a second ArgShortcut attribute with a non-null value.");
+            if (noShortcutPolicy is object && shortcutVals.Count > 0) throw new InvalidArgDefinitionException("You can't have an ArgShortcut attribute with a null shortcut and then define a second ArgShortcut attribute with a non-null value.");
 
             return shortcutVals;
         }
@@ -122,7 +122,7 @@ namespace EventStore.Rags
                 var shortcuts = field.GetEnumShortcuts();
                 if (ignoreCase) shortcuts = shortcuts.Select(s => s.ToLowerInvariant()).ToList();
                 var match = (from s in shortcuts where s == value select s).SingleOrDefault();
-                if (match == null) continue;
+                if (match is null) continue;
                 enumResult = Enum.Parse(enumType, field.Name);
                 return true;
             }
@@ -178,7 +178,7 @@ namespace EventStore.Rags
             foreach (var property in properties)
             {
                 var aliases = property.HasAttr<ArgAliasAttribute>() ? property.Attr<ArgAliasAttribute>().Aliases : null;
-                if (aliases != null)
+                if (aliases is object)
                 {
                     foreach (var alias in aliases)
                     {

@@ -39,7 +39,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
 
         public SingleAckRequestManager(IPublisher bus, TimeSpan prepareTimeout, bool betterOrdering)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
 
             _bus = bus;
             _prepareTimeout = prepareTimeout;
@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.RequestManager.Managers
 
         public void Handle(StorageMessage.CheckStreamAccessCompleted message)
         {
-            if (_requestType != RequestType.TransactionStart || _request == null)
+            if (_requestType != RequestType.TransactionStart || _request is null)
                 ThrowException_TransactionStartRequestManagerInvariantViolation();
 
             if (message.AccessResult.Granted)

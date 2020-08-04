@@ -13,8 +13,8 @@ namespace EventStore.Core.TransactionLog.FileNamingStrategy
 
         public VersionedPatternFileNamingStrategy(string path, string prefix)
         {
-            if (null == path) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.path); }
-            if (null == prefix) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefix); }
+            if (path is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.path); }
+            if (prefix is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.prefix); }
             _path = path;
             _prefix = prefix;
 

@@ -34,7 +34,7 @@ namespace System
         {
             get
             {
-                if (this.baseUri == null && this.originalBaseUri != null)
+                if (this.baseUri is null && this.originalBaseUri is object)
                 {
                     this.baseUri = UriTemplate.RewriteUri(this.originalBaseUri, this.requestProp.Headers[HttpRequestHeader.Host]);
                 }
@@ -51,7 +51,7 @@ namespace System
         {
             get
             {
-                if (this.boundVariables == null)
+                if (this.boundVariables is null)
                 {
                     this.boundVariables = new NameValueCollection();
                 }
@@ -73,7 +73,7 @@ namespace System
         {
             get
             {
-                if (this.queryParameters == null)
+                if (this.queryParameters is null)
                 {
                     PopulateQueryParameters();
                 }
@@ -84,7 +84,7 @@ namespace System
         {
             get
             {
-                if (this.relativePathSegments == null)
+                if (this.relativePathSegments is null)
                 {
                     this.relativePathSegments = new Collection<string>();
                 }
@@ -117,7 +117,7 @@ namespace System
         {
             get
             {
-                if (this.wildcardPathSegments == null)
+                if (this.wildcardPathSegments is null)
                 {
                     PopulateWildcardSegments();
                 }
@@ -131,7 +131,7 @@ namespace System
         }
         internal void SetRelativePathSegments(Collection<string> segments)
         {
-            Fx.Assert(segments != null, "segments != null");
+            Fx.Assert(segments is object, "segments is object");
             this.relativePathSegments = segments;
         }
         internal void SetWildcardPathSegmentsStart(int startOffset)
@@ -149,7 +149,7 @@ namespace System
 
         void PopulateQueryParameters()
         {
-            if (this.requestUri != null)
+            if (this.requestUri is object)
             {
                 this.queryParameters = UriTemplateHelpers.ParseQueryString(this.requestUri.Query);
             }

@@ -60,7 +60,7 @@ namespace EventStore.Transport.Http
         {
             result = null;
 
-            if (componentText == null)
+            if (componentText is null)
             {
                 if (throwExceptions)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.componentText);

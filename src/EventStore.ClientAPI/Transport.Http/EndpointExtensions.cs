@@ -11,11 +11,11 @@ namespace EventStore.ClientAPI.Transport.Http
     {
       if (endPoint is IPEndPoint ipEndPoint)
       {
-        return CreateHttpUrl(schema, ipEndPoint.ToString(), rawUrl != null ? rawUrl.TrimStart('/') : string.Empty);
+        return CreateHttpUrl(schema, ipEndPoint.ToString(), rawUrl is object ? rawUrl.TrimStart('/') : string.Empty);
       }
       if (endPoint is DnsEndPoint dnsEndpoint)
       {
-        return CreateHttpUrl(schema, dnsEndpoint.Host, dnsEndpoint.Port, rawUrl != null ? rawUrl.TrimStart('/') : string.Empty);
+        return CreateHttpUrl(schema, dnsEndpoint.Host, dnsEndpoint.Port, rawUrl is object ? rawUrl.TrimStart('/') : string.Empty);
       }
       return null;
     }

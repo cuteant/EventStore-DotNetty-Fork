@@ -16,8 +16,8 @@ namespace EventStore.ClientAPI.Transport.Http
 
         public AsyncStreamCopier(Stream input, Stream output, T state)
         {
-            if (null == input) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
-            if (null == output) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
+            if (input is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.input); }
+            if (output is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.output); }
 
             _input = input;
             _output = output;
@@ -80,7 +80,7 @@ namespace EventStore.ClientAPI.Transport.Http
 
         private void OnCompleted()
         {
-            if (Completed != null)
+            if (Completed is object)
                 Completed(this, EventArgs.Empty);
         }
     }

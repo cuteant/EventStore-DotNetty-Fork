@@ -26,7 +26,7 @@ namespace EventStore.Core.Data
         public static bool TryParse(string s, out TFPos pos)
         {
             pos = Invalid;
-            if (s == null || (uint)s.Length != 32u)
+            if (s is null || (uint)s.Length != 32u)
                 return false;
 
             long commitPos;

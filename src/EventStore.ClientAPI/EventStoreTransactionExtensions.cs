@@ -12,7 +12,7 @@ namespace EventStore.ClientAPI
     /// <returns>A expected version for following write requests</returns>
     public static WriteResult Commit(this EventStoreTransaction transaction)
     {
-      if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+      if (transaction is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
       return AsyncContext.Run(
                 async trans => await trans.CommitAsync().ConfigureAwait(false),
@@ -24,7 +24,7 @@ namespace EventStore.ClientAPI
     /// <param name="events">The events to write</param>
     public static void Write(this EventStoreTransaction transaction, params EventData[] events)
     {
-      if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+      if (transaction is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
       AsyncContext.Run(
           async (trans, es) => await trans.WriteAsync(es).ConfigureAwait(false),
@@ -36,7 +36,7 @@ namespace EventStore.ClientAPI
     /// <param name="events">The events to write</param>
     public static void Write(this EventStoreTransaction transaction, IEnumerable<EventData> events)
     {
-      if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+      if (transaction is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
       AsyncContext.Run(
           async (trans, es) => await trans.WriteAsync(es).ConfigureAwait(false),

@@ -51,8 +51,8 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Send(GossipMessage.SendGossip message, IPEndPoint endPoint)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
-            if (null == endPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (endPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPoint); }
 
             var url = endPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/gossip");
             _client.Post(
@@ -69,7 +69,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     }
 
                     var clusterInfo = Codec.Json.From<ClusterInfoDto>(response.Body);
-                    if (clusterInfo == null)
+                    if (clusterInfo is null)
                     {
                         OnClusterInfoDtoParseError(response, url, endPoint);
                         return;
@@ -97,7 +97,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
         private void OnPostGossipRequestRead(HttpEntityManager manager, string body)
         {
             var clusterInfoDto = manager.RequestCodec.From<ClusterInfoDto>(body);
-            if (clusterInfoDto == null)
+            if (clusterInfoDto is null)
             {
                 OnClusterInfoDtoParseError(manager, body);
                 return;

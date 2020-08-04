@@ -318,12 +318,12 @@ namespace EventStore.Core.TransactionLog.Unbuffered
         private void CheckDisposed()
         {
             //only check in debug
-            if (_handle == null) throw new ObjectDisposedException("object is disposed.");
+            if (_handle is null) throw new ObjectDisposedException("object is disposed.");
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (_handle == null) return;
+            if (_handle is null) return;
             Flush();
             _handle.Close();
             _handle = null;

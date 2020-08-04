@@ -81,7 +81,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             bool removedAny = false;
             foreach (var processedEventId in processedEventIds)
             {
-                if (_extraStatistics != null)
+                if (_extraStatistics is object)
                     _extraStatistics.EndOperation(processedEventId);
                 ResolvedEvent ev;
                 if (!_unconfirmedEvents.TryGetValue(processedEventId, out ev)) continue;
@@ -98,7 +98,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             if (!CanSend()) { return false; }
             _allowedMessages--;
             Interlocked.Increment(ref _totalItems);
-            if (_extraStatistics != null)
+            if (_extraStatistics is object)
                 _extraStatistics.StartOperation(evnt.OriginalEvent.EventId);
 
             _envelope.ReplyWith(new ClientMessage.PersistentSubscriptionStreamEventAppeared(CorrelationId, evnt, retryCount));
@@ -120,7 +120,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
         internal ObservedTimingMeasurement GetExtraStats()
         {
-            return _extraStatistics == null ? null : _extraStatistics.GetMeasurementDetails();
+            return _extraStatistics is null ? null : _extraStatistics.GetMeasurementDetails();
         }
 
         private bool CanSend()
@@ -131,7 +131,7 @@ namespace EventStore.Core.Services.PersistentSubscription
         private void OnEventConfirmed(in ResolvedEvent ev)
         {
             var handler = EventConfirmed;
-            if (handler != null) handler(this, ev);
+            if (handler is object) handler(this, ev);
         }
     }
 }

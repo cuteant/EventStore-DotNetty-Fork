@@ -117,7 +117,7 @@ namespace EventStore.BufferManagement
         {
             if (initialBufferCount <= 0)
                 throw new ArgumentException("initialBufferCount");
-            if (bufferManager == null)
+            if (bufferManager is null)
                 throw new ArgumentNullException("bufferManager");
             _length = 0;
             _buffers = new List<ArraySegment<byte>>(bufferManager.CheckOut(initialBufferCount));
@@ -133,7 +133,7 @@ namespace EventStore.BufferManagement
         /// <param name="data">The data to write.</param>
         public void Append(byte [] data)
         {
-            if (data == null) 
+            if (data is null) 
                 throw new ArgumentNullException("data");
             Write(_length, data, 0, data.Length);
         }
@@ -158,7 +158,7 @@ namespace EventStore.BufferManagement
         /// <param name="count">The count.</param>
         public void Write(int position, byte[] data, int offset, int count)
         {
-            if (data == null) 
+            if (data is null) 
                 throw new ArgumentNullException("data");
             if (offset < 0 || offset > data.Length) 
                 throw new ArgumentOutOfRangeException("offset");
@@ -204,7 +204,7 @@ namespace EventStore.BufferManagement
         /// <returns></returns>
         public int ReadFrom(int position, byte[] data, int offset, int count)
         {
-            if (data == null) 
+            if (data is null) 
                 throw new ArgumentNullException("data");
             if (offset < 0 || offset > data.Length) 
                 throw new ArgumentOutOfRangeException("offset");
@@ -339,7 +339,7 @@ namespace EventStore.BufferManagement
 
         protected virtual void DisposeInternal()
         {
-            if (_buffers != null)
+            if (_buffers is object)
                 _bufferManager.CheckIn(_buffers);
             _disposed = true;
             _buffers = null;

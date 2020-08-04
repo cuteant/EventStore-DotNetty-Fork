@@ -17,7 +17,7 @@ namespace EventStore.Transport.Tcp
 
         public static T EatException<T>(Func<T> func, T defaultValue = default(T))
         {
-            if (null == func) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
+            if (func is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.func); }
             try
             {
                 return func();

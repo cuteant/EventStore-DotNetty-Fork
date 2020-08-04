@@ -342,7 +342,7 @@ namespace EventStore.Projections.Core.Services.Processing
                 query,
                 logger: logger.LogTrace,
                 cancelCallbackFactory:
-                    singletonTimeoutScheduler == null ? (Action<int, Action>)null : singletonTimeoutScheduler.Schedule);
+                    singletonTimeoutScheduler is null ? (Action<int, Action>)null : singletonTimeoutScheduler.Schedule);
             return stateHandler;
         }
 

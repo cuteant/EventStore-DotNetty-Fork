@@ -43,7 +43,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public static CheckpointTag ParseCheckpointTagJson(this byte[] source)
         {
-            if (source == null || 0u >= (uint)source.Length) { return null; }
+            if (source is null || 0u >= (uint)source.Length) { return null; }
             var reader = new JsonTextReader(new StreamReader(new MemoryStream(source), Encoding.UTF8))
             {
                 ArrayPool = JsonConvertX.GlobalCharacterArrayPool,
@@ -54,7 +54,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public static CheckpointTagVersion ParseCheckpointTagVersionExtraJson(this byte[] source, in ProjectionVersion current)
         {
-            if (source == null || 0u >= (uint)source.Length)
+            if (source is null || 0u >= (uint)source.Length)
             {
                 return new CheckpointTagVersion { Version = new ProjectionVersion(current.ProjectionId, 0, 0), Tag = null };
             }
@@ -114,7 +114,7 @@ namespace EventStore.Projections.Core.Services.Processing
                         default:
                             if (!reader.Read()) return null;
                             var jToken = JToken.ReadFrom(reader);
-                            if (string.Equals(name, "$correlationId", StringComparison.Ordinal))
+                            if (string.Equals(name, "$correlationId"))
                             {
                                 return jToken.ToString();
                             }

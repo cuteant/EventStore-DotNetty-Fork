@@ -136,7 +136,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         /// <param name="topics"></param>
         public void SetOnlySubscribingTopics(params string[] topics)
         {
-            if (topics == null || !topics.Any()) { return; }
+            if (topics is null || !topics.Any()) { return; }
             _onlySubscribingTopics = new HashSet<string>(topics, StringComparer.OrdinalIgnoreCase);
         }
 
@@ -150,7 +150,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         /// <param name="assemblies">The assemblies to scan for consumers.</param>
         public void RegisterAssemblies(params Assembly[] assemblies)
         {
-            if (assemblies == null || !assemblies.Any()) { throw new ArgumentException("No assemblies specified.", nameof(assemblies)); }
+            if (assemblies is null || !assemblies.Any()) { throw new ArgumentException("No assemblies specified.", nameof(assemblies)); }
 
             RegisterConsumerTypes(assemblies.SelectMany(asm => TypeUtils.GetTypes(asm, t => true)).ToArray());
         }
@@ -165,7 +165,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         /// <param name="consumerTypes">the types to register as consumers.</param>
         public virtual void RegisterConsumerTypes(params Type[] consumerTypes)
         {
-            if (null == consumerTypes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumerTypes); }
+            if (consumerTypes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.consumerTypes); }
 
             foreach (var (interfaceType, consumeMethodName, isGenericType) in s_consumerInterfaceTypeInfos)
             {
@@ -202,7 +202,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         protected IEnumerable<IStreamConsumer> CreateStreamConsumer(AutoSubscriberConsumerInfo consumerInfo)
         {
             var consumeMethod = GetConsumeMethod(consumerInfo);
-            if (null == consumeMethod)
+            if (consumeMethod is null)
             {
                 // TODO logging
                 return EmptyArray<IStreamConsumer>.Instance;
@@ -229,7 +229,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         private IStreamConsumer CreateStreamConsumer(AutoSubscriberConsumerInfo consumerInfo, MethodInfo consumeMethod, string topic = null)
         {
             var autoSubscriberConsumerAttr = GetCustomAttribute<AutoSubscriberConsumerAttribute>(consumerInfo, consumeMethod);
-            if (autoSubscriberConsumerAttr == null)
+            if (autoSubscriberConsumerAttr is null)
             {
                 autoSubscriberConsumerAttr = new AutoSubscriberConsumerAttribute { Subscription = SubscriptionType.Persistent };
             }
@@ -478,7 +478,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         private static VolatileSubscription GetVolatileSubscription(AutoSubscriberConsumerInfo consumerInfo, MethodInfo consumeMethod, string topic = null)
         {
             var streamAttr = GetCustomAttribute<StreamAttribute>(consumerInfo, consumeMethod);
-            if (null == streamAttr || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
+            if (streamAttr is null || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
 
             return new VolatileSubscription(streamAttr.StreamId)
             {
@@ -499,7 +499,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         private static CatchUpSubscription GetCatchUpSubscription(AutoSubscriberConsumerInfo consumerInfo, MethodInfo consumeMethod, string topic = null)
         {
             var streamAttr = GetCustomAttribute<StreamAttribute>(consumerInfo, consumeMethod);
-            if (null == streamAttr || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
+            if (streamAttr is null || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
 
             return new CatchUpSubscription(streamAttr.StreamId)
             {
@@ -521,7 +521,7 @@ namespace EventStore.ClientAPI.AutoSubscribing
         private PersistentSubscription GetPersistentSubscription(AutoSubscriberConsumerInfo consumerInfo, MethodInfo consumeMethod, string topic = null)
         {
             var streamAttr = GetCustomAttribute<StreamAttribute>(consumerInfo, consumeMethod);
-            if (null == streamAttr || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
+            if (streamAttr is null || string.IsNullOrEmpty(streamAttr.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.streamAttr_StreamId); }
 
             var autoSubscriberConsumerAttr = GetCustomAttribute<AutoSubscriberConsumerAttribute>(consumerInfo, consumeMethod);
             var subscriptionId = string.IsNullOrEmpty(autoSubscriberConsumerAttr?.SubscriptionId)
@@ -619,18 +619,18 @@ namespace EventStore.ClientAPI.AutoSubscribing
 
         protected virtual object CreateInstance(Type instanceType)
         {
-            return _injectionScope != null
+            return _injectionScope is object
                 ? ActivatorUtils.CreateInstance(_injectionScope, instanceType)
-                : _services != null
+                : _services is object
                   ? ActivatorUtils.CreateInstance(_services, instanceType)
                   : ActivatorUtils.FastCreateInstance(instanceType);
         }
 
         protected T CreateInstance<T>()
         {
-            return _injectionScope != null
+            return _injectionScope is object
                 ? ActivatorUtils.CreateInstance<T>(_injectionScope)
-                : _services != null
+                : _services is object
                   ? ActivatorUtils.CreateInstance<T>(_services)
                   : ActivatorUtils.FastCreateInstance<T>();
         }
@@ -650,11 +650,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
             }
             var topics = new HashSet<string>(topicAttrs.Select(_ => _.Topic), StringComparer.OrdinalIgnoreCase);
             var topicsAttr = consumeMethod.FirstAttribute<ForTopicsAttribute>();
-            if (topicsAttr == null)
+            if (topicsAttr is null)
             {
                 topicsAttr = subscriptionInfo.ConcreteType.FirstAttribute<ForTopicsAttribute>();
             }
-            if (topicsAttr != null && topicsAttr.Topics != null && 0u < (uint)topicsAttr.Topics.Length)
+            if (topicsAttr is object && topicsAttr.Topics is object && 0u < (uint)topicsAttr.Topics.Length)
             {
                 topics.UnionWith(topicsAttr.Topics);
             }
@@ -669,11 +669,11 @@ namespace EventStore.ClientAPI.AutoSubscribing
           where TAttribute : Attribute
         {
             var subscriberAttr = consumeMethod.FirstAttribute<TAttribute>();
-            if (subscriberAttr == null)
+            if (subscriberAttr is null)
             {
                 subscriberAttr = consumerInfo.ConcreteType.FirstAttribute<TAttribute>();
             }
-            if (subscriberAttr == null)
+            if (subscriberAttr is null)
             {
                 subscriberAttr = consumerInfo.MessageType?.FirstAttribute<TAttribute>();
             }

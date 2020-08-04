@@ -48,7 +48,7 @@ namespace EventStore.Core.Messages
             public ClientEventText(Guid eventId, string eventType, string data, string metadata)
             {
                 if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
-                if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
+                if (data is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
                 this.eventId = eventId;
                 this.eventType = eventType;
@@ -60,7 +60,7 @@ namespace EventStore.Core.Messages
             public ClientEventText(Guid eventId, string eventType, byte[] data, byte[] metadata)
             {
                 if (Guid.Empty == eventId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.eventId); }
-                if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
+                if (data is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
                 this.eventId = eventId;
                 this.eventType = eventType;
@@ -86,7 +86,7 @@ namespace EventStore.Core.Messages
 
             public ReadEventCompletedText(in ResolvedEvent evnt)
             {
-                if (evnt.Event != null)
+                if (evnt.Event is object)
                 {
                     eventStreamId = evnt.Event.EventStreamId;
                     eventNumber = evnt.Event.EventNumber;

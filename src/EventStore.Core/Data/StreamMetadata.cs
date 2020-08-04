@@ -299,7 +299,7 @@ namespace EventStore.Core.Data
                 jsonWriter.WritePropertyName(SystemMetadata.CacheControl);
                 jsonWriter.WriteValue((long)CacheControl.Value.TotalSeconds);
             }
-            if (Acl != null)
+            if (Acl is object)
             {
                 jsonWriter.WritePropertyName(SystemMetadata.Acl);
                 WriteAcl(jsonWriter, Acl);
@@ -320,7 +320,7 @@ namespace EventStore.Core.Data
 
         private static void WriteAclRoles(JsonTextWriter jsonWriter, string propertyName, string[] roles)
         {
-            if (roles == null) { return; }
+            if (roles is null) { return; }
             jsonWriter.WritePropertyName(propertyName);
             if (roles.Length == 1)
             {

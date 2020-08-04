@@ -15,7 +15,7 @@ namespace EventStore.Projections.Core.Services.Processing
 
         public static PartitionState Deserialize(string serializedState, CheckpointTag causedBy)
         {
-            if (serializedState == null)
+            if (serializedState is null)
                 return new PartitionState("", null, causedBy);
 
             JToken state = null;
@@ -25,7 +25,7 @@ namespace EventStore.Projections.Core.Services.Processing
             {
                 var deserialized = JsonConvertX.DeserializeObject(serializedState);
                 var array = deserialized as JArray;
-                if (array != null && array.Count > 0)
+                if (array is object && array.Count > 0)
                 {
                     state = array[0] as JToken;
                     if (array.Count == 2)
@@ -39,8 +39,8 @@ namespace EventStore.Projections.Core.Services.Processing
                 }
             }
 
-            var stateJson = state != null ? state.ToCanonicalJson() : "";
-            var resultJson = result != null ? result.ToCanonicalJson() : null;
+            var stateJson = state is object ? state.ToCanonicalJson() : "";
+            var resultJson = result is object ? result.ToCanonicalJson() : null;
 
             return new PartitionState(stateJson, resultJson, causedBy);
         }
@@ -82,9 +82,9 @@ namespace EventStore.Projections.Core.Services.Processing
         public string Serialize()
         {
             var state = _state;
-            if (state == "" && Result != null)
-                throw new Exception("state == \"\" && Result != null");
-            return Result != null
+            if (state == "" && Result is object)
+                throw new Exception("state == \"\" && Result is object");
+            return Result is object
                        ? "[" + state + "," + _result + "]"
                        : "[" + state + "]";
         }

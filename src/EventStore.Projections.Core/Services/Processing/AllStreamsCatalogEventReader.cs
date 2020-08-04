@@ -365,14 +365,14 @@ namespace EventStore.Projections.Core.Services.Processing
 
         private void EnqueueDeliverSafeJoinPosition(long? safeJoinPosition)
         {
-            if (_stopOnEof || safeJoinPosition == null || safeJoinPosition == -1)
+            if (_stopOnEof || safeJoinPosition is null || safeJoinPosition == -1)
                 return; //TODO: this should not happen, but StorageReader does not return it now
             Enqueue(new DeliverSafePositionToJoinoutItem(this, safeJoinPosition));
         }
 
         private void EnqueueDeliverEvent(EventRecord @event, EventRecord link, float progress, ref long sequenceNumber)
         {
-            if (link != null) throw new Exception();
+            if (link is object) throw new Exception();
             var positionEvent = @event;
             if (positionEvent.EventNumber != sequenceNumber)
             {
@@ -398,7 +398,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
 
             var resolvedLinkTo = true;
-            byte[] streamMetadataData = streamMetadata != null ? streamMetadata.Data : null;
+            byte[] streamMetadataData = streamMetadata is object ? streamMetadata.Data : null;
 
             byte[] positionMetadataData = link.Metadata;
 

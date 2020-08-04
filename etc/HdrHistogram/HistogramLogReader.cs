@@ -229,7 +229,7 @@ namespace HdrHistogram
             while (true)
             {
                 var line = _log.ReadLine();
-                if (line == null)
+                if (line is null)
                     yield break;
                 yield return line;
             }

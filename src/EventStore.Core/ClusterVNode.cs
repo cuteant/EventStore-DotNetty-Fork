@@ -92,9 +92,9 @@ namespace EventStore.Core
                             InfoController infoController,
                             params ISubsystem[] subsystems)
         {
-            if (null == db) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
-            if (null == vNodeSettings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeSettings); }
-            if (null == gossipSeedSource) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
+            if (db is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.db); }
+            if (vNodeSettings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeSettings); }
+            if (gossipSeedSource is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
 
 #if DEBUG
             AddTask(_taskAddedTrigger.Task);
@@ -246,7 +246,7 @@ namespace EventStore.Core
             // AUTHENTICATION INFRASTRUCTURE - delegate to plugins
             _internalAuthenticationProvider = vNodeSettings.AuthenticationProviderFactory.BuildAuthenticationProvider(_mainQueue, _mainBus, _workersHandler, _workerBuses, vNodeSettings.LogFailedAuthenticationAttempts);
 
-            if (null == _internalAuthenticationProvider) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authenticationProvider); }
+            if (_internalAuthenticationProvider is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.authenticationProvider); }
 
             {
                 // EXTERNAL TCP
@@ -263,7 +263,7 @@ namespace EventStore.Core
                 }
 
                 // EXTERNAL SECURE TCP
-                if (_nodeInfo.ExternalSecureTcp != null)
+                if (_nodeInfo.ExternalSecureTcp is object)
                 {
                     var extSecTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.ExternalSecureTcp, _workersHandler,
                                                           TcpServiceType.External, TcpSecurityType.Secure, new ClientTcpDispatcher().Build(),
@@ -291,7 +291,7 @@ namespace EventStore.Core
                     }
 
                     // INTERNAL SECURE TCP
-                    if (_nodeInfo.InternalSecureTcp != null)
+                    if (_nodeInfo.InternalSecureTcp is object)
                     {
                         var intSecTcpService = new TcpService(vNodeSettings.TransportSettings, _mainQueue, _nodeInfo.InternalSecureTcp, _workersHandler,
                                                               TcpServiceType.Internal, TcpSecurityType.Secure,
@@ -391,7 +391,7 @@ namespace EventStore.Core
             }
             // Authentication plugin HTTP
             vNodeSettings.AuthenticationProviderFactory.RegisterHttpControllers(_externalHttpService, _internalHttpService, httpSendService, _mainQueue, _workersHandler);
-            if (_internalHttpService != null)
+            if (_internalHttpService is object)
             {
                 _mainBus.Subscribe<SystemMessage.SystemInit>(_internalHttpService);
                 _mainBus.Subscribe<SystemMessage.BecomeShuttingDown>(_internalHttpService);
@@ -592,7 +592,7 @@ namespace EventStore.Core
             AddTask(subscrQueue.Start());
             AddTask(perSubscrQueue.Start());
 
-            if (subsystems != null)
+            if (subsystems is object)
             {
                 foreach (var subsystem in subsystems)
                 {
@@ -619,7 +619,7 @@ namespace EventStore.Core
         {
             _mainQueue.Publish(new ClientMessage.RequestShutdown(exitProcess, shutdownHttp));
 
-            if (_subsystems == null) return;
+            if (_subsystems is null) return;
             foreach (var subsystem in _subsystems)
             {
                 subsystem.Stop();

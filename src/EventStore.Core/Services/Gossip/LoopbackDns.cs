@@ -9,7 +9,7 @@ namespace EventStore.Core.Services.Gossip
 
         public KnownEndpointGossipSeedSource(IPEndPoint[] ipEndPoints)
         {
-            if (ipEndPoints == null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ipEndPoints); }
+            if (ipEndPoints is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.ipEndPoints); }
             _ipEndPoints = ipEndPoints;
         }
 

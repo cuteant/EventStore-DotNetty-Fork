@@ -75,8 +75,8 @@ namespace EventStore.Core.Messages
             public WriteDelete(Guid correlationId, IEnvelope envelope, string eventStreamId, long expectedVersion, bool hardDelete, DateTime liveUntil)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
-                if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (eventStreamId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
 
                 CorrelationId = correlationId;
                 Envelope = envelope;
@@ -120,8 +120,8 @@ namespace EventStore.Core.Messages
             public WriteTransactionStart(Guid correlationId, IEnvelope envelope, string eventStreamId, long expectedVersion, DateTime liveUntil)
             {
                 if (Guid.Empty == correlationId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.correlationId); }
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
-                if (null == eventStreamId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (eventStreamId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
 
                 CorrelationId = correlationId;
                 Envelope = envelope;
@@ -401,7 +401,7 @@ namespace EventStore.Core.Messages
                                      StreamAccessType accessType, IPrincipal user, bool singleAffinity = false)
                 : base(correlationId, correlationId, envelope, user)
             {
-                if (eventStreamId == null && transactionId == null)
+                if (eventStreamId is null && transactionId is null)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Neither_eventStreamId_nor_transactionId);
                 EventStreamId = eventStreamId;
                 TransactionId = transactionId;

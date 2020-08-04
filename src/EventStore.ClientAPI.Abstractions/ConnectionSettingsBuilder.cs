@@ -362,7 +362,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public ConnectionSettingsBuilder SetGossipSeedEndPoints(bool seedOverTls, params IPEndPoint[] gossipSeeds)
         {
-            if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
+            if (gossipSeeds is null || 0u >= (uint)gossipSeeds.Length)
             {
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
@@ -378,7 +378,7 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public ConnectionSettingsBuilder SetGossipSeedEndPoints(params GossipSeed[] gossipSeeds)
         {
-            if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
+            if (gossipSeeds is null || 0u >= (uint)gossipSeeds.Length)
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             _gossipSeeds = gossipSeeds;
             return this;
@@ -386,7 +386,7 @@ namespace EventStore.ClientAPI
 
         public ConnectionSettingsBuilder SetEventAdapter(IEventAdapter eventAdapter)
         {
-            if (null == eventAdapter) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
+            if (eventAdapter is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAdapter); }
             _eventAdapter = eventAdapter;
             return this;
         }

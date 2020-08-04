@@ -70,7 +70,7 @@ namespace EventStore.Core
             catch (ApplicationInitializationException ex)
             {
                 var msg = String.Format("Application initialization error: {0}", FormatExceptionMessage(ex));
-                if (Log != null)
+                if (Log is object)
                 {
                     Log.LogCritical(ex, msg);
                 }
@@ -82,7 +82,7 @@ namespace EventStore.Core
             catch (Exception ex)
             {
                 var msg = "Unhandled exception while starting application:";
-                if (Log != null)
+                if (Log is object)
                 {
                     Log.LogCritical(ex, msg);
                     Log.LogCritical(ex, "{0}", FormatExceptionMessage(ex));
@@ -158,7 +158,7 @@ namespace EventStore.Core
             string msg = ex.Message;
             var exc = ex.InnerException;
             int cnt = 0;
-            while (exc != null)
+            while (exc is object)
             {
                 cnt += 1;
                 msg += "\n" + new string(' ', 2 * cnt) + exc.Message;

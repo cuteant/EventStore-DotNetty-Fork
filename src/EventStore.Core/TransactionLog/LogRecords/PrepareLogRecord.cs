@@ -106,7 +106,7 @@ namespace EventStore.Core.TransactionLog.LogRecords
             if (string.IsNullOrEmpty(eventStreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventStreamId); }
             if (expectedVersion < Core.Data.ExpectedVersion.Any)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.expectedVersion);
-            if (null == data) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
+            if (data is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.data); }
 
             Flags = flags;
             TransactionPosition = transactionPosition;

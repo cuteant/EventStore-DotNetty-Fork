@@ -22,7 +22,7 @@ namespace EventStore.Projections.Core.Services.Processing
             IPublisher publisher, Guid projectionCorrelationId, ProjectionConfig projectionConfig, string name,
             PositionTagger positionTagger, ProjectionNamesBuilder namingBuilder)
         {
-            if (publisher == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
+            if (publisher is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher);
             if (null == projectionConfig) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.projectionConfig); }
             if (string.IsNullOrEmpty(name)) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
             if (null == positionTagger) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.positionTagger); }
@@ -90,7 +90,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             info.Position = (_lastProcessedEventPosition.LastTag ?? (object)"").ToString();
             info.Progress = _lastProcessedEventProgress;
-            info.LastCheckpoint = _lastCompletedCheckpointPosition != null
+            info.LastCheckpoint = _lastCompletedCheckpointPosition is object
                 ? _lastCompletedCheckpointPosition.ToString()
                 : "";
             info.EventsProcessedAfterRestart = _eventsProcessedAfterRestart;
@@ -109,7 +109,7 @@ namespace EventStore.Projections.Core.Services.Processing
             if (_stopping)
                 throw new InvalidOperationException("Stopping");
 
-            if (partition == "" && newState.State == null) // ignore non-root partitions and non-changed states
+            if (partition == "" && newState.State is null) // ignore non-root partitions and non-changed states
                 throw new NotSupportedException("Internal check");
         }
 

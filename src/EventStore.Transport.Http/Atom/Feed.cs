@@ -46,7 +46,7 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetAuthor(string name)
         {
-            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (name is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             Author = new PersonElement(name);
         }
 
@@ -95,7 +95,7 @@ namespace EventStore.Transport.Http.Atom
                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_exactly_one_atomid_element);
             if (string.IsNullOrEmpty(Updated))
                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_exactly_one_atomupdated_element);
-            if (Author == null)
+            if (Author is null)
                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_MUST_contain_one_or_more_atomauthor_elements);
             if (Links.Count == 0)
                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomfeed_elements_SHOULD_contain_one_atomlink_element_with_a_rel_attribute_value_of_self);
@@ -154,7 +154,7 @@ namespace EventStore.Transport.Http.Atom
 
         public void SetAuthor(string name)
         {
-            if (null == name) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
+            if (name is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name); }
             Author = new PersonElement(name);
         }
 
@@ -202,7 +202,7 @@ namespace EventStore.Transport.Http.Atom
                  ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_exactly_one_atomid_element);
             if (string.IsNullOrEmpty(Updated))
                  ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_exactly_one_atomupdated_element);
-            if (Author == null)
+            if (Author is null)
                  ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_one_or_more_atomauthor_elements);
             if (string.IsNullOrEmpty(Summary))
                 ThrowHelper.ThrowSpecificationViolation(ExceptionResource.atomentry_elements_MUST_contain_an_atomsummary_element);
@@ -218,7 +218,7 @@ namespace EventStore.Transport.Http.Atom
             Author.WriteXml(writer);
             writer.WriteElementString("summary", AtomSpecs.AtomV1Namespace, Summary);
             Links.ForEach(link => link.WriteXml(writer));
-            if (Content != null)
+            if (Content is object)
             {
                 var serializeObject = JsonConvertX.SerializeObject(Content);
                 var deserializeXmlNode = JsonConvertX.DeserializeXmlNode(serializeObject, "content");
@@ -302,9 +302,9 @@ namespace EventStore.Transport.Http.Atom
             writer.WriteStartElement("link", AtomSpecs.AtomV1Namespace);
             writer.WriteAttributeString("href", Uri);
 
-            if (Relation != null)
+            if (Relation is object)
                 writer.WriteAttributeString("rel", Relation);
-            if (Type != null)
+            if (Type is object)
                 writer.WriteAttributeString("type", Type);
 
             writer.WriteEndElement();

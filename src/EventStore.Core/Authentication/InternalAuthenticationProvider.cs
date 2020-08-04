@@ -99,8 +99,8 @@ namespace EventStore.Core.Authentication
 
         private static OpenGenericPrincipal CreatePrincipal(UserData userData)
         {
-            var roles = new string[userData.Groups != null ? userData.Groups.Length + 1 : 1];
-            if (userData.Groups != null)
+            var roles = new string[userData.Groups is object ? userData.Groups.Length + 1 : 1];
+            if (userData.Groups is object)
                 Array.Copy(userData.Groups, roles, userData.Groups.Length);
             roles[roles.Length - 1] = userData.LoginName;
             var principal = new OpenGenericPrincipal(new GenericIdentity(userData.LoginName), roles);

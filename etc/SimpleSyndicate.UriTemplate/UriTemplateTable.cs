@@ -53,7 +53,7 @@ namespace System
 
         internal UriTemplateTable(Uri baseAddress, IEnumerable<KeyValuePair<UriTemplate, object>> keyValuePairs, bool addTrailingSlashToBaseAddress)
         {
-            if (baseAddress != null && !baseAddress.IsAbsoluteUri)
+            if (baseAddress is object && !baseAddress.IsAbsoluteUri)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgument("baseAddress", SR.GetString(
                     SR.UTTMustBeAbsolute));
@@ -62,7 +62,7 @@ namespace System
             this.addTrailingSlashToBaseAddress = addTrailingSlashToBaseAddress;
             this.originalUncanonicalizedBaseAddress = baseAddress;
             
-            if (keyValuePairs != null)
+            if (keyValuePairs is object)
             {
                 this.templates = new UriTemplatesCollection(keyValuePairs);
             }
@@ -84,7 +84,7 @@ namespace System
             }
             set
             {
-                if (value == null)
+                if (value is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("value");
                 }
@@ -151,7 +151,7 @@ namespace System
         }
         public Collection<UriTemplateMatch> Match(Uri uri)
         {
-            if (uri == null)
+            if (uri is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgumentNull("uri");
             }
@@ -384,7 +384,7 @@ namespace System
                 if (ut.HasNoVariables && !ut.HasWildcard)
                 {
                     // eligible for fast path
-                    if (this.fastPathTable == null)
+                    if (this.fastPathTable is null)
                     {
                         this.fastPathTable = new Dictionary<string, FastPathInfo>();
                     }
@@ -415,7 +415,7 @@ namespace System
             // return false if not under base uri
             string uriPath = UriTemplateHelpers.GetUriPath(uri);
             FastPathInfo fpInfo = null;
-            if ((this.fastPathTable != null) && this.fastPathTable.TryGetValue(uriPath, out fpInfo))
+            if ((this.fastPathTable is object) && this.fastPathTable.TryGetValue(uriPath, out fpInfo))
             {
                 relativePathSegments = fpInfo.RelativePathSegments;
                 candidates = fpInfo.Candidates;
@@ -432,7 +432,7 @@ namespace System
 
         void NormalizeBaseAddress()
         {
-            if (this.baseAddress != null)
+            if (this.baseAddress is object)
             {
                 // ensure trailing slash on baseAddress, so that IsBaseOf will work later
                 UriBuilder ub = new UriBuilder(this.baseAddress);
@@ -478,7 +478,7 @@ namespace System
 
         void Validate(bool allowDuplicateEquivalentUriTemplates)
         {
-            if (this.baseAddress == null)
+            if (this.baseAddress is null)
             {
                 throw DiagnosticUtility.ExceptionUtility.ThrowHelperError(new InvalidOperationException(SR.GetString(
                     SR.UTTBaseAddressNotSet)));
@@ -592,7 +592,7 @@ namespace System
 
             static void ThrowIfInvalid(UriTemplate template, string argName)
             {
-                if (template == null)
+                if (template is null)
                 {
                     throw DiagnosticUtility.ExceptionUtility.ThrowHelperArgument(argName,
                         SR.GetString(SR.UTTNullTemplateKey));

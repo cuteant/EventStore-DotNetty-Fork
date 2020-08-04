@@ -80,7 +80,7 @@ namespace EventStore.Projections.Core.v8
             catch (Exception ex)
             {
                 // report only the first exception occured in reverse command handler
-                if (_reverseCommandHandlerException == null)
+                if (_reverseCommandHandlerException is null)
                     _reverseCommandHandlerException = ex;
             }
         }
@@ -150,7 +150,7 @@ namespace EventStore.Projections.Core.v8
 
         private void GetSources()
         {
-            if (_getSources == null)
+            if (_getSources is null)
             {
                 throw new InvalidOperationException("'get_sources' command handler has not been registered");
             }
@@ -174,7 +174,7 @@ namespace EventStore.Projections.Core.v8
             _prelude.ScheduleTerminateExecution();
 
             var success = Js1.ExecuteCommandHandler(
-                _script.GetHandle(), commandHandlerHandle, json, other, other != null ? other.Length : 0,
+                _script.GetHandle(), commandHandlerHandle, json, other, other is object ? other.Length : 0,
                 out IntPtr resultJsonPtr, out IntPtr result2JsonPtr, out IntPtr memoryHandle);
 
             var terminated = _prelude.CancelTerminateExecution();
@@ -186,7 +186,7 @@ namespace EventStore.Projections.Core.v8
             string resultJson = Marshal.PtrToStringUni(resultJsonPtr);
             string result2Json = Marshal.PtrToStringUni(result2JsonPtr);
             Js1.FreeResult(memoryHandle);
-            if (_reverseCommandHandlerException != null)
+            if (_reverseCommandHandlerException is object)
             {
                 throw new ApplicationException(
                     "An exception occurred while executing a reverse command handler. "
@@ -229,7 +229,7 @@ namespace EventStore.Projections.Core.v8
 
         public string GetPartition(string json, string[] other)
         {
-            if (_getStatePartition == null)
+            if (_getStatePartition is null)
                 throw new InvalidOperationException("'get_state_partition' command handler has not been registered");
 
             return _getStatePartition(json, other);
@@ -237,7 +237,7 @@ namespace EventStore.Projections.Core.v8
 
         public string TransformCatalogEvent(string json, string[] other)
         {
-            if (_transformCatalogEvent == null)
+            if (_transformCatalogEvent is null)
                 throw new InvalidOperationException("'transform_catalog_event' command handler has not been registered");
 
             return _transformCatalogEvent(json, other);
@@ -245,7 +245,7 @@ namespace EventStore.Projections.Core.v8
 
         public Tuple<string, string> Push(string json, string[] other)
         {
-            if (_processEvent == null)
+            if (_processEvent is null)
                 throw new InvalidOperationException("'process_event' command handler has not been registered");
 
             return _processEvent(json, other);
@@ -253,7 +253,7 @@ namespace EventStore.Projections.Core.v8
 
         public string NotifyDeleted(string json, string[] other)
         {
-            if (_processDeletedNotification == null)
+            if (_processDeletedNotification is null)
                 throw new InvalidOperationException("'process_deleted_notification' command handler has not been registered");
 
             return _processDeletedNotification(json, other);
@@ -261,7 +261,7 @@ namespace EventStore.Projections.Core.v8
 
         public string NotifyCreated(string json, string[] other)
         {
-            if (_processCreatedNotification == null)
+            if (_processCreatedNotification is null)
                 throw new InvalidOperationException("'process_created_notification' command handler has not been registered");
 
             return _processCreatedNotification(json, other);
@@ -269,7 +269,7 @@ namespace EventStore.Projections.Core.v8
 
         public string TransformStateToResult()
         {
-            if (_transformStateToResult == null)
+            if (_transformStateToResult is null)
                 throw new InvalidOperationException("'transform_state_to_result' command handler has not been registered");
 
             return _transformStateToResult();
@@ -277,14 +277,14 @@ namespace EventStore.Projections.Core.v8
 
         public void SetState(string state)
         {
-            if (_setState == null)
+            if (_setState is null)
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.Set_StateCommandHandlerHasNotBeenRegistered);
             _setState(state);
         }
 
         public void SetSharedState(string state)
         {
-            if (_setSharedState == null)
+            if (_setSharedState is null)
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.Set_Shared_StateCommandHandlerHasNotBeenRegistered);
             _setSharedState(state);
         }

@@ -84,7 +84,7 @@ namespace EventStore.Projections.Core.Messages
             public GetState(Guid correlationId, Guid projectionId, string partition, Guid workerId)
                 : base(projectionId, workerId)
             {
-                if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+                if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                 _correlationId = correlationId;
                 _partition = partition;
             }
@@ -115,7 +115,7 @@ namespace EventStore.Projections.Core.Messages
             public GetResult(Guid correlationId, Guid projectionId, string partition, Guid workerId)
                 : base(projectionId, workerId)
             {
-                if (partition == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
+                if (partition is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.partition);
                 _correlationId = correlationId;
                 _partition = partition;
             }
@@ -218,10 +218,10 @@ namespace EventStore.Projections.Core.Messages
                 string query)
                 : base(projectionId, workerId)
             {
-                if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
+                if (name is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
                 if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
                 if (null == handlerType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handlerType); }
-                if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
+                if (query is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
                 if (masterMasterWorkerId == Guid.Empty) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.masterMasterWorkerId); }
                 _name = name;
                 _version = version;
@@ -295,11 +295,11 @@ namespace EventStore.Projections.Core.Messages
                 string query)
                 : base(projectionId, workerId)
             {
-                if (name == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
+                if (name is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.name);
                 if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
                 if (null == sourceDefinition) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.sourceDefinition); }
                 if (null == handlerType) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handlerType); }
-                if (query == null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
+                if (query is null) ThrowHelper.ThrowArgumentNullException(ExceptionArgument.query);
                 _name = name;
                 _version = version;
                 _config = config;

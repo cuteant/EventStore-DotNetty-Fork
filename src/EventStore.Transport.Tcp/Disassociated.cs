@@ -41,7 +41,7 @@ namespace EventStore.Transport.Tcp
             var sb = StringBuilderManager.Allocate();
             sb.AppendFormat("DisassociateInfo : {0}, ", Info);
             if (!string.IsNullOrEmpty(Reason)) { sb.AppendLine(Reason); }
-            if (Error != null) { sb.AppendLine(Error.ToString()); }
+            if (Error is object) { sb.AppendLine(Error.ToString()); }
             return StringBuilderManager.ReturnAndFree(sb);
         }
     }

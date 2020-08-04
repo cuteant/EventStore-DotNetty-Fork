@@ -60,8 +60,8 @@ namespace EventStore.ClientAPI.Internal
         internal EventStoreNodeConnection(ConnectionSettings settings, ClusterSettings clusterSettings,
             IEndPointDiscoverer endPointDiscoverer, string connectionName)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == endPointDiscoverer) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (endPointDiscoverer is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.endPointDiscoverer); }
 
             _connectionName = connectionName ?? $"ES-{Guid.NewGuid()}";
             _settings = settings;
@@ -127,7 +127,7 @@ namespace EventStore.ClientAPI.Internal
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, EventData evt, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
+            if (evt is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
 
             var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
@@ -138,7 +138,7 @@ namespace EventStore.ClientAPI.Internal
         public async Task<WriteResult> AppendToStreamAsync(string stream, long expectedVersion, IEnumerable<EventData> events, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new AppendToStreamOperation(source, _settings.RequireMaster,
@@ -150,7 +150,7 @@ namespace EventStore.ClientAPI.Internal
             UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == evt) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
+            if (evt is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.evt); }
 
             var source = TaskCompletionSourceFactory.Create<ConditionalWriteResult>();
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
@@ -162,7 +162,7 @@ namespace EventStore.ClientAPI.Internal
             UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskCompletionSourceFactory.Create<ConditionalWriteResult>();
             EnqueueOperation(new ConditionalAppendToStreamOperation(source, _settings.RequireMaster,
@@ -192,8 +192,8 @@ namespace EventStore.ClientAPI.Internal
 
         async Task IEventStoreTransactionConnection.TransactionalWriteAsync(EventStoreTransaction transaction, IEnumerable<EventData> events, UserCredentials userCredentials)
         {
-            if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
-            if (null == events) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
+            if (transaction is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+            if (events is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.events); }
 
             var source = TaskCompletionSourceFactory.Create<object>();
             EnqueueOperation(new TransactionalWriteOperation(source, _settings.RequireMaster,
@@ -203,7 +203,7 @@ namespace EventStore.ClientAPI.Internal
 
         async Task<WriteResult> IEventStoreTransactionConnection.CommitTransactionAsync(EventStoreTransaction transaction, UserCredentials userCredentials)
         {
-            if (null == transaction) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
+            if (transaction is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.transaction); }
 
             var source = TaskCompletionSourceFactory.Create<WriteResult>();
             EnqueueOperation(new CommitTransactionOperation(source, _settings.RequireMaster,
@@ -402,8 +402,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
@@ -417,8 +417,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage(source, stream, settings, userCredentials,
@@ -432,8 +432,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionMessage2(source, stream, settings, userCredentials,
@@ -447,8 +447,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (addEventHandlers is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addEventHandlers(handlerCollection);
@@ -473,8 +473,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
@@ -495,8 +495,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
@@ -523,8 +523,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
@@ -538,8 +538,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, stream, settings, userCredentials,
@@ -558,8 +558,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppeared, liveProcessingStarted,
@@ -572,8 +572,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription(this, stream, lastCheckpoint,
                                                       userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -586,8 +586,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription2, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (addEventHandlers is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addEventHandlers(handlerCollection);
@@ -612,8 +612,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>> eventAppeared, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription<TEvent>(this, topic, lastCheckpoint,
                                                       userCredentials, eventAppeared, liveProcessingStarted,
@@ -626,8 +626,8 @@ namespace EventStore.ClientAPI.Internal
           Func<EventStoreCatchUpSubscription<TEvent>, ResolvedEvent<TEvent>, Task> eventAppearedAsync, Action<EventStoreCatchUpSubscription<TEvent>> liveProcessingStarted = null,
           Action<EventStoreCatchUpSubscription<TEvent>, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreCatchUpSubscription<TEvent>(this, topic, lastCheckpoint,
                                                       userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -645,8 +645,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
             var catchUpSubscription =
                     new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppeared, liveProcessingStarted,
@@ -660,8 +660,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreStreamCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
             var catchUpSubscription =
                     new EventStoreStreamCatchUpSubscription(this, stream, lastCheckpoint,
                                                             userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -680,8 +680,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
@@ -694,8 +694,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var source = TaskCompletionSourceFactory.Create<EventStoreSubscription>();
             _handler.EnqueueMessage(new StartSubscriptionRawMessage(source, string.Empty, settings, userCredentials,
@@ -714,8 +714,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var catchUpSubscription =
                     new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppeared, liveProcessingStarted,
@@ -730,8 +730,8 @@ namespace EventStore.ClientAPI.Internal
           Action<EventStoreAllCatchUpSubscription, SubscriptionDropReason, Exception> subscriptionDropped = null,
           UserCredentials userCredentials = null)
         {
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var catchUpSubscription =
                     new EventStoreAllCatchUpSubscription(this, lastCheckpoint,
                                                          userCredentials, eventAppearedAsync, liveProcessingStarted,
@@ -753,8 +753,8 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
                 eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
@@ -769,8 +769,8 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var subscription = new EventStorePersistentSubscription(subscriptionId, stream, settings,
                 eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
@@ -784,8 +784,8 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (addEventHandlers is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
 
             var handlerCollection = new DefaultHandlerCollection();
             addEventHandlers(handlerCollection);
@@ -811,8 +811,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
@@ -827,8 +827,8 @@ namespace EventStore.ClientAPI.Internal
           UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(subscriptionId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var stream = EventManager.GetStreamId<TEvent>(topic);
             var subscription = new EventStorePersistentSubscription<TEvent>(subscriptionId, stream, settings,
@@ -849,8 +849,8 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppeared) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppeared is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppeared); }
 
             var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
                 eventAppeared, subscriptionDropped, userCredentials, _settings, _handler);
@@ -865,8 +865,8 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
-            if (null == eventAppearedAsync) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (eventAppearedAsync is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.eventAppearedAsync); }
 
             var subscription = new EventStorePersistentRawSubscription(groupName, stream, settings,
                 eventAppearedAsync, subscriptionDropped, userCredentials, _settings, _handler);
@@ -882,7 +882,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionCreateResult>();
             EnqueueOperation(new CreatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -892,7 +892,7 @@ namespace EventStore.ClientAPI.Internal
         {
             if (string.IsNullOrEmpty(stream)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stream); }
             if (string.IsNullOrEmpty(groupName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groupName); }
-            if (null == settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
+            if (settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.settings); }
             var source = TaskCompletionSourceFactory.Create<PersistentSubscriptionUpdateResult>();
             EnqueueOperation(new UpdatePersistentSubscriptionOperation(source, stream, groupName, settings, userCredentials));
             await source.Task.ConfigureAwait(false);
@@ -941,10 +941,10 @@ namespace EventStore.ClientAPI.Internal
         {
             return GetStreamMetadataAsRawBytesAsync(stream, userCredentials).ContinueWith(t =>
             {
-                if (t.Exception != null)
+                if (t.Exception is object)
                     throw t.Exception.InnerException;
                 var res = t.Result;
-                if (res.StreamMetadata == null || 0u >= (uint)res.StreamMetadata.Length)
+                if (res.StreamMetadata is null || 0u >= (uint)res.StreamMetadata.Length)
                     return new StreamMetadataResult(res.Stream, res.IsStreamDeleted, res.MetastreamVersion, StreamMetadata.Create());
                 var metadata = StreamMetadata.FromJsonBytes(res.StreamMetadata);
                 return new StreamMetadataResult(res.Stream, res.IsStreamDeleted, res.MetastreamVersion, metadata);
@@ -955,16 +955,16 @@ namespace EventStore.ClientAPI.Internal
         {
             return ReadEventAsync(SystemStreams.MetastreamOf(stream), -1, false, userCredentials).ContinueWith(t =>
             {
-                if (t.Exception != null)
+                if (t.Exception is object)
                     throw t.Exception.InnerException;
 
                 var res = t.Result;
                 switch (res.Status)
                 {
                     case EventReadStatus.Success:
-                        if (res.Event == null) CoreThrowHelper.ThrowException_EventIsNullWhileOperationResultIsSuccess();
+                        if (res.Event is null) CoreThrowHelper.ThrowException_EventIsNullWhileOperationResultIsSuccess();
                         var evnt = res.Event.Value.OriginalEvent;
-                        if (evnt == null) return new RawStreamMetadataResult(stream, false, -1, Empty.ByteArray);
+                        if (evnt is null) return new RawStreamMetadataResult(stream, false, -1, Empty.ByteArray);
                         return new RawStreamMetadataResult(stream, false, evnt.EventNumber, evnt.Data);
                     case EventReadStatus.NotFound:
                     case EventReadStatus.NoStream:

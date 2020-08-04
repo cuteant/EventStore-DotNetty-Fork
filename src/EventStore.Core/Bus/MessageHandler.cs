@@ -18,7 +18,7 @@ namespace EventStore.Core.Bus
 
         public MessageHandler(IHandle<T> handler, string handlerName)
         {
-            if (handler == null)
+            if (handler is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.handler);
             _handler = handler;
             HandlerName = handlerName ?? string.Empty;
@@ -27,7 +27,7 @@ namespace EventStore.Core.Bus
         public bool TryHandle(Message message)
         {
             var msg = message as T;
-            if (msg != null)
+            if (msg is object)
             {
                 _handler.Handle(msg);
                 return true;

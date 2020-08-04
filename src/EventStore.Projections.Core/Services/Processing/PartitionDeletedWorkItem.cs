@@ -38,20 +38,20 @@ namespace EventStore.Projections.Core.Services.Processing
 
         protected override void ProcessEvent()
         {
-            if (_partition == null)
+            if (_partition is null)
             {
                 NextStage();
                 return;
             }
             var eventProcessedResult = _projection.ProcessPartitionDeleted(_partition, _message.CheckpointTag);
-            if (eventProcessedResult != null)
+            if (eventProcessedResult is object)
                 SetEventProcessedResult(eventProcessedResult);
             NextStage();
         }
 
         protected override void WriteOutput()
         {
-            if (_partition == null)
+            if (_partition is null)
             {
                 NextStage();
                 return;

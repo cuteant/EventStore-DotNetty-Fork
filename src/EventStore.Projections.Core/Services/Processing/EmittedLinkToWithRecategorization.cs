@@ -39,7 +39,7 @@ namespace EventStore.Projections.Core.Services.Processing
         {
             if (!string.IsNullOrEmpty(_originalStreamId))
                 yield return new KeyValuePair<string, string>("$o", JsonConvert.ToString(_originalStreamId));
-            if (_streamDeletedAt != null)
+            if (_streamDeletedAt is object)
                 yield return new KeyValuePair<string, string>("$deleted", JsonConvert.ToString(_streamDeletedAt.Value));
         }
     }

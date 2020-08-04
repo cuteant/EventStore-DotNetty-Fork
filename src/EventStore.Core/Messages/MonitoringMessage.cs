@@ -16,7 +16,7 @@ namespace EventStore.Core.Messages
 
             public GetAllPersistentSubscriptionStats(IEnvelope envelope)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
             }
         }
@@ -35,7 +35,7 @@ namespace EventStore.Core.Messages
 
             public GetPersistentSubscriptionStats(IEnvelope envelope, string eventStreamId, string groupName)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 _eventStreamId = eventStreamId;
                 _groupName = groupName;
@@ -54,7 +54,7 @@ namespace EventStore.Core.Messages
 
             public GetStreamPersistentSubscriptionStats(IEnvelope envelope, string eventStreamId)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
                 Envelope = envelope;
                 _eventStreamId = eventStreamId;
             }
@@ -143,8 +143,8 @@ namespace EventStore.Core.Messages
                                  bool useMetadata,
                                  bool useGrouping)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
-                if (null == statsSelector) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsSelector); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (statsSelector is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.statsSelector); }
 
                 Envelope = envelope;
                 StatsSelector = statsSelector;
@@ -177,7 +177,7 @@ namespace EventStore.Core.Messages
 
             public GetFreshTcpConnectionStats(IEnvelope envelope)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 Envelope = envelope;
             }
@@ -219,7 +219,7 @@ namespace EventStore.Core.Messages
 
             public InternalStatsRequest(IEnvelope envelope)
             {
-                if (null == envelope) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
+                if (envelope is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.envelope); }
 
                 Envelope = envelope;
             }
@@ -234,7 +234,7 @@ namespace EventStore.Core.Messages
 
             public InternalStatsRequestResponse(Dictionary<string, object> stats)
             {
-                if (null == stats) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stats); }
+                if (stats is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.stats); }
 
                 Stats = stats;
             }

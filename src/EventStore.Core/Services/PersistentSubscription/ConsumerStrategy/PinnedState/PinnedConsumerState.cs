@@ -48,7 +48,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
         {
             var node = Nodes.FirstOrDefault(_ => _.NodeId == nodeId);
 
-            if (node == null)
+            if (node is null)
             {
                 ThrowHelper.ThrowApplicationException_ClientRemovedWasCalledForClientTheConsumerStrategy();
             }
@@ -174,7 +174,7 @@ namespace EventStore.Core.Services.PersistentSubscription.ConsumerStrategy.Pinne
             Node minAssignedNode = null;
             foreach (var node in Nodes.Where(_ => _.State == Node.NodeState.Connected))
             {
-                if (minAssignedNode == null || node.AssignmentCount < minAssignedNode.AssignmentCount)
+                if (minAssignedNode is null || node.AssignmentCount < minAssignedNode.AssignmentCount)
                 {
                     minAssignedNode = node;
                 }

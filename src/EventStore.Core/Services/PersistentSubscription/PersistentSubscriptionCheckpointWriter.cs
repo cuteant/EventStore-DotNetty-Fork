@@ -94,7 +94,9 @@ namespace EventStore.Core.Services.PersistentSubscription
             }
             else
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) Log.Error_writing_checkpoint_for(_subscriptionStateStream, msg.Result);
+#endif
                 _version = ExpectedVersion.Any;
             }
         }

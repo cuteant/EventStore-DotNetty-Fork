@@ -50,9 +50,9 @@ namespace EventStore.Core.Services.Gossip
                                     TimeSpan gossipInterval,
                                     TimeSpan allowedTimeDifference)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == gossipSeedSource) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
-            if (null == nodeInfo) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (gossipSeedSource is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.gossipSeedSource); }
+            if (nodeInfo is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.nodeInfo); }
 
             _bus = bus;
             _publishEnvelope = new PublishEnvelope(bus);
@@ -111,7 +111,9 @@ namespace EventStore.Core.Services.Gossip
 
             var oldCluster = _cluster;
             _cluster = MergeClusters(_cluster, dnsCluster, null, x => x);
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) LogClusterChange(oldCluster, _cluster, null);
+#endif
 
             _state = GossipState.Working;
             Handle(new GossipMessage.Gossip(0)); // start gossiping
@@ -122,14 +124,14 @@ namespace EventStore.Core.Services.Gossip
             if (_state != GossipState.Working) { return; }
 
             var node = GetNodeToGossipTo(_cluster.Members);
-            if (node != null)
+            if (node is object)
             {
                 _cluster = UpdateCluster(_cluster, x => x.InstanceId == NodeInfo.InstanceId ? GetUpdatedMe(x) : x);
                 _bus.Publish(new HttpMessage.SendOverHttp(node.InternalHttpEndPoint, new GossipMessage.SendGossip(_cluster, NodeInfo.InternalHttp), DateTime.Now.Add(GossipInterval)));
             }
 
             var interval = message.GossipRound < 20 ? GossipStartupInterval : GossipInterval;
-            var gossipRound = Math.Min(2000000000, node == null ? message.GossipRound : message.GossipRound + 1);
+            var gossipRound = Math.Min(2000000000, node is null ? message.GossipRound : message.GossipRound + 1);
             _bus.Publish(TimerMessage.Schedule.Create(interval, _publishEnvelope, new GossipMessage.Gossip(gossipRound)));
         }
 
@@ -156,10 +158,12 @@ namespace EventStore.Core.Services.Gossip
 
             message.Envelope.ReplyWith(new GossipMessage.SendGossip(_cluster, NodeInfo.InternalHttp));
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"gossip received from [{message.Server}]");
             }
+#endif
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
 
@@ -171,29 +175,39 @@ namespace EventStore.Core.Services.Gossip
             _cluster = UpdateCluster(_cluster, x => x.InstanceId == NodeInfo.InstanceId ? GetUpdatedMe(x) : x);
 
             //if (_cluster.HasChangedSince(oldCluster))
+#if DEBUG
             //if (Log.IsTraceLevelEnabled()) LogClusterChange(oldCluster, _cluster, _nodeInfo.InternalHttp);
+#endif
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
 
         public void Handle(GossipMessage.GossipSendFailed message)
         {
             var node = _cluster.Members.FirstOrDefault(x => x.Is(message.Recipient));
-            if (node == null || !node.IsAlive) { return; }
+            if (node is null || !node.IsAlive) { return; }
 
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
-            if (CurrentMaster != null && node.InstanceId == CurrentMaster.InstanceId)
+#endif
+            if (CurrentMaster is object && node.InstanceId == CurrentMaster.InstanceId)
             {
+#if DEBUG
                 if (traceEnabled) { Log.LooksLikeMasterIsDEADGossipSendFailed(message, node.InstanceId); }
+#endif
                 return;
             }
+#if DEBUG
             if (traceEnabled) { Log.LooksLikeNodeIsDEADGossipSendFailed(message); }
+#endif
 
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.Recipient) ? x.Updated(isAlive: false) : x);
+#if DEBUG
             if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"gossip send failed to [{message.Recipient}]");
             }
+#endif
 
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
@@ -201,16 +215,20 @@ namespace EventStore.Core.Services.Gossip
         public void Handle(SystemMessage.VNodeConnectionLost message)
         {
             var node = _cluster.Members.FirstOrDefault(x => x.Is(message.VNodeEndPoint));
-            if (node == null || !node.IsAlive) { return; }
+            if (node is null || !node.IsAlive) { return; }
 
+#if DEBUG
             if (Log.IsTraceLevelEnabled()) Log.LooksLikeNodeIsDeadTCPConnectionLost(message);
+#endif
 
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.VNodeEndPoint) ? x.Updated(isAlive: false) : x);
+#if DEBUG
             if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"TCP connection lost to [{message.VNodeEndPoint}]");
             }
+#endif
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
 
@@ -218,10 +236,12 @@ namespace EventStore.Core.Services.Gossip
         {
             var oldCluster = _cluster;
             _cluster = UpdateCluster(_cluster, x => x.Is(message.VNodeEndPoint) ? x.Updated(isAlive: true) : x);
+#if DEBUG
             if (Log.IsTraceLevelEnabled() && _cluster.HasChangedSince(oldCluster))
             {
                 LogClusterChange(oldCluster, _cluster, $"TCP connection established to [{message.VNodeEndPoint}]");
             }
+#endif
 
             _bus.Publish(new GossipMessage.GossipUpdated(_cluster));
         }
@@ -234,7 +254,7 @@ namespace EventStore.Core.Services.Gossip
             {
                 if (member.InstanceId == NodeInfo.InstanceId || member.Is(NodeInfo.InternalHttp)) // we know about ourselves better
                 { continue; }
-                if (peerEndPoint != null && member.Is(peerEndPoint)) // peer knows about itself better
+                if (peerEndPoint is object && member.Is(peerEndPoint)) // peer knows about itself better
                 {
                     if ((DateTime.UtcNow - member.TimeStamp).Duration() > AllowedTimeDifference)
                     {
@@ -248,7 +268,7 @@ namespace EventStore.Core.Services.Gossip
                     if (!mems.TryGetValue(member.InternalHttpEndPoint, out MemberInfo existingMem) || IsMoreUpToDate(member, existingMem))
                     {
                         // we do not trust master's alive status and state to come from outside
-                        if (CurrentMaster != null && existingMem != null && member.InstanceId == CurrentMaster.InstanceId)
+                        if (CurrentMaster is object && existingMem is object && member.InstanceId == CurrentMaster.InstanceId)
                             mems[member.InternalHttpEndPoint] = member.Updated(isAlive: existingMem.IsAlive, state: existingMem.State);
                         else
                             mems[member.InternalHttpEndPoint] = member;

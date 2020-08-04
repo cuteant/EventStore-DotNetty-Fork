@@ -37,7 +37,9 @@ namespace EventStore.Core.TransactionLog.Chunks
 
             SetScavengeStreamMetadata();
 
+#if DEBUG
             if (Log.IsDebugLevelEnabled()) Log.Searching_for_incomplete_scavenges_on_node(_nodeEndpoint);
+#endif
             GatherIncompleteScavenges(-1, new HashSet<string>(), new List<string>(), new List<string>());
         }
 
@@ -68,16 +70,20 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                         if (currentMetadata.MaxAge == _scavengeHistoryMaxAge && hasProperACL)
                         {
+#if DEBUG
                             if (Log.IsDebugLevelEnabled()) Log.Max_age_already_set_for_the_stream();
+#endif
                             return;
                         }
                     }
 
+#if DEBUG
                     if (Log.IsDebugLevelEnabled())
                     {
                         Log.Setting_max_age_for_the_stream_to(_scavengeHistoryMaxAge);
                         Log.Setting_ops_read_permission_for_the_scavenges_stream();
                     }
+#endif
 
                     var acl = new StreamAcl(
                         new string[] { "$ops" },
@@ -108,12 +114,16 @@ namespace EventStore.Core.TransactionLog.Chunks
                 {
                     if (readResult.Result != ReadStreamResult.Success && readResult.Result != ReadStreamResult.NoStream)
                     {
+#if DEBUG
                         if (Log.IsDebugLevelEnabled()) Log.Unable_to_read_for_scavenge_log_clean_up(readResult.Result);
+#endif
                         return;
                     }
 
-                    foreach (var ev in readResult.Events)
+                    var evts = readResult.Events;
+                    for (int idx = 0; idx < evts.Length; idx++)
                     {
+                        ResolvedEvent ev = evts[idx];
                         if (ev.ResolveResult == ReadEventResult.Success)
                         {
                             var dictionary = ev.Event.Data.ParseJson<Dictionary<string, object>>();
@@ -148,7 +158,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
                     }
 
-                    if (readResult.IsEndOfStream || 0u >= (uint)readResult.Events.Length)
+                    if (readResult.IsEndOfStream || 0u >= (uint)evts.Length)
                     {
                         SetOpsPermissions(recentScavenges);
                         CompleteInterruptedScavenges(incompleteScavenges);
@@ -166,17 +176,19 @@ namespace EventStore.Core.TransactionLog.Chunks
             //added for backward compatibility to make UI scavenge history work properly with $ops users
 
             var last30ScavengeIds = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var scavengeId in recentScavengeIds)
+            for (int idx = 0; idx < recentScavengeIds.Count; idx++)
             {
                 if (last30ScavengeIds.Count >= 30) { break; }
-                last30ScavengeIds.Add(scavengeId);
+                last30ScavengeIds.Add(recentScavengeIds[idx]);
             }
 
+#if DEBUG
             var last30ScavengeIdCount = last30ScavengeIds.Count;
             if (last30ScavengeIdCount > 0 && Log.IsDebugLevelEnabled())
             {
                 Log.Setting_ops_read_permission_on_last_scavenges_streams(last30ScavengeIdCount);
             }
+#endif
 
             foreach (var scavengeId in last30ScavengeIds)
             {
@@ -208,16 +220,18 @@ namespace EventStore.Core.TransactionLog.Chunks
         {
             if (0u >= (uint)incompletedScavenges.Count)
             {
+#if DEBUG
                 if (Log.IsDebugLevelEnabled()) Log.No_incomplete_scavenges_found_on_node(_nodeEndpoint);
+#endif
             }
             else
             {
                 if (Log.IsInformationLevelEnabled()) Log.Found_incomplete_scavenges_on_node(incompletedScavenges, _nodeEndpoint);
             }
 
-            foreach (var incompletedScavenge in incompletedScavenges)
+            for (int idx = 0; idx < incompletedScavenges.Count; idx++)
             {
-                var log = CreateLogInternal(incompletedScavenge);
+                var log = CreateLogInternal(incompletedScavenges[idx]);
 
                 log.ScavengeCompleted(ScavengeResult.Failed, "The node was restarted.", TimeSpan.Zero);
             }

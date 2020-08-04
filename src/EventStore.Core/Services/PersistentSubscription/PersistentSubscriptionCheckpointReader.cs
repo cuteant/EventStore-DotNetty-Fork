@@ -38,7 +38,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 if ((uint)msgEvts.Length > 0u)
                 {
                     var checkpoint = msgEvts.Where(v => v.Event.EventType == "SubscriptionCheckpoint").Select(x => x.Event).FirstOrDefault();
-                    if (checkpoint != null)
+                    if (checkpoint is object)
                     {
                         long lastEvent = checkpoint.Data.ParseJson<long>();
                         _onStateLoaded(lastEvent);

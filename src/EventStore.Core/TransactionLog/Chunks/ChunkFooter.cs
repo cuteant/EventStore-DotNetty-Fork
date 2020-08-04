@@ -29,7 +29,7 @@ namespace EventStore.Core.TransactionLog.Chunks
                 ThrowHelper.ThrowArgumentOutOfRangeException_LogicalDataSizeIsLessThanPhysicalDataSize(logicalDataSize, physicalDataSize);
             }
             if ((uint)mapSize > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.mapSize); }
-            if (null == md5Hash) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5Hash); }
+            if (md5Hash is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.md5Hash); }
             if ((uint)md5Hash.Length != (uint)ChecksumSize)
             {
                 ThrowHelper.ThrowArgumentException_MD5HashIsOfWrongLength();

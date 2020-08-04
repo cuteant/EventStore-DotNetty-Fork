@@ -17,20 +17,20 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         protected CommunicationController(IPublisher publisher)
         {
-            if (null == publisher) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
+            if (publisher is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.publisher); }
 
             _publisher = publisher;
         }
 
         public void Publish(Message message)
         {
-            if (null == message) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
+            if (message is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.message); }
             _publisher.Publish(message);
         }
 
         public void Subscribe(IHttpService service)
         {
-            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
+            if (service is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             SubscribeCore(service);
         }
 

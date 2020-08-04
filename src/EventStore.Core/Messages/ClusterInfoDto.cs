@@ -25,7 +25,7 @@ namespace EventStore.Core.Messages
         {
             return string.Format("Server: {0}:{1}, Members: [{2}]",
                                  ServerIp, ServerPort,
-                                 Members != null ? string.Join(",", Members.Select(m => m.ToString())) : "null");
+                                 Members is object ? string.Join(",", Members.Select(m => m.ToString())) : "null");
         }
     }
 }

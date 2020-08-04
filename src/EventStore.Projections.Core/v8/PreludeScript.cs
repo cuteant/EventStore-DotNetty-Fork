@@ -86,7 +86,7 @@ namespace EventStore.Projections.Core.v8
 
         private void LogHandler(string message)
         {
-            if (_logger != null)
+            if (_logger is object)
             {
                 _logger(message, new object[] { });
             }
@@ -134,7 +134,7 @@ namespace EventStore.Projections.Core.v8
 
         public IntPtr GetHandle()
         {
-            return _script != null ? _script.GetHandle() : IntPtr.Zero;
+            return _script is object ? _script.GetHandle() : IntPtr.Zero;
         }
 
         private const int NonScheduled = 0;
@@ -173,7 +173,7 @@ namespace EventStore.Projections.Core.v8
             int currentCancelToken = ++_currentCancelToken;
             if (Interlocked.CompareExchange(ref _cancelTokenOrStatus, Scheduled, NonScheduled) != NonScheduled) //TODO: no need for interlocked?
                 throw new InvalidOperationException("ScheduleTerminateExecution cannot be called while previous one has not been canceled");
-            if (_cancelCallbackFactory != null) // allow nulls in tests
+            if (_cancelCallbackFactory is object) // allow nulls in tests
             {
                 var terminateRequested = new CancelRef();
                 _terminateRequested = terminateRequested;

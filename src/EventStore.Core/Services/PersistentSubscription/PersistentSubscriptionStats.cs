@@ -60,7 +60,7 @@ namespace EventStore.Core.Services.PersistentSubscription
                 conn.LastTotalItems = connItems;
                 var connAvgItemsPerSecond = lastRunMs.Ticks != 0 ? (int)(TimeSpan.TicksPerSecond * connLastItems / lastRunMs.Ticks) : 0;
                 var extraStats = conn.GetExtraStats();
-                var stats = extraStats == null ? null : extraStats.Measurements;
+                var stats = extraStats is null ? null : extraStats.Measurements;
                 totalInflight += conn.InflightMessages;
                 connections.Add(new MonitoringMessage.ConnectionInfo
                 {

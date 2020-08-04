@@ -11,12 +11,12 @@ namespace EventStore.Common.Utils
             if (endPoint is IPEndPoint)
             {
                 var ipEndPoint = endPoint as IPEndPoint;
-                return CreateHttpUrl(schema, ipEndPoint.Address.ToString(), ipEndPoint.Port, rawUrl != null ? rawUrl.TrimStart('/') : string.Empty);
+                return CreateHttpUrl(schema, ipEndPoint.Address.ToString(), ipEndPoint.Port, rawUrl is object ? rawUrl.TrimStart('/') : string.Empty);
             }
             if (endPoint is DnsEndPoint)
             {
                 var dnsEndpoint = endPoint as DnsEndPoint;
-                return CreateHttpUrl(schema, dnsEndpoint.Host, dnsEndpoint.Port, rawUrl != null ? rawUrl.TrimStart('/') : string.Empty);
+                return CreateHttpUrl(schema, dnsEndpoint.Host, dnsEndpoint.Port, rawUrl is object ? rawUrl.TrimStart('/') : string.Empty);
             }
             return null;
         }

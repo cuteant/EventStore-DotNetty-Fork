@@ -16,16 +16,16 @@ namespace EventStore.ClientAPI.Consumers
         /// an instance of this type</summary>
         protected virtual void Initialize(IEventStoreBus bus, TSubscription subscription)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == subscription) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (subscription is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription); }
             if (string.IsNullOrEmpty(subscription.StreamId)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_StreamId); }
-            if (null == subscription.Settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_Settings); }
+            if (subscription.Settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_Settings); }
 
             Bus = bus;
             Subscription = subscription;
 
-            if (subscription.RetryPolicy == null) { subscription.RetryPolicy = DefaultRetryPolicy; }
-            if (subscription.StreamMeta != null)
+            if (subscription.RetryPolicy is null) { subscription.RetryPolicy = DefaultRetryPolicy; }
+            if (subscription.StreamMeta is object)
             {
                 if (string.IsNullOrEmpty(Subscription.Topic))
                 {
@@ -40,8 +40,8 @@ namespace EventStore.ClientAPI.Consumers
 
         public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IHandlerRegistration> addEventHandlers)
         {
-            if (null == addEventHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
-            if (RegisterHandlers != null) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
+            if (addEventHandlers is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addEventHandlers); }
+            if (RegisterHandlers is object) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
             Initialize(bus, subscription);
             RegisterEventHandlers = addEventHandlers;
             UsingEventHandlers = true;
@@ -50,7 +50,7 @@ namespace EventStore.ClientAPI.Consumers
         public void Initialize(IEventStoreBus bus, TSubscription subscription, Action<IConsumerRegistration> addHandlers)
         {
             if (null == addHandlers) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.addHandlers); }
-            if (RegisterEventHandlers != null) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
+            if (RegisterEventHandlers is object) { ConsumerThrowHelper.ThrowArgumentException_HandlerAlreadyRegistered(); }
             Initialize(bus, subscription);
             RegisterHandlers = addHandlers;
             UsingEventHandlers = true;

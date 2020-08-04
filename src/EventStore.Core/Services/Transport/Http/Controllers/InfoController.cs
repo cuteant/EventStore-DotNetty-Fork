@@ -33,7 +33,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         public void Subscribe(IHttpService service)
         {
-            if (null == service) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
+            if (service is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.service); }
             service.RegisterAction(new ControllerAction("/info", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.None), OnGetInfo);
             service.RegisterAction(new ControllerAction("/info/options", HttpMethod.Get, Codec.NoCodecs, SupportedCodecs, AuthorizationLevel.Ops), OnGetOptions);
         }
@@ -63,7 +63,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
 
         private void OnGetOptions(HttpEntityManager entity, UriTemplateMatch match)
         {
-            if (entity.User != null && (entity.User.IsInRole(SystemRoles.Operations) || entity.User.IsInRole(SystemRoles.Admins)))
+            if (entity.User is object && (entity.User.IsInRole(SystemRoles.Operations) || entity.User.IsInRole(SystemRoles.Admins)))
             {
                 entity.ReplyTextContent(Codec.Json.To(Filter(GetOptionsInfo(_options), new[] { "CertificatePassword" })),
                                         HttpStatusCode.OK,
@@ -109,7 +109,7 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     else if (property.PropertyType.IsArray)
                     {
                         var array = configFileOptionValue as Array;
-                        if (array == null) { continue; }
+                        if (array is null) { continue; }
                         var configFileOptionValueAsString = String.Empty;
                         for (var i = 0; i < array.Length; i++)
                         {
@@ -120,9 +120,9 @@ namespace EventStore.Core.Services.Transport.Http.Controllers
                     optionsToSendToClient.Add(new OptionStructure
                     {
                         Name = property.Name,
-                        Description = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Description,
-                        Group = argumentDescriptionAttribute == null ? "" : argumentDescriptionAttribute.Group,
-                        Value = configFileOptionValue == null ? "" : configFileOptionValue.ToString(),
+                        Description = argumentDescriptionAttribute is null ? "" : argumentDescriptionAttribute.Description,
+                        Group = argumentDescriptionAttribute is null ? "" : argumentDescriptionAttribute.Group,
+                        Value = configFileOptionValue is null ? "" : configFileOptionValue.ToString(),
                         PossibleValues = possibleValues
                     });
                 }

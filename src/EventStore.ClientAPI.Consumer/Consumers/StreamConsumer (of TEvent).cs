@@ -12,15 +12,15 @@ namespace EventStore.ClientAPI.Consumers
         /// an instance of this type</summary>
         protected virtual void Initialize(IEventStoreBus bus, TSubscription subscription)
         {
-            if (null == bus) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
-            if (null == subscription) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription); }
-            if (null == subscription.Settings) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_Settings); }
+            if (bus is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.bus); }
+            if (subscription is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription); }
+            if (subscription.Settings is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscription_Settings); }
 
             Bus = bus;
             Subscription = subscription;
 
-            if (subscription.RetryPolicy == null) { subscription.RetryPolicy = DefaultRetryPolicy; }
-            if (subscription.StreamMeta != null)
+            if (subscription.RetryPolicy is null) { subscription.RetryPolicy = DefaultRetryPolicy; }
+            if (subscription.StreamMeta is object)
             {
                 if (string.IsNullOrEmpty(Subscription.Topic))
                 {

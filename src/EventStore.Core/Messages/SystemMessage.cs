@@ -150,7 +150,7 @@ namespace EventStore.Core.Messages
             protected ReplicaStateMessage(Guid correlationId, VNodeState state, VNodeInfo master)
                 : base(correlationId, state)
             {
-                if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
+                if (master is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
                 Master = master;
             }
         }
@@ -226,7 +226,7 @@ namespace EventStore.Core.Messages
 
             public VNodeConnectionLost(IPEndPoint vNodeEndPoint, Guid connectionId)
             {
-                if (null == vNodeEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
+                if (vNodeEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
                 if (Guid.Empty == connectionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.connectionId); }
 
                 VNodeEndPoint = vNodeEndPoint;
@@ -244,7 +244,7 @@ namespace EventStore.Core.Messages
 
             public VNodeConnectionEstablished(IPEndPoint vNodeEndPoint, Guid connectionId)
             {
-                if (null == vNodeEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
+                if (vNodeEndPoint is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.vNodeEndPoint); }
                 if (Guid.Empty == connectionId) { ThrowHelper.ThrowArgumentException_NotEmptyGuid(ExceptionArgument.connectionId); }
 
                 VNodeEndPoint = vNodeEndPoint;
@@ -304,7 +304,7 @@ namespace EventStore.Core.Messages
 
             public EpochWritten(EpochRecord epoch)
             {
-                if (null == epoch) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
+                if (epoch is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.epoch); }
                 Epoch = epoch;
             }            
         }           

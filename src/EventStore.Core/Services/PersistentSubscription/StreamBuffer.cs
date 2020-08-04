@@ -58,7 +58,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
             var currentNode = _retry.First;
 
-            while (currentNode != null)
+            while (currentNode is object)
             {
                 var resolvedEvent = currentNode.Value.ResolvedEvent.Event ?? currentNode.Value.ResolvedEvent.Link;
                 if (retryEventNumber < resolvedEvent.EventNumber)
@@ -116,7 +116,7 @@ namespace EventStore.Core.Services.PersistentSubscription
             foreach (var list in new []{_retry, _buffer}) // save on code duplication
             {
                 var current = list.First;
-                if (current != null)
+                if (current is object)
                 {
                     do
                     {
@@ -128,7 +128,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
                         current = next;
 
-                    } while (current != null);
+                    } while (current is object);
                 }
             }
         }
@@ -173,7 +173,7 @@ namespace EventStore.Core.Services.PersistentSubscription
 
             public void MarkSent()
             {
-                if (_entry.List == null)
+                if (_entry.List is null)
                 {
                     ThrowHelper.ThrowInvalidOperationException_TheMessageCanOnlyBeAcceptedOnce();
                 }

@@ -144,8 +144,8 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public ReplicaSubscriptionRetry(Guid masterId, Guid subscriptionId)
             {
-                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (masterId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (subscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -171,8 +171,8 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public ReplicaSubscribed(Guid masterId, Guid subscriptionId, long subscriptionPosition)
             {
-                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                //if (masterId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (subscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
                 if ((ulong)subscriptionPosition > Consts.TooBigOrNegativeUL) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.subscriptionPosition); }
 
                 MasterId = masterId;
@@ -227,9 +227,9 @@ namespace EventStore.Core.Messages
             [SerializationConstructor]
             public CreateChunk(Guid masterId, Guid subscriptionId, byte[] chunkHeaderBytes, int fileSize, bool isCompletedChunk)
             {
-                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (null == chunkHeaderBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeaderBytes); }
+                //if (masterId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (subscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (chunkHeaderBytes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.chunkHeaderBytes); }
 
                 MasterId = masterId;
                 SubscriptionId = subscriptionId;
@@ -276,9 +276,9 @@ namespace EventStore.Core.Messages
                                 byte[] rawBytes,
                                 bool completeChunk)
             {
-                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (null == rawBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
+                //if (masterId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (subscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (rawBytes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.rawBytes); }
                 if (0u >= (uint)rawBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Positive(ExceptionArgument.rawBytes_Length); } // we should never send empty array, NEVER
 
                 MasterId = masterId;
@@ -328,9 +328,9 @@ namespace EventStore.Core.Messages
                                  byte[] dataBytes,
                                  bool completeChunk)
             {
-                //if (null == masterId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
-                //if (null == subscriptionId) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
-                if (null == dataBytes) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
+                //if (masterId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.masterId); }
+                //if (subscriptionId is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.subscriptionId); }
+                if (dataBytes is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dataBytes); }
                 if (0u >= (uint)dataBytes.Length) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.dataBytes_Length); } // we CAN send empty dataBytes array here, unlike as with completed chunks
 
                 MasterId = masterId;

@@ -311,7 +311,7 @@ namespace EventStore.Core.Messages
             public ElectionsDone(int installedView, MemberInfo master)
             {
                 if ((uint)installedView > Consts.TooBigOrNegative) { ThrowHelper.ThrowArgumentOutOfRangeException_Nonnegative(ExceptionArgument.installedView); }
-                if (null == master) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
+                if (master is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.master); }
                 InstalledView = installedView;
                 Master = master;
             }

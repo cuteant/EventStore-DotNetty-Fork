@@ -55,7 +55,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Action<TItem> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: _ => handler(_));
             _state = State.MatchAnyAdded;
             return true;
@@ -110,7 +110,7 @@ namespace EventStore.Common.Utils
 
         public bool TryMatchAny(Func<TIn, TOut> handler)
         {
-            if (FinalExpr != null || _state != State.Adding) { return false; }
+            if (FinalExpr is object || _state != State.Adding) { return false; }
             FinalExpr = CreatePredicatedBasedExpr(condition: _ => true, processor: _ => handler(_));
             _state = State.MatchAnyAdded;
             return true;
@@ -164,7 +164,7 @@ namespace EventStore.Common.Utils
         {
             get
             {
-                if (_retPoint != null) { return _retPoint; }
+                if (_retPoint is object) { return _retPoint; }
 
                 if (IsActionDelegate)
                 {
@@ -193,7 +193,7 @@ namespace EventStore.Common.Utils
             EnsureCanAdd();
             var ctxType = typeof(TCtx);
             var handler = GetPartialHandler(ctxType);
-            if (handler.Processor != null) { return; }
+            if (handler.Processor is object) { return; }
 
             handler.Processor = processor;
             if (ctxType == ItemType) { _state = State.MatchAnyAdded; }
@@ -255,7 +255,7 @@ namespace EventStore.Common.Utils
                             );
                         }
                     }
-                    if (processor != null)
+                    if (processor is object)
                     {
                         list.Add(Expression.Return(RetPoint, Expression.Invoke(processor, allParams)));
                     }
@@ -277,7 +277,7 @@ namespace EventStore.Common.Utils
                     {
                         Expression.Assign(bindResult, Expression.TypeAs(Parameter, ctxType))
                     };
-                    if (processor != null && predicatedHandlers.Count == 0)
+                    if (processor is object && predicatedHandlers.Count == 0)
                     {
                         exprList.Add(
                             Expression.IfThen(
@@ -339,7 +339,7 @@ namespace EventStore.Common.Utils
 
             var caseExpressionsList = GetCaseExpressions();
             List<BlockExpression> caseExpressions;
-            if (FinalExpr != null)
+            if (FinalExpr is object)
             {
                 caseExpressions = new List<BlockExpression>(caseExpressionsList.Count + 1);
                 caseExpressions.AddRange(caseExpressionsList);

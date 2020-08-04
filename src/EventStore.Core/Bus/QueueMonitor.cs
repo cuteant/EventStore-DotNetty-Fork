@@ -31,10 +31,12 @@ namespace EventStore.Core.Bus
         public QueueStats[] GetStats()
         {
             var stats = _queues.Keys.OrderBy(x => x.Name).Select(queue => queue.GetStatistics()).ToArray();
+#if DEBUG
             if (Log.IsTraceLevelEnabled() && Application.IsDefined(Application.DumpStatistics))
             {
                 Log.DumpStatistics(stats);
             }
+#endif
             return stats;
         }
     }

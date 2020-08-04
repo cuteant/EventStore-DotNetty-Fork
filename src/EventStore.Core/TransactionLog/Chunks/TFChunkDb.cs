@@ -20,7 +20,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public TFChunkDb(TFChunkDbConfig config)
         {
-            if (null == config) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
+            if (config is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.config); }
 
             Config = config;
             Manager = new TFChunkManager(Config);
@@ -276,7 +276,9 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         private void RemoveOldChunksVersions(int lastChunkNum)
         {
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
             for (int chunkNum = 0; chunkNum <= lastChunkNum;)
             {
                 var chunk = Manager.GetChunk(chunkNum);
@@ -286,7 +288,9 @@ namespace EventStore.Core.TransactionLog.Chunks
                     for (int j = (i == chunk.ChunkHeader.ChunkStartNumber ? 1 : 0); j < files.Length; ++j)
                     {
                         var filename = files[j];
+#if DEBUG
                         if (traceEnabled) Log.Removing_excess_chunk_version(filename);
+#endif
                         RemoveFile(filename);
                     }
                 }
@@ -298,12 +302,16 @@ namespace EventStore.Core.TransactionLog.Chunks
         private void CleanUpTempFiles()
         {
             var tempFiles = Config.FileNamingStrategy.GetAllTempFiles();
+#if DEBUG
             var traceEnabled = Log.IsTraceLevelEnabled();
+#endif
             foreach (string tempFile in tempFiles)
             {
                 try
                 {
+#if DEBUG
                     if (traceEnabled) Log.Deleting_temporary_file(tempFile);
+#endif
                     RemoveFile(tempFile);
                 }
                 catch (Exception exc)
@@ -326,7 +334,7 @@ namespace EventStore.Core.TransactionLog.Chunks
 
         public void Close()
         {
-            if (Manager != null)
+            if (Manager is object)
                 Manager.Dispose();
             Config.WriterCheckpoint.Close();
             Config.ChaserCheckpoint.Close();

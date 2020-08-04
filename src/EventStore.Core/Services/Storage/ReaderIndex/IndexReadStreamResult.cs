@@ -43,7 +43,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
                                      long lastEventNumber, 
                                      bool isEndOfStream)
         {
-            if (null == records) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.records); }
+            if (records is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.records); }
 
             FromEventNumber = fromEventNumber;
             MaxCount = maxCount;

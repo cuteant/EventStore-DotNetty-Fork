@@ -34,12 +34,12 @@ namespace EventStore.Common.Options
             yield return EnvironmentVariables.Parse<TOptions>(x => NameTranslators.PrefixEnvironmentVariable(x, environmentPrefix).ToUpper());
             var configFile = commanddict.ContainsKey("config") ?
                              commanddict["config"].Value as string : null;
-            if (configFile == null && File.Exists(defaultConfigLocation))
+            if (configFile is null && File.Exists(defaultConfigLocation))
             {
                 configFile = defaultConfigLocation;
                 yield return new OptionSource[] { OptionSource.String("<DEFAULT>", "config", defaultConfigLocation) };
             }
-            if (configFile != null)
+            if (configFile is object)
             {
                 if (!File.Exists(configFile))
                 {
@@ -72,7 +72,7 @@ namespace EventStore.Common.Options
         public static object DumpOptionsStructured()
         {
             Dictionary<string,object> opts = new Dictionary<string,object>();
-            if (_effectiveOptions == null)
+            if (_effectiveOptions is null)
             {
                 return opts;
             }
@@ -100,7 +100,7 @@ namespace EventStore.Common.Options
 
         public static string DumpOptions()
         {
-            if (_effectiveOptions == null)
+            if (_effectiveOptions is null)
             {
                 return "No options have been parsed";
             }
@@ -128,7 +128,7 @@ namespace EventStore.Common.Options
                 }
                 var value = option.Value;
                 var optionName = NameTranslators.CombineByPascalCase(option.Name, " ").ToUpper();
-                var valueToDump = value == null ? String.Empty : value.ToString();
+                var valueToDump = value is null ? String.Empty : value.ToString();
                 if (value is Array)
                 {
                     valueToDump = String.Empty;
@@ -179,10 +179,10 @@ namespace EventStore.Common.Options
             foreach (var optionSource in optionSources)
             {
                 var property = properties.FirstOrDefault(x => x.Name.Equals(optionSource.Name, StringComparison.OrdinalIgnoreCase));
-                if(property == null) continue;
+                if(property is null) continue;
                 try
                 {
-                    if (optionSource.Value == null) continue;
+                    if (optionSource.Value is null) continue;
                     if (optionSource.IsTyped)
                     {
                         property.SetValue(revived, optionSource.Value, null);

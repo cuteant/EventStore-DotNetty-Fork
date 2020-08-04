@@ -14,7 +14,7 @@ namespace EventStore.Core.Services.Storage.ReaderIndex
 
         public IndexReadAllResult(List<CommitEventRecord> records, in TFPos currentPos, in TFPos nextPos, in TFPos prevPos)
         {
-            if (null == records) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.records); }
+            if (records is null) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.records); }
 
             Records = records;
             CurrentPos = currentPos;
