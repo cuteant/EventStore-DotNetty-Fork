@@ -22,18 +22,20 @@ namespace EventStore.ClientAPI.Projections
         /// </summary>
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="httpSchema">HTTP endpoint schema http|https.</param>
+        /// <param name="client"></param>
         /// <param name="operationTimeout"></param>
-        public ProjectionsManager(EndPoint httpEndPoint, TimeSpan operationTimeout, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
+        public ProjectionsManager(EndPoint httpEndPoint, TimeSpan operationTimeout,
+            string httpSchema = EndpointExtensions.HTTP_SCHEMA, IHttpClient client = null)
         {
             if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
-            _client = new ProjectionsClient(operationTimeout);
+            _client = new ProjectionsClient(operationTimeout, client);
             _httpEndPoint = httpEndPoint;
             _httpSchema = httpSchema;
         }
 
         /// <summary>
-        /// Asynchronously enables a projection 
+        /// Asynchronously enables a projection
         /// </summary>
         /// <param name="name">The name of the projection.</param>
         /// <param name="userCredentials">Credentials for a user with permission to enable a projection</param>
@@ -266,7 +268,7 @@ namespace EventStore.ClientAPI.Projections
         }
 
         /// <summary>
-        /// Asynchronously deletes a projection 
+        /// Asynchronously deletes a projection
         /// </summary>
         /// <param name="name">The name of the projection.</param>
         /// <param name="userCredentials">Credentials for a user with permission to delete a projection</param>
@@ -278,7 +280,7 @@ namespace EventStore.ClientAPI.Projections
         }
 
         /// <summary>
-        /// Asynchronously deletes a projection 
+        /// Asynchronously deletes a projection
         /// </summary>
         /// <param name="name">The name of the projection.</param>
         /// <param name="deleteEmittedStreams">Whether to delete the streams that were emitted by this projection.</param>

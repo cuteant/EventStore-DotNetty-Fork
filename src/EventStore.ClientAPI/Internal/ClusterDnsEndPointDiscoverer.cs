@@ -21,7 +21,7 @@ namespace EventStore.ClientAPI.Internal
         private readonly int _managerExternalHttpPort;
         private readonly GossipSeed[] _gossipSeeds;
 
-        private readonly HttpAsyncClient _client;
+        private readonly IHttpClient _client;
         private ClusterMessages.MemberInfoDto[] _oldGossip;
         private TimeSpan _gossipTimeout;
 
@@ -32,7 +32,8 @@ namespace EventStore.ClientAPI.Internal
                                             int managerExternalHttpPort,
                                             GossipSeed[] gossipSeeds,
                                             TimeSpan gossipTimeout,
-                                            NodePreference nodePreference)
+                                            NodePreference nodePreference,
+                                            IHttpClient client = null)
         {
             _clusterDns = clusterDns;
             _maxDiscoverAttempts = maxDiscoverAttempts;
@@ -40,7 +41,7 @@ namespace EventStore.ClientAPI.Internal
             _gossipSeeds = gossipSeeds;
             _gossipTimeout = gossipTimeout;
             _nodePreference = nodePreference;
-            _client = new HttpAsyncClient(_gossipTimeout);
+            _client = client ?? new HttpAsyncClient(_gossipTimeout);
         }
 
         public async Task<NodeEndPoints> DiscoverAsync(IPEndPoint failedTcpEndPoint)
@@ -192,7 +193,7 @@ namespace EventStore.ClientAPI.Internal
             ClusterMessages.ClusterInfoDto result = null;
             var completed = new ManualResetEventSlim(false);
 
-            var url = endPoint.EndPoint.ToHttpUrl(EndpointExtensions.HTTP_SCHEMA, "/gossip?format=json");
+            var url = endPoint.EndPoint.ToHttpUrl(endPoint.SeedOverTls ? EndpointExtensions.HTTPS_SCHEMA : EndpointExtensions.HTTP_SCHEMA, "/gossip?format=json");
             _client.Get(
                 url,
                 null,
@@ -247,8 +248,19 @@ namespace EventStore.ClientAPI.Internal
                     RandomShuffle(nodes, 0, nodes.Length - 1);
                     break;
                 case NodePreference.Slave:
-                    nodes = nodes.OrderBy(nodeEntry => nodeEntry.State != ClusterMessages.VNodeState.Slave).ToArray(); // OrderBy is a stable sort and only affects order of matching entries
-                    RandomShuffle(nodes, 0, nodes.Count(nodeEntry => nodeEntry.State == ClusterMessages.VNodeState.Slave) - 1);
+                    nodes = nodes.OrderBy(nodeEntry =>
+                            nodeEntry.State != ClusterMessages.VNodeState.Follower &&
+                             nodeEntry.State != ClusterMessages.VNodeState.Slave)
+                        .ToArray(); // OrderBy is a stable sort and only affects order of matching entries
+                    RandomShuffle(nodes, 0,
+                        nodes.Count(nodeEntry => nodeEntry.State == ClusterMessages.VNodeState.Follower ||
+                                                  nodeEntry.State == ClusterMessages.VNodeState.Slave) - 1);
+                    break;
+                case NodePreference.ReadOnlyReplica:
+                    nodes = nodes.OrderBy(nodeEntry => !IsReadOnlyReplicaState(nodeEntry.State))
+                        .ToArray(); // OrderBy is a stable sort and only affects order of matching entries
+                    RandomShuffle(nodes, 0,
+                        nodes.Count(nodeEntry => IsReadOnlyReplicaState(nodeEntry.State)) - 1);
                     break;
             }
 
@@ -269,6 +281,19 @@ namespace EventStore.ClientAPI.Internal
                 _log.DiscoveringFoundBestChoice(normTcp, secTcp, node.State);
             }
             return new NodeEndPoints(normTcp, secTcp);
+        }
+        private bool IsReadOnlyReplicaState(ClusterMessages.VNodeState state)
+        {
+            switch (state)
+            {
+                case ClusterMessages.VNodeState.ReadOnlyLeaderless:
+                case ClusterMessages.VNodeState.PreReadOnlyReplica:
+                case ClusterMessages.VNodeState.ReadOnlyReplica:
+                    return true;
+
+                default:
+                    return false;
+            }
         }
     }
 }

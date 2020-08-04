@@ -69,6 +69,14 @@ namespace EventStore.ClientAPI
             return this;
         }
 
+        /// <summary>Whether to prioritize choosing a read only replica that's alive from the known nodes.</summary>
+        /// <returns>A <see cref="DnsClusterSettingsBuilder"/> for further configuration.</returns>
+        public DnsClusterSettingsBuilder PreferReadOnlyReplica()
+        {
+            _nodePreference = NodePreference.ReadOnlyReplica;
+            return this;
+        }
+
         /// <summary>Sets the well-known port on which the cluster gossip is taking place.
         ///
         /// If you are using the commercial edition of Event Store HA, with Manager nodes in

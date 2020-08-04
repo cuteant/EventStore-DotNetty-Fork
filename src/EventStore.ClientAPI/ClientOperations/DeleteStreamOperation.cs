@@ -60,7 +60,7 @@ namespace EventStore.ClientAPI.ClientOperations
 
         protected override DeleteResult TransformResponse(TcpClientMessageDto.DeleteStreamCompleted response)
         {
-            return new DeleteResult(new Position(response.PreparePosition ?? -1, response.CommitPosition ?? -1));
+            return new DeleteResult(new Position(response.CommitPosition ?? -1, response.PreparePosition ?? -1));
         }
 
         public override string ToString()

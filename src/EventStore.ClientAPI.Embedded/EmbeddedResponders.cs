@@ -53,7 +53,7 @@ namespace EventStore.ClientAPI.Embedded
 
             protected override WriteResult TransformResponse(CoreClientMessage.WriteEventsCompleted response)
             {
-                return new WriteResult(response.LastEventNumber, new Position(response.PreparePosition, response.CommitPosition));
+                return new WriteResult(response.LastEventNumber, new Position(response.CommitPosition, response.PreparePosition));
             }
         }
 
@@ -105,7 +105,7 @@ namespace EventStore.ClientAPI.Embedded
                 {
                     return new ConditionalWriteResult(ConditionalWriteStatus.StreamDeleted);
                 }
-                return new ConditionalWriteResult(response.LastEventNumber, new Position(response.PreparePosition, response.CommitPosition));
+                return new ConditionalWriteResult(response.LastEventNumber, new Position(response.CommitPosition, response.PreparePosition));
             }
         }
 
@@ -151,7 +151,7 @@ namespace EventStore.ClientAPI.Embedded
 
             protected override DeleteResult TransformResponse(CoreClientMessage.DeleteStreamCompleted response)
             {
-                return new DeleteResult(new Position(response.PreparePosition, response.CommitPosition));
+                return new DeleteResult(new Position(response.CommitPosition, response.PreparePosition));
 
             }
         }
@@ -253,7 +253,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         return;
                     case ReadEventResult.AccessDenied:
-                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_stream, _stream));
                         return;
                     default:
                         EmbeddedThrowHelper.ThrowException_UnexpectedReadEventResult(response.Result); return;
@@ -310,7 +310,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadStreamResult.AccessDenied:
-                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadStreamResult: {response.Result}.");
@@ -370,7 +370,7 @@ namespace EventStore.ClientAPI.Embedded
                         Fail(new ServerErrorException(string.IsNullOrEmpty(response.Error) ? "<no message>" : response.Error));
                         break;
                     case ReadStreamResult.AccessDenied:
-                        Fail(CoreThrowHelper.GetAccessDeniedException( ExceptionResource.Read_access_denied_for_stream, _stream));
+                        Fail(CoreThrowHelper.GetAccessDeniedException(ExceptionResource.Read_access_denied_for_stream, _stream));
                         break;
                     default:
                         throw new Exception($"Unexpected ReadStreamResult: {response.Result}.");
@@ -444,7 +444,7 @@ namespace EventStore.ClientAPI.Embedded
 
             protected override WriteResult TransformResponse(CoreClientMessage.TransactionCommitCompleted response)
             {
-                return new WriteResult(response.LastEventNumber, new Position(response.PreparePosition, response.CommitPosition));
+                return new WriteResult(response.LastEventNumber, new Position(response.CommitPosition, response.PreparePosition));
             }
         }
 

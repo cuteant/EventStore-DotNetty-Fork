@@ -1068,12 +1068,13 @@ namespace EventStore.Transport.Tcp.Messages
 
             public enum NotHandledReason
             {
-
                 NotReady = 0,
 
                 TooBusy = 1,
 
-                NotMaster = 2
+                NotMaster = 2,
+
+                IsReadOnly = 3
             }
 
             private NotHandled() { }

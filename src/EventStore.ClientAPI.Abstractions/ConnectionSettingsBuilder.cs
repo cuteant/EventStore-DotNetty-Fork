@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using EventStore.ClientAPI.SystemData;
+using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.ClientAPI
 {
@@ -37,11 +38,18 @@ namespace EventStore.ClientAPI
         private TimeSpan _gossipTimeout = TimeSpan.FromSeconds(1);
         private GossipSeed[] _gossipSeeds;
         private NodePreference _nodePreference = NodePreference.Master;
+        private IHttpClient _customHttpClient = null;
         private bool _throwOnNoMatchingHandler;
 
         private IEventAdapter _eventAdapter;
 
         internal ConnectionSettingsBuilder() { }
+
+        public ConnectionSettingsBuilder UseCustomHttpClient(IHttpClient client)
+        {
+            _customHttpClient = client;
+            return this;
+        }
 
         /// <summary>ThrowOnNoMatchingHandler</summary>
         /// <returns></returns>
@@ -293,6 +301,14 @@ namespace EventStore.ClientAPI
             return this;
         }
 
+        /// <summary>Whether to prioritize choosing a read only replica that's alive from the known nodes.</summary>
+        /// <returns>A <see cref="ConnectionSettingsBuilder"/> for further configuration.</returns>
+        public ConnectionSettingsBuilder PreferReadOnlyReplica()
+        {
+            _nodePreference = NodePreference.ReadOnlyReplica;
+            return this;
+        }
+
         /// <summary>Sets the well-known port on which the cluster gossip is taking place.
         ///
         /// If you are using the commercial edition of Event Store HA, with Manager nodes in
@@ -327,12 +343,31 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public ConnectionSettingsBuilder SetGossipSeedEndPoints(params IPEndPoint[] gossipSeeds)
         {
+            return SetGossipSeedEndPoints(false, gossipSeeds);
+        }
+
+        /// <summary>Sets gossip seed endpoints for the client.
+        ///
+        /// <note>
+        /// This should be the external HTTP endpoint of the server, as it is required
+        /// for the client to exchange gossip with the server. The standard port is 2113.
+        /// </note>
+        ///
+        /// If the server requires a specific Host header to be sent as part of the gossip
+        /// request, use the overload of this method taking <see cref="GossipSeed" /> instead.
+        /// </summary>
+        /// <param name="seedOverTls">Specifies that eventstore should use https when connecting to gossip</param>
+        /// <param name="gossipSeeds"><see cref="IPEndPoint" />s representing the endpoints of nodes from which to seed gossip.</param>
+        /// <returns>A <see cref="ClusterSettingsBuilder"/> for further configuration.</returns>
+        /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
+        public ConnectionSettingsBuilder SetGossipSeedEndPoints(bool seedOverTls, params IPEndPoint[] gossipSeeds)
+        {
             if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
             {
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
 
-            _gossipSeeds = gossipSeeds.Select(x => new GossipSeed(x)).ToArray();
+            _gossipSeeds = gossipSeeds.Select(x => new GossipSeed(x, seedOverTls: seedOverTls)).ToArray();
 
             return this;
         }
@@ -456,6 +491,7 @@ namespace EventStore.ClientAPI
                                           _gossipExternalHttpPort,
                                           _gossipTimeout,
                                           _nodePreference,
+                                          _customHttpClient,
                                           _eventAdapter,
                                           _throwOnNoMatchingHandler,
                                           _enableLibuv,

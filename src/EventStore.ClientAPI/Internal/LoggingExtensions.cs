@@ -218,5 +218,14 @@ namespace EventStore.ClientAPI
         {
             s_failed_to_get_cluster_info_request_failed(logger, endPoint, exception);
         }
+
+        private static readonly Action<ILogger, Exception> s_cannot_perform_operation_as_this_node_is_Read_Only =
+            LoggerMessage.Define(LogLevel.Error, 0,
+            "Cannot perform operation as this node is Read Only");
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void Cannot_perform_operation_as_this_node_is_Read_Only(this ILogger logger)
+        {
+            s_cannot_perform_operation_as_this_node_is_Read_Only(logger, null);
+        }
     }
 }

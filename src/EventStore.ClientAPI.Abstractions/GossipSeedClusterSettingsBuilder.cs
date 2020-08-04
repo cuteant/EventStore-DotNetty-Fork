@@ -26,12 +26,29 @@ namespace EventStore.ClientAPI
         /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
         public GossipSeedClusterSettingsBuilder SetGossipSeedEndPoints(params IPEndPoint[] gossipSeeds)
         {
+            return SetGossipSeedEndPoints(false, gossipSeeds);
+        }
+
+        /// <summary>Sets gossip seed endpoints for the client.
+        /// TODO: This was a note.
+        /// This should be the external HTTP endpoint of the server, as it is required
+        /// for the client to exchange gossip with the server. The standard port is 2113.
+        ///
+        /// If the server requires a specific Host header to be sent as part of the gossip
+        /// request, use the overload of this method taking <see cref="GossipSeed" /> instead.
+        /// </summary>
+        /// <param name="tlsTerminatedEndpoints">Specifies that eventstore should use https when connecting to gossip</param>
+        /// <param name="gossipSeeds"><see cref="IPEndPoint" />s representing the endpoints of nodes from which to seed gossip.</param>
+        /// <returns>A <see cref="ClusterSettingsBuilder"/> for further configuration.</returns>
+        /// <exception cref="ArgumentException">If no gossip seeds are specified.</exception>
+        public GossipSeedClusterSettingsBuilder SetGossipSeedEndPoints(bool tlsTerminatedEndpoints, params IPEndPoint[] gossipSeeds)
+        {
             if (gossipSeeds == null || 0u >= (uint)gossipSeeds.Length)
             {
                 ThrowHelper.ThrowArgumentException_EmptyFakeDnsEntriesCollection();
             }
 
-            _gossipSeeds = gossipSeeds.Select(x => new GossipSeed(x)).ToArray();
+            _gossipSeeds = gossipSeeds.Select(x => new GossipSeed(x, seedOverTls: tlsTerminatedEndpoints)).ToArray();
 
             return this;
         }
@@ -94,6 +111,14 @@ namespace EventStore.ClientAPI
         public GossipSeedClusterSettingsBuilder PreferSlaveNode()
         {
             _nodePreference = NodePreference.Slave;
+            return this;
+        }
+
+        /// <summary>Whether to prioritize choosing a read only replica that's alive from the known nodes.</summary>
+        /// <returns>A <see cref="GossipSeedClusterSettingsBuilder"/> for further configuration.</returns>
+        public GossipSeedClusterSettingsBuilder PreferReadOnlyReplica()
+        {
+            _nodePreference = NodePreference.ReadOnlyReplica;
             return this;
         }
 

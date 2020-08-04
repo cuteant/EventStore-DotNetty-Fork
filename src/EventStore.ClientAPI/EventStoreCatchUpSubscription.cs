@@ -224,34 +224,9 @@ namespace EventStore.ClientAPI
         public void Stop()
         {
             if (Verbose) { LogCatchupSubscriptionRequestingStop(); }
-            _connection.Connected -= OnReconnect;
 
             ShouldStop = true;
             EnqueueSubscriptionDropNotification(SubscriptionDropReason.UserInitiated, null);
-        }
-
-        #endregion
-
-        #region ** OnReconnect **
-
-        private void OnReconnect(object sender, ClientConnectionEventArgs clientConnectionEventArgs)
-        {
-            if (Verbose) { LogCatchupSubscriptionRecoveringAfterReconnection(); }
-
-            DropData dropData;
-            do
-            {
-                dropData = _dropData;
-            } while (Interlocked.CompareExchange(ref _dropData, null, dropData) != dropData);
-
-            int isDropped;
-            do
-            {
-                isDropped = _isDropped;
-            } while (Interlocked.CompareExchange(ref _isDropped, 0, isDropped) != isDropped);
-
-            _connection.Connected -= OnReconnect;
-            RunSubscriptionAsync();
         }
 
         #endregion
@@ -350,7 +325,6 @@ namespace EventStore.ClientAPI
             _liveProcessingStarted?.Invoke(this as TSubscription);
 
             if (Verbose) LogHookingToConnectionConnected();
-            _connection.Connected += OnReconnect;
 
             Interlocked.Exchange(ref _liveLinks, _liveQueue.LinkTo(_liveTargetBlock));
         }

@@ -13,14 +13,14 @@ namespace EventStore.ClientAPI.UserManagement
 {
     internal class UsersClient
     {
-        private readonly HttpAsyncClient _client;
+        private readonly IHttpClient _client;
 
         private readonly TimeSpan _operationTimeout;
 
-        public UsersClient(TimeSpan operationTimeout)
+        public UsersClient(TimeSpan operationTimeout, IHttpClient client)
         {
             _operationTimeout = operationTimeout;
-            _client = new HttpAsyncClient(_operationTimeout);
+            _client = client ?? new HttpAsyncClient(_operationTimeout);
         }
 
         public Task Enable(EndPoint endPoint, string login, UserCredentials userCredentials = null, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
@@ -103,10 +103,10 @@ namespace EventStore.ClientAPI.UserManagement
                 userCredentials,
                 response =>
                 {
-                if (response.HttpStatusCode == expectedCode)
-                    source.SetResult(response.Body);
-                else
-                    source.SetException(CoreThrowHelper.GetUserCommandFailedException_Get(response, url));
+                    if (response.HttpStatusCode == expectedCode)
+                        source.SetResult(response.Body);
+                    else
+                        source.SetException(CoreThrowHelper.GetUserCommandFailedException_Get(response, url));
                 },
                 source.SetException);
 

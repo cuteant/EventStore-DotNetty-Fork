@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils;
 using EventStore.ClientAPI.Common.Utils.Threading;
 using EventStore.ClientAPI.SystemData;
+using EventStore.ClientAPI.Transport.Http;
 using Newtonsoft.Json.Linq;
 
 namespace EventStore.ClientAPI.Projections
@@ -19,10 +20,11 @@ namespace EventStore.ClientAPI.Projections
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="projectionOperationTimeout">Timeout of projection API operations</param>
         /// <param name="queryTimeout">Timeout of query execution</param>
-        public QueryManager(EndPoint httpEndPoint, TimeSpan projectionOperationTimeout, TimeSpan queryTimeout)
+        /// <param name="client"></param>
+        public QueryManager(EndPoint httpEndPoint, TimeSpan projectionOperationTimeout, TimeSpan queryTimeout, IHttpClient client = null)
         {
             _queryTimeout = queryTimeout;
-            _projectionsManager = new ProjectionsManager(httpEndPoint, projectionOperationTimeout);
+            _projectionsManager = new ProjectionsManager(httpEndPoint, projectionOperationTimeout, client: client);
         }
 
         /// <summary>Asynchronously executes a query.</summary>

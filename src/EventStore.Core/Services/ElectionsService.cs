@@ -25,16 +25,17 @@ namespace EventStore.Core.Services
     }
 
     public class ElectionsService : IHandle<SystemMessage.BecomeShuttingDown>,
-                                         IHandle<GossipMessage.GossipUpdated>,
-                                         IHandle<ElectionMessage.StartElections>,
-                                         IHandle<ElectionMessage.ElectionsTimedOut>,
-                                         IHandle<ElectionMessage.ViewChange>,
-                                         IHandle<ElectionMessage.ViewChangeProof>,
-                                         IHandle<ElectionMessage.SendViewChangeProof>,
-                                         IHandle<ElectionMessage.Prepare>,
-                                         IHandle<ElectionMessage.PrepareOk>,
-                                         IHandle<ElectionMessage.Proposal>,
-                                         IHandle<ElectionMessage.Accept>
+        IHandle<SystemMessage.SystemInit>,
+        IHandle<GossipMessage.GossipUpdated>,
+        IHandle<ElectionMessage.StartElections>,
+        IHandle<ElectionMessage.ElectionsTimedOut>,
+        IHandle<ElectionMessage.ViewChange>,
+        IHandle<ElectionMessage.ViewChangeProof>,
+        IHandle<ElectionMessage.SendViewChangeProof>,
+        IHandle<ElectionMessage.Prepare>,
+        IHandle<ElectionMessage.PrepareOk>,
+        IHandle<ElectionMessage.Proposal>,
+        IHandle<ElectionMessage.Accept>
     {
         private static readonly TimeSpan LeaderElectionProgressTimeout = TimeSpan.FromMilliseconds(1000);
         private static readonly TimeSpan SendViewChangeProofInterval = TimeSpan.FromMilliseconds(5000);
@@ -111,6 +112,7 @@ namespace EventStore.Core.Services
         public void SubscribeMessages(ISubscriber subscriber)
         {
             subscriber.Subscribe<SystemMessage.BecomeShuttingDown>(this);
+            subscriber.Subscribe<SystemMessage.SystemInit>(this);
             subscriber.Subscribe<GossipMessage.GossipUpdated>(this);
             subscriber.Subscribe<ElectionMessage.StartElections>(this);
             subscriber.Subscribe<ElectionMessage.ElectionsTimedOut>(this);
@@ -121,6 +123,13 @@ namespace EventStore.Core.Services
             subscriber.Subscribe<ElectionMessage.PrepareOk>(this);
             subscriber.Subscribe<ElectionMessage.Proposal>(this);
             subscriber.Subscribe<ElectionMessage.Accept>(this);
+        }
+
+        public void Handle(SystemMessage.SystemInit _)
+        {
+            _publisher.Publish(TimerMessage.Schedule.Create(SendViewChangeProofInterval,
+                _publisherEnvelope,
+                new ElectionMessage.SendViewChangeProof()));
         }
 
         public void Handle(SystemMessage.BecomeShuttingDown message)
@@ -143,9 +152,6 @@ namespace EventStore.Core.Services
 
             if (Log.IsDebugLevelEnabled()) Log.Elections_starting_elections();
             ShiftToLeaderElection(_lastAttemptedView + 1);
-            _publisher.Publish(TimerMessage.Schedule.Create(SendViewChangeProofInterval,
-                                                            _publisherEnvelope,
-                                                            new ElectionMessage.SendViewChangeProof()));
         }
 
         public void Handle(ElectionMessage.ElectionsTimedOut message)

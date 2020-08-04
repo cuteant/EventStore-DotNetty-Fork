@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.SystemData;
+using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.ClientAPI.UserManagement
 {
@@ -14,19 +15,23 @@ namespace EventStore.ClientAPI.UserManagement
     {
         private readonly UsersClient _client;
 
-        private readonly IPEndPoint _httpEndPoint;
+        private readonly EndPoint _httpEndPoint;
+        private string _httpSchema;
 
         /// <summary>
         /// Creates a new instance of <see cref="UsersManager"/>.
         /// </summary>
         /// <param name="httpEndPoint">HTTP endpoint of an Event Store server.</param>
         /// <param name="operationTimeout"></param>
-        public UsersManager(IPEndPoint httpEndPoint, TimeSpan operationTimeout)
+        /// <param name="tlsTerminatedEndpoint"></param>
+        /// <param name="client"></param>
+        public UsersManager(EndPoint httpEndPoint, TimeSpan operationTimeout, bool tlsTerminatedEndpoint = false, IHttpClient client = null)
         {
             if (null == httpEndPoint) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.httpEndPoint); }
 
-            _client = new UsersClient(operationTimeout);
+            _client = new UsersClient(operationTimeout, client);
             _httpEndPoint = httpEndPoint;
+            _httpSchema = tlsTerminatedEndpoint ? EndpointExtensions.HTTPS_SCHEMA : EndpointExtensions.HTTP_SCHEMA;
         }
 
         /// <summary>
@@ -38,7 +43,7 @@ namespace EventStore.ClientAPI.UserManagement
         public Task EnableAsync(string login, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
-            return _client.Enable(_httpEndPoint, login, userCredentials);
+            return _client.Enable(_httpEndPoint, login, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -50,7 +55,7 @@ namespace EventStore.ClientAPI.UserManagement
         public Task DisableAsync(string login, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
-            return _client.Disable(_httpEndPoint, login, userCredentials);
+            return _client.Disable(_httpEndPoint, login, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -62,7 +67,7 @@ namespace EventStore.ClientAPI.UserManagement
         public Task DeleteUserAsync(string login, UserCredentials userCredentials = null)
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
-            return _client.Delete(_httpEndPoint, login, userCredentials);
+            return _client.Delete(_httpEndPoint, login, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -72,7 +77,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>String of JSON containing user full names and logins.</returns>
         public Task<List<UserDetails>> ListAllAsync(UserCredentials userCredentials = null) 
         {
-            return _client.ListAll(_httpEndPoint, userCredentials);
+            return _client.ListAll(_httpEndPoint, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -82,7 +87,7 @@ namespace EventStore.ClientAPI.UserManagement
         /// <returns>A <see cref="UserDetails"/> object for the currently logged in user.</returns>
         public Task<UserDetails> GetCurrentUserAsync(UserCredentials userCredentials) 
         {
-            return _client.GetCurrentUser(_httpEndPoint, userCredentials);
+            return _client.GetCurrentUser(_httpEndPoint, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -94,7 +99,7 @@ namespace EventStore.ClientAPI.UserManagement
         public Task<UserDetails> GetUserAsync(string login, UserCredentials userCredentials) 
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
-            return _client.GetUser(_httpEndPoint, login, userCredentials);
+            return _client.GetUser(_httpEndPoint, login, userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -114,7 +119,7 @@ namespace EventStore.ClientAPI.UserManagement
             if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
             if (string.IsNullOrEmpty(password)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.password); }
             return _client.CreateUser(_httpEndPoint, new UserCreationInformation(login, fullName, groups, password),
-                userCredentials);
+                userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -130,7 +135,7 @@ namespace EventStore.ClientAPI.UserManagement
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             if (string.IsNullOrEmpty(fullName)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.fullName); }
             if (null == groups) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.groups); }
-            return _client.UpdateUser(_httpEndPoint, login, new UserUpdateInformation(fullName, groups), userCredentials);
+            return _client.UpdateUser(_httpEndPoint, login, new UserUpdateInformation(fullName, groups), userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -148,7 +153,7 @@ namespace EventStore.ClientAPI.UserManagement
             if (string.IsNullOrEmpty(oldPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.oldPassword); }
             if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
             return _client.ChangePassword(_httpEndPoint, login, new ChangePasswordDetails(oldPassword, newPassword),
-                userCredentials);
+                userCredentials, _httpSchema);
         }
 
         /// <summary>
@@ -162,7 +167,7 @@ namespace EventStore.ClientAPI.UserManagement
         {
             if (string.IsNullOrEmpty(login)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.login); }
             if (string.IsNullOrEmpty(newPassword)) { ThrowHelper.ThrowArgumentNullException(ExceptionArgument.newPassword); }
-            return _client.ResetPassword(_httpEndPoint, login, new ResetPasswordDetails(newPassword), userCredentials);
+            return _client.ResetPassword(_httpEndPoint, login, new ResetPasswordDetails(newPassword), userCredentials, _httpSchema);
         }
     }
 }

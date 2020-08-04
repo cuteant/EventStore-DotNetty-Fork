@@ -9,6 +9,7 @@ using CuteAnt.AsyncEx;
 using CuteAnt.Reflection;
 using EventStore.ClientAPI.ClientOperations;
 using EventStore.ClientAPI.Common.Utils.Threading;
+using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Tcp;
 using EventStore.Transport.Tcp;
@@ -886,6 +887,11 @@ namespace EventStore.ClientAPI.Internal
                     case InspectionDecision.Reconnect:
                         await ReconnectToAsync(new NodeEndPoints(result.TcpEndPoint, result.SecureTcpEndPoint)).ConfigureAwait(false);
                         _operations.ScheduleOperationRetry(operation);
+                        break;
+                    case InspectionDecision.NotSupported:
+                        operation.Operation.Fail(
+                            new OperationNotSupportedException(operation.Operation.GetType().Name, result.Description));
+                        _operations.RemoveOperation(operation);
                         break;
                     default: ThrowException(result.Decision); break;
                 }

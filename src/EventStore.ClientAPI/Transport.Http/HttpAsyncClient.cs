@@ -10,7 +10,7 @@ using EventStore.ClientAPI.SystemData;
 
 namespace EventStore.ClientAPI.Transport.Http
 {
-    internal class HttpAsyncClient
+    public class HttpAsyncClient : IHttpClient
     {
         private static readonly UTF8Encoding UTF8NoBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
         private HttpClient _client;
@@ -21,9 +21,9 @@ namespace EventStore.ClientAPI.Transport.Http
             ServicePointManager.DefaultConnectionLimit = 800;
         }
 
-        public HttpAsyncClient(TimeSpan timeout)
+        public HttpAsyncClient(TimeSpan timeout, HttpClientHandler clientHandler = null)
         {
-            _client = new HttpClient();
+            _client = clientHandler is null ? new HttpClient() : new HttpClient(clientHandler);
             _client.Timeout = timeout;
         }
 

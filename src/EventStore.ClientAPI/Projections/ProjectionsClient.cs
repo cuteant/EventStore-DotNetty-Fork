@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using EventStore.ClientAPI.Common.Utils.Threading;
-using EventStore.ClientAPI.Exceptions;
 using EventStore.ClientAPI.SystemData;
 using EventStore.ClientAPI.Transport.Http;
 using Newtonsoft.Json.Linq;
@@ -13,13 +12,13 @@ namespace EventStore.ClientAPI.Projections
 {
     internal class ProjectionsClient
     {
-        private readonly HttpAsyncClient _client;
+        private readonly IHttpClient _client;
         private readonly TimeSpan _operationTimeout;
 
-        public ProjectionsClient(TimeSpan operationTimeout)
+        public ProjectionsClient(TimeSpan operationTimeout, IHttpClient client)
         {
             _operationTimeout = operationTimeout;
-            _client = new HttpAsyncClient(_operationTimeout);
+            _client = client ?? new HttpAsyncClient(_operationTimeout);
         }
 
         public Task Enable(EndPoint endPoint, string name, UserCredentials userCredentials = null, string httpSchema = EndpointExtensions.HTTP_SCHEMA)
@@ -153,7 +152,8 @@ namespace EventStore.ClientAPI.Projections
         {
             return SendGet(endPoint.ToHttpUrl(httpSchema, "/projection/{0}/config", name), userCredentials,
                 HttpStatusCode.OK)
-                .ContinueWith(x => {
+                .ContinueWith(x =>
+                {
                     if (x.IsFaulted) throw x.Exception;
                     var r = JObject.Parse(x.Result);
                     return r.ToObject<ProjectionConfig>();

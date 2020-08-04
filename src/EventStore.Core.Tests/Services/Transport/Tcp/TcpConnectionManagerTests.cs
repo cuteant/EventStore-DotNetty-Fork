@@ -180,7 +180,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             dummyConnection.SendQueueSize = ESConsts.MaxConnectionQueueSize - 1;
 
             var tcpConnectionManager = new TcpConnectionManager(
-                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
+                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher().Build(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(),
                 new InternalAuthenticationProvider(
                     new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1, false),
@@ -212,7 +212,7 @@ namespace EventStore.Core.Tests.Services.Transport.Tcp
             dummyConnection.SendQueueSize = ESConsts.MaxConnectionQueueSize + 1;
 
             var tcpConnectionManager = new TcpConnectionManager(
-                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher(),
+                Guid.NewGuid().ToString(), TcpServiceType.External, new ClientTcpDispatcher().Build(),
                 InMemoryBus.CreateTest(), dummyConnection, InMemoryBus.CreateTest(),
                 new InternalAuthenticationProvider(
                     new Core.Helpers.IODispatcher(InMemoryBus.CreateTest(), new NoopEnvelope()), null, 1, false),

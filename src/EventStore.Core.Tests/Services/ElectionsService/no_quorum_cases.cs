@@ -36,7 +36,6 @@ namespace EventStore.Core.Tests.Services.ElectionsService
         public void elect_node_with_biggest_port_ip_for_equal_writerchecksums()
         {
             Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.ElectionsTimedOut>());
-            Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.SendViewChangeProof>());
         }
     }
 
@@ -77,7 +76,6 @@ namespace EventStore.Core.Tests.Services.ElectionsService
         public void elect_node_with_biggest_port_ip_for_equal_writerchecksums()
         {
             Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.ElectionsTimedOut>());
-            Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.SendViewChangeProof>());
         }
     }
 
@@ -125,10 +123,9 @@ namespace EventStore.Core.Tests.Services.ElectionsService
         }
 
         [Test]
-        public void elect_node_with_biggest_port_ip_for_equal_writerchecksums()
+        public void elections_should_time_out()
         {
             Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.ElectionsTimedOut>());
-            Assert.That(_electionsUnit.Publisher.Messages.ContainsSingle<ElectionMessage.SendViewChangeProof>());
         }
     }
 }

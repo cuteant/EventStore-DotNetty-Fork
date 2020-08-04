@@ -149,7 +149,7 @@ namespace EventStore.ClientAPI.ClientOperations
             {
                 return new ConditionalWriteResult(ConditionalWriteStatus.StreamDeleted);
             }
-            return new ConditionalWriteResult(response.LastEventNumber, new Position(response.PreparePosition ?? -1, response.CommitPosition ?? -1));
+            return new ConditionalWriteResult(response.LastEventNumber, new Position(response.CommitPosition ?? -1, response.PreparePosition ?? -1));
         }
 
         public override string ToString()

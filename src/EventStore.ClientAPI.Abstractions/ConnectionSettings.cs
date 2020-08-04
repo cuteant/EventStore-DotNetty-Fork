@@ -1,5 +1,6 @@
 ﻿using System;
 using EventStore.ClientAPI.SystemData;
+using EventStore.ClientAPI.Transport.Http;
 
 namespace EventStore.ClientAPI
 {
@@ -17,6 +18,9 @@ namespace EventStore.ClientAPI
         /// <summary>Creates a new set of <see cref="ConnectionSettings"/>.</summary>
         /// <returns>A <see cref="ConnectionSettingsBuilder"/> you can use to build up a <see cref="ConnectionSettings"/>.</returns>.
         public static ConnectionSettingsBuilder Create() => new ConnectionSettingsBuilder();
+
+        /// <summary>Allows overriding the HTTPClient <see cref="IHttpClient"/>.</summary>
+        public IHttpClient CustomHttpClient { get; set; }
 
         /// <summary>Whether to use excessive logging of <see cref="T:EventStore.ClientAPI.EventStoreConnection"/> internal logic.</summary>
         public readonly bool VerboseLogging;
@@ -141,6 +145,7 @@ namespace EventStore.ClientAPI
             int externalGossipPort,
             TimeSpan gossipTimeout,
             NodePreference nodePreference,
+            IHttpClient customHttpClient,
             IEventAdapter eventAdapter,
             bool throwOnNoMatchingHandler,
             bool enableLibuv,
@@ -190,6 +195,7 @@ namespace EventStore.ClientAPI
             ExternalGossipPort = externalGossipPort;
             GossipTimeout = gossipTimeout;
             NodePreference = nodePreference;
+            CustomHttpClient = customHttpClient;
 
             EventAdapter = eventAdapter;
 

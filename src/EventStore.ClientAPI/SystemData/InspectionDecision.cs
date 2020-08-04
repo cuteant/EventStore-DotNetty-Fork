@@ -6,6 +6,7 @@
         EndOperation,
         Retry,
         Reconnect,
-        Subscribed
+        Subscribed,
+        NotSupported
     }
 }

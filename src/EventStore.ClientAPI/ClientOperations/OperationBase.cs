@@ -130,6 +130,10 @@ namespace EventStore.ClientAPI.ClientOperations
                     return new InspectionResult(InspectionDecision.Reconnect, "NotHandled - NotMaster",
                                                 masterInfo.ExternalTcpEndPoint, masterInfo.ExternalSecureTcpEndPoint);
 
+                case TcpClientMessageDto.NotHandled.NotHandledReason.IsReadOnly:
+                    Log.Cannot_perform_operation_as_this_node_is_Read_Only();
+                    return new InspectionResult(InspectionDecision.NotSupported, "This node is Read Only");
+
                 default:
                     Log.UnknownNotHandledReason(message.Reason);
                     return new InspectionResult(InspectionDecision.Retry, "NotHandled - <unknown>");
