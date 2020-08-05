@@ -34,6 +34,9 @@ StatsPeriodSec: 3600
 # Log Http Requests and Responses before processing them.
 # LogHttpRequests: false
 
+# Log the failed authentication attempts.
+# LogFailedAuthenticationAttempts: false
+
 # Skip Index Scan on Reads. This skips the index scan which was used to stop reading duplicates.
 # SkipIndexScanOnReads: false
 
@@ -113,6 +116,19 @@ StatsPeriodSec: 3600
 # Change the way the DB files are opened to reduce their stickiness in the system file cache.
 # ReduceFileCachePressure: false
 
+# Enable structured logging.
+# StructuredLog: true
+
+# Set this option to write statistics to the database.
+# WriteStatsToDb: true
+
+
+## Scavenge options
+
+# During large Index Merge operations, writes may be slowed down. Set this to the maximum index file level for which automatic merges should happen.
+# Merging indexes above this level should be done manually.
+# MaxAutoMergeIndexLevel: int.MaxValue
+
 
 
 
@@ -136,15 +152,8 @@ RunProjections: All                    # None / System / All
 # AuthenticationType: internal
 # Path to the configuration file for authentication configuration (if applicable).
 # AuthenticationConfig: 
-
-
-
-
-## Scavenge options
-
-# During large Index Merge operations, writes may be slowed down. Set this to the maximum index file level for which automatic merges should happen.
-# Merging indexes above this level should be done manually.
-# MaxAutoMergeIndexLevel: int.MaxValue
+# Disables first level authorization checks on all HTTP endpoints. This option can be enabled for backwards compatibility with EventStore 5.0.1 or earlier.
+# DisableFirstLevelHttpAuthorization: false
 
 
 
@@ -216,6 +225,9 @@ RunProjections: All                    # None / System / All
 
 # The maximum number of pending send bytes allowed before a connection is closed.
 # ConnectionPendingSendBytesThreshold: 10 * 1024 * 1024
+
+# The maximum number of pending connection operations allowed before a connection is closed.
+# ConnectionQueueSizeThreshold: 50000
 
 # Whether or not to run the admin ui on the external HTTP endpoint
 # AdminOnExt: true
