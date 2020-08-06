@@ -375,7 +375,8 @@ namespace EventStore.Core
         internal static void ThrowException()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception();
             }
@@ -956,7 +957,8 @@ namespace EventStore.Core
         internal static void ThrowException_InvalidJson()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("Invalid JSON");
             }
@@ -966,7 +968,8 @@ namespace EventStore.Core
         internal static void ThrowException_MasterIsNull()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("_master is null");
             }
@@ -976,7 +979,8 @@ namespace EventStore.Core
         internal static void ThrowException_SomehowWeManagedToDecreaseCountOfPoolItemsBelowZero()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("Somehow we managed to decrease count of pool items below zero.");
             }
@@ -986,7 +990,8 @@ namespace EventStore.Core
         internal static void ThrowException_NotAllIndexEntriesInABulkHaveTheSameStreamHash()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("Not all index entries in a bulk have the same stream hash.");
             }
@@ -996,7 +1001,8 @@ namespace EventStore.Core
         internal static void ThrowException_ShouldNotDoNegativeReads()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("should not do negative reads.");
             }
@@ -1016,7 +1022,8 @@ namespace EventStore.Core
         internal static void ThrowException_NoDescendantsForMessage<T>() where T : Message
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception(string.Format("No descendants for message of type '{0}'.", typeof(T).Name));
             }
@@ -1104,7 +1111,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentException_MD5HashIsOfWrongLength()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("MD5Hash is of wrong length.", "md5Hash");
             }
@@ -1114,7 +1122,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentException_UseOnlySizesEqualPowerOf2()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("Use only sizes equal power of 2");
             }
@@ -1124,7 +1133,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentException_MPSCTheSizeShouldBeAtLeast()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("The size should be at least " + Bus.MPSCMessageQueue.MinimalSize);
             }
@@ -1134,7 +1144,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentException_SPSCTheSizeShouldBeAtLeast()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("The size should be at least " + Bus.SPSCMessageQueue.MinimalSize);
             }
@@ -1369,7 +1380,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_ChunkStartNumberIsGreaterThanChunkEndNumber()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("chunkStartNumber", "chunkStartNumber is greater than ChunkEndNumber.");
             }
@@ -1399,7 +1411,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_DepthTooForMidpoints()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("depth", "Depth too for midpoints.");
             }
@@ -1409,7 +1422,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_InitialReaderCountIsGreaterThanMaxReaderCount()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("initialReaderCount", "initialReaderCount is greater than maxReaderCount.");
             }
@@ -1419,7 +1433,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_InitialCountIsGreaterThanMaxCount()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("initialCount", "initialCount is greater than maxCount.");
             }
@@ -1470,7 +1485,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_ShouldBeBetween0And05Exclusive()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("p", "p should be between 0 and 0.5 exclusive");
             }
@@ -1480,7 +1496,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_StreamMetadata_MaxCount()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("maxCount", $"{SystemMetadata.MaxCount} should be positive value.");
             }
@@ -1490,7 +1507,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_StreamMetadata_MaxAge()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("maxAge", $"{SystemMetadata.MaxAge} should be positive time span.");
             }
@@ -1500,7 +1518,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_StreamMetadata_TruncateBefore()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("truncateBefore", $"{SystemMetadata.TruncateBefore} should be non-negative value.");
             }
@@ -1510,7 +1529,8 @@ namespace EventStore.Core
         internal static void ThrowArgumentOutOfRangeException_StreamMetadata_CacheControl()
         {
             throw GetException();
-            ArgumentOutOfRangeException GetException()
+
+            static ArgumentOutOfRangeException GetException()
             {
                 return new ArgumentOutOfRangeException("cacheControl", $"{SystemMetadata.CacheControl} should be positive time span.");
             }
@@ -1524,7 +1544,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException();
             }
@@ -1534,7 +1555,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_FilesAreLocked()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Files are locked.");
             }
@@ -1544,7 +1566,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CannotCompleteReadonlyTFChunk()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Cannot complete a read-only TFChunk.");
             }
@@ -1554,7 +1577,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_AlreadyAThreadRunning()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Already a thread running.");
             }
@@ -1564,7 +1588,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_NoChunkGivenForExistingPosition()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("No chunk given for existing position.");
             }
@@ -1574,7 +1599,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_TheRawChunkIsNotCompletelyWritten()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("The raw chunk is not completely written.");
             }
@@ -1584,7 +1610,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CannotWriteToReadonlyBlock()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Cannot write to a read-only block.");
             }
@@ -1594,7 +1621,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CannotWriteToReadonlyTFChunk()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Cannot write to a read-only TFChunk.");
             }
@@ -1604,7 +1632,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CompleteScavengedShouldBeUsedForScavengedChunks()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("CompleteScavenged should be used for scavenged chunks.");
             }
@@ -1614,7 +1643,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CompleteScavengedShouldNotBeUsedForNonScavengedChunks()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("CompleteScavenged should not be used for non-scavenged chunks.");
             }
@@ -1624,7 +1654,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_WhenTryingToBuildCache()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("When trying to build cache, reader worker is already in-memory reader.");
             }
@@ -1634,7 +1665,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_AllUsersReaderCannotBeReused()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("AllUsersReader cannot be re-used");
             }
@@ -1644,7 +1676,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_CommitAckNotPresentInNodeList()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Commit ack not present in node list");
             }
@@ -1654,7 +1687,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_FailedToAddPendingCommit()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Failed to add pending commit");
             }
@@ -1664,7 +1698,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_FailedToUpdatePendingCommit()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Failed to update pending commit");
             }
@@ -1674,7 +1709,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_FailedToAddPendingPrepare()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Failed to add pending prepare");
             }
@@ -1684,7 +1720,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_FailedToUpdatePendingPrepare()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Failed to update pending prepare");
             }
@@ -1694,7 +1731,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_OnlyAddedClientsCanBeRemoved()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Only added clients can be removed.");
             }
@@ -1704,7 +1742,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_TheMessageCanOnlyBeAcceptedOnce()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("The message can only be accepted once.");
             }
@@ -1714,7 +1753,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_ShouldNeverCompleteRequestTwice()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Should never complete request twice.");
             }
@@ -1724,7 +1764,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_YoucanotVerifyHashOfNotCompletedTFChunk()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("You can't verify hash of not-completed TFChunk.");
             }
@@ -1734,7 +1775,8 @@ namespace EventStore.Core
         internal static void ThrowInvalidOperationException_TryingToWriteMappingWhileChunkIsCached()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException("Trying to write mapping while chunk is cached. "
                                                       + "You probably are writing scavenged chunk as cached. "
@@ -1841,7 +1883,8 @@ namespace EventStore.Core
         internal static void ThrowTimeoutException()
         {
             throw GetException();
-            TimeoutException GetException()
+
+            static TimeoutException GetException()
             {
                 return new TimeoutException();
             }
@@ -1875,7 +1918,8 @@ namespace EventStore.Core
         internal static void ThrowNotSupportedException()
         {
             throw GetException();
-            NotSupportedException GetException()
+
+            static NotSupportedException GetException()
             {
                 return new NotSupportedException();
             }
@@ -1885,7 +1929,8 @@ namespace EventStore.Core
         internal static void ThrowNotSupportedException_QueueIsSupportedOnlyOnX64()
         {
             throw GetException();
-            NotSupportedException GetException()
+
+            static NotSupportedException GetException()
             {
                 return new NotSupportedException("This queue is supported only on architectures having IntPtr.Size equal to 8");
             }
@@ -1909,7 +1954,8 @@ namespace EventStore.Core
         internal static void ThrowNotImplementedException_OnlySupportsSeekOriginBeginEnd()
         {
             throw GetException();
-            NotImplementedException GetException()
+
+            static NotImplementedException GetException()
             {
                 return new NotImplementedException("only supports seek origin begin/end");
             }
@@ -1923,7 +1969,8 @@ namespace EventStore.Core
         internal static void ThrowIOException_TableIndexIsAlreadyInitialized()
         {
             throw GetException();
-            IOException GetException()
+
+            static IOException GetException()
             {
                 return new IOException("TableIndex is already initialized.");
             }
@@ -1951,7 +1998,8 @@ namespace EventStore.Core
         internal static void ThrowApplicationException_InfiniteWaitStop()
         {
             throw GetException();
-            ApplicationException GetException()
+
+            static ApplicationException GetException()
             {
                 return new ApplicationException("Infinite WaitStop() loop?");
             }
@@ -1961,7 +2009,8 @@ namespace EventStore.Core
         internal static void ThrowApplicationException_InfiniteWaitIdle()
         {
             throw GetException();
-            ApplicationException GetException()
+
+            static ApplicationException GetException()
             {
                 return new ApplicationException("Infinite WaitIdle() loop?");
             }
@@ -1971,7 +2020,8 @@ namespace EventStore.Core
         internal static void ThrowApplicationException_ClientRemovedWasCalledForClientTheConsumerStrategy()
         {
             throw GetException();
-            ApplicationException GetException()
+
+            static ApplicationException GetException()
             {
                 return new ApplicationException("ClientRemoved was called for a client the consumer strategy didn't have.");
             }
@@ -1985,7 +2035,8 @@ namespace EventStore.Core
         internal static void ThrowBadConfigDataException_DeserializedButNoVersionPresent()
         {
             throw GetException();
-            BadConfigDataException GetException()
+
+            static BadConfigDataException GetException()
             {
                 return new BadConfigDataException("Deserialized but no version present, invalid configuration data.", null);
             }
@@ -2009,7 +2060,8 @@ namespace EventStore.Core
         internal static void ThrowFileBeingDeletedException()
         {
             throw GetException();
-            FileBeingDeletedException GetException()
+
+            static FileBeingDeletedException GetException()
             {
                 return new FileBeingDeletedException();
             }
@@ -2019,7 +2071,8 @@ namespace EventStore.Core
         internal static void ThrowFileBeingDeletedException_BeenToldTheFileWasDeletedGreaterThanMaxRetriesTimes()
         {
             throw GetException();
-            FileBeingDeletedException GetException()
+
+            static FileBeingDeletedException GetException()
             {
                 return new FileBeingDeletedException("Been told the file was deleted > MaxRetries times. Probably a problem in db.");
             }
@@ -2033,7 +2086,8 @@ namespace EventStore.Core
         internal static void ThrowHashValidationException()
         {
             throw GetException();
-            HashValidationException GetException()
+
+            static HashValidationException GetException()
             {
                 return new HashValidationException();
             }
@@ -2133,7 +2187,8 @@ namespace EventStore.Core
         internal static void ThrowUnableToAcquireLockInReasonableTimeException()
         {
             throw GetException();
-            UnableToAcquireLockInReasonableTimeException GetException()
+
+            static UnableToAcquireLockInReasonableTimeException GetException()
             {
                 return new UnableToAcquireLockInReasonableTimeException();
             }
@@ -2276,7 +2331,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptDatabaseException_InvalidFile()
         {
             throw GetException();
-            CorruptDatabaseException GetException()
+
+            static CorruptDatabaseException GetException()
             {
                 return new CorruptDatabaseException(new InvalidFileException());
             }
@@ -2346,7 +2402,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CorruptedPTable()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Corrupted PTable.", new InvalidFileException("Wrong type of PTable."));
             }
@@ -2356,7 +2413,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_InternalIndexmapStructureCorruption()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Internal indexmap structure corruption.");
             }
@@ -2366,7 +2424,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CalculatedMD5HashIsNull()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException(new HashValidationException("Calculated MD5 hash is null!"));
             }
@@ -2376,7 +2435,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CorruptedVersion()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Corrupted version.");
             }
@@ -2386,7 +2446,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CorruptedCommitCheckpoint()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Corrupted commit checkpoint.");
             }
@@ -2396,7 +2457,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_ReadFromFileMD5HashIsNull()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException(new HashValidationException("Read from file MD5 hash is null!"));
             }
@@ -2406,7 +2468,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_IndexMapFileIsEmpty()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("IndexMap file is empty.");
             }
@@ -2647,7 +2710,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_PTableFooterWithVersionLess4Found()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("PTable footer with version < 4 found. PTable footers are supported as from version 4.", new InvalidFileException("Invalid PTable file."));
             }
@@ -2657,7 +2721,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CouldntReadVersionOfPTableFromFooter()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Couldn't read version of PTable from footer.", new InvalidFileException("Invalid PTable file."));
             }
@@ -2667,7 +2732,8 @@ namespace EventStore.Core
         internal static void ThrowCorruptIndexException_CouldntReadVersionOfPTableFromHeader()
         {
             throw GetException();
-            CorruptIndexException GetException()
+
+            static CorruptIndexException GetException()
             {
                 return new CorruptIndexException("Couldn't read version of PTable from header.", new InvalidFileException("Invalid PTable file."));
             }

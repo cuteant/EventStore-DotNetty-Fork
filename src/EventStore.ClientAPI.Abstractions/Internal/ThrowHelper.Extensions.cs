@@ -172,7 +172,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowException_ForSuccessfulWritePassNextExpectedVersionAndLogPosition()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("For successful write pass next expected version and log position.");
             }
@@ -230,7 +231,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowArgumentException_EmptyFakeDnsEntriesCollection()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("Empty FakeDnsEntries collection.");
             }
@@ -240,7 +242,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowArgumentException_BothEndpointsAreNull()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("Both endpoints are null.");
             }
@@ -250,7 +253,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowArgumentException_TheCommitPositionCannotBeLessThanThePreparePosition()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("The commit position cannot be less than the prepare position", "commitPosition");
             }
@@ -271,7 +275,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowArgumentException_ReadBatchSizeShouldBeLessThanMaxReadSize()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException($"Read batch size should be less than {ClientApiConstants.MaxReadSize}. For larger reads you should page.");
             }
@@ -415,7 +420,8 @@ namespace EventStore.ClientAPI
         internal static void ThrowOverflowException()
         {
             throw GetException();
-            OverflowException GetException()
+
+            static OverflowException GetException()
             {
                 return new OverflowException();
             }

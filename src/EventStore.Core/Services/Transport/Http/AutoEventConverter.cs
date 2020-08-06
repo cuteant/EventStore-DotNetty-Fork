@@ -208,7 +208,8 @@ namespace EventStore.Core.Services.Transport.Http
         private static void ThrowJsonException()
         {
             throw GetJsonException();
-            JsonException GetJsonException()
+
+            static JsonException GetJsonException()
             {
                 return new JsonException();
             }

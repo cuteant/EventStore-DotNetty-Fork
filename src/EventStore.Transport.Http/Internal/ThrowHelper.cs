@@ -13,7 +13,8 @@ namespace EventStore.Transport.Http
     internal static void ThrowArgumentException()
     {
       throw GetArgumentException();
-      ArgumentException GetArgumentException()
+
+            static ArgumentException GetArgumentException()
       {
         return new ArgumentException();
       }
@@ -65,7 +66,8 @@ namespace EventStore.Transport.Http
     internal static void ThrowArgumentOutOfRangeException()
     {
       throw GetArgumentOutOfRangeException();
-      ArgumentOutOfRangeException GetArgumentOutOfRangeException()
+
+            static ArgumentOutOfRangeException GetArgumentOutOfRangeException()
       {
         return new ArgumentOutOfRangeException();
       }
@@ -159,7 +161,8 @@ namespace EventStore.Transport.Http
     internal static void ThrowIndexOutOfRangeException()
     {
       throw GetIndexOutOfRangeException();
-      IndexOutOfRangeException GetIndexOutOfRangeException()
+
+            static IndexOutOfRangeException GetIndexOutOfRangeException()
       {
         return new IndexOutOfRangeException();
       }

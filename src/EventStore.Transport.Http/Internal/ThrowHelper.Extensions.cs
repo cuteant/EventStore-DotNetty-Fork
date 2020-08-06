@@ -76,7 +76,8 @@ namespace EventStore.Transport.Http
         internal static void ThrowException_ThisShouldNeverHappen()
         {
             throw GetException();
-            Exception GetException()
+
+            static Exception GetException()
             {
                 return new Exception("This should never happen!");
             }
@@ -90,7 +91,8 @@ namespace EventStore.Transport.Http
         internal static void ThrowArgumentException_CustomCodec_ContentType()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("contentType", "contentType");
             }
@@ -100,7 +102,8 @@ namespace EventStore.Transport.Http
         internal static void ThrowArgumentException_MediaType_ComponentText()
         {
             throw GetException();
-            ArgumentException GetException()
+
+            static ArgumentException GetException()
             {
                 return new ArgumentException("componentText", "componentText");
             }
@@ -197,7 +200,8 @@ namespace EventStore.Transport.Http
         internal static void ThrowInvalidOperationException()
         {
             throw GetException();
-            InvalidOperationException GetException()
+
+            static InvalidOperationException GetException()
             {
                 return new InvalidOperationException();
             }
