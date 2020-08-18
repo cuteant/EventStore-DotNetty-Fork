@@ -11,9 +11,9 @@
 
     <ReactiveStreamsSignedPackageVersion>1.0.2</ReactiveStreamsSignedPackageVersion>
 
-    <EasyEventStoreAbstractionsPackageVersion>5.0.1-rtm-190629-02</EasyEventStoreAbstractionsPackageVersion>
-    <EasyEventStoreAutoSubscribingPackageVersion>5.0.1-rtm-190629-02</EasyEventStoreAutoSubscribingPackageVersion>
-    <EasyEventStoreCorePackageVersion>5.0.1-rtm-190629-02</EasyEventStoreCorePackageVersion>
+    <EasyEventStoreAbstractionsPackageVersion>5.0.2008.521</EasyEventStoreAbstractionsPackageVersion>
+    <EasyEventStoreAutoSubscribingPackageVersion>5.0.2008.521</EasyEventStoreAutoSubscribingPackageVersion>
+    <EasyEventStoreCorePackageVersion>5.0.2008.521</EasyEventStoreCorePackageVersion>
 
     <GrEmitSignedPackageVersion>3.1.1</GrEmitSignedPackageVersion>
     <GrobExpCompilerSignedPackageVersion>1.2.13</GrobExpCompilerSignedPackageVersion>
