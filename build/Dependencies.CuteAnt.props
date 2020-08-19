@@ -130,16 +130,16 @@
     <AkkaStreamsUnofficialPackageVersion>1.3.13-rtm-190629-01</AkkaStreamsUnofficialPackageVersion>
     <AkkaStreamsTestKitUnofficialPackageVersion>1.3.13-rtm-190629-01</AkkaStreamsTestKitUnofficialPackageVersion>
 
-    <SpanNettyBuffersPackageVersion>0.7.2007.2802</SpanNettyBuffersPackageVersion>
-    <SpanNettyCodecsHttpPackageVersion>0.7.2007.2802</SpanNettyCodecsHttpPackageVersion>
-    <SpanNettyCodecsHttp2PackageVersion>0.7.2007.2802</SpanNettyCodecsHttp2PackageVersion>
-    <SpanNettyCodecsMqttPackageVersion>0.7.2007.2802</SpanNettyCodecsMqttPackageVersion>
-    <SpanNettyCodecsProtobufPackageVersion>0.7.2007.2802</SpanNettyCodecsProtobufPackageVersion>
-    <SpanNettyCodecsPackageVersion>0.7.2007.2802</SpanNettyCodecsPackageVersion>
-    <SpanNettyCommonPackageVersion>0.7.2007.2802</SpanNettyCommonPackageVersion>
-    <SpanNettyHandlersPackageVersion>0.7.2007.2802</SpanNettyHandlersPackageVersion>
-    <SpanNettyTransportLibuvPackageVersion>0.7.0-beta-20072802</SpanNettyTransportLibuvPackageVersion>
-    <SpanNettyTransportPackageVersion>0.7.2007.2802</SpanNettyTransportPackageVersion>
+    <SpanNettyBuffersPackageVersion>0.7.2008.2000</SpanNettyBuffersPackageVersion>
+    <SpanNettyCodecsHttpPackageVersion>0.7.2008.2000</SpanNettyCodecsHttpPackageVersion>
+    <SpanNettyCodecsHttp2PackageVersion>0.7.2008.2000</SpanNettyCodecsHttp2PackageVersion>
+    <SpanNettyCodecsMqttPackageVersion>0.7.2008.2000</SpanNettyCodecsMqttPackageVersion>
+    <SpanNettyCodecsProtobufPackageVersion>0.7.2008.2000</SpanNettyCodecsProtobufPackageVersion>
+    <SpanNettyCodecsPackageVersion>0.7.2008.2000</SpanNettyCodecsPackageVersion>
+    <SpanNettyCommonPackageVersion>0.7.2008.2000</SpanNettyCommonPackageVersion>
+    <SpanNettyHandlersPackageVersion>0.7.2008.2000</SpanNettyHandlersPackageVersion>
+    <SpanNettyTransportLibuvPackageVersion>0.7.0-beta-20082000</SpanNettyTransportLibuvPackageVersion>
+    <SpanNettyTransportPackageVersion>0.7.2008.2000</SpanNettyTransportPackageVersion>
 
     <!-- Serialization related packages -->
     <HyperionUnofficialPackageVersion>0.9.15-rtm-200401-01</HyperionUnofficialPackageVersion>
